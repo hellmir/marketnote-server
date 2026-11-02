@@ -1,0 +1,20 @@
+package com.personal.marketnote.common.kafka.event;
+
+import java.util.List;
+import java.util.UUID;
+
+public record OrderPurchaseConfirmedEvent(
+        Long orderId,
+        Long buyerId,
+        List<UUID> sharerKeys,
+        boolean isAutoConfirmed,
+        List<OrderProductItem> orderProducts
+) {
+
+    public record OrderProductItem(
+            Long pricePolicyId,
+            Long productId,
+            Integer quantity
+    ) {
+    }
+}

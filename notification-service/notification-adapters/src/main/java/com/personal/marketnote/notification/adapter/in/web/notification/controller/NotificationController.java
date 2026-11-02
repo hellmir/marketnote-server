@@ -1,0 +1,156 @@
+package com.personal.marketnote.notification.adapter.in.web.notification.controller;
+
+import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
+import com.personal.marketnote.common.utility.ElementExtractor;
+import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.GetNotificationHistoryApiDocs;
+import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.GetUnreadNotificationCountApiDocs;
+import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.MarkAllNotificationAsReadApiDocs;
+import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.MarkNotificationAsReadApiDocs;
+import com.personal.marketnote.notification.adapter.in.web.notification.response.GetNotificationHistoryResponse;
+import com.personal.marketnote.notification.domain.template.NotificationDisplayCategory;
+import com.personal.marketnote.notification.port.in.command.GetNotificationHistoryCommand;
+import com.personal.marketnote.notification.port.in.command.MarkNotificationAsReadCommand;
+import com.personal.marketnote.notification.port.in.result.notification.GetNotificationHistoryResult;
+import com.personal.marketnote.notification.port.in.result.notification.GetUnreadNotificationCountResult;
+import com.personal.marketnote.notification.port.in.usecase.notification.GetNotificationHistoryUseCase;
+import com.personal.marketnote.notification.port.in.usecase.notification.GetUnreadNotificationCountUseCase;
+import com.personal.marketnote.notification.port.in.usecase.notification.MarkAllNotificationAsReadUseCase;
+import com.personal.marketnote.notification.port.in.usecase.notification.MarkNotificationAsReadUseCase;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
+
+/**
+ * 알림 이력 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2026-06-03
+ * @Description 사용자의 알림 이력 조회 API를 제공합니다.
+ */
+@RestController
+@RequestMapping("/api/v1/notifications")
+@Tag(name = "알림 이력 API", description = "사용자 알림 이력 관리 API")
+@RequiredArgsConstructor
+@Validated
+public class NotificationController {
+
+    private final GetNotificationHistoryUseCase getNotificationHistoryUseCase;
+    private final MarkNotificationAsReadUseCase markNotificationAsReadUseCase;
+    private final MarkAllNotificationAsReadUseCase markAllNotificationAsReadUseCase;
+    private final GetUnreadNotificationCountUseCase getUnreadNotificationCountUseCase;
+
+    /**
+     * 알림 이력 조회
+     *
+     * @param principal 인증된 사용자
+     * @param cursor    이전 페이지 마지막 항목의 ID
+     * @param pageSize  페이지 크기 (기본 20)
+     * @return 알림 이력 목록 {@link GetNotificationHistoryResponse}
+     * @Author 성효빈
+     * @Date 2026-06-03
+     * @Description 인증된 사용자의 알림 발송 이력을 커서 기반 페이징으로 조회합니다.
+     */
+    @GetMapping
+    @GetNotificationHistoryApiDocs
+    @RateLimited(key = "my-notifications", maxRequests = 60, windowSeconds = 60)
+    public ResponseEntity<BaseResponse<GetNotificationHistoryResponse>> getNotificationHistory(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @RequestParam(value = "page-size", required = false, defaultValue = "20") @Min(1) @Max(100) int pageSize,
+            @RequestParam(value = "category", required = false) NotificationDisplayCategory category
+    ) {
+        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(
+                ElementExtractor.extractUserId(principal),
+                cursor,
+                pageSize,
+                category
+        );
+
+        GetNotificationHistoryResult result = getNotificationHistoryUseCase.getNotificationHistory(command);
+        GetNotificationHistoryResponse response = GetNotificationHistoryResponse.from(result);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        response,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "알림 이력 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    @PatchMapping("/{id}/read")
+    @MarkNotificationAsReadApiDocs
+    @RateLimited(key = "notifications-read", maxRequests = 60, windowSeconds = 60)
+    public ResponseEntity<BaseResponse<Void>> markNotificationAsRead(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+            @PathVariable("id") Long id
+    ) {
+        MarkNotificationAsReadCommand command = new MarkNotificationAsReadCommand(
+                id,
+                ElementExtractor.extractUserId(principal)
+        );
+        markNotificationAsReadUseCase.markAsRead(command);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "알림 읽음 처리 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    @PatchMapping("/read-all")
+    @MarkAllNotificationAsReadApiDocs
+    @RateLimited(key = "notifications-read-all", maxRequests = 10, windowSeconds = 60)
+    public ResponseEntity<BaseResponse<Void>> markAllNotificationAsRead(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        markAllNotificationAsReadUseCase.markAllAsRead(ElementExtractor.extractUserId(principal));
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "알림 전체 읽음 처리 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/unread-count")
+    @GetUnreadNotificationCountApiDocs
+    @RateLimited(key = "notifications-unread-count", maxRequests = 60, windowSeconds = 60)
+    public ResponseEntity<BaseResponse<GetUnreadNotificationCountResult>> getUnreadNotificationCount(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        GetUnreadNotificationCountResult result = getUnreadNotificationCountUseCase.getUnreadCount(
+                ElementExtractor.extractUserId(principal)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        result,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "미읽음 알림 수 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+}

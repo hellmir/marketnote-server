@@ -1,0 +1,8 @@
+package com.personal.marketnote.notification.port.in.usecase.vendorcommunication;
+
+import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationHistory;
+import com.personal.marketnote.notification.port.in.command.vendorcommunication.NotificationVendorCommunicationHistoryCommand;
+
+public interface NotificationRecordVendorCommunicationHistoryUseCase {
+    NotificationVendorCommunicationHistory record(NotificationVendorCommunicationHistoryCommand command);
+}

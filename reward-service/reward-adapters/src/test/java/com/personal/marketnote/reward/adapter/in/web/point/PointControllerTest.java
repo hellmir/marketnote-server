@@ -1,0 +1,178 @@
+package com.personal.marketnote.reward.adapter.in.web.point;
+
+import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
+import com.personal.marketnote.reward.adapter.in.web.point.response.GetMyPointReponse;
+import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointHistoryResponse;
+import com.personal.marketnote.reward.domain.point.PointAmount;
+import com.personal.marketnote.reward.domain.point.UserPoint;
+import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
+import com.personal.marketnote.reward.port.in.command.point.RegisterUserPointCommand;
+import com.personal.marketnote.reward.port.in.result.point.GetUserPointHistoryResult;
+import com.personal.marketnote.reward.port.in.usecase.point.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+
+import java.lang.reflect.Method;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("PointController 권한 검증 테스트")
+class PointControllerTest {
+
+    @Mock
+    private RegisterUserPointUseCase registerUserPointUseCase;
+    @Mock
+    private ModifyUserPointUseCase modifyUserPointUseCase;
+    @Mock
+    private ModifyPendingPointUseCase modifyPendingPointUseCase;
+    @Mock
+    private ConfirmPendingPointUseCase confirmPendingPointUseCase;
+    @Mock
+    private CancelPendingPointUseCase cancelPendingPointUseCase;
+    @Mock
+    private GetUserPointUseCase getUserPointUseCase;
+    @Mock
+    private GetUserPointHistoryUseCase getUserPointHistoryUseCase;
+    @Mock
+    private GetReferralStatusUseCase getReferralStatusUseCase;
+    @Mock
+    private ClaimReferralBonusUseCase claimReferralBonusUseCase;
+
+    @InjectMocks
+    private PointController controller;
+
+    private OAuth2AuthenticatedPrincipal buildPrincipal(String userId, String roleName) {
+        return new DefaultOAuth2AuthenticatedPrincipal(
+                userId,
+                Map.of("name", userId),
+                List.of(new SimpleGrantedAuthority(roleName))
+        );
+    }
+
+    @Test
+    @DisplayName("관리자 권한이면 다른 사용자의 포인트 내역도 조회할 수 있다")
+    void shouldAllowAdminToViewOtherUserHistory() {
+        // given
+        OAuth2AuthenticatedPrincipal admin = buildPrincipal("100", "ROLE_ADMIN");
+        given(getUserPointHistoryUseCase.getUserPointHistories(any()))
+                .willReturn(GetUserPointHistoryResult.from(0L, false, -1L, List.of()));
+
+        // when
+        ResponseEntity<BaseResponse<GetUserPointHistoryResponse>> response = controller.getUserPointHistories(
+                999L, admin, UserPointHistoryFilter.ALL, null, null, null, 20
+        );
+
+        // then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("본인이면 자신의 포인트 내역을 조회할 수 있다")
+    void shouldAllowOwnerToViewOwnHistory() {
+        // given
+        OAuth2AuthenticatedPrincipal owner = buildPrincipal("999", "ROLE_BUYER");
+        given(getUserPointHistoryUseCase.getUserPointHistories(any()))
+                .willReturn(GetUserPointHistoryResult.from(0L, false, -1L, List.of()));
+
+        // when
+        ResponseEntity<BaseResponse<GetUserPointHistoryResponse>> response = controller.getUserPointHistories(
+                999L, owner, UserPointHistoryFilter.ALL, null, null, null, 20
+        );
+
+        // then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("본인이 아니고 관리자도 아니면 AccessDeniedException을 던진다")
+    void shouldThrowAccessDeniedWhenNotOwnerAndNotAdmin() {
+        OAuth2AuthenticatedPrincipal other = buildPrincipal("100", "ROLE_BUYER");
+
+        assertThatThrownBy(() -> controller.getUserPointHistories(
+                999L, other, UserPointHistoryFilter.ALL, null, null, null, 20
+        )).isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
+    @DisplayName("판매자 권한이라도 본인이 아니면 AccessDeniedException을 던진다")
+    void shouldDenySellerForOtherUser() {
+        OAuth2AuthenticatedPrincipal seller = buildPrincipal("100", "ROLE_SELLER");
+
+        assertThatThrownBy(() -> controller.getUserPointHistories(
+                999L, seller, UserPointHistoryFilter.ALL, null, null, null, 20
+        )).isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
+    @DisplayName("getUserPointHistories 메서드에 @RateLimited(key=user-point-histories, maxRequests=60, windowSeconds=60)이 부착되어 있다")
+    void getUserPointHistoriesHasRateLimited() throws NoSuchMethodException {
+        Method method = PointController.class.getMethod(
+                "getUserPointHistories",
+                Long.class, OAuth2AuthenticatedPrincipal.class, UserPointHistoryFilter.class,
+                LocalDate.class, LocalDate.class, Long.class, int.class
+        );
+
+        RateLimited rateLimited = method.getAnnotation(RateLimited.class);
+
+        assertThat(rateLimited).isNotNull();
+        assertThat(rateLimited.key()).isEqualTo("user-point-histories");
+        assertThat(rateLimited.maxRequests()).isEqualTo(60);
+        assertThat(rateLimited.windowSeconds()).isEqualTo(60);
+    }
+
+    @Test
+    @DisplayName("registerUserPoint는 RegisterUserPointUseCase에 userId/userKey Command를 위임하고 201을 반환한다")
+    void registerUserPointDelegatesWithCommandAndReturnsCreated() {
+        org.mockito.ArgumentCaptor<RegisterUserPointCommand> captor =
+                org.mockito.ArgumentCaptor.forClass(RegisterUserPointCommand.class);
+
+        ResponseEntity<BaseResponse<Void>> response = controller.registerUserPoint(999L, "user-key-abc");
+
+        verify(registerUserPointUseCase).register(captor.capture());
+        RegisterUserPointCommand command = captor.getValue();
+        assertThat(command.userId()).isEqualTo(999L);
+        assertThat(command.userKey()).isEqualTo("user-key-abc");
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    @Test
+    @DisplayName("getMyPoint는 인증 주체의 userId로 조회한 포인트 정보를 반환한다")
+    void getMyPointReturnsPrincipalUserInfo() {
+        OAuth2AuthenticatedPrincipal principal = buildPrincipal("123", "ROLE_BUYER");
+        UserPoint userPoint = UserPoint.from(
+                com.personal.marketnote.reward.domain.point.UserPointSnapshotState.builder()
+                        .userId(123L)
+                        .userKey("user-key")
+                        .amount(PointAmount.of(1000L))
+                        .addExpectedAmount(PointAmount.of(200L))
+                        .expireExpectedAmount(PointAmount.of(0L))
+                        .build()
+        );
+        org.mockito.BDDMockito.given(getUserPointUseCase.getUserPoint(123L)).willReturn(userPoint);
+
+        ResponseEntity<BaseResponse<GetMyPointReponse>> response = controller.getMyPoint(principal);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getContent()).isNotNull();
+    }
+}

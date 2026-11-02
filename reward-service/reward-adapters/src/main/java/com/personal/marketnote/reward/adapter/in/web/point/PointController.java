@@ -1,0 +1,372 @@
+package com.personal.marketnote.reward.adapter.in.web.point;
+
+import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
+import com.personal.marketnote.common.utility.ElementExtractor;
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.common.utility.Role;
+import com.personal.marketnote.reward.adapter.in.web.point.apidocs.*;
+import com.personal.marketnote.reward.adapter.in.web.point.mapper.PointRequestToCommandMapper;
+import com.personal.marketnote.reward.adapter.in.web.point.request.*;
+import com.personal.marketnote.reward.adapter.in.web.point.response.*;
+import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
+import com.personal.marketnote.reward.port.in.command.point.ClaimReferralBonusCommand;
+import com.personal.marketnote.reward.port.in.command.point.GetUserPointHistoryCommand;
+import com.personal.marketnote.reward.port.in.command.point.RegisterUserPointCommand;
+import com.personal.marketnote.reward.port.in.result.point.*;
+import com.personal.marketnote.reward.port.in.usecase.point.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
+import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
+
+@RestController
+@RequestMapping("/api/v1/users")
+@Tag(name = "포인트 API", description = "회원 포인트 관련 API")
+@RequiredArgsConstructor
+@Validated
+public class PointController {
+    private final RegisterUserPointUseCase registerUserPointUseCase;
+    private final ModifyUserPointUseCase modifyUserPointUseCase;
+    private final ModifyPendingPointUseCase modifyPendingPointUseCase;
+    private final ConfirmPendingPointUseCase confirmPendingPointUseCase;
+    private final CancelPendingPointUseCase cancelPendingPointUseCase;
+    private final GetUserPointUseCase getUserPointUseCase;
+    private final GetUserPointHistoryUseCase getUserPointHistoryUseCase;
+    private final GetReferralStatusUseCase getReferralStatusUseCase;
+    private final ClaimReferralBonusUseCase claimReferralBonusUseCase;
+
+    /**
+     * (관리자) 회원 포인트 정보 생성
+     *
+     * @param userId 회원 ID
+     * @return 회원 포인트 정보 생성 응답 {@link UpdateUserPointResponse}
+     * @Author 성효빈
+     * @Date 2026-01-17
+     * @Description 회원 포인트 정보를 생성합니다.
+     */
+    @PostMapping("/{userId}/points")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @RegisterUserPointApiDocs
+    public ResponseEntity<BaseResponse<Void>> registerUserPoint(
+            @PathVariable("userId") Long userId,
+            @RequestParam(name = "userKey") String userKey
+    ) {
+        registerUserPointUseCase.register(
+                RegisterUserPointCommand.of(userId, userKey)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        HttpStatus.CREATED,
+                        DEFAULT_SUCCESS_CODE,
+                        "회원 포인트 정보 생성 성공"
+                ),
+                HttpStatus.CREATED
+        );
+    }
+
+    /**
+     * 나의 포인트 정보 조회
+     *
+     * @param principal 인증된 사용자 정보
+     * @return 회원 포인트 정보 조회 응답 {@link GetMyPointReponse}
+     * @Author 성효빈
+     * @Date 2026-01-18
+     * @Description 나의 포인트 정보를 조회합니다.
+     */
+    @GetMapping("/me/points")
+    @GetMyPointApiDocs
+    public ResponseEntity<BaseResponse<GetMyPointReponse>> getMyPoint(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        GetUserPointResult getUserPointResult = GetUserPointResult.from(
+                getUserPointUseCase.getUserPoint(
+                        ElementExtractor.extractUserId(principal)
+                )
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        GetMyPointReponse.from(getUserPointResult),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "나의 포인트 정보 조회 성공"
+                )
+        );
+    }
+
+    /**
+     * (관리자) 회원 포인트 정보 조회
+     *
+     * @param userId 회원 ID
+     * @return 회원 포인트 정보 조회 응답 {@link GetUserPointByIdResponse}
+     * @Author 성효빈
+     * @Date 2026-03-02
+     * @Description 관리자가 특정 회원의 포인트 정보를 조회합니다.
+     */
+    @GetMapping("/{userId}/points")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetUserPointByIdApiDocs
+    public ResponseEntity<BaseResponse<GetUserPointByIdResponse>> getUserPointById(
+            @PathVariable("userId") Long userId
+    ) {
+        GetUserPointResult result = GetUserPointResult.from(
+                getUserPointUseCase.getUserPoint(userId)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        GetUserPointByIdResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "회원 포인트 정보 조회 성공"
+                )
+        );
+    }
+
+    /**
+     * (관리자/본인) 회원 포인트 내역 조회
+     *
+     * @param principal 인증된 사용자 정보
+     * @param filter    포인트 내역 조회 필터 (ALL/ACCRUAL/DEDUCTION)
+     * @return 회원 포인트 내역 조회 응답 {@link GetUserPointHistoryResponse}
+     */
+    @GetMapping("/{userId}/points/histories")
+    @GetUserPointHistoriesApiDocs
+    @RateLimited(key = "user-point-histories", maxRequests = 60, windowSeconds = 60)
+    public ResponseEntity<BaseResponse<GetUserPointHistoryResponse>> getUserPointHistories(
+            @PathVariable("userId") Long userId,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+            @RequestParam(value = "filter", required = false) UserPointHistoryFilter filter,
+            @RequestParam(value = "start-date", required = false) LocalDate startDate,
+            @RequestParam(value = "end-date", required = false) LocalDate endDate,
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @RequestParam(value = "page-size", required = false, defaultValue = "20") @Min(1) @Max(100) int pageSize
+    ) {
+        validateAuthentication(userId, principal);
+        GetUserPointHistoryResult result = getUserPointHistoryUseCase.getUserPointHistories(
+                GetUserPointHistoryCommand.builder()
+                        .userId(userId)
+                        .filter(filter)
+                        .startDate(startDate)
+                        .endDate(endDate)
+                        .cursor(cursor)
+                        .pageSize(pageSize)
+                        .build()
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        GetUserPointHistoryResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "회원 포인트 내역 조회 성공"
+                )
+        );
+    }
+
+    private void validateAuthentication(Long userId, OAuth2AuthenticatedPrincipal principal) {
+        List<String> authorities = principal.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        if (
+                authorities.stream()
+                        .anyMatch(Role::isAdmin)
+                        || FormatValidator.equals(ElementExtractor.extractUserId(principal), userId)
+        ) {
+            return;
+        }
+
+        throw new AccessDeniedException("권한이 없습니다.");
+    }
+
+    /**
+     * (관리자) 회원 적립 예정 포인트 추가/차감
+     */
+    @PatchMapping("/{userId}/points/pending")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @ModifyPendingPointApiDocs
+    public ResponseEntity<BaseResponse<UpdateUserPointResponse>> modifyPendingPoint(
+            @PathVariable("userId") Long userId,
+            @RequestBody @Valid ModifyPendingPointRequest request
+    ) {
+        UpdateUserPointResult result = modifyPendingPointUseCase.modifyPending(
+                PointRequestToCommandMapper.mapToModifyPendingPointCommand(userId, request)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        UpdateUserPointResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "적립 예정 포인트 수정 성공"
+                )
+        );
+    }
+
+    /**
+     * (관리자) 적립 예정 포인트 확정
+     *
+     * @param userId  회원 ID
+     * @param request 적립 예정 포인트 확정 요청 {@link ConfirmPendingPointRequest}
+     * @return 적립 예정 포인트 확정 응답 {@link UpdateUserPointResponse}
+     * @Author 성효빈
+     * @Date 2026-03-07
+     * @Description 적립 예정 포인트를 실제 포인트로 확정(전환)합니다.
+     */
+    @PostMapping("/{userId}/points/pending/confirm")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @ConfirmPendingPointApiDocs
+    public ResponseEntity<BaseResponse<UpdateUserPointResponse>> confirmPendingPoint(
+            @PathVariable("userId") Long userId,
+            @RequestBody @Valid ConfirmPendingPointRequest request
+    ) {
+        UpdateUserPointResult result = confirmPendingPointUseCase.confirmPending(
+                PointRequestToCommandMapper.mapToConfirmPendingPointCommand(userId, request)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        UpdateUserPointResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "적립 예정 포인트 확정 성공"
+                )
+        );
+    }
+
+    /**
+     * (관리자) 적립 예정 포인트 취소
+     *
+     * @param userId  회원 ID
+     * @param request 적립 예정 포인트 취소 요청 {@link CancelPendingPointRequest}
+     * @return 적립 예정 포인트 취소 응답 {@link UpdateUserPointResponse}
+     * @Author 성효빈
+     * @Date 2026-03-07
+     * @Description 적립 예정 포인트를 취소(회수)합니다. 취소 대상이 없으면 현재 포인트를 반환합니다.
+     */
+    @PostMapping("/{userId}/points/pending/cancel")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @CancelPendingPointApiDocs
+    public ResponseEntity<BaseResponse<UpdateUserPointResponse>> cancelPendingPoint(
+            @PathVariable("userId") Long userId,
+            @RequestBody @Valid CancelPendingPointRequest request
+    ) {
+        UpdateUserPointResult result = cancelPendingPointUseCase.cancelPending(
+                PointRequestToCommandMapper.mapToCancelPendingPointCommand(userId, request)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        UpdateUserPointResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "적립 예정 포인트 취소 성공"
+                )
+        );
+    }
+
+    /**
+     * 친구 초대 현황 조회
+     *
+     * @param principal 인증된 사용자 정보
+     * @return 친구 초대 현황 응답 {@link GetReferralStatusResponse}
+     * @Author 성효빈
+     * @Date 2026-03-21
+     * @Description 나의 친구 초대 현황(초대 수, 총 캐시, 보너스 달성 현황)을 조회합니다.
+     */
+    @GetMapping("/me/referral-status")
+    @GetReferralStatusApiDocs
+    public ResponseEntity<BaseResponse<GetReferralStatusResponse>> getReferralStatus(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        GetReferralStatusResult result = getReferralStatusUseCase.getReferralStatus(
+                ElementExtractor.extractUserId(principal)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        GetReferralStatusResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "친구 초대 현황 조회 성공"
+                )
+        );
+    }
+
+    /**
+     * 친구 초대 누적 보너스 클레임 요청
+     *
+     * @param principal 인증된 사용자 정보
+     * @param request   보너스 클레임 요청 {@link ClaimReferralBonusRequest}
+     * @return 보너스 클레임 결과 {@link ClaimReferralBonusResponse}
+     * @Author 성효빈
+     * @Date 2026-06-03
+     * @Description 사용자가 달성한 누적 보너스 티어의 보너스를 클레임합니다.
+     */
+    @PostMapping("/me/referral-bonus")
+    @ClaimReferralBonusApiDocs
+    public ResponseEntity<BaseResponse<ClaimReferralBonusResponse>> claimReferralBonus(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+            @RequestBody @Valid ClaimReferralBonusRequest request
+    ) {
+        ClaimReferralBonusResult result = claimReferralBonusUseCase.claim(
+                new ClaimReferralBonusCommand(
+                        ElementExtractor.extractUserId(principal),
+                        request.tier()
+                )
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        ClaimReferralBonusResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "보너스 클레임 성공"
+                )
+        );
+    }
+
+    /**
+     * (관리자) 회원 포인트 적립/차감
+     */
+    @PatchMapping("/{userId}/points")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @ModifyUserPointApiDocs
+    public ResponseEntity<BaseResponse<UpdateUserPointResponse>> modifyUserPoint(
+            @PathVariable("userId") Long userId,
+            @RequestBody @Valid ModifyUserPointRequest request
+    ) {
+        UpdateUserPointResult result = modifyUserPointUseCase.modify(
+                PointRequestToCommandMapper.mapToModifyUserPointCommand(userId, request)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        UpdateUserPointResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "회원 포인트 수정 성공"
+                )
+        );
+    }
+}

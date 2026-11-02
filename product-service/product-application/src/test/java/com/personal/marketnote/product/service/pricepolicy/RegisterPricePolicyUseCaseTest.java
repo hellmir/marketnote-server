@@ -1,0 +1,435 @@
+package com.personal.marketnote.product.service.pricepolicy;
+
+import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
+import com.personal.marketnote.product.domain.option.ProductOption;
+import com.personal.marketnote.product.domain.option.ProductOptionSnapshotState;
+import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
+import com.personal.marketnote.product.domain.product.Product;
+import com.personal.marketnote.product.domain.product.ProductSnapshotState;
+import com.personal.marketnote.product.exception.InvalidPricePolicyAccumulatedPointException;
+import com.personal.marketnote.product.exception.InvalidPricePolicyPriceException;
+import com.personal.marketnote.product.exception.InvalidProductOptionOwnershipException;
+import com.personal.marketnote.product.exception.NotProductOwnerException;
+import com.personal.marketnote.product.port.in.command.RegisterPricePolicyCommand;
+import com.personal.marketnote.product.port.in.result.pricepolicy.RegisterPricePolicyResult;
+import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
+import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
+import com.personal.marketnote.product.port.out.pricepolicy.SavePricePolicyPort;
+import com.personal.marketnote.product.port.out.product.FindProductPort;
+import com.personal.marketnote.product.port.out.productoption.FindProductOptionPort;
+import com.personal.marketnote.product.port.out.productoption.UpdateOptionPricePolicyPort;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class RegisterPricePolicyUseCaseTest {
+    @Mock
+    private GetProductUseCase getProductUseCase;
+    @Mock
+    private FindProductPort findProductPort;
+    @Mock
+    private SavePricePolicyPort savePricePolicyPort;
+    @Mock
+    private UpdateOptionPricePolicyPort updateOptionPricePolicyPort;
+    @Mock
+    private FindProductOptionPort findProductOptionPort;
+    @Mock
+    private PublishProductEventPort publishProductEventPort;
+
+    @InjectMocks
+    private RegisterPricePolicyService registerPricePolicyService;
+
+    @Test
+    @DisplayName("가격 정책 등록 요청 회원이 관리자 또는 상품 판매자가 아니면 예외를 던진다")
+    void registerPricePolicy_notOwner_throws() {
+        Long userId = 1L;
+        RegisterPricePolicyCommand command = buildCommand(10L, List.of(1L));
+
+        when(findProductPort.existsByIdAndSellerId(10L, userId)).thenReturn(false);
+
+        assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
+                .isInstanceOf(NotProductOwnerException.class)
+                .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
+
+        verify(findProductPort).existsByIdAndSellerId(10L, userId);
+        verifyNoInteractions(
+                getProductUseCase,
+                savePricePolicyPort,
+                updateOptionPricePolicyPort,
+                findProductOptionPort,
+                publishProductEventPort
+        );
+    }
+
+    @Test
+    @DisplayName("가격 정책 등록 시 판매자 요청이면 가격 정책을 저장하고 옵션에 할당한다")
+    void registerPricePolicy_owner_withOptions_assignsOptions() {
+        Long userId = 2L;
+        Long productId = 20L;
+        List<Long> optionIds = List.of(101L, 102L);
+        RegisterPricePolicyCommand command = buildCommand(productId, optionIds);
+        Product product = buildProduct(productId, userId);
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(100L);
+        when(findProductOptionPort.findByProductIdAndIds(productId, optionIds))
+                .thenReturn(List.of(buildOption(101L, "옵션1"), buildOption(102L, "옵션2")));
+
+        RegisterPricePolicyResult result = registerPricePolicyService.registerPricePolicy(userId, false, command);
+
+        assertThat(result.id()).isEqualTo(100L);
+        verify(findProductPort).existsByIdAndSellerId(productId, userId);
+        verify(getProductUseCase).getProduct(productId);
+
+        ArgumentCaptor<PricePolicy> captor = ArgumentCaptor.forClass(PricePolicy.class);
+        verify(savePricePolicyPort).save(captor.capture());
+        PricePolicy saved = captor.getValue();
+
+        assertThat(saved.getProduct()).isSameAs(product);
+        assertThat(saved.getPrice().getValue()).isEqualTo(command.price());
+        assertThat(saved.getDiscountPrice().getValue()).isEqualTo(command.discountPrice());
+        assertThat(saved.getAccumulatedPoint().getValue()).isEqualTo(command.accumulatedPoint());
+        assertThat(saved.getOptionIds()).containsExactlyElementsOf(optionIds);
+        assertThat(saved.getDiscountRate().getValue())
+                .isEqualByComparingTo(calculateDiscountRate(command.price(), command.discountPrice()));
+        assertThat(saved.getAccumulationRate().getValue())
+                .isEqualByComparingTo(calculateAccumulationRate(command.accumulatedPoint(), command.discountPrice()));
+
+        verify(updateOptionPricePolicyPort).assignPricePolicyToOptions(productId, 100L, optionIds);
+        verify(findProductOptionPort).findByProductIdAndIds(productId, optionIds);
+
+        ArgumentCaptor<PricePolicyCreatedEvent> eventCaptor = ArgumentCaptor.forClass(PricePolicyCreatedEvent.class);
+        verify(publishProductEventPort).publishPricePolicyCreatedEvent(eventCaptor.capture());
+        PricePolicyCreatedEvent publishedEvent = eventCaptor.getValue();
+        assertThat(publishedEvent.productId()).isEqualTo(productId);
+        assertThat(publishedEvent.pricePolicyId()).isEqualTo(100L);
+        assertThat(publishedEvent.sellerId()).isEqualTo(product.getSellerId());
+        assertThat(publishedEvent.productName()).isEqualTo(product.getName());
+        assertThat(publishedEvent.brandName()).isEqualTo(product.getBrandName());
+        assertThat(publishedEvent.price()).isEqualTo(command.price());
+        assertThat(publishedEvent.discountPrice()).isEqualTo(command.discountPrice());
+        assertThat(publishedEvent.accumulatedPoint()).isEqualTo(command.accumulatedPoint());
+        assertThat(publishedEvent.sales()).isEqualTo(0L);
+    }
+
+    @Test
+    @DisplayName("가격 정책 등록 시 관리자 요청이면 소유자 확인 없이 등록한다")
+    void registerPricePolicy_admin_skipsOwnerCheck() {
+        Long userId = 3L;
+        Long productId = 30L;
+        RegisterPricePolicyCommand command = buildCommand(productId, null);
+        Product product = buildProduct(productId, 999L);
+
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(200L);
+
+        RegisterPricePolicyResult result = registerPricePolicyService.registerPricePolicy(userId, true, command);
+
+        assertThat(result.id()).isEqualTo(200L);
+        ArgumentCaptor<PricePolicyCreatedEvent> adminEventCaptor = ArgumentCaptor.forClass(PricePolicyCreatedEvent.class);
+        verify(publishProductEventPort).publishPricePolicyCreatedEvent(adminEventCaptor.capture());
+        PricePolicyCreatedEvent adminPublishedEvent = adminEventCaptor.getValue();
+        assertThat(adminPublishedEvent.productId()).isEqualTo(productId);
+        assertThat(adminPublishedEvent.pricePolicyId()).isEqualTo(200L);
+        assertThat(adminPublishedEvent.sellerId()).isEqualTo(product.getSellerId());
+        verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
+        verifyNoInteractions(findProductPort);
+    }
+
+    @Test
+    @DisplayName("가격 정책 등록 시 옵션 ID가 비어 있으면 옵션에 가격 정책을 할당하지 않는다")
+    void registerPricePolicy_emptyOptionIds_skipsAssign() {
+        Long userId = 4L;
+        Long productId = 40L;
+        RegisterPricePolicyCommand command = buildCommand(productId, List.of());
+        Product product = buildProduct(productId, userId);
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(250L);
+
+        registerPricePolicyService.registerPricePolicy(userId, false, command);
+
+        verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
+        verify(findProductOptionPort, never()).findByProductIdAndIds(anyLong(), anyList());
+        ArgumentCaptor<PricePolicyCreatedEvent> emptyOptEventCaptor = ArgumentCaptor.forClass(PricePolicyCreatedEvent.class);
+        verify(publishProductEventPort).publishPricePolicyCreatedEvent(emptyOptEventCaptor.capture());
+        PricePolicyCreatedEvent emptyOptEvent = emptyOptEventCaptor.getValue();
+        assertThat(emptyOptEvent.productId()).isEqualTo(productId);
+        assertThat(emptyOptEvent.pricePolicyId()).isEqualTo(250L);
+        assertThat(emptyOptEvent.selectedOptions()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("가격 정책 등록 시 상품 조회에 실패하면 예외를 전파한다")
+    void registerPricePolicy_getProductFails_propagates() {
+        Long userId = 5L;
+        Long productId = 50L;
+        RegisterPricePolicyCommand command = buildCommand(productId, List.of(201L));
+        RuntimeException exception = new RuntimeException("product fail");
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenThrow(exception);
+
+        assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
+                .isSameAs(exception);
+
+        verify(savePricePolicyPort, never()).save(any(PricePolicy.class));
+        verifyNoInteractions(updateOptionPricePolicyPort, findProductOptionPort, publishProductEventPort);
+    }
+
+    @Test
+    @DisplayName("가격 정책 등록 시 저장에 실패하면 이후 작업을 수행하지 않는다")
+    void registerPricePolicy_saveFails_stopsFlow() {
+        Long userId = 6L;
+        Long productId = 60L;
+        RegisterPricePolicyCommand command = buildCommand(productId, List.of(301L));
+        Product product = buildProduct(productId, userId);
+        RuntimeException exception = new RuntimeException("save fail");
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenThrow(exception);
+
+        assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
+                .isSameAs(exception);
+
+        verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
+        verifyNoInteractions(findProductOptionPort, publishProductEventPort);
+    }
+
+    @Test
+    @DisplayName("가격 정책 등록 시 옵션 가격 정책 할당에 실패하면 예외를 전파한다")
+    void registerPricePolicy_updateOptionsFails_propagates() {
+        Long userId = 7L;
+        Long productId = 70L;
+        List<Long> optionIds = List.of(401L);
+        RegisterPricePolicyCommand command = buildCommand(productId, optionIds);
+        Product product = buildProduct(productId, userId);
+        RuntimeException exception = new RuntimeException("option fail");
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(300L);
+        when(findProductOptionPort.findByProductIdAndIds(productId, optionIds))
+                .thenReturn(List.of(buildOption(401L, "옵션")));
+        doThrow(exception).when(updateOptionPricePolicyPort).assignPricePolicyToOptions(productId, 300L, optionIds);
+
+        assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
+                .isSameAs(exception);
+
+    }
+
+    @Test
+    @DisplayName("가격 정책 등록 시 요청한 옵션 중 상품에 속하지 않은 옵션이 있으면 예외를 던지고 옵션 할당과 이벤트 발행을 수행하지 않는다")
+    void registerPricePolicy_foreignOption_throwsOwnershipException() {
+        Long userId = 8L;
+        Long productId = 80L;
+        List<Long> optionIds = List.of(501L, 502L);
+        RegisterPricePolicyCommand command = buildCommand(productId, optionIds);
+        Product product = buildProduct(productId, userId);
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(400L);
+        when(findProductOptionPort.findByProductIdAndIds(productId, optionIds))
+                .thenReturn(List.of(buildOption(501L, "본인 옵션")));
+
+        assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
+                .isInstanceOf(InvalidProductOptionOwnershipException.class)
+                .hasMessageContaining("상품에 속하지 않은 옵션이 포함되어 있습니다");
+
+        verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
+        verifyNoInteractions(publishProductEventPort);
+    }
+
+    @Test
+    @DisplayName("할인가가 0원이고 적립 포인트가 0원이면 적립률이 0%로 설정되어 정상 등록된다")
+    void registerPricePolicy_zeroDiscountPriceAndZeroPoint_setsZeroAccumulationRate() {
+        Long userId = 10L;
+        Long productId = 100L;
+        RegisterPricePolicyCommand command = RegisterPricePolicyCommand.of(productId, 10000L, 0L, 0L, List.of());
+        Product product = buildProduct(productId, userId);
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(500L);
+
+        registerPricePolicyService.registerPricePolicy(userId, false, command);
+
+        ArgumentCaptor<PricePolicy> captor = ArgumentCaptor.forClass(PricePolicy.class);
+        verify(savePricePolicyPort).save(captor.capture());
+        PricePolicy saved = captor.getValue();
+
+        assertThat(saved.getAccumulationRate().getValue()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    @DisplayName("할인가가 0원이고 적립 포인트가 0보다 크면 적립률이 0%로 설정되어 정상 등록된다")
+    void registerPricePolicy_zeroDiscountPriceWithPoint_setsZeroAccumulationRate() {
+        Long userId = 11L;
+        Long productId = 110L;
+        RegisterPricePolicyCommand command = RegisterPricePolicyCommand.of(productId, 10000L, 0L, 500L, List.of());
+        Product product = buildProduct(productId, userId);
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(600L);
+
+        registerPricePolicyService.registerPricePolicy(userId, false, command);
+
+        ArgumentCaptor<PricePolicy> captor = ArgumentCaptor.forClass(PricePolicy.class);
+        verify(savePricePolicyPort).save(captor.capture());
+        PricePolicy saved = captor.getValue();
+
+        assertThat(saved.getAccumulationRate().getValue()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    @DisplayName("정가와 할인가 모두 0원이면 할인률과 적립률이 0%로 설정되어 정상 등록된다")
+    void registerPricePolicy_zeroPriceAndZeroDiscountPrice_setsZeroRates() {
+        Long userId = 12L;
+        Long productId = 120L;
+        RegisterPricePolicyCommand command = RegisterPricePolicyCommand.of(productId, 0L, 0L, 0L, List.of());
+        Product product = buildProduct(productId, userId);
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(700L);
+
+        registerPricePolicyService.registerPricePolicy(userId, false, command);
+
+        ArgumentCaptor<PricePolicy> captor = ArgumentCaptor.forClass(PricePolicy.class);
+        verify(savePricePolicyPort).save(captor.capture());
+        PricePolicy saved = captor.getValue();
+
+        assertThat(saved.getDiscountRate().getValue()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(saved.getAccumulationRate().getValue()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    @DisplayName("적립금이 할인가와 같으면 적립률 100%로 정상 등록된다")
+    void registerPricePolicy_accumulatedPointEqualsDiscountPrice_registers100PercentRate() {
+        Long userId = 14L;
+        Long productId = 140L;
+        RegisterPricePolicyCommand command = RegisterPricePolicyCommand.of(productId, 10000L, 10000L, 10000L, List.of());
+        Product product = buildProduct(productId, userId);
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(800L);
+
+        registerPricePolicyService.registerPricePolicy(userId, false, command);
+
+        ArgumentCaptor<PricePolicy> captor = ArgumentCaptor.forClass(PricePolicy.class);
+        verify(savePricePolicyPort).save(captor.capture());
+        PricePolicy saved = captor.getValue();
+
+        assertThat(saved.getAccumulationRate().getValue()).isEqualByComparingTo(new BigDecimal("100.0"));
+    }
+
+    @Test
+    @DisplayName("적립금이 할인가를 초과하면 InvalidPricePolicyAccumulatedPointException 예외를 던진다")
+    void registerPricePolicy_accumulatedPointExceedsDiscountPrice_throws() {
+        Long userId = 15L;
+        Long productId = 150L;
+        RegisterPricePolicyCommand command = RegisterPricePolicyCommand.of(productId, 10000L, 1000L, 2000L, List.of());
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+
+        assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
+                .isInstanceOf(InvalidPricePolicyAccumulatedPointException.class)
+                .hasMessageContaining("적립금이 현재 판매가를 초과할 수 없습니다");
+
+        verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, findProductOptionPort, publishProductEventPort);
+    }
+
+    @Test
+    @DisplayName("현재 판매가가 정가를 초과하면 InvalidPricePolicyPriceException 예외를 던진다")
+    void registerPricePolicy_discountPriceExceedsPrice_throws() {
+        Long userId = 13L;
+        Long productId = 130L;
+        RegisterPricePolicyCommand command = RegisterPricePolicyCommand.of(productId, 10000L, 15000L, 200L, List.of());
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+
+        assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
+                .isInstanceOf(InvalidPricePolicyPriceException.class)
+                .hasMessageContaining("현재 판매가가 정가를 초과할 수 없습니다");
+
+        verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, findProductOptionPort, publishProductEventPort);
+    }
+
+    private RegisterPricePolicyCommand buildCommand(Long productId, List<Long> optionIds) {
+        return RegisterPricePolicyCommand.of(
+                productId,
+                10000L,
+                8000L,
+                200L,
+                optionIds
+        );
+    }
+
+    private ProductOption buildOption(Long id, String content) {
+        return ProductOption.from(
+                ProductOptionSnapshotState.builder()
+                        .id(id)
+                        .category(null)
+                        .content(content)
+                        .status(EntityStatus.ACTIVE)
+                        .build()
+        );
+    }
+
+    private Product buildProduct(Long productId, Long sellerId) {
+        return Product.from(
+                ProductSnapshotState.builder()
+                        .id(productId)
+                        .sellerId(sellerId)
+                        .name("테스트 상품")
+                        .brandName("브랜드")
+                        .detail("상세 설명")
+                        .findAllOptionsYn(false)
+                        .productTags(List.of())
+                        .status(EntityStatus.ACTIVE)
+                        .build()
+        );
+    }
+
+    private BigDecimal calculateDiscountRate(Long price, Long discountPrice) {
+        BigDecimal priceValue = BigDecimal.valueOf(price);
+        BigDecimal discountValue = BigDecimal.valueOf(discountPrice);
+        BigDecimal hundred = new BigDecimal("100");
+
+        return priceValue.subtract(discountValue)
+                .divide(priceValue, 3, RoundingMode.HALF_UP)
+                .multiply(hundred)
+                .setScale(1, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal calculateAccumulationRate(Long accumulatedPoint, Long discountPrice) {
+        BigDecimal discountValue = BigDecimal.valueOf(discountPrice);
+        BigDecimal hundred = new BigDecimal("100");
+
+        return BigDecimal.valueOf(accumulatedPoint)
+                .divide(discountValue, 3, RoundingMode.HALF_UP)
+                .multiply(hundred)
+                .setScale(1, RoundingMode.HALF_UP);
+    }
+}

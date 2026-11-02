@@ -1,0 +1,39 @@
+package com.personal.marketnote.community.domain.post;
+
+import com.personal.marketnote.common.domain.EntityStatus;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class PostSnapshotState {
+    private final Long id;
+    private final Long userId;
+    private final UUID postKey;
+    private final Long parentId;
+    private final Board board;
+    private final String category;
+    private final PostTargetGroupType targetGroupType;
+    private final Long targetGroupId;
+    private final PostTargetType targetType;
+    private final Long targetId;
+    private final String productImageUrl;
+    private final String writerName;
+    private final String maskedWriterName;
+    private final String title;
+    private final String content;
+    private final boolean isPrivate;
+    private final boolean isPhoto;
+    private final boolean isImportant;
+    private final boolean hasReply;
+    private final EntityStatus status;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime modifiedAt;
+    private final Long orderNum;
+}

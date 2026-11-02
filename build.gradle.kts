@@ -1,158 +1,69 @@
-// ✅ 버전 및 설정 변수 정의
-val javaVersion = 21
-val lombokVersion = "1.18.34"
-val dotenvVersion = "3.0.0"
-val mariadbVersion = "3.5.2"
-val h2Version = "2.2.224"
-val projectEncoding = "UTF-8"
-val queryDslVersion = "5.1.0"
-val mapstructVersion = "1.5.5.Final"
-val mybatisVersion = "3.0.4"
-
-// ✅ Gradle 플러그인 설정
 plugins {
-    java
-    application
-    id("org.springframework.boot") version "3.5.6"
-    id("io.spring.dependency-management") version "1.1.7"
+    base
+    jacoco
 }
 
-// ✅ 프로젝트 기본 정보
-group = "com.oponiti"
-version = "0.0.1-SNAPSHOT"
-description = "shop-reward"
-
-// ✅ Java 버전 설정 (JDK 21 사용)
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(javaVersion))
-        vendor.set(JvmVendorSpec.AMAZON)
-    }
-}
-application {
-    mainClass.set("com.oponiti.shopreward.ShopRewardApplication") // 올바른 메인 클래스 경로로 수정
-}
-// ✅ 의존성 확장 설정
-configurations {
-    compileOnly {
-        extendsFrom(configurations.annotationProcessor.get()) // Lombok 같은 애너테이션 프로세서 사용 가능하도록 설정
-    }
-}
-
-// ✅ 프로젝트에서 사용할 라이브러리 다운로드를 위한 저장소 설정
 repositories {
-    mavenCentral() // 라이브러리를 다운로드할 공식 저장소 (Maven Central Repository)
+    mavenCentral()
 }
 
-// ✅ 프로젝트에 필요한 의존성(라이브러리) 추가
-dependencies {
-    // 🔹 Spring Boot 관련 의존성
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa") // JPA (데이터베이스 ORM)
-    implementation("org.springframework.boot:spring-boot-starter-web") // Spring MVC (REST API 개발)
-    implementation("org.springframework.boot:spring-boot-starter-validation") // Spring Validation
-    implementation("org.springframework.boot:spring-boot-starter-security") // Spring Security
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server") // OAuth 2.0 Resource server
-
-    // 🔹 MyBatis 관련 의존성
-    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:$mybatisVersion") // MyBatis Spring Boot Starter
-
-    // Spring Data Redis 추가
-    // implementation("org.springframework.boot:spring-boot-starter-data-redis")
-
-    //querydsl 설정
-    implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
-    annotationProcessor("jakarta.persistence:jakarta.persistence-api:3.1.0")
-
-    implementation("com.querydsl:querydsl-jpa:$queryDslVersion:jakarta")
-    annotationProcessor("com.querydsl:querydsl-apt:$queryDslVersion:jakarta")
-
-    // 🔹 Lombok 설정 (코드 자동 생성 도구)
-    compileOnly("org.projectlombok:lombok:$lombokVersion") // 빌드 타임에만 필요한 라이브러리
-    annotationProcessor("org.projectlombok:lombok:$lombokVersion") // 애너테이션 프로세서 활성화
-    testCompileOnly("org.projectlombok:lombok:$lombokVersion") // 빌드 타임에만 필요한 라이브러리
-    testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion") // 애너테이션 프로세서 활성화
-
-    // JSON parser
-    implementation("org.json:json:20240303")
-
-    // MapStruct
-    implementation("org.mapstruct:mapstruct:$mapstructVersion")
-    annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
-
-    // Lombok과 MapStruct 통합 (Lombok이 먼저 처리되도록)
-    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
-
-    // 🔹 테스트 관련 의존성
-    testImplementation("org.springframework.boot:spring-boot-starter-test") // 테스트를 위한 기본 라이브러리
-    testImplementation("org.springframework.security:spring-security-test") // Spring Security 테스트 지원
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher") // JUnit 테스트 런처
-    testImplementation("org.awaitility:awaitility:4.2.0") // 비동기,스케줄링 테스트 지원
-    // 🔹 추가 라이브러리
-    // dotenv 추가
-    implementation("io.github.cdimascio:dotenv-java:$dotenvVersion")
-
-    // MariaDB 드라이버 추가
-    implementation("org.mariadb.jdbc:mariadb-java-client:$mariadbVersion")
-
-    // H2 데이터베이스 (테스트용)
-    runtimeOnly("com.h2database:h2:$h2Version")
-
-    // 빌드 정보를 위한 스프링 부트 액추에이터
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-
-    // 스웨거 API 문서 생성
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
-
-    // Spring Batch 추가
-    implementation("org.springframework.boot:spring-boot-starter-batch")
-
-    // Spring Batch 테스트 의존성 추가
-    testImplementation("org.springframework.batch:spring-batch-test")
-
-    // HNSW 라이브러리 추가
-    implementation("com.github.jelmerk:hnswlib-core:1.2.1")
-
-    // MIME 타입 체크를 위한 Apache Tika
-    implementation("org.apache.tika:tika-core:3.1.0")
-
-    // JWT
-    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
-    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
-    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+jacoco {
+    toolVersion = "0.8.12"
 }
 
-// ✅ 테스트 실행 시 JUnit 5 플랫폼 사용 설정
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-    systemProperty("spring.profiles.active", "test") // 모든 테스트 JVM에 test 프로필 주입
-}
-
-// ✅ UTF-8 인코딩 설정 (한글 깨짐 방지)
-tasks.withType<JavaCompile>().configureEach {
-    options.encoding = projectEncoding
-}
-
-// ✅ 소스 및 리소스 디렉토리 설정 (필요한 경우만 설정)
-sourceSets {
-    main {
-        java.setSrcDirs(
-            listOf(
-                "src/main/java",
-                // QueryDSL Q타입 생성 디렉토리 포함 (IDE 인식용)
-                "build/generated/sources/annotationProcessor/java/main"
-            )
-        )
-        resources.setSrcDirs(listOf("src/main/resources"))
+subprojects {
+    apply(plugin = "jacoco")
+    configure<JacocoPluginExtension> {
+        toolVersion = "0.8.12"
     }
-    test {
-        java.setSrcDirs(listOf("src/test/java"))
-        resources.setSrcDirs(listOf("src/test/resources"))
+
+    tasks.withType<Test>().configureEach {
+        maxHeapSize = "512m"
+        minHeapSize = "256m"
     }
 }
 
-// ✅ 빌드 정보 생성 설정
-springBoot {
-    buildInfo()
+tasks.register<JacocoReport>("jacocoAggregatedReport") {
+    group = "verification"
+    description = "Generates aggregated JaCoCo HTML coverage report for all subprojects"
+    mustRunAfter("testAggregatedReport")
+
+    executionData.from(fileTree(rootDir) { include("**/build/jacoco/test.exec") })
+
+    val classDirs = files()
+    val srcDirs = files()
+
+    subprojects.forEach { subproject ->
+        val excludes = mutableListOf("**/Q*.class")
+        if (subproject.name.endsWith("-application")) {
+            excludes.add("**/configuration/CommonConfig.class")
+        }
+        classDirs.from(fileTree("${subproject.projectDir}/build/classes/java/main") {
+            exclude(excludes)
+        })
+        srcDirs.from("${subproject.projectDir}/src/main/java")
+    }
+
+    classDirectories.from(classDirs)
+    sourceDirectories.from(srcDirs)
+
+    reports {
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/test/html"))
+        xml.required.set(true)
+        xml.outputLocation.set(layout.buildDirectory.file("reports/test/html/jacoco.xml"))
+    }
+}
+
+tasks.register<TestReport>("testAggregatedReport") {
+    group = "verification"
+    description = "Generates aggregated Gradle test report for all subprojects"
+    destinationDirectory.set(layout.buildDirectory.dir("reports/test"))
+
+    subprojects.forEach { subproject ->
+        val binaryDir = file("${subproject.projectDir}/build/test-results/test/binary")
+        if (binaryDir.exists()) {
+            testResults.from(binaryDir)
+        }
+    }
 }

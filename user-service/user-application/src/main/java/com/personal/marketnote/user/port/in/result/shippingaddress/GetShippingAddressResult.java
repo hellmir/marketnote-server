@@ -1,0 +1,50 @@
+package com.personal.marketnote.user.port.in.result.shippingaddress;
+
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.domain.deliveryrequestmessage.DeliveryRequestMessage;
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
+import lombok.AccessLevel;
+import lombok.Builder;
+
+@Builder(access = AccessLevel.PRIVATE)
+public record GetShippingAddressResult(
+        Long id,
+        ShippingAddressType addressType,
+        String address,
+        String addressDetail,
+        String companyName,
+        String addressAlias,
+        String recipientName,
+        String recipientPhoneNumber,
+        DeliveryRequestType deliveryRequestType,
+        String deliveryRequestMessage,
+        boolean isDefault,
+        ShippingAddressRegionType regionType
+) {
+    public static GetShippingAddressResult from(ShippingAddress shippingAddress) {
+        return GetShippingAddressResult.builder()
+                .id(shippingAddress.getId())
+                .addressType(shippingAddress.getAddressType())
+                .address(shippingAddress.getAddress())
+                .addressDetail(shippingAddress.getAddressDetail())
+                .companyName(shippingAddress.getCompanyName())
+                .addressAlias(shippingAddress.getAddressAlias())
+                .recipientName(shippingAddress.getRecipientName().getValue())
+                .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber().getValue())
+                .deliveryRequestType(shippingAddress.getDeliveryRequestType())
+                .deliveryRequestMessage(toValueOrNull(shippingAddress.getDeliveryRequestMessage()))
+                .isDefault(shippingAddress.isDefault())
+                .regionType(shippingAddress.getRegionType())
+                .build();
+    }
+
+    private static String toValueOrNull(DeliveryRequestMessage deliveryRequestMessage) {
+        if (FormatValidator.hasNoValue(deliveryRequestMessage)) {
+            return null;
+        }
+        return deliveryRequestMessage.getValue();
+    }
+}

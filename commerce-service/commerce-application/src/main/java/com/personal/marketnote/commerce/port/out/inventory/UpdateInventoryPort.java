@@ -1,0 +1,30 @@
+package com.personal.marketnote.commerce.port.out.inventory;
+
+import com.personal.marketnote.commerce.domain.inventory.Inventory;
+import com.personal.marketnote.commerce.exception.InventoryNotFoundException;
+
+import java.util.Set;
+
+/**
+ * 재고 수정 포트
+ *
+ * @Author 성효빈
+ * @Date 2026-01-06
+ * @Description 재고 수정 기능을 제공합니다.
+ */
+public interface UpdateInventoryPort {
+    /**
+     * @param inventories 재고 도메인 목록
+     * @throws InventoryNotFoundException 재고를 찾을 수 없는 경우
+     * @Date 2026-01-06
+     * @Author 성효빈
+     * @Description 재고 정보를 업데이트합니다.
+     */
+    void update(Set<Inventory> inventories) throws InventoryNotFoundException;
+
+    /**
+     * @param inventories 재고 도메인 목록
+     * @Description 재고의 productKey만 업데이트합니다 (백필용, 멱등 처리).
+     */
+    void updateProductKey(Set<Inventory> inventories);
+}

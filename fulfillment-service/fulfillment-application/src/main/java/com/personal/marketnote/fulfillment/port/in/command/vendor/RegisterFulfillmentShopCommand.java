@@ -1,0 +1,70 @@
+package com.personal.marketnote.fulfillment.port.in.command.vendor;
+
+public record RegisterFulfillmentShopCommand(
+        String customerCode,
+        String accessToken,
+        String shopName,
+        String customerShopCode,
+        String dealStartDate,
+        String dealEndDate,
+        String zipCode,
+        String address1,
+        String address2,
+        String ceoName,
+        String businessNumber,
+        String phoneNumber,
+        String unloadMethod,
+        String inspectionMethod,
+        String standbyYn,
+        String formType,
+        String managerName,
+        String managerPosition,
+        String managerPhoneNumber,
+        String useYn
+) {
+    public static RegisterFulfillmentShopCommand of(
+            String customerCode,
+            String accessToken,
+            String shopName,
+            String customerShopCode,
+            String dealStartDate,
+            String dealEndDate,
+            String zipCode,
+            String address1,
+            String address2,
+            String ceoName,
+            String businessNumber,
+            String phoneNumber,
+            String unloadMethod,
+            String inspectionMethod,
+            String standbyYn,
+            String formType,
+            String managerName,
+            String managerPosition,
+            String managerPhoneNumber,
+            String useYn
+    ) {
+        return new RegisterFulfillmentShopCommand(
+                customerCode,
+                accessToken,
+                shopName,
+                customerShopCode,
+                dealStartDate,
+                dealEndDate,
+                zipCode,
+                address1,
+                address2,
+                ceoName,
+                businessNumber,
+                phoneNumber,
+                unloadMethod,
+                inspectionMethod,
+                standbyYn,
+                formType,
+                managerName,
+                managerPosition,
+                managerPhoneNumber,
+                useYn
+        );
+    }
+}

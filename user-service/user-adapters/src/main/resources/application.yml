@@ -1,0 +1,208 @@
+spring:
+  application:
+    name: ${env.SERVICE_NAME:user-service}
+  jackson:
+    time-zone: Asia/Seoul
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/marketnote_user}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:org/springframework/batch/core/schema-postgresql.sql
+      continue-on-error: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST_NAME:localhost}
+      port: 6379
+      password: ${REDIS_PASSWORD:password}
+      repositories:
+        enabled: false
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    sasl:
+      enabled: ${KAFKA_SASL_ENABLED:false}
+      mechanism: ${KAFKA_SASL_MECHANISM:SCRAM-SHA-256}
+      protocol: ${KAFKA_SASL_PROTOCOL:SASL_SSL}
+      username: ${KAFKA_SASL_USERNAME:}
+      password: ${KAFKA_SASL_PASSWORD:}
+      ssl-truststore-location: ${KAFKA_SSL_TRUSTSTORE_LOCATION:classpath:kafka.truststore.jks}
+      ssl-truststore-password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD:}
+    consumer:
+      group-id: ${spring.application.name}
+
+  jwt:
+    secret: ${JWT_SECRET_KEY:dev-secret-change-me}
+    admin-access-token: ${JWT_ADMIN_ACCESS_TOKEN:abc}
+    access-token:
+      ttl: ${ACCESS_TOKEN_EXPIRATION_TIME:1800000}
+    refresh-token:
+      ttl: ${REFRESH_TOKEN_EXPIRATION_TIME:1209600000}
+
+  hmac:
+    secret-key: ${HMAC_SECRET_KEY:dev-hmac-secret-change-me}
+
+  mail:
+    host: ${SES_SMTP_HOST:email-smtp.${SES_REGION:ap-northeast-2}.amazonaws.com}
+    port: ${SES_SMTP_PORT:587}
+    username: ${SES_SMTP_USERNAME:change-me}
+    password: ${SES_SMTP_PASSWORD:change-me}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+client:
+  origin: ${CLIENT_ORIGIN:http://localhost:3000}
+  cookie-domain: ${COOKIE_DOMAIN:localhost}
+  cors:
+    allowed-origins: ${ACCESS_CONTROL_ALLOWED_ORIGINS:http://localhost:3000}
+
+server:
+  origin: ${SERVER_ORIGIN:http://localhost:8080}
+  error:
+    include-exception: false
+    include-stacktrace: NEVER
+    include-message: NEVER
+    whitelabel:
+      enabled: false
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    org.springframework.security: ERROR
+
+kafka:
+  slack:
+    webhook-url: ${KAFKA_SLACK_WEBHOOK_URL:}
+
+outbox:
+  enabled: ${OUTBOX_ENABLED:true}
+  polling-interval-ms: ${OUTBOX_POLLING_INTERVAL_MS:3000}
+  batch-size: ${OUTBOX_BATCH_SIZE:100}
+  max-retries: ${OUTBOX_MAX_RETRIES:5}
+  retention-days: ${OUTBOX_RETENTION_DAYS:7}
+  cleanup-cron: ${OUTBOX_CLEANUP_CRON:0 0 3 * * ?}
+
+reward-service:
+  base-url: ${REWARD_SERVICE_SERVER_ORIGIN:http://localhost:8084}
+  referral-point:
+    referee-amount: ${REWARD_REFEREE_POINT_AMOUNT:0}
+    referrer-amount: ${REWARD_REFERRER_POINT_AMOUNT:0}
+
+oauth2:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:abc}
+    client-secret: ${GOOGLE_CLIENT_SECRET:def}
+    allowed-audiences: ${GOOGLE_ALLOWED_AUDIENCES:${GOOGLE_CLIENT_ID:abc}}
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID:abc}
+    client-secret: ${KAKAO_CLIENT_SECRET:def}
+    admin-key: ${KAKAO_ADMIN_KEY:ghi}
+    allowed-audiences: ${KAKAO_ALLOWED_AUDIENCES:${KAKAO_CLIENT_ID:abc}}
+  apple:
+    allowed-audiences: ${APPLE_ALLOWED_AUDIENCES:${APPLE_CLIENT_ID:abc}}
+
+security:
+  validation:
+    oauth2-allowed-audiences-enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: ${MANAGEMENT_HEALTH_SHOW_DETAILS:when-authorized}
+      probes:
+        enabled: true
+      validate-group-membership: false
+      group:
+        readiness:
+          include: readinessState,db,redis,kafka
+        liveness:
+          include: livenessState
+    env:
+      keys-to-sanitize: sasl.jaas.config,sasl.*,jaas.*
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+mail:
+  from: ${MAIL_FROM:no-reply@yourdomain.com}
+  sender-name: ${MAIL_SENDER_NAME:shop}
+  verification:
+    ttl-minutes: ${MAIL_VERIFICATION_TTL_MINUTES:5}
+
+verification:
+  redis:
+    prefix: ${REDIS_EMAIL_VERIFICATION_PREFIX:email:verification:}
+
+profanity:
+  init:
+    enabled: ${PROFANITY_INIT_ENABLED:false}
+
+remote-area:
+  init:
+    enabled: ${REMOTE_AREA_INIT_ENABLED:false}
+
+user:
+  activate-expired-deactivation:
+    scheduler:
+      enabled: ${USER_ACTIVATE_EXPIRED_DEACTIVATION_SCHEDULER_ENABLED:true}
+      cron: ${USER_ACTIVATE_EXPIRED_DEACTIVATION_SCHEDULER_CRON:0 0 * * * *}
+
+springdoc:
+  paths-to-exclude:
+    - /api/v1/internal/**
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: classpath:config/common-prod.yml

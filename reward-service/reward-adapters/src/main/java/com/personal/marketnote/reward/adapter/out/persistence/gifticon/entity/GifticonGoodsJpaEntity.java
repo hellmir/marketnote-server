@@ -1,0 +1,156 @@
+package com.personal.marketnote.reward.adapter.out.persistence.gifticon.entity;
+
+import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.adapter.out.persistence.gifticon.converter.GoodsStatusConverter;
+import com.personal.marketnote.reward.domain.gifticon.*;
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "gifticon_goods")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
+@Getter
+public class GifticonGoodsJpaEntity extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "goods_code", nullable = false, unique = true)
+    private String goodsCode;
+
+    @Column(name = "goods_name", nullable = false)
+    private String goodsName;
+
+    @Column(name = "brand_code", nullable = false)
+    private String brandCode;
+
+    @Column(name = "brand_name", nullable = false)
+    private String brandName;
+
+    @Column(name = "brand_image_url", length = 2048)
+    private String brandImageUrl;
+
+    @Column(name = "category_code")
+    private String categoryCode;
+
+    @Column(name = "real_price", nullable = false)
+    private Long realPrice;
+
+    @Column(name = "sale_price", nullable = false)
+    private Long salePrice;
+
+    @Column(name = "cash_price", nullable = false)
+    private Long cashPrice;
+
+    @Column(name = "image_url", length = 2048)
+    private String imageUrl;
+
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "valid_days")
+    private Integer validDays;
+
+    @Convert(converter = GoodsStatusConverter.class)
+    @Column(name = "goods_status", nullable = false)
+    private GoodsStatus goodsStatus;
+
+    @Column(name = "exposed", nullable = false)
+    private boolean exposed;
+
+    @Column(name = "popular", nullable = false)
+    private boolean popular;
+
+    @Column(name = "order_num")
+    private Integer orderNum;
+
+    public static GifticonGoodsJpaEntity from(GifticonGoods domain) {
+        return GifticonGoodsJpaEntity.builder()
+                .id(domain.getId())
+                .goodsCode(domain.getGoodsCode().getValue())
+                .goodsName(domain.getGoodsName())
+                .brandCode(toBrandCodeValue(domain.getBrandCode()))
+                .brandName(domain.getBrandName())
+                .brandImageUrl(domain.getBrandImageUrl())
+                .categoryCode(toCategoryCodeValue(domain.getCategoryCode()))
+                .realPrice(domain.getRealPrice().getValue())
+                .salePrice(domain.getSalePrice().getValue())
+                .cashPrice(domain.getCashPrice().getValue())
+                .imageUrl(domain.getImageUrl())
+                .description(domain.getDescription())
+                .validDays(toValidDaysValue(domain.getValidDays()))
+                .goodsStatus(domain.getGoodsStatus())
+                .exposed(domain.isExposed())
+                .popular(domain.isPopular())
+                .orderNum(domain.getOrderNum())
+                .build();
+    }
+
+    public GifticonGoods toDomain() {
+        return GifticonGoods.from(
+                GifticonGoodsSnapshotState.builder()
+                        .id(id)
+                        .goodsCode(goodsCode)
+                        .goodsName(goodsName)
+                        .brandCode(brandCode)
+                        .brandName(brandName)
+                        .brandImageUrl(brandImageUrl)
+                        .categoryCode(categoryCode)
+                        .realPrice(realPrice)
+                        .salePrice(salePrice)
+                        .cashPrice(cashPrice)
+                        .imageUrl(imageUrl)
+                        .description(description)
+                        .validDays(validDays)
+                        .goodsStatus(goodsStatus)
+                        .exposed(exposed)
+                        .popular(popular)
+                        .orderNum(orderNum)
+                        .createdAt(getCreatedAt())
+                        .modifiedAt(getModifiedAt())
+                        .build()
+        );
+    }
+
+    public void updateFrom(GifticonGoods domain) {
+        this.goodsName = domain.getGoodsName();
+        this.brandCode = toBrandCodeValue(domain.getBrandCode());
+        this.brandName = domain.getBrandName();
+        this.brandImageUrl = domain.getBrandImageUrl();
+        this.categoryCode = toCategoryCodeValue(domain.getCategoryCode());
+        this.realPrice = domain.getRealPrice().getValue();
+        this.salePrice = domain.getSalePrice().getValue();
+        this.cashPrice = domain.getCashPrice().getValue();
+        this.imageUrl = domain.getImageUrl();
+        this.description = domain.getDescription();
+        this.validDays = toValidDaysValue(domain.getValidDays());
+        this.goodsStatus = domain.getGoodsStatus();
+        this.exposed = domain.isExposed();
+        this.popular = domain.isPopular();
+        this.orderNum = domain.getOrderNum();
+    }
+
+    private static Integer toValidDaysValue(ValidDays validDays) {
+        if (FormatValidator.hasNoValue(validDays)) {
+            return null;
+        }
+        return validDays.getValue();
+    }
+
+    private static String toBrandCodeValue(BrandCode brandCode) {
+        if (FormatValidator.hasNoValue(brandCode)) {
+            return null;
+        }
+        return brandCode.getValue();
+    }
+
+    private static String toCategoryCodeValue(CategoryCode categoryCode) {
+        if (FormatValidator.hasNoValue(categoryCode)) {
+            return null;
+        }
+        return categoryCode.getValue();
+    }
+}

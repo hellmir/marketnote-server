@@ -1,0 +1,219 @@
+package com.personal.marketnote.commerce.service.order;
+
+import com.personal.marketnote.commerce.configuration.AutoConfirmSchedulerProperties;
+import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderProduct;
+import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.domain.order.OrderStatusHistory;
+import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
+import com.personal.marketnote.commerce.mapper.OrderCommandToStateMapper;
+import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
+import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
+import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
+import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
+import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
+import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
+import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.common.utility.FormatValidator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+
+@UseCase
+@RequiredArgsConstructor
+@Transactional(isolation = READ_COMMITTED)
+@Slf4j
+public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
+    private final GetOrderUseCase getOrderUseCase;
+    private final UpdateOrderPort updateOrderPort;
+    private final FindProductByPricePolicyPort findProductByPricePolicyPort;
+    private final ModifyUserPointPort modifyUserPointPort;
+    private final PublishOrderEventPort publishOrderEventPort;
+    private final AutoConfirmSchedulerProperties autoConfirmSchedulerProperties;
+    private final Clock clock;
+
+    @Override
+    public void changeOrderStatus(ChangeOrderStatusCommand command) {
+        Order order = getOrderUseCase.getOrder(command.id());
+        OrderStatus status = command.orderStatus();
+
+        if (status.isMe(order.getOrderStatus()) && status.isNotPartialChanged()) {
+            throw new OrderStatusAlreadyChangedException(status);
+        }
+
+        changeOrderStatus(command, order);
+        OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(OrderCommandToStateMapper.mapToState(command));
+        updateOrderPort.update(order, orderStatusHistory);
+
+        if (status.isPaid() && !command.shouldSkipSubsequentProcesses()) {
+            updatePaymentSubsequentProcesses(order);
+        }
+
+        if (status.isConfirmed() && !command.isPartialProductChange()) {
+            updateConfirmSubsequentProcesses(order);
+        }
+    }
+
+    private void changeOrderStatus(ChangeOrderStatusCommand command, Order order) {
+        OrderStatus status = command.orderStatus();
+        LocalDateTime now = LocalDateTime.now(clock);
+        long autoConfirmDays = autoConfirmSchedulerProperties.getAutoConfirmDays();
+
+        if (command.isPartialProductChange()) {
+            order.changeProductsStatus(command.pricePolicyIds(), status, now, autoConfirmDays);
+            return;
+        }
+
+        if (status.isPaid() && FormatValidator.hasValue(command.paidAmount())) {
+            order.recordPaidAmount(Money.of(command.paidAmount()));
+        }
+
+        order.changeAllProductsStatus(status, now, autoConfirmDays);
+    }
+
+    private void updatePaymentSubsequentProcesses(Order order) {
+        // [#929] 재고 차감(#932), 장바구니 삭제(#1018), 공유 포인트 적립(#1019), 포인트 차감(#1020)은 Kafka Consumer로 전환 완료
+        // [미전환] 상품 적립 포인트 (#1131)
+
+        List<Long> pricePolicyIds = order.getOrderProducts()
+                .stream()
+                .map(OrderProduct::getPricePolicyId)
+                .toList();
+        Long orderId = order.getId();
+        Long buyerId = order.getBuyerId();
+        Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(order.getOrderProducts(), pricePolicyIds);
+
+        // Outbox 이벤트 저장 (트랜잭션 내)
+        publishOrderPaymentCompletedEvent(order, totalAccumulatedPoint);
+
+        runAfterCommit(() -> {
+            // 상품 적립 포인트를 적립 예정 포인트로 추가
+            addPendingProductAccumulationPoints(buyerId, totalAccumulatedPoint, orderId);
+        });
+    }
+
+    private Long calculateTotalAccumulatedPoint(List<OrderProduct> orderProducts, List<Long> pricePolicyIds) {
+        Long snapshotTotal = calculateSnapshotAccumulatedPoint(orderProducts);
+        if (FormatValidator.hasValue(snapshotTotal)) {
+            return snapshotTotal;
+        }
+
+        Map<Long, ProductInfoResult> productInfoMap = findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
+
+        long totalAccumulatedPoint = 0L;
+        for (OrderProduct orderProduct : orderProducts) {
+            ProductInfoResult productInfo = productInfoMap.get(orderProduct.getPricePolicyId());
+            if (FormatValidator.hasNoValue(productInfo)) {
+                log.warn("상품 정보 조회 누락 - pricePolicyId: {}", orderProduct.getPricePolicyId());
+                continue;
+            }
+            if (FormatValidator.hasNoValue(productInfo.accumulatedPoint())) {
+                continue;
+            }
+            totalAccumulatedPoint = Math.addExact(
+                    totalAccumulatedPoint,
+                    Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue())
+            );
+        }
+
+        return totalAccumulatedPoint;
+    }
+
+    private Long calculateSnapshotAccumulatedPoint(List<OrderProduct> orderProducts) {
+        boolean allHaveSnapshot = orderProducts.stream()
+                .allMatch(op -> FormatValidator.hasValue(op.getAccumulatedPoint()));
+        if (!allHaveSnapshot) {
+            return null;
+        }
+
+        long total = 0L;
+        for (OrderProduct orderProduct : orderProducts) {
+            total = Math.addExact(
+                    total,
+                    orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue()
+            );
+        }
+        return total;
+    }
+
+    private void addPendingProductAccumulationPoints(Long buyerId, Long totalAccumulatedPoint, Long orderId) {
+        if (FormatValidator.hasNoValue(totalAccumulatedPoint) || totalAccumulatedPoint <= 0) {
+            return;
+        }
+
+        try {
+            modifyUserPointPort.addPendingProductAccumulationPoints(
+                    buyerId,
+                    totalAccumulatedPoint,
+                    orderId
+            );
+        } catch (Exception e) {
+            log.error("상품 적립 예정 포인트 추가 실패 - orderId: {}, buyerId: {}, amount: {}, error: {}",
+                    orderId, buyerId, totalAccumulatedPoint, e.getMessage(), e
+            );
+        }
+    }
+
+    private void updateConfirmSubsequentProcesses(Order order) {
+        Long orderId = order.getId();
+        Long buyerId = order.getBuyerId();
+        List<UUID> sharerKeys = extractSharerKeys(order.getOrderProducts());
+
+        // Outbox 이벤트 저장 (트랜잭션 내)
+        // [#929][#1190] 적립 예정 포인트 확정은 Kafka Consumer로 전환 완료
+        publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys, order);
+    }
+
+    private void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<UUID> sharerKeys, Order order) {
+        publishOrderEventPort.publishOrderPurchaseConfirmedEvent(
+                orderId, buyerId, sharerKeys, true, order.getOrderProducts()
+        );
+    }
+
+    private void publishOrderPaymentCompletedEvent(Order order, Long totalAccumulatedPoint) {
+        publishOrderEventPort.publishOrderPaymentCompletedEvent(
+                order.getId(),
+                order.getBuyerId(),
+                order.getAmount().getTotalAmount().getValue(),
+                order.getAmount().getPointAmount().getValue(),
+                order.getShippingAddress(),
+                order.getOrderProducts(),
+                totalAccumulatedPoint
+        );
+    }
+
+    private List<UUID> extractSharerKeys(List<OrderProduct> orderProducts) {
+        return orderProducts.stream()
+                .map(OrderProduct::getSharerKey)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    private void runAfterCommit(Runnable action) {
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    action.run();
+                }
+            });
+            return;
+        }
+
+        action.run();
+    }
+}

@@ -1,0 +1,463 @@
+package com.personal.marketnote.file.service.file;
+
+import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.domain.file.FileSort;
+import com.personal.marketnote.common.domain.file.OwnerType;
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.file.domain.file.FileDomain;
+import com.personal.marketnote.file.domain.file.ResizedFile;
+import com.personal.marketnote.file.domain.file.ResizedFileCreateState;
+import com.personal.marketnote.file.domain.file.exception.InvalidFileRoleException;
+import com.personal.marketnote.file.domain.file.exception.InvalidSvgFileException;
+import com.personal.marketnote.file.exception.InvalidFileCountLimitException;
+import com.personal.marketnote.file.mapper.FileCommandToDomainMapper;
+import com.personal.marketnote.file.port.in.command.UpdateFileCommand;
+import com.personal.marketnote.file.port.in.command.UpdateFilesCommand;
+import com.personal.marketnote.file.port.in.usecase.file.GetFileUseCase;
+import com.personal.marketnote.file.port.in.usecase.file.UpdateFileUseCase;
+import com.personal.marketnote.file.port.out.event.ImageEventCommand;
+import com.personal.marketnote.file.port.out.event.PublishImageEventPort;
+import com.personal.marketnote.file.port.out.file.SaveFilesPort;
+import com.personal.marketnote.file.port.out.file.UpdateFilesPort;
+import com.personal.marketnote.file.port.out.resized.SaveResizedFilesPort;
+import com.personal.marketnote.file.port.out.storage.UploadFilesPort;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.ImageTranscoder;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.helpers.DefaultHandler;
+
+import javax.imageio.ImageIO;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+
+@Slf4j
+@UseCase
+@RequiredArgsConstructor
+@Transactional(isolation = READ_COMMITTED)
+public class UpdateFilesService implements UpdateFileUseCase {
+    private static final String ROLE_ADMIN = "ADMIN";
+    private static final String ROLE_SELLER = "SELLER";
+
+    private final GetFileUseCase getFileUseCase;
+    private final UploadFilesPort uploadFilesPort;
+    private final SaveFilesPort saveFilesPort;
+    private final SaveResizedFilesPort saveResizedFilesPort;
+    private final UpdateFilesPort updateFilesPort;
+    private final PublishImageEventPort publishImageEventPort;
+
+    public void updateFiles(UpdateFilesCommand updateFilesCommand) {
+        String ownerType = updateFilesCommand.ownerType();
+        Long ownerId = updateFilesCommand.ownerId();
+        String ownerKey = updateFilesCommand.ownerKey();
+        Long requesterId = updateFilesCommand.requesterId();
+        String requesterRole = updateFilesCommand.requesterRole();
+        String sort = updateFilesCommand.fileInfo().getFirst().sort();
+
+        FileSort fileSort = FileSort.from(sort);
+        int maxCount = fileSort.getMaxCount();
+        int requestedCount = updateFilesCommand.fileInfo().size();
+        if (requestedCount > maxCount) {
+            throw new InvalidFileCountLimitException(maxCount, requestedCount);
+        }
+
+        validateProductImageRole(updateFilesCommand.fileInfo(), requesterRole);
+        validateAdminOnlyFileRole(updateFilesCommand.fileInfo(), requesterRole);
+
+        // 기존 파일 목록이 존재하는 경우 소유권 검증 후 비활성화
+        List<FileDomain> currentFiles = getFileUseCase.getFiles(OwnerType.from(ownerType), ownerId, sort);
+        if (FormatValidator.hasValue(currentFiles)) {
+            currentFiles.forEach(file -> file.validateOwner(requesterId, ownerKey));
+            List<ResizedFile> existingResizedFiles = getFileUseCase.getResizedFiles(currentFiles);
+            List<ResizedFile> activeResizedFiles = existingResizedFiles.stream()
+                    .filter(ResizedFile::isActive)
+                    .toList();
+            List<ImageEventCommand> deletedEvents = buildImageEventCommands(currentFiles, activeResizedFiles);
+            currentFiles.forEach(FileDomain::delete);
+            existingResizedFiles.forEach(ResizedFile::delete);
+            updateFilesPort.update(currentFiles, existingResizedFiles);
+            publishImageEventPort.publishImageDeletedEvents(deletedEvents);
+        }
+
+        List<FileDomain> newFiles = FileCommandToDomainMapper.mapToDomain(updateFilesCommand);
+
+        List<MultipartFile> originals = updateFilesCommand.fileInfo()
+                .stream()
+                .map(UpdateFileCommand::file)
+                .toList();
+
+        List<String> storageUrls = uploadFilesPort.uploadFiles(
+                originals,
+                OwnerType.from(updateFilesCommand.ownerType()),
+                updateFilesCommand.ownerId()
+        );
+
+        List<FileDomain> savedFiles = saveFilesPort.saveAll(newFiles, storageUrls);
+
+        List<MultipartFile> resizedToUpload = new ArrayList<>();
+        List<ResizedFile> resizedToSave = new ArrayList<>();
+
+        for (int i = 0; i < savedFiles.size(); i++) {
+            resize(savedFiles.get(i), originals.get(i), resizedToUpload, resizedToSave);
+        }
+
+        List<ResizedFile> savedResizedFiles = new ArrayList<>();
+
+        if (FormatValidator.hasValue(resizedToUpload)) {
+            List<String> resizedStorageUrls = uploadFilesPort.uploadFiles(
+                    resizedToUpload,
+                    OwnerType.from(updateFilesCommand.ownerType()),
+                    updateFilesCommand.ownerId()
+            );
+
+            if (FormatValidator.hasValue(resizedToSave)) {
+                List<ResizedFile> resizedWithUrls = new ArrayList<>(resizedToSave.size());
+                for (int i = 0; i < resizedToSave.size(); i++) {
+                    ResizedFile base = resizedToSave.get(i);
+                    resizedWithUrls.add(ResizedFile.from(ResizedFileCreateState.builder()
+                            .fileId(base.getFileId())
+                            .size(base.getSize())
+                            .storageUrl(resizedStorageUrls.get(i))
+                            .build()));
+                }
+                saveResizedFilesPort.saveAll(resizedWithUrls);
+                savedResizedFiles.addAll(resizedWithUrls);
+            }
+        }
+
+        List<ImageEventCommand> createdEvents = buildImageEventCommands(savedFiles, savedResizedFiles);
+        publishImageEventPort.publishImageCreatedEvents(createdEvents);
+    }
+
+    private List<ImageEventCommand> buildImageEventCommands(List<FileDomain> files, List<ResizedFile> resizedFiles) {
+        return files.stream()
+                .map(file -> ImageEventCommand.from(file, resizedFiles))
+                .toList();
+    }
+
+    private boolean isAdminOrSeller(String role) {
+        return ROLE_ADMIN.equals(role) || ROLE_SELLER.equals(role);
+    }
+
+    private void validateProductImageRole(List<UpdateFileCommand> fileInfos, String requesterRole) {
+        if (isAdminOrSeller(requesterRole)) {
+            return;
+        }
+        for (UpdateFileCommand item : fileInfos) {
+            if (FileSort.from(item.sort()).isProductImage()) {
+                throw new InvalidFileRoleException();
+            }
+        }
+    }
+
+    private void validateAdminOnlyFileRole(List<UpdateFileCommand> fileInfos, String requesterRole) {
+        if (ROLE_ADMIN.equals(requesterRole)) {
+            return;
+        }
+        for (UpdateFileCommand item : fileInfos) {
+            if (FileSort.from(item.sort()).isAdminOnly()) {
+                throw new InvalidFileRoleException();
+            }
+        }
+    }
+
+    private void resize(
+            FileDomain savedFile, MultipartFile originalFile,
+            List<MultipartFile> resizedToUpload, List<ResizedFile> resizedToSave
+    ) {
+        FileSort sort = savedFile.getSort();
+
+        if (sort.isCatalogImage()) {
+            int size = 500;
+
+            try {
+                MultipartFile resizedFile = resizeSquare(
+                        originalFile, size, appendSizeToFilename(originalFile.getOriginalFilename(), size + "x" + size)
+                );
+                resizedToUpload.add(resizedFile);
+                resizedToSave.add(ResizedFile.from(ResizedFileCreateState.builder()
+                        .fileId(savedFile.getId())
+                        .size(size + "x" + size)
+                        .build()));
+            } catch (IOException e) {
+                log.warn(
+                        "카탈로그 이미지 리사이즈 실패: fileId={}, originalFilename={}, fileSort={}, message={}",
+                        savedFile.getId(), originalFile.getOriginalFilename(), sort, e.getMessage()
+                );
+            }
+
+            return;
+        }
+
+        if (sort.isRepresentativeImage()) {
+            List<Integer> widths = List.of(600, 800);
+            for (int width : widths) {
+                try {
+                    MultipartFile resized = resizeByWidth(
+                            originalFile, width,
+                            appendSizeToFilename(originalFile.getOriginalFilename(), String.valueOf(width))
+                    );
+                    resizedToUpload.add(resized);
+                    resizedToSave.add(ResizedFile.from(ResizedFileCreateState.builder()
+                            .fileId(savedFile.getId())
+                            .size(String.valueOf(width))
+                            .build()));
+                } catch (IOException e) {
+                    log.warn(
+                            "대표 이미지 리사이즈 실패: fileId={}, originalFilename={}, width={}, message={}",
+                            savedFile.getId(), originalFile.getOriginalFilename(), width, e.getMessage()
+                    );
+                }
+            }
+        }
+    }
+
+    private MultipartFile resizeSquare(MultipartFile original, int targetWidth, String newOriginalFilename) throws IOException {
+        BufferedImage source = readImageOrThrow(original);
+
+        return resize(targetWidth, targetWidth, source, newOriginalFilename);
+    }
+
+    private MultipartFile resizeByWidth(MultipartFile original, int targetWidth, String newOriginalFilename) throws IOException {
+        BufferedImage source = readImageOrThrow(original);
+        int originalWidth = source.getWidth();
+        int originalHeight = source.getHeight();
+        int targetHeight = (int) Math.round((double) originalHeight * targetWidth / originalWidth);
+
+        return resize(targetWidth, targetHeight, source, newOriginalFilename);
+    }
+
+    private MultipartFile resize(
+            int targetWidth, int targetHeight, BufferedImage source, String newOriginalFilename
+    ) throws IOException {
+        String extension = getExtension(newOriginalFilename, "png");
+        String format = normalizeFormat(extension);
+        int imageType = "jpeg".equals(format) ? BufferedImage.TYPE_INT_RGB : java.awt.image.BufferedImage.TYPE_INT_ARGB;
+
+        BufferedImage dst = new BufferedImage(targetWidth, targetHeight, imageType);
+        Graphics2D graphics2D = dst.createGraphics();
+        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        if ("jpeg".equals(format)) {
+            graphics2D.setColor(Color.WHITE);
+            graphics2D.fillRect(0, 0, targetWidth, targetHeight);
+        }
+        graphics2D.drawImage(source, 0, 0, targetWidth, targetHeight, null);
+        graphics2D.dispose();
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        boolean written = ImageIO.write(dst, format, byteArrayOutputStream);
+        if (!written) {
+            throw new IOException("No ImageIO writer found for format: " + format);
+        }
+
+        return new InMemoryMultipartFile(
+                "file",
+                newOriginalFilename,
+                contentTypeFor(format),
+                byteArrayOutputStream.toByteArray()
+        );
+    }
+
+    private BufferedImage readImageOrThrow(MultipartFile original) throws IOException {
+        if (FormatValidator.hasNoValue(original)) {
+            throw new IOException("Unsupported image format.");
+        }
+
+        byte[] bytes = original.getBytes();
+        boolean hintedSvg = isSvgHinted(original);
+        boolean magicSvg = isSvgByMagicBytes(bytes);
+
+        if (magicSvg) {
+            return readSvgToBufferedImage(bytes);
+        }
+
+        if (hintedSvg) {
+            throw new InvalidSvgFileException();
+        }
+
+        try (InputStream inputStream = new ByteArrayInputStream(bytes)) {
+            BufferedImage source = ImageIO.read(inputStream);
+            if (FormatValidator.hasNoValue(source)) {
+                throw new IOException("Unsupported image format.");
+            }
+            return source;
+        }
+    }
+
+    private boolean isSvgHinted(MultipartFile original) {
+        String contentType = original.getContentType();
+        if (FormatValidator.hasValue(contentType) && contentType.toLowerCase().contains("svg")) {
+            return true;
+        }
+
+        String extension = getExtension(original.getOriginalFilename(), "");
+        return FormatValidator.equalsIgnoreCase(extension, "svg");
+    }
+
+    private boolean isSvgByMagicBytes(byte[] bytes) {
+        if (FormatValidator.hasNoValue(bytes) || bytes.length < 4) {
+            return false;
+        }
+
+        int offset = detectBomOffset(bytes);
+        int readLen = Math.min(bytes.length - offset, 1024);
+        String header = new String(bytes, offset, readLen, StandardCharsets.UTF_8);
+        String normalized = header.replaceAll("^[\\s\\uFEFF]+", "").toLowerCase();
+
+        return normalized.startsWith("<?xml") || normalized.startsWith("<svg") || normalized.startsWith("<!--");
+    }
+
+    private int detectBomOffset(byte[] bytes) {
+        if (bytes.length >= 3
+                && (bytes[0] & 0xFF) == 0xEF
+                && (bytes[1] & 0xFF) == 0xBB
+                && (bytes[2] & 0xFF) == 0xBF) {
+            return 3;
+        }
+        return 0;
+    }
+
+    private BufferedImage readSvgToBufferedImage(byte[] bytes) throws IOException {
+        validateSvgXmlSafely(bytes);
+
+        try (InputStream inputStream = new ByteArrayInputStream(bytes)) {
+            TranscoderInput input = new TranscoderInput(inputStream);
+            BufferedImageTranscoder transcoder = new BufferedImageTranscoder();
+            transcoder.transcode(input, null);
+            BufferedImage image = transcoder.getBufferedImage();
+            if (FormatValidator.hasNoValue(image)) {
+                throw new IOException("Unsupported SVG image.");
+            }
+            return image;
+        } catch (TranscoderException e) {
+            throw new IOException("Failed to read SVG image.", e);
+        }
+    }
+
+    /**
+     * XXE/billion-laughs 방지를 위해 Batik에 전달하기 전에 엄격한 SAX 파서로 선검증한다.
+     * DOCTYPE 선언을 완전 차단(disallow-doctype-decl=true)하여 외부/내부 엔티티 공격을 봉쇄한다.
+     * 파싱 실패 또는 DOCTYPE 검출 시 InvalidSvgFileException을 던져 어댑터/트랜스코더까지 입력이 전달되지 않도록 한다.
+     * SSRF(&lt;image xlink:href&gt; 원격 로드)는 Batik 기본 NoLoadExternalResourceSecurity로 차단된다.
+     */
+    private void validateSvgXmlSafely(byte[] bytes) {
+        try {
+            SAXParser parser = createSecureSaxParser();
+            parser.parse(new InputSource(new ByteArrayInputStream(bytes)), new DefaultHandler() {
+                @Override
+                public InputSource resolveEntity(String publicId, String systemId) {
+                    return new InputSource(new StringReader(""));
+                }
+            });
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+            log.warn("SVG 보안 검증 실패 - 공격 시도 가능성 (DOCTYPE/외부 엔티티 등): {}", e.getMessage(), e);
+            throw new InvalidSvgFileException();
+        }
+    }
+
+    private SAXParser createSecureSaxParser() throws ParserConfigurationException, SAXException {
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setNamespaceAware(true);
+        factory.setValidating(false);
+        factory.setXIncludeAware(false);
+        setFeatureQuietly(factory, "http://apache.org/xml/features/disallow-doctype-decl", true);
+        setFeatureQuietly(factory, "http://xml.org/sax/features/external-general-entities", false);
+        setFeatureQuietly(factory, "http://xml.org/sax/features/external-parameter-entities", false);
+        setFeatureQuietly(factory, "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        setFeatureQuietly(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        return factory.newSAXParser();
+    }
+
+    private void setFeatureQuietly(SAXParserFactory factory, String feature, boolean value) {
+        try {
+            factory.setFeature(feature, value);
+        } catch (SAXNotRecognizedException | SAXNotSupportedException | ParserConfigurationException ignored) {
+            // 파서가 해당 feature를 지원하지 않으면 다른 feature만으로도 방어가 충분하므로 무시한다.
+        }
+    }
+
+    private static class BufferedImageTranscoder extends ImageTranscoder {
+        private BufferedImage image;
+
+        @Override
+        public BufferedImage createImage(int w, int h) {
+            return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        }
+
+        @Override
+        public void writeImage(BufferedImage image, TranscoderOutput out) {
+            this.image = image;
+        }
+
+        private BufferedImage getBufferedImage() {
+            return image;
+        }
+    }
+
+    private String getExtension(String filename, String defaultExtension) {
+        if (FormatValidator.hasNoValue(filename)) {
+            return defaultExtension;
+        }
+
+        int idx = filename.lastIndexOf('.');
+        if (idx < 0) {
+            return defaultExtension;
+        }
+
+        return filename.substring(idx + 1).toLowerCase();
+    }
+
+    private String appendSizeToFilename(String originalFilename, String sizeTag) {
+        if (FormatValidator.hasNoValue(originalFilename)) {
+            return sizeTag;
+        }
+
+        int idx = originalFilename.lastIndexOf('.');
+        if (idx < 0) {
+            return originalFilename + "_" + sizeTag;
+        }
+
+        String name = originalFilename.substring(0, idx);
+        String ext = originalFilename.substring(idx + 1);
+
+        return name + "_" + sizeTag + "." + ext;
+    }
+
+    private String normalizeFormat(String extension) {
+        if (FormatValidator.hasNoValue(extension)) {
+            return "png";
+        }
+
+        if ("jpg".equals(extension) || "jpeg".equals(extension)) {
+            return "jpeg";
+        }
+
+        return extension;
+    }
+
+    private String contentTypeFor(String format) {
+        if ("jpeg".equals(format)) {
+            return "image/jpeg";
+        }
+
+        return "image/" + format;
+    }
+}

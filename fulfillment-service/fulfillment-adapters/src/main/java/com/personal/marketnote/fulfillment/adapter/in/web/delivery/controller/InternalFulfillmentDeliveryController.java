@@ -1,0 +1,180 @@
+package com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller;
+
+import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller.apidocs.GetFulfillmentWorkStatusApiDocs;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller.apidocs.GetInternalReturnGodDetailApiDocs;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller.apidocs.GetShippingStatusApiDocs;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller.apidocs.RegisterInternalReturnDeliveryApiDocs;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.request.RegisterInternalReturnDeliveryRequest;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.GetFulfillmentWorkStatusResponse;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.GetInternalReturnGodDetailResponse;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.GetShippingStatusResponse;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.RegisterInternalReturnDeliveryResponse;
+import com.personal.marketnote.fulfillment.port.in.command.*;
+import com.personal.marketnote.fulfillment.port.in.result.GetFulfillmentWorkStatusResult;
+import com.personal.marketnote.fulfillment.port.in.result.GetInternalReturnGodDetailResult;
+import com.personal.marketnote.fulfillment.port.in.result.GetShippingStatusResult;
+import com.personal.marketnote.fulfillment.port.in.result.RegisterInternalReturnDeliveryResult;
+import com.personal.marketnote.fulfillment.port.in.usecase.GetFulfillmentWorkStatusUseCase;
+import com.personal.marketnote.fulfillment.port.in.usecase.GetInternalReturnGodDetailUseCase;
+import com.personal.marketnote.fulfillment.port.in.usecase.GetShippingStatusUseCase;
+import com.personal.marketnote.fulfillment.port.in.usecase.RegisterInternalReturnDeliveryUseCase;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
+
+/**
+ * 내부 풀필먼트 출고 컨트롤러 (서비스 간 통신용)
+ */
+@RestController
+@RequestMapping("/api/v1/internal/fulfillment/deliveries")
+@Tag(
+        name = "내부 풀필먼트 출고 API",
+        description = "서비스 간 통신용 풀필먼트 출고 API"
+)
+@RequiredArgsConstructor
+public class InternalFulfillmentDeliveryController {
+    private final GetFulfillmentWorkStatusUseCase getFulfillmentWorkStatusUseCase;
+    private final RegisterInternalReturnDeliveryUseCase registerInternalReturnDeliveryUseCase;
+    private final GetInternalReturnGodDetailUseCase getInternalReturnGodDetailUseCase;
+    private final GetShippingStatusUseCase getShippingStatusUseCase;
+
+    /**
+     * 풀필먼트 작업 상태 조회 (서비스 간 통신용)
+     *
+     * @param orderId 주문 ID
+     */
+    @GetMapping("/work-status")
+    @GetFulfillmentWorkStatusApiDocs
+    public ResponseEntity<BaseResponse<GetFulfillmentWorkStatusResponse>> getWorkStatus(
+            @RequestParam("order-id") Long orderId
+    ) {
+        GetFulfillmentWorkStatusResult result = getFulfillmentWorkStatusUseCase.getWorkStatus(
+                new GetFulfillmentWorkStatusCommand(orderId)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetFulfillmentWorkStatusResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "풀필먼트 작업 상태 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 배송 상태 조회 (서비스 간 통신용)
+     *
+     * @param orderId 주문 ID
+     */
+    @GetMapping("/shipping-status")
+    @GetShippingStatusApiDocs
+    public ResponseEntity<BaseResponse<GetShippingStatusResponse>> getShippingStatus(
+            @RequestParam("order-id") Long orderId
+    ) {
+        GetShippingStatusResult result = getShippingStatusUseCase.getShippingStatus(
+                new GetShippingStatusCommand(orderId)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetShippingStatusResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "배송 상태 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 풀필먼트 반품 등록 (서비스 간 통신용)
+     *
+     * @param request 반품 등록 요청 (orderId, 회수지 정보, 반품 사유, 상품 목록)
+     */
+    @PostMapping("/return")
+    @RegisterInternalReturnDeliveryApiDocs
+    public ResponseEntity<BaseResponse<RegisterInternalReturnDeliveryResponse>> registerReturnDelivery(
+            @Valid @RequestBody RegisterInternalReturnDeliveryRequest request
+    ) {
+        RegisterInternalReturnDeliveryCommand command = mapToCommand(request);
+        RegisterInternalReturnDeliveryResult result = registerInternalReturnDeliveryUseCase.registerReturnDelivery(command);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        RegisterInternalReturnDeliveryResponse.from(result),
+                        HttpStatus.CREATED,
+                        DEFAULT_SUCCESS_CODE,
+                        "풀필먼트 반품 등록 성공"
+                ),
+                HttpStatus.CREATED
+        );
+    }
+
+    /**
+     * 풀필먼트 반품 완료 상품 상세 조회 (서비스 간 통신용)
+     *
+     * @param returnSlipNumbers 반품 요청번호 (콤마 구분)
+     */
+    @GetMapping("/return-god-detail")
+    @GetInternalReturnGodDetailApiDocs
+    public ResponseEntity<BaseResponse<GetInternalReturnGodDetailResponse>> getReturnGodDetail(
+            @RequestParam("return-slip-numbers") String returnSlipNumbers
+    ) {
+        GetInternalReturnGodDetailResult result = getInternalReturnGodDetailUseCase.getReturnGodDetail(
+                GetInternalReturnGodDetailCommand.of(returnSlipNumbers)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetInternalReturnGodDetailResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "풀필먼트 반품 완료 상품 상세 목록 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    private RegisterInternalReturnDeliveryCommand mapToCommand(RegisterInternalReturnDeliveryRequest request) {
+        List<RegisterInternalReturnDeliveryProductCommand> products = mapProducts(request.products());
+
+        return RegisterInternalReturnDeliveryCommand.builder()
+                .orderId(request.orderId())
+                .orderDate(request.orderDate())
+                .recipientName(request.recipientName())
+                .recipientPhoneNumber(request.recipientPhoneNumber())
+                .recipientAddress(request.recipientAddress())
+                .pickupRecipientName(request.pickupRecipientName())
+                .pickupRecipientPhoneNumber(request.pickupRecipientPhoneNumber())
+                .pickupZipCode(request.pickupZipCode())
+                .pickupAddress(request.pickupAddress())
+                .pickupAddressDetail(request.pickupAddressDetail())
+                .returnReason(request.returnReason())
+                .returnDetailReason(request.returnDetailReason())
+                .returnShippingRequest(request.returnShippingRequest())
+                .products(products)
+                .build();
+    }
+
+    private List<RegisterInternalReturnDeliveryProductCommand> mapProducts(
+            List<RegisterInternalReturnDeliveryRequest.ProductItem> items
+    ) {
+        if (FormatValidator.hasNoValue(items)) {
+            return List.of();
+        }
+        return items.stream()
+                .map(item -> RegisterInternalReturnDeliveryProductCommand.of(item.productKey(), item.quantity()))
+                .toList();
+    }
+}

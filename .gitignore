@@ -35,3 +35,12 @@ out/
 
 ### VS Code ###
 .vscode/
+logs/
+.github/
+commerce-openapi.json
+community-openapi.json
+files-openapi.json
+fulfillment-openapi.json
+products-openapi.json
+rewards-openapi.json
+users-openapi.json

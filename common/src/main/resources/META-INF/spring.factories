@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.personal.marketnote.common.configuration.InterceptorConfig,\
+com.personal.marketnote.common.configuration.AuditConfig

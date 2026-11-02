@@ -1,0 +1,389 @@
+package com.personal.marketnote.commerce.service.payment.idempotency;
+
+import com.personal.marketnote.commerce.domain.payment.Payment;
+import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
+import com.personal.marketnote.commerce.domain.payment.idempotency.PaymentCancelIdempotency;
+import com.personal.marketnote.commerce.domain.payment.idempotency.PaymentCancelIdempotencySnapshotState;
+import com.personal.marketnote.commerce.domain.payment.idempotency.PaymentCancelIdempotencyStatus;
+import com.personal.marketnote.commerce.exception.DuplicateIdempotencyKeyException;
+import com.personal.marketnote.commerce.exception.IdempotencyKeyInProgressException;
+import com.personal.marketnote.commerce.port.out.payment.FindPaymentPort;
+import com.personal.marketnote.commerce.port.out.payment.idempotency.FindPaymentCancelIdempotencyPort;
+import com.personal.marketnote.commerce.port.out.payment.idempotency.SavePaymentCancelIdempotencyPort;
+import com.personal.marketnote.commerce.port.out.payment.idempotency.UpdatePaymentCancelIdempotencyPort;
+import com.personal.marketnote.common.utility.metrics.CounterRegistryHelper;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.transaction.TransactionSystemException;
+import org.springframework.transaction.UnexpectedRollbackException;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("PaymentCancelIdempotencyHelper 테스트")
+class PaymentCancelIdempotencyHelperTest {
+
+    @InjectMocks
+    private PaymentCancelIdempotencyHelper helper;
+
+    @Mock
+    private FindPaymentPort findPaymentPort;
+
+    @Mock
+    private FindPaymentCancelIdempotencyPort findIdempotencyPort;
+
+    @Mock
+    private SavePaymentCancelIdempotencyPort saveIdempotencyPort;
+
+    @Mock
+    private UpdatePaymentCancelIdempotencyPort updateIdempotencyPort;
+
+    @Mock
+    private CounterRegistryHelper counterRegistryHelper;
+
+    private static final String KEY = "11111111-2222-4333-8444-555555555555";
+    private static final Long BUYER_ID = 100L;
+    private static final Long PAYMENT_ID = 7L;
+    private static final UUID ORDER_KEY_UUID = UUID.randomUUID();
+    private static final String ORDER_KEY = ORDER_KEY_UUID.toString();
+
+    @Nested
+    @DisplayName("findOrCreate")
+    class FindOrCreateTest {
+
+        @Test
+        @DisplayName("기존 레코드가 없으면 신규 INSERT 후 NEW 시그널을 반환한다")
+        void shouldReturnNewWhenAbsent() {
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.empty());
+            when(findPaymentPort.findByOrderKey(ORDER_KEY_UUID)).thenReturn(Optional.of(samplePayment()));
+
+            PaymentCancelIdempotencyResolution result = helper.findOrCreate(KEY, ORDER_KEY, BUYER_ID);
+
+            assertThat(result.signal()).isEqualTo(PaymentCancelIdempotencyResolution.Signal.NEW);
+            verify(saveIdempotencyPort).save(any(PaymentCancelIdempotency.class));
+        }
+
+        @Test
+        @DisplayName("기존 레코드가 COMPLETED 이면 CACHED 시그널과 저장된 result 를 반환한다")
+        void shouldReturnCachedWhenCompleted() {
+            PaymentCancelIdempotency completed = snapshot(PaymentCancelIdempotencyStatus.COMPLETED, "{\"ok\":true}");
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(completed));
+
+            PaymentCancelIdempotencyResolution result = helper.findOrCreate(KEY, ORDER_KEY, BUYER_ID);
+
+            assertThat(result.signal()).isEqualTo(PaymentCancelIdempotencyResolution.Signal.CACHED);
+            assertThat(result.cachedResult()).isEqualTo("{\"ok\":true}");
+            verify(saveIdempotencyPort, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("기존 레코드가 IN_PROGRESS 이면 IdempotencyKeyInProgressException 을 던진다")
+        void shouldThrowWhenInProgress() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+
+            assertThatThrownBy(() -> helper.findOrCreate(KEY, ORDER_KEY, BUYER_ID))
+                    .isInstanceOf(IdempotencyKeyInProgressException.class);
+            verify(saveIdempotencyPort, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("기존 레코드가 FAILED 이면 retry() 후 RETRY 시그널을 반환한다")
+        void shouldTransitionToInProgressAndReturnRetryWhenFailed() {
+            PaymentCancelIdempotency failed = snapshot(PaymentCancelIdempotencyStatus.FAILED, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(failed));
+
+            PaymentCancelIdempotencyResolution result = helper.findOrCreate(KEY, ORDER_KEY, BUYER_ID);
+
+            assertThat(result.signal()).isEqualTo(PaymentCancelIdempotencyResolution.Signal.RETRY);
+            verify(updateIdempotencyPort).update(failed);
+            assertThat(failed.isInProgress()).isTrue();
+        }
+
+        @Test
+        @DisplayName("INSERT UNIQUE 충돌 시 재조회로 경합을 해소한다 — 상대가 COMPLETED 면 CACHED 반환")
+        void shouldResolveRaceWhenDuplicateInsert() {
+            when(findIdempotencyPort.findByIdempotencyKey(KEY))
+                    .thenReturn(Optional.empty())
+                    .thenReturn(Optional.of(snapshot(PaymentCancelIdempotencyStatus.COMPLETED, "{\"from\":\"peer\"}")));
+            when(findPaymentPort.findByOrderKey(ORDER_KEY_UUID)).thenReturn(Optional.of(samplePayment()));
+            when(saveIdempotencyPort.save(any(PaymentCancelIdempotency.class)))
+                    .thenThrow(new DuplicateIdempotencyKeyException(KEY));
+
+            PaymentCancelIdempotencyResolution result = helper.findOrCreate(KEY, ORDER_KEY, BUYER_ID);
+
+            assertThat(result.signal()).isEqualTo(PaymentCancelIdempotencyResolution.Signal.CACHED);
+            assertThat(result.cachedResult()).isEqualTo("{\"from\":\"peer\"}");
+        }
+    }
+
+    @Nested
+    @DisplayName("markCompleted")
+    class MarkCompletedTest {
+
+        @Test
+        @DisplayName("IN_PROGRESS 인 레코드를 COMPLETED 로 전이하고 result 를 저장한다")
+        void shouldCompleteWhenInProgress() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+
+            helper.markCompleted(KEY, "{\"done\":true}");
+
+            ArgumentCaptor<PaymentCancelIdempotency> captor = ArgumentCaptor.forClass(PaymentCancelIdempotency.class);
+            verify(updateIdempotencyPort).update(captor.capture());
+            assertThat(captor.getValue().isCompleted()).isTrue();
+            assertThat(captor.getValue().getResult()).isEqualTo("{\"done\":true}");
+        }
+
+        @Test
+        @DisplayName("레코드 없음 → 업데이트 스킵 (예외 던지지 않음)")
+        void shouldSkipWhenAbsent() {
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.empty());
+
+            helper.markCompleted(KEY, "{}");
+
+            verify(updateIdempotencyPort, never()).update(any());
+        }
+
+        @Test
+        @DisplayName("markCompleted 정상 처리 시 swallowed 카운터는 증가하지 않는다")
+        void shouldNotIncrementSwallowedCounterWhenSuccess() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+
+            helper.markCompleted(KEY, "{\"done\":true}");
+
+            verifyNoInteractions(counterRegistryHelper);
+        }
+
+        @Test
+        @DisplayName("markCompleted 중 DataAccessException 은 삼켜서 원본 성공 흐름을 가리지 않는다")
+        void shouldSwallowDataAccessException() {
+            when(findIdempotencyPort.findByIdempotencyKey(KEY))
+                    .thenThrow(new DataAccessResourceFailureException("조회 실패"));
+
+            assertThatCode(() -> helper.markCompleted(KEY, "{}"))
+                    .doesNotThrowAnyException();
+
+            verify(updateIdempotencyPort, never()).update(any());
+            verify(counterRegistryHelper).increment(
+                    eq("payment.cancel.idempotency.mark_completed.swallowed.total"),
+                    anyString(),
+                    eq("exception_type"),
+                    eq("DataAccessResourceFailureException")
+            );
+        }
+
+        @Test
+        @DisplayName("markCompleted 중 TransactionSystemException 발생 시 swallowed 카운터가 TransactionSystemException 타입으로 증가한다")
+        void shouldIncrementSwallowedCounterWhenTransactionSystemException() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+            doThrow(new TransactionSystemException("flush failure"))
+                    .when(updateIdempotencyPort).update(inProgress);
+
+            assertThatCode(() -> helper.markCompleted(KEY, "{\"done\":true}"))
+                    .doesNotThrowAnyException();
+
+            verify(updateIdempotencyPort).update(inProgress);
+            verify(counterRegistryHelper).increment(
+                    eq("payment.cancel.idempotency.mark_completed.swallowed.total"),
+                    anyString(),
+                    eq("exception_type"),
+                    eq("TransactionSystemException")
+            );
+        }
+
+        @Test
+        @DisplayName("markCompleted 중 UnexpectedRollbackException 발생 시 삼키고 swallowed 카운터가 UnexpectedRollbackException 타입으로 증가한다")
+        void shouldSwallowUnexpectedRollbackException() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+            doThrow(new UnexpectedRollbackException("rolled back"))
+                    .when(updateIdempotencyPort).update(inProgress);
+
+            assertThatCode(() -> helper.markCompleted(KEY, "{\"done\":true}"))
+                    .doesNotThrowAnyException();
+
+            verify(updateIdempotencyPort).update(inProgress);
+            verify(counterRegistryHelper).increment(
+                    eq("payment.cancel.idempotency.mark_completed.swallowed.total"),
+                    anyString(),
+                    eq("exception_type"),
+                    eq("UnexpectedRollbackException")
+            );
+        }
+
+        @Test
+        @DisplayName("markCompleted 중 예기치 못한 RuntimeException 은 전파하여 조용히 삼키지 않는다")
+        void shouldPropagateUnexpectedRuntimeException() {
+            when(findIdempotencyPort.findByIdempotencyKey(KEY))
+                    .thenThrow(new RuntimeException("예기치 못한 결함"));
+
+            assertThatThrownBy(() -> helper.markCompleted(KEY, "{}"))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("예기치 못한 결함");
+
+            verify(updateIdempotencyPort, never()).update(any());
+            verifyNoInteractions(counterRegistryHelper);
+        }
+    }
+
+    @Nested
+    @DisplayName("markFailed")
+    class MarkFailedTest {
+
+        @Test
+        @DisplayName("IN_PROGRESS 인 레코드를 FAILED 로 전이한다")
+        void shouldFailWhenInProgress() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+
+            helper.markFailed(KEY, "DB 오류");
+
+            ArgumentCaptor<PaymentCancelIdempotency> captor = ArgumentCaptor.forClass(PaymentCancelIdempotency.class);
+            verify(updateIdempotencyPort).update(captor.capture());
+            assertThat(captor.getValue().isFailed()).isTrue();
+            assertThat(captor.getValue().getFailedReason()).isEqualTo("DB 오류");
+        }
+
+        @Test
+        @DisplayName("markFailed 정상 처리 시 swallowed 카운터는 증가하지 않는다")
+        void shouldNotIncrementSwallowedCounterWhenSuccess() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+
+            helper.markFailed(KEY, "DB 오류");
+
+            verifyNoInteractions(counterRegistryHelper);
+        }
+
+        @Test
+        @DisplayName("이미 COMPLETED 인 레코드는 업데이트 스킵")
+        void shouldSkipWhenAlreadyCompleted() {
+            PaymentCancelIdempotency completed = snapshot(PaymentCancelIdempotencyStatus.COMPLETED, "{}");
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(completed));
+
+            helper.markFailed(KEY, "reason");
+
+            verify(updateIdempotencyPort, never()).update(any());
+        }
+
+        @Test
+        @DisplayName("DataAccessException 은 삼켜서 원본 실패 원인을 가리지 않는다")
+        void shouldSwallowDataAccessException() {
+            when(findIdempotencyPort.findByIdempotencyKey(KEY))
+                    .thenThrow(new DataAccessResourceFailureException("조회 실패"));
+
+            helper.markFailed(KEY, "reason");
+
+            verify(updateIdempotencyPort, never()).update(any());
+            verify(counterRegistryHelper).increment(
+                    eq("payment.cancel.idempotency.mark_failed.swallowed.total"),
+                    anyString(),
+                    eq("exception_type"),
+                    eq("DataAccessResourceFailureException")
+            );
+        }
+
+        @Test
+        @DisplayName("예기치 못한 RuntimeException 은 전파하여 조용히 삼키지 않는다")
+        void shouldPropagateUnexpectedRuntimeException() {
+            when(findIdempotencyPort.findByIdempotencyKey(KEY))
+                    .thenThrow(new RuntimeException("예기치 못한 결함"));
+
+            assertThatThrownBy(() -> helper.markFailed(KEY, "reason"))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("예기치 못한 결함");
+
+            verify(updateIdempotencyPort, never()).update(any());
+            verifyNoInteractions(counterRegistryHelper);
+        }
+
+        @Test
+        @DisplayName("markFailed 중 TransactionException 발생 시 swallowed 카운터가 TransactionException 타입으로 증가한다")
+        void shouldIncrementSwallowedCounterWhenTransactionSystemException() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+            doThrow(new TransactionSystemException("flush failure"))
+                    .when(updateIdempotencyPort).update(inProgress);
+
+            assertThatCode(() -> helper.markFailed(KEY, "reason"))
+                    .doesNotThrowAnyException();
+
+            verify(updateIdempotencyPort).update(inProgress);
+            verify(counterRegistryHelper).increment(
+                    eq("payment.cancel.idempotency.mark_failed.swallowed.total"),
+                    anyString(),
+                    eq("exception_type"),
+                    eq("TransactionSystemException")
+            );
+        }
+
+        @Test
+        @DisplayName("UnexpectedRollbackException 발생 시 삼키고 swallowed 카운터가 UnexpectedRollbackException 타입으로 증가한다")
+        void shouldSwallowUnexpectedRollbackException() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+            doThrow(new UnexpectedRollbackException("rolled back"))
+                    .when(updateIdempotencyPort).update(inProgress);
+
+            assertThatCode(() -> helper.markFailed(KEY, "reason"))
+                    .doesNotThrowAnyException();
+
+            verify(updateIdempotencyPort).update(inProgress);
+            verify(counterRegistryHelper).increment(
+                    eq("payment.cancel.idempotency.mark_failed.swallowed.total"),
+                    anyString(),
+                    eq("exception_type"),
+                    eq("UnexpectedRollbackException")
+            );
+        }
+    }
+
+    private Payment samplePayment() {
+        Payment payment = Payment.from(PaymentCreateState.builder()
+                .orderId(1L)
+                .orderKey(ORDER_KEY_UUID)
+                .paymentAmount(10000L)
+                .build());
+        payment.markAsSuccess("tno");
+        return PaymentCancelIdempotencyHelperTest.inject(payment, PAYMENT_ID);
+    }
+
+    private static Payment inject(Payment payment, Long id) {
+        try {
+            java.lang.reflect.Field field = Payment.class.getDeclaredField("id");
+            field.setAccessible(true);
+            field.set(payment, id);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+        return payment;
+    }
+
+    private PaymentCancelIdempotency snapshot(PaymentCancelIdempotencyStatus status, String result) {
+        return PaymentCancelIdempotency.from(
+                PaymentCancelIdempotencySnapshotState.builder()
+                        .id(1L)
+                        .idempotencyKey(KEY)
+                        .paymentId(PAYMENT_ID)
+                        .buyerId(BUYER_ID)
+                        .status(status)
+                        .result(result)
+                        .build()
+        );
+    }
+}

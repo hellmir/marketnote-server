@@ -1,0 +1,304 @@
+package com.personal.marketnote.reward.adapter.out.persistence.gifticon;
+
+import com.personal.marketnote.reward.adapter.out.persistence.gifticon.entity.GifticonGoodsJpaEntity;
+import com.personal.marketnote.reward.adapter.out.persistence.gifticon.repository.GifticonGoodsJpaRepository;
+import com.personal.marketnote.reward.domain.exception.GifticonGoodsNotFoundException;
+import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
+import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
+import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
+import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort.FindAllForAdminResult;
+import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort.GifticonGoodsBrandProjection;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("GifticonGoodsPersistenceAdapter 테스트")
+class GifticonGoodsPersistenceAdapterTest {
+
+    @Mock
+    private GifticonGoodsJpaRepository repository;
+
+    @InjectMocks
+    private GifticonGoodsPersistenceAdapter adapter;
+
+    private GifticonGoodsJpaEntity buildEntity(Long id, String goodsCode) {
+        GifticonGoods restored = GifticonGoods.from(GifticonGoodsSnapshotState.builder()
+                .id(id)
+                .goodsCode(goodsCode)
+                .goodsName("테스트 상품")
+                .brandCode("B001")
+                .brandName("스타벅스")
+                .brandImageUrl("http://img.test.com/brand.jpg")
+                .categoryCode("C001")
+                .realPrice(12_000L)
+                .salePrice(10_000L)
+                .cashPrice(10_000L)
+                .imageUrl("http://img.test.com/goods.jpg")
+                .description("테스트 상품 설명")
+                .validDays(30)
+                .goodsStatus(GoodsStatus.SALE)
+                .exposed(true)
+                .popular(false)
+                .orderNum(1)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build());
+        return GifticonGoodsJpaEntity.from(restored);
+    }
+
+    @Test
+    @DisplayName("findByGoodsCode는 엔티티를 도메인으로 변환한다")
+    void shouldFindByGoodsCode() {
+        given(repository.findByGoodsCode("G001")).willReturn(Optional.of(buildEntity(1L, "G001")));
+        Optional<GifticonGoods> result = adapter.findByGoodsCode("G001");
+        assertThat(result).isPresent();
+        assertThat(result.get().getGoodsCode().getValue()).isEqualTo("G001");
+    }
+
+    @Test
+    @DisplayName("findAllByGoodsStatus는 모든 엔티티를 도메인 리스트로 반환한다")
+    void shouldFindAllByGoodsStatus() {
+        given(repository.findAllByGoodsStatus(GoodsStatus.SALE))
+                .willReturn(List.of(buildEntity(1L, "G001"), buildEntity(2L, "G002")));
+        List<GifticonGoods> result = adapter.findAllByGoodsStatus(GoodsStatus.SALE);
+        assertThat(result).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("save는 엔티티를 저장한다")
+    void shouldSave() {
+        GifticonGoods domain = buildEntity(1L, "G001").toDomain();
+        adapter.save(domain);
+        verify(repository).save(any(GifticonGoodsJpaEntity.class));
+    }
+
+    @Nested
+    @DisplayName("update")
+    class UpdateTest {
+
+        @Test
+        @DisplayName("기존 엔티티가 존재하면 updateFrom으로 도메인 상태를 반영한다")
+        void shouldUpdateExistingEntity() {
+            // given
+            GifticonGoodsJpaEntity existing = buildEntity(1L, "G001");
+            given(repository.findById(1L)).willReturn(Optional.of(existing));
+
+            // when
+            adapter.update(existing.toDomain());
+
+            // then
+            verify(repository).findById(1L);
+        }
+
+        @Test
+        @DisplayName("기존 엔티티가 없으면 GifticonGoodsNotFoundException을 던진다")
+        void shouldThrowNotFoundWhenNoEntity() {
+            GifticonGoodsJpaEntity sample = buildEntity(99L, "G099");
+            given(repository.findById(99L)).willReturn(Optional.empty());
+            assertThatThrownBy(() -> adapter.update(sample.toDomain()))
+                    .isInstanceOf(GifticonGoodsNotFoundException.class);
+        }
+    }
+
+    @Test
+    @DisplayName("findDistinctBrandsByCategoryCode는 Object[] 결과를 GifticonGoodsBrandProjection으로 매핑한다")
+    void shouldMapDistinctBrandsProjection() {
+        // given
+        List<Object[]> rows = List.of(
+                new Object[]{"B001", "스타벅스", "http://img.test.com/brand1.jpg"},
+                new Object[]{"B002", "베스킨라빈스", "http://img.test.com/brand2.jpg"}
+        );
+        given(repository.findDistinctBrandsByCategoryCode("C001", GoodsStatus.SALE)).willReturn(rows);
+
+        // when
+        List<GifticonGoodsBrandProjection> result = adapter.findDistinctBrandsByCategoryCode("C001");
+
+        // then
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).brandCode()).isEqualTo("B001");
+        assertThat(result.get(0).brandName()).isEqualTo("스타벅스");
+    }
+
+    @Nested
+    @DisplayName("findAllForAdmin")
+    class FindAllForAdminTest {
+
+        @Test
+        @DisplayName("goodsStatus가 null이면 통합 findAllForAdmin을 status=null로 호출한다")
+        void shouldUseFindAllForAdminWithNullStatus() {
+            // given
+            Page<GifticonGoodsJpaEntity> page = new PageImpl<>(List.of(buildEntity(1L, "G001")));
+            given(repository.findAllForAdmin(eq(null), any(), any(), any(Pageable.class))).willReturn(page);
+
+            // when
+            FindAllForAdminResult result = adapter.findAllForAdmin(1, 10, null, true, "");
+
+            // then
+            assertThat(result.items()).hasSize(1);
+            assertThat(result.totalElements()).isEqualTo(1L);
+            verify(repository).findAllForAdmin(eq(null), eq(true), eq(""), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("goodsStatus가 있으면 통합 findAllForAdmin에 status를 전달한다")
+        void shouldUseFindAllForAdminWithStatus() {
+            // given
+            Page<GifticonGoodsJpaEntity> page = new PageImpl<>(List.of(buildEntity(1L, "G001")));
+            given(repository.findAllForAdmin(eq(GoodsStatus.SALE), any(), any(), any(Pageable.class)))
+                    .willReturn(page);
+
+            // when
+            FindAllForAdminResult result = adapter.findAllForAdmin(1, 10, GoodsStatus.SALE, null, "테스트");
+
+            // then
+            assertThat(result.items()).hasSize(1);
+            verify(repository).findAllForAdmin(eq(GoodsStatus.SALE), eq(null), eq("테스트"), any(Pageable.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("findAllExposedByCursor")
+    class FindAllExposedByCursorTest {
+
+        @Test
+        @DisplayName("cursor=-1이면 findExposedByAnchor를 anchor=null로 호출하고 null 파라미터를 빈 문자열로 변환한다")
+        void shouldUseFirstPageQueryWhenCursorIsFirstPage() {
+            given(repository.findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class))
+            ).willReturn(List.of(buildEntity(1L, "G001")));
+
+            List<GifticonGoods> result = adapter.findAllExposedByCursor(null, null, -1L, 10);
+
+            assertThat(result).hasSize(1);
+            verify(repository).findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("cursor 아이템의 orderNum이 null이 아니면 findExposedByAnchor에 non-null anchorOrderNum을 전달한다")
+        void shouldRouteWithNonNullAnchorOrderNum() {
+            GifticonGoodsJpaEntity anchorEntity = buildEntity(5L, "G005");
+            given(repository.findById(5L)).willReturn(Optional.of(anchorEntity));
+            given(repository.findExposedByAnchor(
+                    eq("C001"), eq("B001"), eq(GoodsStatus.SALE), eq(1), eq(5L), any(Pageable.class))
+            ).willReturn(List.of(buildEntity(6L, "G006")));
+
+            List<GifticonGoods> result = adapter.findAllExposedByCursor("C001", "B001", 5L, 10);
+
+            assertThat(result).hasSize(1);
+            verify(repository).findExposedByAnchor(
+                    eq("C001"), eq("B001"), eq(GoodsStatus.SALE), eq(1), eq(5L), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("cursor 아이템의 orderNum이 null이면 findExposedByAnchor에 anchorOrderNum=null, anchorId만 전달한다")
+        void shouldRouteWithNullAnchorOrderNum() {
+            GifticonGoodsJpaEntity anchorEntity = buildEntityWithOrderNum(7L, "G007", null);
+            given(repository.findById(7L)).willReturn(Optional.of(anchorEntity));
+            given(repository.findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(7L), any(Pageable.class))
+            ).willReturn(List.of(buildEntity(8L, "G008")));
+
+            List<GifticonGoods> result = adapter.findAllExposedByCursor(null, null, 7L, 10);
+
+            assertThat(result).hasSize(1);
+            verify(repository).findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(7L), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("cursor가 존재하지 않으면 findExposedByAnchor를 anchor=null로 폴백 호출한다")
+        void shouldFallbackToFirstPageWhenCursorMissing() {
+            given(repository.findById(99L)).willReturn(Optional.empty());
+            given(repository.findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class))
+            ).willReturn(List.of(buildEntity(1L, "G001")));
+
+            List<GifticonGoods> result = adapter.findAllExposedByCursor(null, null, 99L, 10);
+
+            assertThat(result).hasSize(1);
+            verify(repository).findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("공백 문자열 카테고리/브랜드는 빈 문자열로 정규화된다")
+        void shouldNormalizeBlankFiltersToEmpty() {
+            given(repository.findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class))
+            ).willReturn(List.of());
+
+            adapter.findAllExposedByCursor("   ", "", -1L, 10);
+
+            verify(repository).findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class));
+        }
+    }
+
+    @Test
+    @DisplayName("countAllExposed는 검색 조건으로 총 건수를 반환한다")
+    void shouldCountAllExposed() {
+        given(repository.countAllExposed("C001", "B001", GoodsStatus.SALE)).willReturn(42L);
+        assertThat(adapter.countAllExposed("C001", "B001")).isEqualTo(42L);
+    }
+
+    @Test
+    @DisplayName("countAllExposed는 null 파라미터를 빈 문자열로 변환하여 호출한다")
+    void shouldCountAllExposedWithNullParams() {
+        given(repository.countAllExposed("", "", GoodsStatus.SALE)).willReturn(10L);
+        assertThat(adapter.countAllExposed(null, null)).isEqualTo(10L);
+    }
+
+    private GifticonGoodsJpaEntity buildEntityWithOrderNum(Long id, String goodsCode, Integer orderNum) {
+        GifticonGoods restored = GifticonGoods.from(GifticonGoodsSnapshotState.builder()
+                .id(id)
+                .goodsCode(goodsCode)
+                .goodsName("테스트 상품")
+                .brandCode("B001")
+                .brandName("스타벅스")
+                .brandImageUrl("http://img.test.com/brand.jpg")
+                .categoryCode("C001")
+                .realPrice(12_000L)
+                .salePrice(10_000L)
+                .cashPrice(10_000L)
+                .imageUrl("http://img.test.com/goods.jpg")
+                .description("테스트 상품 설명")
+                .validDays(30)
+                .goodsStatus(GoodsStatus.SALE)
+                .exposed(true)
+                .popular(false)
+                .orderNum(orderNum)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build());
+        return GifticonGoodsJpaEntity.from(restored);
+    }
+
+    @Test
+    @DisplayName("findAllPopularAndExposed는 인기 상품 리스트를 반환한다")
+    void shouldFindAllPopularAndExposed() {
+        given(repository.findAllPopularAndExposed(eq(GoodsStatus.SALE), any(Pageable.class)))
+                .willReturn(List.of(buildEntity(1L, "G001"), buildEntity(2L, "G002")));
+        List<GifticonGoods> result = adapter.findAllPopularAndExposed(5);
+        assertThat(result).hasSize(2);
+    }
+}

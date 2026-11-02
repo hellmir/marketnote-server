@@ -1,0 +1,181 @@
+spring:
+  application:
+    name: ${env.SERVICE_NAME:fulfillment-service}
+  jackson:
+    time-zone: Asia/Seoul
+  threads:
+    virtual:
+      enabled: true
+
+  jwt:
+    secret: ${JWT_SECRET_KEY:dev-secret-change-me}
+    admin-access-token: ${JWT_ADMIN_ACCESS_TOKEN:abc}
+
+  hmac:
+    secret-key: ${HMAC_SECRET_KEY:dev-hmac-secret-change-me}
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/marketnote_fulfillment}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  data:
+    redis:
+      host: ${REDIS_HOST_NAME:localhost}
+      port: 6379
+      password: ${REDIS_PASSWORD:password}
+      repositories:
+        enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 20260410
+    locations: classpath:db/migration
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:org/springframework/batch/core/schema-postgresql.sql
+      continue-on-error: true
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    sasl:
+      enabled: ${KAFKA_SASL_ENABLED:false}
+      mechanism: ${KAFKA_SASL_MECHANISM:SCRAM-SHA-256}
+      protocol: ${KAFKA_SASL_PROTOCOL:SASL_SSL}
+      username: ${KAFKA_SASL_USERNAME:}
+      password: ${KAFKA_SASL_PASSWORD:}
+      ssl-truststore-location: ${KAFKA_SSL_TRUSTSTORE_LOCATION:classpath:kafka.truststore.jks}
+      ssl-truststore-password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD:}
+    consumer:
+      group-id: ${spring.application.name}
+
+client:
+  origin: ${CLIENT_ORIGIN:http://localhost:3000}
+  cookie-domain: ${COOKIE_DOMAIN:localhost}
+  cors:
+    allowed-origins: ${ACCESS_CONTROL_ALLOWED_ORIGINS:http://localhost:3000}
+
+server:
+  origin: ${SERVER_ORIGIN:http://localhost:8085}
+  error:
+    include-exception: false
+    include-stacktrace: NEVER
+    include-message: NEVER
+    whitelabel:
+      enabled: false
+
+vendor:
+  fassto:
+    auth:
+      base-url: ${FASSTO_BASE_URL:https://stg-fmsapi.fassto.ai}
+      customer-code: ${FASSTO_CUSTOMER_CODE:change-me}
+      connect-path: ${FASSTO_AUTH_CONNECT_PATH:/api/v1/auth/connect}
+      disconnect-path: ${FASSTO_AUTH_DISCONNECT_PATH:/api/v1/auth/disconnect}
+      shop-path: ${FASSTO_MARKETNOTE_PATH:/api/v1/marketnote/{customerCode}}
+      supplier-path: ${FASSTO_SUPPLIER_PATH:/api/v1/supplier/{customerCode}}
+      goods-path: ${FASSTO_GOODS_PATH:/api/v1/goods/{customerCode}}
+      goods-element-path: ${FASSTO_GOODS_ELEMENT_PATH:/api/v1/goods/element/{customerCode}}
+      warehousing-path: ${FASSTO_WAREHOUSING_PATH:/api/v1/warehousing/{customerCode}}
+      warehousing-list-path: ${FASSTO_WAREHOUSING_LIST_PATH:/api/v1/warehousing/{customerCode}/{startDate}/{endDate}}
+      warehousing-detail-path: ${FASSTO_WAREHOUSING_DETAIL_PATH:/api/v1/warehousing/detail/{customerCode}/{slipNo}}
+      warehousing-inspec-detail-path: ${FASSTO_WAREHOUSING_INSPEC_DETAIL_PATH:/api/v1/warehousing/inspec/{customerCode}/{slipNo}/{whCd}}
+      warehousing-abnormal-path: ${FASSTO_WAREHOUSING_ABNORMAL_PATH:/api/v1/warehousing/abnormal/{customerCode}/{whCd}/{slipNo}}
+      warehousing-abnormal-image-path: ${FASSTO_WAREHOUSING_ABNORMAL_IMAGE_PATH:/api/v1/warehousing/{slipNo}/{godCd}/{goodsSerialNo}/{fileSeq}/{imgNo}}
+      delivery-path: ${FASSTO_DELIVERY_PATH:/api/v1/delivery/parcel/{customerCode}}
+      delivery-car-path: ${FASSTO_DELIVERY_CAR_PATH:/api/v1/delivery/car/{customerCode}}
+      delivery-ics-path: ${FASSTO_DELIVERY_ICS_PATH:/api/v1/delivery/ics/{customerCode}}
+      delivery-list-path: ${FASSTO_DELIVERY_LIST_PATH:/api/v1/delivery/{customerCode}/{startDate}/{endDate}/{status}/{outDiv}}
+      delivery-status-path: ${FASSTO_DELIVERY_STATUS_PATH:/api/v1/delivery/parcel/{customerCode}/{startDate}/{endDate}/{outDiv}}
+      delivery-detail-path: ${FASSTO_DELIVERY_DETAIL_PATH:/api/v1/delivery/detail/{customerCode}/{slipNo}}
+      delivery-cancel-path: ${FASSTO_DELIVERY_CANCEL_PATH:/api/v1/delivery/cancel/{customerCode}}
+      delivery-out-ord-goods-detail-path: ${FASSTO_DELIVERY_OUT_ORD_GOODS_DETAIL_PATH:/api/v1/delivery/outOrd/goodsDetail/{customerCode}}
+      delivery-out-ord-goods-ord-no-path: ${FASSTO_DELIVERY_OUT_ORD_GOODS_ORD_NO_PATH:/api/v1/delivery/outOrd/ordNo/{customerCode}/{startDate}/{endDate}}
+      delivery-good-detail-path: ${FASSTO_DELIVERY_GOOD_DETAIL_PATH:/api/v1/delivery/goodDetail/{customerCode}/{startDate}/{endDate}}
+      delivery-ics-completed-path: ${FASSTO_DELIVERY_ICS_COMPLETED_PATH:/api/v1/delivery/ics/completed/{customerCode}}
+      stock-list-path: ${FASSTO_STOCK_LIST_PATH:/api/v1/stock/list/{customerCode}}
+      return-god-detail-path: ${FASSTO_RETURN_GOD_DETAIL_PATH:/api/v1/return/godDetail/{customerCode}}
+      settlement-daily-cost-path: ${FASSTO_SETTLEMENT_DAILY_COST_PATH:/api/v1/settlement/{yearMonth}/{whCd}/{customerCode}}
+      api-cd: ${FASSTO_API_CD:change-me}
+      api-key: ${FASSTO_API_KEY:change-me}
+
+fulfillment:
+  delivery-polling:
+    enabled: ${FULFILLMENT_DELIVERY_POLLING_ENABLED:false}
+    interval-ms: ${FULFILLMENT_DELIVERY_POLLING_INTERVAL_MS:1800000}
+  slack:
+    webhook-url: ${FULFILLMENT_SLACK_WEBHOOK_URL:}
+
+outbox:
+  enabled: ${OUTBOX_ENABLED:true}
+  polling-interval-ms: ${OUTBOX_POLLING_INTERVAL_MS:3000}
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    org.springframework.security: ERROR
+
+kafka:
+  slack:
+    webhook-url: ${KAFKA_SLACK_WEBHOOK_URL:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: ${MANAGEMENT_HEALTH_SHOW_DETAILS:when-authorized}
+      probes:
+        enabled: true
+      validate-group-membership: false
+      group:
+        readiness:
+          include: readinessState,db,redis,kafka
+        liveness:
+          include: livenessState
+    env:
+      keys-to-sanitize: sasl.jaas.config,sasl.*,jaas.*
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+saga:
+  enabled: ${SAGA_ENABLED:true}
+
+springdoc:
+  paths-to-exclude:
+    - /api/v1/internal/**
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: classpath:config/common-prod.yml

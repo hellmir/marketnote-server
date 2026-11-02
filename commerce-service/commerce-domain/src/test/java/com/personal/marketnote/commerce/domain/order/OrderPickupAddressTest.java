@@ -1,0 +1,149 @@
+package com.personal.marketnote.commerce.domain.order;
+
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class OrderPickupAddressTest {
+
+    @Nested
+    @DisplayName("회수지 주소 적용 (applyPickupAddress)")
+    class ApplyPickupAddressTest {
+
+        @Test
+        @DisplayName("회수지 주소가 입력되면 입력값이 그대로 적용된다")
+        void shouldApplyProvidedPickupAddress() {
+            // given
+            Order order = createOrderWithDeliveryAddress();
+
+            // when
+            order.applyPickupAddress(
+                    ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("010-9999-8888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("부재시 경비실에 맡겨주세요").build())
+            );
+
+            // then
+            assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("회수 수령인");
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-9999-8888");
+            assertThat(order.getPickupAddress().getZipCode()).isEqualTo("54321");
+            assertThat(order.getPickupAddress().getAddress()).isEqualTo("회수지 주소");
+            assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("회수지 상세주소");
+            assertThat(order.getPickupAddress().getDeliveryRequestMessage().getValue()).isEqualTo("부재시 경비실에 맡겨주세요");
+        }
+
+        @Test
+        @DisplayName("회수지 주소가 미입력이면 배송지 주소가 기본값으로 복사된다")
+        void shouldCopyDeliveryAddressWhenPickupAddressNotProvided() {
+            // given
+            Order order = createOrderWithDeliveryAddress();
+
+            // when
+            order.applyPickupAddress(null);
+
+            // then
+            assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("배송 수령인");
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-1234-5678");
+            assertThat(order.getPickupAddress().getZipCode()).isEqualTo("12345");
+            assertThat(order.getPickupAddress().getAddress()).isEqualTo("서울시 강남구");
+            assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("테헤란로 123");
+        }
+
+        @Test
+        @DisplayName("회수지 미입력 시 배송 요청사항은 회수지 요청사항으로 복사되지 않는다")
+        void shouldNotCopyDeliveryRequestMessageToPickupRequestMessage() {
+            // given
+            Order order = createOrderWithDeliveryAddress();
+
+            // when
+            order.applyPickupAddress(null);
+
+            // then
+            assertThat(order.getPickupAddress().getDeliveryRequestMessage()).isNull();
+        }
+
+        @Test
+        @DisplayName("회수지 주소 입력 시 배송지 주소는 변경되지 않는다")
+        void shouldNotModifyDeliveryAddressWhenPickupAddressProvided() {
+            // given
+            Order order = createOrderWithDeliveryAddress();
+
+            // when
+            order.applyPickupAddress(
+                    ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("010-9999-8888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("회수 요청사항").build())
+            );
+
+            // then
+            assertThat(order.getShippingAddress().getRecipientName().getValue()).isEqualTo("배송 수령인");
+            assertThat(order.getShippingAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-1234-5678");
+            assertThat(order.getShippingAddress().getZipCode()).isEqualTo("12345");
+            assertThat(order.getShippingAddress().getAddress()).isEqualTo("서울시 강남구");
+            assertThat(order.getShippingAddress().getAddressDetail()).isEqualTo("테헤란로 123");
+            assertThat(order.getShippingAddress().getDeliveryRequestType())
+                    .isEqualTo(DeliveryRequestType.LEAVE_AT_DOOR);
+        }
+
+        @Test
+        @DisplayName("DB에서 복원한 주문의 회수지 주소가 정상적으로 매핑된다")
+        void shouldRestorePickupAddressFromSnapshot() {
+            // given & when
+            Order order = Order.from(OrderSnapshotState.builder()
+                    .id(1L)
+                    .buyerId(1L)
+                    .orderKey(UUID.randomUUID())
+                    .orderNumber(OrderNumber.of("ORD-1"))
+                    .orderStatus(OrderStatus.RETURN_REQUESTED)
+                    .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build()))
+                    .shippingAddress(
+                            ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("배송 수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(null).deliveryRequestMessage(null).build())
+                    )
+                    .pickupAddress(
+                            ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("010-9999-8888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("회수 요청사항").build())
+                    )
+                    .orderProductStates(List.of())
+                    .createdAt(LocalDateTime.now())
+                    .modifiedAt(LocalDateTime.now())
+                    .build());
+
+            // then
+            assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("회수 수령인");
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-9999-8888");
+            assertThat(order.getPickupAddress().getZipCode()).isEqualTo("54321");
+            assertThat(order.getPickupAddress().getAddress()).isEqualTo("회수지 주소");
+            assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("회수지 상세주소");
+            assertThat(order.getPickupAddress().getDeliveryRequestMessage().getValue()).isEqualTo("회수 요청사항");
+        }
+    }
+
+    private Order createOrderWithDeliveryAddress() {
+        return Order.from(OrderSnapshotState.builder()
+                .id(1L)
+                .buyerId(1L)
+                .orderKey(UUID.randomUUID())
+                .orderNumber(OrderNumber.of("ORD-1"))
+                .orderStatus(OrderStatus.DELIVERED)
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build()))
+                .shippingAddress(
+                        ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("배송 수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build())
+                )
+                .orderProductStates(List.of(
+                        OrderProductSnapshotState.builder()
+                                .orderId(1L)
+                                .sellerId(10L)
+                                .pricePolicyId(100L)
+                                .quantity(1)
+                                .unitAmount(50000L)
+                                .accumulatedPoint(0L)
+                                .orderStatus(OrderStatus.DELIVERED)
+                                .build()
+                ))
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build());
+    }
+}

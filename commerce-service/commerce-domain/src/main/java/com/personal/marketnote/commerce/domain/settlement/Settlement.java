@@ -1,0 +1,189 @@
+package com.personal.marketnote.commerce.domain.settlement;
+
+import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.common.utility.FormatValidator;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
+@Getter
+public class Settlement {
+    private Long id;
+    private Long sellerId;
+    private Integer year;
+    private Integer month;
+    private Money totalAllocatedAmount;
+    private Money shippingFee;
+    private Money pgFeeAmount;
+    private Money platformFeeAmount;
+    private Money sellerPayoutAmount;
+    private SettlementStatus status;
+    private Long version;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
+
+    public static Settlement from(SettlementCreateState state) {
+        if (FormatValidator.hasNoValue(state.getTotalAllocatedAmount()) || state.getTotalAllocatedAmount() <= 0) {
+            throw new InvalidSettlementAmountException(
+                    "총 배분 금액은 0보다 커야 합니다. totalAllocatedAmount=" + state.getTotalAllocatedAmount());
+        }
+        if (FormatValidator.hasNoValue(state.getSellerPayoutAmount()) || state.getSellerPayoutAmount() <= 0) {
+            throw new InvalidSettlementAmountException(
+                    "판매자 지급액은 0보다 커야 합니다. sellerPayoutAmount=" + state.getSellerPayoutAmount());
+        }
+        long shippingFee = FormatValidator.hasValue(state.getShippingFee()) ? state.getShippingFee() : 0L;
+        long pgFee = FormatValidator.hasValue(state.getPgFeeAmount()) ? state.getPgFeeAmount() : 0L;
+        long platformFee = FormatValidator.hasValue(state.getPlatformFeeAmount()) ? state.getPlatformFeeAmount() : 0L;
+
+        if (shippingFee < 0) {
+            throw new InvalidSettlementAmountException(
+                    "배송비는 음수일 수 없습니다. shippingFee=" + shippingFee);
+        }
+        if (pgFee < 0) {
+            throw new InvalidSettlementAmountException(
+                    "PG 수수료는 음수일 수 없습니다. pgFeeAmount=" + pgFee);
+        }
+        if (platformFee < 0) {
+            throw new InvalidSettlementAmountException(
+                    "플랫폼 수수료는 음수일 수 없습니다. platformFeeAmount=" + platformFee);
+        }
+
+        long feeBase = Math.addExact(state.getTotalAllocatedAmount(), shippingFee);
+        long expectedPayout = feeBase - pgFee - platformFee;
+        if (expectedPayout != state.getSellerPayoutAmount()) {
+            throw new InvalidSettlementAmountException(
+                    "정산 금액 정합성 불일치: (totalAllocatedAmount(" + state.getTotalAllocatedAmount()
+                            + ") + shippingFee(" + shippingFee
+                            + ")) - pgFeeAmount(" + pgFee + ") - platformFeeAmount(" + platformFee
+                            + ") != sellerPayoutAmount(" + state.getSellerPayoutAmount() + ")");
+        }
+
+        return Settlement.builder()
+                .sellerId(state.getSellerId())
+                .year(state.getYear())
+                .month(state.getMonth())
+                .totalAllocatedAmount(Money.of(state.getTotalAllocatedAmount()))
+                .shippingFee(Money.of(shippingFee))
+                .pgFeeAmount(Money.of(pgFee))
+                .platformFeeAmount(Money.of(platformFee))
+                .sellerPayoutAmount(Money.of(state.getSellerPayoutAmount()))
+                .status(SettlementStatus.PENDING)
+                .build();
+    }
+
+    public static Settlement from(SettlementSnapshotState state) {
+        return Settlement.builder()
+                .id(state.getId())
+                .sellerId(state.getSellerId())
+                .year(state.getYear())
+                .month(state.getMonth())
+                .totalAllocatedAmount(Money.of(state.getTotalAllocatedAmount()))
+                .shippingFee(Money.of(state.getShippingFee()))
+                .pgFeeAmount(Money.of(state.getPgFeeAmount()))
+                .platformFeeAmount(Money.of(state.getPlatformFeeAmount()))
+                .sellerPayoutAmount(Money.of(state.getSellerPayoutAmount()))
+                .status(state.getStatus())
+                .version(state.getVersion())
+                .createdAt(state.getCreatedAt())
+                .modifiedAt(state.getModifiedAt())
+                .build();
+    }
+
+    public boolean isPending() {
+        return status == SettlementStatus.PENDING;
+    }
+
+    public boolean isCompleted() {
+        return status == SettlementStatus.COMPLETED;
+    }
+
+    /**
+     * 실패 상태인지 확인한다.
+     *
+     * @return 실패 상태이면 true
+     * @author 성효빈
+     * @since 2026-03-02
+     */
+    public boolean isFailed() {
+        return status == SettlementStatus.FAILED;
+    }
+
+    /**
+     * 실패한 정산을 대기 상태로 재설정한다.
+     * <p>
+     * FAILED → PENDING 상태 전이만 허용한다.
+     * </p>
+     *
+     * @throws InvalidSettlementStatusTransitionException 현재 상태가 FAILED가 아닌 경우
+     * @author 성효빈
+     * @since 2026-03-02
+     */
+    public void resetToPending() {
+        if (!isFailed()) {
+            throw new InvalidSettlementStatusTransitionException(status);
+        }
+        this.status = SettlementStatus.PENDING;
+    }
+
+    public void complete() {
+        if (!isPending()) {
+            throw new InvalidSettlementStatusTransitionException(status);
+        }
+        this.status = SettlementStatus.COMPLETED;
+    }
+
+    public void fail() {
+        if (!isPending()) {
+            throw new InvalidSettlementStatusTransitionException(status);
+        }
+        this.status = SettlementStatus.FAILED;
+    }
+
+    /**
+     * 취소 상태인지 확인한다.
+     *
+     * @return 취소 상태이면 true
+     * @author 성효빈
+     * @since 2026-03-02
+     */
+    public boolean isCancelled() {
+        return status == SettlementStatus.CANCELLED;
+    }
+
+    /**
+     * 완료된 정산을 취소한다.
+     * <p>
+     * COMPLETED → CANCELLED 상태 전이만 허용한다.
+     * </p>
+     *
+     * @throws InvalidSettlementStatusTransitionException 현재 상태가 COMPLETED가 아닌 경우
+     * @author 성효빈
+     * @since 2026-03-02
+     */
+    public void cancel() {
+        if (!isCompleted()) {
+            throw new InvalidSettlementStatusTransitionException(status);
+        }
+        this.status = SettlementStatus.CANCELLED;
+    }
+
+    /**
+     * 취소된 정산을 대기 상태로 재설정한다.
+     * <p>
+     * CANCELLED → PENDING 상태 전이만 허용한다.
+     * </p>
+     *
+     * @throws InvalidSettlementStatusTransitionException 현재 상태가 CANCELLED가 아닌 경우
+     * @author 성효빈
+     * @since 2026-03-02
+     */
+    public void resetCancelledToPending() {
+        if (!isCancelled()) {
+            throw new InvalidSettlementStatusTransitionException(status);
+        }
+        this.status = SettlementStatus.PENDING;
+    }
+}

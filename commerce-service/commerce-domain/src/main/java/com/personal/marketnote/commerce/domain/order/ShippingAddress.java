@@ -1,0 +1,91 @@
+package com.personal.marketnote.commerce.domain.order;
+
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.domain.delivery.PickupRequestType;
+import com.personal.marketnote.common.domain.deliveryrequestmessage.DeliveryRequestMessage;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
+import com.personal.marketnote.common.domain.recipientname.RecipientName;
+import com.personal.marketnote.common.utility.FormatValidator;
+import lombok.*;
+
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
+@Getter
+public class ShippingAddress {
+    private RecipientName recipientName;
+    private PhoneNumber recipientPhoneNumber;
+    private String zipCode;
+    private String address;
+    private String addressDetail;
+    private DeliveryRequestType deliveryRequestType;
+    private DeliveryRequestMessage deliveryRequestMessage;
+    private PickupRequestType pickupRequestType;
+
+    public static ShippingAddress from(ShippingAddressCreateState state) {
+        return ShippingAddress.builder()
+                .recipientName(toNullableRecipientName(state.getRecipientName()))
+                .recipientPhoneNumber(toNullablePhoneNumber(state.getRecipientPhoneNumber()))
+                .zipCode(state.getZipCode())
+                .address(state.getAddress())
+                .addressDetail(state.getAddressDetail())
+                .deliveryRequestType(state.getDeliveryRequestType())
+                .deliveryRequestMessage(toDeliveryRequestMessageOrNull(state.getDeliveryRequestMessage()))
+                .build();
+    }
+
+    public static ShippingAddress ofPickup(
+            String recipientName,
+            String recipientPhoneNumber,
+            String zipCode,
+            String address,
+            String addressDetail,
+            PickupRequestType pickupRequestType,
+            String pickupRequestMessage
+    ) {
+        return ShippingAddress.builder()
+                .recipientName(toNullableRecipientName(recipientName))
+                .recipientPhoneNumber(toNullablePhoneNumber(recipientPhoneNumber))
+                .zipCode(zipCode)
+                .address(address)
+                .addressDetail(addressDetail)
+                .pickupRequestType(pickupRequestType)
+                .deliveryRequestMessage(toDeliveryRequestMessageOrNull(pickupRequestMessage))
+                .build();
+    }
+
+    private static PhoneNumber toNullablePhoneNumber(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return PhoneNumber.of(value);
+    }
+
+    private static DeliveryRequestMessage toDeliveryRequestMessageOrNull(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return DeliveryRequestMessage.of(value);
+    }
+
+    private static RecipientName toNullableRecipientName(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return RecipientName.of(value);
+    }
+
+    public boolean hasRecipientName() {
+        return FormatValidator.hasValue(recipientName);
+    }
+
+    public ShippingAddress withoutDeliveryRequest() {
+        return ShippingAddress.builder()
+                .recipientName(recipientName)
+                .recipientPhoneNumber(recipientPhoneNumber)
+                .zipCode(zipCode)
+                .address(address)
+                .addressDetail(addressDetail)
+                .build();
+    }
+}

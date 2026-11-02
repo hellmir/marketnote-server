@@ -1,0 +1,113 @@
+val queryDslVersion = "5.1.0"
+
+plugins {
+    java
+    id("org.springframework.boot") version "3.5.6"
+    id("io.spring.dependency-management") version "1.1.7"
+    id("org.jetbrains.kotlin.jvm") version "1.7.22" apply false
+}
+
+group = "com.personal.marketnote.common"
+version = "1.0.0"
+description = "common"
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom(configurations.annotationProcessor.get())
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // spring boot
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+    //querydsl 설정
+    implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
+    annotationProcessor("jakarta.persistence:jakarta.persistence-api:3.1.0")
+
+    implementation("com.querydsl:querydsl-jpa:$queryDslVersion:jakarta")
+    annotationProcessor("com.querydsl:querydsl-apt:$queryDslVersion:jakarta")
+
+    // lombok
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+
+    // data
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // validation
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    // security
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+
+    // apache tika
+    implementation("org.apache.tika:tika-core:3.1.0")
+
+    // 스웨거 API 문서 생성
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
+
+    // SMTP 서버 통신 관련
+    implementation("org.springframework:spring-context-support")
+
+    // UUID v7
+    implementation("com.github.f4b6a3:uuid-creator:5.3.0")
+
+    // kafka
+    implementation("org.springframework.kafka:spring-kafka")
+
+    // micrometer (Kafka Consumer 메트릭 수집)
+    implementation("io.micrometer:micrometer-core")
+
+    // test
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform {
+        excludeTags("broker-failure")
+    }
+}
+
+tasks.register<Test>("brokerFailureTest") {
+    description = "KafkaBrokerFailureScenarioTest를 독립 JVM에서 실행한다"
+    group = "verification"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    shouldRunAfter("test")
+    useJUnitPlatform {
+        includeTags("broker-failure")
+    }
+}
+
+// brokerFailureTest는 수동 실행 전용 (./gradlew :common:brokerFailureTest)
+// EmbeddedKafka 브로커 장애 시뮬레이션은 타이밍 의존적이므로 일반 빌드에서 제외
+
+tasks.named("bootJar") {
+    enabled = false
+}
+
+tasks.register("prepareKotlinBuildScriptModel") {
+    doLast {
+        println("Dummy task for prepareKotlinBuildScriptModel executed")
+    }
+}

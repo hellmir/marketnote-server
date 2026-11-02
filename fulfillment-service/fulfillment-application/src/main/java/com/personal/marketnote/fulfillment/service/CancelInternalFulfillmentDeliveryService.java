@@ -1,0 +1,105 @@
+package com.personal.marketnote.fulfillment.service;
+
+import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
+import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentDeliveryRegistration;
+import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryCancellationNotAllowedException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryRegistrationNotFoundException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException;
+import com.personal.marketnote.fulfillment.port.in.command.CancelInternalFulfillmentDeliveryCommand;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.CancelFulfillmentDeliveryCommand;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.CancelFulfillmentDeliveryItemCommand;
+import com.personal.marketnote.fulfillment.port.in.result.CancelInternalFulfillmentDeliveryResult;
+import com.personal.marketnote.fulfillment.port.in.usecase.CancelInternalFulfillmentDeliveryUseCase;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
+import com.personal.marketnote.fulfillment.port.out.delivery.FindFulfillmentDeliveryRegistrationPort;
+import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
+import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
+import com.personal.marketnote.fulfillment.port.out.vendor.CancelFulfillmentDeliveryPort;
+import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
+import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentCustomerCodePort;
+import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+
+@UseCase
+@RequiredArgsConstructor
+@Transactional(isolation = READ_COMMITTED)
+public class CancelInternalFulfillmentDeliveryService implements CancelInternalFulfillmentDeliveryUseCase {
+    private final FindFulfillmentDeliveryRegistrationPort findFulfillmentDeliveryRegistrationPort;
+    private final GetFulfillmentCustomerCodePort getFulfillmentCustomerCodePort;
+    private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private final DisconnectFulfillmentAuthPort disconnectFulfillmentAuthPort;
+    private final CancelFulfillmentDeliveryPort cancelFulfillmentDeliveryPort;
+    private final FindShippingTrackerPort findShippingTrackerPort;
+    private final UpdateShippingTrackerPort updateShippingTrackerPort;
+
+    @Override
+    public CancelInternalFulfillmentDeliveryResult cancelDelivery(CancelInternalFulfillmentDeliveryCommand command) {
+        FulfillmentDeliveryRegistration registration = findRegistration(command.orderId());
+        validateCancellable(registration);
+
+        FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
+        String customerCode = getFulfillmentCustomerCodePort.getCustomerCode();
+        try {
+            try {
+                cancelFulfillmentDeliveryPort.cancelDelivery(
+                        buildCancelCommand(customerCode, accessToken.getValue(), command.orderId(), command.productKeys())
+                );
+            } catch (FulfillmentInvalidAccessException firstFailure) {
+                requestFulfillmentAuthUseCase.invalidateCache();
+                accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
+                cancelFulfillmentDeliveryPort.cancelDelivery(
+                        buildCancelCommand(customerCode, accessToken.getValue(), command.orderId(), command.productKeys())
+                );
+            }
+
+            cancelShippingTrackerIfActive(command.orderId());
+
+            return new CancelInternalFulfillmentDeliveryResult(command.orderId(), true, "출고 취소 성공");
+        } finally {
+            disconnectFulfillmentAuthPort.disconnectAccessToken(accessToken.getValue());
+        }
+    }
+
+    private void cancelShippingTrackerIfActive(Long orderId) {
+        findShippingTrackerPort.findByOrderId(orderId).ifPresent(tracker -> {
+            if (!tracker.isPreparing() && !tracker.isShipping()) {
+                return;
+            }
+            tracker.cancel();
+            updateShippingTrackerPort.update(tracker);
+        });
+    }
+
+    private FulfillmentDeliveryRegistration findRegistration(Long orderId) {
+        return findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)
+                .orElseThrow(() -> new FulfillmentDeliveryRegistrationNotFoundException(orderId));
+    }
+
+    private void validateCancellable(FulfillmentDeliveryRegistration registration) {
+        if (!registration.isCancellable()) {
+            throw new FulfillmentDeliveryCancellationNotAllowedException(registration.getWorkStatus());
+        }
+    }
+
+    private CancelFulfillmentDeliveryCommand buildCancelCommand(
+            String customerCode, String accessToken, Long orderId, List<String> productKeys
+    ) {
+        String orderNumber = String.valueOf(orderId);
+
+        if (FormatValidator.hasNoValue(productKeys) || productKeys.isEmpty()) {
+            CancelFulfillmentDeliveryItemCommand itemCommand = CancelFulfillmentDeliveryItemCommand.of(orderNumber, orderNumber);
+            return CancelFulfillmentDeliveryCommand.of(customerCode, accessToken, List.of(itemCommand));
+        }
+
+        List<CancelFulfillmentDeliveryItemCommand> itemCommands = productKeys.stream()
+                .map(productKey -> CancelFulfillmentDeliveryItemCommand.of(orderNumber, orderNumber, productKey))
+                .toList();
+        return CancelFulfillmentDeliveryCommand.of(customerCode, accessToken, itemCommands);
+    }
+}

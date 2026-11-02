@@ -1,0 +1,116 @@
+package com.personal.marketnote.commerce.adapter.in.event;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
+import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
+import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
+import com.personal.marketnote.common.kafka.KafkaTopicConstants;
+import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
+import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
+import com.personal.marketnote.common.utility.FormatValidator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class PaymentCancelledOrderStatusConsumer {
+    private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
+    private final ObjectMapper objectMapper;
+
+    @KafkaListener(
+            topics = KafkaTopicConstants.PAYMENT_CANCELLED,
+            groupId = "commerce-order-status"
+    )
+    public void handlePaymentCancelledEvent(
+            ConsumerRecord<String, EventEnvelope<?>> record,
+            Acknowledgment acknowledgment
+    ) {
+        EventEnvelope<?> envelope = record.value();
+
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PAYMENT_CANCELLED)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        try {
+            PaymentCancelledEvent payload = envelope.getPayloadAs(PaymentCancelledEvent.class, objectMapper);
+
+            log.info("결제 취소 이벤트 수신 (주문 상태 변경). eventId={}, orderId={}, isFullCancel={}",
+                    envelope.eventId(), payload.orderId(), payload.isFullCancel()
+            );
+
+            if (EventPayloadValidator.hasInvalidIds(
+                    envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+            )) {
+                acknowledgment.acknowledge();
+                return;
+            }
+
+            ChangeOrderStatusCommand command = buildCancelStatusCommand(payload);
+
+            if (FormatValidator.hasNoValue(command)) {
+                acknowledgment.acknowledge();
+                return;
+            }
+
+            changeOrderStatusUseCase.changeOrderStatus(command);
+
+            log.info("Kafka 이벤트로 주문 상태 변경 완료. orderId={}, isFullCancel={}",
+                    payload.orderId(), payload.isFullCancel());
+        } catch (OrderStatusAlreadyChangedException e) {
+            log.warn("멱등 처리: 이미 주문 상태가 변경됨. eventId={}, key={}, message={}",
+                    envelope.eventId(), record.key(), e.getMessage());
+        } catch (Exception e) {
+            log.error("주문 상태 CANCELLED 변경 실패. eventId={}, key={}, error={}",
+                    envelope.eventId(), record.key(), e.getMessage(), e);
+            throw e;
+        }
+
+        acknowledgment.acknowledge();
+    }
+
+    private ChangeOrderStatusCommand buildCancelStatusCommand(PaymentCancelledEvent payload) {
+        if (payload.isFullCancel()) {
+            return ChangeOrderStatusCommand.builder()
+                    .id(payload.orderId())
+                    .orderStatus(OrderStatus.CANCELLED)
+                    .build();
+        }
+
+        List<Long> cancelPricePolicyIds = extractCancelPricePolicyIds(payload);
+
+        if (cancelPricePolicyIds.isEmpty()) {
+            log.warn("부분 취소 이벤트에 cancelProducts가 비어있음. orderId={}", payload.orderId());
+            return null;
+        }
+
+        return ChangeOrderStatusCommand.builder()
+                .id(payload.orderId())
+                .pricePolicyIds(cancelPricePolicyIds)
+                .orderStatus(OrderStatus.CANCELLED)
+                .build();
+    }
+
+    private List<Long> extractCancelPricePolicyIds(PaymentCancelledEvent payload) {
+        if (FormatValidator.hasNoValue(payload.cancelProducts())) {
+            return List.of();
+        }
+        return payload.cancelProducts().stream()
+                .map(PaymentCancelledEvent.OrderProductItem::pricePolicyId)
+                .toList();
+    }
+}

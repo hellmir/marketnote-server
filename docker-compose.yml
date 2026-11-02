@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  fulfillment-adapters:
+    image: ${FULFILLMENT_IMAGE_URI:-shop-fulfillment-adapters:1.0.0}
+    networks:
+      - shop_network
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVICE_NAME=${SERVICE_NAME:-fulfillment-service}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-qa.test}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret-change-me}
+      - ALLOWED_ORIGINS=${ACCESS_CONTROL_ALLOWED_ORIGINS:-http://localhost:3000}
+      - SERVER_ORIGIN=${SERVER_ORIGIN:-http://localhost:8085}
+      - CLIENT_ORIGIN=${CLIENT_ORIGIN:-http://localhost:3000}
+      - COOKIE_DOMAIN=${COOKIE_DOMAIN:-localhost}
+      - ACCESS_CONTROL_ALLOWED_ORIGINS=${ACCESS_CONTROL_ALLOWED_ORIGINS:-http://localhost:8085}
+      - DB_URL=${DB_URL:-jdbc:postgresql://localhost:5432/marketnote_fulfillment}
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-root}
+      - JWT_ADMIN_ACCESS_TOKEN=${JWT_ADMIN_ACCESS_TOKEN:-token}
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul
+      - FASSTO_BASE_URL=${FASSTO_BASE_URL:-http://localhost:1234}
+      - FASSTO_API_CD=${FASSTO_API_CD:-abc}
+      - FASSTO_API_KEY=${FASSTO_API_KEY:-def}
+      - FASSTO_CUSTOMER_CODE=${FASSTO_CUSTOMER_CODE:-}
+      - HMAC_SECRET_KEY=${HMAC_SECRET_KEY:-dev-hmac-secret-change-me}
+      - REDIS_HOST_NAME=${REDIS_HOST_NAME:-localhost}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS:-localhost:9092}
+      - KAFKA_SLACK_WEBHOOK_URL=${KAFKA_SLACK_WEBHOOK_URL:-}
+      - KAFKA_SASL_ENABLED=${KAFKA_SASL_ENABLED:-false}
+      - KAFKA_SASL_MECHANISM=${KAFKA_SASL_MECHANISM:-}
+      - KAFKA_SASL_PROTOCOL=${KAFKA_SASL_PROTOCOL:-}
+      - KAFKA_SASL_USERNAME=${KAFKA_SASL_USERNAME:-}
+      - KAFKA_SASL_PASSWORD=${KAFKA_SASL_PASSWORD:-}
+      - KAFKA_SSL_TRUSTSTORE_PASSWORD=${KAFKA_SSL_TRUSTSTORE_PASSWORD:-}
+
+networks:
+  shop_network:
+    driver: bridge

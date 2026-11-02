@@ -1,0 +1,26 @@
+package com.personal.marketnote.notification.domain.aligo;
+
+import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+@Getter
+public class AligoMessageCreateState {
+
+    private String senderKey;
+    private String templateCode;
+    private String sender;
+    private AligoMessageType messageType;
+    private String content;
+    private String title;
+    private String buttons;
+    private String failoverSubject;
+    private String failoverMessageBody;
+    private LocalDateTime requestedAt;
+    private LocalDateTime sendDate;
+    private List<AligoMessageRecipientCreateState> recipients;
+}

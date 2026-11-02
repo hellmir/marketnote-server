@@ -1,0 +1,193 @@
+spring:
+  application:
+    name: ${env.SERVICE_NAME:reward-service}
+  jackson:
+    time-zone: Asia/Seoul
+  threads:
+    virtual:
+      enabled: true
+
+  jwt:
+    secret: ${JWT_SECRET_KEY:dev-secret-change-me}
+    admin-access-token: ${JWT_ADMIN_ACCESS_TOKEN:abc}
+
+  hmac:
+    secret-key: ${HMAC_SECRET_KEY:dev-hmac-secret-change-me}
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/marketnote_reward}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:org/springframework/batch/core/schema-postgresql.sql
+      continue-on-error: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST_NAME:localhost}
+      port: 6379
+      password: ${REDIS_PASSWORD:password}
+      repositories:
+        enabled: false
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    sasl:
+      enabled: ${KAFKA_SASL_ENABLED:false}
+      mechanism: ${KAFKA_SASL_MECHANISM:SCRAM-SHA-256}
+      protocol: ${KAFKA_SASL_PROTOCOL:SASL_SSL}
+      username: ${KAFKA_SASL_USERNAME:}
+      password: ${KAFKA_SASL_PASSWORD:}
+      ssl-truststore-location: ${KAFKA_SSL_TRUSTSTORE_LOCATION:classpath:kafka.truststore.jks}
+      ssl-truststore-password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD:}
+    consumer:
+      group-id: ${spring.application.name}
+
+client:
+  origin: ${CLIENT_ORIGIN:http://localhost:3000}
+  cookie-domain: ${COOKIE_DOMAIN:localhost}
+  cors:
+    allowed-origins: ${ACCESS_CONTROL_ALLOWED_ORIGINS:http://localhost:3000}
+
+server:
+  origin: ${SERVER_ORIGIN:http://localhost:8084}
+  error:
+    include-exception: false
+    include-stacktrace: NEVER
+    include-message: NEVER
+    whitelabel:
+      enabled: false
+
+reward:
+  share-point-rate: ${REWARD_SHARE_POINT_RATE:0.1}
+
+vendor:
+  offerwall:
+    adpopcorn:
+      hash-key:
+        android: ${ADPOPCORN_ANDROID_HASH_KEY:abc}
+        ios: ${ADPOPCORN_IOS_HASH_KEY:def}
+    tnk:
+      hash-key:
+        android: ${TNK_ANDROID_HASH_KEY:abc}
+        ios: ${TNK_IOS_HASH_KEY:def}
+    adiscope:
+      hash-key:
+        android: ${ADISCOPE_ANDROID_HASH_KEY:abc}
+        ios: ${ADISCOPE_IOS_HASH_KEY:def}
+  giftishow:
+    base-url: ${GIFTISHOW_BASE_URL:https://bizapi.giftishow.com}
+    api-code: ${GIFTISHOW_API_CODE:0000}
+    auth-code: ${GIFTISHOW_AUTH_CODE:0000}
+    auth-token: ${GIFTISHOW_AUTH_TOKEN:0000}
+    dev-yn: ${GIFTISHOW_DEV_YN:Y}
+    callback-no: ${GIFTISHOW_CALLBACK_NO:0000000000}
+    phone-no: ${GIFTISHOW_PHONE_NO:0000000000}
+    mms-msg: ${GIFTISHOW_MMS_MSG:마켓노트 기프티콘}
+    mms-title: ${GIFTISHOW_MMS_TITLE:마켓노트}
+    gubun: I
+    user-id: ${GIFTISHOW_USER_ID:0000}
+    api:
+      product-list-path: /bizApi/goods
+      product-detail-path: /bizApi/goods
+      brand-list-path: /bizApi/brand
+      brand-detail-path: /bizApi/brand
+      coupon-send-path: /bizApi/coupon
+      coupon-detail-path: /bizApi/coupon/detail
+      coupon-cancel-path: /bizApi/coupon/cancel
+      coupon-resend-path: /bizApi/coupon/resend
+      biz-money-balance-path: /bizApi/bizMoney
+      coupon-send-fail-cancel-path: /bizApi/coupon/sendFailCancel
+
+security:
+  validation:
+    gifticon-pin-enabled: true
+
+gifticon:
+  pin:
+    encrypt-key: ${GIFTICON_PIN_ENCRYPT_KEY:dev-pin-key-change-me-0123456789}
+  sync:
+    scheduler:
+      enabled: ${GIFTICON_SYNC_SCHEDULER_ENABLED:false}
+      cron: ${GIFTICON_SYNC_SCHEDULER_CRON:0 0 3 * * MON,WED,FRI}
+  coupon-sync:
+    scheduler:
+      enabled: ${GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED:false}
+      cron: ${GIFTICON_COUPON_SYNC_SCHEDULER_CRON:0 0 4 * * *}
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    org.springframework.security: ERROR
+
+kafka:
+  slack:
+    webhook-url: ${KAFKA_SLACK_WEBHOOK_URL:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: ${MANAGEMENT_HEALTH_SHOW_DETAILS:when-authorized}
+      probes:
+        enabled: true
+      validate-group-membership: false
+      group:
+        readiness:
+          include: readinessState,db,redis,kafka
+        liveness:
+          include: livenessState
+    env:
+      keys-to-sanitize: sasl.jaas.config,sasl.*,jaas.*
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+saga:
+  enabled: ${SAGA_ENABLED:true}
+
+springdoc:
+  paths-to-exclude:
+    - /api/v1/internal/**
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: classpath:config/common-prod.yml

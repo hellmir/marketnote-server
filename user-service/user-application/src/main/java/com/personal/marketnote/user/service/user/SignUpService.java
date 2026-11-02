@@ -1,0 +1,201 @@
+package com.personal.marketnote.user.service.user;
+
+import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.domain.email.Email;
+import com.personal.marketnote.common.domain.exception.illegalargument.novalue.PasswordNoValueException;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.common.utility.RandomCodeGenerator;
+import com.personal.marketnote.user.domain.user.*;
+import com.personal.marketnote.user.exception.*;
+import com.personal.marketnote.user.port.in.command.SignUpCommand;
+import com.personal.marketnote.user.port.in.event.UserFingerprintSavedEvent;
+import com.personal.marketnote.user.port.in.mapper.UserCommandToStateMapper;
+import com.personal.marketnote.user.port.in.result.SignUpResult;
+import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
+import com.personal.marketnote.user.port.in.usecase.user.SignUpUseCase;
+import com.personal.marketnote.user.port.out.authentication.GenerateTokenPort;
+import com.personal.marketnote.user.port.out.authentication.SaveRefreshTokenPort;
+import com.personal.marketnote.user.port.out.authentication.VerifyCodePort;
+import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
+import com.personal.marketnote.user.port.out.profanity.FindProfanityWordPort;
+import com.personal.marketnote.user.port.out.user.*;
+import com.personal.marketnote.user.security.token.vendor.AuthVendor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.personal.marketnote.common.domain.exception.ExceptionCode.*;
+import static com.personal.marketnote.user.exception.ExceptionMessage.*;
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+
+@RequiredArgsConstructor
+@UseCase
+@Transactional(isolation = READ_COMMITTED)
+public class SignUpService implements SignUpUseCase {
+    private final GetUserUseCase getUserUseCase;
+    private final SaveUserPort saveUserPort;
+    private final FindUserPort findUserPort;
+    private final FindTermsPort findTermsPort;
+    private final PasswordEncoder passwordEncoder;
+    private final UpdateUserPort updateUserPort;
+    private final VerifyCodePort verifyCodePort;
+    private final SaveLoginHistoryPort saveLoginHistoryPort;
+    private final PublishUserEventPort publishUserEventPort;
+    private final FindProfanityWordPort findProfanityWordPort;
+    private final GenerateTokenPort generateTokenPort;
+    private final SaveRefreshTokenPort saveRefreshTokenPort;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final Clock clock;
+
+    @Value("${spring.jwt.refresh-token.ttl:1209600000}")
+    private long refreshTokenTtlMillis;
+
+    @Override
+    public SignUpResult signUp(SignUpCommand signUpCommand, AuthVendor authVendor, String oidcId, String ipAddress) {
+        validate(signUpCommand, authVendor, oidcId);
+
+        String email = signUpCommand.email();
+        String password = signUpCommand.password();
+
+        // 이메일 가입 정보가 있는 경우 기존 회원 엔티티에 통합
+        if (findUserPort.existsByEmail(email)) {
+            AtomicBoolean isNewUser = new AtomicBoolean(false);
+            User signedUpUser = addLoginAccountInfo(email, password, authVendor, oidcId, ipAddress, isNewUser);
+
+            publishFingerprintEvent(signedUpUser.getId(), signUpCommand.fingerprint());
+            return generateTokensAndBuildResult(signedUpUser, isNewUser.get(), authVendor);
+        }
+
+        List<Terms> terms = findTermsPort.findAll();
+        ReferenceCode referenceCode = ReferenceCode.of(RandomCodeGenerator.generateReferenceCode());
+
+        User signedUpUser = saveUserPort.save(
+                User.from(
+                        UserCommandToStateMapper.mapToState(
+                                signUpCommand,
+                                authVendor,
+                                oidcId,
+                                terms,
+                                referenceCode,
+                                passwordEncoder
+                        )
+                )
+        );
+
+        // Outbox 이벤트 저장 (트랜잭션 내)
+        // [#929][#1036] 포인트 초기화는 Kafka Consumer(UserSignupCompletedRewardConsumer)로 전환 완료
+        publishUserEventPort.publishUserSignupCompletedEvent(
+                signedUpUser.getId(), signedUpUser.getUserKey().toString()
+        );
+
+        saveLoginHistoryPort.saveLoginHistory(
+                LoginHistory.of(signedUpUser, authVendor, ipAddress)
+        );
+
+        publishFingerprintEvent(signedUpUser.getId(), signUpCommand.fingerprint());
+        return generateTokensAndBuildResult(signedUpUser, true, authVendor);
+    }
+
+    private SignUpResult generateTokensAndBuildResult(User user, boolean isNewUser, AuthVendor authVendor) {
+        Long userId = user.getId();
+        String subject = String.valueOf(userId);
+        List<String> roleIds = List.of(user.getRole().getId());
+
+        String accessToken = generateTokenPort.generateAccessToken(subject, userId, roleIds, authVendor);
+        String refreshToken = generateTokenPort.generateRefreshToken(subject, userId, roleIds, authVendor);
+
+        saveRefreshTokenPort.saveByUserId(userId, refreshToken, refreshTokenTtlMillis);
+
+        return SignUpResult.of(user, isNewUser, accessToken, refreshToken);
+    }
+
+    private void validate(SignUpCommand signUpCommand, AuthVendor authVendor, String oidcId) {
+        if (authVendor.isNative() && !signUpCommand.hasPassword()) {
+            throw new PasswordNoValueException(FIRST_ERROR_CODE);
+        }
+
+        if (!authVendor.isNative() && findUserPort.existsByAuthVendorAndOidcId(authVendor, oidcId)) {
+            throw new UserExistsException(
+                    String.format(OIDC_ID_ALREADY_EXISTS_EXCEPTION_MESSAGE, SECOND_ERROR_CODE, oidcId)
+            );
+        }
+
+        String nickname = signUpCommand.nickname();
+        if (FormatValidator.hasValue(nickname)) {
+            if (findProfanityWordPort.containsProfanity(nickname)) {
+                throw new InvalidNicknameContainsProfanityException(THIRD_ERROR_CODE, nickname);
+            }
+
+            if (findUserPort.existsByNickname(nickname)) {
+                throw new UserExistsException(
+                        String.format(NICKNAME_ALREADY_EXISTS_EXCEPTION_MESSAGE, THIRD_ERROR_CODE, nickname)
+                );
+            }
+        }
+
+        if (signUpCommand.hasPhoneNumber()) {
+            PhoneNumber phoneNumber = PhoneNumber.of(signUpCommand.phoneNumber());
+            if (findUserPort.existsByPhoneNumber(phoneNumber.getValue())) {
+                throw new UserExistsException(
+                        String.format(PHONE_NUMBER_ALREADY_EXISTS_EXCEPTION_MESSAGE, FOURTH_ERROR_CODE)
+                );
+            }
+        }
+
+        // 이메일 형식 검증 (VO) — Request DTO @Pattern 제거 대체
+        String email = signUpCommand.email();
+        Email.of(email);
+
+        // 이메일 인증 코드 검증
+        if (!verifyCodePort.verify(email, signUpCommand.verificationCode())) {
+            throw new InvalidVerificationCodeException(FIFTH_ERROR_CODE, email);
+        }
+    }
+
+    private User addLoginAccountInfo(
+            String email, String password, AuthVendor authVendor, String oidcId, String ipAddress, AtomicBoolean isNewUser
+    ) {
+        User signedUpUser = getUserUseCase.getAllStatusUser(email);
+
+        // 탈퇴 회원인 경우 재활성화
+        if (signedUpUser.isWithdrawn()) {
+            LocalDateTime now = LocalDateTime.now(clock);
+            if (!signedUpUser.canReSignUp(now)) {
+                throw new UserWithdrawalCooldownException(SEVENTH_ERROR_CODE);
+            }
+            signedUpUser.cancelWithdrawal(now);
+            isNewUser.set(true);
+        }
+
+        // 계정 활성화 여부 검증
+        if (signedUpUser.isActive()) {
+            signedUpUser.addLoginAccountInfo(authVendor, oidcId, password, passwordEncoder);
+            updateUserPort.update(signedUpUser);
+            saveLoginHistoryPort.saveLoginHistory(
+                    LoginHistory.of(signedUpUser, authVendor, ipAddress)
+            );
+
+            return signedUpUser;
+        }
+
+        throw new UserNotActiveException(SIXTH_ERROR_CODE, email);
+    }
+
+    private void publishFingerprintEvent(Long userId, String fingerprint) {
+        if (FormatValidator.hasNoValue(fingerprint)) {
+            return;
+        }
+
+        applicationEventPublisher.publishEvent(
+                new UserFingerprintSavedEvent(userId, fingerprint, FingerprintSource.SIGNUP)
+        );
+    }
+}

@@ -1,0 +1,193 @@
+package com.personal.marketnote.commerce.domain.order;
+
+import com.personal.marketnote.commerce.domain.shipping.ShippingRegionType;
+import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.common.utility.RandomCodeGenerator;
+import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
+@Getter
+public class Order {
+    private Long id;
+    private Long buyerId;
+    private UUID orderKey;
+    private OrderNumber orderNumber;
+    private OrderStatus orderStatus;
+    private OrderStatusReasonCategory statusChangeReasonCategory;
+    private String statusChangeReason;
+    private OrderAmount amount;
+    private ShippingAddress shippingAddress;
+    private ShippingAddress pickupAddress;
+    private ShippingRegionType shippingRegionType;
+    private List<OrderProduct> orderProducts;
+    private LocalDateTime scheduledAutoConfirmAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
+
+    public static Order from(OrderCreateState state) {
+        List<OrderProduct> orderProducts = FormatValidator.hasValue(state.getOrderProductStates())
+                ? state.getOrderProductStates().stream()
+                .map(OrderProduct::from)
+                .toList()
+                : List.of();
+
+        return Order.builder()
+                .buyerId(state.getBuyerId())
+                .orderKey(RandomCodeGenerator.generateOrderKey())
+                .orderNumber(OrderNumber.generate())
+                .orderStatus(OrderStatus.PAYMENT_PENDING)
+                .amount(state.getAmount())
+                .shippingAddress(state.getShippingAddress())
+                .shippingRegionType(state.getShippingRegionType())
+                .orderProducts(orderProducts)
+                .build();
+    }
+
+    public static Order from(OrderSnapshotState state) {
+        List<OrderProduct> orderProducts = FormatValidator.hasValue(state.getOrderProductStates())
+                ? state.getOrderProductStates().stream()
+                .map(OrderProduct::from)
+                .toList()
+                : List.of();
+
+        return Order.builder()
+                .id(state.getId())
+                .buyerId(state.getBuyerId())
+                .orderKey(state.getOrderKey())
+                .orderNumber(state.getOrderNumber())
+                .orderStatus(state.getOrderStatus())
+                .statusChangeReasonCategory(state.getStatusChangeReasonCategory())
+                .statusChangeReason(state.getStatusChangeReason())
+                .amount(state.getAmount())
+                .shippingAddress(state.getShippingAddress())
+                .pickupAddress(state.getPickupAddress())
+                .shippingRegionType(state.getShippingRegionType())
+                .orderProducts(orderProducts)
+                .scheduledAutoConfirmAt(state.getScheduledAutoConfirmAt())
+                .createdAt(state.getCreatedAt())
+                .modifiedAt(state.getModifiedAt())
+                .build();
+    }
+
+    public void applyPickupAddress(ShippingAddress pickupAddress) {
+        if (FormatValidator.hasValue(pickupAddress) && pickupAddress.hasRecipientName()) {
+            this.pickupAddress = pickupAddress;
+            return;
+        }
+
+        this.pickupAddress = shippingAddress.withoutDeliveryRequest();
+    }
+
+    public boolean isPaymentPending() {
+        return this.orderStatus.isPending();
+    }
+
+    public boolean isPaymentExecuting() {
+        return this.orderStatus.isExecuting();
+    }
+
+    public boolean isFailed() {
+        return this.orderStatus.isFailed();
+    }
+
+    public boolean isReviewable() {
+        return orderStatus.isReviewable();
+    }
+
+    public void changeProductsStatus(
+            List<Long> pricePolicyIds, OrderStatus orderStatus, LocalDateTime now, long autoConfirmDays
+    ) {
+        orderProducts.stream()
+                .filter(orderProduct -> pricePolicyIds.contains(orderProduct.getPricePolicyId()))
+                .forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now, autoConfirmDays));
+
+        if (
+                orderStatus.isCancelRequested()
+                        && orderProducts.stream()
+                        .anyMatch(orderProduct -> !orderProduct.isCancelRequested() && !orderProduct.isCancelled())
+        ) {
+            this.orderStatus = OrderStatus.getPartiallyCancelRequested();
+            return;
+        }
+
+        if (
+                orderStatus.isCancelled()
+                        && orderProducts.stream().anyMatch(orderProduct -> !orderProduct.isCancelled())
+        ) {
+            if (!this.orderStatus.canPartiallyCancel() && !this.orderStatus.isPartiallyCancelRequested()) {
+                throw new InvalidOrderProductStatusTransitionException(this.orderStatus, OrderStatus.PARTIALLY_CANCELLED);
+            }
+            this.orderStatus = OrderStatus.getPartiallyCancelled();
+            return;
+        }
+
+        if (
+                orderStatus.isReturned()
+                        && orderProducts.stream()
+                        .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isReturned())
+        ) {
+            this.orderStatus = OrderStatus.getPartiallyReturned();
+            return;
+        }
+
+        if (
+                orderStatus.isReturnRequested()
+                        && orderProducts.stream()
+                        .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isReturnRequested())
+        ) {
+            this.orderStatus = OrderStatus.getPartiallyReturnRequested();
+            return;
+        }
+
+        if (
+                orderStatus.isReturnRejected()
+                        && orderProducts.stream()
+                        .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isReturnRejected())
+        ) {
+            return;
+        }
+
+        if (
+                orderStatus.isConfirmed()
+                        && orderProducts.stream()
+                        .anyMatch(orderProduct -> !orderProduct.isConfirmed())
+        ) {
+            this.orderStatus = OrderStatus.getPartiallyConfirmed();
+            return;
+        }
+
+        this.orderStatus = orderStatus;
+        applyScheduledAutoConfirmAt(orderStatus, now, autoConfirmDays);
+    }
+
+    public void recordPaidAmount(Money paidAmount) {
+        this.amount = amount.withPaidAmount(paidAmount);
+    }
+
+    public void changeAllProductsStatus(OrderStatus orderStatus, LocalDateTime now, long autoConfirmDays) {
+        if (this.orderStatus != orderStatus && !this.orderStatus.canTransitionTo(orderStatus)) {
+            throw new InvalidOrderStatusTransitionException(this.orderStatus, orderStatus);
+        }
+        orderProducts.forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now, autoConfirmDays));
+        this.orderStatus = orderStatus;
+        applyScheduledAutoConfirmAt(orderStatus, now, autoConfirmDays);
+    }
+
+    public boolean isBuyer(Long buyerId) {
+        return FormatValidator.equals(this.buyerId, buyerId);
+    }
+
+    private void applyScheduledAutoConfirmAt(OrderStatus target, LocalDateTime now, long autoConfirmDays) {
+        if (!target.isDelivered()) {
+            return;
+        }
+        this.scheduledAutoConfirmAt = now.plusDays(autoConfirmDays);
+    }
+}

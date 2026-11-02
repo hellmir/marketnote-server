@@ -1,0 +1,71 @@
+package com.personal.marketnote.community.service.review;
+
+import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.community.domain.review.*;
+import com.personal.marketnote.community.exception.InvalidReviewContentContainsProfanityException;
+import com.personal.marketnote.community.mapper.ReviewCommandToStateMapper;
+import com.personal.marketnote.community.port.in.command.review.UpdateReviewCommand;
+import com.personal.marketnote.community.port.in.result.review.UpdateReviewResult;
+import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
+import com.personal.marketnote.community.port.in.usecase.review.UpdateReviewUseCase;
+import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
+import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
+import com.personal.marketnote.community.port.out.review.SaveReviewPort;
+import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
+import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+
+@UseCase
+@RequiredArgsConstructor
+@Transactional(isolation = READ_COMMITTED)
+public class UpdateReviewService implements UpdateReviewUseCase {
+    private final GetReviewUseCase getReviewUseCase;
+    private final SaveReviewPort saveReviewPort;
+    private final UpdateReviewPort updateReviewPort;
+    private final PublishReviewEventPort publishReviewEventPort;
+    private final FindProfanityWordPort findProfanityWordPort;
+
+    @Override
+    public UpdateReviewResult updateReview(UpdateReviewCommand command) {
+        validateProfanity(command.content());
+        Long id = command.id();
+        getReviewUseCase.validateAuthor(id, command.reviewerId());
+        Review review = getReviewUseCase.getReview(id);
+        Rating previousRating = review.getRating();
+        Rating newRating = Rating.of(command.rating());
+        review.update(newRating, command.content(), command.isPhoto());
+        updateReviewPort.update(review);
+
+        // 리뷰 버전 기록 저장
+        ReviewVersionHistoryCreateState reviewVersionHistoryCreateState
+                = ReviewCommandToStateMapper.mapToVersionHistoryState(review.getId(), command);
+        saveReviewPort.saveVersionHistory(
+                ReviewVersionHistory.from(reviewVersionHistoryCreateState)
+        );
+
+        // 상품 평점 재집계 + 이벤트 발행
+        ProductReviewAggregate productReviewAggregate = getReviewUseCase.getProductReviewAggregate(
+                review.getProductId()
+        );
+        if (!previousRating.equals(newRating)) {
+            productReviewAggregate.changeReview(previousRating, newRating);
+            updateReviewPort.update(productReviewAggregate);
+        }
+
+        publishReviewEventPort.publishReviewUpdatedEvent(
+                review.getId(), review.getProductId(),
+                productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating()
+        );
+
+        return UpdateReviewResult.from(review);
+    }
+
+    private void validateProfanity(String content) {
+        if (FormatValidator.hasValue(content) && findProfanityWordPort.containsProfanity(content)) {
+            throw new InvalidReviewContentContainsProfanityException();
+        }
+    }
+}

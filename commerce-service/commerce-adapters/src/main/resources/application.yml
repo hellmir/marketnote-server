@@ -1,0 +1,211 @@
+spring:
+  application:
+    name: ${env.SERVICE_NAME:commerce-service}
+  jackson:
+    time-zone: Asia/Seoul
+  threads:
+    virtual:
+      enabled: true
+
+  jwt:
+    secret: ${JWT_SECRET_KEY:dev-secret-change-me}
+    admin-access-token: ${JWT_ADMIN_ACCESS_TOKEN:abc}
+
+  hmac:
+    secret-key: ${HMAC_SECRET_KEY:dev-hmac-secret-change-me}
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/marketnote_commerce}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:org/springframework/batch/core/schema-postgresql.sql
+      continue-on-error: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST_NAME:localhost}
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+      repositories:
+        enabled: false
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    sasl:
+      enabled: ${KAFKA_SASL_ENABLED:false}
+      mechanism: ${KAFKA_SASL_MECHANISM:SCRAM-SHA-256}
+      protocol: ${KAFKA_SASL_PROTOCOL:SASL_SSL}
+      username: ${KAFKA_SASL_USERNAME:}
+      password: ${KAFKA_SASL_PASSWORD:}
+      ssl-truststore-location: ${KAFKA_SSL_TRUSTSTORE_LOCATION:classpath:kafka.truststore.jks}
+      ssl-truststore-password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD:}
+    consumer:
+      group-id: ${spring.application.name}
+
+client:
+  origin: ${CLIENT_ORIGIN:http://localhost:3000}
+  cookie-domain: ${COOKIE_DOMAIN:localhost}
+  cors:
+    allowed-origins: ${ACCESS_CONTROL_ALLOWED_ORIGINS:http://localhost:3000}
+
+server:
+  origin: ${SERVER_ORIGIN:http://localhost:8082}
+  error:
+    include-exception: false
+    include-stacktrace: NEVER
+    include-message: NEVER
+    whitelabel:
+      enabled: false
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    org.springframework.security: ERROR
+
+kafka:
+  slack:
+    webhook-url: ${KAFKA_SLACK_WEBHOOK_URL:}
+
+user-service:
+  base-url: ${USER_SERVICE_SERVER_ORIGIN:http://localhost:8080}
+
+product-service:
+  base-url: ${PRODUCT_SERVICE_SERVER_ORIGIN:http://localhost:8081}
+
+reward-service:
+  base-url: ${REWARD_SERVICE_SERVER_ORIGIN:http://localhost:8084}
+  share-point-rate: ${REWARD_SHARE_POINT_RATE:0.1}
+
+fulfillment-service:
+  base-url: ${FULFILLMENT_SERVICE_SERVER_ORIGIN:http://localhost:8083}
+
+kcp:
+  site-cd: ${KCP_SITE_CD:T0000}
+  cert-info-path: ${KCP_CERT_INFO_PATH:classpath:kcp/cert/kcp_test_cert.pem}
+  private-key-path: ${KCP_PRIVATE_KEY_PATH:}
+  api:
+    trade-register-url: ${KCP_TRADE_REGISTER_URL:https://testsmpay.kcp.co.kr/trade/register.do}
+    payment-approval-url: ${KCP_PAYMENT_APPROVAL_URL:https://stg-spl.kcp.co.kr/gw/enc/v1/payment}
+    payment-cancel-url: ${KCP_PAYMENT_CANCEL_URL:https://stg-spl.kcp.co.kr/gw/mod/v1/cancel}
+    batch-key-issuance-url: ${KCP_BATCH_KEY_ISSUANCE_URL:https://stg-spl.kcp.co.kr/gw/enc/v1/payment}
+    batch-payment-approval-url: ${KCP_BATCH_PAYMENT_APPROVAL_URL:https://stg-spl.kcp.co.kr/gw/hub/v1/payment}
+  retry:
+    max-attempts: ${KCP_RETRY_MAX_ATTEMPTS:3}
+    initial-delay-ms: ${KCP_RETRY_INITIAL_DELAY_MS:1000}
+    backoff-multiplier: ${KCP_RETRY_BACKOFF_MULTIPLIER:2}
+    read-timeout-max-attempts: ${KCP_RETRY_READ_TIMEOUT_MAX_ATTEMPTS:2}
+  ret-url: ${KCP_RET_URL:https://marketnote-dev.vercel.app/payments/kcp/callback}
+
+outbox:
+  enabled: ${OUTBOX_ENABLED:true}
+  polling-interval-ms: ${OUTBOX_POLLING_INTERVAL_MS:3000}
+  batch-size: ${OUTBOX_BATCH_SIZE:100}
+  max-retries: ${OUTBOX_MAX_RETRIES:5}
+  retention-days: ${OUTBOX_RETENTION_DAYS:7}
+  cleanup-cron: ${OUTBOX_CLEANUP_CRON:0 0 3 * * ?}
+
+saga:
+  enabled: ${SAGA_ENABLED:true}
+  timeout-ms: ${SAGA_TIMEOUT_MS:60000}
+  compensation-timeout-ms: ${SAGA_COMPENSATION_TIMEOUT_MS:120000}
+  check-interval-ms: ${SAGA_CHECK_INTERVAL_MS:30000}
+  slack:
+    webhook-url: ${SAGA_SLACK_WEBHOOK_URL:}
+
+settlement:
+  scheduler:
+    enabled: ${SETTLEMENT_SCHEDULER_ENABLED:false}
+    cron: ${SETTLEMENT_SCHEDULER_CRON:0 0 2 1 * *}
+    default-pg-fee-rate: ${SETTLEMENT_DEFAULT_PG_FEE_RATE:300}
+    default-platform-fee-rate: ${SETTLEMENT_DEFAULT_PLATFORM_FEE_RATE:500}
+
+inventory:
+  reservation:
+    scheduler:
+      enabled: ${INVENTORY_RESERVATION_SCHEDULER_ENABLED:false}
+      timeout-minutes: ${INVENTORY_RESERVATION_TIMEOUT_MINUTES:10}
+      check-interval-ms: ${INVENTORY_RESERVATION_CHECK_INTERVAL_MS:60000}
+
+order:
+  auto-confirm:
+    scheduler:
+      enabled: ${ORDER_AUTO_CONFIRM_SCHEDULER_ENABLED:false}
+      cron: ${ORDER_AUTO_CONFIRM_SCHEDULER_CRON:0 59 23 * * ?}
+      auto-confirm-days: ${ORDER_AUTO_CONFIRM_DAYS:7}
+
+commerce:
+  payment:
+    idempotency-cleanup:
+      ttl-hours: ${COMMERCE_PAYMENT_IDEMPOTENCY_CLEANUP_TTL_HOURS:24}
+      cron: ${COMMERCE_PAYMENT_IDEMPOTENCY_CLEANUP_CRON:0 0 3 * * *}
+
+return-inspection:
+  scheduler:
+    enabled: ${RETURN_INSPECTION_SCHEDULER_ENABLED:false}
+    fixed-delay-ms: ${RETURN_INSPECTION_SCHEDULER_FIXED_DELAY_MS:1800000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: ${MANAGEMENT_HEALTH_SHOW_DETAILS:when-authorized}
+      probes:
+        enabled: true
+      validate-group-membership: false
+      group:
+        readiness:
+          include: readinessState,db,redis,kafka
+        liveness:
+          include: livenessState
+    env:
+      keys-to-sanitize: sasl.jaas.config,sasl.*,jaas.*
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+springdoc:
+  paths-to-exclude:
+    - /api/v1/internal/**
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: classpath:config/common-prod.yml

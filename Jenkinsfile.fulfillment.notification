@@ -1,0 +1,542 @@
+import com.cloudbees.groovy.cps.NonCPS
+
+@NonCPS
+def envLine(key, value) {
+	def v = value == null ? '' : value.toString()
+	v = v.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
+	return "${key}=\"${v}\""
+}
+
+pipeline {
+	agent any
+
+	parameters {
+		choice(name: 'SERVICE', choices: ['auto','fulfillment-service','notification-service'], description: '배포 대상 서비스 (Lightsail)')
+	}
+
+	environment {
+		SLACK_SUCCESS_COLOR = "#2C953C"
+		SLACK_FAIL_COLOR = "#E03131"
+		SLACK_GENERAL_COLOR = "#5C7CFA"
+	}
+
+	stages {
+		stage('Select Target Service') {
+			steps {
+				script {
+					def base = sh(script: 'git rev-parse HEAD~1 || git rev-parse HEAD', returnStdout: true).trim()
+					def changed = sh(script: "git diff --name-only ${base} HEAD || true", returnStdout: true)
+					.trim()
+					.split('\n')
+					.findAll {
+						it?.trim()
+					} as List
+
+					def targetAdapters = [
+						'fulfillment-service': 'fulfillment-adapters',
+						'notification-service': 'notification-adapters',
+					]
+
+					def serviceTouched = {
+						svc, adp ->
+						def prefixes = [
+							"${svc}/${adp}/",
+							"${svc}/${svc.replace('-service','')}-application/",
+							"${svc}/${svc.replace('-service','')}-domain/"
+						]
+						changed.any {
+							p -> prefixes.any {
+								pre -> p.startsWith(pre)
+							}
+						}
+					}
+
+					def commonChanged = false
+
+					def candidates = commonChanged
+					? (targetAdapters.keySet() as List)
+					: (targetAdapters.findAll {
+						svc, adp -> serviceTouched(svc, adp)
+					}.keySet() as List)
+
+					candidates = candidates.sort()
+
+					def targetService =
+					(params.SERVICE && params.SERVICE != 'auto') ? params.SERVICE :
+					(candidates ? candidates[0] : 'fulfillment-service')
+
+					if (!targetAdapters.containsKey(targetService)) {
+						error "Unknown SERVICE '${targetService}'. Allowed: ${targetAdapters.keySet()}"
+					}
+
+					env.SERVICE_NAME = targetService
+					env.SERVICE_DIRECTORY = "${targetService}/${targetAdapters[targetService]}"
+					env.CANDIDATE_SERVICES = candidates.join(',')
+
+					sh "test -d '${env.SERVICE_DIRECTORY}'"
+
+					echo "Changed fileDomain count       = ${changed.size()}"
+					echo "COMMON changed?           = ${commonChanged}"
+				}
+			}
+		}
+
+		stage('Environment Setup') {
+			steps {
+				script {
+					sh 'chmod +x ./gradlew'
+					env.PROJECT_NAME = sh(script: "./gradlew -p ${env.SERVICE_DIRECTORY} -q printProjectName", returnStdout: true).trim()
+					env.PROJECT_VERSION = sh(script: "./gradlew -p ${env.SERVICE_DIRECTORY} -q printProjectVersion", returnStdout: true).trim()
+					env.DOCKERFILE_PATH = "${WORKSPACE}/${env.SERVICE_DIRECTORY}/Dockerfile"
+					env.BUILD_CONTEXT = "${WORKSPACE}/${env.SERVICE_DIRECTORY}"
+					def jobName = env.JOB_NAME ?: ''
+					def projectName = jobName.split('/')[0]
+					def matcher = (projectName =~ /-(qa|stage|prod)$/)
+					if (!matcher.find()) {
+						error "JOB_NAME '${jobName}' (project='${projectName}') must end with one of: -qa, -stage, -prod"
+					}
+					def environment = matcher.group(1).toUpperCase()
+					matcher = null
+					env.ENVIRONMENT_UPPER = environment
+					env.ENV_PREFIX = "MARKETNOTE_${environment}"
+
+					if (env.SERVICE_NAME == 'fulfillment-service') {
+						env.COMPOSE_SERVICE_NAME = 'fulfillment-adapters'
+						env.IMAGE_ENV_KEY = 'FULFILLMENT_IMAGE_URI'
+					} else if (env.SERVICE_NAME == 'notification-service') {
+						env.COMPOSE_SERVICE_NAME = 'notification-adapters'
+						env.IMAGE_ENV_KEY = 'NOTIFICATION_IMAGE_URI'
+					} else {
+						error "Unsupported SERVICE_NAME for Lightsail pipeline: ${env.SERVICE_NAME}"
+					}
+
+                    withCredentials([
+                    	string(credentialsId: "${env.ENV_PREFIX}_LIGHTSAIL_APP_DIR", variable: 'LIGHTSAIL_APP_DIR_CRED')
+                    ]) {
+                    	def appDir = LIGHTSAIL_APP_DIR_CRED?.trim()
+                    	env.LIGHTSAIL_APP_DIR = appDir ? appDir : '/opt/marketnote'
+                    }
+
+					def sshPort = env.LIGHTSAIL_SSH_PORT?.trim()
+					env.LIGHTSAIL_SSH_PORT = sshPort ? sshPort : '22'
+				}
+
+				echo 'Environment variables set'
+
+				echo "CANDIDATE_SERVICES        = ${env.CANDIDATE_SERVICES}"
+				echo "SERVICE_NAME              = ${env.SERVICE_NAME}"
+				echo "SERVICE_DIRECTORY         = ${env.SERVICE_DIRECTORY}"
+				echo "PROJECT_NAME              = ${env.PROJECT_NAME}"
+				echo "PROJECT_VERSION           = ${env.PROJECT_VERSION}"
+				echo "LIGHTSAIL_APP_DIR         = ${env.LIGHTSAIL_APP_DIR}"
+				echo "COMPOSE_SERVICE_NAME      = ${env.COMPOSE_SERVICE_NAME}"
+				echo "ENVIRONMENT               = ${env.ENVIRONMENT_UPPER}"
+				echo "ENV_PREFIX                = ${env.ENV_PREFIX}"
+			}
+		}
+
+		stage('Notify Start') {
+			steps {
+				withCredentials([
+					string(credentialsId: "${env.ENV_PREFIX}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
+				]) {
+					script {
+						env.SLACK_NOTIFICATION_CHANNEL = SLACK_NOTIFICATION_CHANNEL
+
+						sh '''
+						  git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+						  git fetch --all --prune --tags || true
+						  git fetch --unshallow         || true
+						'''
+
+						def branchLabel = sh(
+							script: '''
+							  if [ -n "$BRANCH_NAME" ]; then
+								echo "$BRANCH_NAME"
+								exit 0
+							  fi
+							  if [ -n "$CHANGE_ID" ] && [ -n "$CHANGE_BRANCH" ] && [ -n "$CHANGE_TARGET" ]; then
+								echo "PR #$CHANGE_ID ($CHANGE_BRANCH -> $CHANGE_TARGET)"
+								exit 0
+							  fi
+							  if [ -n "$GIT_BRANCH" ]; then
+								echo "${GIT_BRANCH#origin/}"
+								exit 0
+							  fi
+							  bn=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+							  if [ "$bn" != "HEAD" ] && [ -n "$bn" ]; then
+								echo "$bn"
+								exit 0
+							  fi
+							  guess=$(git for-each-ref --format="%(refname:short)" --contains HEAD refs/remotes/origin | sed "s#^origin/##" | head -n1)
+							  if [ -n "$guess" ]; then
+								echo "$guess"
+								exit 0
+							  fi
+							  tag=$(git describe --tags --exact-match 2>/dev/null || true)
+							  if [ -n "$tag" ]; then
+								echo "tag: $tag"
+								exit 0
+							  fi
+							  name=$(git name-rev --name-only HEAD 2>/dev/null | sed "s#remotes/origin/##;s#~[0-9]*##")
+							  if [ -n "$name" ] && [ "$name" != "undefined" ]; then
+								echo "$name"
+								exit 0
+							  fi
+							  git rev-parse --short HEAD
+							''',
+							returnStdout: true
+						).trim()
+
+						def commitAuthor  = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
+						def commitMessage = sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim()
+
+						slackSend(
+							channel: "${env.SLACK_NOTIFICATION_CHANNEL}",
+							color:   "${env.SLACK_GENERAL_COLOR}",
+							message: "[${env.ENVIRONMENT_UPPER}] Start a build (Lightsail)\n"
+								+ "SERVICE: ${env.SERVICE_NAME}\n"
+								+ "PROJECT_NAME: ${env.PROJECT_NAME}\n"
+								+ "VERSION: ${env.PROJECT_VERSION}\n"
+								+ "JOB_NAME: ${env.JOB_NAME}\n"
+								+ "BUILD_NUMBER: ${env.BUILD_NUMBER}\n"
+								+ "BUILD_URL: ${env.BUILD_URL}\n"
+								+ "BRANCH: ${branchLabel}\n"
+								+ "AUTHOR: ${commitAuthor}\n"
+								+ "COMMIT: ${env.GIT_COMMIT}\n"
+								+ "MESSAGE: ${commitMessage}"
+						)
+					}
+				}
+			}
+		}
+
+		stage('Test') {
+			steps {
+				sh "chmod u+x ${WORKSPACE}/gradlew"
+				sh "./gradlew -p ${env.SERVICE_DIRECTORY} clean test"
+				echo "Tests complete"
+			}
+		}
+
+		stage('Build') {
+			steps {
+				sh "./gradlew -p ${env.SERVICE_DIRECTORY} build -x test"
+				echo "Build complete"
+			}
+		}
+
+		stage('Resolve Service Mappings') {
+			steps {
+				script {
+					withCredentials([
+						string(credentialsId: "${env.ENV_PREFIX}_DB_USERNAME",                    variable: 'DB_USERNAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_JWT_SECRET_KEY",                 variable: 'JWT_SECRET_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_CLIENT_ORIGIN",                  variable: 'CLIENT_ORIGIN'),
+						string(credentialsId: "${env.ENV_PREFIX}_COOKIE_DOMAIN",                  variable: 'COOKIE_DOMAIN'),
+						string(credentialsId: "${env.ENV_PREFIX}_ACCESS_CONTROL_ALLOWED_ORIGINS", variable: 'ACCESS_CONTROL_ALLOWED_ORIGINS'),
+						string(credentialsId: "${env.ENV_PREFIX}_SPRING_PROFILE",               variable: 'SPRING_PROFILE'),
+						string(credentialsId: "${env.ENV_PREFIX}_JWT_ADMIN_ACCESS_TOKEN",       variable: 'JWT_ADMIN_ACCESS_TOKEN'),
+						string(credentialsId: "${env.ENV_PREFIX}_FASSTO_BASE_URL",              variable: 'FASSTO_BASE_URL'),
+						string(credentialsId: "${env.ENV_PREFIX}_FASSTO_API_CD",                variable: 'FASSTO_API_CD'),
+						string(credentialsId: "${env.ENV_PREFIX}_FASSTO_API_KEY",               variable: 'FASSTO_API_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_FASSTO_CUSTOMER_CODE",          variable: 'FASSTO_CUSTOMER_CODE'),
+						string(credentialsId: "${env.ENV_PREFIX}_HMAC_SECRET_KEY",               variable: 'HMAC_SECRET_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_REDIS_HOST_NAME",                  variable: 'REDIS_HOST_NAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_REDIS_PASSWORD",                   variable: 'REDIS_PASSWORD'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BOOTSTRAP_SERVERS",       variable: 'KAFKA_BOOTSTRAP_SERVERS'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SLACK_WEBHOOK_URL",       variable: 'KAFKA_SLACK_WEBHOOK_URL'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SASL_ENABLED",            variable: 'KAFKA_SASL_ENABLED'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SASL_MECHANISM",          variable: 'KAFKA_SASL_MECHANISM'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SASL_PROTOCOL",           variable: 'KAFKA_SASL_PROTOCOL'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SASL_USERNAME",           variable: 'KAFKA_SASL_USERNAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SASL_PASSWORD",           variable: 'KAFKA_SASL_PASSWORD'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SSL_TRUSTSTORE_PASSWORD", variable: 'KAFKA_SSL_TRUSTSTORE_PASSWORD'),
+					]) {
+						env.DB_USERNAME = DB_USERNAME
+						env.JWT_SECRET_KEY = JWT_SECRET_KEY
+						env.CLIENT_ORIGIN = CLIENT_ORIGIN
+						env.COOKIE_DOMAIN = COOKIE_DOMAIN
+						env.ACCESS_CONTROL_ALLOWED_ORIGINS = ACCESS_CONTROL_ALLOWED_ORIGINS
+						env.SPRING_PROFILE = SPRING_PROFILE
+						env.JWT_ADMIN_ACCESS_TOKEN = JWT_ADMIN_ACCESS_TOKEN
+						env.FASSTO_BASE_URL = FASSTO_BASE_URL
+						env.FASSTO_API_CD = FASSTO_API_CD
+						env.FASSTO_API_KEY = FASSTO_API_KEY
+						env.FASSTO_CUSTOMER_CODE = FASSTO_CUSTOMER_CODE
+						env.HMAC_SECRET_KEY = HMAC_SECRET_KEY
+						env.REDIS_HOST_NAME = REDIS_HOST_NAME
+						env.REDIS_PASSWORD = REDIS_PASSWORD
+						env.KAFKA_BOOTSTRAP_SERVERS = KAFKA_BOOTSTRAP_SERVERS
+						env.KAFKA_SLACK_WEBHOOK_URL = KAFKA_SLACK_WEBHOOK_URL
+						env.KAFKA_SASL_ENABLED = KAFKA_SASL_ENABLED
+						env.KAFKA_SASL_MECHANISM = KAFKA_SASL_MECHANISM
+						env.KAFKA_SASL_PROTOCOL = KAFKA_SASL_PROTOCOL
+						env.KAFKA_SASL_USERNAME = KAFKA_SASL_USERNAME
+						env.KAFKA_SASL_PASSWORD = KAFKA_SASL_PASSWORD
+						env.KAFKA_SSL_TRUSTSTORE_PASSWORD = KAFKA_SSL_TRUSTSTORE_PASSWORD
+
+						def svc = env.SERVICE_NAME
+						if (svc == 'fulfillment-service') {
+							withCredentials([
+								string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_SERVICE_ECR_REPOSITORY", variable: 'FULFILLMENT_SERVICE_ECR_REPOSITORY'),
+								string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_SERVICE_SERVER_ORIGIN", variable: 'FULFILLMENT_SERVICE_SERVER_ORIGIN'),
+							]) {
+								env.ECR_REPOSITORY = FULFILLMENT_SERVICE_ECR_REPOSITORY
+								env.SERVER_ORIGIN = FULFILLMENT_SERVICE_SERVER_ORIGIN
+							}
+						} else if (svc == 'notification-service') {
+							withCredentials([
+								string(credentialsId: "${env.ENV_PREFIX}_NOTIFICATION_SERVICE_ECR_REPOSITORY", variable: 'NOTIFICATION_SERVICE_ECR_REPOSITORY'),
+								string(credentialsId: "${env.ENV_PREFIX}_NOTIFICATION_SERVICE_SERVER_ORIGIN", variable: 'NOTIFICATION_SERVICE_SERVER_ORIGIN'),
+							]) {
+								env.ECR_REPOSITORY = NOTIFICATION_SERVICE_ECR_REPOSITORY
+								env.SERVER_ORIGIN = NOTIFICATION_SERVICE_SERVER_ORIGIN
+							}
+						} else {
+							error "SERVICE_NAME not mapped: ${svc}"
+						}
+					}
+
+					if (!env.ECR_REPOSITORY?.trim()) {
+						error "ECR_REPOSITORY not resolved for ${env.SERVICE_NAME}"
+					}
+					if (!env.SERVER_ORIGIN?.trim()) {
+						error "SERVER_ORIGIN not resolved for ${env.SERVICE_NAME}"
+					}
+
+					echo "ECR_REPOSITORY   = ${env.ECR_REPOSITORY}"
+					echo "SERVER_ORIGIN   = ${env.SERVER_ORIGIN}"
+				}
+			}
+		}
+
+		stage('Build Marketnote Service Image') {
+			steps {
+				script {
+					def dockerImageTag = "${env.PROJECT_NAME}:${env.PROJECT_VERSION}"
+					env.DOCKER_IMAGE_TAG = dockerImageTag
+					sh '''
+					  docker build \
+					    --build-arg JAR_FILE=build/libs/$PROJECT_NAME-$PROJECT_VERSION.jar \
+					    -t $DOCKER_IMAGE_TAG \
+					    -f "$DOCKERFILE_PATH" \
+					    "$BUILD_CONTEXT"
+					'''
+				}
+			}
+		}
+
+		stage('Push Marketnote Service Image') {
+			steps {
+				script {
+					withCredentials([
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",        variable: 'AWS_ACCOUNT_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
+					]) {
+						env.AWS_ACCOUNT_ID = AWS_ACCOUNT_ID
+						env.AWS_DEFAULT_REGION = AWS_DEFAULT_REGION
+
+						sh '''
+						aws --version
+						aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+						aws ecr describe-repositories --repository-names $ECR_REPOSITORY --region $AWS_DEFAULT_REGION || aws ecr create-repository --repository-name $ECR_REPOSITORY --region $AWS_DEFAULT_REGION
+						docker tag $DOCKER_IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY:$PROJECT_VERSION
+						docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY:$PROJECT_VERSION
+						'''
+						env.IMAGE_URI = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com/${env.ECR_REPOSITORY}:${env.PROJECT_VERSION}"
+					}
+				}
+			}
+		}
+
+		stage('Deploy to Lightsail') {
+			steps {
+				script {
+					if (!env.IMAGE_URI?.trim()) {
+						error 'IMAGE_URI not resolved; cannot deploy'
+					}
+
+					def envFileName = ".env.${env.SERVICE_NAME}"
+					env.LIGHTSAIL_ENV_FILE = envFileName
+					env.LIGHTSAIL_ENV_PATH = "${WORKSPACE}/${envFileName}"
+					env.LIGHTSAIL_REMOTE_ENV_PATH = "${env.LIGHTSAIL_APP_DIR}/${envFileName}"
+					env.LIGHTSAIL_REMOTE_COMPOSE_PATH = "${env.LIGHTSAIL_APP_DIR}/docker-compose.yml"
+
+					withCredentials([
+						string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_SERVICE_DB_URL",        variable: 'FULFILLMENT_SERVICE_DB_URL'),
+						string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_SERVICE_DB_PASSWORD",   variable: 'FULFILLMENT_SERVICE_DB_PASSWORD'),
+						string(credentialsId: "${env.ENV_PREFIX}_NOTIFICATION_SERVICE_DB_URL",       variable: 'NOTIFICATION_SERVICE_DB_URL'),
+						string(credentialsId: "${env.ENV_PREFIX}_NOTIFICATION_SERVICE_DB_PASSWORD",  variable: 'NOTIFICATION_SERVICE_DB_PASSWORD'),
+						sshUserPrivateKey(credentialsId: "${env.ENV_PREFIX}_LIGHTSAIL_SERVER_JENKINS_PRIVATE_KEY", keyFileVariable: 'LIGHTSAIL_SSH_KEY', usernameVariable: 'LIGHTSAIL_SSH_USER'),
+						string(credentialsId: "${env.ENV_PREFIX}_LIGHTSAIL_SERVER_HOST", variable: 'LIGHTSAIL_SERVER_HOST'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",        variable: 'AWS_ACCOUNT_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
+					]) {
+						def dbCreds = [
+							FULFILLMENT_SERVICE_DB_URL: FULFILLMENT_SERVICE_DB_URL, FULFILLMENT_SERVICE_DB_PASSWORD: FULFILLMENT_SERVICE_DB_PASSWORD,
+							NOTIFICATION_SERVICE_DB_URL: NOTIFICATION_SERVICE_DB_URL, NOTIFICATION_SERVICE_DB_PASSWORD: NOTIFICATION_SERVICE_DB_PASSWORD,
+						]
+						def svcUpper = env.SERVICE_NAME.toUpperCase().replace('-', '_')
+						def dbUrl = dbCreds["${svcUpper}_DB_URL"]
+						def dbPassword = dbCreds["${svcUpper}_DB_PASSWORD"]
+						if (!dbUrl?.trim())      error "${svcUpper}_DB_URL credential not resolved for ${env.SERVICE_NAME}"
+						if (!dbPassword?.trim()) error "${svcUpper}_DB_PASSWORD credential not resolved for ${env.SERVICE_NAME}"
+
+						def envText = [
+							envLine(env.IMAGE_ENV_KEY, env.IMAGE_URI),
+							envLine('SERVICE_NAME', env.SERVICE_NAME),
+							envLine('SPRING_PROFILE', env.SPRING_PROFILE),
+							envLine('JWT_SECRET_KEY', env.JWT_SECRET_KEY),
+							envLine('ACCESS_CONTROL_ALLOWED_ORIGINS', env.ACCESS_CONTROL_ALLOWED_ORIGINS),
+							envLine('SERVER_ORIGIN', env.SERVER_ORIGIN),
+							envLine('CLIENT_ORIGIN', env.CLIENT_ORIGIN),
+							envLine('COOKIE_DOMAIN', env.COOKIE_DOMAIN),
+							envLine('DB_URL', dbUrl),
+							envLine('DB_USERNAME', env.DB_USERNAME),
+							envLine('DB_PASSWORD', dbPassword),
+							envLine('JWT_ADMIN_ACCESS_TOKEN', env.JWT_ADMIN_ACCESS_TOKEN),
+							envLine('JAVA_TOOL_OPTIONS', '-Duser.timezone=Asia/Seoul'),
+							envLine('FASSTO_BASE_URL', env.FASSTO_BASE_URL),
+							envLine('FASSTO_API_CD', env.FASSTO_API_CD),
+							envLine('FASSTO_API_KEY', env.FASSTO_API_KEY),
+							envLine('FASSTO_CUSTOMER_CODE', env.FASSTO_CUSTOMER_CODE),
+							envLine('HMAC_SECRET_KEY', env.HMAC_SECRET_KEY),
+							envLine('REDIS_HOST_NAME', env.REDIS_HOST_NAME),
+							envLine('REDIS_PASSWORD', env.REDIS_PASSWORD),
+							envLine('KAFKA_BOOTSTRAP_SERVERS', env.KAFKA_BOOTSTRAP_SERVERS),
+							envLine('KAFKA_SLACK_WEBHOOK_URL', env.KAFKA_SLACK_WEBHOOK_URL),
+							envLine('KAFKA_SASL_ENABLED', env.KAFKA_SASL_ENABLED),
+							envLine('KAFKA_SASL_MECHANISM', env.KAFKA_SASL_MECHANISM),
+							envLine('KAFKA_SASL_PROTOCOL', env.KAFKA_SASL_PROTOCOL),
+							envLine('KAFKA_SASL_USERNAME', env.KAFKA_SASL_USERNAME),
+							envLine('KAFKA_SASL_PASSWORD', env.KAFKA_SASL_PASSWORD),
+							envLine('KAFKA_SSL_TRUSTSTORE_PASSWORD', env.KAFKA_SSL_TRUSTSTORE_PASSWORD),
+						].join('\n') + '\n'
+
+						writeFile file: env.LIGHTSAIL_ENV_PATH, text: envText
+						sh "chmod 600 '${env.LIGHTSAIL_ENV_PATH}'"
+
+						sh '''#!/usr/bin/env bash
+						  set -euo pipefail
+
+						  SSH_PORT="$LIGHTSAIL_SSH_PORT"
+
+						  SSH_TARGET_HOST="$LIGHTSAIL_SERVER_HOST"
+						  SSH_TARGET_HOST="${SSH_TARGET_HOST#http://}"
+						  SSH_TARGET_HOST="${SSH_TARGET_HOST#https://}"
+						  SSH_TARGET_HOST="${SSH_TARGET_HOST%%/*}"
+						  SSH_TARGET_HOST="${SSH_TARGET_HOST%%:*}"
+
+						  SSH_HOST="$LIGHTSAIL_SSH_USER@$SSH_TARGET_HOST"
+						  SSH_OPTS="-i $LIGHTSAIL_SSH_KEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+						  ssh -p "$SSH_PORT" $SSH_OPTS "$SSH_HOST" "mkdir -p '$LIGHTSAIL_APP_DIR'"
+						  scp -P "$SSH_PORT" $SSH_OPTS "$LIGHTSAIL_ENV_PATH" "$SSH_HOST:$LIGHTSAIL_REMOTE_ENV_PATH"
+						  scp -P "$SSH_PORT" $SSH_OPTS "$WORKSPACE/docker-compose.yml" "$SSH_HOST:$LIGHTSAIL_REMOTE_COMPOSE_PATH"
+						  ssh -p "$SSH_PORT" $SSH_OPTS "$SSH_HOST" "chmod 600 '$LIGHTSAIL_REMOTE_ENV_PATH'"
+
+						  aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | \
+						    ssh -p "$SSH_PORT" $SSH_OPTS "$SSH_HOST" \
+						    "docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
+
+						  ssh -p "$SSH_PORT" $SSH_OPTS "$SSH_HOST" \
+						    "COMPOSE_SERVICE_NAME='$COMPOSE_SERVICE_NAME' COMPOSE_FILE='$LIGHTSAIL_REMOTE_COMPOSE_PATH' ENV_FILE='$LIGHTSAIL_REMOTE_ENV_PATH' bash -s" <<'REMOTE'
+						  set -euo pipefail
+
+						  if [ ! -f "$COMPOSE_FILE" ]; then
+						    echo "docker-compose.yml not found at $COMPOSE_FILE"
+						    exit 1
+						  fi
+
+						  if ! grep -q "^[[:space:]]*$COMPOSE_SERVICE_NAME:" "$COMPOSE_FILE"; then
+						    echo "Service '$COMPOSE_SERVICE_NAME' not found in $COMPOSE_FILE"
+						    exit 1
+						  fi
+
+						  if docker ps >/dev/null 2>&1; then
+						    DOCKER="docker"
+						  elif sudo -n docker ps >/dev/null 2>&1; then
+						    DOCKER="sudo docker"
+						  else
+						    echo "Docker not accessible for current user"
+						    exit 1
+						  fi
+
+						  if $DOCKER compose version >/dev/null 2>&1; then
+						    COMPOSE="$DOCKER compose"
+						  elif command -v docker-compose >/dev/null 2>&1; then
+						    if [ "$DOCKER" = "sudo docker" ]; then
+						      COMPOSE="sudo docker-compose"
+						    else
+						      COMPOSE="docker-compose"
+						    fi
+						  else
+						    echo "docker compose not found"
+						    exit 1
+						  fi
+
+						  $COMPOSE --env-file "$ENV_FILE" -f "$COMPOSE_FILE" pull "$COMPOSE_SERVICE_NAME"
+						  $COMPOSE --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --no-deps "$COMPOSE_SERVICE_NAME"
+REMOTE
+						'''
+					}
+				}
+			}
+		}
+
+		stage('Archive Artifacts') {
+			steps {
+				archiveArtifacts artifacts: "${env.SERVICE_DIRECTORY}/build/libs/*.jar", fingerprint: true
+			}
+		}
+	}
+
+	post {
+		always {
+			echo '====================================Clean workspace===================================='
+			cleanWs()
+			sh 'docker system prune -f'
+		}
+
+		success {
+			echo '====================================Build Success====================================='
+			script {
+				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
+				if (ch) {
+					slackSend(
+						channel: ch,
+						color:   "${env.SLACK_SUCCESS_COLOR}",
+						message: "Build Success!!\n"
+						+ "SERVICE: ${env.SERVICE_NAME}\n"
+						+ "SERVER_ORIGIN: ${env.SERVER_ORIGIN?:'N/A'}\n"
+						+ "IMAGE: ${env.IMAGE_URI?:'N/A'}\n"
+						+ "BUILD_NUMBER: ${env.BUILD_NUMBER}"
+					)
+				} else {
+					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack success notification"
+				}
+			}
+		}
+
+		failure {
+			echo '====================================Build Failed======================================='
+			script {
+				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
+				if (ch) {
+					slackSend(
+						channel: ch,
+						color:   "${env.SLACK_FAIL_COLOR}",
+						message: "Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
+					)
+				} else {
+					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack failure notification"
+				}
+			}
+		}
+	}
+}

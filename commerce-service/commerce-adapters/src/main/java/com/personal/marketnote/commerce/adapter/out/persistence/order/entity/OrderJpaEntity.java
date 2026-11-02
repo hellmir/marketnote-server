@@ -1,0 +1,231 @@
+package com.personal.marketnote.commerce.adapter.out.persistence.order.entity;
+
+import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderProduct;
+import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.domain.order.ShippingAddress;
+import com.personal.marketnote.commerce.domain.shipping.ShippingRegionType;
+import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.domain.delivery.PickupRequestType;
+import com.personal.marketnote.common.domain.deliveryrequestmessage.DeliveryRequestMessage;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
+import com.personal.marketnote.common.domain.recipientname.RecipientName;
+import com.personal.marketnote.common.utility.FormatValidator;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
+
+@Entity
+@Table(name = "orders",
+        indexes = @Index(name = "idx_orders_buyer_id_created_at", columnList = "buyer_id, created_at"))
+@DynamicInsert
+@DynamicUpdate
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
+@Getter
+public class OrderJpaEntity extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "buyer_id", nullable = false)
+    private Long buyerId;
+
+    @Column(name = "order_key", nullable = false, unique = true)
+    private UUID orderKey;
+
+    @Column(name = "order_number", nullable = false, length = 31, unique = true)
+    private String orderNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_status", nullable = false, length = 31)
+    private OrderStatus orderStatus;
+
+    @Column(name = "total_amount", nullable = false)
+    private Long totalAmount;
+
+    @Column(name = "paid_amount", nullable = false)
+    private Long paidAmount;
+
+    @Column(name = "coupon_amount")
+    private Long couponAmount;
+
+    @Column(name = "point_amount")
+    private Long pointAmount;
+
+    @Column(name = "shipping_fee")
+    private Long shippingFee;
+
+    @Column(name = "delivery_recipient_name", length = 50)
+    private String recipientName;
+
+    @Column(name = "delivery_recipient_phone_number", length = 20)
+    private String recipientPhoneNumber;
+
+    @Column(name = "delivery_zip_code", length = 10)
+    private String zipCode;
+
+    @Column(name = "delivery_address", length = 255)
+    private String address;
+
+    @Column(name = "delivery_address_detail", length = 255)
+    private String addressDetail;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_request_type", length = 31)
+    private DeliveryRequestType deliveryRequestType;
+
+    @Column(name = "delivery_request_message", length = 60)
+    private String deliveryRequestMessage;
+
+    @Column(name = "pickup_recipient_name", length = 50)
+    private String pickupRecipientName;
+
+    @Column(name = "pickup_recipient_phone_number", length = 20)
+    private String pickupRecipientPhoneNumber;
+
+    @Column(name = "pickup_zip_code", length = 10)
+    private String pickupZipCode;
+
+    @Column(name = "pickup_address", length = 255)
+    private String pickupAddress;
+
+    @Column(name = "pickup_address_detail", length = 255)
+    private String pickupAddressDetail;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pickup_delivery_request_type", length = 31)
+    private PickupRequestType pickupDeliveryRequestType;
+
+    @Column(name = "pickup_request_message", length = 60)
+    private String pickupDeliveryRequestMessage;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "shipping_region_type", nullable = false, length = 20)
+    private ShippingRegionType shippingRegionType;
+
+    @Column(name = "scheduled_auto_confirm_at")
+    private LocalDateTime scheduledAutoConfirmAt;
+
+    @OneToMany(mappedBy = "orderJpaEntity", cascade = {PERSIST, MERGE}, orphanRemoval = true)
+    @Builder.Default
+    private List<OrderProductJpaEntity> orderProductJpaEntities = new ArrayList<>();
+
+    public static OrderJpaEntity from(Order order) {
+        return OrderJpaEntity.builder()
+                .buyerId(order.getBuyerId())
+                .orderKey(order.getOrderKey())
+                .orderNumber(order.getOrderNumber().getValue())
+                .orderStatus(order.getOrderStatus())
+                .totalAmount(order.getAmount().getTotalAmount().getValue())
+                .paidAmount(order.getAmount().getPaidAmount().getValue())
+                .couponAmount(order.getAmount().getCouponAmount().getValue())
+                .pointAmount(order.getAmount().getPointAmount().getValue())
+                .shippingFee(order.getAmount().getShippingFee().getValue())
+                .recipientName(toRecipientNameValue(order.getShippingAddress().getRecipientName()))
+                .recipientPhoneNumber(toPhoneNumberValue(order.getShippingAddress().getRecipientPhoneNumber()))
+                .zipCode(order.getShippingAddress().getZipCode())
+                .address(order.getShippingAddress().getAddress())
+                .addressDetail(order.getShippingAddress().getAddressDetail())
+                .deliveryRequestType(order.getShippingAddress().getDeliveryRequestType())
+                .deliveryRequestMessage(toDeliveryRequestMessageValue(
+                        order.getShippingAddress().getDeliveryRequestMessage()
+                ))
+                .pickupRecipientName(toRecipientNameValue(resolvePickupField(order, ShippingAddress::getRecipientName)))
+                .pickupRecipientPhoneNumber(toPhoneNumberValue(
+                        resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber)
+                ))
+                .pickupZipCode(resolvePickupField(order, ShippingAddress::getZipCode))
+                .pickupAddress(resolvePickupField(order, ShippingAddress::getAddress))
+                .pickupAddressDetail(resolvePickupField(order, ShippingAddress::getAddressDetail))
+                .pickupDeliveryRequestType(resolvePickupField(order, ShippingAddress::getPickupRequestType))
+                .pickupDeliveryRequestMessage(toDeliveryRequestMessageValue(
+                        resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)
+                ))
+                .shippingRegionType(order.getShippingRegionType())
+                .scheduledAutoConfirmAt(order.getScheduledAutoConfirmAt())
+                .build();
+    }
+
+    public void addOrderProduct(OrderProductJpaEntity orderProductJpaEntity) {
+        orderProductJpaEntities.add(orderProductJpaEntity);
+    }
+
+    public void updateFrom(Order order) {
+        orderStatus = order.getOrderStatus();
+        totalAmount = order.getAmount().getTotalAmount().getValue();
+        paidAmount = order.getAmount().getPaidAmount().getValue();
+        couponAmount = order.getAmount().getCouponAmount().getValue();
+        pointAmount = order.getAmount().getPointAmount().getValue();
+        shippingFee = order.getAmount().getShippingFee().getValue();
+        pickupRecipientName = toRecipientNameValue(resolvePickupField(order, ShippingAddress::getRecipientName));
+        pickupRecipientPhoneNumber = toPhoneNumberValue(
+                resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber)
+        );
+        pickupZipCode = resolvePickupField(order, ShippingAddress::getZipCode);
+        pickupAddress = resolvePickupField(order, ShippingAddress::getAddress);
+        pickupAddressDetail = resolvePickupField(order, ShippingAddress::getAddressDetail);
+        pickupDeliveryRequestType = resolvePickupField(order, ShippingAddress::getPickupRequestType);
+        pickupDeliveryRequestMessage = toDeliveryRequestMessageValue(
+                resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)
+        );
+        scheduledAutoConfirmAt = order.getScheduledAutoConfirmAt();
+
+        Map<Long, OrderProduct> orderProductsByPricePolicyId = order.getOrderProducts()
+                .stream()
+                .collect(Collectors.toMap(
+                        OrderProduct::getPricePolicyId,
+                        op -> op
+                ));
+
+        orderProductJpaEntities.forEach(entity -> {
+            OrderProduct orderProduct = orderProductsByPricePolicyId.get(entity.getPricePolicyId());
+            if (FormatValidator.hasValue(orderProduct)) {
+                entity.updateFrom(orderProduct);
+            }
+        });
+    }
+
+    private static <T> T resolvePickupField(Order order, Function<ShippingAddress, T> extractor) {
+        if (FormatValidator.hasNoValue(order.getPickupAddress())) {
+            return null;
+        }
+        return extractor.apply(order.getPickupAddress());
+    }
+
+    private static String toPhoneNumberValue(PhoneNumber phoneNumber) {
+        if (FormatValidator.hasNoValue(phoneNumber)) {
+            return null;
+        }
+        return phoneNumber.getValue();
+    }
+
+    private static String toDeliveryRequestMessageValue(DeliveryRequestMessage deliveryRequestMessage) {
+        if (FormatValidator.hasNoValue(deliveryRequestMessage)) {
+            return null;
+        }
+        return deliveryRequestMessage.getValue();
+    }
+
+    private static String toRecipientNameValue(RecipientName recipientName) {
+        if (FormatValidator.hasNoValue(recipientName)) {
+            return null;
+        }
+        return recipientName.getValue();
+    }
+}

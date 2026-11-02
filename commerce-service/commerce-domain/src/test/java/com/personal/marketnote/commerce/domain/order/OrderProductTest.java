@@ -1,0 +1,326 @@
+package com.personal.marketnote.commerce.domain.order;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class OrderProductTest {
+
+    private static final LocalDateTime NOW = LocalDateTime.of(2026, 4, 7, 14, 0, 0);
+
+    @Nested
+    @DisplayName("주문 상품 키 생성/복원 (orderProductKey)")
+    class OrderProductKeyTest {
+
+        @Test
+        @DisplayName("CreateState로부터 생성 시 orderProductKey가 UUID V7로 자동 생성된다")
+        void shouldGenerateOrderProductKeyAsUuidV7FromCreateState() {
+            // given
+            OrderProductCreateState state = OrderProductCreateState.builder()
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .build();
+
+            // when
+            OrderProduct orderProduct = OrderProduct.from(state);
+
+            // then
+            UUID orderProductKey = orderProduct.getOrderProductKey();
+            assertThat(orderProductKey).isNotNull();
+            assertThat(orderProductKey.version()).isEqualTo(7);
+        }
+
+        @Test
+        @DisplayName("동일 CreateState로 두 번 생성해도 서로 다른 orderProductKey가 생성된다")
+        void shouldGenerateDifferentOrderProductKeysForEachCreation() {
+            // given
+            OrderProductCreateState state = OrderProductCreateState.builder()
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .build();
+
+            // when
+            OrderProduct first = OrderProduct.from(state);
+            OrderProduct second = OrderProduct.from(state);
+
+            // then
+            assertThat(first.getOrderProductKey()).isNotEqualTo(second.getOrderProductKey());
+        }
+
+        @Test
+        @DisplayName("SnapshotState로부터 복원 시 orderProductKey가 그대로 보존된다")
+        void shouldPreserveOrderProductKeyFromSnapshotState() {
+            // given
+            UUID expectedKey = UUID.fromString("018f0000-0000-7000-8000-000000000001");
+            OrderProductSnapshotState state = OrderProductSnapshotState.builder()
+                    .orderId(1L)
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .orderProductKey(expectedKey)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.PAYMENT_PENDING)
+                    .build();
+
+            // when
+            OrderProduct orderProduct = OrderProduct.from(state);
+
+            // then
+            assertThat(orderProduct.getOrderProductKey()).isEqualTo(expectedKey);
+        }
+    }
+
+    @Nested
+    @DisplayName("상품 식별자 매핑 (productId)")
+    class ProductIdTest {
+
+        @Test
+        @DisplayName("CreateState에 productId를 설정하면 OrderProduct 도메인에 productId가 매핑된다")
+        void shouldMapProductIdFromCreateState() {
+            // given
+            OrderProductCreateState state = OrderProductCreateState.builder()
+                    .productId(42L)
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .build();
+
+            // when
+            OrderProduct orderProduct = OrderProduct.from(state);
+
+            // then
+            assertThat(orderProduct.getProductId()).isEqualTo(42L);
+        }
+
+        @Test
+        @DisplayName("SnapshotState에 productId를 설정하면 OrderProduct 도메인에 productId가 매핑된다")
+        void shouldMapProductIdFromSnapshotState() {
+            // given
+            OrderProductSnapshotState state = OrderProductSnapshotState.builder()
+                    .orderId(1L)
+                    .productId(42L)
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.PAYMENT_PENDING)
+                    .build();
+
+            // when
+            OrderProduct orderProduct = OrderProduct.from(state);
+
+            // then
+            assertThat(orderProduct.getProductId()).isEqualTo(42L);
+        }
+
+        @Test
+        @DisplayName("CreateState에 productId가 null이면 OrderProduct 도메인에 null로 매핑된다")
+        void shouldMapNullProductIdFromCreateState() {
+            // given
+            OrderProductCreateState state = OrderProductCreateState.builder()
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .build();
+
+            // when
+            OrderProduct orderProduct = OrderProduct.from(state);
+
+            // then
+            assertThat(orderProduct.getProductId()).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("배송 완료 일시 설정 (deliveredAt)")
+    class DeliveredAtTest {
+
+        @Test
+        @DisplayName("SHIPPING에서 DELIVERED로 전이하면 deliveredAt이 현재 시각으로 설정된다")
+        void shouldSetDeliveredAtWhenTransitionToDelivered() {
+            // given
+            OrderProduct orderProduct = createOrderProduct(OrderStatus.SHIPPING);
+
+            // when
+            orderProduct.changeOrderStatus(OrderStatus.DELIVERED, NOW, 7L);
+
+            // then
+            assertThat(orderProduct.getDeliveredAt()).isEqualTo(NOW);
+        }
+
+        @Test
+        @DisplayName("DELIVERED에서 CONFIRMED로 전이해도 deliveredAt은 변경되지 않는다")
+        void shouldNotChangeDeliveredAtWhenTransitionToConfirmed() {
+            // given
+            LocalDateTime deliveredTime = LocalDateTime.of(2026, 4, 1, 10, 0, 0);
+            OrderProduct orderProduct = createOrderProductWithDeliveredAt(deliveredTime);
+
+            // when
+            orderProduct.changeOrderStatus(OrderStatus.CONFIRMED, NOW, 7L);
+
+            // then
+            assertThat(orderProduct.getDeliveredAt()).isEqualTo(deliveredTime);
+        }
+
+        @Test
+        @DisplayName("SnapshotState에서 복원 시 deliveredAt이 보존된다")
+        void shouldPreserveDeliveredAtFromSnapshotState() {
+            // given
+            LocalDateTime deliveredTime = LocalDateTime.of(2026, 4, 1, 10, 0, 0);
+            OrderProductSnapshotState state = OrderProductSnapshotState.builder()
+                    .orderId(1L)
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.DELIVERED)
+                    .deliveredAt(deliveredTime)
+                    .build();
+
+            // when
+            OrderProduct orderProduct = OrderProduct.from(state);
+
+            // then
+            assertThat(orderProduct.getDeliveredAt()).isEqualTo(deliveredTime);
+        }
+    }
+
+    @Nested
+    @DisplayName("자동 확정 예정 일시 설정 (scheduledAutoConfirmAt)")
+    class ScheduledAutoConfirmAtTest {
+
+        @Test
+        @DisplayName("SHIPPING에서 DELIVERED로 전이하면 scheduledAutoConfirmAt이 now + autoConfirmDays로 설정된다")
+        void shouldSetScheduledAutoConfirmAtWhenTransitionToDelivered() {
+            // given
+            OrderProduct orderProduct = createOrderProduct(OrderStatus.SHIPPING);
+            long autoConfirmDays = 7L;
+
+            // when
+            orderProduct.changeOrderStatus(OrderStatus.DELIVERED, NOW, autoConfirmDays);
+
+            // then
+            assertThat(orderProduct.getScheduledAutoConfirmAt()).isEqualTo(NOW.plusDays(autoConfirmDays));
+        }
+
+        @Test
+        @DisplayName("autoConfirmDays가 3이면 scheduledAutoConfirmAt이 now + 3일로 설정된다")
+        void shouldSetScheduledAutoConfirmAtWithCustomAutoConfirmDays() {
+            // given
+            OrderProduct orderProduct = createOrderProduct(OrderStatus.SHIPPING);
+            long autoConfirmDays = 3L;
+
+            // when
+            orderProduct.changeOrderStatus(OrderStatus.DELIVERED, NOW, autoConfirmDays);
+
+            // then
+            assertThat(orderProduct.getScheduledAutoConfirmAt()).isEqualTo(NOW.plusDays(autoConfirmDays));
+        }
+
+        @Test
+        @DisplayName("DELIVERED가 아닌 다른 상태로 전이하면 scheduledAutoConfirmAt은 설정되지 않는다")
+        void shouldNotSetScheduledAutoConfirmAtWhenTransitionToNonDelivered() {
+            // given
+            OrderProduct orderProduct = createOrderProduct(OrderStatus.PAID);
+
+            // when
+            orderProduct.changeOrderStatus(OrderStatus.PREPARING, NOW, 7L);
+
+            // then
+            assertThat(orderProduct.getScheduledAutoConfirmAt()).isNull();
+        }
+
+        @Test
+        @DisplayName("DELIVERED에서 CONFIRMED로 전이해도 scheduledAutoConfirmAt은 변경되지 않는다")
+        void shouldNotChangeScheduledAutoConfirmAtWhenTransitionFromDelivered() {
+            // given
+            LocalDateTime deliveredTime = LocalDateTime.of(2026, 4, 1, 10, 0, 0);
+            LocalDateTime scheduledAt = deliveredTime.plusDays(7L);
+            OrderProduct orderProduct = OrderProduct.from(OrderProductSnapshotState.builder()
+                    .orderId(1L)
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.DELIVERED)
+                    .deliveredAt(deliveredTime)
+                    .scheduledAutoConfirmAt(scheduledAt)
+                    .build());
+
+            // when
+            orderProduct.changeOrderStatus(OrderStatus.CONFIRMED, NOW, 7L);
+
+            // then
+            assertThat(orderProduct.getScheduledAutoConfirmAt()).isEqualTo(scheduledAt);
+        }
+
+        @Test
+        @DisplayName("SnapshotState에서 복원 시 scheduledAutoConfirmAt이 보존된다")
+        void shouldPreserveScheduledAutoConfirmAtFromSnapshotState() {
+            // given
+            LocalDateTime deliveredTime = LocalDateTime.of(2026, 4, 1, 10, 0, 0);
+            LocalDateTime scheduledAt = deliveredTime.plusDays(7L);
+            OrderProductSnapshotState state = OrderProductSnapshotState.builder()
+                    .orderId(1L)
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.DELIVERED)
+                    .deliveredAt(deliveredTime)
+                    .scheduledAutoConfirmAt(scheduledAt)
+                    .build();
+
+            // when
+            OrderProduct orderProduct = OrderProduct.from(state);
+
+            // then
+            assertThat(orderProduct.getScheduledAutoConfirmAt()).isEqualTo(scheduledAt);
+        }
+    }
+
+    private OrderProduct createOrderProduct(OrderStatus status) {
+        return OrderProduct.from(OrderProductSnapshotState.builder()
+                .orderId(1L)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .orderStatus(status)
+                .build());
+    }
+
+    private OrderProduct createOrderProductWithDeliveredAt(LocalDateTime deliveredAt) {
+        return OrderProduct.from(OrderProductSnapshotState.builder()
+                .orderId(1L)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .orderStatus(OrderStatus.DELIVERED)
+                .deliveredAt(deliveredAt)
+                .build());
+    }
+}

@@ -1,0 +1,163 @@
+package com.personal.marketnote.common.kafka;
+
+import java.util.List;
+
+public final class KafkaTopicConstants {
+
+    private KafkaTopicConstants() {
+    }
+
+    // Commerce 이벤트
+    public static final String ORDER_PAYMENT_COMPLETED = "commerce.order.payment-completed";
+    public static final String PAYMENT_APPROVED = "commerce.payment.approved";
+    public static final String PAYMENT_FAILED = "commerce.payment.failed";
+    public static final String PAYMENT_CANCELLED = "commerce.payment.cancelled";
+    public static final String SETTLEMENT_EXECUTED = "commerce.settlement.executed";
+    public static final String ORDER_CANCELLED = "commerce.order.cancelled";
+    public static final String ORDER_CANCEL_FAILED = "commerce.order.cancel-failed";
+    public static final String ORDER_AUTO_CONFIRM_FAILED = "commerce.order.auto-confirm-failed";
+    public static final String ORDER_PURCHASE_CONFIRMED = "commerce.order.purchase-confirmed";
+    public static final String ORDER_RETURNED = "commerce.order.returned";
+    public static final String RETURN_REQUESTED = "commerce.order.return-requested";
+    public static final String RETURN_REJECTED = "commerce.order.return-rejected";
+    public static final String RETURN_INSPECTION_COMPLETED = "commerce.return-inspection.completed";
+
+    // Product 이벤트
+    public static final String PRODUCT_REGISTERED = "product.product.registered";
+    public static final String PRICE_POLICY_CREATED = "product.price-policy.created";
+    public static final String PRICE_POLICY_DELETED = "product.price-policy.deleted";
+    public static final String PRODUCT_UPDATED = "product.product.updated";
+    public static final String PRODUCT_DELETED = "product.product.deleted";
+    public static final String PRODUCT_TAG_CHANGED = "product.product.tag-changed";
+
+    // User 이벤트
+    public static final String USER_SIGNUP_COMPLETED = "user.user.signup-completed";
+    public static final String USER_REFERRAL_COMPLETED = "user.user.referral-completed";
+    public static final String SHIPPING_ADDRESS_CHANGED = "user.shipping-address.changed";
+
+    // Community 이벤트
+    public static final String REVIEW_REGISTERED = "community.review.registered";
+    public static final String REVIEW_UPDATED = "community.review.updated";
+    public static final String REVIEW_DELETED = "community.review.deleted";
+    public static final String REVIEW_REPLY_REGISTERED = "community.review.reply-registered";
+    public static final String NOTICE_REGISTERED = "community.notice.registered";
+    public static final String EVENT_REGISTERED = "community.event.registered";
+    public static final String INQUIRY_ANSWERED = "community.inquiry.answered";
+
+    // File 이벤트
+    public static final String FILE_IMAGE_CHANGED = "file.image.changed";
+
+    // SAGA 응답
+    public static final String SAGA_RESPONSE = "saga.response";
+
+    // OrderPayment SAGA 스텝
+    public static final String SAGA_ORDER_PAYMENT_INVENTORY = "saga.order-payment.inventory";
+    public static final String SAGA_ORDER_PAYMENT_LEDGER = "saga.order-payment.ledger";
+    public static final String SAGA_ORDER_PAYMENT_COMPLETED = "saga.order-payment.completed";
+
+    // OrderCancel SAGA 스텝
+    public static final String SAGA_ORDER_CANCEL_FULFILLMENT = "saga.order-cancel.fulfillment";
+    public static final String SAGA_ORDER_CANCEL_REFUND = "saga.order-cancel.refund";
+    public static final String SAGA_ORDER_CANCEL_COMPLETED = "saga.order-cancel.completed";
+
+    // OrderReturn SAGA 스텝
+    public static final String SAGA_ORDER_RETURN_REFUND = "saga.order-return.refund";
+    public static final String SAGA_ORDER_RETURN_LEDGER = "saga.order-return.ledger";
+    public static final String SAGA_ORDER_RETURN_SETTLEMENT = "saga.order-return.settlement";
+    public static final String SAGA_ORDER_RETURN_INVENTORY = "saga.order-return.inventory";
+    public static final String SAGA_ORDER_RETURN_POINT_REFUND = "saga.order-return.point-refund";
+    public static final String SAGA_ORDER_RETURN_COMPLETED = "saga.order-return.completed";
+
+    // OrderPaymentCompleted 다운스트림 SAGA 스텝
+    public static final String SAGA_ORDER_PAYMENT_DOWNSTREAM_FULFILLMENT = "saga.order-payment-downstream.fulfillment";
+    public static final String SAGA_ORDER_PAYMENT_DOWNSTREAM_ORDER_POINT = "saga.order-payment-downstream.order-point";
+    public static final String SAGA_ORDER_PAYMENT_DOWNSTREAM_SHARED_POINT = "saga.order-payment-downstream.shared-point";
+    public static final String SAGA_ORDER_PAYMENT_DOWNSTREAM_PRODUCT_POINT = "saga.order-payment-downstream.product-point";
+    public static final String SAGA_ORDER_PAYMENT_DOWNSTREAM_CART = "saga.order-payment-downstream.cart";
+
+    // Inventory 이벤트
+    public static final String INVENTORY_CHANGED = "commerce.inventory.changed";
+    public static final String STOCK_RESERVED = "commerce.inventory.reserved";
+    public static final String STOCK_RELEASED = "commerce.inventory.released";
+
+    // Shipping Policy 이벤트
+    public static final String SHIPPING_POLICY_CHANGED = "product.shipping-policy.changed";
+
+    // Fulfillment 이벤트
+    public static final String SHIPPING_STATUS_CHANGED = "fulfillment.shipping.status-changed";
+    public static final String FULFILLMENT_INVENTORY_SYNCED = "fulfillment.inventory.synced";
+    public static final String FULFILLMENT_GOODS_SYNCED = "fulfillment.goods.synced";
+    public static final String FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED = "fulfillment.delivery.work-status-changed";
+
+    // Notification 이벤트
+    public static final String NOTIFICATION_PUSH_SENT = "notification.push.sent";
+
+    // Reward 이벤트
+    public static final String POINT_ACCRUED = "reward.point.accrued";
+
+    // Dead Letter Topic 접미사
+    public static final String DLT_SUFFIX = ".dlt";
+
+    public static List<String> getAllTopics() {
+        return List.of(
+                ORDER_PAYMENT_COMPLETED,
+                PAYMENT_APPROVED,
+                PAYMENT_FAILED,
+                PAYMENT_CANCELLED,
+                SETTLEMENT_EXECUTED,
+                ORDER_CANCELLED,
+                ORDER_CANCEL_FAILED,
+                ORDER_AUTO_CONFIRM_FAILED,
+                ORDER_PURCHASE_CONFIRMED,
+                ORDER_RETURNED,
+                RETURN_REQUESTED,
+                RETURN_REJECTED,
+                RETURN_INSPECTION_COMPLETED,
+                PRODUCT_REGISTERED,
+                PRICE_POLICY_CREATED,
+                PRICE_POLICY_DELETED,
+                PRODUCT_UPDATED,
+                PRODUCT_DELETED,
+                PRODUCT_TAG_CHANGED,
+                USER_SIGNUP_COMPLETED,
+                USER_REFERRAL_COMPLETED,
+                SHIPPING_ADDRESS_CHANGED,
+                REVIEW_REGISTERED,
+                REVIEW_UPDATED,
+                REVIEW_DELETED,
+                REVIEW_REPLY_REGISTERED,
+                NOTICE_REGISTERED,
+                EVENT_REGISTERED,
+                INQUIRY_ANSWERED,
+                FILE_IMAGE_CHANGED,
+                SAGA_RESPONSE,
+                SAGA_ORDER_PAYMENT_INVENTORY,
+                SAGA_ORDER_PAYMENT_LEDGER,
+                SAGA_ORDER_PAYMENT_COMPLETED,
+                SAGA_ORDER_CANCEL_FULFILLMENT,
+                SAGA_ORDER_CANCEL_REFUND,
+                SAGA_ORDER_CANCEL_COMPLETED,
+                SAGA_ORDER_RETURN_REFUND,
+                SAGA_ORDER_RETURN_LEDGER,
+                SAGA_ORDER_RETURN_SETTLEMENT,
+                SAGA_ORDER_RETURN_INVENTORY,
+                SAGA_ORDER_RETURN_POINT_REFUND,
+                SAGA_ORDER_RETURN_COMPLETED,
+                SAGA_ORDER_PAYMENT_DOWNSTREAM_FULFILLMENT,
+                SAGA_ORDER_PAYMENT_DOWNSTREAM_ORDER_POINT,
+                SAGA_ORDER_PAYMENT_DOWNSTREAM_SHARED_POINT,
+                SAGA_ORDER_PAYMENT_DOWNSTREAM_PRODUCT_POINT,
+                SAGA_ORDER_PAYMENT_DOWNSTREAM_CART,
+                INVENTORY_CHANGED,
+                STOCK_RESERVED,
+                STOCK_RELEASED,
+                SHIPPING_POLICY_CHANGED,
+                SHIPPING_STATUS_CHANGED,
+                FULFILLMENT_INVENTORY_SYNCED,
+                FULFILLMENT_GOODS_SYNCED,
+                FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED,
+                NOTIFICATION_PUSH_SENT,
+                POINT_ACCRUED
+        );
+    }
+}
