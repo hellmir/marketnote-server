@@ -110,7 +110,7 @@ public class OfferwallVendorCommunicationPayloadGenerator {
 
         putIfNotBlank(node, "transactionId", rewardKey);
         putIfNotBlank(node, "userId", userKey);
-        putIfNotBlank(node, "user_device_type", userDeviceType.name());
+        putIfNotBlank(node, "userDeviceType", userDeviceType.name());
         putIfNotBlank(node, "unitId", campaignKey);
         putIfNotBlank(node, "shareAdType", campaignType);
         putIfNotBlank(node, "adname", campaignName);
