@@ -1,13 +1,7 @@
 package com.personal.marketnote.community.adapter.in.web.post.controller;
 
 import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
-import com.personal.marketnote.community.domain.post.Board;
-import com.personal.marketnote.community.domain.post.PostFilterCategory;
-import com.personal.marketnote.community.domain.post.PostFilterValue;
-import com.personal.marketnote.community.domain.post.PostSearchTarget;
-import com.personal.marketnote.community.domain.post.PostSortProperty;
-import com.personal.marketnote.community.domain.post.PostTargetGroupType;
-import com.personal.marketnote.community.domain.post.PostTargetType;
+import com.personal.marketnote.community.domain.post.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

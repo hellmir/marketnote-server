@@ -79,7 +79,7 @@ import java.lang.annotation.*;
                 | penaltyCount | number | 패널티 횟수 | 0 |
                 | deactivatedUntil | string(datetime) | 비활성화 종료 일시 (null이면 영구 또는 활성 상태) | "2026-05-13T00:00:00" |
                 ---
-
+                
                 ### Response > content > userInfo > accountInfo
                 
                 | **키** | **타입** | **설명** | **예시** |

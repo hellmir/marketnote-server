@@ -46,7 +46,9 @@ public class CounterRegistryHelper {
         return cache.computeIfAbsent(key, k -> register(name, description, tagKeyValues));
     }
 
-    /** 편의 API — 조회와 동시에 1 증가. */
+    /**
+     * 편의 API — 조회와 동시에 1 증가.
+     */
     public void increment(String name, String description, String... tagKeyValues) {
         counter(name, description, tagKeyValues).increment();
     }

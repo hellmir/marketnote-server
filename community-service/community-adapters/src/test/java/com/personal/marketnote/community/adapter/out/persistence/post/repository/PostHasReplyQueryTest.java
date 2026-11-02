@@ -9,7 +9,6 @@ import com.personal.marketnote.community.domain.post.Post;
 import com.personal.marketnote.community.domain.post.PostCreateState;
 import com.personal.marketnote.community.domain.post.PostSortProperty;
 import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -3,11 +3,7 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.notification.configuration.AligoProperties;
-import com.personal.marketnote.notification.domain.aligo.AligoBrandTalkMessage;
-import com.personal.marketnote.notification.domain.aligo.AligoBrandTalkMessageCreateState;
-import com.personal.marketnote.notification.domain.aligo.AligoBrandTalkMessageRecipientCreateState;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkFailoverType;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkKakaoTarget;
+import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.out.aligo.SendBrandTalkExternalPort;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,9 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class AligoBrandTalkExternalAdapterTest {

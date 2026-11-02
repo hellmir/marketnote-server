@@ -1,14 +1,9 @@
 package com.personal.marketnote.reward.adapter.out.persistence.gifticon.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
-import com.personal.marketnote.reward.adapter.out.persistence.gifticon.converter.GoodsStatusConverter;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.reward.domain.gifticon.BrandCode;
-import com.personal.marketnote.reward.domain.gifticon.CategoryCode;
-import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
-import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
-import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
-import com.personal.marketnote.reward.domain.gifticon.ValidDays;
+import com.personal.marketnote.reward.adapter.out.persistence.gifticon.converter.GoodsStatusConverter;
+import com.personal.marketnote.reward.domain.gifticon.*;
 import jakarta.persistence.*;
 import lombok.*;
 

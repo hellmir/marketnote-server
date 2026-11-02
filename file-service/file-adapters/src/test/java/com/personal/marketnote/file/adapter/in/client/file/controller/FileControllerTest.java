@@ -1,6 +1,8 @@
 package com.personal.marketnote.file.adapter.in.client.file.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.domain.exception.token.AuthenticationFailedException;
 import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.common.domain.file.OwnerType;
 import com.personal.marketnote.file.adapter.in.client.file.request.UpdateFilesRequest;
@@ -27,19 +29,13 @@ import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrinci
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.personal.marketnote.common.domain.EntityStatus;
-import com.personal.marketnote.common.domain.exception.token.AuthenticationFailedException;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FileController 파일 업로드/조회/삭제")

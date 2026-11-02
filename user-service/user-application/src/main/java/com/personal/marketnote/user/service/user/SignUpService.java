@@ -6,12 +6,8 @@ import com.personal.marketnote.common.domain.exception.illegalargument.novalue.P
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.RandomCodeGenerator;
-import com.personal.marketnote.user.domain.user.LoginHistory;
-import com.personal.marketnote.user.domain.user.ReferenceCode;
-import com.personal.marketnote.user.domain.user.Terms;
-import com.personal.marketnote.user.domain.user.User;
+import com.personal.marketnote.user.domain.user.*;
 import com.personal.marketnote.user.exception.*;
-import com.personal.marketnote.user.domain.user.FingerprintSource;
 import com.personal.marketnote.user.port.in.command.SignUpCommand;
 import com.personal.marketnote.user.port.in.event.UserFingerprintSavedEvent;
 import com.personal.marketnote.user.port.in.mapper.UserCommandToStateMapper;

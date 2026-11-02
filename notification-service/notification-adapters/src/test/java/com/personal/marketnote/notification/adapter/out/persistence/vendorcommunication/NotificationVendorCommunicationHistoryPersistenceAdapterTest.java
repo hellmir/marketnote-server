@@ -2,12 +2,7 @@ package com.personal.marketnote.notification.adapter.out.persistence.vendorcommu
 
 import com.personal.marketnote.notification.adapter.out.persistence.vendorcommunication.entity.NotificationVendorCommunicationHistoryJpaEntity;
 import com.personal.marketnote.notification.adapter.out.persistence.vendorcommunication.repository.NotificationVendorCommunicationHistoryJpaRepository;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationHistory;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationHistoryCreateState;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationSenderType;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationTargetType;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationType;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorName;
+import com.personal.marketnote.notification.domain.vendorcommunication.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

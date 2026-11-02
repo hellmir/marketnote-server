@@ -1,7 +1,6 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.port.in.result.order.GetOrderProductResult;
 import com.personal.marketnote.commerce.port.in.result.order.GetOrderResult;
@@ -1141,7 +1140,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                                 .unitAmount(50000L)
                                 .orderStatus(productStatus)
                                 .accumulatedPoint(0L)
-                        .build()
+                                .build()
                 ))
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -1166,7 +1165,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                                 .unitAmount(100000L)
                                 .orderStatus(OrderStatus.CONFIRMED)
                                 .accumulatedPoint(0L)
-                        .build(),
+                                .build(),
                         OrderProductSnapshotState.builder()
                                 .orderId(orderId)
                                 .sellerId(20L)
@@ -1175,7 +1174,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                                 .unitAmount(100000L)
                                 .orderStatus(OrderStatus.RETURNED)
                                 .accumulatedPoint(0L)
-                        .build(),
+                                .build(),
                         OrderProductSnapshotState.builder()
                                 .orderId(orderId)
                                 .sellerId(30L)
@@ -1184,7 +1183,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                                 .unitAmount(100000L)
                                 .orderStatus(OrderStatus.SHIPPING)
                                 .accumulatedPoint(0L)
-                        .build()
+                                .build()
                 ))
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -1200,7 +1199,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .unitAmount(unitAmount)
                 .orderStatus(OrderStatus.PAID)
                 .accumulatedPoint(0L)
-                        .build());
+                .build());
     }
 
     private OrderProduct createOrderProductWithSellerId(
@@ -1214,7 +1213,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .unitAmount(unitAmount)
                 .orderStatus(OrderStatus.PAID)
                 .accumulatedPoint(0L)
-                        .build());
+                .build());
     }
 
     private OrderProduct createOrderProductWithSharerKey(
@@ -1229,7 +1228,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .unitAmount(unitAmount)
                 .orderStatus(OrderStatus.PAID)
                 .accumulatedPoint(0L)
-                        .build());
+                .build());
     }
 
     private OrderProduct createOrderProductWithImageUrl(
@@ -1244,7 +1243,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .imageUrl(imageUrl)
                 .orderStatus(OrderStatus.PAID)
                 .accumulatedPoint(0L)
-                        .build());
+                .build());
     }
 
     private OrderProduct createOrderProductWithReviewStatus(
@@ -1259,7 +1258,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .orderStatus(OrderStatus.CONFIRMED)
                 .isReviewed(isReviewed)
                 .accumulatedPoint(0L)
-                        .build());
+                .build());
     }
 
     private OrderProductSnapshotState toSnapshotState(OrderProduct orderProduct) {
@@ -1274,6 +1273,6 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .orderStatus(orderProduct.getOrderStatus())
                 .isReviewed(orderProduct.getIsReviewed())
                 .accumulatedPoint(0L)
-                        .build();
+                .build();
     }
 }

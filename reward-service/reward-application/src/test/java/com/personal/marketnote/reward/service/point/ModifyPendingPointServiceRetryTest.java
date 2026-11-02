@@ -1,11 +1,6 @@
 package com.personal.marketnote.reward.service.point;
 
-import com.personal.marketnote.reward.domain.point.PointAmount;
-import com.personal.marketnote.reward.domain.point.UserPoint;
-import com.personal.marketnote.reward.domain.point.UserPointChangeType;
-import com.personal.marketnote.reward.domain.point.UserPointHistory;
-import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
-import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.domain.point.*;
 import com.personal.marketnote.reward.port.in.command.point.ModifyPendingPointCommand;
 import com.personal.marketnote.reward.port.in.usecase.point.ModifyPendingPointUseCase;
 import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
@@ -27,11 +22,7 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringJUnitConfig
 @Import(ModifyPendingPointServiceRetryTest.TestConfig.class)

@@ -9,12 +9,10 @@ ALTER TABLE post
 -- 기존 데이터 backfill: ACTIVE 상태 답변이 존재하는 부모 게시글만 true로 설정
 UPDATE post p
 SET has_reply = true
-WHERE EXISTS (
-    SELECT 1
-    FROM post c
-    WHERE c.parent_id = p.id
-      AND c.status = 'ACTIVE'
-);
+WHERE EXISTS (SELECT 1
+              FROM post c
+              WHERE c.parent_id = p.id
+                AND c.status = 'ACTIVE');
 
 -- 답변 여부 정렬 최적화용 복합 인덱스 (board + has_reply + id DESC 조회 패턴)
 CREATE INDEX IF NOT EXISTS idx_post_board_has_reply_id

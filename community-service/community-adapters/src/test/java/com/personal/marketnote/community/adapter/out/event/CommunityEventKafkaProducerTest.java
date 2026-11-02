@@ -2,11 +2,7 @@ package com.personal.marketnote.community.adapter.out.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
-import com.personal.marketnote.common.kafka.event.EventEnvelope;
-import com.personal.marketnote.common.kafka.event.NoticeRegisteredEvent;
-import com.personal.marketnote.common.kafka.event.ReviewDeletedEvent;
-import com.personal.marketnote.common.kafka.event.ReviewRegisteredEvent;
-import com.personal.marketnote.common.kafka.event.ReviewUpdatedEvent;
+import com.personal.marketnote.common.kafka.event.*;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import org.junit.jupiter.api.DisplayName;

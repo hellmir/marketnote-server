@@ -1,11 +1,7 @@
 package com.personal.marketnote.fulfillment.service.shipping;
 
 import com.personal.marketnote.common.kafka.event.ShippingStatusChangedEvent;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerSnapshotState;
-import com.personal.marketnote.fulfillment.domain.shipping.CarrierCode;
-import com.personal.marketnote.fulfillment.domain.shipping.TrackingNumber;
+import com.personal.marketnote.fulfillment.domain.shipping.*;
 import com.personal.marketnote.fulfillment.port.in.command.PollShippingStatusCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentDeliveryStatusInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentDeliveryStatusesResult;
@@ -34,9 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

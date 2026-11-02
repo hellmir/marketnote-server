@@ -1,8 +1,6 @@
 package com.personal.marketnote.commerce.service.payment;
 
-import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.domain.refund.Refund;
 import com.personal.marketnote.commerce.domain.refund.RefundType;
@@ -26,6 +24,7 @@ import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyI
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.commerce.port.out.settlement.FindPaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -975,10 +974,10 @@ class PaymentCancelTransactionHelperTest {
             List<OrderProductSnapshotState> productStates = List.of(
                     OrderProductSnapshotState.builder()
                             .pricePolicyId(100L).quantity(1).sellerId(10L).unitAmount(30000L).accumulatedPoint(300L)
-                        .build(),
+                            .build(),
                     OrderProductSnapshotState.builder()
                             .pricePolicyId(200L).quantity(2).sellerId(10L).unitAmount(20000L).accumulatedPoint(200L)
-                        .build()
+                            .build()
             );
             OrderSnapshotState orderState = OrderSnapshotState.builder()
                     .id(1L).buyerId(BUYER_ID).orderKey(ORDER_KEY).orderStatus(OrderStatus.PAID)
@@ -1567,7 +1566,7 @@ class PaymentCancelTransactionHelperTest {
                 .sellerId(10L)
                 .unitAmount(unitAmount)
                 .accumulatedPoint(accumulatedPoint)
-                        .build();
+                .build();
         OrderSnapshotState state = OrderSnapshotState.builder()
                 .id(orderId)
                 .buyerId(buyerId)
@@ -1628,7 +1627,7 @@ class PaymentCancelTransactionHelperTest {
                 .sellerId(10L)
                 .unitAmount(25000L)
                 .accumulatedPoint(0L)
-                        .build();
+                .build();
         OrderSnapshotState state = OrderSnapshotState.builder()
                 .id(orderId)
                 .buyerId(buyerId)
@@ -1651,7 +1650,7 @@ class PaymentCancelTransactionHelperTest {
                     .unitAmount(25000L)
                     .sharerKey(sharerKeys.get(i))
                     .accumulatedPoint(0L)
-                        .build());
+                    .build());
         }
         OrderSnapshotState state = OrderSnapshotState.builder()
                 .id(orderId)
@@ -1707,7 +1706,7 @@ class PaymentCancelTransactionHelperTest {
                     .sellerId(10L)
                     .unitAmount(25000L)
                     .accumulatedPoint(0L)
-                        .build());
+                    .build());
         }
         OrderSnapshotState state = OrderSnapshotState.builder()
                 .id(orderId)

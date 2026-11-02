@@ -18,34 +18,34 @@ import java.lang.annotation.*;
         summary = "(관리자) 회원 패널티 부과 내역 목록 조회",
         description = """
                 작성일자: 2026-09-20
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 특정 회원의 패널티 부과 내역을 조회합니다.
-
+                
                 - 관리자만 가능합니다.
-
+                
                 - 페이징과 정렬을 지원합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | pageSize | number | 페이지 크기 (기본값 20) | 20 |
                 | pageNumber | number | 페이지 번호 (1부터 시작, 기본값 1) | 1 |
                 | sortDirection | string | 정렬 방향 (ASC/DESC, 기본값 DESC) | "DESC" |
                 | sortProperty | string | 정렬 속성 (기본값 ID) | "ID" |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 401: 인증 실패 / 403: 인가 실패 / 500: 그 외 |
@@ -137,7 +137,7 @@ import java.lang.annotation.*;
                                                 "currentCount": 2,
                                                 "reason": "약관 위반",
                                                 "createdBy": 99,
-                                                "createdAt": "2026-09-21T08:00:00"
+                                                "createdAt": "2026-11-01T08:00:00"
                                               }
                                             ]
                                           },

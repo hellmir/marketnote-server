@@ -54,7 +54,8 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             return List.of();
         }
         try {
-            List<ButtonDto> dtos = objectMapper.readValue(buttonsJson, new TypeReference<>() {});
+            List<ButtonDto> dtos = objectMapper.readValue(buttonsJson, new TypeReference<>() {
+            });
             return dtos.stream()
                     .map(dto -> BrandTalkButton.from(BrandTalkButtonCreateState.builder().name(dto.name()).linkType(AligoTemplateButtonLinkType.from(dto.linkType())).linkM(dto.linkM()).linkP(dto.linkP()).linkI(dto.linkI()).linkA(dto.linkA()).build()))
                     .toList();
@@ -92,7 +93,8 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             return List.of();
         }
         try {
-            List<WideItemDto> dtos = objectMapper.readValue(json, new TypeReference<>() {});
+            List<WideItemDto> dtos = objectMapper.readValue(json, new TypeReference<>() {
+            });
             return dtos.stream()
                     .map(dto -> BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title(dto.title()).imageUrl(dto.imageUrl()).linkM(dto.linkM()).linkP(dto.linkP()).linkI(dto.linkI()).linkA(dto.linkA()).build()))
                     .toList();
@@ -106,7 +108,8 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             return List.of();
         }
         try {
-            List<CarouselItemDto> dtos = objectMapper.readValue(json, new TypeReference<>() {});
+            List<CarouselItemDto> dtos = objectMapper.readValue(json, new TypeReference<>() {
+            });
             return dtos.stream()
                     .map(dto -> {
                         List<BrandTalkButton> itemButtons = FormatValidator.hasValue(dto.buttons())
@@ -130,7 +133,8 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             return List.of();
         }
         try {
-            List<CarouselCommerceDto> dtos = objectMapper.readValue(json, new TypeReference<>() {});
+            List<CarouselCommerceDto> dtos = objectMapper.readValue(json, new TypeReference<>() {
+            });
             return dtos.stream()
                     .map(dto -> BrandTalkCarouselCommerce.from(BrandTalkCarouselCommerceCreateState.builder().title(dto.title()).regularPrice(dto.regularPrice()).discountPrice(dto.discountPrice()).discountRate(dto.discountRate()).discountFixed(dto.discountFixed()).build()))
                     .toList();
@@ -151,28 +155,35 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
         }
     }
 
-    private record ButtonDto(String name, String linkType, String linkM, String linkP, String linkI, String linkA) {}
+    private record ButtonDto(String name, String linkType, String linkM, String linkP, String linkI, String linkA) {
+    }
 
-    private record CouponDto(String title, String description, String linkM, String linkP, String linkI, String linkA) {}
+    private record CouponDto(String title, String description, String linkM, String linkP, String linkI, String linkA) {
+    }
 
-    private record WideItemDto(String title, String imageUrl, String linkM, String linkP, String linkI, String linkA) {}
+    private record WideItemDto(String title, String imageUrl, String linkM, String linkP, String linkI, String linkA) {
+    }
 
     private record CarouselItemDto(
             String header, String content, String imageUrl,
             List<ButtonDto> buttons, CouponDto coupon
-    ) {}
+    ) {
+    }
 
     private record CarouselCommerceDto(
             String title, String regularPrice, String discountPrice,
             String discountRate, String discountFixed
-    ) {}
+    ) {
+    }
 
-    private record CarouselTailDto(String linkM) {}
+    private record CarouselTailDto(String linkM) {
+    }
 
     private record CommerceInfoDto(
             String title, String regularPrice, String discountPrice,
             String discountRate, String discountFixed
-    ) {}
+    ) {
+    }
 
     private static BrandTalkCommerceInfo deserializeCommerceInfo(String json, ObjectMapper objectMapper) {
         if (FormatValidator.hasNoValue(json)) {

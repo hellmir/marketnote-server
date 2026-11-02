@@ -3,11 +3,7 @@ package com.personal.marketnote.reward.adapter.out.persistence.attendance.reposi
 import com.personal.marketnote.common.configuration.AuditConfig;
 import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.reward.adapter.out.persistence.attendance.entity.UserAttendanceHistoryJpaEntity;
-import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;
-import com.personal.marketnote.reward.domain.attendance.ContinuousPeriod;
-import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
-import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistory;
-import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistorySnapshotState;
+import com.personal.marketnote.reward.domain.attendance.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.DisplayName;

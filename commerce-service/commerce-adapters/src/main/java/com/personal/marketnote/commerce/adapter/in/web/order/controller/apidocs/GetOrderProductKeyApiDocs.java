@@ -18,29 +18,29 @@ import java.lang.annotation.*;
         summary = "주문 상품 키 조회",
         description = """
                 작성일자: 2026-09-20
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 주문 ID와 가격 정책 ID로 주문 상품 키(orderProductKey)를 조회합니다.
                 - 해당 주문의 구매자(buyerId)와 요청자가 일치하는 경우에만 조회 가능합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | orderId | number | 주문 ID | Y | 1 |
                 | pricePolicyId | number | 가격 정책 ID | Y | 100 |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 |
@@ -48,11 +48,11 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-09-20T12:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "주문 상품 키 조회 성공" |
-
+                
                 ---
-
+                
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | orderProductKey | string(uuid) | 주문 상품 키 | "018f0000-0000-7000-8000-000000000001" |

@@ -1,13 +1,7 @@
 package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.domain.EntityStatus;
-import com.personal.marketnote.user.domain.user.Nickname;
-import com.personal.marketnote.user.domain.user.User;
-import com.personal.marketnote.user.domain.user.UserSnapshotState;
-import com.personal.marketnote.user.domain.user.UserStatusAction;
-import com.personal.marketnote.user.domain.user.UserStatusActor;
-import com.personal.marketnote.user.domain.user.UserStatusHistory;
-import com.personal.marketnote.user.domain.user.UserStatusHistorySnapshotState;
+import com.personal.marketnote.user.domain.user.*;
 import com.personal.marketnote.user.exception.AdminSelfDeactivationException;
 import com.personal.marketnote.user.exception.InvalidUserStatusTransitionException;
 import com.personal.marketnote.user.port.in.command.ChangeUserStatusCommand;
@@ -30,9 +24,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ChangeUserStatusUseCaseTest {

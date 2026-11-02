@@ -1,18 +1,7 @@
 package com.personal.marketnote.commerce.adapter.out.vendor.kcp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpBatchKeyDeletionRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpBatchKeyDeletionResponse;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpBatchKeyIssuanceRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpBatchKeyIssuanceResponse;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpBatchPaymentApprovalRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpBatchPaymentApprovalResponse;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpPaymentApprovalRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpPaymentApprovalResponse;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpPaymentCancelRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpPaymentCancelResponse;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpTradeRegisterRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpTradeRegisterResponse;
+import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.*;
 import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpCommunicationException;
 import com.personal.marketnote.commerce.configuration.KcpProperties;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +17,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @DisplayName("KcpApiClient 단위 테스트")

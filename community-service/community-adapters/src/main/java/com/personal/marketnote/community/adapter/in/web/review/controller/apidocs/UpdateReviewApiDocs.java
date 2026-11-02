@@ -39,7 +39,7 @@ import java.lang.annotation.*;
                 ---
                 
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | HTTP 상태 코드 | 200 |
@@ -47,9 +47,9 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-01-12T16:32:18.828188" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "리뷰 수정 성공" |
-
+                
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 수정된 리뷰 ID | 1 |

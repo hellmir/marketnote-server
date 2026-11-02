@@ -1,7 +1,6 @@
 package com.personal.marketnote.commerce.service.payment;
 
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.exception.DuplicatePaymentReadyException;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
@@ -15,11 +14,7 @@ import com.personal.marketnote.commerce.port.in.usecase.inventory.ReserveInvento
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
-import com.personal.marketnote.commerce.port.out.payment.FindPaymentPort;
-import com.personal.marketnote.commerce.port.out.payment.FindPspPaymentEventPort;
-import com.personal.marketnote.commerce.port.out.payment.SavePspPaymentEventPort;
-import com.personal.marketnote.commerce.port.out.payment.UpdatePaymentPort;
-import com.personal.marketnote.commerce.port.out.payment.UpdatePspPaymentEventPort;
+import com.personal.marketnote.commerce.port.out.payment.*;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentApprovalVendorResult;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
@@ -40,19 +35,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PaymentApprovalTransactionHelper 테스트")

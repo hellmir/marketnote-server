@@ -9,15 +9,15 @@ import com.fasterxml.jackson.databind.JsonNode;
  * 4종 오버로드(record)를 제공한다. 서비스별 어댑터는 {@link ServiceCommunicationHistoryDispatcher}를
  * 주입하여 자신의 UseCase로 위임한다.</p>
  *
- * @param <T>  TargetType enum 타입
- * @param <C>  CommunicationType enum 타입
- * @param <S>  SenderType enum 타입
+ * @param <T> TargetType enum 타입
+ * @param <C> CommunicationType enum 타입
+ * @param <S> SenderType enum 타입
  */
 public class ServiceCommunicationRecorder<
         T extends Enum<T>,
         C extends Enum<C>,
         S extends Enum<S>
-> {
+        > {
     private final ServiceCommunicationHistoryDispatcher<T, C, S> dispatcher;
 
     public ServiceCommunicationRecorder(ServiceCommunicationHistoryDispatcher<T, C, S> dispatcher) {

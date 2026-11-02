@@ -9,11 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Signature;
+import java.security.*;
 import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,11 +63,19 @@ class KcpSignatureGeneratorTest {
         // given
         PrivateKey invalidKey = new PrivateKey() {
             @Override
-            public String getAlgorithm() { return "INVALID"; }
+            public String getAlgorithm() {
+                return "INVALID";
+            }
+
             @Override
-            public String getFormat() { return null; }
+            public String getFormat() {
+                return null;
+            }
+
             @Override
-            public byte[] getEncoded() { return new byte[0]; }
+            public byte[] getEncoded() {
+                return new byte[0];
+            }
         };
         when(kcpCertificateLoader.loadPrivateKey()).thenReturn(invalidKey);
 

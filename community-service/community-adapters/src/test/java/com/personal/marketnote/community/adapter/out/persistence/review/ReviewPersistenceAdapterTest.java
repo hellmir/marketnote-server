@@ -6,15 +6,7 @@ import com.personal.marketnote.community.adapter.out.persistence.review.entity.R
 import com.personal.marketnote.community.adapter.out.persistence.review.repository.ProductReviewAggregateJpaRepository;
 import com.personal.marketnote.community.adapter.out.persistence.review.repository.ReviewJpaRepository;
 import com.personal.marketnote.community.adapter.out.persistence.review.repository.ReviewVersionHistoryJpaRepository;
-import com.personal.marketnote.community.domain.review.ProductReviewAggregate;
-import com.personal.marketnote.community.domain.review.ProductReviewAggregateSnapshotState;
-import com.personal.marketnote.community.domain.review.Rating;
-import com.personal.marketnote.community.domain.review.Review;
-import com.personal.marketnote.community.domain.review.ReviewCreateState;
-import com.personal.marketnote.community.domain.review.ReviewSortProperty;
-import com.personal.marketnote.community.domain.review.ReviewVersionHistory;
-import com.personal.marketnote.community.domain.review.ReviewVersionHistoryCreateState;
-import com.personal.marketnote.community.domain.review.Reviews;
+import com.personal.marketnote.community.domain.review.*;
 import com.personal.marketnote.community.exception.ProductReviewAggregateNotFoundException;
 import com.personal.marketnote.community.exception.ReviewAlreadyExistsException;
 import com.personal.marketnote.community.exception.ReviewNotFoundException;
@@ -40,13 +32,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ReviewPersistenceAdapter")

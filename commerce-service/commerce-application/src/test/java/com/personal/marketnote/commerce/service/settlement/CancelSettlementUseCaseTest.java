@@ -1,10 +1,6 @@
 package com.personal.marketnote.commerce.service.settlement;
 
-import com.personal.marketnote.commerce.domain.ledger.Account;
-import com.personal.marketnote.commerce.domain.ledger.AccountSnapshotState;
-import com.personal.marketnote.commerce.domain.ledger.AccountType;
-import com.personal.marketnote.commerce.domain.ledger.LedgerTransactionType;
-import com.personal.marketnote.commerce.domain.ledger.TransactionType;
+import com.personal.marketnote.commerce.domain.ledger.*;
 import com.personal.marketnote.commerce.domain.settlement.InvalidSettlementStatusTransitionException;
 import com.personal.marketnote.commerce.domain.settlement.Settlement;
 import com.personal.marketnote.commerce.domain.settlement.SettlementSnapshotState;
@@ -35,11 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CancelSettlementUseCase 테스트")

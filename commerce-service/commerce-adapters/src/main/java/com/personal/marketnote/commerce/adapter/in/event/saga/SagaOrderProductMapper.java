@@ -21,7 +21,7 @@ public final class SagaOrderProductMapper {
                                 .unitAmount(item.unitAmount())
                                 .sharerKey(item.sharerKey())
                                 .accumulatedPoint(0L)
-                        .build()
+                                .build()
                 ))
                 .toList();
     }

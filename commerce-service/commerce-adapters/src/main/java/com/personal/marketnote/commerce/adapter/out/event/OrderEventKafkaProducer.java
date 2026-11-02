@@ -7,10 +7,10 @@ import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
+import com.personal.marketnote.common.domain.deliveryrequestmessage.DeliveryRequestMessage;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.*;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent.OrderProductItem;
-import com.personal.marketnote.common.domain.deliveryrequestmessage.DeliveryRequestMessage;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -73,12 +73,12 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
     ) {
         List<OrderPurchaseConfirmedEvent.OrderProductItem> items = FormatValidator.hasValue(orderProducts)
                 ? orderProducts.stream()
-                        .map(op -> new OrderPurchaseConfirmedEvent.OrderProductItem(
-                                op.getPricePolicyId(),
-                                op.getProductId(),
-                                op.getQuantity().getValue()
-                        ))
-                        .toList()
+                .map(op -> new OrderPurchaseConfirmedEvent.OrderProductItem(
+                        op.getPricePolicyId(),
+                        op.getProductId(),
+                        op.getQuantity().getValue()
+                ))
+                .toList()
                 : List.of();
         OrderPurchaseConfirmedEvent payload = new OrderPurchaseConfirmedEvent(
                 orderId, buyerId, sharerKeys, isAutoConfirmed, items

@@ -8,14 +8,7 @@ import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpTradeRegis
 import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpCommunicationException;
 import com.personal.marketnote.commerce.configuration.KcpProperties;
 import com.personal.marketnote.commerce.exception.PaymentVendorConnectionFailedException;
-import com.personal.marketnote.commerce.port.out.quickpayment.ApproveQuickPaymentPortCommand;
-import com.personal.marketnote.commerce.port.out.quickpayment.ApproveQuickPaymentPortResult;
-import com.personal.marketnote.commerce.port.out.quickpayment.DeleteBatchKeyPortCommand;
-import com.personal.marketnote.commerce.port.out.quickpayment.DeleteBatchKeyPortResult;
-import com.personal.marketnote.commerce.port.out.quickpayment.IssueBatchKeyPortCommand;
-import com.personal.marketnote.commerce.port.out.quickpayment.IssueBatchKeyPortResult;
-import com.personal.marketnote.commerce.port.out.quickpayment.RegisterQuickPaymentTransactionPortCommand;
-import com.personal.marketnote.commerce.port.out.quickpayment.RegisterQuickPaymentTransactionPortResult;
+import com.personal.marketnote.commerce.port.out.quickpayment.*;
 import com.personal.marketnote.commerce.utility.VendorCommunicationRecorder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,9 +25,7 @@ import java.net.ConnectException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("KcpQuickPaymentAdapter 단위 테스트")

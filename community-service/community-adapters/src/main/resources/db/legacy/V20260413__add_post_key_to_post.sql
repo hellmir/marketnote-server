@@ -1,5 +1,6 @@
 -- gen_random_uuid() 함수를 위한 확장 보장 (PostgreSQL 13+ 코어 내장이지만 명시적으로 안전 확보)
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE
+EXTENSION IF NOT EXISTS pgcrypto;
 
 -- 1. post_key 컬럼 추가 (nullable로 먼저 생성)
 ALTER TABLE post

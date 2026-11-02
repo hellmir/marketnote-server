@@ -1,5 +1,6 @@
 package com.personal.marketnote.community.adapter.in.configuration;
 
+import com.personal.marketnote.common.configuration.swagger.SwaggerOrigin;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,11 +8,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springdoc.core.customizers.OpenApiCustomizer;
+import org.springframework.core.env.Environment;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @DisplayName("CommunitySwaggerConfig")
 class CommunitySwaggerConfigTest {
@@ -21,7 +24,10 @@ class CommunitySwaggerConfigTest {
 
     @BeforeEach
     void setUp() {
-        config = new CommunitySwaggerConfig();
+        config = new CommunitySwaggerConfig(
+                mock(Environment.class),
+                new SwaggerOrigin("https", "marketnote.store")
+        );
         sorter = config.tagOnlySorter();
     }
 

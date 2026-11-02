@@ -1,9 +1,9 @@
 package com.personal.marketnote.notification.adapter.out.persistence.aligo.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.aligo.AligoMessageStatus;
 import com.personal.marketnote.notification.domain.aligo.AligoMessageType;
-import com.personal.marketnote.common.utility.FormatValidator;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

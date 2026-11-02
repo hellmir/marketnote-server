@@ -2,9 +2,9 @@ package com.personal.marketnote.file.adapter.out.persistence.file.repository;
 
 import com.personal.marketnote.common.configuration.AuditConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
-import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.common.domain.file.OwnerType;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.file.adapter.out.persistence.file.entity.FileJpaEntity;
 import com.personal.marketnote.file.domain.file.FileDomain;
 import com.personal.marketnote.file.domain.file.FileDomainSnapshotState;

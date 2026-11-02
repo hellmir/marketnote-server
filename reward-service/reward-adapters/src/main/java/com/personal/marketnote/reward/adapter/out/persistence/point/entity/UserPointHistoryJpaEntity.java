@@ -1,11 +1,7 @@
 package com.personal.marketnote.reward.adapter.out.persistence.point.entity;
 
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.reward.domain.point.PointAmount;
-import com.personal.marketnote.reward.domain.point.UserPointChangeType;
-import com.personal.marketnote.reward.domain.point.UserPointHistory;
-import com.personal.marketnote.reward.domain.point.UserPointHistorySnapshotState;
-import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.domain.point.*;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

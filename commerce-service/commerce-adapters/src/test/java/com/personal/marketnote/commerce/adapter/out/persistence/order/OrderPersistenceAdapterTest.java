@@ -1,15 +1,12 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.order;
 
 import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderJpaEntity;
-import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderProductId;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderProductJpaEntity;
-import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderStatusHistoryJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderHistoryJpaRepository;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderJpaRepository;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderProductJpaRepository;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderQueryRepositoryImpl;
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.exception.OrderProductNotFoundException;
 import com.personal.marketnote.common.configuration.AuditConfig;
@@ -66,19 +63,19 @@ class OrderPersistenceAdapterTest {
 
     private OrderJpaEntity persistOrder(Long buyerId, OrderStatus orderStatus) {
         entityManager.createNativeQuery("""
-                INSERT INTO orders (buyer_id, order_key, order_number, order_status,
-                    total_amount, paid_amount, coupon_amount, point_amount, shipping_fee,
-                    delivery_recipient_name, delivery_recipient_phone_number,
-                    delivery_zip_code, delivery_address, delivery_address_detail,
-                    delivery_request_type, delivery_request_message,
-                    shipping_region_type, created_at, modified_at)
-                VALUES (:buyerId, :orderKey, :orderNumber, :orderStatus,
-                    50000, 45000, 0, 0, 3000,
-                    '홍길동', '010-1234-5678',
-                    '06000', '서울시 강남구', '101호',
-                    'LEAVE_AT_DOOR', '문 앞에 놔주세요',
-                    'NORMAL', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                """)
+                        INSERT INTO orders (buyer_id, order_key, order_number, order_status,
+                            total_amount, paid_amount, coupon_amount, point_amount, shipping_fee,
+                            delivery_recipient_name, delivery_recipient_phone_number,
+                            delivery_zip_code, delivery_address, delivery_address_detail,
+                            delivery_request_type, delivery_request_message,
+                            shipping_region_type, created_at, modified_at)
+                        VALUES (:buyerId, :orderKey, :orderNumber, :orderStatus,
+                            50000, 45000, 0, 0, 3000,
+                            '홍길동', '010-1234-5678',
+                            '06000', '서울시 강남구', '101호',
+                            'LEAVE_AT_DOOR', '문 앞에 놔주세요',
+                            'NORMAL', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                        """)
                 .setParameter("buyerId", buyerId)
                 .setParameter("orderKey", UUID.randomUUID().toString())
                 .setParameter("orderNumber", "ORD-" + UUID.randomUUID().toString().substring(0, 8))
@@ -94,13 +91,13 @@ class OrderPersistenceAdapterTest {
         OrderJpaEntity orderEntity = persistOrder(buyerId, orderStatus);
 
         entityManager.createNativeQuery("""
-                INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
-                    quantity, unit_amount, image_url, accumulated_point, order_status, review_yn,
-                    created_at, modified_at)
-                VALUES (:orderId, :pricePolicyId, :sellerId, :orderProductKey,
-                    2, 25000, 'https://example.com/image.jpg', 500, :orderStatus, false,
-                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                """)
+                        INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
+                            quantity, unit_amount, image_url, accumulated_point, order_status, review_yn,
+                            created_at, modified_at)
+                        VALUES (:orderId, :pricePolicyId, :sellerId, :orderProductKey,
+                            2, 25000, 'https://example.com/image.jpg', 500, :orderStatus, false,
+                            CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                        """)
                 .setParameter("orderId", orderEntity.getId())
                 .setParameter("pricePolicyId", pricePolicyId)
                 .setParameter("sellerId", sellerId)
@@ -109,11 +106,11 @@ class OrderPersistenceAdapterTest {
                 .executeUpdate();
 
         entityManager.createNativeQuery("""
-                INSERT INTO order_status_history (order_id, order_status, reason_category, reason,
-                    created_at, modified_at)
-                VALUES (:orderId, :orderStatus, 'ETC', :reason,
-                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                """)
+                        INSERT INTO order_status_history (order_id, order_status, reason_category, reason,
+                            created_at, modified_at)
+                        VALUES (:orderId, :orderStatus, 'ETC', :reason,
+                            CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                        """)
                 .setParameter("orderId", orderEntity.getId())
                 .setParameter("orderStatus", orderStatus.name())
                 .setParameter("reason", orderStatus.getDescription())
@@ -643,13 +640,13 @@ class OrderPersistenceAdapterTest {
             OrderJpaEntity orderEntity = persistOrder(1L, OrderStatus.DELIVERED);
 
             entityManager.createNativeQuery("""
-                    INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
-                        quantity, unit_amount, accumulated_point, order_status, review_yn,
-                        scheduled_auto_confirm_at, created_at, modified_at)
-                    VALUES (:orderId, 100, 10, :orderProductKey,
-                        1, 25000, 500, 'DELIVERED', false,
-                        :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                    """)
+                            INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
+                                quantity, unit_amount, accumulated_point, order_status, review_yn,
+                                scheduled_auto_confirm_at, created_at, modified_at)
+                            VALUES (:orderId, 100, 10, :orderProductKey,
+                                1, 25000, 500, 'DELIVERED', false,
+                                :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                            """)
                     .setParameter("orderId", orderEntity.getId())
                     .setParameter("orderProductKey", UUID.randomUUID().toString())
                     .setParameter("scheduledAutoConfirmAt", LocalDateTime.of(2026, 4, 1, 10, 0))
@@ -673,13 +670,13 @@ class OrderPersistenceAdapterTest {
             OrderJpaEntity orderEntity = persistOrder(1L, OrderStatus.DELIVERED);
 
             entityManager.createNativeQuery("""
-                    INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
-                        quantity, unit_amount, accumulated_point, order_status, review_yn,
-                        scheduled_auto_confirm_at, created_at, modified_at)
-                    VALUES (:orderId, 100, 10, :orderProductKey,
-                        1, 25000, 500, 'DELIVERED', false,
-                        :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                    """)
+                            INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
+                                quantity, unit_amount, accumulated_point, order_status, review_yn,
+                                scheduled_auto_confirm_at, created_at, modified_at)
+                            VALUES (:orderId, 100, 10, :orderProductKey,
+                                1, 25000, 500, 'DELIVERED', false,
+                                :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                            """)
                     .setParameter("orderId", orderEntity.getId())
                     .setParameter("orderProductKey", UUID.randomUUID().toString())
                     .setParameter("scheduledAutoConfirmAt", LocalDateTime.of(2026, 4, 15, 10, 0))
@@ -758,13 +755,13 @@ class OrderPersistenceAdapterTest {
 
         private void insertOrderProductRow(Long orderId, LocalDateTime scheduledAutoConfirmAt) {
             entityManager.createNativeQuery("""
-                    INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
-                        quantity, unit_amount, accumulated_point, order_status, review_yn,
-                        scheduled_auto_confirm_at, created_at, modified_at)
-                    VALUES (:orderId, :pricePolicyId, 10, :orderProductKey,
-                        1, 25000, 500, 'DELIVERED', false,
-                        :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                    """)
+                            INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
+                                quantity, unit_amount, accumulated_point, order_status, review_yn,
+                                scheduled_auto_confirm_at, created_at, modified_at)
+                            VALUES (:orderId, :pricePolicyId, 10, :orderProductKey,
+                                1, 25000, 500, 'DELIVERED', false,
+                                :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                            """)
                     .setParameter("orderId", orderId)
                     .setParameter("pricePolicyId", System.nanoTime())
                     .setParameter("orderProductKey", UUID.randomUUID().toString())

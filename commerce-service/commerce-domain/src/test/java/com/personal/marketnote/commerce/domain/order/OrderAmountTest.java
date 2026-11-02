@@ -1,10 +1,9 @@
 package com.personal.marketnote.commerce.domain.order;
 
+import com.personal.marketnote.common.domain.money.Money;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import com.personal.marketnote.common.domain.money.Money;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

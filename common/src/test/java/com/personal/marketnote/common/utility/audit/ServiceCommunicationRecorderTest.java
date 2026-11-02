@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
@@ -17,9 +16,11 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class ServiceCommunicationRecorderTest {
 
-    private enum FakeTarget { ORDER, PAYMENT }
-    private enum FakeType { REQUEST, RESPONSE }
-    private enum FakeSender { SERVER, CLIENT }
+    private enum FakeTarget {ORDER, PAYMENT}
+
+    private enum FakeType {REQUEST, RESPONSE}
+
+    private enum FakeSender {SERVER, CLIENT}
 
     private ServiceCommunicationHistoryDispatcher<FakeTarget, FakeType, FakeSender> dispatcher;
     private ServiceCommunicationRecorder<FakeTarget, FakeType, FakeSender> recorder;

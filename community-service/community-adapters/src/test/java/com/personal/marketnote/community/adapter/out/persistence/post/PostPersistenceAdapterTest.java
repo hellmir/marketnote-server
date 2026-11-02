@@ -3,16 +3,7 @@ package com.personal.marketnote.community.adapter.out.persistence.post;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.adapter.out.persistence.post.entity.PostJpaEntity;
 import com.personal.marketnote.community.adapter.out.persistence.post.repository.PostJpaRepository;
-import com.personal.marketnote.community.domain.post.Board;
-import com.personal.marketnote.community.domain.post.Post;
-import com.personal.marketnote.community.domain.post.PostCreateState;
-import com.personal.marketnote.community.domain.post.PostFilterCategory;
-import com.personal.marketnote.community.domain.post.PostFilterValue;
-import com.personal.marketnote.community.domain.post.PostSearchTarget;
-import com.personal.marketnote.community.domain.post.PostSnapshotState;
-import com.personal.marketnote.community.domain.post.PostSortProperty;
-import com.personal.marketnote.community.domain.post.PostTargetGroupType;
-import com.personal.marketnote.community.domain.post.Posts;
+import com.personal.marketnote.community.domain.post.*;
 import com.personal.marketnote.community.exception.PostNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,13 +26,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PostPersistenceAdapter")

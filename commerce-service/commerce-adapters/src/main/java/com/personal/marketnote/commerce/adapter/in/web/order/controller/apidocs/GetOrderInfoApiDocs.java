@@ -48,13 +48,13 @@ import java.lang.annotation.*;
                     - "CONFIRMED": 구매 확정
                 
                     - "RETURN_REQUESTED": 반품 요청됨
-
+                
                     - "PARTIALLY_RETURN_REQUESTED": 부분 반품 요청
-
+                
                     - "RETURN_IN_PROGRESS": 반품 진행 중
-
+                
                     - "PARTIALLY_RETURNED": 부분 반품됨
-
+                
                     - "RETURNED": 반품 완료
                 
                 - 변경 사유 카테고리 목록
@@ -140,9 +140,9 @@ import java.lang.annotation.*;
                 | productName | string | 상품명 | "스프링노트1234" |
                 | selectedOptions | array | 선택 옵션 목록 | [ ... ] |
                 | scheduledAutoConfirmAt | string(datetime) | 자동 구매 확정 예정 일시 (배송 완료 후 N일). DELIVERED 전이 전에는 null | "2026-02-20T14:30:00" |
-
+                
                 ---
-
+                
                 ### Response > orderProducts > selectedOptions
                 
                 | **키** | **타입** | **설명** | **예시** |

@@ -4,23 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.notification.configuration.AligoProperties;
-import com.personal.marketnote.notification.domain.aligo.AligoApiRequestFailedException;
-import com.personal.marketnote.notification.domain.aligo.AligoBrandTalkTemplate;
-import com.personal.marketnote.notification.domain.aligo.AligoBrandTalkTemplateCreateState;
-import com.personal.marketnote.notification.domain.aligo.AligoTemplateButtonLinkType;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkButton;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkButtonCreateState;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkCarouselCommerce;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkCarouselCommerceCreateState;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkCarouselItem;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkCarouselItemCreateState;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkCommerceInfo;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkCommerceInfoCreateState;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkCoupon;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkCouponCreateState;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkTemplateType;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkWideItem;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkWideItemCreateState;
+import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.in.result.aligo.GetBrandTalkTemplateListResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,9 +20,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class AligoBrandTalkTemplateExternalAdapterTest {

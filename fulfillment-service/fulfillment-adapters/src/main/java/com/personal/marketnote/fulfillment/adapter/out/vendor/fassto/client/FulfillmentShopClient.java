@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoShopCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentErrorResponse;
@@ -17,11 +18,7 @@ import com.personal.marketnote.fulfillment.domain.vendorcommunication.Fulfillmen
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
-import com.personal.marketnote.fulfillment.exception.FulfillmentClientInvalidRequestException;
-import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
-import com.personal.marketnote.fulfillment.exception.GetFulfillmentShopsFailedException;
-import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentShopFailedException;
-import com.personal.marketnote.fulfillment.exception.UpdateFulfillmentShopFailedException;
+import com.personal.marketnote.fulfillment.exception.*;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentShopsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentShopCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentShopCommand;
@@ -33,7 +30,6 @@ import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentShopsPo
 import com.personal.marketnote.fulfillment.port.out.vendor.RegisterFulfillmentShopPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.UpdateFulfillmentShopPort;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
-import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

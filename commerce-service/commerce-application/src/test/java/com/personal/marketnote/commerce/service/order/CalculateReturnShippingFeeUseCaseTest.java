@@ -281,7 +281,7 @@ class CalculateReturnShippingFeeUseCaseTest {
                 .quantity(quantity)
                 .orderStatus(OrderStatus.DELIVERED)
                 .accumulatedPoint(0L)
-                        .build());
+                .build());
     }
 
     private Order createOrderWithProductList(List<OrderProduct> products) {
@@ -304,7 +304,7 @@ class CalculateReturnShippingFeeUseCaseTest {
                 .quantity(product.getQuantity().getValue())
                 .orderStatus(product.getOrderStatus())
                 .accumulatedPoint(0L)
-                        .build();
+                .build();
     }
 
     private PaymentAllocation createPaymentAllocation(Long sellerId, Long shippingFee) {

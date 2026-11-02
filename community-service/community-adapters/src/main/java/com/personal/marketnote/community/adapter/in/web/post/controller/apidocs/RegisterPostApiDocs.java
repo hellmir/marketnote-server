@@ -114,7 +114,7 @@ import java.lang.annotation.*;
                 | message | string | 처리 결과 | "게시글 등록 성공" |
                 
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 생성된 게시글 ID | 3 |

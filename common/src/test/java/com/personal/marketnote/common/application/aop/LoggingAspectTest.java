@@ -1,7 +1,6 @@
 package com.personal.marketnote.common.application.aop;
 
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.CodeSignature;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

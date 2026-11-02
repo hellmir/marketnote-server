@@ -2,14 +2,7 @@ package com.personal.marketnote.reward.adapter.out.persistence.point;
 
 import com.personal.marketnote.reward.adapter.out.persistence.point.entity.UserPointHistoryJpaEntity;
 import com.personal.marketnote.reward.adapter.out.persistence.point.repository.UserPointHistoryJpaRepository;
-import com.personal.marketnote.reward.domain.point.PointAmount;
-import com.personal.marketnote.reward.domain.point.ReferralBonusTier;
-import com.personal.marketnote.reward.domain.point.UserPointChangeType;
-import com.personal.marketnote.reward.domain.point.UserPointHistory;
-import com.personal.marketnote.reward.domain.point.UserPointHistoryCreateState;
-import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
-import com.personal.marketnote.reward.domain.point.UserPointHistorySnapshotState;
-import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.domain.point.*;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

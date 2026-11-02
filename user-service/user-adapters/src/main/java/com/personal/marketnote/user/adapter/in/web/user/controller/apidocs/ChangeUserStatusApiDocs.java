@@ -20,39 +20,39 @@ import java.lang.annotation.*;
         summary = "(관리자) 회원 상태 변경 (비활성화/활성화)",
         description = """
                 작성일자: 2026-09-20
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 특정 회원의 상태를 비활성화(DEACTIVATE) 또는 활성화(ACTIVATE)합니다.
-
+                
                 - 관리자만 가능합니다.
-
+                
                 - 비활성화 시 deactivatedUntil을 지정하면 기간 비활성화, null이면 영구 비활성화입니다.
-
+                
                 - 활성화 시 deactivatedUntil은 null로 초기화됩니다.
-
+                
                 - 변경 이력은 별도 테이블(user_status_histories)에 저장됩니다.
-
+                
                 - 사유는 필수이며 최대 500자까지 입력 가능합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | action | string | 상태 변경 액션 (DEACTIVATE / ACTIVATE) | "DEACTIVATE" |
                 | reason | string | 상태 변경 사유 | "욕설 사용으로 인한 계정 정지" |
                 | deactivatedUntil | string(datetime) | 비활성화 종료 일시 (null이면 영구) | "2026-05-13T00:00:00" |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 |

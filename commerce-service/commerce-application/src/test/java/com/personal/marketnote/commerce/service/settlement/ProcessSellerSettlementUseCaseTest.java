@@ -1,6 +1,5 @@
 package com.personal.marketnote.commerce.service.settlement;
 
-import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import com.personal.marketnote.commerce.domain.settlement.*;
 import com.personal.marketnote.commerce.exception.SettlementAlreadyExistsException;
@@ -10,6 +9,7 @@ import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPort;
 import com.personal.marketnote.commerce.port.out.settlement.SaveSettlementPort;
 import com.personal.marketnote.commerce.port.out.settlement.UpdatePaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.settlement.UpdateSettlementPort;
+import com.personal.marketnote.common.domain.money.Money;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -91,7 +91,7 @@ class ProcessSellerSettlementUseCaseTest {
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .shippingFee(0L)
-                        .build());
+                .build());
     }
 
     @Nested

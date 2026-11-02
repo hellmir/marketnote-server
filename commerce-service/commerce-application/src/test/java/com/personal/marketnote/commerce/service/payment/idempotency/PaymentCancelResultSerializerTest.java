@@ -87,7 +87,8 @@ class PaymentCancelResultSerializerTest {
             // given
             ObjectMapper failingMapper = mock(ObjectMapper.class);
             when(failingMapper.writeValueAsString(any()))
-                    .thenThrow(new JsonProcessingException("boom") {});
+                    .thenThrow(new JsonProcessingException("boom") {
+                    });
             PaymentCancelResultSerializer serializer =
                     new PaymentCancelResultSerializer(failingMapper, new CounterRegistryHelper(meterRegistry));
             PaymentCancelContext context = createContext(
@@ -108,7 +109,8 @@ class PaymentCancelResultSerializerTest {
             // given
             ObjectMapper failingMapper = mock(ObjectMapper.class);
             when(failingMapper.writeValueAsString(any()))
-                    .thenThrow(new JsonProcessingException("boom") {});
+                    .thenThrow(new JsonProcessingException("boom") {
+                    });
             PaymentCancelResultSerializer serializer =
                     new PaymentCancelResultSerializer(failingMapper, new CounterRegistryHelper(meterRegistry));
             PaymentCancelContext context = createContext(
@@ -129,7 +131,8 @@ class PaymentCancelResultSerializerTest {
             // given
             ObjectMapper failingMapper = mock(ObjectMapper.class);
             when(failingMapper.writeValueAsString(any()))
-                    .thenThrow(new JsonProcessingException("boom") {});
+                    .thenThrow(new JsonProcessingException("boom") {
+                    });
             PaymentCancelResultSerializer serializer =
                     new PaymentCancelResultSerializer(failingMapper, null);
             PaymentCancelContext context = createContext(

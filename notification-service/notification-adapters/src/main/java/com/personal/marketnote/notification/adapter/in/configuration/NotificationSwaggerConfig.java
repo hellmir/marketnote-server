@@ -1,34 +1,43 @@
 package com.personal.marketnote.notification.adapter.in.configuration;
 
+import com.personal.marketnote.common.configuration.swagger.SwaggerEnvironment;
+import com.personal.marketnote.common.configuration.swagger.SwaggerOrigin;
+import com.personal.marketnote.common.configuration.swagger.SwaggerServiceSubdomain;
 import com.personal.marketnote.common.utility.FormatValidator;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.media.Content;
-import io.swagger.v3.oas.models.media.MediaType;
-import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Configuration
 @Slf4j
+@RequiredArgsConstructor
 public class NotificationSwaggerConfig {
+
+    private static final String SERVICE_NAME = "알림";
+
     @Value("${server.origin}")
     private String serverOrigin;
+
+    private final Environment environment;
+    private final SwaggerOrigin swaggerOrigin;
 
     private static final List<String> TAGS_ORDER = List.of(
             "알림 API",
@@ -97,30 +106,11 @@ public class NotificationSwaggerConfig {
                 .in(io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER)
                 .name(HttpHeaders.AUTHORIZATION);
 
+        String label = SwaggerEnvironment.resolveLabel(environment.getActiveProfiles());
+
         openApi.info(new Info()
-                        .title("마켓노트 알림 API 서버")
-                        .description("""
-                                마켓노트 서비스 알림 API 서버입니다.
-                                
-                                ### 서비스 목록
-                                - [회원 서비스](https://users.marketnote.store/swagger-ui/index.html)
-                                
-                                - [상품 서비스](https://products.marketnote.store/swagger-ui/index.html)
-                                
-                                - [커머스 서비스](https://commerce.marketnote.store/swagger-ui/index.html)
-                                
-                                - [풀필먼트 서비스](https://fulfillment.marketnote.store/swagger-ui/index.html)
-                                
-                                - [커뮤니티 서비스](https://community.marketnote.store/swagger-ui/index.html)
-                                
-                                - [리워드 서비스](https://rewards.marketnote.store/swagger-ui/index.html)
-                                
-                                - [알림 서비스](https://notifications.marketnote.store/swagger-ui/index.html)
-                                
-                                - [파일 서비스](https://files.marketnote.store/swagger-ui/index.html)
-                                
-                                - [모니터링 대시보드](https://monitoring.marketnote.store/d/spring_boot_21/spring-boot-3-x-statistics) (인증 필요)
-                                """)
+                        .title(buildTitle(label))
+                        .description(buildDescription(label))
                         .version("1.0"))
                 .components(new Components()
                         .addSecuritySchemes("bearer", securityScheme))
@@ -132,44 +122,24 @@ public class NotificationSwaggerConfig {
         return openApi;
     }
 
-    private void addAuthorizationInfo(Operation operation) {
-        if (FormatValidator.hasValue(operation)) {
-            operation.getResponses().addApiResponse(
-                            "401",
-                            new ApiResponse().description("Bearer Token is invalid or no bearer token")
-                                    .content(
-                                            new Content().addMediaType("*/*",
-                                                    new MediaType().addExamples("Not authenticated",
-                                                            new Example().value("""
-                                                                    {
-                                                                        "statusCode": 401,
-                                                                        "timestamp": "2025-12-26T19:56:58.7278032",
-                                                                        "errorCode": "AUTH001",
-                                                                        "errorName": "AUTHENTICATION_FAILED",
-                                                                        "message": "Authentication Failed"
-                                                                    }
-                                                                    """))
-                                            )
-                                    )
-                    )
-                    .addApiResponse(
-                            "403",
-                            new ApiResponse().description("You are authenticated but not allowed authorization")
-                                    .content(
-                                            new Content().addMediaType("*/*",
-                                                    new MediaType().addExamples("Not authorized",
-                                                            new Example().value("""
-                                                                    {
-                                                                        "statusCode": 403,
-                                                                        "timestamp": "2025-12-26T19:56:58.7278032",
-                                                                        "errorCode": "AUTH002",
-                                                                        "errorName": "AUTHORIZATION_FAILED",
-                                                                        "message": "Authorization Failed"
-                                                                    }
-                                                                    """))
-                                            )
-                                    )
-                    );
-        }
+    private String buildTitle(String label) {
+        String envPart = FormatValidator.hasNoValue(label) ? "" : label + " ";
+        return "마켓노트 " + envPart + SERVICE_NAME + " API 서버";
+    }
+
+    private String buildDescription(String label) {
+        String envPart = FormatValidator.hasNoValue(label) ? "" : label + " ";
+        String header = "마켓노트 서비스 " + envPart + SERVICE_NAME + " API 서버입니다.";
+
+        String links = Arrays.stream(SwaggerServiceSubdomain.values())
+                .map(subdomain -> subdomain.markdownLink(swaggerOrigin.scheme(), swaggerOrigin.baseHost()))
+                .collect(Collectors.joining("\n\n"));
+
+        return """
+                %s
+
+                ### 서비스 목록
+                %s
+                """.formatted(header, links);
     }
 }

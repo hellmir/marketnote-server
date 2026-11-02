@@ -1,14 +1,13 @@
 package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.domain.user.UserStatusAction;
 import com.personal.marketnote.user.domain.user.UserStatusHistory;
+import com.personal.marketnote.user.exception.AdminSelfDeactivationException;
 import com.personal.marketnote.user.port.in.command.ChangeUserStatusCommand;
 import com.personal.marketnote.user.port.in.result.ChangeUserStatusResult;
 import com.personal.marketnote.user.port.in.usecase.user.ChangeUserStatusUseCase;
-import com.personal.marketnote.user.exception.AdminSelfDeactivationException;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.out.authentication.DeleteRefreshTokenPort;
 import com.personal.marketnote.user.port.out.user.SaveUserStatusHistoryPort;

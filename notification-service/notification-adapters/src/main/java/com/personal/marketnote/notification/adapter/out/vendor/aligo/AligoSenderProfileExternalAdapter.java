@@ -2,7 +2,10 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.notification.domain.aligo.*;
+import com.personal.marketnote.notification.domain.aligo.AligoProfileInspectionStatus;
+import com.personal.marketnote.notification.domain.aligo.AligoSenderProfile;
+import com.personal.marketnote.notification.domain.aligo.AligoSenderProfileCreateState;
+import com.personal.marketnote.notification.domain.aligo.AligoSenderProfileStatus;
 import com.personal.marketnote.notification.port.out.aligo.GetAligoSenderProfileListExternalPort;
 import com.personal.marketnote.notification.port.out.aligo.RegisterAligoSenderProfileExternalPort;
 import com.personal.marketnote.notification.port.out.aligo.RequestAligoSenderAuthenticationPort;

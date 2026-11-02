@@ -17,7 +17,7 @@ import java.lang.annotation.*;
 @Operation(
         summary = "빠른결제 카드 배치키 발급",
         description = """
-                작성일자: 2026-04-16
+                작성일자: 2026-10-11
                 
                 작성자: 성효빈
                 
@@ -32,17 +32,17 @@ import java.lang.annotation.*;
                 ---
                 
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | encData | string | KCP 결제창 인증결과 암호화 데이터 | Y | "encrypted_data..." |
                 | encInfo | string | KCP 결제창 인증결과 암호화 정보 | Y | "encrypted_info..." |
                 | cardMaskNo | string | KCP 결제창 인증결과 마스킹 카드번호 | N | "123412******1234" |
-
+                
                 ---
-
+                
                 ## Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | quickPaymentCardId | number | 빠른결제 카드 ID | 1 |
@@ -75,7 +75,7 @@ import java.lang.annotation.*;
                                         {
                                           "statusCode": 200,
                                           "code": "SUC01",
-                                          "timestamp": "2026-04-16T17:19:33.409686",
+                                          "timestamp": "2026-10-11T17:19:33.409686",
                                           "content": {
                                             "quickPaymentCardId": 1,
                                             "cardCode": "CCDI",

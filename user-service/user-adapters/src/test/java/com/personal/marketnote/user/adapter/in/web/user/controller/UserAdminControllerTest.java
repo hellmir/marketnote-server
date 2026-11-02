@@ -5,41 +5,14 @@ import com.personal.marketnote.user.adapter.in.web.user.request.ApplyUserPenalty
 import com.personal.marketnote.user.adapter.in.web.user.request.ChangeUserStatusRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.UpdateUserInfoRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.UpdateUserPenaltyCountRequest;
-import com.personal.marketnote.user.adapter.in.web.user.response.ApplyUserPenaltyResponse;
-import com.personal.marketnote.user.adapter.in.web.user.response.ChangeUserStatusResponse;
-import com.personal.marketnote.user.adapter.in.web.user.response.GetLoginHistoriesResponse;
-import com.personal.marketnote.user.adapter.in.web.user.response.GetUserInfoResponse;
-import com.personal.marketnote.user.adapter.in.web.user.response.GetUserPenaltyHistoriesResponse;
-import com.personal.marketnote.user.adapter.in.web.user.response.GetUserStatusHistoriesResponse;
-import com.personal.marketnote.user.adapter.in.web.user.response.GetUsersResponse;
-import com.personal.marketnote.user.adapter.in.web.user.response.UpdateUserPenaltyCountResponse;
-import com.personal.marketnote.user.domain.user.LoginHistorySortProperty;
-import com.personal.marketnote.user.domain.user.UserPenaltyHistorySortProperty;
-import com.personal.marketnote.user.domain.user.UserSearchTarget;
-import com.personal.marketnote.user.domain.user.UserSortProperty;
-import com.personal.marketnote.user.domain.user.UserStatusAction;
-import com.personal.marketnote.user.domain.user.UserStatusHistorySortProperty;
+import com.personal.marketnote.user.adapter.in.web.user.response.*;
+import com.personal.marketnote.user.domain.user.*;
 import com.personal.marketnote.user.port.in.command.ApplyUserPenaltyCommand;
 import com.personal.marketnote.user.port.in.command.ChangeUserStatusCommand;
 import com.personal.marketnote.user.port.in.command.UpdateUserInfoCommand;
 import com.personal.marketnote.user.port.in.command.UpdateUserPenaltyCountCommand;
-import com.personal.marketnote.user.port.in.result.AccountInfoResult;
-import com.personal.marketnote.user.port.in.result.ApplyUserPenaltyResult;
-import com.personal.marketnote.user.port.in.result.ChangeUserStatusResult;
-import com.personal.marketnote.user.port.in.result.GetLoginHistoryResult;
-import com.personal.marketnote.user.port.in.result.GetUserInfoResult;
-import com.personal.marketnote.user.port.in.result.GetUserPenaltyHistoryResult;
-import com.personal.marketnote.user.port.in.result.GetUserResult;
-import com.personal.marketnote.user.port.in.result.GetUserStatusHistoryResult;
-import com.personal.marketnote.user.port.in.result.UpdateUserPenaltyCountResult;
-import com.personal.marketnote.user.port.in.usecase.user.ApplyUserPenaltyUseCase;
-import com.personal.marketnote.user.port.in.usecase.user.ChangeUserStatusUseCase;
-import com.personal.marketnote.user.port.in.usecase.user.GetLoginHistoryUseCase;
-import com.personal.marketnote.user.port.in.usecase.user.GetUserPenaltyHistoryUseCase;
-import com.personal.marketnote.user.port.in.usecase.user.GetUserStatusHistoryUseCase;
-import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
-import com.personal.marketnote.user.port.in.usecase.user.UpdateUserPenaltyCountUseCase;
-import com.personal.marketnote.user.port.in.usecase.user.UpdateUserUseCase;
+import com.personal.marketnote.user.port.in.result.*;
+import com.personal.marketnote.user.port.in.usecase.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -65,9 +38,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserAdminController 관리자 회원 관리")

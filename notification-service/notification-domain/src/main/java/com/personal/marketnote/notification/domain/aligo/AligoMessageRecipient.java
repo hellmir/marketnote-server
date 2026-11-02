@@ -1,11 +1,7 @@
 package com.personal.marketnote.notification.domain.aligo;
 
 import com.personal.marketnote.common.utility.FormatValidator;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.regex.Pattern;

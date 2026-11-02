@@ -1,11 +1,7 @@
 package com.personal.marketnote.fulfillment.adapter.out.persistence.shipping.entity;
 
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.fulfillment.domain.shipping.CarrierCode;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerSnapshotState;
-import com.personal.marketnote.fulfillment.domain.shipping.TrackingNumber;
+import com.personal.marketnote.fulfillment.domain.shipping.*;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

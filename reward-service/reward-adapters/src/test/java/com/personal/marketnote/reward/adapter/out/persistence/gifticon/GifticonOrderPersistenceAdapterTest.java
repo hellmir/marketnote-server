@@ -4,11 +4,7 @@ import com.personal.marketnote.reward.adapter.out.persistence.gifticon.entity.Gi
 import com.personal.marketnote.reward.adapter.out.persistence.gifticon.repository.GifticonOrderJpaRepository;
 import com.personal.marketnote.reward.domain.exception.DuplicateGifticonOrderException;
 import com.personal.marketnote.reward.domain.exception.GifticonOrderNotFoundException;
-import com.personal.marketnote.reward.domain.gifticon.GifticonOrder;
-import com.personal.marketnote.reward.domain.gifticon.GifticonOrderCreateState;
-import com.personal.marketnote.reward.domain.gifticon.GifticonOrderSnapshotState;
-import com.personal.marketnote.reward.domain.gifticon.GifticonOrderSortType;
-import com.personal.marketnote.reward.domain.gifticon.GifticonOrderStatus;
+import com.personal.marketnote.reward.domain.gifticon.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,10 +22,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 

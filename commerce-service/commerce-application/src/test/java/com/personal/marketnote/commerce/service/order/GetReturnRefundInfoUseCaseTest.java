@@ -1,11 +1,13 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.domain.payment.PaymentMethod;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEventSnapshotState;
-import com.personal.marketnote.commerce.exception.*;
+import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
+import com.personal.marketnote.commerce.exception.PaymentEventNotFoundException;
+import com.personal.marketnote.commerce.exception.ReasonCategoryNoValueException;
+import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.order.CalculateReturnShippingFeeCommand;
 import com.personal.marketnote.commerce.port.in.command.order.GetReturnRefundInfoCommand;
 import com.personal.marketnote.commerce.port.in.result.order.CalculateReturnShippingFeeResult;
@@ -329,7 +331,7 @@ class GetReturnRefundInfoUseCaseTest {
                                 .quantity(1)
                                 .orderStatus(status)
                                 .accumulatedPoint(0L)
-                        .build()
+                                .build()
                 ))
                 .build());
     }
@@ -358,7 +360,7 @@ class GetReturnRefundInfoUseCaseTest {
                                 .quantity(quantity1)
                                 .orderStatus(status)
                                 .accumulatedPoint(0L)
-                        .build(),
+                                .build(),
                         OrderProductSnapshotState.builder()
                                 .orderId(ORDER_ID)
                                 .sellerId(SELLER_ID)
@@ -367,7 +369,7 @@ class GetReturnRefundInfoUseCaseTest {
                                 .quantity(quantity2)
                                 .orderStatus(status)
                                 .accumulatedPoint(0L)
-                        .build()
+                                .build()
                 ))
                 .build());
     }

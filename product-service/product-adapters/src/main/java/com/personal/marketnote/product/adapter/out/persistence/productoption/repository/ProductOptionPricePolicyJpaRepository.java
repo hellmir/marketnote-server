@@ -37,6 +37,7 @@ public interface ProductOptionPricePolicyJpaRepository extends JpaRepository<Pro
 
     interface PricePolicyOptionMapping {
         Long getPricePolicyId();
+
         Long getProductOptionId();
     }
 

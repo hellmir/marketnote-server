@@ -2,11 +2,7 @@ package com.personal.marketnote.reward.adapter.out.persistence.attendance.entity
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;
-import com.personal.marketnote.reward.domain.attendance.ContinuousPeriod;
-import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
-import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistory;
-import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistorySnapshotState;
+import com.personal.marketnote.reward.domain.attendance.*;
 import jakarta.persistence.*;
 import lombok.*;
 

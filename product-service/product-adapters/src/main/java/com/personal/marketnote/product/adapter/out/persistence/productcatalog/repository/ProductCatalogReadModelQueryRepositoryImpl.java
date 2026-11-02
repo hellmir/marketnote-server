@@ -154,7 +154,8 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
             case ORDER_NUM -> isAsc ? catalog.orderNum.asc() : catalog.orderNum.desc();
             case POPULARITY -> isAsc ? catalog.popularity.asc() : catalog.popularity.desc();
             case ACCUMULATED_POINT -> isAsc ? catalog.accumulatedPoint.asc() : catalog.accumulatedPoint.desc();
-            case ACCUMULATED_POINT_RATE -> isAsc ? catalog.accumulatedPointRate.asc() : catalog.accumulatedPointRate.desc();
+            case ACCUMULATED_POINT_RATE ->
+                    isAsc ? catalog.accumulatedPointRate.asc() : catalog.accumulatedPointRate.desc();
             case DISCOUNT_PRICE -> isAsc ? catalog.discountPrice.asc() : catalog.discountPrice.desc();
         };
     }

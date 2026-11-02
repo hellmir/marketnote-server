@@ -1,14 +1,6 @@
 package com.personal.marketnote.commerce.port.in.result.order;
 
-import com.personal.marketnote.commerce.domain.order.Order;
-import com.personal.marketnote.commerce.domain.order.OrderAmount;
-import com.personal.marketnote.commerce.domain.order.OrderAmountCreateState;
-import com.personal.marketnote.commerce.domain.order.OrderNumber;
-import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
-import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
-import com.personal.marketnote.commerce.domain.order.OrderStatus;
-import com.personal.marketnote.commerce.domain.order.ShippingAddress;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
+import com.personal.marketnote.commerce.domain.order.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

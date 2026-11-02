@@ -1,6 +1,5 @@
 package com.personal.marketnote.commerce.service.order;
 
-import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.inventory.InsufficientAvailableStockException;
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.domain.order.Order;
@@ -26,6 +25,7 @@ import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
 import com.personal.marketnote.commerce.port.out.user.FindUserShippingAddressPort;
+import com.personal.marketnote.common.domain.money.Money;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

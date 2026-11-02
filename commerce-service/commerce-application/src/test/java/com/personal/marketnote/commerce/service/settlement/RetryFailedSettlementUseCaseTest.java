@@ -55,7 +55,7 @@ class RetryFailedSettlementUseCaseTest {
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .shippingFee(0L)
-                        .build());
+                .build());
         return settlement;
     }
 
@@ -138,7 +138,7 @@ class RetryFailedSettlementUseCaseTest {
                     .createdAt(LocalDateTime.now())
                     .modifiedAt(LocalDateTime.now())
                     .shippingFee(0L)
-                        .build());
+                    .build());
 
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(pendingSettlement));
 
@@ -168,7 +168,7 @@ class RetryFailedSettlementUseCaseTest {
                     .createdAt(LocalDateTime.now())
                     .modifiedAt(LocalDateTime.now())
                     .shippingFee(0L)
-                        .build());
+                    .build());
 
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(completedSettlement));
 

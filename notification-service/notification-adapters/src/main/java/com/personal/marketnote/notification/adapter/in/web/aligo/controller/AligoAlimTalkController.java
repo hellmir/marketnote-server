@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.in.web.aligo.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.SendAligoAlimTalkRequest;
 import com.personal.marketnote.notification.adapter.in.web.aligo.response.SendAligoAlimTalkResponse;
 import com.personal.marketnote.notification.port.in.command.AligoAlimTalkRecipientCommand;
@@ -8,7 +9,6 @@ import com.personal.marketnote.notification.port.in.command.AligoFailoverCommand
 import com.personal.marketnote.notification.port.in.command.SendAligoAlimTalkCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.SendAligoAlimTalkResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.SendAligoAlimTalkUseCase;
-import com.personal.marketnote.common.utility.FormatValidator;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

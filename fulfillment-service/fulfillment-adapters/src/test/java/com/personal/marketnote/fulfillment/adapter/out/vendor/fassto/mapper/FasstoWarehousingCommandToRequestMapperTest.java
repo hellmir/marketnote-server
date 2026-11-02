@@ -2,13 +2,7 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingAbnormalImageQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingMapper;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentWarehousingAbnormalImageCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentWarehousingCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentWarehousingGoodsCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentWarehousingItemCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentWarehousingCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentWarehousingGoodsCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentWarehousingItemCommand;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

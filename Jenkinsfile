@@ -637,19 +637,17 @@ pipeline {
 		}
 
 		stage('Run Concurrent Indexes') {
-			when {
-				expression {
-					fileExists("${env.SERVICE_DIRECTORY}/src/main/resources/db/concurrent-indexes")
-				}
-			}
 			steps {
 				timeout(time: 30, unit: 'MINUTES') {
 					script {
+						if (!fileExists("${env.SERVICE_DIRECTORY}/src/main/resources/db/concurrent-indexes")) {
+							sleep time: 1, unit: 'SECONDS'; return
+						}
 						def helper = load 'jenkins/resolve-and-register.groovy'
 						helper.runConcurrentIndexes(this, env.ENV_PREFIX)
+						echo 'Concurrent indexes applied'
 					}
 				}
-				echo 'Concurrent indexes applied'
 			}
 		}
 

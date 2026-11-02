@@ -55,8 +55,8 @@ public class PaymentCancelledInventoryConsumer {
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
-        )) {
+                    envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+            )) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -115,7 +115,7 @@ public class PaymentCancelledInventoryConsumer {
                                 .unitAmount(item.unitAmount())
                                 .sharerKey(item.sharerKey())
                                 .accumulatedPoint(0L)
-                        .build()
+                                .build()
                 ))
                 .toList();
     }

@@ -1,7 +1,5 @@
 package com.personal.marketnote.commerce.service.returntracker;
 
-import com.personal.marketnote.common.domain.money.Money;
-import com.personal.marketnote.common.domain.quantity.Quantity;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.port.in.command.order.CalculateReturnShippingFeeCommand;
 import com.personal.marketnote.commerce.port.in.command.returntracker.CompleteReturnCommand;
@@ -12,6 +10,8 @@ import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.service.saga.OrderReturnSagaStarter;
+import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.common.domain.quantity.Quantity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CompleteReturnUseCase 테스트")

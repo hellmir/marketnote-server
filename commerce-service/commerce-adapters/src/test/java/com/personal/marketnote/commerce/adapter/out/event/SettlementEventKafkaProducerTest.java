@@ -20,10 +20,7 @@ import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SettlementEventKafkaProducer 단위 테스트")
@@ -70,7 +67,8 @@ class SettlementEventKafkaProducerTest {
     void shouldSwallowJsonProcessingException() throws JsonProcessingException {
         // given
         when(objectMapper.writeValueAsString(org.mockito.ArgumentMatchers.any()))
-                .thenThrow(new JsonProcessingException("test error") {});
+                .thenThrow(new JsonProcessingException("test error") {
+                });
 
         // when & then
         assertThatCode(() -> producer.publishSettlementExecutedEvent(

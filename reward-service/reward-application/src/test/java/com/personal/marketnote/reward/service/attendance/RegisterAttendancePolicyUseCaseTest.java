@@ -1,18 +1,9 @@
 package com.personal.marketnote.reward.service.attendance;
 
-import com.personal.marketnote.reward.domain.attendance.ContinuousPeriod;
-import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
-import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
-import com.personal.marketnote.reward.domain.attendance.AttendancePolicySnapshotState;
-import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
-import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;
-import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
+import com.personal.marketnote.reward.domain.attendance.*;
 import com.personal.marketnote.reward.port.in.command.attendance.RegisterAttendancePolicyCommand;
-import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.in.result.attendance.RegisterAttendancePolicyResult;
-import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.out.attendance.SaveAttendancePolicyPort;
-import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

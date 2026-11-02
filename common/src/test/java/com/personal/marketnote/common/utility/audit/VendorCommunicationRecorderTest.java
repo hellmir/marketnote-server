@@ -16,10 +16,13 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class VendorCommunicationRecorderTest {
 
-    private enum FakeTarget { DELIVERY, SETTLEMENT }
-    private enum FakeVendor { FASSTO, KCP }
-    private enum FakeType { REQUEST, RESPONSE }
-    private enum FakeSender { SERVER, VENDOR }
+    private enum FakeTarget {DELIVERY, SETTLEMENT}
+
+    private enum FakeVendor {FASSTO, KCP}
+
+    private enum FakeType {REQUEST, RESPONSE}
+
+    private enum FakeSender {SERVER, VENDOR}
 
     private VendorCommunicationHistoryDispatcher<FakeTarget, FakeVendor, FakeType, FakeSender> dispatcher;
     private VendorCommunicationRecorder<FakeTarget, FakeVendor, FakeType, FakeSender> recorder;

@@ -1,11 +1,7 @@
 package com.personal.marketnote.fulfillment.service.shipping;
 
 import com.personal.marketnote.fulfillment.domain.exception.ShippingTrackerNotFoundException;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerSnapshotState;
-import com.personal.marketnote.fulfillment.domain.shipping.CarrierCode;
-import com.personal.marketnote.fulfillment.domain.shipping.TrackingNumber;
+import com.personal.marketnote.fulfillment.domain.shipping.*;
 import com.personal.marketnote.fulfillment.port.in.command.GetShippingStatusCommand;
 import com.personal.marketnote.fulfillment.port.in.result.GetShippingStatusResult;
 import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;

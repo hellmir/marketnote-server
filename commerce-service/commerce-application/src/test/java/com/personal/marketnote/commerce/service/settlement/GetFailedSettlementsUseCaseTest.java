@@ -41,7 +41,7 @@ class GetFailedSettlementsUseCaseTest {
                 .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
                 .shippingFee(0L)
-                        .build());
+                .build());
 
         when(findSettlementPort.findAllByStatus(SettlementStatus.FAILED))
                 .thenReturn(List.of(failed1));

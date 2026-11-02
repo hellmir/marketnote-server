@@ -1,5 +1,6 @@
 package com.personal.marketnote.file.adapter.in.configuration;
 
+import com.personal.marketnote.common.configuration.swagger.SwaggerOrigin;
 import com.personal.marketnote.file.adapter.in.client.file.controller.FileController;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.customizers.OperationCustomizer;
+import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.method.HandlerMethod;
 
@@ -20,7 +22,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class FileSwaggerConfigTest {
-    private final FileSwaggerConfig fileSwaggerConfig = new FileSwaggerConfig();
+    private final FileSwaggerConfig fileSwaggerConfig = new FileSwaggerConfig(
+            mock(Environment.class),
+            new SwaggerOrigin("https", "marketnote.store")
+    );
 
     @Nested
     @DisplayName("tagOnlySorter")

@@ -5,13 +5,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.personal.marketnote.fulfillment.adapter.out.persistence.vendorcommunication.entity.FulfillmentVendorCommunicationHistoryJpaEntity;
 import com.personal.marketnote.fulfillment.adapter.out.persistence.vendorcommunication.repository.FulfillmentVendorCommunicationHistoryJpaRepository;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationHistory;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationHistoryCreateState;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationHistorySnapshotState;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,9 +20,7 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FulfillmentVendorCommunicationHistoryPersistenceAdapter 단위 테스트")

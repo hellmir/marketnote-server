@@ -8,11 +8,7 @@ import com.personal.marketnote.notification.adapter.out.persistence.aligo.reposi
 import com.personal.marketnote.notification.domain.aligo.AligoTemplate;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplateButton;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplateNotFoundException;
-import com.personal.marketnote.notification.port.out.aligo.DeleteAligoTemplatePort;
-import com.personal.marketnote.notification.port.out.aligo.FindAligoTemplateListPort;
-import com.personal.marketnote.notification.port.out.aligo.FindAligoTemplatePort;
-import com.personal.marketnote.notification.port.out.aligo.SaveAligoTemplatePort;
-import com.personal.marketnote.notification.port.out.aligo.UpdateAligoTemplatePort;
+import com.personal.marketnote.notification.port.out.aligo.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;

@@ -5,7 +5,10 @@ import com.personal.marketnote.notification.domain.aligo.AligoBrandTalkTemplateS
 import com.personal.marketnote.notification.domain.aligo.BrandTalkTemplateStatus;
 import com.personal.marketnote.notification.domain.aligo.BrandTalkTemplateType;
 import com.personal.marketnote.notification.port.in.result.aligo.GetBrandTalkTemplateListResult;
-import com.personal.marketnote.notification.port.out.aligo.*;
+import com.personal.marketnote.notification.port.out.aligo.FindBrandTalkTemplateListPort;
+import com.personal.marketnote.notification.port.out.aligo.GetBrandTalkTemplateListExternalPort;
+import com.personal.marketnote.notification.port.out.aligo.SaveBrandTalkTemplatePort;
+import com.personal.marketnote.notification.port.out.aligo.UpdateBrandTalkTemplatePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

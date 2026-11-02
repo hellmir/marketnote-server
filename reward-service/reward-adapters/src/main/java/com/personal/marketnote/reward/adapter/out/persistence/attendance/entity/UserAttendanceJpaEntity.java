@@ -9,10 +9,10 @@ import com.personal.marketnote.common.domain.calendar.Year;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.UserAttendance;
+import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistory;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceSnapshotState;
 import jakarta.persistence.*;
 import lombok.*;
-import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistory;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
