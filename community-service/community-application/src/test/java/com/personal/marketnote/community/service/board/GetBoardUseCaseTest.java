@@ -168,16 +168,16 @@ class GetBoardUseCaseTest {
     }
 
     @Test
-    @DisplayName("FAQ 게시판의 카테고리는 7개이다")
-    void getCategories_faq_returnsSevenCategories() {
+    @DisplayName("FAQ 게시판의 카테고리는 5개이다")
+    void getCategories_faq_returnsFiveCategories() {
         GetBoardCategoriesResult result = getBoardService.getCategories(Board.FAQ);
 
-        assertThat(result.categories()).hasSize(7);
+        assertThat(result.categories()).hasSize(5);
         assertThat(result.categories())
                 .extracting(BoardCategoryItemResult::name)
                 .containsExactly(
-                        "ORDER_PAYMENT", "DELIVERY", "CANCEL_REFUND",
-                        "RETURN_EXCHANGE", "POINT", "EVENT_COUPON", "LOGIN_USER_INFO"
+                        "ORDER_DELIVERY", "CANCEL_RETURN", "BENEFIT_REWARD",
+                        "PRODUCT", "ACCOUNT"
                 );
     }
 
@@ -189,8 +189,11 @@ class GetBoardUseCaseTest {
         assertThat(result.categories())
                 .extracting(BoardCategoryItemResult::description)
                 .containsExactly(
-                        "주문/결제", "배송 관련", "취소/환불",
-                        "반품/교환", "적립금(포인트)", "이벤트/쿠폰", "로그인/회원정보"
+                        "주문, 결제, 배송 관련 문의",
+                        "취소, 반품, 환불 관련 문의",
+                        "앱 내 보상 및 적립 관련 문의",
+                        "제품 및 오픈 관련 문의",
+                        "회원정보 및 계정 관련 문의"
                 );
     }
 
@@ -281,7 +284,7 @@ class GetBoardUseCaseTest {
         int oneOnOneCount = getBoardService.getCategories(Board.ONE_ON_ONE_INQUERY).categories().size();
 
         assertThat(noticeCount).isEqualTo(2);
-        assertThat(faqCount).isEqualTo(7);
+        assertThat(faqCount).isEqualTo(5);
         assertThat(productInqueryCount).isEqualTo(3);
         assertThat(oneOnOneCount).isEqualTo(6);
     }
@@ -300,8 +303,8 @@ class GetBoardUseCaseTest {
     }
 
     @Test
-    @DisplayName("FAQ와 ONE_ON_ONE_INQUERY는 공통 카테고리(ORDER_PAYMENT 등)를 공유하지만 FAQ에만 LOGIN_USER_INFO가 있다")
-    void getCategories_faqAndOneOnOne_shareCommonCategoriesButFaqHasExtra() {
+    @DisplayName("FAQ와 ONE_ON_ONE_INQUERY는 카테고리 코드 체계가 분리되어 공통 항목이 존재하지 않는다")
+    void getCategories_faqAndOneOnOne_haveDisjointCategoryCodes() {
         GetBoardCategoriesResult faqResult = getBoardService.getCategories(Board.FAQ);
         GetBoardCategoriesResult oneOnOneResult = getBoardService.getCategories(Board.ONE_ON_ONE_INQUERY);
 
@@ -310,9 +313,8 @@ class GetBoardUseCaseTest {
         List<String> oneOnOneNames = oneOnOneResult.categories().stream()
                 .map(BoardCategoryItemResult::name).toList();
 
-        assertThat(faqNames).containsAll(oneOnOneNames);
-        assertThat(faqNames).contains("LOGIN_USER_INFO");
-        assertThat(oneOnOneNames).doesNotContain("LOGIN_USER_INFO");
+        assertThat(faqNames).doesNotContainAnyElementsOf(oneOnOneNames);
+        assertThat(oneOnOneNames).doesNotContainAnyElementsOf(faqNames);
     }
 
     private BoardItemResult findBoardByName(List<BoardItemResult> boards, String name) {

@@ -245,7 +245,7 @@ class RegisterPostUseCaseTest {
     @Test
     @DisplayName("SavePostPort.save 실행 중 예외가 발생하면 전파된다")
     void registerPost_savePortFails_propagatesException() {
-        RegisterPostCommand command = buildCommand(10L, null, Board.FAQ, "ORDER_PAYMENT");
+        RegisterPostCommand command = buildCommand(10L, null, Board.FAQ, "ORDER_DELIVERY");
         RuntimeException exception = new RuntimeException("save failed");
         when(savePostPort.save(any(Post.class))).thenThrow(exception);
 
@@ -1063,7 +1063,7 @@ class RegisterPostUseCaseTest {
         RegisterPostCommand command = RegisterPostCommand.builder()
                 .userId(54L)
                 .board(Board.FAQ)
-                .category("ORDER_PAYMENT")
+                .category("ORDER_DELIVERY")
                 .writerName("관리자")
                 .title("FAQ 제목")
                 .content("FAQ 내용")

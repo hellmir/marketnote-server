@@ -20,9 +20,9 @@ class BoardTest {
     @Test
     @DisplayName("FAQ 게시판은 FaqPostCategory를 반환한다")
     void shouldResolveCategoryForFaqBoard() {
-        PostCategory result = Board.FAQ.resolveCategory("ORDER_PAYMENT");
+        PostCategory result = Board.FAQ.resolveCategory("ORDER_DELIVERY");
 
-        assertThat(result).isEqualTo(FaqPostCategory.ORDER_PAYMENT);
+        assertThat(result).isEqualTo(FaqPostCategory.ORDER_DELIVERY);
     }
 
     @Test

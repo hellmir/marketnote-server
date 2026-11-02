@@ -274,7 +274,7 @@ class UpdatePostUseCaseTest {
     private String resolveCategoryCode(Board board) {
         return switch (board) {
             case NOTICE -> "ANNOUNCEMENT";
-            case FAQ -> "ORDER_PAYMENT";
+            case FAQ -> "ORDER_DELIVERY";
             case PRODUCT_INQUERY -> "PRODUCT_QUESTION";
             case ONE_ON_ONE_INQUERY -> "ORDER_PAYMENT";
         };

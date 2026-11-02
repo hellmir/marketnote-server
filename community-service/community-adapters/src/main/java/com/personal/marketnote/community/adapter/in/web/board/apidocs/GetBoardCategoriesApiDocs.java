@@ -64,8 +64,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
-                | name | string | 카테고리명 | "ORDER_PAYMENT" |
-                | description | string | 카테고리 설명 | "주문/결제" |
+                | name | string | 카테고리명 | "ORDER_DELIVERY" |
+                | description | string | 카테고리 설명 | "주문, 결제, 배송 관련 문의" |
                 """,
         parameters = {
                 @Parameter(
@@ -89,32 +89,24 @@ import java.lang.annotation.*;
                                           "content": {
                                             "categories": [
                                               {
-                                                "name": "ORDER_PAYMENT",
-                                                "description": "주문/결제"
+                                                "name": "ORDER_DELIVERY",
+                                                "description": "주문, 결제, 배송 관련 문의"
                                               },
                                               {
-                                                "name": "DELIVERY",
-                                                "description": "배송 관련"
+                                                "name": "CANCEL_RETURN",
+                                                "description": "취소, 반품, 환불 관련 문의"
                                               },
                                               {
-                                                "name": "CANCEL_REFUND",
-                                                "description": "취소/환불"
+                                                "name": "BENEFIT_REWARD",
+                                                "description": "앱 내 보상 및 적립 관련 문의"
                                               },
                                               {
-                                                "name": "RETURN_EXCHANGE",
-                                                "description": "반품/교환"
+                                                "name": "PRODUCT",
+                                                "description": "제품 및 오픈 관련 문의"
                                               },
                                               {
-                                                "name": "POINT",
-                                                "description": "적립금(포인트)"
-                                              },
-                                              {
-                                                "name": "EVENT_COUPON",
-                                                "description": "이벤트/쿠폰"
-                                              },
-                                              {
-                                                "name": "LOGIN_MEMBER_INFO",
-                                                "description": "로그인/회원정보"
+                                                "name": "ACCOUNT",
+                                                "description": "회원정보 및 계정 관련 문의"
                                               }
                                             ]
                                           },

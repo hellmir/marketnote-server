@@ -9,13 +9,11 @@ public enum PostFilterValue {
     TRUE("참"),
 
     // FAQ 카테고리
-    ORDER_PAYMENT("FAQ-주문/결제"),
-    DELIVERY("FAQ-배송 관련"),
-    CANCEL_REFUND("FAQ-취소/환불"),
-    RETURN_EXCHANGE("FAQ-반품/교환"),
-    POINT("FAQ-적립금"),
-    EVENT_COUPON("FAQ-이벤트/쿠폰"),
-    LOGIN_MEMBER_INFO("FAQ-로그인/회원정보");
+    ORDER_DELIVERY("FAQ-주문/배송"),
+    CANCEL_RETURN("FAQ-취소/반품"),
+    BENEFIT_REWARD("FAQ-혜택/리워드"),
+    PRODUCT("FAQ-제품"),
+    ACCOUNT("FAQ-계정");
 
     private final String description;
     private final String camelCaseValue;
