@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
-import static com.personal.marketnote.common.utility.RegularExpressionConstant.*;
+import static com.personal.marketnote.common.utility.RegularExpressionConstant.NICKNAME_PATTERN;
 
 // FIXME: 정규 표현식 재적용
 @Getter

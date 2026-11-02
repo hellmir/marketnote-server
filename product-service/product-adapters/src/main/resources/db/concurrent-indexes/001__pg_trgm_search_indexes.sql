@@ -10,7 +10,8 @@
 --   - INVALID 상태의 인덱스가 남아 있으면 IF NOT EXISTS 가 재생성을 skip 하므로,
 --     Jenkins 스테이지의 bash 래퍼(run-concurrent-indexes.sh)에서 선행 DROP 을 수행한다.
 
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE
+EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_product_name_trgm
     ON product USING GIN (name gin_trgm_ops);

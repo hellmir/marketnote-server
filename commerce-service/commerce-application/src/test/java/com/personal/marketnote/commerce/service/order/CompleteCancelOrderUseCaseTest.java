@@ -1,10 +1,6 @@
 package com.personal.marketnote.commerce.service.order;
 
-import com.personal.marketnote.commerce.domain.order.InvalidOrderStatusTransitionException;
-import com.personal.marketnote.commerce.domain.order.Order;
-import com.personal.marketnote.commerce.domain.order.OrderProduct;
-import com.personal.marketnote.commerce.domain.order.OrderStatus;
-import com.personal.marketnote.commerce.domain.order.OrderStatusHistory;
+import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.port.in.command.order.CompleteCancelOrderCommand;
 import com.personal.marketnote.commerce.port.in.command.order.CompleteCancelOrderCommand.CancelProductItemCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
@@ -28,7 +24,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 

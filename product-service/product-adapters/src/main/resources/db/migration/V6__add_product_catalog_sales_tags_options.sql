@@ -24,48 +24,40 @@ ALTER TABLE product_catalog_read_models
 -- 모두 PostgreSQL 상관 서브쿼리만 사용 — LATERAL 불필요, H2 호환은 Flyway 운영 DB 한정.
 -- ============================================================
 UPDATE product_catalog_read_models cr
-SET sales = COALESCE((
-        SELECT p.sales
-        FROM product p
-        WHERE p.id = cr.product_id
-    ), 0)
+SET sales = COALESCE((SELECT p.sales
+                      FROM product p
+                      WHERE p.id = cr.product_id), 0)
 WHERE cr.sales = 0;
 
 UPDATE product_catalog_read_models cr
-SET product_tags = (
-        SELECT CASE
-                   WHEN COUNT(t.id) = 0 THEN NULL
-                   ELSE json_agg(
-                           json_build_object(
-                                   'id', t.id,
-                                   'name', t.name,
-                                   'orderNum', t.order_num
-                           )
-                           ORDER BY t.order_num ASC
-                   )::text
-               END
-        FROM product_tag t
-        WHERE t.product_id = cr.product_id
-          AND t.status = 'ACTIVE'
-    )
+SET product_tags = (SELECT CASE
+                               WHEN COUNT(t.id) = 0 THEN NULL
+                               ELSE json_agg(
+                                       json_build_object(
+                                               'id', t.id,
+                                               'name', t.name,
+                                               'orderNum', t.order_num
+                                       ) ORDER BY t.order_num ASC
+                                    )::text
+                               END
+                    FROM product_tag t
+                    WHERE t.product_id = cr.product_id
+                      AND t.status = 'ACTIVE')
 WHERE cr.product_tags IS NULL;
 
 UPDATE product_catalog_read_models cr
-SET selected_options = (
-        SELECT CASE
-                   WHEN COUNT(po.id) = 0 THEN NULL
-                   ELSE json_agg(
-                           json_build_object(
-                                   'id', po.id,
-                                   'content', po.content
-                           )
-                           ORDER BY po.id ASC
-                   )::text
-               END
-        FROM product_option_price_policy popp
-        JOIN product_option po
-            ON po.id = popp.product_option_id
-        WHERE popp.price_policy_id = cr.price_policy_id
-          AND po.status = 'ACTIVE'
-    )
+SET selected_options = (SELECT CASE
+                                   WHEN COUNT(po.id) = 0 THEN NULL
+                                   ELSE json_agg(
+                                           json_build_object(
+                                                   'id', po.id,
+                                                   'content', po.content
+                                           ) ORDER BY po.id ASC
+                                        )::text
+                                   END
+                        FROM product_option_price_policy popp
+                                 JOIN product_option po
+                                      ON po.id = popp.product_option_id
+                        WHERE popp.price_policy_id = cr.price_policy_id
+                          AND po.status = 'ACTIVE')
 WHERE cr.selected_options IS NULL;

@@ -11,10 +11,11 @@
 --   2) 수동 DROP 후 재실행
 --      DROP INDEX CONCURRENTLY <invalid_index_name>;
 
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE
+EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_post_title_lower_trgm
-    ON post USING GIN (LOWER(title) gin_trgm_ops);
+    ON post USING GIN (LOWER (title) gin_trgm_ops);
 
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_post_content_lower_trgm
-    ON post USING GIN (LOWER(content) gin_trgm_ops);
+    ON post USING GIN (LOWER (content) gin_trgm_ops);

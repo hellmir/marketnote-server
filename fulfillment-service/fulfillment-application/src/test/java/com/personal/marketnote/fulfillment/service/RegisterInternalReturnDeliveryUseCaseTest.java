@@ -1,22 +1,18 @@
 package com.personal.marketnote.fulfillment.service;
 
 import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerSnapshotState;
-import com.personal.marketnote.fulfillment.domain.shipping.CarrierCode;
-import com.personal.marketnote.fulfillment.domain.shipping.TrackingNumber;
+import com.personal.marketnote.fulfillment.domain.shipping.*;
 import com.personal.marketnote.fulfillment.port.in.command.RegisterInternalReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.RegisterInternalReturnDeliveryProductCommand;
 import com.personal.marketnote.fulfillment.port.in.result.RegisterInternalReturnDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryItemResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryResult;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentCustomerCodePort;
 import com.personal.marketnote.fulfillment.port.out.vendor.RegisterFulfillmentReturnDeliveryPort;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

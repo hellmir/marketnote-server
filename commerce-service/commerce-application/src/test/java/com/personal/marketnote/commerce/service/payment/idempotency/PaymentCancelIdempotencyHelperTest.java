@@ -3,7 +3,6 @@ package com.personal.marketnote.commerce.service.payment.idempotency;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
 import com.personal.marketnote.commerce.domain.payment.idempotency.PaymentCancelIdempotency;
-import com.personal.marketnote.commerce.domain.payment.idempotency.PaymentCancelIdempotencyCreateState;
 import com.personal.marketnote.commerce.domain.payment.idempotency.PaymentCancelIdempotencySnapshotState;
 import com.personal.marketnote.commerce.domain.payment.idempotency.PaymentCancelIdempotencyStatus;
 import com.personal.marketnote.commerce.exception.DuplicateIdempotencyKeyException;
@@ -28,17 +27,9 @@ import org.springframework.transaction.UnexpectedRollbackException;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PaymentCancelIdempotencyHelper 테스트")

@@ -1,7 +1,6 @@
 package com.personal.marketnote.commerce.service.payment;
 
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.payment.ReadyPaymentCommand;

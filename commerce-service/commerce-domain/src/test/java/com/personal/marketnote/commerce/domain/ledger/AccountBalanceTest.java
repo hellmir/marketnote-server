@@ -1,13 +1,12 @@
 package com.personal.marketnote.commerce.domain.ledger;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.domain.money.Money;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
-
-import com.personal.marketnote.common.domain.money.Money;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

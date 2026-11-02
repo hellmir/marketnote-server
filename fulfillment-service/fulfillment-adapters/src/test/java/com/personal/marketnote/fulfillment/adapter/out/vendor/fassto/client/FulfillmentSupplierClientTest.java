@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentSuppliersFailedException;
@@ -8,7 +9,6 @@ import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentSupplier
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentSuppliersCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentSupplierCommand;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
-import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,9 +22,7 @@ import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FulfillmentSupplierClient 테스트")

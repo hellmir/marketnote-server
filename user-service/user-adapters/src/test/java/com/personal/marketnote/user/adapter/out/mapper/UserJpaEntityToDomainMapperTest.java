@@ -6,13 +6,7 @@ import com.personal.marketnote.user.adapter.out.persistence.user.entity.TermsJpa
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserOauth2VendorJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserTermsJpaEntity;
-import com.personal.marketnote.user.domain.authentication.Role;
-import com.personal.marketnote.user.domain.user.Nickname;
-import com.personal.marketnote.user.domain.user.ReferenceCode;
-import com.personal.marketnote.user.domain.user.Terms;
-import com.personal.marketnote.user.domain.user.User;
-import com.personal.marketnote.user.domain.user.UserAuthProvider;
-import com.personal.marketnote.user.domain.user.UserTerms;
+import com.personal.marketnote.user.domain.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

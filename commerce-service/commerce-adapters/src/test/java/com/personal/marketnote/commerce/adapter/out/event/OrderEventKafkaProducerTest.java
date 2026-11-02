@@ -7,11 +7,7 @@ import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
-import com.personal.marketnote.common.kafka.event.EventEnvelope;
-import com.personal.marketnote.common.kafka.event.OrderCancelFailedEvent;
-import com.personal.marketnote.common.kafka.event.OrderCancelledEvent;
-import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
-import com.personal.marketnote.common.kafka.event.ReturnRejectedEvent;
+import com.personal.marketnote.common.kafka.event.*;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import org.junit.jupiter.api.DisplayName;
@@ -31,10 +27,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("OrderEventKafkaProducer 테스트")
@@ -67,7 +60,7 @@ class OrderEventKafkaProducerTest {
                 .unitAmount(30000L)
                 .orderStatus(OrderStatus.PAID)
                 .accumulatedPoint(0L)
-                        .build());
+                .build());
         OrderProduct product2 = OrderProduct.from(OrderProductSnapshotState.builder()
                 .orderId(1L)
                 .sellerId(10L)
@@ -76,7 +69,7 @@ class OrderEventKafkaProducerTest {
                 .unitAmount(20000L)
                 .orderStatus(OrderStatus.PAID)
                 .accumulatedPoint(0L)
-                        .build());
+                .build());
         return List.of(product1, product2);
     }
 
@@ -162,7 +155,7 @@ class OrderEventKafkaProducerTest {
                 .unitAmount(30000L)
                 .orderStatus(OrderStatus.CANCELLED)
                 .accumulatedPoint(0L)
-                        .build());
+                .build());
         return List.of(cancelProduct);
     }
 

@@ -2,11 +2,7 @@ package com.personal.marketnote.product.adapter.out.persistence.servicecommunica
 
 import com.personal.marketnote.product.adapter.out.persistence.servicecommunication.entity.ProductServiceCommunicationHistoryJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.servicecommunication.repository.ProductServiceCommunicationHistoryJpaRepository;
-import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationHistory;
-import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationHistoryCreateState;
-import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationSenderType;
-import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationTargetType;
-import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationType;
+import com.personal.marketnote.product.domain.servicecommunication.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

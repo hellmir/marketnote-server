@@ -1,12 +1,11 @@
 package com.personal.marketnote.commerce.domain.payment;
 
+import com.personal.marketnote.common.domain.money.Money;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
-
-import com.personal.marketnote.common.domain.money.Money;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

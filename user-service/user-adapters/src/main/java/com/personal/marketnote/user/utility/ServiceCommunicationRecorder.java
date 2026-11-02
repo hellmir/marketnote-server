@@ -18,7 +18,7 @@ public class ServiceCommunicationRecorder extends com.personal.marketnote.common
         UserServiceCommunicationTargetType,
         UserServiceCommunicationType,
         UserServiceCommunicationSenderType
-> {
+        > {
     public ServiceCommunicationRecorder(RecordUserServiceCommunicationHistoryUseCase useCase) {
         super((targetType, targetId, communicationType, sender, exception, payload, payloadJson) ->
                 useCase.record(

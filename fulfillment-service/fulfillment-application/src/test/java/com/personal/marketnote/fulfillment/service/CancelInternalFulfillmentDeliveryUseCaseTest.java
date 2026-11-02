@@ -13,13 +13,13 @@ import com.personal.marketnote.fulfillment.port.in.command.CancelInternalFulfill
 import com.personal.marketnote.fulfillment.port.in.result.CancelInternalFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.CancelFulfillmentDeliveryItemResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.CancelFulfillmentDeliveryResult;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.out.delivery.FindFulfillmentDeliveryRegistrationPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.CancelFulfillmentDeliveryPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentCustomerCodePort;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

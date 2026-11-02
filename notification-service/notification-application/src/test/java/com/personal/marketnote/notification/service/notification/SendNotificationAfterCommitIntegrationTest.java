@@ -5,7 +5,6 @@ import com.personal.marketnote.notification.domain.device.DeviceTokenSnapshotSta
 import com.personal.marketnote.notification.domain.device.Platform;
 import com.personal.marketnote.notification.domain.notification.DeliveryChannel;
 import com.personal.marketnote.notification.domain.notification.Notification;
-import com.personal.marketnote.notification.domain.notification.NotificationCreateState;
 import com.personal.marketnote.notification.domain.notification.NotificationSnapshotState;
 import com.personal.marketnote.notification.domain.notification.SendStatus;
 import com.personal.marketnote.notification.domain.template.NotificationCategory;
@@ -36,7 +35,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -56,13 +54,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * {@link SendNotificationService} 트랜잭션 커밋 이후 {@link PushNotificationEventListener}가

@@ -10,11 +10,7 @@ import com.personal.marketnote.product.port.in.command.DeleteCartProductCommand;
 import com.personal.marketnote.product.port.in.command.UpdateCartProductOptionCommand;
 import com.personal.marketnote.product.port.in.command.UpdateCartProductQuantityCommand;
 import com.personal.marketnote.product.port.in.result.cart.GetMyCartProductsResult;
-import com.personal.marketnote.product.port.in.usecase.cart.AddCartProductUseCase;
-import com.personal.marketnote.product.port.in.usecase.cart.DeleteCartProductUseCase;
-import com.personal.marketnote.product.port.in.usecase.cart.GetCartProductUseCase;
-import com.personal.marketnote.product.port.in.usecase.cart.UpdateCartProductOptionsUseCase;
-import com.personal.marketnote.product.port.in.usecase.cart.UpdateCartProductQuantityUseCase;
+import com.personal.marketnote.product.port.in.usecase.cart.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,9 +27,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CartController 테스트")

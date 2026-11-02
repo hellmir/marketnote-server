@@ -1,11 +1,7 @@
 package com.personal.marketnote.community.service.review;
 
 import com.personal.marketnote.common.domain.EntityStatus;
-import com.personal.marketnote.community.domain.review.ProductReviewAggregate;
-import com.personal.marketnote.community.domain.review.ProductReviewAggregateSnapshotState;
-import com.personal.marketnote.community.domain.review.Rating;
-import com.personal.marketnote.community.domain.review.Review;
-import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
+import com.personal.marketnote.community.domain.review.*;
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
 import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
 import com.personal.marketnote.community.port.out.review.UpdateReviewPort;

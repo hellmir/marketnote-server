@@ -1,7 +1,10 @@
 package com.personal.marketnote.notification.adapter.out.persistence.aligo.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
-import com.personal.marketnote.notification.domain.aligo.*;
+import com.personal.marketnote.notification.domain.aligo.BrandTalkFailoverType;
+import com.personal.marketnote.notification.domain.aligo.BrandTalkKakaoTarget;
+import com.personal.marketnote.notification.domain.aligo.BrandTalkMessageCostType;
+import com.personal.marketnote.notification.domain.aligo.BrandTalkMessageStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

@@ -12,14 +12,7 @@ import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettle
 import com.personal.marketnote.commerce.port.in.result.settlement.GetSettlementDetailResult;
 import com.personal.marketnote.commerce.port.in.result.settlement.GetSettlementResult;
 import com.personal.marketnote.commerce.port.in.result.settlement.GetSettlementsResult;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.CancelSettlementUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.ExecuteSettlementUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.GetFailedSettlementsUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.GetSellerSettlementsUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.GetSettlementDetailUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.GetSettlementUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.ReExecuteSettlementUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.RetryFailedSettlementUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.settlement.*;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,9 +32,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SettlementController 테스트")

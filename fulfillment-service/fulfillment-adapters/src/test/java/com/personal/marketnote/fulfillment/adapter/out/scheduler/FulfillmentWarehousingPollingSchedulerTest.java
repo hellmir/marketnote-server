@@ -9,8 +9,6 @@ import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillment
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.SyncFulfillmentAllStockUseCase;
 import com.personal.marketnote.fulfillment.port.out.scheduler.ScheduleFulfillmentWarehousingPollingCommand;
 import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
-
-import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

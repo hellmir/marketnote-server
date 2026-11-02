@@ -2,8 +2,8 @@ package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.user.domain.user.UserStatusAction;
 import com.personal.marketnote.user.domain.user.UserStatusHistory;
-import com.personal.marketnote.user.domain.user.UserStatusHistorySortProperty;
 import com.personal.marketnote.user.domain.user.UserStatusHistorySnapshotState;
+import com.personal.marketnote.user.domain.user.UserStatusHistorySortProperty;
 import com.personal.marketnote.user.port.in.result.GetUserStatusHistoryResult;
 import com.personal.marketnote.user.port.out.user.FindUserStatusHistoryPort;
 import org.junit.jupiter.api.DisplayName;
@@ -12,11 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 
 import java.time.LocalDateTime;
 import java.util.List;

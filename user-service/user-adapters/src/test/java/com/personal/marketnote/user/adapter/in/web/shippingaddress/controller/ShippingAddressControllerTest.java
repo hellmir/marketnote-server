@@ -13,12 +13,7 @@ import com.personal.marketnote.user.port.in.command.shippingaddress.UpdateShippi
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetMyShippingAddressesResult;
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetShippingAddressResult;
 import com.personal.marketnote.user.port.in.result.shippingaddress.RegisterShippingAddressResult;
-import com.personal.marketnote.user.port.in.usecase.shippingaddress.DeleteShippingAddressUseCase;
-import com.personal.marketnote.user.port.in.usecase.shippingaddress.GetMyShippingAddressesUseCase;
-import com.personal.marketnote.user.port.in.usecase.shippingaddress.GetShippingAddressUseCase;
-import com.personal.marketnote.user.port.in.usecase.shippingaddress.RegisterShippingAddressUseCase;
-import com.personal.marketnote.user.port.in.usecase.shippingaddress.SetDefaultShippingAddressUseCase;
-import com.personal.marketnote.user.port.in.usecase.shippingaddress.UpdateShippingAddressUseCase;
+import com.personal.marketnote.user.port.in.usecase.shippingaddress.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -38,9 +33,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ShippingAddressController 배송지 관리")

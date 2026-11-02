@@ -4,13 +4,7 @@ import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.Fulfi
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsElementQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsQuery;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentGoodsCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentGoodsDetailCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentGoodsElementsCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsItemCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentGoodsCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentGoodsItemCommand;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

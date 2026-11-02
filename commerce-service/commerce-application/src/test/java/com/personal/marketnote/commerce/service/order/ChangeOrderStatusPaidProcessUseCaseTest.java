@@ -2,7 +2,6 @@ package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.configuration.AutoConfirmSchedulerProperties;
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
@@ -24,7 +23,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatCode;

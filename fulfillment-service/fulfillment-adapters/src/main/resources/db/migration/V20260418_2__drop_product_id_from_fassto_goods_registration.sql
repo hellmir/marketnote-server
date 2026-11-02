@@ -5,4 +5,5 @@ ALTER TABLE fassto_goods_registration
     ALTER COLUMN product_key SET NOT NULL;
 
 ALTER TABLE fassto_goods_registration
-    DROP COLUMN product_id;
+DROP
+COLUMN product_id;

@@ -24,6 +24,7 @@ public class UserAttendanceHistory {
     public short getContinuousPeriodValue() {
         return continuousPeriod.getValue();
     }
+
     private Boolean rewardYn;
     private LocalDate attendedDate;
     private LocalDateTime attendedAt;

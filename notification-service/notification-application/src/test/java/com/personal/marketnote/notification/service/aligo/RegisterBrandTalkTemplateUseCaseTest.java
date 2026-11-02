@@ -1,7 +1,6 @@
 package com.personal.marketnote.notification.service.aligo;
 
 import com.personal.marketnote.notification.domain.aligo.AligoBrandTalkTemplate;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkTemplateType;
 import com.personal.marketnote.notification.port.in.command.*;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterBrandTalkTemplateResult;
 import com.personal.marketnote.notification.port.out.aligo.RegisterBrandTalkTemplateExternalPort;

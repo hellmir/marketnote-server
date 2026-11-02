@@ -2,9 +2,9 @@ package com.personal.marketnote.common.configuration.kafka;
 
 import com.personal.marketnote.common.kafka.DltTopicRegistry;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

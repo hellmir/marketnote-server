@@ -1,7 +1,7 @@
 package com.personal.marketnote.commerce.domain.quickpayment;
 
-import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.commerce.domain.payment.MaskedCardNumber;
+import com.personal.marketnote.common.domain.BaseDomain;
 import lombok.*;
 
 import java.time.LocalDateTime;

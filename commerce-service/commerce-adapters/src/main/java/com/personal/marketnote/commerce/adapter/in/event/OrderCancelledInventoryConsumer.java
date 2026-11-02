@@ -117,7 +117,7 @@ public class OrderCancelledInventoryConsumer {
                                 .unitAmount(item.unitAmount())
                                 .sharerKey(item.sharerKey())
                                 .accumulatedPoint(0L)
-                        .build()
+                                .build()
                 ))
                 .toList();
     }

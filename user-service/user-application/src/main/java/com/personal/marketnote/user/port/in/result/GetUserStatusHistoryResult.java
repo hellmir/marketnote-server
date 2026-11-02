@@ -1,6 +1,5 @@
 package com.personal.marketnote.user.port.in.result;
 
-import com.personal.marketnote.user.domain.user.UserStatusAction;
 import com.personal.marketnote.user.domain.user.UserStatusHistory;
 import lombok.AccessLevel;
 import lombok.Builder;

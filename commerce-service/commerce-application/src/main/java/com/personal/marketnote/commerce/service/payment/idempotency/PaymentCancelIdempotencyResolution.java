@@ -9,8 +9,8 @@ package com.personal.marketnote.commerce.service.payment.idempotency;
  *   <li>{@link Signal#CACHED}: 완료 레코드 — {@link #cachedResult()} 로 응답</li>
  * </ul>
  *
- * @param signal        해석된 흐름 시그널
- * @param cachedResult  완료 캐시 결과 JSON (CACHED 만 유효)
+ * @param signal       해석된 흐름 시그널
+ * @param cachedResult 완료 캐시 결과 JSON (CACHED 만 유효)
  */
 public record PaymentCancelIdempotencyResolution(Signal signal, String cachedResult) {
     public enum Signal {

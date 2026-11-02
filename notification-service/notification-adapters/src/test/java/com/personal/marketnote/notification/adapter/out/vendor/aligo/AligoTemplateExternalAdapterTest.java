@@ -3,12 +3,7 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.notification.configuration.AligoProperties;
-import com.personal.marketnote.notification.domain.aligo.AligoTemplate;
-import com.personal.marketnote.notification.domain.aligo.AligoTemplateButton;
-import com.personal.marketnote.notification.domain.aligo.AligoTemplateButtonLinkType;
-import com.personal.marketnote.notification.domain.aligo.AligoTemplateCreateState;
-import com.personal.marketnote.notification.domain.aligo.AligoTemplateEmType;
-import com.personal.marketnote.notification.domain.aligo.AligoTemplateType;
+import com.personal.marketnote.notification.domain.aligo.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -21,9 +16,7 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class AligoTemplateExternalAdapterTest {

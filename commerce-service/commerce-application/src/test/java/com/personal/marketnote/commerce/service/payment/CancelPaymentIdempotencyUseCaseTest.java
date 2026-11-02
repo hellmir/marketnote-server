@@ -1,7 +1,6 @@
 package com.personal.marketnote.commerce.service.payment;
 
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.out.payment.PaymentVendorPort;
@@ -24,9 +23,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * CancelPaymentService 멱등성 처리 테스트 (#4392)

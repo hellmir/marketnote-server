@@ -3,7 +3,10 @@ package com.personal.marketnote.notification.adapter.out.persistence.template.re
 import com.personal.marketnote.common.configuration.AuditConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.notification.adapter.out.persistence.template.entity.NotificationTemplateJpaEntity;
-import com.personal.marketnote.notification.domain.template.*;
+import com.personal.marketnote.notification.domain.template.NotificationCategory;
+import com.personal.marketnote.notification.domain.template.NotificationTemplate;
+import com.personal.marketnote.notification.domain.template.NotificationTemplateCreateState;
+import com.personal.marketnote.notification.domain.template.NotificationType;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

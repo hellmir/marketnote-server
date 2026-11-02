@@ -4,7 +4,6 @@ import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.Ord
 import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderProductJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderStatusHistoryJpaEntity;
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.common.utility.FormatValidator;
 
 import java.util.List;

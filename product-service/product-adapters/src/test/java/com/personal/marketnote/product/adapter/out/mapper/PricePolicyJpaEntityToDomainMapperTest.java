@@ -2,8 +2,6 @@ package com.personal.marketnote.product.adapter.out.mapper;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity;
-import com.personal.marketnote.product.adapter.out.persistence.product.entity.ProductJpaEntity;
-import com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

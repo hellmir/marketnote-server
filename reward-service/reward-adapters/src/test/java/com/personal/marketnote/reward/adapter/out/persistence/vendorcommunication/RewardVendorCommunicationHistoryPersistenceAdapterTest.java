@@ -2,12 +2,7 @@ package com.personal.marketnote.reward.adapter.out.persistence.vendorcommunicati
 
 import com.personal.marketnote.reward.adapter.out.persistence.vendorcommunication.entity.RewardVendorCommunicationHistoryJpaEntity;
 import com.personal.marketnote.reward.adapter.out.persistence.vendorcommunication.repository.RewardVendorCommunicationHistoryJpaRepository;
-import com.personal.marketnote.reward.domain.vendorcommunication.RewardVendorCommunicationHistory;
-import com.personal.marketnote.reward.domain.vendorcommunication.RewardVendorCommunicationHistoryCreateState;
-import com.personal.marketnote.reward.domain.vendorcommunication.RewardVendorCommunicationSenderType;
-import com.personal.marketnote.reward.domain.vendorcommunication.RewardVendorCommunicationTargetType;
-import com.personal.marketnote.reward.domain.vendorcommunication.RewardVendorCommunicationType;
-import com.personal.marketnote.reward.domain.vendorcommunication.RewardVendorName;
+import com.personal.marketnote.reward.domain.vendorcommunication.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

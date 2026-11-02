@@ -20,7 +20,7 @@ public class VendorCommunicationRecorder extends com.personal.marketnote.common.
         RewardVendorName,
         RewardVendorCommunicationType,
         RewardVendorCommunicationSenderType
-> {
+        > {
     public VendorCommunicationRecorder(RewardRecordVendorCommunicationHistoryUseCase useCase) {
         super((targetType, targetId, vendorName, communicationType, sender, exception, payload, payloadJson) ->
                 useCase.record(

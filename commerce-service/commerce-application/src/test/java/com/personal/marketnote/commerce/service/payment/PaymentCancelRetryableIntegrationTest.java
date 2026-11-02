@@ -1,18 +1,7 @@
 package com.personal.marketnote.commerce.service.payment;
 
-import com.personal.marketnote.commerce.domain.order.Order;
-import com.personal.marketnote.commerce.domain.order.OrderAmount;
-import com.personal.marketnote.commerce.domain.order.OrderAmountCreateState;
-import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
-import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
-import com.personal.marketnote.commerce.domain.order.OrderStatus;
-import com.personal.marketnote.commerce.domain.order.ShippingAddress;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
-import com.personal.marketnote.commerce.domain.payment.Payment;
-import com.personal.marketnote.commerce.domain.payment.PaymentEventStatus;
-import com.personal.marketnote.commerce.domain.payment.PaymentSnapshotState;
-import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
-import com.personal.marketnote.commerce.domain.payment.PspPaymentEventSnapshotState;
+import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.domain.refund.Refund;
 import com.personal.marketnote.commerce.exception.PaymentCancelRetryExhaustedException;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
@@ -58,16 +47,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 /**
  * #4399 — @Retryable + @Transactional(REQUIRES_NEW) + @Recover 조합이 실제 AOP 프록시로 발화되는지
@@ -289,8 +270,8 @@ class PaymentCancelRetryableIntegrationTest {
         doAnswer(invocation -> {
             throw new OptimisticLockingFailureException("version conflict #1");
         }).doAnswer(invocation -> {
-            throw new OptimisticLockingFailureException("version conflict #2");
-        }).doAnswer(invocation -> null)
+                    throw new OptimisticLockingFailureException("version conflict #2");
+                }).doAnswer(invocation -> null)
                 .when(updatePaymentPort).update(any(Payment.class));
 
         txHelper.commitPaymentAndPostProcess(context, vendorResult);
@@ -333,8 +314,8 @@ class PaymentCancelRetryableIntegrationTest {
         doAnswer(invocation -> {
             throw new OptimisticLockingFailureException("version conflict #1");
         }).doAnswer(invocation -> {
-            throw new OptimisticLockingFailureException("version conflict #2");
-        }).doAnswer(invocation -> null)
+                    throw new OptimisticLockingFailureException("version conflict #2");
+                }).doAnswer(invocation -> null)
                 .when(updatePaymentPort).update(any(Payment.class));
 
         txHelper.commitPaymentAndPostProcess(context, vendorResult);

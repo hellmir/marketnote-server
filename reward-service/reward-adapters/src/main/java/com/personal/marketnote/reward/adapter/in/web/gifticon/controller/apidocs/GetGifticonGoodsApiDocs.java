@@ -18,16 +18,16 @@ import java.lang.annotation.*;
         summary = "기프티콘 상품 목록 조회",
         description = """
                 작성일자: 2026-10-07
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 노출 설정 및 판매 중인 기프티콘 상품 목록을 cursor 기반 무한 스크롤로 조회합니다.
                 카테고리 코드, 브랜드 코드로 필터링할 수 있습니다.
-
+                
                 첫 페이지는 `cursor=-1`(또는 미전달)로 호출하며, 응답의 `nextCursor`를 다음 페이지 호출 시
                 `cursor` 파라미터로 전달합니다. `totalElements`는 첫 페이지에서만 반환되며, `hasNext=false`이면
                 마지막 페이지입니다.

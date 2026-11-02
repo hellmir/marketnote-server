@@ -14,9 +14,9 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -57,8 +57,8 @@ public class OrderReturnedInventoryConsumer {
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
-        )) {
+                    envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+            )) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -121,7 +121,7 @@ public class OrderReturnedInventoryConsumer {
                                 .unitAmount(item.unitAmount())
                                 .sharerKey(item.sharerKey())
                                 .accumulatedPoint(0L)
-                        .build()
+                                .build()
                 ))
                 .toList();
     }

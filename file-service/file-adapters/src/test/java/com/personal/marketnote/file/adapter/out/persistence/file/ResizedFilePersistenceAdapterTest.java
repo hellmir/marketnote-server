@@ -7,7 +7,6 @@ import com.personal.marketnote.file.adapter.out.persistence.file.repository.File
 import com.personal.marketnote.file.adapter.out.persistence.file.repository.ResizedFileJpaRepository;
 import com.personal.marketnote.file.domain.file.ResizedFile;
 import com.personal.marketnote.file.domain.file.ResizedFileCreateState;
-import com.personal.marketnote.file.domain.file.ResizedFileSnapshotState;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

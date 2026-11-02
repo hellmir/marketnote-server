@@ -2,7 +2,8 @@ ALTER TABLE users
     ADD COLUMN penalty_count INT NOT NULL DEFAULT 0
         CONSTRAINT chk_users_penalty_count_non_negative CHECK (penalty_count >= 0);
 
-CREATE TABLE user_penalty_histories (
+CREATE TABLE user_penalty_histories
+(
     id             BIGSERIAL PRIMARY KEY,
     user_id        BIGINT       NOT NULL,
     previous_count INT          NOT NULL CHECK (previous_count >= 0),

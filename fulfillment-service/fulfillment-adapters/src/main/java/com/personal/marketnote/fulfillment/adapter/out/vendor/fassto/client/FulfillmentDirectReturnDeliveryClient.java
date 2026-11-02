@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoDirectReturnDeliveryCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentErrorResponse;
@@ -22,7 +23,6 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfill
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.out.vendor.RegisterFulfillmentDirectReturnDeliveryPort;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
-import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

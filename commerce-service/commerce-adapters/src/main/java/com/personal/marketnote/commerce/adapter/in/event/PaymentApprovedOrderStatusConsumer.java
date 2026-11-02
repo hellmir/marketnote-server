@@ -51,8 +51,8 @@ public class PaymentApprovedOrderStatusConsumer {
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
-        )) {
+                    envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+            )) {
                 acknowledgment.acknowledge();
                 return;
             }

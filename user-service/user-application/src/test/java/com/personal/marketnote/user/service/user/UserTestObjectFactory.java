@@ -1,13 +1,9 @@
 package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.domain.EntityStatus;
-import com.personal.marketnote.user.domain.authentication.Role;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.user.domain.user.Nickname;
-import com.personal.marketnote.user.domain.user.ReferenceCode;
-import com.personal.marketnote.user.domain.user.User;
-import com.personal.marketnote.user.domain.user.UserAuthProvider;
-import com.personal.marketnote.user.domain.user.UserSnapshotState;
+import com.personal.marketnote.user.domain.authentication.Role;
+import com.personal.marketnote.user.domain.user.*;
 
 import java.time.LocalDateTime;
 import java.util.List;

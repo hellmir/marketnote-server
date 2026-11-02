@@ -3,7 +3,9 @@ package com.personal.marketnote.commerce.adapter.out.persistence.inventory;
 import com.personal.marketnote.commerce.adapter.out.persistence.inventory.repository.InventoryDeductionHistoryJpaRepository;
 import com.personal.marketnote.commerce.adapter.out.persistence.inventory.repository.InventoryJpaRepository;
 import com.personal.marketnote.commerce.adapter.out.persistence.inventory.repository.InventoryRestorationHistoryJpaRepository;
-import com.personal.marketnote.commerce.domain.inventory.*;
+import com.personal.marketnote.commerce.domain.inventory.Inventory;
+import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHistories;
+import com.personal.marketnote.commerce.domain.inventory.InventoryRestorationHistories;
 import com.personal.marketnote.commerce.exception.DuplicateInventoryDeductionException;
 import com.personal.marketnote.commerce.exception.DuplicateInventoryRestorationException;
 import com.personal.marketnote.commerce.exception.InventoryNotFoundException;
@@ -58,9 +60,9 @@ class InventoryPersistenceAdapterTest {
 
     private void persistInventory(Long productId, Long pricePolicyId, int stock) {
         entityManager.createNativeQuery("""
-                INSERT INTO inventory (product_id, price_policy_id, stock, reserved, version, created_at, modified_at)
-                VALUES (:productId, :pricePolicyId, :stock, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                """)
+                        INSERT INTO inventory (product_id, price_policy_id, stock, reserved, version, created_at, modified_at)
+                        VALUES (:productId, :pricePolicyId, :stock, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                        """)
                 .setParameter("productId", productId)
                 .setParameter("pricePolicyId", pricePolicyId)
                 .setParameter("stock", stock)
@@ -71,9 +73,9 @@ class InventoryPersistenceAdapterTest {
 
     private void persistInventoryWithProductKey(Long productId, UUID productKey, Long pricePolicyId, int stock) {
         entityManager.createNativeQuery("""
-                INSERT INTO inventory (product_id, product_key, price_policy_id, stock, reserved, version, created_at, modified_at)
-                VALUES (:productId, :productKey, :pricePolicyId, :stock, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                """)
+                        INSERT INTO inventory (product_id, product_key, price_policy_id, stock, reserved, version, created_at, modified_at)
+                        VALUES (:productId, :productKey, :pricePolicyId, :stock, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                        """)
                 .setParameter("productId", productId)
                 .setParameter("productKey", productKey)
                 .setParameter("pricePolicyId", pricePolicyId)

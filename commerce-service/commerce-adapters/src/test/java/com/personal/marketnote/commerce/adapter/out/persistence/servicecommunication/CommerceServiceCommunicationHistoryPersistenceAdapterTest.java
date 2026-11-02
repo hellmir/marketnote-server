@@ -3,11 +3,7 @@ package com.personal.marketnote.commerce.adapter.out.persistence.servicecommunic
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.adapter.out.persistence.servicecommunication.entity.CommerceServiceCommunicationHistoryJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.servicecommunication.repository.CommerceServiceCommunicationHistoryJpaRepository;
-import com.personal.marketnote.commerce.domain.servicecommunication.CommerceServiceCommunicationHistory;
-import com.personal.marketnote.commerce.domain.servicecommunication.CommerceServiceCommunicationHistoryCreateState;
-import com.personal.marketnote.commerce.domain.servicecommunication.CommerceServiceCommunicationSenderType;
-import com.personal.marketnote.commerce.domain.servicecommunication.CommerceServiceCommunicationTargetType;
-import com.personal.marketnote.commerce.domain.servicecommunication.CommerceServiceCommunicationType;
+import com.personal.marketnote.commerce.domain.servicecommunication.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

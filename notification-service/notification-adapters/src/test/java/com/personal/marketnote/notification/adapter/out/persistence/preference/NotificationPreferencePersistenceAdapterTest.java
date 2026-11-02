@@ -3,7 +3,10 @@ package com.personal.marketnote.notification.adapter.out.persistence.preference;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.notification.adapter.out.persistence.preference.entity.NotificationPreferenceJpaEntity;
 import com.personal.marketnote.notification.adapter.out.persistence.preference.repository.NotificationPreferenceJpaRepository;
-import com.personal.marketnote.notification.domain.preference.*;
+import com.personal.marketnote.notification.domain.preference.DuplicateNotificationPreferenceException;
+import com.personal.marketnote.notification.domain.preference.NotificationPreference;
+import com.personal.marketnote.notification.domain.preference.NotificationPreferenceCreateState;
+import com.personal.marketnote.notification.domain.preference.NotificationPreferenceSnapshotState;
 import com.personal.marketnote.notification.domain.template.NotificationType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -14,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 

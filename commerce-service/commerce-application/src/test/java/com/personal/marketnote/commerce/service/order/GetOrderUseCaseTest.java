@@ -1,12 +1,11 @@
 package com.personal.marketnote.commerce.service.order;
 
-import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.order.FindOrderProductPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
+import com.personal.marketnote.common.domain.money.Money;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

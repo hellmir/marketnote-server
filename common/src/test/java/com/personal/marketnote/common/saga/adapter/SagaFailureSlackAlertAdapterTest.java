@@ -65,7 +65,8 @@ class SagaFailureSlackAlertAdapterTest {
         assertThat(request.getHeader("Content-Type")).contains("application/json");
 
         String body = request.getBody().readUtf8();
-        Map<String, String> payload = objectMapper.readValue(body, new TypeReference<Map<String, String>>() {});
+        Map<String, String> payload = objectMapper.readValue(body, new TypeReference<Map<String, String>>() {
+        });
         String text = payload.get("text");
         assertThat(text).contains("[SAGA 실패 알림]");
         assertThat(text).contains("SAGA ID: " + sagaId);

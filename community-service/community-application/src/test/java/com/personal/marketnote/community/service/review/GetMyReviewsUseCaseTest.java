@@ -2,11 +2,7 @@ package com.personal.marketnote.community.service.review;
 
 import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
 import com.personal.marketnote.common.domain.EntityStatus;
-import com.personal.marketnote.community.domain.review.Rating;
-import com.personal.marketnote.community.domain.review.Review;
-import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
-import com.personal.marketnote.community.domain.review.ReviewSortProperty;
-import com.personal.marketnote.community.domain.review.Reviews;
+import com.personal.marketnote.community.domain.review.*;
 import com.personal.marketnote.community.port.in.result.review.GetMyReviewsResult;
 import com.personal.marketnote.community.port.in.result.review.MyReviewItemResult;
 import com.personal.marketnote.community.port.in.usecase.like.GetLikeUseCase;

@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.in.web.aligo.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.SendBrandTalkRequest;
 import com.personal.marketnote.notification.adapter.in.web.aligo.response.SendBrandTalkResponse;
 import com.personal.marketnote.notification.port.in.command.BrandTalkFailoverCommand;
@@ -8,7 +9,6 @@ import com.personal.marketnote.notification.port.in.command.BrandTalkRecipientCo
 import com.personal.marketnote.notification.port.in.command.SendBrandTalkCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.SendBrandTalkResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.SendBrandTalkUseCase;
-import com.personal.marketnote.common.utility.FormatValidator;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

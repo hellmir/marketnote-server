@@ -5,7 +5,6 @@ import com.personal.marketnote.product.adapter.out.persistence.cart.entity.CartI
 import com.personal.marketnote.product.adapter.out.persistence.cart.entity.CartProductJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity;
 import com.personal.marketnote.product.domain.cart.CartProduct;
-import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

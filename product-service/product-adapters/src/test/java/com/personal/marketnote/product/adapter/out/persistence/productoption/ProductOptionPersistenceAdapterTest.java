@@ -10,15 +10,15 @@ import com.personal.marketnote.product.adapter.out.persistence.productoption.ent
 import com.personal.marketnote.product.adapter.out.persistence.productoption.repository.ProductOptionCategoryJpaRepository;
 import com.personal.marketnote.product.adapter.out.persistence.productoption.repository.ProductOptionJpaRepository;
 import com.personal.marketnote.product.adapter.out.persistence.productoption.repository.ProductOptionPricePolicyJpaRepository;
-import com.personal.marketnote.product.exception.InvalidProductOptionOwnershipException;
 import com.personal.marketnote.product.domain.option.ProductOptionCategory;
 import com.personal.marketnote.product.domain.option.ProductOptionCategoryCreateState;
 import com.personal.marketnote.product.domain.option.ProductOptionCreateState;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
-import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
+import com.personal.marketnote.product.exception.InvalidProductOptionOwnershipException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,10 +37,7 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProductOptionPersistenceAdapterTest {

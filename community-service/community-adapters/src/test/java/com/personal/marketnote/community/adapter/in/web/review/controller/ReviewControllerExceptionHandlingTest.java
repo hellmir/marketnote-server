@@ -6,12 +6,7 @@ import com.personal.marketnote.community.adapter.in.web.review.response.GetProdu
 import com.personal.marketnote.community.domain.review.ProductReviewAggregate;
 import com.personal.marketnote.community.domain.review.ProductReviewAggregateSnapshotState;
 import com.personal.marketnote.community.exception.ProductReviewAggregateNotFoundException;
-import com.personal.marketnote.community.port.in.usecase.review.DeleteReviewUseCase;
-import com.personal.marketnote.community.port.in.usecase.review.GetReviewKeyUseCase;
-import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
-import com.personal.marketnote.community.port.in.usecase.review.GetUserReviewsUseCase;
-import com.personal.marketnote.community.port.in.usecase.review.RegisterReviewUseCase;
-import com.personal.marketnote.community.port.in.usecase.review.UpdateReviewUseCase;
+import com.personal.marketnote.community.port.in.usecase.review.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,9 +26,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ReviewController 예외 핸들링")

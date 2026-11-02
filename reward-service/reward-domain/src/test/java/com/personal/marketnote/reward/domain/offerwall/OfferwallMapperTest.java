@@ -1,7 +1,6 @@
 package com.personal.marketnote.reward.domain.offerwall;
 
 import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

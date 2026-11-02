@@ -49,7 +49,7 @@ class GetSettlementDetailUseCaseTest {
                 .createdAt(LocalDateTime.of(2026, 2, 16, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 2, 16, 10, 0))
                 .shippingFee(0L)
-                        .build());
+                .build());
     }
 
     private PaymentAllocation createAllocation(Long id, Long orderId, Long sellerId,

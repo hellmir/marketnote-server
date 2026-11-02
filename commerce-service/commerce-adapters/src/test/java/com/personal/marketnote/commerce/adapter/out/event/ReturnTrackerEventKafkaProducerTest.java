@@ -21,9 +21,7 @@ import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ReturnTrackerEventKafkaProducer 단위 테스트")
@@ -70,7 +68,8 @@ class ReturnTrackerEventKafkaProducerTest {
     void shouldWrapJsonProcessingException() throws JsonProcessingException {
         // given
         when(objectMapper.writeValueAsString(org.mockito.ArgumentMatchers.any()))
-                .thenThrow(new JsonProcessingException("test error") {});
+                .thenThrow(new JsonProcessingException("test error") {
+                });
 
         // when & then
         assertThatThrownBy(() -> producer.publishReturnInspectionCompletedEvent(42L))

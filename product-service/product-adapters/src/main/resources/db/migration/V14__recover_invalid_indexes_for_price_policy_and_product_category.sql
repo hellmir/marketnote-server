@@ -12,30 +12,30 @@
 --       이 경우 대상 테이블에 ACCESS EXCLUSIVE 락을 획득하므로 DML이 락 대기 상태로 들어간다.
 --       INVALID 인덱스 DROP은 통상 수 밀리초 수준이나, 트래픽 피크 시간대 배포는 지양 권장.
 -- 네임스페이스 한정: current_schema()로 현재 스키마에 한정하여 동명 인덱스 충돌 방지.
-DO $$
+DO
+$$
 DECLARE
-    invalid_index RECORD;
+invalid_index RECORD;
 BEGIN
-    FOR invalid_index IN
-        SELECT n.nspname, c.relname
-        FROM pg_index i
-        JOIN pg_class c ON c.oid = i.indexrelid
-        JOIN pg_namespace n ON n.oid = c.relnamespace
-        WHERE NOT i.indisvalid
-          AND n.nspname = current_schema()
-          AND c.relname IN (
-              'idx_price_policy_product_id_status',
-              'idx_price_policy_status_popularity_id',
-              'idx_price_policy_status_discount_price_id',
-              'idx_price_policy_status_accumulated_point_id',
-              'idx_price_policy_status_accumulation_rate_id',
-              'idx_product_category_category_id'
-          )
-        ORDER BY c.relname
-    LOOP
+FOR invalid_index IN
+SELECT n.nspname, c.relname
+FROM pg_index i
+         JOIN pg_class c ON c.oid = i.indexrelid
+         JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE NOT i.indisvalid
+  AND n.nspname = current_schema()
+  AND c.relname IN (
+                    'idx_price_policy_product_id_status',
+                    'idx_price_policy_status_popularity_id',
+                    'idx_price_policy_status_discount_price_id',
+                    'idx_price_policy_status_accumulated_point_id',
+                    'idx_price_policy_status_accumulation_rate_id',
+                    'idx_product_category_category_id'
+    )
+ORDER BY c.relname LOOP
         RAISE NOTICE 'Dropping INVALID index: %.%', invalid_index.nspname, invalid_index.relname;
-        EXECUTE 'DROP INDEX ' || quote_ident(invalid_index.nspname) || '.' || quote_ident(invalid_index.relname);
-    END LOOP;
+EXECUTE 'DROP INDEX ' || quote_ident(invalid_index.nspname) || '.' || quote_ident(invalid_index.relname);
+END LOOP;
 END $$;
 
 -- 2) 누락/삭제된 인덱스 재생성 (V10과 동일 정의)

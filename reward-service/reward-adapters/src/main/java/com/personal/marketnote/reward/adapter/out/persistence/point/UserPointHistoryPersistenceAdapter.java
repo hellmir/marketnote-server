@@ -56,8 +56,8 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
         List<UserPointHistoryJpaEntity> histories = filter.isAll()
                 ? repository.findByUserIdAndDateRange(userId, startDateTime, endDateTime, safeCursor, pageable)
                 : repository.findByUserIdAndDateRangeAndChangeType(
-                        userId, startDateTime, endDateTime, filter.toChangeType(), safeCursor, pageable
-                );
+                userId, startDateTime, endDateTime, filter.toChangeType(), safeCursor, pageable
+        );
 
         return histories.stream()
                 .map(UserPointHistoryJpaEntity::toDomain)

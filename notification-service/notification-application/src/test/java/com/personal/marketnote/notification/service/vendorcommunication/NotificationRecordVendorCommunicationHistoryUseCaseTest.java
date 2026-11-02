@@ -2,11 +2,7 @@ package com.personal.marketnote.notification.service.vendorcommunication;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationHistory;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationSenderType;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationTargetType;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationType;
-import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorName;
+import com.personal.marketnote.notification.domain.vendorcommunication.*;
 import com.personal.marketnote.notification.port.in.command.vendorcommunication.NotificationVendorCommunicationHistoryCommand;
 import com.personal.marketnote.notification.port.out.vendorcommunication.SaveNotificationVendorCommunicationHistoryPort;
 import org.junit.jupiter.api.DisplayName;

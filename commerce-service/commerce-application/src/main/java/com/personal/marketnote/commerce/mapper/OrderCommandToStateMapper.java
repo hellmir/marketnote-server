@@ -2,11 +2,11 @@ package com.personal.marketnote.commerce.mapper;
 
 import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.domain.shipping.ShippingRegionType;
 import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationCreateState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTransactionType;
+import com.personal.marketnote.commerce.domain.shipping.ShippingRegionType;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.order.OrderAmountCommand;
 import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;

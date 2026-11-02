@@ -19,7 +19,7 @@ public class ServiceCommunicationRecorder extends com.personal.marketnote.common
         CommerceServiceCommunicationTargetType,
         CommerceServiceCommunicationType,
         CommerceServiceCommunicationSenderType
-> {
+        > {
     public ServiceCommunicationRecorder(RecordCommerceServiceCommunicationHistoryUseCase useCase) {
         super((targetType, targetId, communicationType, sender, exception, payload, payloadJson) ->
                 useCase.record(

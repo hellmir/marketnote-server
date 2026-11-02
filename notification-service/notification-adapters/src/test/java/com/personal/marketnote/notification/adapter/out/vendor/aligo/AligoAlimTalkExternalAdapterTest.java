@@ -3,11 +3,7 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.notification.configuration.AligoProperties;
-import com.personal.marketnote.notification.domain.aligo.AligoApiRequestFailedException;
-import com.personal.marketnote.notification.domain.aligo.AligoMessage;
-import com.personal.marketnote.notification.domain.aligo.AligoMessageCreateState;
-import com.personal.marketnote.notification.domain.aligo.AligoMessageRecipientCreateState;
-import com.personal.marketnote.notification.domain.aligo.AligoMessageType;
+import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.out.aligo.SendAligoAlimTalkExternalPort;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,9 +20,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class AligoAlimTalkExternalAdapterTest {

@@ -12,7 +12,6 @@ import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.saga.SagaResponsePublisher;
 import com.personal.marketnote.common.saga.SagaStepMessage;
 import com.personal.marketnote.common.utility.FormatValidator;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -20,6 +19,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Slf4j
 @Component

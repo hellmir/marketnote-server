@@ -2,12 +2,7 @@ package com.personal.marketnote.user.adapter.out.persistence.servicecommunicatio
 
 import com.personal.marketnote.user.adapter.out.persistence.servicecommunication.entity.UserServiceCommunicationHistoryJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.servicecommunication.repository.UserServiceCommunicationHistoryJpaRepository;
-import com.personal.marketnote.user.domain.servicecommunication.UserServiceCommunicationHistory;
-import com.personal.marketnote.user.domain.servicecommunication.UserServiceCommunicationHistoryCreateState;
-import com.personal.marketnote.user.domain.servicecommunication.UserServiceCommunicationHistorySnapshotState;
-import com.personal.marketnote.user.domain.servicecommunication.UserServiceCommunicationSenderType;
-import com.personal.marketnote.user.domain.servicecommunication.UserServiceCommunicationTargetType;
-import com.personal.marketnote.user.domain.servicecommunication.UserServiceCommunicationType;
+import com.personal.marketnote.user.domain.servicecommunication.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,9 +15,7 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserServiceCommunicationHistoryPersistenceAdapter 서비스 통신 기록 영속화")

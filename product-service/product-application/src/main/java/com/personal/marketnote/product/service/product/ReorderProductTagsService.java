@@ -17,11 +17,7 @@ import com.personal.marketnote.product.port.out.product.UpdateProductTagPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;

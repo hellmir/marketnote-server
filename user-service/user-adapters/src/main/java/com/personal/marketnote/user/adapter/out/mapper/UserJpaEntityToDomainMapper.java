@@ -1,11 +1,11 @@
 package com.personal.marketnote.user.adapter.out.mapper;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.adapter.out.persistence.authentication.entity.RoleJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.TermsJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserOauth2VendorJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserTermsJpaEntity;
-import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.authentication.Role;
 import com.personal.marketnote.user.domain.user.*;
 

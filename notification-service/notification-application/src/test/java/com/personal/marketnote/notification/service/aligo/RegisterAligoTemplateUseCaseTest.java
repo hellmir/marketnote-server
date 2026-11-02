@@ -1,9 +1,6 @@
 package com.personal.marketnote.notification.service.aligo;
 
 import com.personal.marketnote.notification.domain.aligo.AligoTemplate;
-import com.personal.marketnote.notification.domain.aligo.AligoTemplateEmType;
-import com.personal.marketnote.notification.domain.aligo.AligoTemplateStatus;
-import com.personal.marketnote.notification.domain.aligo.AligoTemplateType;
 import com.personal.marketnote.notification.port.in.command.AligoTemplateButtonCommand;
 import com.personal.marketnote.notification.port.in.command.RegisterAligoTemplateCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterAligoTemplateResult;
@@ -20,7 +17,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterAligoTemplateUseCaseTest {

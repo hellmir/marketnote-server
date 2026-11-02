@@ -42,7 +42,7 @@ import java.lang.annotation.*;
                 | content | string | 내용 | Y | "게시글 내용" |
                 
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | HTTP 상태 코드 | 200 |
@@ -50,9 +50,9 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-01-09T16:32:18.828188" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "게시글 수정 성공" |
-
+                
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 수정된 게시글 ID | 3 |

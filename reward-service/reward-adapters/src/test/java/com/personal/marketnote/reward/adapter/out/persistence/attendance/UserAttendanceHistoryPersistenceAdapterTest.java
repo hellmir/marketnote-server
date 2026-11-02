@@ -2,11 +2,7 @@ package com.personal.marketnote.reward.adapter.out.persistence.attendance;
 
 import com.personal.marketnote.reward.adapter.out.persistence.attendance.entity.UserAttendanceHistoryJpaEntity;
 import com.personal.marketnote.reward.adapter.out.persistence.attendance.repository.UserAttendanceHistoryJpaRepository;
-import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;
-import com.personal.marketnote.reward.domain.attendance.ContinuousPeriod;
-import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
-import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistory;
-import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistorySnapshotState;
+import com.personal.marketnote.reward.domain.attendance.*;
 import com.personal.marketnote.reward.exception.DuplicateAttendanceException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

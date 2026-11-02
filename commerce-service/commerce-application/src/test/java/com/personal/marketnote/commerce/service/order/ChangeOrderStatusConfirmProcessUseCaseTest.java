@@ -2,7 +2,6 @@ package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.configuration.AutoConfirmSchedulerProperties;
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;

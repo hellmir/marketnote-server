@@ -1,7 +1,10 @@
 package com.personal.marketnote.notification.service.aligo;
 
 import com.personal.marketnote.common.domain.EntityStatus;
-import com.personal.marketnote.notification.domain.aligo.*;
+import com.personal.marketnote.notification.domain.aligo.AligoMessage;
+import com.personal.marketnote.notification.domain.aligo.AligoMessageSnapshotState;
+import com.personal.marketnote.notification.domain.aligo.AligoMessageStatus;
+import com.personal.marketnote.notification.domain.aligo.AligoMessageType;
 import com.personal.marketnote.notification.port.in.command.GetAligoMessageListCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.GetAligoMessageListResult;
 import com.personal.marketnote.notification.port.out.aligo.FindAligoMessageListPort;

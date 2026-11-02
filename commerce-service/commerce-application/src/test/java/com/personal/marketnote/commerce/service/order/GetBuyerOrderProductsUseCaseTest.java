@@ -1,7 +1,6 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderProductsQuery;
 import com.personal.marketnote.commerce.port.in.result.order.GetBuyerOrderProductResult;
 import com.personal.marketnote.commerce.port.in.result.order.GetBuyerOrderProductsResult;

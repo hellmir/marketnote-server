@@ -1,39 +1,19 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsDetailQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsElementQuery;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentErrorInfo;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentGoodsElementResponse;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentGoodsElementsResponse;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentGoodsItemResponse;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentGoodsListResponse;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentResponseHeader;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentGoodsItemResponse;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentGoodsResponse;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.UpdateFulfillmentGoodsItemResponse;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.UpdateFulfillmentGoodsResponse;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;
-import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
-import com.personal.marketnote.fulfillment.exception.GetFulfillmentGoodsDetailFailedException;
-import com.personal.marketnote.fulfillment.exception.GetFulfillmentGoodsElementsFailedException;
-import com.personal.marketnote.fulfillment.exception.GetFulfillmentGoodsFailedException;
-import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentGoodsFailedException;
-import com.personal.marketnote.fulfillment.exception.UpdateFulfillmentGoodsFailedException;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentGoodsCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentGoodsDetailCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentGoodsElementsCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsItemCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentGoodsCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentGoodsItemCommand;
+import com.personal.marketnote.fulfillment.exception.*;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentGoodsElementsResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentGoodsResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentGoodsResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.UpdateFulfillmentGoodsResult;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
-import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -55,9 +35,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FulfillmentGoodsClient 테스트")

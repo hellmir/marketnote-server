@@ -21,9 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("InventoryLockRedissonAdapter 단위 테스트")
@@ -92,7 +90,8 @@ class InventoryLockRedissonAdapterTest {
         when(lock1.tryLock(anyLong(), anyLong(), eq(TimeUnit.SECONDS))).thenThrow(new InterruptedException("interrupted"));
 
         // when & then
-        assertThatThrownBy(() -> adapter.executeWithLock(Set.of(1L), () -> {}))
+        assertThatThrownBy(() -> adapter.executeWithLock(Set.of(1L), () -> {
+        }))
                 .isInstanceOf(InventoryLockInterruptedException.class);
         Thread.interrupted();
     }
@@ -108,7 +107,8 @@ class InventoryLockRedissonAdapterTest {
         when(lock1.isHeldByCurrentThread()).thenReturn(true);
 
         // when & then
-        assertThatThrownBy(() -> adapter.executeWithLock(Set.of(1L, 2L), () -> {}))
+        assertThatThrownBy(() -> adapter.executeWithLock(Set.of(1L, 2L), () -> {
+        }))
                 .isInstanceOf(InventoryLockAcquisitionException.class);
         verify(lock1).unlock();
         verify(lock2, times(0)).unlock();
