@@ -36,7 +36,7 @@ import java.lang.annotation.*;
                 | --- | --- | --- | --- | --- |
                 | transactionId | string | 리워드 키 | Y | 20241211-abc |
                 | userId | string | 회원 식별자 | Y | U1000 |
-                | user_device_type | string | 회원 디바이스 유형 | Y | ANDROID |
+                | userDeviceType | string | 회원 디바이스 유형 | Y | ANDROID |
                 | shareAdType | string | 캠페인 유형 | N | 1 |
                 | adname | string | 캠페인 이름 | N | "앱 설치" |
                 | rewardUnit | string | 보상 화폐 단위 | N | "KRW" |
@@ -67,7 +67,7 @@ import java.lang.annotation.*;
                         schema = @Schema(type = "string")
                 ),
                 @Parameter(
-                        name = "user_device_type",
+                        name = "userDeviceType",
                         in = ParameterIn.QUERY,
                         required = true,
                         description = "회원 디바이스 유형",
