@@ -148,6 +148,35 @@ public class UserController {
     }
 
     /**
+     * 추천 회원 초대 코드 등록 여부 조회
+     *
+     * @param principal 사용자 인증 정보
+     * @return 등록 여부 응답 {@link IsReferredUserCodeRegisteredResponse}
+     * @Author 성효빈
+     * @Date 2026-11-03
+     * @Description 인증된 회원의 추천인 초대 코드 등록 여부를 조회합니다.
+     */
+    @GetMapping("/referred-user-code")
+    @IsReferredUserCodeRegisteredApiDocs
+    public ResponseEntity<BaseResponse<IsReferredUserCodeRegisteredResponse>> isReferredUserCodeRegistered(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        boolean isRegistered = getUserUseCase.isReferredUserCodeRegistered(
+                ElementExtractor.extractUserId(principal)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        IsReferredUserCodeRegisteredResponse.of(isRegistered),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "추천 회원 초대 코드 등록 여부 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
      * 회원 로그인
      *
      * @param signInRequest 로그인 요청

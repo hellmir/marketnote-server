@@ -223,6 +223,10 @@ public class User extends BaseDomain {
         this.referredUserCode = referredUserCode;
     }
 
+    public boolean hasReferredUserCode() {
+        return FormatValidator.hasValue(referredUserCode);
+    }
+
     public void removeReferredUserCode() {
         referredUserCode = null;
     }

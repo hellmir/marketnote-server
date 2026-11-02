@@ -94,6 +94,11 @@ public class GetUserService implements GetUserUseCase {
     }
 
     @Override
+    public boolean isReferredUserCodeRegistered(Long id) {
+        return getUser(id).hasReferredUserCode();
+    }
+
+    @Override
     public Page<GetUserResult> getAllStatusUsers(
             int pageSize, int pageNumber,
             Sort.Direction sortDirection, UserSortProperty sortProperty,
