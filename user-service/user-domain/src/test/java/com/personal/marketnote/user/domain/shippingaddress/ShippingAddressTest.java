@@ -36,7 +36,7 @@ class ShippingAddressTest {
                 .addressType(ShippingAddressType.COMPANY)
                 .address("서울시 강남구")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .isDefault(false)
                 .build();
 
@@ -61,7 +61,7 @@ class ShippingAddressTest {
                 .addressType(ShippingAddressType.OTHER)
                 .address("서울시 마포구")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .isDefault(true)
                 .build());
 
@@ -77,7 +77,7 @@ class ShippingAddressTest {
                 .addressType(ShippingAddressType.OTHER)
                 .address("서울시 마포구")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .isDefault(false)
                 .build());
 
@@ -94,7 +94,7 @@ class ShippingAddressTest {
                 .addressType(ShippingAddressType.HOME)
                 .address("서울시 강남구")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.CUSTOM)
                 .isDefault(false)
                 .build();
@@ -112,7 +112,7 @@ class ShippingAddressTest {
                 .addressType(ShippingAddressType.HOME)
                 .address("서울시 강남구")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.CUSTOM)
                 .deliveryRequestMessage(longMessage)
                 .isDefault(false)
@@ -129,7 +129,7 @@ class ShippingAddressTest {
 
         address.update(
                 "서울시 서초구", "201호", null, "새 별칭",
-                RecipientName.of("김철수"), PhoneNumber.of("010-9999-8888"), DeliveryRequestType.CUSTOM, "현관 비밀번호 1234"
+                RecipientName.of("김철수"), PhoneNumber.of("01099998888"), DeliveryRequestType.CUSTOM, "현관 비밀번호 1234"
         );
 
         assertThat(address.getAddress()).isEqualTo("서울시 서초구");
@@ -144,7 +144,7 @@ class ShippingAddressTest {
                 .address("서울시 강남구")
                 .addressDetail("101호")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
                 .isDefault(true)
                 .build();

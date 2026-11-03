@@ -108,7 +108,7 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("ACTIVE 회원의 닉네임이 존재하면 true를 반환한다")
         void returnsTrueWhenActiveNicknameExists() {
-            persistUser("testNick", "010-0001-0001", "nick@test.com", null, EntityStatus.ACTIVE);
+            persistUser("testNick", "01000010001", "nick@test.com", null, EntityStatus.ACTIVE);
 
             assertThat(repository.existsByNickname("testNick")).isTrue();
         }
@@ -116,7 +116,7 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("INACTIVE 회원의 닉네임은 false를 반환한다")
         void returnsFalseForInactiveUser() {
-            persistUser("비활성닉", "010-0001-0002", "inactive@test.com", null, EntityStatus.INACTIVE);
+            persistUser("비활성닉", "01000010002", "inactive@test.com", null, EntityStatus.INACTIVE);
 
             assertThat(repository.existsByNickname("비활성닉")).isFalse();
         }
@@ -134,7 +134,7 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("이메일이 존재하면 true를 반환한다")
         void returnsTrueWhenEmailExists() {
-            persistUser("emailUser", "010-0002-0001", "exists@test.com", null, EntityStatus.ACTIVE);
+            persistUser("emailUser", "01000020001", "exists@test.com", null, EntityStatus.ACTIVE);
 
             assertThat(repository.existsByEmail("exists@test.com")).isTrue();
         }
@@ -152,9 +152,9 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("ACTIVE 회원의 전화번호가 존재하면 true를 반환한다")
         void returnsTrueWhenActivePhoneExists() {
-            persistUser("phoneUser", "010-0003-0001", "phone@test.com", null, EntityStatus.ACTIVE);
+            persistUser("phoneUser", "01000030001", "phone@test.com", null, EntityStatus.ACTIVE);
 
-            assertThat(repository.existsByPhoneNumber("010-0003-0001")).isTrue();
+            assertThat(repository.existsByPhoneNumber("01000030001")).isTrue();
         }
     }
 
@@ -164,7 +164,7 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("ACTIVE 회원을 이메일로 조회한다")
         void returnsActiveUserByEmail() {
-            Long id = persistUser("findEmail", "010-0004-0001", "find@test.com", null, EntityStatus.ACTIVE);
+            Long id = persistUser("findEmail", "01000040001", "find@test.com", null, EntityStatus.ACTIVE);
 
             Optional<UserJpaEntity> result = repository.findByEmail("find@test.com");
 
@@ -175,7 +175,7 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("INACTIVE 회원은 조회하지 않는다")
         void doesNotReturnInactiveUser() {
-            persistUser("비활성이메일", "010-0004-0002", "findInactive@test.com", null, EntityStatus.INACTIVE);
+            persistUser("비활성이메일", "01000040002", "findInactive@test.com", null, EntityStatus.INACTIVE);
 
             Optional<UserJpaEntity> result = repository.findByEmail("findInactive@test.com");
 
@@ -189,9 +189,9 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("ACTIVE 회원을 전화번호로 조회한다")
         void returnsActiveUserByPhone() {
-            Long id = persistUser("findPhone", "010-0005-0001", "findphone@test.com", null, EntityStatus.ACTIVE);
+            Long id = persistUser("findPhone", "01000050001", "findphone@test.com", null, EntityStatus.ACTIVE);
 
-            Optional<UserJpaEntity> result = repository.findByPhoneNumber("010-0005-0001");
+            Optional<UserJpaEntity> result = repository.findByPhoneNumber("01000050001");
 
             assertThat(result).isPresent();
             assertThat(result.get().getId()).isEqualTo(id);
@@ -204,7 +204,7 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("ACTIVE 회원을 초대 코드로 조회한다")
         void returnsActiveUserByRefCode() {
-            Long id = persistUser("refUser", "010-0006-0001", "ref@test.com", "ABC123", EntityStatus.ACTIVE);
+            Long id = persistUser("refUser", "01000060001", "ref@test.com", "ABC123", EntityStatus.ACTIVE);
 
             Optional<UserJpaEntity> result = repository.findByReferenceCode("ABC123");
 
@@ -225,7 +225,7 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("orderNum으로 모든 상태의 회원을 조회한다")
         void returnsUserByOrderNum() {
-            Long id = persistUser("allStatus", "010-0007-0001", "allstatus@test.com", null, EntityStatus.ACTIVE);
+            Long id = persistUser("allStatus", "01000070001", "allstatus@test.com", null, EntityStatus.ACTIVE);
 
             Optional<UserJpaEntity> result = repository.findAllStatusUserById(id);
 
@@ -235,7 +235,7 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("INACTIVE 회원도 조회한다")
         void returnsInactiveUser() {
-            Long id = persistUser("inactAll", "010-0007-0002", "inactall@test.com", null, EntityStatus.INACTIVE);
+            Long id = persistUser("inactAll", "01000070002", "inactall@test.com", null, EntityStatus.INACTIVE);
 
             Optional<UserJpaEntity> result = repository.findAllStatusUserById(id);
 
@@ -249,7 +249,7 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("이메일로 모든 상태의 회원을 조회한다")
         void returnsUserByEmail() {
-            persistUser("allEmail", "010-0008-0001", "allemail@test.com", null, EntityStatus.INACTIVE);
+            persistUser("allEmail", "01000080001", "allemail@test.com", null, EntityStatus.INACTIVE);
 
             Optional<UserJpaEntity> result = repository.findAllStatusUserByEmail("allemail@test.com");
 
@@ -263,8 +263,8 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("모든 상태의 회원 목록을 조회한다")
         void returnsAllUsers() {
-            persistUser("user1", "010-0009-0001", "user1@test.com", null, EntityStatus.ACTIVE);
-            persistUser("user2", "010-0009-0002", "user2@test.com", null, EntityStatus.INACTIVE);
+            persistUser("user1", "01000090001", "user1@test.com", null, EntityStatus.ACTIVE);
+            persistUser("user2", "01000090002", "user2@test.com", null, EntityStatus.INACTIVE);
 
             List<UserJpaEntity> result = repository.findAllStatusUsers();
 
@@ -278,7 +278,7 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("닉네임 검색으로 페이징 조회한다")
         void searchesByNickname() {
-            persistUser("searchNick", "010-0010-0001", "search@test.com", null, EntityStatus.ACTIVE);
+            persistUser("searchNick", "01000100001", "search@test.com", null, EntityStatus.ACTIVE);
 
             Page<UserJpaEntity> result = repository.findAllStatusUsersByPage(
                     PageRequest.of(0, 10), false, true, false, false, false, "searchNick"
@@ -291,7 +291,7 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("검색 키워드가 빈 문자열이면 전체를 조회한다")
         void returnsAllWhenKeywordEmpty() {
-            persistUser("anyUser", "010-0010-0002", "any@test.com", null, EntityStatus.ACTIVE);
+            persistUser("anyUser", "01000100002", "any@test.com", null, EntityStatus.ACTIVE);
 
             Page<UserJpaEntity> result = repository.findAllStatusUsersByPage(
                     PageRequest.of(0, 10), false, false, false, false, false, ""
@@ -307,7 +307,7 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("비활성화 기간이 만료된 INACTIVE 회원을 조회한다")
         void returnsExpiredDeactivatedUsers() {
-            Long id = persistUser("deactUser", "010-0011-0001", "deact@test.com", null, EntityStatus.INACTIVE);
+            Long id = persistUser("deactUser", "01000110001", "deact@test.com", null, EntityStatus.INACTIVE);
             em.createNativeQuery("UPDATE users SET deactivated_until = :until WHERE id = :id")
                     .setParameter("until", LocalDateTime.of(2026, 4, 1, 0, 0))
                     .setParameter("id", id)
@@ -326,7 +326,7 @@ class UserJpaRepositoryTest {
         @Test
         @DisplayName("비활성화 기간이 아직 만료되지 않은 회원은 조회하지 않는다")
         void doesNotReturnNotExpiredUsers() {
-            Long id = persistUser("notExpired", "010-0011-0002", "notexpired@test.com", null, EntityStatus.INACTIVE);
+            Long id = persistUser("notExpired", "01000110002", "notexpired@test.com", null, EntityStatus.INACTIVE);
             em.createNativeQuery("UPDATE users SET deactivated_until = :until WHERE id = :id")
                     .setParameter("until", LocalDateTime.of(2026, 12, 31, 23, 59))
                     .setParameter("id", id)

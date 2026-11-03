@@ -321,7 +321,7 @@ class GetReturnRefundInfoUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + ORDER_ID))
                 .orderStatus(status)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalProductAmount).paidAmount(null).couponAmount(couponAmount).pointAmount(pointAmount).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()
                                 .orderId(ORDER_ID)
@@ -350,7 +350,7 @@ class GetReturnRefundInfoUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + ORDER_ID))
                 .orderStatus(status)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(null).couponAmount(couponAmount).pointAmount(pointAmount).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()
                                 .orderId(ORDER_ID)

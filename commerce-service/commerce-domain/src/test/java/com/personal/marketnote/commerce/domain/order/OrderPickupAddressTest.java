@@ -25,12 +25,12 @@ class OrderPickupAddressTest {
 
             // when
             order.applyPickupAddress(
-                    ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("010-9999-8888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("부재시 경비실에 맡겨주세요").build())
+                    ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("01099998888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("부재시 경비실에 맡겨주세요").build())
             );
 
             // then
             assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("회수 수령인");
-            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-9999-8888");
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("01099998888");
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("54321");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("회수지 주소");
             assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("회수지 상세주소");
@@ -48,7 +48,7 @@ class OrderPickupAddressTest {
 
             // then
             assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("배송 수령인");
-            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-1234-5678");
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("01012345678");
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("12345");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("서울시 강남구");
             assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("테헤란로 123");
@@ -75,12 +75,12 @@ class OrderPickupAddressTest {
 
             // when
             order.applyPickupAddress(
-                    ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("010-9999-8888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("회수 요청사항").build())
+                    ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("01099998888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("회수 요청사항").build())
             );
 
             // then
             assertThat(order.getShippingAddress().getRecipientName().getValue()).isEqualTo("배송 수령인");
-            assertThat(order.getShippingAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-1234-5678");
+            assertThat(order.getShippingAddress().getRecipientPhoneNumber().getValue()).isEqualTo("01012345678");
             assertThat(order.getShippingAddress().getZipCode()).isEqualTo("12345");
             assertThat(order.getShippingAddress().getAddress()).isEqualTo("서울시 강남구");
             assertThat(order.getShippingAddress().getAddressDetail()).isEqualTo("테헤란로 123");
@@ -100,10 +100,10 @@ class OrderPickupAddressTest {
                     .orderStatus(OrderStatus.RETURN_REQUESTED)
                     .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build()))
                     .shippingAddress(
-                            ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("배송 수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(null).deliveryRequestMessage(null).build())
+                            ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("배송 수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(null).deliveryRequestMessage(null).build())
                     )
                     .pickupAddress(
-                            ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("010-9999-8888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("회수 요청사항").build())
+                            ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("01099998888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("회수 요청사항").build())
                     )
                     .orderProductStates(List.of())
                     .createdAt(LocalDateTime.now())
@@ -112,7 +112,7 @@ class OrderPickupAddressTest {
 
             // then
             assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("회수 수령인");
-            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-9999-8888");
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("01099998888");
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("54321");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("회수지 주소");
             assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("회수지 상세주소");
@@ -129,7 +129,7 @@ class OrderPickupAddressTest {
                 .orderStatus(OrderStatus.DELIVERED)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build()))
                 .shippingAddress(
-                        ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("배송 수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build())
+                        ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("배송 수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build())
                 )
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()

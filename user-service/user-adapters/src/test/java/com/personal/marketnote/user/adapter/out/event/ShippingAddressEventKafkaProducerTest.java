@@ -55,7 +55,7 @@ class ShippingAddressEventKafkaProducerTest {
 
         // when
         shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
 
         // then
@@ -79,7 +79,7 @@ class ShippingAddressEventKafkaProducerTest {
 
         // when
         shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
 
         // then
@@ -96,7 +96,7 @@ class ShippingAddressEventKafkaProducerTest {
         assertThat(payload.shippingAddressId()).isEqualTo(1L);
         assertThat(payload.userId()).isEqualTo(100L);
         assertThat(payload.recipientName()).isEqualTo("홍길동");
-        assertThat(payload.recipientPhoneNumber()).isEqualTo("010-1234-5678");
+        assertThat(payload.recipientPhoneNumber()).isEqualTo("01012345678");
         assertThat(payload.address()).isEqualTo("서울시 강남구 테헤란로 123");
         assertThat(payload.addressDetail()).isEqualTo("101동 1001호");
         assertThat(payload.action()).isEqualTo(ShippingAddressChangeAction.CREATED);
@@ -112,7 +112,7 @@ class ShippingAddressEventKafkaProducerTest {
 
         // when
         shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                2L, 200L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호", "NORMAL", ShippingAddressChangeAction.UPDATED
+                2L, 200L, "김철수", "01098765432", "서울시 서초구 서초대로 456", "202동 303호", "NORMAL", ShippingAddressChangeAction.UPDATED
         );
 
         // then
@@ -135,7 +135,7 @@ class ShippingAddressEventKafkaProducerTest {
 
         // when
         shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                3L, 300L, "이영희", "010-5555-6666", "서울시 마포구 월드컵로 789", "301동 501호", null, ShippingAddressChangeAction.DELETED
+                3L, 300L, "이영희", "01055556666", "서울시 마포구 월드컵로 789", "301동 501호", null, ShippingAddressChangeAction.DELETED
         );
 
         // then

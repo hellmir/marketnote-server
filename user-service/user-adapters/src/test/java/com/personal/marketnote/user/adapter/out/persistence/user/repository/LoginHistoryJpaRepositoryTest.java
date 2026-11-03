@@ -63,7 +63,7 @@ class LoginHistoryJpaRepositoryTest {
                         .email("login@test.com")
                         .password("encoded-password")
                         .fullName("테스트")
-                        .phoneNumber("010-9999-0001")
+                        .phoneNumber("01099990001")
                         .role(Role.getBuyer())
                         .userAuthProviders(List.of(UserAuthProvider.of(AuthVendor.KAKAO, "oidc-login")))
                         .userTerms(List.of())

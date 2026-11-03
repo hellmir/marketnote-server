@@ -68,7 +68,7 @@ import java.lang.annotation.*;
                 | nickname | string | 닉네임 | "고길동" |
                 | email | string | 이메일 주소 | "example@example.com" |
                 | fullName | string | 성명 | "홍길동" |
-                | phoneNumber | string | 전화번호 | "010-1234-5678" |
+                | phoneNumber | string | 전화번호 | "01012345678" |
                 | referenceCode | string | 참조 코드 | "1234567890" |
                 | roleId | string | 역할 ID | "ROLE_BUYER" |
                 | signedUpAt | string(datetime) | 가입 일시 | "2025-12-29T10:19:52.558748" |

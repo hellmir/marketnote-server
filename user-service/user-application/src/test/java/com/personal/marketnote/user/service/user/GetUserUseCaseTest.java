@@ -51,7 +51,7 @@ class GetUserUseCaseTest {
         String nickname = "tester";
         String email = "user@test.com";
         String fullName = "홍길동";
-        String phoneNumber = "010-1111-2222";
+        String phoneNumber = "01011112222";
         String referenceCode = "REF123";
         Role role = Role.getBuyer();
         List<UserAuthProvider> userAuthProviders = List.of(
@@ -132,7 +132,7 @@ class GetUserUseCaseTest {
         String nickname = "tester2";
         String email = "user2@test.com";
         String fullName = "김영희";
-        String phoneNumber = "010-2222-3333";
+        String phoneNumber = "01022223333";
         String referenceCode = "REF456";
         Role role = Role.getBuyer();
         List<UserAuthProvider> userAuthProviders = List.of(
@@ -493,7 +493,7 @@ class GetUserUseCaseTest {
                 "nick1",
                 "user1@test.com",
                 "홍길동",
-                "010-1000-0001",
+                "01010000001",
                 "REFONE",
                 Role.getBuyer(),
                 List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-1")),
@@ -508,7 +508,7 @@ class GetUserUseCaseTest {
                 "nick2",
                 "user2@test.com",
                 "김철수",
-                "010-1000-0002",
+                "01010000002",
                 "REFTWO",
                 Role.getBuyer(),
                 List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-2")),
@@ -550,7 +550,7 @@ class GetUserUseCaseTest {
         assertThat(first.nickname()).isEqualTo("nick1");
         assertThat(first.email()).isEqualTo("user1@test.com");
         assertThat(first.fullName()).isEqualTo("홍길동");
-        assertThat(first.phoneNumber()).isEqualTo("010-1000-0001");
+        assertThat(first.phoneNumber()).isEqualTo("01010000001");
         assertThat(first.referenceCode()).isEqualTo("REFONE");
         assertThat(first.roleId()).isEqualTo(Role.getBuyer().getId());
         assertThat(first.signedUpAt()).isEqualTo(LocalDateTime.of(2024, 3, 1, 9, 0));
@@ -568,7 +568,7 @@ class GetUserUseCaseTest {
         assertThat(second.nickname()).isEqualTo("nick2");
         assertThat(second.email()).isEqualTo("user2@test.com");
         assertThat(second.fullName()).isEqualTo("김철수");
-        assertThat(second.phoneNumber()).isEqualTo("010-1000-0002");
+        assertThat(second.phoneNumber()).isEqualTo("01010000002");
         assertThat(second.referenceCode()).isEqualTo("REFTWO");
         assertThat(second.roleId()).isEqualTo(Role.getBuyer().getId());
         assertThat(second.signedUpAt()).isEqualTo(LocalDateTime.of(2024, 3, 3, 9, 0));
@@ -707,7 +707,7 @@ class GetUserUseCaseTest {
                 "inactNick",
                 "inactive@test.com",
                 "비활성",
-                "010-2000-0001",
+                "01020000001",
                 "REF040",
                 Role.getBuyer(),
                 List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-40")),
@@ -772,7 +772,7 @@ class GetUserUseCaseTest {
                 "activeNick",
                 "active@test.com",
                 "활성",
-                "010-2000-0002",
+                "01020000002",
                 "REF041",
                 Role.getBuyer(),
                 List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-41")),
@@ -832,7 +832,7 @@ class GetUserUseCaseTest {
                 "inactInfo",
                 "inactinfo@test.com",
                 "비활성정보",
-                "010-3000-0001",
+                "01030000001",
                 "REF050",
                 Role.getBuyer(),
                 List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-50")),
@@ -868,7 +868,7 @@ class GetUserUseCaseTest {
                 "activeInfo",
                 "activeinfo@test.com",
                 "활성정보",
-                "010-3000-0002",
+                "01030000002",
                 "REF051",
                 Role.getBuyer(),
                 List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-51")),

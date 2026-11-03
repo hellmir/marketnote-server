@@ -5,9 +5,9 @@ public class RegularExpressionConstant {
     public static final String EMAIL_PATTERN = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     public static final String PASSWORD_PATTERN = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
     public static final String FULL_NAME_PATTERN = "^[가-힣]{2,10}$";
-    // 하이픈 포함(010-1234-5678 / 010-123-5678) 또는 미포함(01012345678 / 0101234567) 두 형식만 허용.
-    // 하이픈 혼용(예: 010-12345678, 0101234-5678)은 거부한다.
-    public static final String PHONE_NUMBER_PATTERN = "^(01[016789]-\\d{3,4}-\\d{4}|01[016789]\\d{7,8})$";
+    // Canonical 단일 패턴: 하이픈 없는 10~11자리(01[016789] + 7~8자리).
+    // 클라이언트 입력의 하이픈/공백은 Adapter 경계에서 PhoneNumberNormalizer 로 제거 후 도메인 VO 로 전달한다.
+    public static final String PHONE_NUMBER_PATTERN = "^01[016789]\\d{7,8}$";
     public static final String POSITIVE_INTEGER_PATTERN = "^([1-9]\\d*)$";
     public static final String ZERO_OR_POSITIVE_INTEGER_PATTERN = "^(0|[1-9]\\d*)$";
     public static final String RECIPIENT_NAME_PATTERN = "^[가-힣a-zA-Z\\s]{1,50}$";

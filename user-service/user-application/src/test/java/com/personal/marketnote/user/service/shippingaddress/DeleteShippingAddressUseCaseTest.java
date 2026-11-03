@@ -51,7 +51,7 @@ class DeleteShippingAddressUseCaseTest {
                 .addressDetail("4층")
                 .addressAlias("사무실")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .isDefault(false)
                 .regionType(ShippingAddressRegionType.NORMAL)
@@ -67,7 +67,7 @@ class DeleteShippingAddressUseCaseTest {
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verify(updateShippingAddressPort).update(shippingAddress);
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "4층", null, ShippingAddressChangeAction.DELETED
+                1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "4층", null, ShippingAddressChangeAction.DELETED
         );
         verifyNoMoreInteractions(findShippingAddressPort, updateShippingAddressPort);
     }
@@ -106,7 +106,7 @@ class DeleteShippingAddressUseCaseTest {
                 .address("서울시 강남구 테헤란로 456")
                 .addressDetail("101호")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .isDefault(false)
                 .regionType(ShippingAddressRegionType.NORMAL)
@@ -140,7 +140,7 @@ class DeleteShippingAddressUseCaseTest {
                 .addressDetail("5층")
                 .companyName("오포니티")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .isDefault(true)
                 .regionType(ShippingAddressRegionType.NORMAL)

@@ -310,7 +310,7 @@ class CancelPaymentUseCaseTest {
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of(productState))
                 .build();
         return Order.from(state);

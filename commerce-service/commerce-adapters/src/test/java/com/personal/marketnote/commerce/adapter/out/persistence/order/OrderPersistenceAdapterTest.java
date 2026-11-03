@@ -71,7 +71,7 @@ class OrderPersistenceAdapterTest {
                             shipping_region_type, created_at, modified_at)
                         VALUES (:buyerId, :orderKey, :orderNumber, :orderStatus,
                             50000, 45000, 0, 0, 3000,
-                            '홍길동', '010-1234-5678',
+                            '홍길동', '01012345678',
                             '06000', '서울시 강남구', '101호',
                             'LEAVE_AT_DOOR', '문 앞에 놔주세요',
                             'NORMAL', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
@@ -135,7 +135,7 @@ class OrderPersistenceAdapterTest {
             ).executeUpdate();
 
             OrderAmount amount = OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build());
-            ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놔주세요").build());
+            ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놔주세요").build());
 
             Order order = Order.from(
                     OrderCreateState.builder()
@@ -181,7 +181,7 @@ class OrderPersistenceAdapterTest {
                     OrderCreateState.builder()
                             .buyerId(1L)
                             .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
-                            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build()))
+                            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build()))
                             .orderProductStates(List.of(
                                     OrderProductCreateState.builder()
                                             .sellerId(10L).pricePolicyId(100L).quantity(1)
@@ -396,7 +396,7 @@ class OrderPersistenceAdapterTest {
                             .orderNumber(OrderNumber.of(orderEntity.getOrderNumber()))
                             .orderStatus(OrderStatus.PREPARING)
                             .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
-                            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놔주세요").build()))
+                            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놔주세요").build()))
                             .orderProductStates(List.of(
                                     OrderProductSnapshotState.builder()
                                             .orderId(orderEntity.getId())
@@ -447,7 +447,7 @@ class OrderPersistenceAdapterTest {
                             .orderNumber(OrderNumber.of("ORD-TEST-999"))
                             .orderStatus(OrderStatus.PAID)
                             .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
-                            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("06000").address("서울시").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build()))
+                            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build()))
                             .orderProductStates(List.of())
                             .build()
             );
@@ -579,7 +579,7 @@ class OrderPersistenceAdapterTest {
                             .orderNumber(OrderNumber.of(orderEntity.getOrderNumber()))
                             .orderStatus(OrderStatus.PREPARING)
                             .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
-                            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build()))
+                            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build()))
                             .orderProductStates(List.of(
                                     OrderProductSnapshotState.builder()
                                             .orderId(orderEntity.getId())

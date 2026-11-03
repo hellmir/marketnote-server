@@ -26,7 +26,7 @@ final class UserTestObjectFactory {
                 "tester",
                 "user@test.com",
                 "홍길동",
-                "010-1111-2222",
+                "01011112222",
                 "REF123",
                 Role.getBuyer(),
                 userAuthProviders,

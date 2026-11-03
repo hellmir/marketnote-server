@@ -283,7 +283,7 @@ class UpdateUserUseCaseTest {
     void updateUserInfo_updatesPhoneNumber() {
         // given
         Long id = 10L;
-        String phoneNumber = "010-1111-2222";
+        String phoneNumber = "01011112222";
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
                 .phoneNumber(phoneNumber)
                 .build();
@@ -311,7 +311,7 @@ class UpdateUserUseCaseTest {
     void updateUserInfo_duplicatePhoneNumber_throws() {
         // given
         Long id = 11L;
-        String phoneNumber = "010-3333-4444";
+        String phoneNumber = "01033334444";
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
                 .phoneNumber(phoneNumber)
                 .build();

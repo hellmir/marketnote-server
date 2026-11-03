@@ -40,7 +40,7 @@ class OrderPaymentCompletedSagaActionDispatcherTest {
     private PaymentCompletedSagaPayload buildPayload(String recipientName, String address) {
         return new PaymentCompletedSagaPayload(
                 1L, 50L, 80000L, 1000L, 500L,
-                recipientName, "010-1234-5678", "12345", address, "상세주소",
+                recipientName, "01012345678", "12345", address, "상세주소",
                 "문 앞에 놓아주세요",
                 Collections.emptyList()
         );
@@ -54,7 +54,7 @@ class OrderPaymentCompletedSagaActionDispatcherTest {
                 .pointAmount(1000L)
                 .totalAccumulatedPoint(500L)
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .zipCode("12345")
                 .address("서울시 강남구")
                 .addressDetail("상세주소")

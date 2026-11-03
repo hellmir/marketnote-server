@@ -8,6 +8,7 @@ import com.personal.marketnote.commerce.port.in.command.saga.OrderPaymentComplet
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.service.saga.OrderPaymentCompletedSagaStarter;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.common.utility.PhoneNumberNormalizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -51,6 +52,16 @@ public class OrderPaymentCompletedSagaActionDispatcher {
                 && FormatValidator.hasNoValue(payload.address())) {
             return null;
         }
-        return ShippingAddress.from(ShippingAddressCreateState.builder().recipientName(payload.recipientName()).recipientPhoneNumber(payload.recipientPhoneNumber()).zipCode(payload.zipCode()).address(payload.address()).addressDetail(payload.addressDetail()).deliveryRequestType(null).deliveryRequestMessage(payload.deliveryRequestMessage()).build());
+        return ShippingAddress.from(
+                ShippingAddressCreateState.builder()
+                        .recipientName(payload.recipientName())
+                        .recipientPhoneNumber(PhoneNumberNormalizer.normalize(payload.recipientPhoneNumber()))
+                        .zipCode(payload.zipCode())
+                        .address(payload.address())
+                        .addressDetail(payload.addressDetail())
+                        .deliveryRequestType(null)
+                        .deliveryRequestMessage(payload.deliveryRequestMessage())
+                        .build()
+        );
     }
 }

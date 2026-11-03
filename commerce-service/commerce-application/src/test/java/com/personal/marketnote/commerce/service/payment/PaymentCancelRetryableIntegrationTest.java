@@ -549,7 +549,7 @@ class PaymentCancelRetryableIntegrationTest {
                         .build()))
                 .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder()
                         .recipientName("수령인")
-                        .recipientPhoneNumber("010-1234-5678")
+                        .recipientPhoneNumber("01012345678")
                         .zipCode("12345")
                         .address("서울시 강남구")
                         .addressDetail("상세")

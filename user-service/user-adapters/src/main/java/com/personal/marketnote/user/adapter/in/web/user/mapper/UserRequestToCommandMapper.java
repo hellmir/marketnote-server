@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.adapter.in.web.user.mapper;
 
+import com.personal.marketnote.common.utility.PhoneNumberNormalizer;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignInRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignUpRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.UpdateUserInfoRequest;
@@ -17,7 +18,7 @@ public class UserRequestToCommandMapper {
                 .verificationCode(signUpRequest.getVerificationCode())
                 .nickname(signUpRequest.getNickname())
                 .fullName(signUpRequest.getFullName())
-                .phoneNumber(signUpRequest.getPhoneNumber())
+                .phoneNumber(PhoneNumberNormalizer.normalize(signUpRequest.getPhoneNumber()))
                 .fingerprint(signUpRequest.getFingerprint())
                 .build();
     }
@@ -31,7 +32,7 @@ public class UserRequestToCommandMapper {
                 .isActive(updateUserInfoRequest.getIsActive())
                 .email(updateUserInfoRequest.getEmail())
                 .nickname(updateUserInfoRequest.getNickname())
-                .phoneNumber(updateUserInfoRequest.getPhoneNumber())
+                .phoneNumber(PhoneNumberNormalizer.normalize(updateUserInfoRequest.getPhoneNumber()))
                 .password(updateUserInfoRequest.getPassword())
                 .build();
     }

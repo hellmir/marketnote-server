@@ -183,7 +183,7 @@ class RequestReturnUseCaseTest {
                     .reason("상품 불량")
                     .buyerId(buyerId)
                     .pickupRecipientName("회수 수령인")
-                    .pickupRecipientPhoneNumber("010-9999-8888")
+                    .pickupRecipientPhoneNumber("01099998888")
                     .pickupZipCode("54321")
                     .pickupAddress("회수지 주소")
                     .pickupAddressDetail("회수지 상세주소")
@@ -193,7 +193,7 @@ class RequestReturnUseCaseTest {
             requestReturnService.requestReturn(command);
 
             assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("회수 수령인");
-            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-9999-8888");
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("01099998888");
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("54321");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("회수지 주소");
             assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("회수지 상세주소");
@@ -217,7 +217,7 @@ class RequestReturnUseCaseTest {
             requestReturnService.requestReturn(command);
 
             assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("수령인");
-            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-1234-5678");
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("01012345678");
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("12345");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("서울시 강남구");
             assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("상세주소");
@@ -647,7 +647,7 @@ class RequestReturnUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(status)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(110000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(productStates)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -673,7 +673,7 @@ class RequestReturnUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.DELIVERED)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(110000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(productStates)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -699,7 +699,7 @@ class RequestReturnUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PARTIALLY_RETURN_REQUESTED)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(110000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(productStates)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -726,7 +726,7 @@ class RequestReturnUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(status)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(productStates)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())

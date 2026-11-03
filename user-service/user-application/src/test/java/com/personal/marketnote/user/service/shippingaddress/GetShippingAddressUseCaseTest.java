@@ -46,7 +46,7 @@ class GetShippingAddressUseCaseTest {
                         .companyName(null)
                         .addressAlias(null)
                         .recipientName("홍길동")
-                        .recipientPhoneNumber("010-1234-5678")
+                        .recipientPhoneNumber("01012345678")
                         .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
                         .deliveryRequestMessage("문 앞에 놓아주세요")
                         .isDefault(true)
@@ -68,7 +68,7 @@ class GetShippingAddressUseCaseTest {
         assertThat(result.companyName()).isNull();
         assertThat(result.addressAlias()).isNull();
         assertThat(result.recipientName()).isEqualTo("홍길동");
-        assertThat(result.recipientPhoneNumber()).isEqualTo("010-1234-5678");
+        assertThat(result.recipientPhoneNumber()).isEqualTo("01012345678");
         assertThat(result.deliveryRequestType()).isEqualTo(DeliveryRequestType.LEAVE_AT_DOOR);
         assertThat(result.deliveryRequestMessage()).isEqualTo("문 앞에 놓아주세요");
         assertThat(result.isDefault()).isTrue();

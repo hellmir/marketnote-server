@@ -55,7 +55,7 @@ class OrderEventKafkaProducerShippingTest {
         setUpClock();
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-        ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("06234").address("서울특별시 강남구 테헤란로 123").addressDetail("4층 401호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놓아주세요").build());
+        ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06234").address("서울특별시 강남구 테헤란로 123").addressDetail("4층 401호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놓아주세요").build());
 
         OrderProduct product = OrderProduct.from(OrderProductSnapshotState.builder()
                 .orderId(1L)
@@ -81,7 +81,7 @@ class OrderEventKafkaProducerShippingTest {
         OrderPaymentCompletedEvent payload = (OrderPaymentCompletedEvent) envelopeCaptor.getValue().payload();
 
         assertThat(payload.recipientName()).isEqualTo("홍길동");
-        assertThat(payload.recipientPhoneNumber()).isEqualTo("010-1234-5678");
+        assertThat(payload.recipientPhoneNumber()).isEqualTo("01012345678");
         assertThat(payload.zipCode()).isEqualTo("06234");
         assertThat(payload.address()).isEqualTo("서울특별시 강남구 테헤란로 123");
         assertThat(payload.addressDetail()).isEqualTo("4층 401호");
@@ -143,7 +143,7 @@ class OrderEventKafkaProducerShippingTest {
                     "totalAmount": 50000,
                     "pointAmount": 5000,
                     "recipientName": "홍길동",
-                    "recipientPhoneNumber": "010-1234-5678",
+                    "recipientPhoneNumber": "01012345678",
                     "zipCode": "06234",
                     "address": "서울시 강남구",
                     "addressDetail": "101호",

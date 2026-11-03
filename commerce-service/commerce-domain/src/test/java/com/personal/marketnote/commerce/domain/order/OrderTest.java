@@ -146,7 +146,7 @@ class OrderTest {
     @DisplayName("applyPickupAddress에 수령인이 있는 주소를 전달하면 해당 주소가 설정된다")
     void shouldApplyPickupAddressWhenRecipientNameExists() {
         Order order = createOrderWithStatus(OrderStatus.DELIVERED);
-        ShippingAddress pickupAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 담당자").recipientPhoneNumber("010-9999-8888").zipCode("12345").address("회수 주소").addressDetail("201호").deliveryRequestType(null).deliveryRequestMessage(null).build());
+        ShippingAddress pickupAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 담당자").recipientPhoneNumber("01099998888").zipCode("12345").address("회수 주소").addressDetail("201호").deliveryRequestType(null).deliveryRequestMessage(null).build());
 
         order.applyPickupAddress(pickupAddress);
 
@@ -571,6 +571,6 @@ class OrderTest {
     }
 
     private ShippingAddress createShippingAddress() {
-        return ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("06000").address("서울시 강남구").addressDetail("101동 202호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놓아주세요").build());
+        return ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시 강남구").addressDetail("101동 202호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놓아주세요").build());
     }
 }
