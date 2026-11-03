@@ -67,7 +67,7 @@ class OrderPaymentCompletedSagaStarterTest {
                 .pointAmount(20000L)
                 .totalAccumulatedPoint(1000L)
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .orderProducts(List.of(
                         new OrderProductItem(
                                 10L, 1000L, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 1, 50000L

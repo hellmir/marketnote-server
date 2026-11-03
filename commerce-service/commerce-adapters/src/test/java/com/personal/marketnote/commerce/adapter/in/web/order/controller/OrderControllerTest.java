@@ -323,7 +323,7 @@ class OrderControllerTest {
             when(request.getReasonCategory()).thenReturn(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND);
             when(request.getReason()).thenReturn("사이즈 교환");
             when(request.getPickupRecipientName()).thenReturn("홍길동");
-            when(request.getPickupRecipientPhoneNumber()).thenReturn("010-1234-5678");
+            when(request.getPickupRecipientPhoneNumber()).thenReturn("01012345678");
             when(request.getPickupZipCode()).thenReturn("12345");
             when(request.getPickupAddress()).thenReturn("서울시 강남구");
             when(request.getPickupAddressDetail()).thenReturn("101호");

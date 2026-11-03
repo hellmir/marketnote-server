@@ -7,6 +7,7 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.ShippingAddressChangedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.common.utility.PhoneNumberNormalizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -84,7 +85,7 @@ public class ShippingAddressChangedReadModelConsumer {
 
             saveShippingAddressReadModelPort.upsert(
                     payload.shippingAddressId(), payload.userId(),
-                    payload.recipientName(), payload.recipientPhoneNumber(),
+                    payload.recipientName(), PhoneNumberNormalizer.normalize(payload.recipientPhoneNumber()),
                     payload.address(), payload.addressDetail(),
                     payload.regionType()
             );

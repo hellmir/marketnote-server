@@ -43,7 +43,7 @@ class GetOrderStatusHistoryUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD" + id))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(95000L).couponAmount(3000L).pointAmount(2000L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.of(2026, 2, 20, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 2, 20, 10, 0))

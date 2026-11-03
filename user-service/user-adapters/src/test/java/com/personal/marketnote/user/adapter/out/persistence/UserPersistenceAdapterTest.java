@@ -162,10 +162,10 @@ class UserPersistenceAdapterTest {
         @DisplayName("existsByPhoneNumber는 리포지토리에 위임한다")
         void existsByPhoneNumberDelegates() {
             // given
-            when(userJpaRepository.existsByPhoneNumber("010-1234-5678")).thenReturn(true);
+            when(userJpaRepository.existsByPhoneNumber("01012345678")).thenReturn(true);
 
             // when
-            boolean result = userPersistenceAdapter.existsByPhoneNumber("010-1234-5678");
+            boolean result = userPersistenceAdapter.existsByPhoneNumber("01012345678");
 
             // then
             assertThat(result).isTrue();

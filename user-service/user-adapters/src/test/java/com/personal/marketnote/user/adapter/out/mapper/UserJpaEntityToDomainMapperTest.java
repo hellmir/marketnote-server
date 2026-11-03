@@ -50,7 +50,7 @@ class UserJpaEntityToDomainMapperTest {
             String email = "test@example.com";
             String password = "encoded-password";
             String fullName = "홍길동";
-            String phoneNumber = "010-0001-0001";
+            String phoneNumber = "01000010001";
             String referenceCode = "ABC123";
             String referredUserCode = "DEF456";
             LocalDateTime signedUpAt = LocalDateTime.of(2026, 1, 1, 0, 0);
@@ -326,7 +326,7 @@ class UserJpaEntityToDomainMapperTest {
             when(userJpaEntity.getEmail()).thenReturn("test@example.com");
             when(userJpaEntity.getPassword()).thenReturn("encoded-password");
             when(userJpaEntity.getFullName()).thenReturn("홍길동");
-            when(userJpaEntity.getPhoneNumber()).thenReturn("010-0001-0001");
+            when(userJpaEntity.getPhoneNumber()).thenReturn("01000010001");
             when(userJpaEntity.getReferenceCode()).thenReturn("ABC123");
             when(userJpaEntity.getReferredUserCode()).thenReturn("DEF456");
             when(userJpaEntity.getUserOauth2VendorsJpaEntities()).thenReturn(List.of());

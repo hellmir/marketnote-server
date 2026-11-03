@@ -57,7 +57,7 @@ import java.lang.annotation.*;
                 | reason | string | 반품 사유 | N | "상품 불량" |
                 | pricePolicyIds | array&lt;number&gt; | 반품 대상 가격정책 ID 리스트 (미입력/빈 배열 = 전체 반품) | N | [101, 102] |
                 | pickupRecipientName | string | 회수지 수령인명 | N | "홍길동" |
-                | pickupRecipientPhoneNumber | string | 회수지 연락처 | N | "010-1234-5678" |
+                | pickupRecipientPhoneNumber | string | 회수지 연락처 | N | "01012345678" |
                 | pickupZipCode | string | 회수지 우편번호 | N | "12345" |
                 | pickupAddress | string | 회수지 주소 | N | "서울시 강남구" |
                 | pickupAddressDetail | string | 회수지 상세주소 | N | "테헤란로 123" |
@@ -94,7 +94,7 @@ import java.lang.annotation.*;
                                   "reason": "상품 불량",
                                   "pricePolicyIds": [101, 102],
                                   "pickupRecipientName": "홍길동",
-                                  "pickupRecipientPhoneNumber": "010-1234-5678",
+                                  "pickupRecipientPhoneNumber": "01012345678",
                                   "pickupZipCode": "12345",
                                   "pickupAddress": "서울시 강남구",
                                   "pickupAddressDetail": "테헤란로 123",

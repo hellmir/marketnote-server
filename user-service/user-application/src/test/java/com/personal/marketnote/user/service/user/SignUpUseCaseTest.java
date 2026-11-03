@@ -211,7 +211,7 @@ class SignUpUseCaseTest {
     void signUp_duplicatePhone_throws() {
         // given
         String email = "user@test.com";
-        String phone = "010-1111-2222";
+        String phone = "01011112222";
         SignUpCommand command = createCommand(email, null, "123456", "tester", "홍길동", phone);
 
         when(findUserPort.existsByAuthVendorAndOidcId(any(), anyString())).thenReturn(false);

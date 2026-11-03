@@ -60,7 +60,7 @@ class RegisterShippingAddressUseCaseTest {
                 .address("서울시 강남구 테헤란로 123")
                 .addressDetail("101동 1001호")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
                 .isDefault(false)
                 .build();
@@ -90,7 +90,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
         verifyNoInteractions(updateShippingAddressPort);
     }
@@ -107,7 +107,7 @@ class RegisterShippingAddressUseCaseTest {
                 .addressDetail("201동 502호")
                 .addressAlias("친구 집")
                 .recipientName("김철수")
-                .recipientPhoneNumber("010-9876-5432")
+                .recipientPhoneNumber("01098765432")
                 .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
                 .isDefault(true)
                 .build();
@@ -142,7 +142,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 마포구 월드컵로 456");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                2L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                2L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
     }
 
@@ -157,7 +157,7 @@ class RegisterShippingAddressUseCaseTest {
                 .address("서울시 강남구 테헤란로 123")
                 .addressDetail("101동 1001호")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .isDefault(false)
                 .build();
 
@@ -186,7 +186,7 @@ class RegisterShippingAddressUseCaseTest {
                 .addressDetail("5층")
                 .companyName("테스트 회사")
                 .recipientName("이영희")
-                .recipientPhoneNumber("010-5555-6666")
+                .recipientPhoneNumber("01055556666")
                 .isDefault(false)
                 .build();
 
@@ -215,7 +215,7 @@ class RegisterShippingAddressUseCaseTest {
                 .addressDetail("301동 801호")
                 .addressAlias("기타 주소")
                 .recipientName("박민수")
-                .recipientPhoneNumber("010-7777-8888")
+                .recipientPhoneNumber("01077778888")
                 .isDefault(false)
                 .build();
 
@@ -243,7 +243,7 @@ class RegisterShippingAddressUseCaseTest {
                 .address("서울시 강남구 테헤란로 123")
                 .addressDetail("101동 1001호")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(null)
                 .isDefault(false)
                 .build();
@@ -270,7 +270,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
         verifyNoInteractions(updateShippingAddressPort);
     }
@@ -287,7 +287,7 @@ class RegisterShippingAddressUseCaseTest {
                 .addressDetail("401동 1202호")
                 .addressAlias("부모님 댁")
                 .recipientName("홍부모")
-                .recipientPhoneNumber("010-3333-4444")
+                .recipientPhoneNumber("01033334444")
                 .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
                 .isDefault(false)
                 .build();
@@ -317,7 +317,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 용산구 이태원로 200");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                3L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                3L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
         verifyNoInteractions(updateShippingAddressPort);
     }
@@ -334,7 +334,7 @@ class RegisterShippingAddressUseCaseTest {
                 .address("서울시 강남구 테헤란로 123")
                 .addressDetail("101동 1001호")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.CUSTOM)
                 .deliveryRequestMessage(message)
                 .isDefault(false)
@@ -363,7 +363,7 @@ class RegisterShippingAddressUseCaseTest {
                         && message.equals(sa.getDeliveryRequestMessage().getValue())
         ));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
     }
 
@@ -379,7 +379,7 @@ class RegisterShippingAddressUseCaseTest {
                 .address("서울시 강남구 테헤란로 123")
                 .addressDetail("101동 1001호")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.CUSTOM)
                 .deliveryRequestMessage(message)
                 .isDefault(false)
@@ -412,7 +412,7 @@ class RegisterShippingAddressUseCaseTest {
                 .address("서울시 강남구 테헤란로 123")
                 .addressDetail("101동 1001호")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
                 .deliveryRequestMessage("이 메시지는 무시되어야 합니다")
                 .isDefault(false)
@@ -440,7 +440,7 @@ class RegisterShippingAddressUseCaseTest {
                         && sa.getDeliveryRequestMessage() == null
         ));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
     }
 
@@ -456,7 +456,7 @@ class RegisterShippingAddressUseCaseTest {
                 .addressDetail("201동 502호")
                 .addressAlias(null)
                 .recipientName("김철수")
-                .recipientPhoneNumber("010-9876-5432")
+                .recipientPhoneNumber("01098765432")
                 .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
                 .isDefault(false)
                 .build();
@@ -482,7 +482,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 마포구 월드컵로 456");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                5L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                5L, 1L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
         );
     }
 
@@ -498,7 +498,7 @@ class RegisterShippingAddressUseCaseTest {
                 .address(jejuAddress)
                 .addressDetail("101동 201호")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .isDefault(false)
                 .build();
@@ -536,7 +536,7 @@ class RegisterShippingAddressUseCaseTest {
                 .address(islandAddress)
                 .addressDetail("101호")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .isDefault(false)
                 .build();
@@ -574,7 +574,7 @@ class RegisterShippingAddressUseCaseTest {
                 .address(normalAddress)
                 .addressDetail("101동 1001호")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .isDefault(false)
                 .build();
@@ -612,7 +612,7 @@ class RegisterShippingAddressUseCaseTest {
                 .address(impossibleAddress)
                 .addressDetail("101호")
                 .recipientName("홍길동")
-                .recipientPhoneNumber("010-1234-5678")
+                .recipientPhoneNumber("01012345678")
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .isDefault(false)
                 .build();
@@ -647,7 +647,7 @@ class RegisterShippingAddressUseCaseTest {
                         .address("서울시 강남구 테헤란로 123")
                         .addressDetail("101동 1001호")
                         .recipientName("홍길동")
-                        .recipientPhoneNumber("010-1234-5678")
+                        .recipientPhoneNumber("01012345678")
                         .deliveryRequestType(DeliveryRequestType.NONE)
                         .isDefault(isDefault)
                         .regionType(regionType)

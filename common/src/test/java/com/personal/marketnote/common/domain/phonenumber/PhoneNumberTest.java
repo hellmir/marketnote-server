@@ -16,35 +16,26 @@ class PhoneNumberTest {
     class OfFactory {
 
         @Test
-        @DisplayName("유효한 전화번호(010-1234-5678)로 생성 시 정상 생성된다")
-        void shouldCreatePhoneNumberWith010() {
-            PhoneNumber phoneNumber = PhoneNumber.of("010-1234-5678");
-
-            assertThat(phoneNumber.getValue()).isEqualTo("010-1234-5678");
-        }
-
-        @Test
-        @DisplayName("유효한 전화번호(011-123-4567)로 생성 시 정상 생성된다")
-        void shouldCreatePhoneNumberWith011ShortMiddle() {
-            PhoneNumber phoneNumber = PhoneNumber.of("011-123-4567");
-
-            assertThat(phoneNumber.getValue()).isEqualTo("011-123-4567");
-        }
-
-        @Test
-        @DisplayName("하이픈 없는 11자리 번호(01012345678)로 생성 시 정상 생성된다")
-        void shouldCreatePhoneNumberWithHyphenlessElevenDigits() {
+        @DisplayName("canonical 11자리(01012345678)로 생성 시 정상 생성된다")
+        void shouldCreatePhoneNumberWithCanonicalElevenDigits() {
             PhoneNumber phoneNumber = PhoneNumber.of("01012345678");
 
             assertThat(phoneNumber.getValue()).isEqualTo("01012345678");
         }
 
         @Test
-        @DisplayName("하이픈 없는 10자리 번호(0101234567)로 생성 시 정상 생성된다")
-        void shouldCreatePhoneNumberWithHyphenlessTenDigits() {
+        @DisplayName("canonical 10자리(0101234567)로 생성 시 정상 생성된다")
+        void shouldCreatePhoneNumberWithCanonicalTenDigits() {
             PhoneNumber phoneNumber = PhoneNumber.of("0101234567");
 
             assertThat(phoneNumber.getValue()).isEqualTo("0101234567");
+        }
+
+        @Test
+        @DisplayName("하이픈 포함(010-1234-5678)으로 생성 시 InvalidPhoneNumberException을 던진다")
+        void shouldThrowWhenHyphenated() {
+            assertThatThrownBy(() -> PhoneNumber.of("010-1234-5678"))
+                    .isInstanceOf(InvalidPhoneNumberException.class);
         }
 
         @Test
@@ -55,16 +46,9 @@ class PhoneNumberTest {
         }
 
         @Test
-        @DisplayName("하이픈 혼용(0101234-5678)으로 생성 시 InvalidPhoneNumberException을 던진다")
-        void shouldThrowWhenHyphenPartiallyMissingPrefix() {
-            assertThatThrownBy(() -> PhoneNumber.of("0101234-5678"))
-                    .isInstanceOf(InvalidPhoneNumberException.class);
-        }
-
-        @Test
-        @DisplayName("비허용 앞자리(012-1234-5678)로 생성 시 InvalidPhoneNumberException을 던진다")
+        @DisplayName("비허용 앞자리(01212345678)로 생성 시 InvalidPhoneNumberException을 던진다")
         void shouldThrowWhenInvalidPrefix() {
-            assertThatThrownBy(() -> PhoneNumber.of("012-1234-5678"))
+            assertThatThrownBy(() -> PhoneNumber.of("01212345678"))
                     .isInstanceOf(InvalidPhoneNumberException.class);
         }
 
@@ -88,20 +72,20 @@ class PhoneNumberTest {
     class EqualityContract {
 
         @Test
-        @DisplayName("같은 값이면 동등하다")
+        @DisplayName("같은 canonical 값이면 동등하다")
         void shouldBeEqualWhenSameValue() {
-            PhoneNumber a = PhoneNumber.of("010-1234-5678");
-            PhoneNumber b = PhoneNumber.of("010-1234-5678");
+            PhoneNumber a = PhoneNumber.of("01012345678");
+            PhoneNumber b = PhoneNumber.of("01012345678");
 
             assertThat(a).isEqualTo(b);
             assertThat(a.hashCode()).isEqualTo(b.hashCode());
         }
 
         @Test
-        @DisplayName("다른 값이면 동등하지 않다")
+        @DisplayName("다른 canonical 값이면 동등하지 않다")
         void shouldNotBeEqualWhenDifferentValue() {
-            PhoneNumber a = PhoneNumber.of("010-1234-5678");
-            PhoneNumber b = PhoneNumber.of("010-1234-5679");
+            PhoneNumber a = PhoneNumber.of("01012345678");
+            PhoneNumber b = PhoneNumber.of("01012345679");
 
             assertThat(a).isNotEqualTo(b);
         }
@@ -114,9 +98,9 @@ class PhoneNumberTest {
         @Test
         @DisplayName("toString은 원본 값을 노출하지 않는다")
         void shouldNotLeakRawValueInToString() {
-            PhoneNumber phoneNumber = PhoneNumber.of("010-1234-5678");
+            PhoneNumber phoneNumber = PhoneNumber.of("01012345678");
 
-            assertThat(phoneNumber.toString()).doesNotContain("010-1234-5678");
+            assertThat(phoneNumber.toString()).doesNotContain("01012345678");
             assertThat(phoneNumber.toString()).contains("***");
         }
     }

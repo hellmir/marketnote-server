@@ -56,7 +56,7 @@ class UserJpaRepositoryFindAllStatusTest {
     @DisplayName("findAllStatusUserByAuthVendorAndOidcId는 ACTIVE 회원을 조회한다")
     void findAllStatusReturnsActiveUser() {
         Long savedId = persistUser(
-                "activeUser", "010-1111-2222", "active@test.com",
+                "activeUser", "01011112222", "active@test.com",
                 AuthVendor.KAKAO, "oidc-active", EntityStatus.ACTIVE
         );
 
@@ -73,7 +73,7 @@ class UserJpaRepositoryFindAllStatusTest {
     @DisplayName("findAllStatusUserByAuthVendorAndOidcId는 INACTIVE 회원도 조회한다")
     void findAllStatusReturnsInactiveUser() {
         Long savedId = persistUser(
-                "inactUser", "010-1111-3333", "inactive@test.com",
+                "inactUser", "01011113333", "inactive@test.com",
                 AuthVendor.KAKAO, "oidc-inactive", EntityStatus.INACTIVE
         );
 
@@ -90,7 +90,7 @@ class UserJpaRepositoryFindAllStatusTest {
     @DisplayName("findAllStatusUserByAuthVendorAndOidcId는 UNEXPOSED 회원도 조회한다")
     void findAllStatusReturnsUnexposedUser() {
         Long savedId = persistUser(
-                "hiddenUser", "010-1111-4444", "hidden@test.com",
+                "hiddenUser", "01011114444", "hidden@test.com",
                 AuthVendor.KAKAO, "oidc-hidden", EntityStatus.UNEXPOSED
         );
 
@@ -107,7 +107,7 @@ class UserJpaRepositoryFindAllStatusTest {
     @DisplayName("기존 findByAuthVendorAndOidcId는 여전히 INACTIVE 회원을 조회하지 않는다")
     void existingQueryStillExcludesInactiveUser() {
         persistUser(
-                "legacyUser", "010-1111-5555", "legacy@test.com",
+                "legacyUser", "01011115555", "legacy@test.com",
                 AuthVendor.KAKAO, "oidc-legacy", EntityStatus.INACTIVE
         );
 
@@ -136,16 +136,16 @@ class UserJpaRepositoryFindAllStatusTest {
         void returnsAllActiveUsersWhenKeywordEmpty() {
             // given
             persistUser(
-                    "sentOne", "010-2000-0001", "sentinel1@test.com",
+                    "sentOne", "01020000001", "sentinel1@test.com",
                     AuthVendor.KAKAO, "oidc-sentinel-1", EntityStatus.ACTIVE
             );
             persistUser(
-                    "sentTwo", "010-2000-0002", "sentinel2@test.com",
+                    "sentTwo", "01020000002", "sentinel2@test.com",
                     AuthVendor.KAKAO, "oidc-sentinel-2", EntityStatus.ACTIVE
             );
             // INACTIVE 사용자: 결과에 포함되지 않아야 함
             persistUser(
-                    "sentOff", "010-2000-0003", "sentinel3@test.com",
+                    "sentOff", "01020000003", "sentinel3@test.com",
                     AuthVendor.KAKAO, "oidc-sentinel-3", EntityStatus.INACTIVE
             );
 
@@ -166,11 +166,11 @@ class UserJpaRepositoryFindAllStatusTest {
         void filtersByNicknameWhenByNicknameTrue() {
             // given
             persistUser(
-                    "alphaNick", "010-2100-0001", "alpha@test.com",
+                    "alphaNick", "01021000001", "alpha@test.com",
                     AuthVendor.KAKAO, "oidc-alpha", EntityStatus.ACTIVE
             );
             persistUser(
-                    "betaNick", "010-2100-0002", "beta@test.com",
+                    "betaNick", "01021000002", "beta@test.com",
                     AuthVendor.KAKAO, "oidc-beta", EntityStatus.ACTIVE
             );
 
@@ -189,7 +189,7 @@ class UserJpaRepositoryFindAllStatusTest {
         void returnsEmptyWhenKeywordPresentButAllFlagsFalse() {
             // given
             persistUser(
-                    "flagOff", "010-2200-0001", "flagoff@test.com",
+                    "flagOff", "01022000001", "flagoff@test.com",
                     AuthVendor.KAKAO, "oidc-flagoff", EntityStatus.ACTIVE
             );
 
@@ -207,7 +207,7 @@ class UserJpaRepositoryFindAllStatusTest {
         void matchesNicknameCaseInsensitively() {
             // given
             persistUser(
-                    "MixNick", "010-2300-0001", "mixed@test.com",
+                    "MixNick", "01023000001", "mixed@test.com",
                     AuthVendor.KAKAO, "oidc-mixed", EntityStatus.ACTIVE
             );
 

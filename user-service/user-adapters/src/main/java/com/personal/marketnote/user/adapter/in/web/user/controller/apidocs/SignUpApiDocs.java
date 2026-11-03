@@ -32,7 +32,7 @@ import java.lang.annotation.*;
                 
                     - 닉네임: 한글만 가능하며, 6글자 이하여야 합니다.
                 
-                    - 전화번호: dash를 포함하여 010-1234-5678과 같은 형식이어야 합니다.
+                    - 전화번호: dash를 포함하여 01012345678과 같은 형식이어야 합니다.
                 
                     ~- 비밀번호: 8자 이상, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.~
                 
@@ -51,7 +51,7 @@ import java.lang.annotation.*;
                 | verificationCode | string | 인증 코드 | Y | "NZW32E" |
                 | nickname | string | 닉네임(2~20자, 한글) | N | "고길동" |
                 | fullName | string | 성명(2~10자, 한글) | N | "홍길동" |
-                | phoneNumber | string | 전화번호(형식: 010-1234-5678) | N | "010-1234-5678" |
+                | phoneNumber | string | 전화번호(형식: 01012345678) | N | "01012345678" |
                 
                 ---
                 

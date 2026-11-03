@@ -216,9 +216,9 @@ class UserTest {
         @Test
         @DisplayName("동일 전화번호이면 SameUpdateTargetException이 발생한다")
         void shouldThrowWhenSamePhoneNumber() {
-            User user = createUserWithPhoneNumber("010-1234-5678");
+            User user = createUserWithPhoneNumber("01012345678");
 
-            assertThatThrownBy(() -> user.validateDifferentPhoneNumber(PhoneNumber.of("010-1234-5678")))
+            assertThatThrownBy(() -> user.validateDifferentPhoneNumber(PhoneNumber.of("01012345678")))
                     .isInstanceOf(SameUpdateTargetException.class);
         }
     }
@@ -391,7 +391,7 @@ class UserTest {
                 .userKey(UUID.randomUUID())
                 .nickname(Nickname.of("테스트유저"))
                 .email("test@example.com")
-                .phoneNumber("010-1234-5678")
+                .phoneNumber("01012345678")
                 .role(Role.getBuyer())
                 .userAuthProviders(new ArrayList<>())
                 .userTerms(List.of())

@@ -152,7 +152,7 @@ class ActivateExpiredDeactivationUseCaseTest {
                 "user" + id,
                 "user" + id + "@test.com",
                 "테스터" + id,
-                "010-9000-000" + (id % 10),
+                "0109000000" + (id % 10),
                 "REF0" + String.format("%02d", id % 100),
                 com.personal.marketnote.user.domain.authentication.Role.getBuyer(),
                 List.of(),
