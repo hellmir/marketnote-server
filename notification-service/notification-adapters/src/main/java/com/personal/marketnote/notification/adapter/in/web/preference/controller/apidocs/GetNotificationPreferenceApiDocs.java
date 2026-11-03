@@ -27,8 +27,10 @@ import java.lang.annotation.*;
                 - 인증된 사용자의 알림 수신 설정 전체 목록을 조회합니다.
                 
                 - NotificationType별 수신 여부(enabled)와 수신 동의 시점(consentedAt)을 반환합니다.
-                
-                - 회원 가입 시 모든 알림 타입이 enabled=true로 초기화됩니다.
+
+                - 회원 가입 시 MARKETING(마케팅)을 제외한 모든 알림 타입이 enabled=true로 초기화됩니다.
+
+                - MARKETING 타입은 정보통신망법 제50조 광고성 정보 수신 옵트인 원칙에 따라 enabled=false로 초기화됩니다.
                 
                 ---
                 
@@ -81,6 +83,12 @@ import java.lang.annotation.*;
                                               "description": "이벤트",
                                               "enabled": true,
                                               "consentedAt": "2026-06-03T10:00:00"
+                                            },
+                                            {
+                                              "notificationType": "MARKETING",
+                                              "description": "마케팅",
+                                              "enabled": false,
+                                              "consentedAt": null
                                             }
                                           ],
                                           "message": "알림 수신 설정 조회 성공"

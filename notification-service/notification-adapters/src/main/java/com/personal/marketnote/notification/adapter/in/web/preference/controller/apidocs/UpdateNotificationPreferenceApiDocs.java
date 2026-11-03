@@ -30,7 +30,7 @@ import java.lang.annotation.*;
                 
                 - enabled=true로 변경 시 consentedAt(수신 동의 시점)이 현재 시점으로 기록됩니다.
                 
-                - 광고성 알림(EVENT 등)의 수신 동의 시점 기록은 정보통신망법 준수를 위한 것입니다.
+                - 광고성 알림(EVENT, MARKETING 등)의 수신 동의 시점 기록은 정보통신망법 제50조 준수를 위한 것입니다.
                 
                 ---
                 
