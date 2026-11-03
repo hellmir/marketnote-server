@@ -5,33 +5,30 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
 @Getter
 public class UserAuthProvider {
     private User user;
-    private final AuthVendor authVendor;
+    private AuthVendor authVendor;
     private String oidcId;
 
-    private UserAuthProvider(AuthVendor authVendor) {
-        this.authVendor = authVendor;
-    }
-
-    private UserAuthProvider(AuthVendor authVendor, String oidcId) {
-        this.authVendor = authVendor;
-        this.oidcId = oidcId;
-    }
-
     static UserAuthProvider of(AuthVendor authVendor) {
-        return new UserAuthProvider(authVendor);
+        return UserAuthProvider.builder()
+                .authVendor(authVendor)
+                .build();
     }
 
-    public static UserAuthProvider of(
-            AuthVendor authVendor,
-            String oidcId
-    ) {
-        return new UserAuthProvider(authVendor, oidcId);
+    public static UserAuthProvider of(AuthVendor authVendor, String oidcId) {
+        return UserAuthProvider.builder()
+                .authVendor(authVendor)
+                .oidcId(oidcId)
+                .build();
     }
 
     public void addUser(User user) {
