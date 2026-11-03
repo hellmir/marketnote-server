@@ -13,7 +13,7 @@ public record GetBoardCategoriesResult(
                 Arrays.stream(postCategories)
                         .map(
                                 category -> BoardCategoryItemResult.of(
-                                        category.getCode(), category.getDescription()
+                                        category.getCode(), category.getDescription(), category.isDefault()
                                 )
                         )
                         .toList()

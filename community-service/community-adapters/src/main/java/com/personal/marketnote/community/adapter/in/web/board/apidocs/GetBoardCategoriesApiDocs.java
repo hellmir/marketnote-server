@@ -61,11 +61,12 @@ import java.lang.annotation.*;
                 ---
                 
                 ### Response > content > categories
-                
+
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | name | string | 카테고리명 | "ORDER_DELIVERY" |
                 | description | string | 카테고리 설명 | "주문, 결제, 배송 관련 문의" |
+                | isDefault | boolean | default 카테고리 여부 | true |
                 """,
         parameters = {
                 @Parameter(
@@ -90,23 +91,28 @@ import java.lang.annotation.*;
                                             "categories": [
                                               {
                                                 "name": "ORDER_DELIVERY",
-                                                "description": "주문, 결제, 배송 관련 문의"
+                                                "description": "주문, 결제, 배송 관련 문의",
+                                                "isDefault": true
                                               },
                                               {
                                                 "name": "CANCEL_RETURN",
-                                                "description": "취소, 반품, 환불 관련 문의"
+                                                "description": "취소, 반품, 환불 관련 문의",
+                                                "isDefault": false
                                               },
                                               {
                                                 "name": "BENEFIT_REWARD",
-                                                "description": "앱 내 보상 및 적립 관련 문의"
+                                                "description": "앱 내 보상 및 적립 관련 문의",
+                                                "isDefault": false
                                               },
                                               {
                                                 "name": "PRODUCT",
-                                                "description": "제품 및 오픈 관련 문의"
+                                                "description": "제품 및 오픈 관련 문의",
+                                                "isDefault": false
                                               },
                                               {
                                                 "name": "ACCOUNT",
-                                                "description": "회원정보 및 계정 관련 문의"
+                                                "description": "회원정보 및 계정 관련 문의",
+                                                "isDefault": false
                                               }
                                             ]
                                           },

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 class GetBoardUseCaseTest {
     private final GetBoardService getBoardService = new GetBoardService();
@@ -299,6 +300,37 @@ class GetBoardUseCaseTest {
             assertThat(first.categories())
                     .as("%s 게시판의 멱등성 검사", board.name())
                     .isEqualTo(second.categories());
+        }
+    }
+
+    @Test
+    @DisplayName("FAQ 게시판의 ORDER_DELIVERY만 default 카테고리이다")
+    void getCategories_faq_onlyOrderDeliveryIsDefault() {
+        GetBoardCategoriesResult result = getBoardService.getCategories(Board.FAQ);
+
+        assertThat(result.categories())
+                .extracting(BoardCategoryItemResult::name, BoardCategoryItemResult::isDefault)
+                .containsExactly(
+                        tuple("ORDER_DELIVERY", true),
+                        tuple("CANCEL_RETURN", false),
+                        tuple("BENEFIT_REWARD", false),
+                        tuple("PRODUCT", false),
+                        tuple("ACCOUNT", false)
+                );
+    }
+
+    @Test
+    @DisplayName("FAQ 외 게시판은 default 카테고리가 존재하지 않는다")
+    void getCategories_nonFaqBoards_haveNoDefaultCategory() {
+        List<Board> nonFaqBoards = List.of(Board.NOTICE, Board.PRODUCT_INQUERY, Board.ONE_ON_ONE_INQUERY);
+
+        for (Board board : nonFaqBoards) {
+            GetBoardCategoriesResult result = getBoardService.getCategories(board);
+
+            assertThat(result.categories())
+                    .as("%s 게시판의 default 카테고리 부재 검사", board.name())
+                    .extracting(BoardCategoryItemResult::isDefault)
+                    .containsOnly(false);
         }
     }
 
