@@ -1,7 +1,9 @@
 package com.personal.marketnote.user.adapter.in.web.user.controller;
 
+import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignInRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignUpRequest;
+import com.personal.marketnote.user.adapter.in.web.user.response.IsReferredUserCodeRegisteredResponse;
 import com.personal.marketnote.user.port.in.result.SignInResult;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.port.in.usecase.user.*;
@@ -301,6 +303,49 @@ class UserControllerTest {
 
             // then
             verify(signUpUseCase).signUp(any(), any(), any(), eq("127.0.0.1"));
+        }
+    }
+
+    @Nested
+    @DisplayName("isReferredUserCodeRegistered - 추천 회원 초대 코드 등록 여부 조회")
+    class IsReferredUserCodeRegisteredTest {
+
+        @Test
+        @DisplayName("추천 코드가 등록되어 있으면 isRegistered=true로 응답한다")
+        void shouldReturnTrueWhenRegistered() {
+            // given
+            OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
+            when(principal.getName()).thenReturn("42");
+            when(getUserUseCase.isReferredUserCodeRegistered(42L)).thenReturn(true);
+
+            // when
+            ResponseEntity<BaseResponse<IsReferredUserCodeRegisteredResponse>> response =
+                    userController.isReferredUserCodeRegistered(principal);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getContent().isRegistered()).isTrue();
+            verify(getUserUseCase).isReferredUserCodeRegistered(42L);
+        }
+
+        @Test
+        @DisplayName("추천 코드가 등록되어 있지 않으면 isRegistered=false로 응답한다")
+        void shouldReturnFalseWhenNotRegistered() {
+            // given
+            OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
+            when(principal.getName()).thenReturn("7");
+            when(getUserUseCase.isReferredUserCodeRegistered(7L)).thenReturn(false);
+
+            // when
+            ResponseEntity<BaseResponse<IsReferredUserCodeRegisteredResponse>> response =
+                    userController.isReferredUserCodeRegistered(principal);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getContent().isRegistered()).isFalse();
+            verify(getUserUseCase).isReferredUserCodeRegistered(7L);
         }
     }
 
