@@ -27,8 +27,8 @@ class InitializeNotificationPreferenceUseCaseTest {
     private SaveNotificationPreferencePort saveNotificationPreferencePort;
 
     @Test
-    @DisplayName("모든 알림 타입에 대해 수신 설정을 enabled=true로 초기화한다")
-    void shouldInitializeAllNotificationTypesAsEnabled() {
+    @DisplayName("각 알림 타입의 기본 수신 설정(defaultEnabled)에 따라 초기화한다")
+    void shouldInitializePreferencesAccordingToDefaultEnabled() {
         // given
         InitializeNotificationPreferenceCommand command = new InitializeNotificationPreferenceCommand(100L);
         ArgumentCaptor<List<NotificationPreference>> captor = ArgumentCaptor.forClass(List.class);
@@ -43,8 +43,9 @@ class InitializeNotificationPreferenceUseCaseTest {
         assertThat(saved).hasSize(NotificationType.values().length);
         assertThat(saved).allSatisfy(preference -> {
             assertThat(preference.getUserId()).isEqualTo(100L);
-            assertThat(preference.isEnabled()).isTrue();
             assertThat(preference.getConsentedAt()).isNull();
+            assertThat(preference.isEnabled())
+                    .isEqualTo(preference.getNotificationType().isDefaultEnabled());
         });
         assertThat(saved)
                 .extracting(NotificationPreference::getNotificationType)

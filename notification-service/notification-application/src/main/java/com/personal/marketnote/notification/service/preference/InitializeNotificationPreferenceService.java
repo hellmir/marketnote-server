@@ -28,7 +28,7 @@ public class InitializeNotificationPreferenceService implements InitializeNotifi
                 .map(type -> NotificationPreference.from(NotificationPreferenceCreateState.builder()
                         .userId(command.userId())
                         .notificationType(type)
-                        .enabled(true)
+                        .enabled(type.isDefaultEnabled())
                         .build()))
                 .toList();
 
