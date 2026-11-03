@@ -8,4 +8,8 @@ public interface PostCategory {
     }
 
     String getDescription();
+
+    default boolean isDefault() {
+        return false;
+    }
 }
