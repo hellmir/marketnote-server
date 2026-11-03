@@ -32,9 +32,32 @@ class PhoneNumberTest {
         }
 
         @Test
-        @DisplayName("하이픈 없는 번호(01012345678)로 생성 시 InvalidPhoneNumberException을 던진다")
-        void shouldThrowWhenNoHyphen() {
-            assertThatThrownBy(() -> PhoneNumber.of("01012345678"))
+        @DisplayName("하이픈 없는 11자리 번호(01012345678)로 생성 시 정상 생성된다")
+        void shouldCreatePhoneNumberWithHyphenlessElevenDigits() {
+            PhoneNumber phoneNumber = PhoneNumber.of("01012345678");
+
+            assertThat(phoneNumber.getValue()).isEqualTo("01012345678");
+        }
+
+        @Test
+        @DisplayName("하이픈 없는 10자리 번호(0101234567)로 생성 시 정상 생성된다")
+        void shouldCreatePhoneNumberWithHyphenlessTenDigits() {
+            PhoneNumber phoneNumber = PhoneNumber.of("0101234567");
+
+            assertThat(phoneNumber.getValue()).isEqualTo("0101234567");
+        }
+
+        @Test
+        @DisplayName("하이픈 혼용(010-12345678)으로 생성 시 InvalidPhoneNumberException을 던진다")
+        void shouldThrowWhenHyphenPartiallyMissingSuffix() {
+            assertThatThrownBy(() -> PhoneNumber.of("010-12345678"))
+                    .isInstanceOf(InvalidPhoneNumberException.class);
+        }
+
+        @Test
+        @DisplayName("하이픈 혼용(0101234-5678)으로 생성 시 InvalidPhoneNumberException을 던진다")
+        void shouldThrowWhenHyphenPartiallyMissingPrefix() {
+            assertThatThrownBy(() -> PhoneNumber.of("0101234-5678"))
                     .isInstanceOf(InvalidPhoneNumberException.class);
         }
 
