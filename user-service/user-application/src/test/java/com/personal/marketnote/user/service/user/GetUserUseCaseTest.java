@@ -3,9 +3,12 @@ package com.personal.marketnote.user.service.user;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.user.domain.authentication.Role;
+import com.personal.marketnote.user.domain.user.Nickname;
+import com.personal.marketnote.user.domain.user.ReferenceCode;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.domain.user.UserAuthProvider;
 import com.personal.marketnote.user.domain.user.UserSearchTarget;
+import com.personal.marketnote.user.domain.user.UserSnapshotState;
 import com.personal.marketnote.user.domain.user.UserSortProperty;
 import com.personal.marketnote.user.port.in.result.AccountResult;
 import com.personal.marketnote.user.port.in.result.GetUserInfoResult;
@@ -889,6 +892,71 @@ class GetUserUseCaseTest {
 
         verify(findUserPort).findAllStatusUserById(id);
         verifyNoMoreInteractions(findUserPort);
+    }
+
+    @Test
+    @DisplayName("추천인 코드가 등록된 회원을 조회하면 true를 반환한다")
+    void isReferredUserCodeRegistered_registered_returnsTrue() {
+        // given
+        Long id = 100L;
+        User user = createUserWithReferredUserCode(id, "INVCD1");
+        when(findUserPort.findById(id)).thenReturn(Optional.of(user));
+
+        // when
+        boolean result = getUserService.isReferredUserCodeRegistered(id);
+
+        // then
+        assertThat(result).isTrue();
+        verify(findUserPort).findById(id);
+        verifyNoMoreInteractions(findUserPort);
+    }
+
+    @Test
+    @DisplayName("추천인 코드가 등록되지 않은 회원을 조회하면 false를 반환한다")
+    void isReferredUserCodeRegistered_notRegistered_returnsFalse() {
+        // given
+        Long id = 101L;
+        User user = createUserWithReferredUserCode(id, null);
+        when(findUserPort.findById(id)).thenReturn(Optional.of(user));
+
+        // when
+        boolean result = getUserService.isReferredUserCodeRegistered(id);
+
+        // then
+        assertThat(result).isFalse();
+        verify(findUserPort).findById(id);
+        verifyNoMoreInteractions(findUserPort);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 회원 ID로 조회하면 UserNotFoundException이 발생한다")
+    void isReferredUserCodeRegistered_userNotFound_throwsException() {
+        // given
+        Long id = 999L;
+        when(findUserPort.findById(id)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> getUserService.isReferredUserCodeRegistered(id))
+                .isInstanceOf(UserNotFoundException.class);
+
+        verify(findUserPort).findById(id);
+        verifyNoMoreInteractions(findUserPort);
+    }
+
+    private User createUserWithReferredUserCode(Long id, String referredUserCode) {
+        UserSnapshotState state = UserSnapshotState.builder()
+                .id(id)
+                .userKey(UUID.fromString("00000000-0000-0000-0000-000000000099"))
+                .nickname(Nickname.of("refuser"))
+                .referenceCode(ReferenceCode.of("OWNCD1"))
+                .referredUserCode(referredUserCode == null ? null : ReferenceCode.of(referredUserCode))
+                .role(Role.getBuyer())
+                .userAuthProviders(List.of())
+                .userTerms(List.of())
+                .status(EntityStatus.ACTIVE)
+                .withdrawalYn(false)
+                .build();
+        return User.from(state);
     }
 
 }

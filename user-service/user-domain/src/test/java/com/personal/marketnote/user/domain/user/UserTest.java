@@ -171,6 +171,27 @@ class UserTest {
     }
 
     @Nested
+    @DisplayName("hasReferredUserCode")
+    class HasReferredUserCode {
+
+        @Test
+        @DisplayName("추천인 코드가 등록되어 있으면 true를 반환한다")
+        void shouldReturnTrueWhenReferredUserCodeExists() {
+            User user = createUserWithReferredUserCode("INVCD1");
+
+            assertThat(user.hasReferredUserCode()).isTrue();
+        }
+
+        @Test
+        @DisplayName("추천인 코드가 등록되어 있지 않으면 false를 반환한다")
+        void shouldReturnFalseWhenReferredUserCodeIsNull() {
+            User user = createActiveUser();
+
+            assertThat(user.hasReferredUserCode()).isFalse();
+        }
+    }
+
+    @Nested
     @DisplayName("validateDifferent")
     class ValidateDifferent {
 
