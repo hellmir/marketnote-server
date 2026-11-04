@@ -171,6 +171,7 @@ def buildPrometheusTaskDefinition(env) {
                 "--web.console.templates=/usr/share/prometheus/consoles"
             ],
             environment: [
+                [name: "ENVIRONMENT",               value: "${env.ENVIRONMENT_UPPER.toLowerCase()}"],
                 [name: "FULFILLMENT_PRIVATE_IP",    value: "${env.FULFILLMENT_PRIVATE_IP}"],
                 [name: "KAFKA_BROKER_1_PRIVATE_IP", value: "${env.KAFKA_BROKER_1_PRIVATE_IP}"],
                 [name: "KAFKA_BROKER_2_PRIVATE_IP", value: "${env.KAFKA_BROKER_2_PRIVATE_IP}"],
@@ -745,7 +746,8 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					sh 'test -f monitoring/prometheus/Dockerfile'
-					sh 'test -f monitoring/prometheus/prometheus.yml'
+					sh 'test -f monitoring/prometheus/prometheus-qa.yml.tmpl'
+					sh 'test -f monitoring/prometheus/prometheus-prod.yml.tmpl'
 					def prometheusTag = "prometheus:${env.PROJECT_VERSION}"
 					env.PROMETHEUS_LOCAL_TAG = prometheusTag
 					sh """
