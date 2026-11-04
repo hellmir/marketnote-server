@@ -201,6 +201,42 @@ class RequestReturnUseCaseTest {
         }
 
         @Test
+        @DisplayName("하이픈 포함 회수지 전화번호를 입력하면 fulfillment에 canonical 값이 전달되고 나머지 pickup 필드는 command 값 그대로 전달된다")
+        void requestReturn_withHyphenatedPickupPhoneNumber_passesCanonicalToFulfillment() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.ETC)
+                    .buyerId(buyerId)
+                    .pickupRecipientName("회수 수령인")
+                    .pickupRecipientPhoneNumber("010-9999-8888")
+                    .pickupZipCode("54321")
+                    .pickupAddress("회수지 주소")
+                    .pickupAddressDetail("회수지 상세주소")
+                    .build();
+
+            requestReturnService.requestReturn(command);
+
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue())
+                    .isEqualTo("01099998888");
+
+            ArgumentCaptor<RegisterFulfillmentReturnDeliveryCommand> captor =
+                    ArgumentCaptor.forClass(RegisterFulfillmentReturnDeliveryCommand.class);
+            verify(createReturnTrackerAfterReturnRequestService).createReturnTracker(captor.capture());
+
+            RegisterFulfillmentReturnDeliveryCommand deliveryCommand = captor.getValue();
+            assertThat(deliveryCommand.pickupRecipientPhoneNumber()).isEqualTo("01099998888");
+            assertThat(deliveryCommand.pickupRecipientName()).isEqualTo("회수 수령인");
+            assertThat(deliveryCommand.pickupZipCode()).isEqualTo("54321");
+            assertThat(deliveryCommand.pickupAddress()).isEqualTo("회수지 주소");
+            assertThat(deliveryCommand.pickupAddressDetail()).isEqualTo("회수지 상세주소");
+        }
+
+        @Test
         @DisplayName("회수지 주소를 미입력하면 배송지가 회수지 기본값으로 적용된다")
         void requestReturn_withoutPickupAddress_appliesShippingAddressAsDefault() {
             Long orderId = 1L;

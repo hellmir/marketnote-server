@@ -5,8 +5,11 @@ import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+
+import static com.personal.marketnote.common.utility.RegularExpressionConstant.PHONE_NUMBER_INPUT_PATTERN;
 
 @Getter
 public class RegisterShippingAddressRequest {
@@ -41,6 +44,10 @@ public class RegisterShippingAddressRequest {
     @Schema(name = "recipientPhoneNumber", description = "휴대폰 번호 (최대 15자)", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "휴대폰 번호는 필수값입니다.")
     @Size(max = 15, message = "휴대폰 번호는 최대 15자까지 입력할 수 있습니다.")
+    @Pattern(
+            regexp = PHONE_NUMBER_INPUT_PATTERN,
+            message = "휴대폰 번호 형식이 올바르지 않습니다. (예: 01012345678, 010-1234-5678)"
+    )
     private String recipientPhoneNumber;
 
     @Schema(name = "deliveryRequestType", description = "배송 요청사항 타입", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

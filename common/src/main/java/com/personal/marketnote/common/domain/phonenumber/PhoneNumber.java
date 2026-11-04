@@ -15,6 +15,8 @@ public final class PhoneNumber {
     private static final String INVALID_FORMAT_MESSAGE = "전화번호 형식이 올바르지 않습니다.";
     private static final Pattern PHONE_NUMBER_PATTERN = Pattern.compile(RegularExpressionConstant.PHONE_NUMBER_PATTERN);
     private static final String MASKED_TOSTRING = "PhoneNumber{value=***}";
+    private static final String HYPHEN = "-";
+    private static final String EMPTY = "";
 
     private final String value;
 
@@ -23,10 +25,11 @@ public final class PhoneNumber {
     }
 
     @JsonCreator
-    public static PhoneNumber of(String value) {
-        validateNotBlank(value);
-        validateFormat(value);
-        return new PhoneNumber(value);
+    public static PhoneNumber of(String raw) {
+        validateNotBlank(raw);
+        String canonical = raw.replace(HYPHEN, EMPTY);
+        validateFormat(canonical);
+        return new PhoneNumber(canonical);
     }
 
     @JsonValue

@@ -2,7 +2,6 @@ package com.personal.marketnote.commerce.adapter.in.web.order.mapper;
 
 import com.personal.marketnote.commerce.adapter.in.web.order.request.*;
 import com.personal.marketnote.commerce.port.in.command.order.*;
-import com.personal.marketnote.common.utility.PhoneNumberNormalizer;
 
 import java.util.List;
 
@@ -56,7 +55,7 @@ public class OrderRequestToCommandMapper {
                 .buyerId(buyerId)
                 .pricePolicyIds(request.getPricePolicyIds())
                 .pickupRecipientName(request.getPickupRecipientName())
-                .pickupRecipientPhoneNumber(PhoneNumberNormalizer.normalize(request.getPickupRecipientPhoneNumber()))
+                .pickupRecipientPhoneNumber(request.getPickupRecipientPhoneNumber())
                 .pickupZipCode(request.getPickupZipCode())
                 .pickupAddress(request.getPickupAddress())
                 .pickupAddressDetail(request.getPickupAddressDetail())

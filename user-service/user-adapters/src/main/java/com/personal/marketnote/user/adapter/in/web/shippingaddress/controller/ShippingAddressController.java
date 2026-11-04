@@ -2,7 +2,6 @@ package com.personal.marketnote.user.adapter.in.web.shippingaddress.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
-import com.personal.marketnote.common.utility.PhoneNumberNormalizer;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.*;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.request.RegisterShippingAddressRequest;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.request.UpdateShippingAddressRequest;
@@ -73,7 +72,7 @@ public class ShippingAddressController {
                         .companyName(request.getCompanyName())
                         .addressAlias(request.getAddressAlias())
                         .recipientName(request.getRecipientName())
-                        .recipientPhoneNumber(PhoneNumberNormalizer.normalize(request.getRecipientPhoneNumber()))
+                        .recipientPhoneNumber(request.getRecipientPhoneNumber())
                         .deliveryRequestType(request.getDeliveryRequestType())
                         .deliveryRequestMessage(request.getDeliveryRequestMessage())
                         .isDefault(request.getIsDefault())
@@ -196,7 +195,7 @@ public class ShippingAddressController {
                         .companyName(request.getCompanyName())
                         .addressAlias(request.getAddressAlias())
                         .recipientName(request.getRecipientName())
-                        .recipientPhoneNumber(PhoneNumberNormalizer.normalize(request.getRecipientPhoneNumber()))
+                        .recipientPhoneNumber(request.getRecipientPhoneNumber())
                         .deliveryRequestType(request.getDeliveryRequestType())
                         .deliveryRequestMessage(request.getDeliveryRequestMessage())
                         .build()
