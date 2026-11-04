@@ -13,6 +13,7 @@ import com.personal.marketnote.commerce.port.out.fulfillment.RegisterFulfillment
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.service.returntracker.CreateReturnTrackerAfterReturnRequestService;
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -176,6 +177,10 @@ public class RequestReturnService implements RequestReturnUseCase {
                 ? command.reasonCategory().getDescription()
                 : "";
 
+        String pickupPhoneCanonical = FormatValidator.hasValue(command.pickupRecipientPhoneNumber())
+                ? PhoneNumber.of(command.pickupRecipientPhoneNumber()).getValue()
+                : null;
+
         return RegisterFulfillmentReturnDeliveryCommand.builder()
                 .orderId(command.id())
                 .orderDate(orderDate)
@@ -183,7 +188,7 @@ public class RequestReturnService implements RequestReturnUseCase {
                 .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber().getValue())
                 .recipientAddress(fullAddress)
                 .pickupRecipientName(command.pickupRecipientName())
-                .pickupRecipientPhoneNumber(command.pickupRecipientPhoneNumber())
+                .pickupRecipientPhoneNumber(pickupPhoneCanonical)
                 .pickupZipCode(command.pickupZipCode())
                 .pickupAddress(command.pickupAddress())
                 .pickupAddressDetail(command.pickupAddressDetail())

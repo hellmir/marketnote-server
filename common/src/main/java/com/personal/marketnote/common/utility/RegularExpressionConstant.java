@@ -6,8 +6,12 @@ public class RegularExpressionConstant {
     public static final String PASSWORD_PATTERN = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
     public static final String FULL_NAME_PATTERN = "^[가-힣]{2,10}$";
     // Canonical 단일 패턴: 하이픈 없는 10~11자리(01[016789] + 7~8자리).
-    // 클라이언트 입력의 하이픈/공백은 Adapter 경계에서 PhoneNumberNormalizer 로 제거 후 도메인 VO 로 전달한다.
+    // 하이픈 제거는 PhoneNumber VO 내부에서 수행된다.
+    // Request DTO 의 경계 검증에는 하이픈 허용 PHONE_NUMBER_INPUT_PATTERN 을 사용한다.
     public static final String PHONE_NUMBER_PATTERN = "^01[016789]\\d{7,8}$";
+    // DTO 경계 검증용. canonical 또는 하이픈 포함 입력 둘 다 수용.
+    // VO 생성 시 canonical 로 정규화됨.
+    public static final String PHONE_NUMBER_INPUT_PATTERN = "^01[016789]-?\\d{3,4}-?\\d{4}$";
     public static final String POSITIVE_INTEGER_PATTERN = "^([1-9]\\d*)$";
     public static final String ZERO_OR_POSITIVE_INTEGER_PATTERN = "^(0|[1-9]\\d*)$";
     public static final String RECIPIENT_NAME_PATTERN = "^[가-힣a-zA-Z\\s]{1,50}$";

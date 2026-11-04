@@ -11,7 +11,6 @@ import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.saga.SagaResponsePublisher;
 import com.personal.marketnote.common.saga.SagaStepMessage;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.common.utility.PhoneNumberNormalizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -115,7 +114,7 @@ public class OrderPaymentCompletedSagaConsumer {
                 .pointAmount(payload.pointAmount())
                 .totalAccumulatedPoint(payload.totalAccumulatedPoint())
                 .recipientName(payload.recipientName())
-                .recipientPhoneNumber(PhoneNumberNormalizer.normalize(payload.recipientPhoneNumber()))
+                .recipientPhoneNumber(payload.recipientPhoneNumber())
                 .zipCode(payload.zipCode())
                 .address(payload.address())
                 .addressDetail(payload.addressDetail())

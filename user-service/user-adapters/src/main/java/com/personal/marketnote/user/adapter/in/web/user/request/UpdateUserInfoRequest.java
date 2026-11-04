@@ -5,8 +5,9 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
 import static com.personal.marketnote.common.utility.RegularExpressionConstant.NICKNAME_PATTERN;
+import static com.personal.marketnote.common.utility.RegularExpressionConstant.PHONE_NUMBER_INPUT_PATTERN;
 
-// FIXME: 정규 표현식 재적용
+// FIXME: password 정규식 재적용 (별도 이슈)
 @Getter
 public class UpdateUserInfoRequest {
     @Schema(
@@ -35,6 +36,10 @@ public class UpdateUserInfoRequest {
             name = "phoneNumber",
             description = "전화번호",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    @Pattern(
+            regexp = PHONE_NUMBER_INPUT_PATTERN,
+            message = "전화번호 형식이 올바르지 않습니다. (예: 01012345678, 010-1234-5678)"
     )
     private String phoneNumber;
 

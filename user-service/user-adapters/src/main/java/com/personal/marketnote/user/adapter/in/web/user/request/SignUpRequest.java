@@ -55,6 +55,10 @@ public class SignUpRequest {
             description = "전화번호",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
+    @Pattern(
+            regexp = PHONE_NUMBER_INPUT_PATTERN,
+            message = "전화번호 형식이 올바르지 않습니다. (예: 01012345678, 010-1234-5678)"
+    )
     private String phoneNumber;
 
     @Schema(
