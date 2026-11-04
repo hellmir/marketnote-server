@@ -169,6 +169,46 @@ class SendNotificationUseCaseTest {
         }
 
         @Test
+        @DisplayName("MARKETING 타입 알림 발송 시 수신 미동의(enabled=false) 사용자에게는 SKIPPED 반환하고 이벤트를 발행하지 않는다")
+        void shouldReturnSkippedForDisabledMarketing() {
+            // given
+            String marketingTemplateCode = "MARKETING";
+            SendNotificationCommand command = new SendNotificationCommand(
+                    USER_ID, marketingTemplateCode, Map.of(), "PUSH_ONLY", null
+            );
+            NotificationTemplate template = NotificationTemplate.from(
+                    NotificationTemplateSnapshotState.builder()
+                            .id(2L)
+                            .templateCode(marketingTemplateCode)
+                            .notificationType(NotificationType.MARKETING)
+                            .notificationCategory(NotificationCategory.PROMOTIONAL)
+                            .title("마케팅 알림")
+                            .bodyTemplate("마케팅 본문")
+                            .urlTemplate("/marketing")
+                            .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                            .createdAt(LocalDateTime.now())
+                            .modifiedAt(LocalDateTime.now())
+                            .build()
+            );
+            when(findNotificationTemplatePort.findActiveByTemplateCode(marketingTemplateCode))
+                    .thenReturn(Optional.of(template));
+            NotificationPreference preference = mock(NotificationPreference.class);
+            when(preference.isEnabled()).thenReturn(false);
+            when(findNotificationPreferencePort.findByUserIdAndNotificationType(
+                    USER_ID, NotificationType.MARKETING
+            )).thenReturn(Optional.of(preference));
+            when(saveNotificationPort.save(any(Notification.class)))
+                    .thenAnswer(invocation -> withId(invocation.getArgument(0), 200L));
+
+            // when
+            SendNotificationResult result = sendNotificationService.sendNotification(command);
+
+            // then
+            assertThat(result.sendStatus()).isEqualTo("SKIPPED");
+            verifyNoInteractions(applicationEventPublisher);
+        }
+
+        @Test
         @DisplayName("PROMOTIONAL 카테고리에서 수신 설정 미존재이면 SKIPPED 반환하고 이벤트를 발행하지 않는다")
         void shouldReturnSkippedWhenPreferenceNotFound() {
             // given

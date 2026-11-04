@@ -114,6 +114,41 @@ class UpdateNotificationPreferenceUseCaseTest {
     }
 
     @Test
+    @DisplayName("MARKETING 수신 설정을 활성화하면 enabled=true, consentedAt이 현재 시점으로 기록된다")
+    void shouldEnableMarketingPreference() {
+        // given
+        Long userId = 100L;
+        NotificationPreference preference = NotificationPreference.from(
+                NotificationPreferenceSnapshotState.builder()
+                        .id(1L)
+                        .userId(userId)
+                        .notificationType(NotificationType.MARKETING)
+                        .enabled(false)
+                        .consentedAt(null)
+                        .status(ACTIVE)
+                        .createdAt(LocalDateTime.of(2026, 4, 1, 0, 0))
+                        .modifiedAt(LocalDateTime.of(2026, 4, 1, 0, 0))
+                        .build()
+        );
+
+        when(findNotificationPreferencePort.findByUserIdAndNotificationType(userId, NotificationType.MARKETING))
+                .thenReturn(Optional.of(preference));
+
+        UpdateNotificationPreferenceCommand command = new UpdateNotificationPreferenceCommand(userId, "MARKETING", true);
+
+        // when
+        updateNotificationPreferenceService.updateNotificationPreference(command);
+
+        // then
+        ArgumentCaptor<NotificationPreference> captor = ArgumentCaptor.forClass(NotificationPreference.class);
+        verify(updateNotificationPreferencePort).update(captor.capture());
+
+        NotificationPreference updated = captor.getValue();
+        assertThat(updated.isEnabled()).isTrue();
+        assertThat(updated.getConsentedAt()).isEqualTo(LocalDateTime.of(2026, 4, 9, 19, 0, 0));
+    }
+
+    @Test
     @DisplayName("존재하지 않는 알림 수신 설정을 변경하면 예외가 발생한다")
     void shouldThrowExceptionWhenPreferenceNotFound() {
         // given
