@@ -89,6 +89,43 @@ class GetNotificationPreferenceUseCaseTest {
     }
 
     @Test
+    @DisplayName("알림 수신 설정 조회 응답에 MARKETING 항목이 포함된다")
+    void shouldIncludeMarketingInResponse() {
+        // given
+        Long userId = 100L;
+        LocalDateTime createdAt = LocalDateTime.of(2026, 4, 22, 10, 0, 0);
+
+        NotificationPreference marketingPreference = NotificationPreference.from(
+                NotificationPreferenceSnapshotState.builder()
+                        .id(10L)
+                        .userId(userId)
+                        .notificationType(NotificationType.MARKETING)
+                        .enabled(false)
+                        .consentedAt(null)
+                        .status(ACTIVE)
+                        .createdAt(createdAt)
+                        .modifiedAt(createdAt)
+                        .build()
+        );
+
+        when(findNotificationPreferencePort.findAllByUserId(userId))
+                .thenReturn(List.of(marketingPreference));
+
+        // when
+        List<GetNotificationPreferenceResult> results = getNotificationPreferenceService.getNotificationPreferences(
+                userId
+        );
+
+        // then
+        assertThat(results).hasSize(1);
+        GetNotificationPreferenceResult marketingResult = results.get(0);
+        assertThat(marketingResult.notificationType()).isEqualTo("MARKETING");
+        assertThat(marketingResult.description()).isEqualTo("마케팅");
+        assertThat(marketingResult.enabled()).isFalse();
+        assertThat(marketingResult.consentedAt()).isNull();
+    }
+
+    @Test
     @DisplayName("알림 수신 설정이 없으면 빈 목록을 반환한다")
     void shouldReturnEmptyListWhenNoPreferencesExist() {
         // given
