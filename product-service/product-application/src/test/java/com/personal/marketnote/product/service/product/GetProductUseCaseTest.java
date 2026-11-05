@@ -1,6 +1,9 @@
 package com.personal.marketnote.product.service.product;
 
+import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
+import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.option.ProductOptionCategory;
 import com.personal.marketnote.product.domain.option.ProductOptionCategorySnapshotState;
@@ -108,8 +111,9 @@ class GetProductUseCaseTest {
     @Test
     @DisplayName("첫 페이지 상품 목록 조회 시 ReadModel 기반으로 전체 개수와 Next Cursor를 반환한다")
     void getProducts_firstPage_returnsTotalElementsAndNextCursor() {
+        stubProductImageExecutor();
         ProductCatalogItemResult item1 = buildCatalogItem(100L, 10L, "상품10",
-                "https://cdn/c10.jpg", List.of("https://cdn/c10-sm.jpg"), 7, new BigDecimal("4.20"), 5);
+                null, null, 7, new BigDecimal("4.20"), 5);
         ProductCatalogItemResult item2 = buildCatalogItem(200L, 20L, "상품20",
                 null, null, 0, BigDecimal.ZERO, 0);
         ProductCatalogItemResult itemOverflow = buildCatalogItem(300L, 30L, "상품30",
@@ -123,6 +127,10 @@ class GetProductUseCaseTest {
         when(findProductCatalogReadModelPort.countCatalogItems(
                 isNull(), eq(ProductSearchTarget.NAME), eq("키워드")
         )).thenReturn(100L);
+
+        stubCatalogImage(10L, "https://cdn/c10.jpg", List.of("https://cdn/c10-sm.jpg"));
+        when(findProductImagesPort.findImagesByProductIdAndSort(20L, FileSort.PRODUCT_CATALOG_IMAGE))
+                .thenReturn(Optional.empty());
 
         GetProductsResult result = getProductService.getProducts(
                 null, null, -1L, 2,
@@ -154,6 +162,7 @@ class GetProductUseCaseTest {
     @Test
     @DisplayName("첫 페이지가 아니면(Cursor 값 존재) 총 개수 조회를 생략한다")
     void getProducts_withCursor_skipsTotalElements() {
+        stubProductImageExecutor();
         ProductCatalogItemResult item = buildCatalogItem(400L, 40L, "상품40",
                 null, null, 3, BigDecimal.ZERO, 0);
 
@@ -161,6 +170,9 @@ class GetProductUseCaseTest {
                 eq(5L), isNull(), eq(100L), eq(3), eq(true),
                 eq(ProductSortProperty.ORDER_NUM), eq(ProductSearchTarget.BRAND_NAME), eq("브랜드")
         )).thenReturn(List.of(item));
+
+        when(findProductImagesPort.findImagesByProductIdAndSort(40L, FileSort.PRODUCT_CATALOG_IMAGE))
+                .thenReturn(Optional.empty());
 
         GetProductsResult result = getProductService.getProducts(
                 5L, null, 100L, 2,
@@ -179,8 +191,9 @@ class GetProductUseCaseTest {
     @Test
     @DisplayName("가격 정책 ID 목록으로 조회 시 ReadModel Port 로 필터링한다")
     void getProducts_withPricePolicyIds_passesFilter() {
+        stubProductImageExecutor();
         ProductCatalogItemResult item = buildCatalogItem(500L, 50L, "상품50",
-                "https://cdn/c50.jpg", List.of(), 9, BigDecimal.ZERO, 0);
+                null, null, 9, BigDecimal.ZERO, 0);
 
         when(findProductCatalogReadModelPort.findCatalogItems(
                 isNull(), eq(List.of(500L)), eq(-1L), eq(2), eq(false),
@@ -190,6 +203,9 @@ class GetProductUseCaseTest {
         when(findProductCatalogReadModelPort.countCatalogItems(
                 isNull(), eq(ProductSearchTarget.NAME), isNull()
         )).thenReturn(1L);
+
+        when(findProductImagesPort.findImagesByProductIdAndSort(50L, FileSort.PRODUCT_CATALOG_IMAGE))
+                .thenReturn(Optional.empty());
 
         GetProductsResult result = getProductService.getProducts(
                 null, List.of(500L), -1L, 1,
@@ -226,8 +242,87 @@ class GetProductUseCaseTest {
     }
 
     @Test
+    @DisplayName("상품 목록 조회 시 각 상품 ID로 PRODUCT_CATALOG_IMAGE 정렬의 이미지를 조회한다")
+    void getProducts_callsFindImagesByProductCatalogImageSortPerProduct() {
+        stubProductImageExecutor();
+        ProductCatalogItemResult item1 = buildCatalogItem(100L, 10L, "상품10", null, null, 0, BigDecimal.ZERO, 0);
+        ProductCatalogItemResult item2 = buildCatalogItem(200L, 20L, "상품20", null, null, 0, BigDecimal.ZERO, 0);
+
+        when(findProductCatalogReadModelPort.findCatalogItems(any(), any(), any(), anyInt(), anyBoolean(), any(), any(), any()))
+                .thenReturn(List.of(item1, item2));
+        when(findProductCatalogReadModelPort.countCatalogItems(any(), any(), any())).thenReturn(2L);
+        when(findProductImagesPort.findImagesByProductIdAndSort(10L, FileSort.PRODUCT_CATALOG_IMAGE))
+                .thenReturn(Optional.empty());
+        when(findProductImagesPort.findImagesByProductIdAndSort(20L, FileSort.PRODUCT_CATALOG_IMAGE))
+                .thenReturn(Optional.empty());
+
+        getProductService.getProducts(null, null, -1L, 2, Sort.Direction.DESC, ProductSortProperty.POPULARITY, ProductSearchTarget.NAME, null);
+
+        verify(findProductImagesPort).findImagesByProductIdAndSort(10L, FileSort.PRODUCT_CATALOG_IMAGE);
+        verify(findProductImagesPort).findImagesByProductIdAndSort(20L, FileSort.PRODUCT_CATALOG_IMAGE);
+    }
+
+    @Test
+    @DisplayName("image_read_models 첫 번째 이미지 URL이 응답 catalogImage.storageUrl 에 매핑된다")
+    void getProducts_firstImageFromReadModelMappedToCatalogImage() {
+        stubProductImageExecutor();
+        ProductCatalogItemResult item = buildCatalogItem(100L, 10L, "상품10", null, null, 0, BigDecimal.ZERO, 0);
+
+        when(findProductCatalogReadModelPort.findCatalogItems(any(), any(), any(), anyInt(), anyBoolean(), any(), any(), any()))
+                .thenReturn(List.of(item));
+        when(findProductCatalogReadModelPort.countCatalogItems(any(), any(), any())).thenReturn(1L);
+        stubCatalogImage(10L, "https://cdn/img10.jpg", List.of("https://cdn/img10-sm.jpg"));
+
+        GetProductsResult result = getProductService.getProducts(
+                null, null, -1L, 1, Sort.Direction.DESC, ProductSortProperty.POPULARITY, ProductSearchTarget.NAME, null
+        );
+
+        assertThat(result.products().getFirst().getCatalogImage()).isNotNull();
+        assertThat(result.products().getFirst().getCatalogImage().storageUrl()).isEqualTo("https://cdn/img10.jpg");
+    }
+
+    @Test
+    @DisplayName("image_read_models 조회 결과가 없으면 catalogImage 는 null 이다")
+    void getProducts_noImageFromReadModel_catalogImageIsNull() {
+        stubProductImageExecutor();
+        ProductCatalogItemResult item = buildCatalogItem(100L, 10L, "상품10", null, null, 3, BigDecimal.ZERO, 0);
+
+        when(findProductCatalogReadModelPort.findCatalogItems(any(), any(), any(), anyInt(), anyBoolean(), any(), any(), any()))
+                .thenReturn(List.of(item));
+        when(findProductCatalogReadModelPort.countCatalogItems(any(), any(), any())).thenReturn(1L);
+        when(findProductImagesPort.findImagesByProductIdAndSort(10L, FileSort.PRODUCT_CATALOG_IMAGE))
+                .thenReturn(Optional.empty());
+
+        GetProductsResult result = getProductService.getProducts(
+                null, null, -1L, 1, Sort.Direction.DESC, ProductSortProperty.POPULARITY, ProductSearchTarget.NAME, null
+        );
+
+        assertThat(result.products().getFirst().getCatalogImage()).isNull();
+    }
+
+    @Test
+    @DisplayName("image_read_models 리사이즈 이미지 URL 목록이 catalogImage.resizedStorageUrls 에 포함된다")
+    void getProducts_resizedStorageUrlsMappedFromImageReadModel() {
+        stubProductImageExecutor();
+        ProductCatalogItemResult item = buildCatalogItem(100L, 10L, "상품10", null, null, 0, BigDecimal.ZERO, 0);
+
+        when(findProductCatalogReadModelPort.findCatalogItems(any(), any(), any(), anyInt(), anyBoolean(), any(), any(), any()))
+                .thenReturn(List.of(item));
+        when(findProductCatalogReadModelPort.countCatalogItems(any(), any(), any())).thenReturn(1L);
+        stubCatalogImage(10L, "https://cdn/img.jpg", List.of("https://cdn/img-sm.jpg", "https://cdn/img-md.jpg"));
+
+        GetProductsResult result = getProductService.getProducts(
+                null, null, -1L, 1, Sort.Direction.DESC, ProductSortProperty.POPULARITY, ProductSearchTarget.NAME, null
+        );
+
+        assertThat(result.products().getFirst().getCatalogImage().resizedStorageUrls())
+                .containsExactly("https://cdn/img-sm.jpg", "https://cdn/img-md.jpg");
+    }
+
+    @Test
     @DisplayName("카테고리 첫 페이지 조회 시 카테고리 필터를 Port 에 전달한다")
     void getProducts_categoryFirstPage_passesCategoryFilter() {
+        stubProductImageExecutor();
         ProductCatalogItemResult item = buildCatalogItem(701L, 70L, "상품70",
                 null, null, 4, BigDecimal.ZERO, 0);
 
@@ -238,6 +333,9 @@ class GetProductUseCaseTest {
         when(findProductCatalogReadModelPort.countCatalogItems(
                 eq(7L), eq(ProductSearchTarget.NAME), eq("키워드")
         )).thenReturn(25L);
+
+        when(findProductImagesPort.findImagesByProductIdAndSort(70L, FileSort.PRODUCT_CATALOG_IMAGE))
+                .thenReturn(Optional.empty());
 
         GetProductsResult result = getProductService.getProducts(
                 7L, null, -1L, 2,
@@ -253,6 +351,7 @@ class GetProductUseCaseTest {
     @Test
     @DisplayName("ACCUMULATED_POINT_RATE 정렬로 첫 페이지 조회 시 정렬 속성을 Port 에 전달한다")
     void getProducts_accumulatedPointRateDescFirstPage() {
+        stubProductImageExecutor();
         ProductCatalogItemResult item1 = buildCatalogItem(1201L, 120L, "상품120",
                 null, null, 5, BigDecimal.ZERO, 0);
         ProductCatalogItemResult item2 = buildCatalogItem(1301L, 130L, "상품130",
@@ -268,6 +367,11 @@ class GetProductUseCaseTest {
         when(findProductCatalogReadModelPort.countCatalogItems(
                 isNull(), eq(ProductSearchTarget.NAME), isNull()
         )).thenReturn(50L);
+
+        when(findProductImagesPort.findImagesByProductIdAndSort(120L, FileSort.PRODUCT_CATALOG_IMAGE))
+                .thenReturn(Optional.empty());
+        when(findProductImagesPort.findImagesByProductIdAndSort(130L, FileSort.PRODUCT_CATALOG_IMAGE))
+                .thenReturn(Optional.empty());
 
         GetProductsResult result = getProductService.getProducts(
                 null, null, -1L, 2,
@@ -493,5 +597,11 @@ class GetProductUseCaseTest {
         when(findProductImagesPort.findImagesByProductIdAndSort(productId,
                 com.personal.marketnote.common.domain.file.FileSort.PRODUCT_CONTENT_IMAGE))
                 .thenReturn(Optional.empty());
+    }
+
+    private void stubCatalogImage(Long productId, String storageUrl, List<String> resizedUrls) {
+        GetFileResult fileResult = new GetFileResult(null, null, null, null, storageUrl, resizedUrls, 0L);
+        when(findProductImagesPort.findImagesByProductIdAndSort(productId, FileSort.PRODUCT_CATALOG_IMAGE))
+                .thenReturn(Optional.of(new GetFilesResult(List.of(fileResult))));
     }
 }
