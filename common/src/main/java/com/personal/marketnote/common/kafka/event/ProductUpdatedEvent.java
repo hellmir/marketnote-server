@@ -6,6 +6,7 @@ public record ProductUpdatedEvent(
         Long productId,
         UUID productKey,
         String productName,
+        String brandName,
         String goodsType,
         String giftDivision,
         String goodsOptionCode1,

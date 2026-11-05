@@ -26,6 +26,8 @@ public interface SaveProductCatalogReadModelPort {
 
     void increaseSales(Long pricePolicyId, Long delta);
 
+    void updateProductInfo(Long productId, String name, String brandName);
+
     void updateProductTags(Long productId, String productTagsJson);
 
     void updateStockQuantity(Long pricePolicyId, Integer stockQuantity);

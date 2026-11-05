@@ -343,6 +343,34 @@ public class ProductCatalogReadModelSyncConsumer {
                 && payload.sortOrder() == 0;
     }
 
+    @KafkaListener(topics = KafkaTopicConstants.PRODUCT_UPDATED, groupId = CONSUMER_GROUP_ID)
+    public void handleProductUpdated(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
+        EventEnvelope<?> envelope = record.value();
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
+                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRODUCT_UPDATED)) {
+            ack.acknowledge();
+            return;
+        }
+
+        ProductUpdatedEvent payload = envelope.getPayloadAs(ProductUpdatedEvent.class, objectMapper);
+        if (FormatValidator.hasNoValue(payload)) {
+            ack.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                EventPayloadValidator.id("productId", payload.productId()))) {
+            ack.acknowledge();
+            return;
+        }
+
+        saveProductCatalogReadModelPort.updateProductInfo(
+                payload.productId(), payload.productName(), payload.brandName()
+        );
+        log.info("상품 카탈로그 Read Model 상품 정보 업데이트. productId={}", payload.productId());
+        ack.acknowledge();
+    }
+
     @KafkaListener(topics = KafkaTopicConstants.PRODUCT_DELETED, groupId = CONSUMER_GROUP_ID)
     public void handleProductDeleted(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
