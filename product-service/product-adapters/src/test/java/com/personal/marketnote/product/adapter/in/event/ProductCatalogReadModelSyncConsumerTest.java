@@ -508,4 +508,46 @@ class ProductCatalogReadModelSyncConsumerTest {
         verifyNoInteractions(saveProductCatalogReadModelPort);
         verify(acknowledgment).acknowledge();
     }
+
+    @Test
+    @DisplayName("ProductDeleted 이벤트 수신 시 deleteByProductId 를 호출한다")
+    void handleProductDeleted_validPayload_deletesReadModel() {
+        ProductDeletedEvent payload = new ProductDeletedEvent(100L);
+        EventEnvelope<ProductDeletedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.PRODUCT_DELETED, "product-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRODUCT_DELETED, envelope);
+
+        consumer.handleProductDeleted(record, acknowledgment);
+
+        verify(saveProductCatalogReadModelPort).deleteByProductId(100L);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ProductDeleted envelope 가 null 이면 deleteByProductId 를 호출하지 않는다")
+    void handleProductDeleted_nullEnvelope_acknowledges() {
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                new ConsumerRecord<>(KafkaTopicConstants.PRODUCT_DELETED, 0, 0, "1", null);
+
+        consumer.handleProductDeleted(record, acknowledgment);
+
+        verifyNoInteractions(saveProductCatalogReadModelPort);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ProductDeleted productId 가 null 이면 deleteByProductId 를 호출하지 않는다")
+    void handleProductDeleted_nullProductId_acknowledges() {
+        ProductDeletedEvent payload = new ProductDeletedEvent(null);
+        EventEnvelope<ProductDeletedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.PRODUCT_DELETED, "product-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRODUCT_DELETED, envelope);
+
+        consumer.handleProductDeleted(record, acknowledgment);
+
+        verifyNoInteractions(saveProductCatalogReadModelPort);
+        verify(acknowledgment).acknowledge();
+    }
 }
