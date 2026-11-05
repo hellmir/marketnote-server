@@ -4,12 +4,14 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.out.persistence.productcatalog.entity.ProductCatalogReadModelJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.productcatalog.entity.QProductCatalogReadModelJpaEntity;
+import com.personal.marketnote.product.adapter.out.persistence.productcategory.entity.QProductCategoryJpaEntity;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSortProperty;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.StringPath;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +23,8 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
 
     private static final QProductCatalogReadModelJpaEntity catalog =
             QProductCatalogReadModelJpaEntity.productCatalogReadModelJpaEntity;
+    private static final QProductCategoryJpaEntity productCategory =
+            QProductCategoryJpaEntity.productCategoryJpaEntity;
 
     private final JPAQueryFactory queryFactory;
 
@@ -47,7 +51,7 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
                 .selectFrom(catalog)
                 .where(
                         catalog.status.eq(EntityStatus.ACTIVE),
-                        categoryIdEq(categoryId),
+                        categoryIdExists(categoryId),
                         pricePolicyIdsIn(pricePolicyIds),
                         searchKeywordLike(searchTarget, searchKeyword),
                         cursorCondition(sortProperty, cursor, cursorSortValue, isAsc)
@@ -68,7 +72,7 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
                 .from(catalog)
                 .where(
                         catalog.status.eq(EntityStatus.ACTIVE),
-                        categoryIdEq(categoryId),
+                        categoryIdExists(categoryId),
                         searchKeywordLike(searchTarget, searchKeyword)
                 )
                 .fetchOne();
@@ -78,11 +82,18 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
         return count;
     }
 
-    private BooleanExpression categoryIdEq(Long categoryId) {
+    private BooleanExpression categoryIdExists(Long categoryId) {
         if (FormatValidator.hasNoValue(categoryId)) {
             return null;
         }
-        return catalog.primaryCategoryId.eq(categoryId);
+        return JPAExpressions
+                .selectOne()
+                .from(productCategory)
+                .where(
+                        productCategory.productId.eq(catalog.productId),
+                        productCategory.categoryId.eq(categoryId)
+                )
+                .exists();
     }
 
     private BooleanExpression pricePolicyIdsIn(List<Long> pricePolicyIds) {
