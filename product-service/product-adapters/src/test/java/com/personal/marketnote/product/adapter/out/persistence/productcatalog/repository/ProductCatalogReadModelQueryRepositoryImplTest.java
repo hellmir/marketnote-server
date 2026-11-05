@@ -3,6 +3,8 @@ package com.personal.marketnote.product.adapter.out.persistence.productcatalog.r
 import com.personal.marketnote.common.configuration.AuditConfig;
 import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.product.adapter.out.persistence.productcatalog.entity.ProductCatalogReadModelJpaEntity;
+import com.personal.marketnote.product.adapter.out.persistence.productcategory.entity.ProductCategoryJpaEntity;
+import com.personal.marketnote.product.adapter.out.persistence.productcategory.repository.ProductCategoryJpaRepository;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSortProperty;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,9 +35,13 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
     @Autowired
     private ProductCatalogReadModelJpaRepository repository;
 
+    @Autowired
+    private ProductCategoryJpaRepository productCategoryRepository;
+
     @BeforeEach
     void setUp() {
         repository.deleteAll();
+        productCategoryRepository.deleteAll();
     }
 
     private ProductCatalogReadModelJpaEntity buildEntity(
@@ -331,11 +337,14 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
     class Filters {
 
         @Test
-        @DisplayName("categoryId 필터: primaryCategoryId 일치 레코드만 반환한다")
+        @DisplayName("categoryId 필터: product_category에 매핑된 상품만 반환한다")
         void filtersByCategoryId() {
-            repository.save(buildEntity(1L, 100L, 10L, "A", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
-            repository.save(buildEntity(2L, 101L, 20L, "B", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
-            repository.save(buildEntity(3L, 102L, 10L, "C", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            repository.save(buildEntity(1L, 100L, null, "A", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            repository.save(buildEntity(2L, 101L, null, "B", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            repository.save(buildEntity(3L, 102L, null, "C", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(100L, 10L));
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(101L, 20L));
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(102L, 10L));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
                     10L, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
@@ -343,6 +352,40 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getPricePolicyId)
                     .containsExactlyInAnyOrder(1L, 3L);
+        }
+
+        @Test
+        @DisplayName("categoryId 필터: primaryCategoryId 컬럼 값과 무관하게 product_category 매핑 없는 상품은 제외한다 (회귀 방지)")
+        void excludesProductsWithoutCategoryMapping() {
+            // primaryCategoryId=10L로 직접 세팅해도 product_category 매핑이 없으면 조회되지 않아야 한다
+            repository.save(buildEntity(1L, 100L, 10L, "A", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            // product_category 미삽입
+
+            List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
+                    10L, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
+            );
+
+            assertThat(results).isEmpty();
+        }
+
+        @Test
+        @DisplayName("categoryId 필터: 한 상품이 여러 카테고리에 매핑될 때 각 categoryId로 모두 조회된다")
+        void productMappedToMultipleCategoriesMatchesBoth() {
+            repository.save(buildEntity(1L, 100L, null, "A", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(100L, 10L));
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(100L, 20L));
+
+            List<ProductCatalogReadModelJpaEntity> resultsForCat10 = repository.findCatalogItems(
+                    10L, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
+            );
+            List<ProductCatalogReadModelJpaEntity> resultsForCat20 = repository.findCatalogItems(
+                    20L, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
+            );
+
+            assertThat(resultsForCat10).extracting(ProductCatalogReadModelJpaEntity::getPricePolicyId)
+                    .containsExactly(1L);
+            assertThat(resultsForCat20).extracting(ProductCatalogReadModelJpaEntity::getPricePolicyId)
+                    .containsExactly(1L);
         }
 
         @Test
@@ -407,11 +450,14 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
         }
 
         @Test
-        @DisplayName("categoryId 필터: primaryCategoryId 일치 건수를 반환한다")
+        @DisplayName("categoryId 필터: product_category에 매핑된 상품 수를 반환한다")
         void countsByCategoryId() {
-            repository.save(buildEntity(1L, 100L, 10L, "A", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
-            repository.save(buildEntity(2L, 101L, 20L, "B", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
-            repository.save(buildEntity(3L, 102L, 10L, "C", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            repository.save(buildEntity(1L, 100L, null, "A", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            repository.save(buildEntity(2L, 101L, null, "B", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            repository.save(buildEntity(3L, 102L, null, "C", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(100L, 10L));
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(101L, 20L));
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(102L, 10L));
 
             long count = repository.countCatalogItems(10L, null, null);
 
@@ -433,9 +479,12 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
         @Test
         @DisplayName("findCatalogItems 결과 건수와 countCatalogItems 값이 일치한다 (동등성)")
         void countsMatchFindResults() {
-            repository.save(buildEntity(1L, 100L, 10L, "사과주스", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
-            repository.save(buildEntity(2L, 101L, 10L, "사과파이", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
-            repository.save(buildEntity(3L, 102L, 20L, "바나나", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            repository.save(buildEntity(1L, 100L, null, "사과주스", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            repository.save(buildEntity(2L, 101L, null, "사과파이", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            repository.save(buildEntity(3L, 102L, null, "바나나", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(100L, 10L));
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(101L, 10L));
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(102L, 20L));
 
             List<ProductCatalogReadModelJpaEntity> findResults = repository.findCatalogItems(
                     10L, null, null, 100, true, ProductSortProperty.ORDER_NUM,

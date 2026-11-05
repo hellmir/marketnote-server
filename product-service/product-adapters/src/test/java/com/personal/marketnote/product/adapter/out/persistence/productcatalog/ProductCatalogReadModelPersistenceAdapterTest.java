@@ -7,6 +7,8 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.adapter.out.persistence.productcatalog.entity.ProductCatalogReadModelJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.productcatalog.repository.ProductCatalogReadModelJpaRepository;
 import com.personal.marketnote.product.adapter.out.persistence.productcatalog.repository.ProductCatalogReadModelQueryRepositoryImpl;
+import com.personal.marketnote.product.adapter.out.persistence.productcategory.entity.ProductCategoryJpaEntity;
+import com.personal.marketnote.product.adapter.out.persistence.productcategory.repository.ProductCategoryJpaRepository;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSortProperty;
 import com.personal.marketnote.product.port.in.result.product.ProductCatalogItemResult;
@@ -44,9 +46,13 @@ class ProductCatalogReadModelPersistenceAdapterTest {
     @Autowired
     private ProductCatalogReadModelJpaRepository repository;
 
+    @Autowired
+    private ProductCategoryJpaRepository productCategoryRepository;
+
     @BeforeEach
     void setUp() {
         repository.deleteAll();
+        productCategoryRepository.deleteAll();
     }
 
     @Nested
@@ -288,12 +294,15 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @Test
         @DisplayName("카테고리 필터 + 검색어로 조회한다")
         void filtersByCategoryAndSearch() {
-            adapter.upsertCatalog(1L, 100L, 200L, 10L, "사과", "브랜드A",
+            adapter.upsertCatalog(1L, 100L, 200L, null, "사과", "브랜드A",
                     10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
-            adapter.upsertCatalog(2L, 101L, 200L, 10L, "배", "브랜드B",
+            adapter.upsertCatalog(2L, 101L, 200L, null, "배", "브랜드B",
                     8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
-            adapter.upsertCatalog(3L, 102L, 200L, 20L, "사과파이", "브랜드C",
+            adapter.upsertCatalog(3L, 102L, 200L, null, "사과파이", "브랜드C",
                     15000L, 12000L, BigDecimal.valueOf(20.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(100L, 10L));
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(101L, 10L));
+            productCategoryRepository.save(ProductCategoryJpaEntity.of(102L, 20L));
 
             List<ProductCatalogItemResult> results = adapter.findCatalogItems(
                     10L, null, null, 10, true, ProductSortProperty.ORDER_NUM,
