@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Set;
 
@@ -36,7 +37,7 @@ class RequestReturnRequestValidationTest {
     @DisplayName("canonical 또는 하이픈 포함 입력은 pickupRecipientPhoneNumber 패턴 검증을 통과한다")
     void shouldPassValidationForValidInputs(String pickupRecipientPhoneNumber) {
         RequestReturnRequest request = new RequestReturnRequest();
-        setField(request, "pickupRecipientPhoneNumber", pickupRecipientPhoneNumber);
+        ReflectionTestUtils.setField(request, "pickupRecipientPhoneNumber", pickupRecipientPhoneNumber);
 
         Set<ConstraintViolation<RequestReturnRequest>> violations = validator.validate(request);
 
@@ -53,7 +54,7 @@ class RequestReturnRequestValidationTest {
     @DisplayName("비허용 입력은 pickupRecipientPhoneNumber 패턴 검증에 실패한다")
     void shouldFailValidationForInvalidInputs(String pickupRecipientPhoneNumber) {
         RequestReturnRequest request = new RequestReturnRequest();
-        setField(request, "pickupRecipientPhoneNumber", pickupRecipientPhoneNumber);
+        ReflectionTestUtils.setField(request, "pickupRecipientPhoneNumber", pickupRecipientPhoneNumber);
 
         Set<ConstraintViolation<RequestReturnRequest>> violations = validator.validate(request);
 
@@ -64,20 +65,10 @@ class RequestReturnRequestValidationTest {
     @DisplayName("pickupRecipientPhoneNumber가 null이면 패턴 검증은 통과한다 (NOT_REQUIRED 필드)")
     void shouldPassValidationWhenNull() {
         RequestReturnRequest request = new RequestReturnRequest();
-        setField(request, "pickupRecipientPhoneNumber", null);
+        ReflectionTestUtils.setField(request, "pickupRecipientPhoneNumber", null);
 
         Set<ConstraintViolation<RequestReturnRequest>> violations = validator.validate(request);
 
         assertThat(violations).noneMatch(v -> v.getPropertyPath().toString().equals("pickupRecipientPhoneNumber"));
-    }
-
-    private void setField(Object target, String fieldName, Object value) {
-        try {
-            java.lang.reflect.Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

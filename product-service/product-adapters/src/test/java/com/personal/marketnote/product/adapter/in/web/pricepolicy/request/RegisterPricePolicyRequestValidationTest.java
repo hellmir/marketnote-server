@@ -8,8 +8,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.lang.reflect.Field;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -87,19 +87,9 @@ class RegisterPricePolicyRequestValidationTest {
 
     private RegisterPricePolicyRequest buildRequest(Long price, Long discountPrice, Long accumulatedPoint) {
         RegisterPricePolicyRequest request = new RegisterPricePolicyRequest();
-        setField(request, "price", price);
-        setField(request, "discountPrice", discountPrice);
-        setField(request, "accumulatedPoint", accumulatedPoint);
+        ReflectionTestUtils.setField(request, "price", price);
+        ReflectionTestUtils.setField(request, "discountPrice", discountPrice);
+        ReflectionTestUtils.setField(request, "accumulatedPoint", accumulatedPoint);
         return request;
-    }
-
-    private void setField(Object target, String fieldName, Object value) {
-        try {
-            Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

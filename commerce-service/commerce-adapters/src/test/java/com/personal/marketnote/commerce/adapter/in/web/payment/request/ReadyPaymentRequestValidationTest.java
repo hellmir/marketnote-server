@@ -7,6 +7,7 @@ import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Set;
 
@@ -27,9 +28,9 @@ class ReadyPaymentRequestValidationTest {
     @DisplayName("goodName이 100자를 초과하면 유효성 검증에 실패한다")
     void shouldFailValidationWhenGoodNameExceeds100Characters() {
         ReadyPaymentRequest request = new ReadyPaymentRequest();
-        setField(request, "orderKey", "valid-order-key");
-        setField(request, "payMethod", "CARD");
-        setField(request, "goodName", "가".repeat(101));
+        ReflectionTestUtils.setField(request, "orderKey", "valid-order-key");
+        ReflectionTestUtils.setField(request, "payMethod", "CARD");
+        ReflectionTestUtils.setField(request, "goodName", "가".repeat(101));
 
         Set<ConstraintViolation<ReadyPaymentRequest>> violations = validator.validate(request);
 
@@ -41,9 +42,9 @@ class ReadyPaymentRequestValidationTest {
     @DisplayName("goodName이 100자 이내이면 goodName 길이 검증에 성공한다")
     void shouldPassValidationWhenGoodNameIsWithin100Characters() {
         ReadyPaymentRequest request = new ReadyPaymentRequest();
-        setField(request, "orderKey", "valid-order-key");
-        setField(request, "payMethod", "CARD");
-        setField(request, "goodName", "가".repeat(100));
+        ReflectionTestUtils.setField(request, "orderKey", "valid-order-key");
+        ReflectionTestUtils.setField(request, "payMethod", "CARD");
+        ReflectionTestUtils.setField(request, "goodName", "가".repeat(100));
 
         Set<ConstraintViolation<ReadyPaymentRequest>> violations = validator.validate(request);
 
@@ -52,13 +53,4 @@ class ReadyPaymentRequestValidationTest {
                         && v.getMessage().contains("100"));
     }
 
-    private void setField(Object target, String fieldName, Object value) {
-        try {
-            java.lang.reflect.Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
