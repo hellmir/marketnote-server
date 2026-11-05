@@ -95,7 +95,8 @@ public class RegisterOrderService implements RegisterOrderUseCase {
 
         validateShippingFee(command, shippingPolicies, regionType);
 
-        Map<Long, Long> productIdsByPricePolicyId = command.orderProducts().stream()
+        Map<Long, Long> productIdsByPricePolicyId = command.orderProducts()
+                .stream()
                 .collect(Collectors.toMap(
                         OrderProductItemCommand::pricePolicyId,
                         OrderProductItemCommand::productId,
@@ -400,7 +401,16 @@ public class RegisterOrderService implements RegisterOrderUseCase {
     private ShippingAddress resolveShippingAddress(
             RegisterOrderCommand command, ShippingAddressInfoResult addressInfo
     ) {
-        return ShippingAddress.from(ShippingAddressCreateState.builder().recipientName(addressInfo.recipientName()).recipientPhoneNumber(addressInfo.recipientPhoneNumber()).zipCode(null).address(addressInfo.address()).addressDetail(addressInfo.addressDetail()).deliveryRequestType(command.deliveryRequestType()).deliveryRequestMessage(command.deliveryRequestMessage()).build());
+        return ShippingAddress.from(
+                ShippingAddressCreateState.builder().
+                        recipientName(addressInfo.recipientName())
+                        .recipientPhoneNumber(addressInfo.recipientPhoneNumber())
+                        .address(addressInfo.address())
+                        .addressDetail(addressInfo.addressDetail())
+                        .deliveryRequestType(command.deliveryRequestType())
+                        .deliveryRequestMessage(command.deliveryRequestMessage())
+                        .build()
+        );
     }
 
     private long resolveAmount(Long amount) {
