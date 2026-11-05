@@ -22,6 +22,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -620,6 +624,172 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().getMessage()).isEqualTo("요청 파라미터가 올바르지 않습니다.");
+        }
+    }
+
+    @Nested
+    @DisplayName("MethodArgumentNotValidException / ConstraintViolationException 로그 민감정보 유출 방지")
+    class ValidationExceptionLoggingTest {
+
+        private Logger logger;
+        private ListAppender<ILoggingEvent> appender;
+        private boolean previousAdditive;
+
+        @org.junit.jupiter.api.BeforeEach
+        void attachAppender() {
+            logger = (Logger) LoggerFactory.getLogger(GlobalExceptionHandler.class);
+            previousAdditive = logger.isAdditive();
+            logger.setAdditive(false);
+            appender = new ListAppender<>();
+            appender.start();
+            logger.addAppender(appender);
+        }
+
+        @org.junit.jupiter.api.AfterEach
+        void detachAppender() {
+            logger.detachAppender(appender);
+            appender.stop();
+            logger.setAdditive(previousAdditive);
+        }
+
+        private String joinMessages() {
+            StringBuilder builder = new StringBuilder();
+            for (ILoggingEvent event : appender.list) {
+                builder.append(event.getFormattedMessage()).append('\n');
+            }
+            return builder.toString();
+        }
+
+        @SuppressWarnings("unchecked")
+        private ConstraintViolation<Object> mockViolation(String propertyPath, String message) {
+            ConstraintViolation<Object> violation = mock(ConstraintViolation.class);
+            Path path = mock(Path.class);
+            when(path.toString()).thenReturn(propertyPath);
+            when(violation.getPropertyPath()).thenReturn(path);
+            when(violation.getMessage()).thenReturn(message);
+            return violation;
+        }
+
+        private MethodArgumentNotValidException buildMethodArgumentNotValidException(List<FieldError> fieldErrors) {
+            BindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "target");
+            for (FieldError fieldError : fieldErrors) {
+                bindingResult.addError(fieldError);
+            }
+            MethodArgumentNotValidException exception = mock(MethodArgumentNotValidException.class);
+            when(exception.getBindingResult()).thenReturn(bindingResult);
+            return exception;
+        }
+
+        @Test
+        @DisplayName("MethodArgumentNotValidException 처리 시 로그에 rejectedValue가 포함되지 않는다")
+        void shouldNotIncludeRejectedValueInLogWhenHandlingMethodArgumentNotValidException() {
+            FieldError phoneError = new FieldError(
+                    "target", "phoneNumber", "010-1234-abcd", false, null, null,
+                    "전화번호 형식이 올바르지 않습니다."
+            );
+            FieldError emailError = new FieldError(
+                    "target", "email", "raw@example.com", false, null, null,
+                    "이메일 형식이 올바르지 않습니다."
+            );
+            MethodArgumentNotValidException exception =
+                    buildMethodArgumentNotValidException(List.of(phoneError, emailError));
+
+            handler.handleMethodArgumentNotValidException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("010-1234-abcd");
+            assertThat(logged).doesNotContain("raw@example.com");
+            assertThat(logged).contains("phoneNumber");
+            assertThat(logged).contains("email");
+            assertThat(logged).contains("전화번호 형식이 올바르지 않습니다.");
+            assertThat(logged).contains("이메일 형식이 올바르지 않습니다.");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("MethodArgumentNotValidException의 원본 getMessage는 로그에 포함되지 않는다")
+        void shouldNotIncludeOriginalMessageInLogWhenHandlingMethodArgumentNotValidException() {
+            FieldError error = new FieldError(
+                    "target", "password", "plaintext-password-1234!", false, null, null,
+                    "비밀번호 형식이 올바르지 않습니다."
+            );
+            MethodArgumentNotValidException exception = buildMethodArgumentNotValidException(List.of(error));
+
+            handler.handleMethodArgumentNotValidException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("plaintext-password-1234!");
+            assertThat(logged).doesNotContain("rejected value");
+            assertThat(logged).contains("password");
+            assertThat(logged).contains("비밀번호 형식이 올바르지 않습니다.");
+        }
+
+        @Test
+        @DisplayName("ConstraintViolationException 처리 시 로그에 invalidValue가 포함되지 않는다")
+        void shouldNotIncludeInvalidValueInLogWhenHandlingConstraintViolationException() {
+            Set<ConstraintViolation<?>> violations = new HashSet<>();
+            violations.add(mockViolation("phoneNumber", "전화번호 형식이 올바르지 않습니다."));
+            violations.add(mockViolation("email", "이메일 형식이 올바르지 않습니다."));
+            ConstraintViolationException exception = new ConstraintViolationException(violations);
+
+            handler.handleConstraintViolationException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("010-abc-def");
+            assertThat(logged).doesNotContain("leaked@example.com");
+            assertThat(logged).contains("phoneNumber");
+            assertThat(logged).contains("email");
+            assertThat(logged).contains("전화번호 형식이 올바르지 않습니다.");
+            assertThat(logged).contains("이메일 형식이 올바르지 않습니다.");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("MethodArgumentNotValidException 응답 바디는 기존 동작을 유지한다 - 필드 에러 defaultMessage 포함")
+        void shouldPreserveResponseBodyWhenHandlingMethodArgumentNotValidException() {
+            FieldError error = new FieldError(
+                    "target", "name", "", false, null, null, "이름은 필수입니다."
+            );
+            MethodArgumentNotValidException exception = buildMethodArgumentNotValidException(List.of(error));
+
+            ResponseEntity<ErrorResponse> response = handler.handleMethodArgumentNotValidException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).contains("이름은 필수입니다.");
+        }
+
+        @Test
+        @DisplayName("FieldError의 defaultMessage가 null이어도 로그에 'null' 리터럴이 포함되지 않는다")
+        void shouldNotEmitNullLiteralWhenFieldErrorDefaultMessageIsNull() {
+            FieldError error = new FieldError(
+                    "target", "phoneNumber", "010-1234-abcd", false, null, null, null
+            );
+            MethodArgumentNotValidException exception = buildMethodArgumentNotValidException(List.of(error));
+
+            handler.handleMethodArgumentNotValidException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("null");
+            assertThat(logged).contains("phoneNumber");
+        }
+
+        @Test
+        @DisplayName("ConstraintViolation의 message가 null이어도 로그에 'null' 리터럴이 포함되지 않는다")
+        void shouldNotEmitNullLiteralWhenConstraintViolationMessageIsNull() {
+            Set<ConstraintViolation<?>> violations = new HashSet<>();
+            violations.add(mockViolation("phoneNumber", null));
+            ConstraintViolationException exception = new ConstraintViolationException(violations);
+
+            handler.handleConstraintViolationException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("null");
+            assertThat(logged).contains("phoneNumber");
         }
     }
 
