@@ -11,9 +11,9 @@ import com.personal.marketnote.common.domain.exception.illegalargument.invalidva
  */
 public class PriceMismatchException extends InvalidValueException {
     private static final String MESSAGE =
-            "ERR_ORDER_PRICE_01::주문 상품 단가가 실제 가격과 일치하지 않습니다.";
+            "ERR_ORDER_PRICE_01::주문 상품 단가가 실제 가격과 일치하지 않습니다. pricePolicyId=%d, requestedPrice=%d, actualPrice=%d";
 
     public PriceMismatchException(Long pricePolicyId, Long requestedPrice, Long actualPrice) {
-        super(MESSAGE);
+        super(String.format(MESSAGE, pricePolicyId, requestedPrice, actualPrice));
     }
 }

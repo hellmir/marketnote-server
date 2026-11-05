@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 public final class PhoneNumber {
     private static final String NO_VALUE_MESSAGE = "전화번호는 필수값입니다.";
-    private static final String INVALID_FORMAT_MESSAGE = "전화번호 형식이 올바르지 않습니다.";
+    private static final String INVALID_FORMAT_MESSAGE = "전화번호 형식이 올바르지 않습니다. 전송된 값: %s";
     private static final Pattern PHONE_NUMBER_PATTERN = Pattern.compile(RegularExpressionConstant.PHONE_NUMBER_PATTERN);
     private static final String MASKED_TOSTRING = "PhoneNumber{value=***}";
     private static final String HYPHEN = "-";
@@ -45,7 +45,7 @@ public final class PhoneNumber {
 
     private static void validateFormat(String value) {
         if (!PHONE_NUMBER_PATTERN.matcher(value).matches()) {
-            throw new InvalidPhoneNumberException(INVALID_FORMAT_MESSAGE);
+            throw new InvalidPhoneNumberException(String.format(INVALID_FORMAT_MESSAGE, value));
         }
     }
 

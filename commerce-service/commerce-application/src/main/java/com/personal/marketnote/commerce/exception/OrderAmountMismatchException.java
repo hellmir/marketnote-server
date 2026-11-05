@@ -11,9 +11,9 @@ import com.personal.marketnote.common.domain.exception.illegalargument.invalidva
  */
 public class OrderAmountMismatchException extends InvalidValueException {
     private static final String MESSAGE =
-            "ERR_ORDER_AMOUNT_01::주문 총액이 상품 금액 합계와 일치하지 않습니다.";
+            "ERR_ORDER_AMOUNT_01::주문 총액이 상품 금액 합계와 일치하지 않습니다. requestedTotal=%d, calculatedTotal=%d";
 
     public OrderAmountMismatchException(Long requestedTotal, Long calculatedTotal) {
-        super(MESSAGE);
+        super(String.format(MESSAGE, requestedTotal, calculatedTotal));
     }
 }

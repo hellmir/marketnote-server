@@ -42,11 +42,10 @@ public class LedgerTransaction {
     }
 
     public void validateEntries(List<LedgerEntry> entries) {
-        boolean hasNonPositiveAmount = entries.stream()
-                .anyMatch(entry -> !entry.getAmount().isPositive());
-        if (hasNonPositiveAmount) {
-            throw new InvalidLedgerEntryAmountException();
-        }
+        entries.stream()
+                .filter(entry -> !entry.getAmount().isPositive())
+                .findFirst()
+                .ifPresent(entry -> { throw new InvalidLedgerEntryAmountException(entry.getAmount().getValue()); });
 
         Money debitTotal = Money.zero();
         for (LedgerEntry entry : entries) {

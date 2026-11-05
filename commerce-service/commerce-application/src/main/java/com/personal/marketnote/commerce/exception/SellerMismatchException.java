@@ -11,9 +11,9 @@ import com.personal.marketnote.common.domain.exception.illegalargument.invalidva
  */
 public class SellerMismatchException extends InvalidValueException {
     private static final String MESSAGE =
-            "ERR_ORDER_SELLER_01::주문 상품의 판매자가 실제 상품의 판매자와 일치하지 않습니다.";
+            "ERR_ORDER_SELLER_01::주문 상품의 판매자가 실제 상품의 판매자와 일치하지 않습니다. pricePolicyId=%d, requestedSellerId=%d, actualSellerId=%d";
 
     public SellerMismatchException(Long pricePolicyId, Long requestedSellerId, Long actualSellerId) {
-        super(MESSAGE);
+        super(String.format(MESSAGE, pricePolicyId, requestedSellerId, actualSellerId));
     }
 }

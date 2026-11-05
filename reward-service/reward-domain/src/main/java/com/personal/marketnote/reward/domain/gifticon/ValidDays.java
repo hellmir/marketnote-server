@@ -5,7 +5,7 @@ import com.personal.marketnote.reward.domain.exception.InvalidValidDaysException
 import java.util.Objects;
 
 public final class ValidDays {
-    private static final String INVALID_MESSAGE = "쿠폰 유효일은 1일 이상이어야 합니다.";
+    private static final String INVALID_MESSAGE = "쿠폰 유효일은 1일 이상이어야 합니다. 전송된 값: %d";
 
     private final int value;
 
@@ -15,7 +15,7 @@ public final class ValidDays {
 
     public static ValidDays of(int value) {
         if (value <= 0) {
-            throw new InvalidValidDaysException(INVALID_MESSAGE);
+            throw new InvalidValidDaysException(String.format(INVALID_MESSAGE, value));
         }
         return new ValidDays(value);
     }
