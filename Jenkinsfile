@@ -434,6 +434,12 @@ pipeline {
             }
         }
 
+		stage('Check Flyway Immutability') {
+			steps {
+				sh 'bash scripts/check-flyway-immutability.sh'
+			}
+		}
+
 		stage('Test') {
             steps {
                 sh "chmod u+x ${WORKSPACE}/gradlew"
