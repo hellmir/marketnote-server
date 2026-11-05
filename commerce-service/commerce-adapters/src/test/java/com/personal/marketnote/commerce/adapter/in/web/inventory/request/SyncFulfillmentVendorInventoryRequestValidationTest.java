@@ -7,6 +7,7 @@ import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,21 +71,11 @@ class SyncFulfillmentVendorInventoryRequestValidationTest {
         List<SyncFulfillmentVendorInventoryItemRequest> items = new ArrayList<>();
         for (int i = 0; i < itemCount; i++) {
             SyncFulfillmentVendorInventoryItemRequest item = new SyncFulfillmentVendorInventoryItemRequest();
-            setField(item, "productKey", UUID.randomUUID());
-            setField(item, "stock", 100);
+            ReflectionTestUtils.setField(item, "productKey", UUID.randomUUID());
+            ReflectionTestUtils.setField(item, "stock", 100);
             items.add(item);
         }
-        setField(request, "inventories", items);
+        ReflectionTestUtils.setField(request, "inventories", items);
         return request;
-    }
-
-    private void setField(Object target, String fieldName, Object value) {
-        try {
-            java.lang.reflect.Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (Exception e) {
-            throw new RuntimeException("테스트 필드 주입 실패: " + fieldName, e);
-        }
     }
 }

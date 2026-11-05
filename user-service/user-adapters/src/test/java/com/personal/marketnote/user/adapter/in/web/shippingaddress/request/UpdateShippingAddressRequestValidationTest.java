@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Set;
 
@@ -27,10 +28,10 @@ class UpdateShippingAddressRequestValidationTest {
 
     private UpdateShippingAddressRequest buildBase(String recipientPhoneNumber) {
         UpdateShippingAddressRequest request = new UpdateShippingAddressRequest();
-        setField(request, "address", "서울시 서초구 반포대로");
-        setField(request, "addressDetail", "202호");
-        setField(request, "recipientName", "홍길동");
-        setField(request, "recipientPhoneNumber", recipientPhoneNumber);
+        ReflectionTestUtils.setField(request, "address", "서울시 서초구 반포대로");
+        ReflectionTestUtils.setField(request, "addressDetail", "202호");
+        ReflectionTestUtils.setField(request, "recipientName", "홍길동");
+        ReflectionTestUtils.setField(request, "recipientPhoneNumber", recipientPhoneNumber);
         return request;
     }
 
@@ -75,15 +76,5 @@ class UpdateShippingAddressRequestValidationTest {
         Set<ConstraintViolation<UpdateShippingAddressRequest>> violations = validator.validate(request);
 
         assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("recipientPhoneNumber"));
-    }
-
-    private void setField(Object target, String fieldName, Object value) {
-        try {
-            java.lang.reflect.Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

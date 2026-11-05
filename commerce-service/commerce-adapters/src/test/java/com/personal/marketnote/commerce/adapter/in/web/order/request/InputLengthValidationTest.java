@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Set;
 
@@ -32,12 +33,12 @@ class InputLengthValidationTest {
         @DisplayName("imageUrl이 2048자를 초과하면 유효성 검증에 실패한다")
         void shouldFailValidationWhenImageUrlExceeds2048Characters() {
             OrderProductItemRequest request = new OrderProductItemRequest();
-            setField(request, "productId", 1L);
-            setField(request, "sellerId", 1L);
-            setField(request, "pricePolicyId", 1L);
-            setField(request, "quantity", 1);
-            setField(request, "unitAmount", 50000L);
-            setField(request, "imageUrl", "https://example.com/" + "a".repeat(2030));
+            ReflectionTestUtils.setField(request, "productId", 1L);
+            ReflectionTestUtils.setField(request, "sellerId", 1L);
+            ReflectionTestUtils.setField(request, "pricePolicyId", 1L);
+            ReflectionTestUtils.setField(request, "quantity", 1);
+            ReflectionTestUtils.setField(request, "unitAmount", 50000L);
+            ReflectionTestUtils.setField(request, "imageUrl", "https://example.com/" + "a".repeat(2030));
 
             Set<ConstraintViolation<OrderProductItemRequest>> violations = validator.validate(request);
 
@@ -49,12 +50,12 @@ class InputLengthValidationTest {
         @DisplayName("imageUrl이 2048자 이내이면 imageUrl 길이 검증에 성공한다")
         void shouldPassValidationWhenImageUrlIsWithin2048Characters() {
             OrderProductItemRequest request = new OrderProductItemRequest();
-            setField(request, "productId", 1L);
-            setField(request, "sellerId", 1L);
-            setField(request, "pricePolicyId", 1L);
-            setField(request, "quantity", 1);
-            setField(request, "unitAmount", 50000L);
-            setField(request, "imageUrl", "https://example.com/image.jpg");
+            ReflectionTestUtils.setField(request, "productId", 1L);
+            ReflectionTestUtils.setField(request, "sellerId", 1L);
+            ReflectionTestUtils.setField(request, "pricePolicyId", 1L);
+            ReflectionTestUtils.setField(request, "quantity", 1);
+            ReflectionTestUtils.setField(request, "unitAmount", 50000L);
+            ReflectionTestUtils.setField(request, "imageUrl", "https://example.com/image.jpg");
 
             Set<ConstraintViolation<OrderProductItemRequest>> violations = validator.validate(request);
 
@@ -71,7 +72,7 @@ class InputLengthValidationTest {
         @DisplayName("reason이 500자를 초과하면 유효성 검증에 실패한다")
         void shouldFailValidationWhenReasonExceeds500Characters() {
             ChangeOrderStatusRequest request = new ChangeOrderStatusRequest();
-            setField(request, "reason", "가".repeat(501));
+            ReflectionTestUtils.setField(request, "reason", "가".repeat(501));
 
             Set<ConstraintViolation<ChangeOrderStatusRequest>> violations = validator.validate(request);
 
@@ -83,22 +84,12 @@ class InputLengthValidationTest {
         @DisplayName("reason이 500자 이내이면 reason 길이 검증에 성공한다")
         void shouldPassValidationWhenReasonIsWithin500Characters() {
             ChangeOrderStatusRequest request = new ChangeOrderStatusRequest();
-            setField(request, "reason", "가".repeat(500));
+            ReflectionTestUtils.setField(request, "reason", "가".repeat(500));
 
             Set<ConstraintViolation<ChangeOrderStatusRequest>> violations = validator.validate(request);
 
             assertThat(violations).noneMatch(v ->
                     v.getPropertyPath().toString().equals("reason"));
-        }
-    }
-
-    private void setField(Object target, String fieldName, Object value) {
-        try {
-            java.lang.reflect.Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 }
