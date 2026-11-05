@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
 import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.option.ProductOptionCategory;
@@ -30,8 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
+import static com.personal.marketnote.common.domain.file.FileSort.PRODUCT_CATALOG_IMAGE;
 import static com.personal.marketnote.common.domain.file.FileSort.PRODUCT_CONTENT_IMAGE;
 import static com.personal.marketnote.common.domain.file.FileSort.PRODUCT_REPRESENTATIVE_IMAGE;
 import static com.personal.marketnote.common.utility.ApiConstant.FIRST_PAGE_CURSOR_VALUE;
@@ -150,6 +153,26 @@ public class GetProductService implements GetProductUseCase {
         );
     }
 
+    private Map<Long, GetFilesResult> findCatalogImages(List<ProductItemResult> productItems) {
+        Map<Long, GetFilesResult> productIdToImages = new ConcurrentHashMap<>();
+        List<CompletableFuture<Void>> futures = productItems.stream()
+                .map(item -> CompletableFuture.runAsync(
+                        () -> findProductImagesPort.findImagesByProductIdAndSort(item.getId(), PRODUCT_CATALOG_IMAGE)
+                                .ifPresent(result -> productIdToImages.put(item.getId(), result)),
+                        productImageExecutor
+                ))
+                .toList();
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        return productIdToImages;
+    }
+
+    private GetFileResult extractFirstImage(GetFilesResult filesResult) {
+        if (FormatValidator.hasNoValue(filesResult) || FormatValidator.hasNoValue(filesResult.images())) {
+            return null;
+        }
+        return filesResult.images().getFirst();
+    }
+
     @Override
     public Product getProduct(Long id) {
         return findProductPort.findById(id)
@@ -192,8 +215,20 @@ public class GetProductService implements GetProductUseCase {
             nextCursor = pagedCatalogItems.getLast().pricePolicyId();
         }
 
-        List<ProductItemResult> productItems = pagedCatalogItems.stream()
+        List<ProductItemResult> catalogMappedItems = pagedCatalogItems.stream()
                 .map(ProductItemResult::fromReadModel)
+                .toList();
+
+        Map<Long, GetFilesResult> productIdToImages = findCatalogImages(catalogMappedItems);
+
+        List<ProductItemResult> productItems = catalogMappedItems.stream()
+                .map(item -> ProductItemResult.from(
+                        item,
+                        extractFirstImage(productIdToImages.get(item.getId())),
+                        item.getStock(),
+                        item.getAverageRating(),
+                        item.getTotalCount()
+                ))
                 .toList();
 
         Long totalElements = null;
