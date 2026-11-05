@@ -33,7 +33,7 @@ import java.lang.annotation.*;
                 
                     - 닉네임: 한글만 가능하며, 6글자 이하여야 합니다.
                 
-                    - 전화번호: dash를 포함하여 01012345678과 같은 형식이어야 합니다.
+                    - 전화번호: "01012345678" 또는 "010-1234-5678"처럼 하이픈 포함 여부와 무관하게 입력 가능합니다. 서버에서는 하이픈을 제거한 canonical 형식("01012345678")으로 정규화되어 저장됩니다.
                 
                     - 비밀번호: 8자 이상, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.
                 
@@ -45,7 +45,7 @@ import java.lang.annotation.*;
                 | --- | --- | --- | --- |
                 | email | string | 이메일 주소 | "example@example.com" |
                 | nickname | string | 닉네임 | "고길동" |
-                | phoneNumber | string | 전화번호 | "01012345678" |
+                | phoneNumber | string | 전화번호 (하이픈 포함/미포함 모두 허용, 내부 canonical 저장) | "01012345678" |
                 | password | string | 비밀번호 | "password123" |
                 
                 ---

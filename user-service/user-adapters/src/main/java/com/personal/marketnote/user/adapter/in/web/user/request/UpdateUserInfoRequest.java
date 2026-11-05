@@ -34,7 +34,7 @@ public class UpdateUserInfoRequest {
 
     @Schema(
             name = "phoneNumber",
-            description = "전화번호",
+            description = "전화번호 (예: 01012345678 또는 010-1234-5678, 서버 내부 canonical 저장)",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Pattern(
