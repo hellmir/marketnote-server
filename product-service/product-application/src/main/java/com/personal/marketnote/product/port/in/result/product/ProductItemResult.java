@@ -141,7 +141,7 @@ public class ProductItemResult {
                 .pricePolicy(GetProductPricePolicyResult.fromReadModel(catalogItem))
                 .sales(toSalesInt(catalogItem.sales()))
                 .productTags(toProductTags(catalogItem.productTags()))
-                .catalogImage(toCatalogImage(catalogItem))
+                .catalogImage(null)
                 .selectedOptions(toSelectedOptions(catalogItem.selectedOptions()))
                 .stock(FormatValidator.hasValue(catalogItem.stockQuantity()) ? catalogItem.stockQuantity() : 0)
                 .averageRating(FormatValidator.hasValue(catalogItem.reviewAverageRating())
@@ -183,24 +183,6 @@ public class ProductItemResult {
                         snapshot.id(), snapshot.content(), com.personal.marketnote.common.domain.EntityStatus.ACTIVE.name()
                 ))
                 .toList();
-    }
-
-    private static GetFileResult toCatalogImage(ProductCatalogItemResult catalogItem) {
-        if (FormatValidator.hasNoValue(catalogItem.representativeImageUrl())) {
-            return null;
-        }
-        List<String> resizedUrls = FormatValidator.hasValue(catalogItem.resizedImageUrls())
-                ? catalogItem.resizedImageUrls()
-                : List.of();
-        return new GetFileResult(
-                null,
-                null,
-                null,
-                null,
-                catalogItem.representativeImageUrl(),
-                resizedUrls,
-                0L
-        );
     }
 
     public Long getPricePolicyId() {
