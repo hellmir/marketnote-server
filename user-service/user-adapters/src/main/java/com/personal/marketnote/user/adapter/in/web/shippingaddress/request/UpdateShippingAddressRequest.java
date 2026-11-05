@@ -35,7 +35,7 @@ public class UpdateShippingAddressRequest {
     @Size(max = 31, message = "받는 분은 최대 31자까지 입력할 수 있습니다.")
     private String recipientName;
 
-    @Schema(name = "recipientPhoneNumber", description = "휴대폰 번호 (최대 15자)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(name = "recipientPhoneNumber", description = "휴대폰 번호 (예: 01012345678 또는 010-1234-5678, 서버 내부 canonical 저장, 최대 15자)", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "휴대폰 번호는 필수값입니다.")
     @Size(max = 15, message = "휴대폰 번호는 최대 15자까지 입력할 수 있습니다.")
     @Pattern(

@@ -46,7 +46,7 @@ public class RequestReturnRequest {
 
     @Schema(
             name = "pickupRecipientPhoneNumber",
-            description = "회수지 연락처 (미입력 시 배송지 기본값)",
+            description = "회수지 연락처 (예: 01012345678 또는 010-1234-5678, 서버 내부 canonical 저장, 미입력 시 배송지 기본값)",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Size(max = 20, message = "회수지 연락처는 20자 이내여야 합니다.")
