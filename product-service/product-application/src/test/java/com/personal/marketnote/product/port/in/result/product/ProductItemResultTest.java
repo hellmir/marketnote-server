@@ -83,7 +83,7 @@ class ProductItemResultTest {
     }
 
     @Test
-    @DisplayName("ReadModel 카탈로그 항목으로부터 상품 항목 결과를 생성한다")
+    @DisplayName("ReadModel 카탈로그 항목으로부터 상품 항목 결과를 생성하며 catalogImage는 null이다")
     void shouldCreateFromReadModelCatalogItem() {
         // given
         ProductCatalogItemResult catalogItem = new ProductCatalogItemResult(
@@ -118,10 +118,7 @@ class ProductItemResultTest {
         assertThat(result.getBrandName()).isEqualTo("테스트 브랜드");
         assertThat(result.getPricePolicy().id()).isEqualTo(100L);
         assertThat(result.getPricePolicy().discountPrice()).isEqualTo(9_000L);
-        assertThat(result.getCatalogImage()).isNotNull();
-        assertThat(result.getCatalogImage().storageUrl()).isEqualTo("https://cdn.example/main.jpg");
-        assertThat(result.getCatalogImage().resizedStorageUrls())
-                .containsExactly("https://cdn.example/sm.jpg", "https://cdn.example/md.jpg");
+        assertThat(result.getCatalogImage()).isNull();
         assertThat(result.getStock()).isEqualTo(50);
         assertThat(result.getAverageRating()).isEqualByComparingTo(new BigDecimal("4.50"));
         assertThat(result.getTotalCount()).isEqualTo(12);
@@ -209,8 +206,8 @@ class ProductItemResultTest {
     }
 
     @Test
-    @DisplayName("ReadModel resized 이미지 목록이 null 이면 빈 리스트로 반환한다")
-    void shouldReturnEmptyResizedUrlsWhenNull() {
+    @DisplayName("ReadModel representativeImageUrl 유무와 무관하게 fromReadModel 결과의 catalogImage는 항상 null이다")
+    void shouldReturnNullCatalogImageRegardlessOfRepresentativeImageUrl() {
         // given
         ProductCatalogItemResult catalogItem = new ProductCatalogItemResult(
                 300L, 30L, 3L, 9L, "리사이즈 없음", "브랜드",
@@ -222,7 +219,7 @@ class ProductItemResultTest {
         ProductItemResult result = ProductItemResult.fromReadModel(catalogItem);
 
         // then
-        assertThat(result.getCatalogImage().resizedStorageUrls()).isEmpty();
+        assertThat(result.getCatalogImage()).isNull();
     }
 
     private ProductTag createTag(Long id, String name, Long orderNum) {
