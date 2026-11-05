@@ -12,6 +12,7 @@ pipeline {
 
 	parameters {
 		choice(name: 'SERVICE', choices: ['auto','fulfillment-service','notification-service'], description: '배포 대상 서비스 (Lightsail)')
+		booleanParam(name: 'SKIP_FLYWAY_IMMUTABILITY_CHECK', defaultValue: false, description: '긴급 revert PR 한정 — 적용 완료 V*.sql 변경 차단 가드 우회. 기본값 false 유지 필수')
 	}
 
 	environment {
@@ -206,6 +207,20 @@ pipeline {
 								+ "COMMIT: ${env.GIT_COMMIT}\n"
 								+ "MESSAGE: ${commitMessage}"
 						)
+					}
+				}
+			}
+		}
+
+		stage('Check Flyway Immutability') {
+			steps {
+				script {
+					if (params.SKIP_FLYWAY_IMMUTABILITY_CHECK) {
+						echo "[WARN] Flyway immutability check SKIPPED by parameter. 긴급 revert PR 한정 용도. SERVICE=${params.SERVICE}, BUILD_URL=${env.BUILD_URL}"
+						return
+					}
+					withCredentials([gitUsernamePassword(credentialsId: 'MARKETNOTE_GITHUB_WEBHOOK_ACCESS_TOKEN', gitToolName: 'Default')]) {
+						sh 'bash scripts/check-flyway-immutability.sh'
 					}
 				}
 			}
