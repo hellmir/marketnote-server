@@ -15,6 +15,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.mail.MailException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -77,6 +78,29 @@ public class GlobalExceptionHandler {
     private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus httpStatus, String errorMessage) {
         ParsedMessage parsed = ParsedMessage.from(errorMessage, httpStatus);
         return buildErrorResponse(httpStatus, parsed.code(), parsed.message());
+    }
+
+    // 로그 유출 방지: rejectedValue(사용자 입력 원본)을 제외하고 field + constraint 메시지만 포맷한다.
+    private String formatValidationLogMessage(BindingResult bindingResult) {
+        return bindingResult.getFieldErrors().stream()
+                .map(fieldError -> "field=" + fieldError.getField()
+                        + ", constraint=" + safeConstraintText(fieldError.getDefaultMessage()))
+                .collect(Collectors.joining(", "));
+    }
+
+    // 로그 유출 방지: invalidValue를 제외하고 propertyPath + message만 포맷한다.
+    private String formatConstraintViolationLogMessage(ConstraintViolationException e) {
+        return e.getConstraintViolations().stream()
+                .map(violation -> "field=" + violation.getPropertyPath()
+                        + ", constraint=" + safeConstraintText(violation.getMessage()))
+                .collect(Collectors.joining(", "));
+    }
+
+    private String safeConstraintText(String constraintMessage) {
+        if (FormatValidator.hasNoValue(constraintMessage)) {
+            return "";
+        }
+        return constraintMessage;
     }
 
     @ExceptionHandler(IOException.class)
@@ -163,7 +187,7 @@ public class GlobalExceptionHandler {
             fieldErrorMessage = "요청 값이 올바르지 않습니다.";
         }
 
-        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
+        log.info(LOG_INFO_MESSAGE, formatValidationLogMessage(e.getBindingResult()));
         return buildErrorResponse(httpStatus, fieldErrorMessage);
     }
 
@@ -183,7 +207,7 @@ public class GlobalExceptionHandler {
         if (message.isEmpty()) {
             message = "요청 파라미터가 올바르지 않습니다.";
         }
-        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
+        log.info(LOG_INFO_MESSAGE, formatConstraintViolationLogMessage(e));
         return buildErrorResponse(httpStatus, message);
     }
 
