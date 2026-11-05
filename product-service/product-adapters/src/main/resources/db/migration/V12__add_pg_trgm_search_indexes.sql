@@ -11,8 +11,7 @@
 --   2) 수동 DROP 후 재실행 (IF NOT EXISTS는 INVALID도 존재로 간주하여 skip하므로 DROP 선행 필수)
 --      DROP INDEX CONCURRENTLY <invalid_index_name>;
 
-CREATE
-EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_product_name_trgm
     ON product USING GIN (name gin_trgm_ops);
