@@ -25,6 +25,7 @@ public class ProductUpdatedEventMapper {
                 product.getId(),
                 product.getProductKey(),
                 product.getName(),
+                product.getBrandName(),
                 options.goodsType(),
                 options.giftDivision(),
                 options.goodsOptionCode1(),
