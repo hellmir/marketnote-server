@@ -343,6 +343,32 @@ public class ProductCatalogReadModelSyncConsumer {
                 && payload.sortOrder() == 0;
     }
 
+    @KafkaListener(topics = KafkaTopicConstants.PRODUCT_DELETED, groupId = CONSUMER_GROUP_ID)
+    public void handleProductDeleted(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
+        EventEnvelope<?> envelope = record.value();
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
+                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRODUCT_DELETED)) {
+            ack.acknowledge();
+            return;
+        }
+
+        ProductDeletedEvent payload = envelope.getPayloadAs(ProductDeletedEvent.class, objectMapper);
+        if (FormatValidator.hasNoValue(payload)) {
+            ack.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                EventPayloadValidator.id("productId", payload.productId()))) {
+            ack.acknowledge();
+            return;
+        }
+
+        saveProductCatalogReadModelPort.deleteByProductId(payload.productId());
+        log.info("상품 카탈로그 Read Model 삭제 (상품 삭제). productId={}", payload.productId());
+        ack.acknowledge();
+    }
+
     private boolean hasInvalidReviewAggregate(Long productId, Integer totalCount, BigDecimal averageRating) {
         if (FormatValidator.hasNoValue(productId) || productId <= 0) {
             return true;
