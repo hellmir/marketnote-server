@@ -134,12 +134,17 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
         if (FormatValidator.hasValue(name)) {
             this.name = name;
         }
-        if (FormatValidator.hasValue(brandName)) {
-            this.brandName = brandName;
-        }
+        applyBrandName(brandName);
         if (FormatValidator.hasValue(primaryCategoryId)) {
             this.primaryCategoryId = primaryCategoryId;
         }
+    }
+
+    private void applyBrandName(String brandName) {
+        if (FormatValidator.isNull(brandName)) {
+            return;
+        }
+        this.brandName = brandName;
     }
 
     public void updatePricing(
