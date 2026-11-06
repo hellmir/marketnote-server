@@ -79,6 +79,7 @@ public class CacheConfig {
         Map<String, RedisCacheConfiguration> perCacheTtl = new HashMap<>();
         // 상품 목록 첫 페이지 전용 캐시: 2분 TTL
         perCacheTtl.put("pricePolicy:list:first", redisCacheConfiguration.entryTtl(Duration.ofMinutes(2)));
+        perCacheTtl.put("product:list:first", redisCacheConfiguration.entryTtl(Duration.ofMinutes(2)));
 
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(redisCacheConfiguration)

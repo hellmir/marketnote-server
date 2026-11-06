@@ -9,25 +9,35 @@ import com.personal.marketnote.product.port.in.usecase.tagsync.SyncProductTagCha
 import com.personal.marketnote.product.port.out.productcatalog.SaveProductCatalogReadModelPort;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ProductCatalogReadModelSyncConsumerTest {
@@ -46,6 +56,9 @@ class ProductCatalogReadModelSyncConsumerTest {
 
     @Mock
     private SyncPricePolicyCreatedUseCase syncPricePolicyCreatedUseCase;
+
+    @Mock
+    private CacheManager cacheManager;
 
     @Mock
     private Acknowledgment acknowledgment;
@@ -643,5 +656,120 @@ class ProductCatalogReadModelSyncConsumerTest {
                 null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null
         );
+    }
+
+    @Nested
+    @DisplayName("CacheEviction")
+    class CacheEviction {
+
+        @Test
+        @DisplayName("9개 핸들러(Product Registered/Updated/Deleted, PricePolicy Created/Deleted, Inventory, Review Registered/Updated/Deleted)에 product:list:first allEntries=true CacheEvict가 적용되어 있다")
+        void nineHandlers_haveCacheEvictAnnotation() {
+            List<String> targetHandlers = List.of(
+                    "handleProductRegistered",
+                    "handleProductUpdated",
+                    "handleProductDeleted",
+                    "handlePricePolicyCreated",
+                    "handlePricePolicyDeleted",
+                    "handleInventoryChanged",
+                    "handleReviewRegistered",
+                    "handleReviewUpdated",
+                    "handleReviewDeleted"
+            );
+
+            for (String handlerName : targetHandlers) {
+                Method method = findKafkaListenerMethod(handlerName);
+                CacheEvict cacheEvict = method.getAnnotation(CacheEvict.class);
+
+                assertThat(cacheEvict)
+                        .as("%s 에 @CacheEvict 애노테이션이 적용되어야 한다", handlerName)
+                        .isNotNull();
+                assertThat(cacheEvict.value())
+                        .as("%s @CacheEvict value", handlerName)
+                        .containsExactly("product:list:first");
+                assertThat(cacheEvict.allEntries())
+                        .as("%s @CacheEvict allEntries", handlerName)
+                        .isTrue();
+            }
+        }
+
+        @Test
+        @DisplayName("handleImageChanged 는 @CacheEvict 애노테이션 대신 수동 캐시 clear 전략을 사용한다")
+        void handleImageChanged_doesNotHaveCacheEvictAnnotation() {
+            Method method = findKafkaListenerMethod("handleImageChanged");
+
+            CacheEvict cacheEvict = method.getAnnotation(CacheEvict.class);
+
+            assertThat(cacheEvict)
+                    .as("handleImageChanged 는 대표 이미지 조건부 clear 를 위해 @CacheEvict 미적용")
+                    .isNull();
+        }
+
+        @Test
+        @DisplayName("handleImageChanged 대표 이미지(sortOrder=0) 수신 시 product:list:first 캐시를 clear한다")
+        void handleImageChanged_representative_clearsCache() {
+            Cache cache = mock(Cache.class);
+            when(cacheManager.getCache("product:list:first")).thenReturn(cache);
+
+            ImageChangedEvent payload = new ImageChangedEvent(
+                    10L, 100L, "PRODUCT", FileSort.PRODUCT_CATALOG_IMAGE.name(),
+                    "https://example.com/catalog.png", 0, List.of(), ImageChangeAction.CREATED
+            );
+            EventEnvelope<ImageChangedEvent> envelope =
+                    envelopeOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, "file-service", payload);
+            ConsumerRecord<String, EventEnvelope<?>> record =
+                    recordOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, envelope);
+
+            consumer.handleImageChanged(record, acknowledgment);
+
+            verify(cache).clear();
+            verify(acknowledgment).acknowledge();
+        }
+
+        @Test
+        @DisplayName("handleImageChanged 비대표 이미지(sortOrder!=0) 수신 시 product:list:first 캐시를 clear하지 않는다")
+        void handleImageChanged_notRepresentative_doesNotClearCache() {
+            ImageChangedEvent payload = new ImageChangedEvent(
+                    10L, 100L, "PRODUCT", FileSort.PRODUCT_CATALOG_IMAGE.name(),
+                    "https://example.com/catalog.png", 1, List.of(), ImageChangeAction.CREATED
+            );
+            EventEnvelope<ImageChangedEvent> envelope =
+                    envelopeOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, "file-service", payload);
+            ConsumerRecord<String, EventEnvelope<?>> record =
+                    recordOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, envelope);
+
+            consumer.handleImageChanged(record, acknowledgment);
+
+            verifyNoInteractions(cacheManager);
+            verify(acknowledgment).acknowledge();
+        }
+
+        @Test
+        @DisplayName("handleImageChanged 대표 이미지 수신 시 CacheManager가 null Cache 를 반환해도 예외 없이 동작한다")
+        void handleImageChanged_nullCache_doesNotThrow() {
+            when(cacheManager.getCache("product:list:first")).thenReturn(null);
+
+            ImageChangedEvent payload = new ImageChangedEvent(
+                    10L, 100L, "PRODUCT", FileSort.PRODUCT_CATALOG_IMAGE.name(),
+                    "https://example.com/catalog.png", 0, List.of(), ImageChangeAction.CREATED
+            );
+            EventEnvelope<ImageChangedEvent> envelope =
+                    envelopeOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, "file-service", payload);
+            ConsumerRecord<String, EventEnvelope<?>> record =
+                    recordOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, envelope);
+
+            consumer.handleImageChanged(record, acknowledgment);
+
+            verify(cacheManager).getCache("product:list:first");
+            verify(acknowledgment).acknowledge();
+        }
+
+        private Method findKafkaListenerMethod(String methodName) {
+            return Arrays.stream(ProductCatalogReadModelSyncConsumer.class.getDeclaredMethods())
+                    .filter(m -> m.getName().equals(methodName))
+                    .filter(m -> m.isAnnotationPresent(KafkaListener.class))
+                    .findFirst()
+                    .orElseThrow(() -> new AssertionError(methodName + " 메서드를 찾을 수 없음"));
+        }
     }
 }

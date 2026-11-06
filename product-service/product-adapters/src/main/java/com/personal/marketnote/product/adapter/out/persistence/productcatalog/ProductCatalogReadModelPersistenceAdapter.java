@@ -14,6 +14,7 @@ import com.personal.marketnote.product.port.out.productcatalog.FindProductCatalo
 import com.personal.marketnote.product.port.out.productcatalog.SaveProductCatalogReadModelPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,11 @@ public class ProductCatalogReadModelPersistenceAdapter
 
     @Override
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
+    @Cacheable(
+            value = "product:list:first",
+            key = "#categoryId + ':' + #pricePolicyIds + ':' + #pageSize + ':' + #isAsc + ':' + #sortProperty + ':' + #searchTarget",
+            condition = "#cursor != null and #cursor == -1L and #searchKeyword == null"
+    )
     public List<ProductCatalogItemResult> findCatalogItems(
             Long categoryId,
             List<Long> pricePolicyIds,
@@ -54,6 +60,11 @@ public class ProductCatalogReadModelPersistenceAdapter
 
     @Override
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
+    @Cacheable(
+            value = "product:list:first",
+            key = "'count:' + #categoryId + ':' + #searchTarget",
+            condition = "#searchKeyword == null"
+    )
     public long countCatalogItems(Long categoryId, ProductSearchTarget searchTarget, String searchKeyword) {
         return repository.countCatalogItems(categoryId, searchTarget, searchKeyword);
     }
