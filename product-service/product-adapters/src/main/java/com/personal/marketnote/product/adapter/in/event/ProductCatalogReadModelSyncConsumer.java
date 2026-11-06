@@ -147,6 +147,7 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         syncProductTagChangeUseCase.syncProductTagChange(eventId, payload);
+        evictProductListFirstCache();
         ack.acknowledge();
     }
 
