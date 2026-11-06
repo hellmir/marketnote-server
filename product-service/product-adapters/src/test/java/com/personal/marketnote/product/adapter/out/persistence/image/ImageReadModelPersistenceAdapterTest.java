@@ -165,8 +165,8 @@ class ImageReadModelPersistenceAdapterTest {
         }
 
         @Test
-        @DisplayName("비활성화된 이미지에 대해 upsert 시 다시 활성화된다")
-        void reactivatesInactiveImage() {
+        @DisplayName("비활성화된 이미지에 대해 upsert 시 INACTIVE 상태가 유지된다")
+        void preservesInactiveStatusOnUpsert() {
             // given
             adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of());
             adapter.deactivateByImageId(1L);
@@ -177,7 +177,7 @@ class ImageReadModelPersistenceAdapterTest {
             // then
             Optional<ImageReadModelJpaEntity> entity = repository.findByImageId(1L);
             assertThat(entity).isPresent();
-            assertThat(entity.get().getStatus()).isEqualTo(EntityStatus.ACTIVE);
+            assertThat(entity.get().getStatus()).isEqualTo(EntityStatus.INACTIVE);
         }
     }
 
