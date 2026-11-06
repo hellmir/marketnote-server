@@ -75,7 +75,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     }
 
     @Test
-    @DisplayName("ProductRegistered envelope가 null이면 upsert를 호출하지 않는다")
+    @DisplayName("ProductRegistered envelope가 null이면 upsert와 캐시 삭제를 호출하지 않는다")
     void handleProductRegistered_nullEnvelope_acknowledges() {
         ConsumerRecord<String, EventEnvelope<?>> record =
                 new ConsumerRecord<>(KafkaTopicConstants.PRODUCT_REGISTERED, 0, 0, "1", null);
@@ -83,12 +83,15 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleProductRegistered(record, acknowledgment);
 
         verifyNoInteractions(saveProductCatalogReadModelPort);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ProductRegistered 이벤트 수신 시 upsertCatalog를 호출한다")
-    void handleProductRegistered_validPayload_upsertsCatalog() {
+    @DisplayName("ProductRegistered 이벤트 수신 시 upsertCatalog 후 product:list:first 캐시를 clear한다")
+    void handleProductRegistered_validPayload_upsertsCatalogAndClearsCache() {
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache("product:list:first")).thenReturn(cache);
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
                 100L, null, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드", 10000L, 9000L, 100L, 0L, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope =
@@ -105,12 +108,15 @@ class ProductCatalogReadModelSyncConsumerTest {
                 eq(BigDecimal.ZERO), eq(0L), eq(0L),
                 eq(0L), eq((String) null), eq((String) null)
         );
+        verify(cache).clear();
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ProductRegistered 이벤트에 sales/productTags/selectedOptions 가 포함되면 JSON 으로 직렬화하여 upsert 한다")
+    @DisplayName("ProductRegistered 이벤트에 sales/productTags/selectedOptions 가 포함되면 JSON 으로 직렬화하여 upsert 후 캐시를 clear한다")
     void handleProductRegistered_withSalesTagsOptions_serializesAndUpserts() throws Exception {
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache("product:list:first")).thenReturn(cache);
         List<ProductRegisteredEvent.ProductTagSnapshot> tags = List.of(
                 new ProductRegisteredEvent.ProductTagSnapshot(10L, "NEW", 1L),
                 new ProductRegisteredEvent.ProductTagSnapshot(11L, "HOT", 2L)
@@ -139,11 +145,12 @@ class ProductCatalogReadModelSyncConsumerTest {
                 eq(BigDecimal.ZERO), eq(0L), eq(0L),
                 eq(50L), eq(expectedTagsJson), eq(expectedOptionsJson)
         );
+        verify(cache).clear();
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ProductRegistered productId가 null이면 upsert를 호출하지 않는다")
+    @DisplayName("ProductRegistered productId가 null이면 upsert와 캐시 삭제를 호출하지 않는다")
     void handleProductRegistered_nullProductId_acknowledges() {
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
                 null, null, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드", 10000L, 9000L, 100L, 0L, null, null);
@@ -155,12 +162,15 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleProductRegistered(record, acknowledgment);
 
         verifyNoInteractions(saveProductCatalogReadModelPort);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("InventoryChanged 이벤트 수신 시 updateStockQuantity를 호출한다")
-    void handleInventoryChanged_validPayload_updatesStock() {
+    @DisplayName("InventoryChanged 이벤트 수신 시 updateStockQuantity 후 product:list:first 캐시를 clear한다")
+    void handleInventoryChanged_validPayload_updatesStockAndClearsCache() {
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache("product:list:first")).thenReturn(cache);
         InventoryChangedEvent payload = new InventoryChangedEvent(
                 1L, 100L, 50, InventoryChangeAction.UPDATED
         );
@@ -172,11 +182,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleInventoryChanged(record, acknowledgment);
 
         verify(saveProductCatalogReadModelPort).updateStockQuantity(1L, 50);
+        verify(cache).clear();
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("InventoryChanged pricePolicyId가 null이면 updateStockQuantity를 호출하지 않는다")
+    @DisplayName("InventoryChanged pricePolicyId가 null이면 updateStockQuantity와 캐시 삭제를 호출하지 않는다")
     void handleInventoryChanged_nullPricePolicyId_acknowledges() {
         InventoryChangedEvent payload = new InventoryChangedEvent(
                 null, 100L, 50, InventoryChangeAction.UPDATED
@@ -189,6 +200,7 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleInventoryChanged(record, acknowledgment);
 
         verifyNoInteractions(saveProductCatalogReadModelPort);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
@@ -276,8 +288,10 @@ class ProductCatalogReadModelSyncConsumerTest {
     }
 
     @Test
-    @DisplayName("ReviewRegistered 이벤트 수신 시 updateReviewAggregate를 호출한다")
-    void handleReviewRegistered_validPayload_updatesAggregate() {
+    @DisplayName("ReviewRegistered 이벤트 수신 시 updateReviewAggregate 후 product:list:first 캐시를 clear한다")
+    void handleReviewRegistered_validPayload_updatesAggregateAndClearsCache() {
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache("product:list:first")).thenReturn(cache);
         ReviewRegisteredEvent payload = new ReviewRegisteredEvent(
                 700L, 1L, 100L, 10, new BigDecimal("4.50"), 300L, 500L
         );
@@ -289,11 +303,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleReviewRegistered(record, acknowledgment);
 
         verify(saveProductCatalogReadModelPort).updateReviewAggregate(100L, 10, new BigDecimal("4.50"));
+        verify(cache).clear();
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ReviewRegistered totalCount가 null이면 updateReviewAggregate를 호출하지 않는다")
+    @DisplayName("ReviewRegistered totalCount가 null이면 updateReviewAggregate와 캐시 삭제를 호출하지 않는다")
     void handleReviewRegistered_nullTotalCount_acknowledges() {
         ReviewRegisteredEvent payload = new ReviewRegisteredEvent(
                 700L, 1L, 100L, null, new BigDecimal("4.50"), 300L, 500L
@@ -306,12 +321,15 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleReviewRegistered(record, acknowledgment);
 
         verifyNoInteractions(saveProductCatalogReadModelPort);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ReviewUpdated 이벤트 수신 시 updateReviewAggregate를 호출한다")
-    void handleReviewUpdated_validPayload_updatesAggregate() {
+    @DisplayName("ReviewUpdated 이벤트 수신 시 updateReviewAggregate 후 product:list:first 캐시를 clear한다")
+    void handleReviewUpdated_validPayload_updatesAggregateAndClearsCache() {
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache("product:list:first")).thenReturn(cache);
         ReviewUpdatedEvent payload = new ReviewUpdatedEvent(500L, 100L, 12, new BigDecimal("4.30"));
         EventEnvelope<ReviewUpdatedEvent> envelope =
                 envelopeOf(KafkaTopicConstants.REVIEW_UPDATED, "community-service", payload);
@@ -321,12 +339,15 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleReviewUpdated(record, acknowledgment);
 
         verify(saveProductCatalogReadModelPort).updateReviewAggregate(100L, 12, new BigDecimal("4.30"));
+        verify(cache).clear();
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ReviewDeleted 이벤트 수신 시 updateReviewAggregate를 호출한다")
-    void handleReviewDeleted_validPayload_updatesAggregate() {
+    @DisplayName("ReviewDeleted 이벤트 수신 시 updateReviewAggregate 후 product:list:first 캐시를 clear한다")
+    void handleReviewDeleted_validPayload_updatesAggregateAndClearsCache() {
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache("product:list:first")).thenReturn(cache);
         ReviewDeletedEvent payload = new ReviewDeletedEvent(500L, 100L, 8, new BigDecimal("4.20"), 300L);
         EventEnvelope<ReviewDeletedEvent> envelope =
                 envelopeOf(KafkaTopicConstants.REVIEW_DELETED, "community-service", payload);
@@ -336,6 +357,7 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleReviewDeleted(record, acknowledgment);
 
         verify(saveProductCatalogReadModelPort).updateReviewAggregate(100L, 8, new BigDecimal("4.20"));
+        verify(cache).clear();
         verify(acknowledgment).acknowledge();
     }
 
@@ -411,8 +433,10 @@ class ProductCatalogReadModelSyncConsumerTest {
     }
 
     @Test
-    @DisplayName("PricePolicyCreated 이벤트 수신 시 SyncPricePolicyCreatedUseCase 에 위임한다")
-    void handlePricePolicyCreated_validPayload_delegatesToUseCase() {
+    @DisplayName("PricePolicyCreated 이벤트 수신 시 SyncPricePolicyCreatedUseCase 에 위임 후 product:list:first 캐시를 clear한다")
+    void handlePricePolicyCreated_validPayload_delegatesToUseCaseAndClearsCache() {
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache("product:list:first")).thenReturn(cache);
         UUID eventId = UUID.randomUUID();
         PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
                 100L, 200L, 300L, "테스트 상품", "브랜드",
@@ -430,11 +454,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handlePricePolicyCreated(record, acknowledgment);
 
         verify(syncPricePolicyCreatedUseCase).syncPricePolicyCreated(eq(eventId), eq(payload));
+        verify(cache).clear();
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("PricePolicyCreated 이벤트 envelope 이 null 이면 UseCase 를 호출하지 않는다")
+    @DisplayName("PricePolicyCreated 이벤트 envelope 이 null 이면 UseCase와 캐시 삭제를 호출하지 않는다")
     void handlePricePolicyCreated_nullEnvelope_acknowledges() {
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
                 KafkaTopicConstants.PRICE_POLICY_CREATED, 0, 0, "1", null);
@@ -442,11 +467,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handlePricePolicyCreated(record, acknowledgment);
 
         verifyNoInteractions(syncPricePolicyCreatedUseCase);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("PricePolicyCreated 이벤트 productId 가 유효하지 않으면 UseCase 를 호출하지 않는다")
+    @DisplayName("PricePolicyCreated 이벤트 productId 가 유효하지 않으면 UseCase와 캐시 삭제를 호출하지 않는다")
     void handlePricePolicyCreated_invalidProductId_acknowledges() {
         PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
                 null, 200L, 300L, "상품", "브랜드",
@@ -460,11 +486,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handlePricePolicyCreated(record, acknowledgment);
 
         verifyNoInteractions(syncPricePolicyCreatedUseCase);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("PricePolicyCreated 이벤트 pricePolicyId 가 유효하지 않으면 UseCase 를 호출하지 않는다")
+    @DisplayName("PricePolicyCreated 이벤트 pricePolicyId 가 유효하지 않으면 UseCase와 캐시 삭제를 호출하지 않는다")
     void handlePricePolicyCreated_invalidPricePolicyId_acknowledges() {
         PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
                 100L, null, 300L, "상품", "브랜드",
@@ -478,11 +505,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handlePricePolicyCreated(record, acknowledgment);
 
         verifyNoInteractions(syncPricePolicyCreatedUseCase);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("PricePolicyCreated 이벤트 eventId 가 UUID 형식이 아니면 UseCase 를 호출하지 않는다")
+    @DisplayName("PricePolicyCreated 이벤트 eventId 가 UUID 형식이 아니면 UseCase와 캐시 삭제를 호출하지 않는다")
     void handlePricePolicyCreated_invalidEventId_acknowledges() {
         PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
                 100L, 200L, 300L, "상품", "브랜드",
@@ -498,11 +526,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handlePricePolicyCreated(record, acknowledgment);
 
         verifyNoInteractions(syncPricePolicyCreatedUseCase);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("PricePolicyCreated 이벤트 productName 이 null 이면 ack skip 하고 ReadModel 수정 호출을 하지 않는다")
+    @DisplayName("PricePolicyCreated 이벤트 productName 이 null 이면 UseCase와 ReadModel 수정 및 캐시 삭제를 호출하지 않는다")
     void handlePricePolicyCreated_nullProductName_acknowledgesAndSkips() {
         PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
                 100L, 200L, 300L, null, "브랜드",
@@ -519,12 +548,15 @@ class ProductCatalogReadModelSyncConsumerTest {
 
         verifyNoInteractions(syncPricePolicyCreatedUseCase);
         verifyNoInteractions(saveProductCatalogReadModelPort);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("PricePolicyDeleted 이벤트 수신 시 deleteByPricePolicyId 를 pricePolicyId 기준으로 호출한다")
-    void handlePricePolicyDeleted_validPayload_deletesReadModelByPricePolicyId() {
+    @DisplayName("PricePolicyDeleted 이벤트 수신 시 deleteByPricePolicyId 를 pricePolicyId 기준으로 호출 후 product:list:first 캐시를 clear한다")
+    void handlePricePolicyDeleted_validPayload_deletesReadModelByPricePolicyIdAndClearsCache() {
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache("product:list:first")).thenReturn(cache);
         PricePolicyDeletedEvent payload = new PricePolicyDeletedEvent(100L, 200L);
         EventEnvelope<PricePolicyDeletedEvent> envelope =
                 envelopeOf(KafkaTopicConstants.PRICE_POLICY_DELETED, "product-service", payload);
@@ -534,11 +566,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handlePricePolicyDeleted(record, acknowledgment);
 
         verify(saveProductCatalogReadModelPort).deleteByPricePolicyId(200L);
+        verify(cache).clear();
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("PricePolicyDeleted envelope 가 null 이면 deleteByPricePolicyId 를 호출하지 않는다")
+    @DisplayName("PricePolicyDeleted envelope 가 null 이면 deleteByPricePolicyId 와 캐시 삭제를 호출하지 않는다")
     void handlePricePolicyDeleted_nullEnvelope_acknowledges() {
         ConsumerRecord<String, EventEnvelope<?>> record =
                 new ConsumerRecord<>(KafkaTopicConstants.PRICE_POLICY_DELETED, 0, 0, "1", null);
@@ -546,11 +579,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handlePricePolicyDeleted(record, acknowledgment);
 
         verifyNoInteractions(saveProductCatalogReadModelPort);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("PricePolicyDeleted pricePolicyId 가 null 이면 deleteByPricePolicyId 를 호출하지 않는다")
+    @DisplayName("PricePolicyDeleted pricePolicyId 가 null 이면 deleteByPricePolicyId 와 캐시 삭제를 호출하지 않는다")
     void handlePricePolicyDeleted_nullPricePolicyId_acknowledges() {
         PricePolicyDeletedEvent payload = new PricePolicyDeletedEvent(100L, null);
         EventEnvelope<PricePolicyDeletedEvent> envelope =
@@ -561,12 +595,15 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handlePricePolicyDeleted(record, acknowledgment);
 
         verifyNoInteractions(saveProductCatalogReadModelPort);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ProductDeleted 이벤트 수신 시 deleteByProductId 를 호출한다")
-    void handleProductDeleted_validPayload_deletesReadModel() {
+    @DisplayName("ProductDeleted 이벤트 수신 시 deleteByProductId 를 호출 후 product:list:first 캐시를 clear한다")
+    void handleProductDeleted_validPayload_deletesReadModelAndClearsCache() {
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache("product:list:first")).thenReturn(cache);
         ProductDeletedEvent payload = new ProductDeletedEvent(100L);
         EventEnvelope<ProductDeletedEvent> envelope =
                 envelopeOf(KafkaTopicConstants.PRODUCT_DELETED, "product-service", payload);
@@ -576,11 +613,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleProductDeleted(record, acknowledgment);
 
         verify(saveProductCatalogReadModelPort).deleteByProductId(100L);
+        verify(cache).clear();
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ProductDeleted envelope 가 null 이면 deleteByProductId 를 호출하지 않는다")
+    @DisplayName("ProductDeleted envelope 가 null 이면 deleteByProductId 와 캐시 삭제를 호출하지 않는다")
     void handleProductDeleted_nullEnvelope_acknowledges() {
         ConsumerRecord<String, EventEnvelope<?>> record =
                 new ConsumerRecord<>(KafkaTopicConstants.PRODUCT_DELETED, 0, 0, "1", null);
@@ -588,11 +626,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleProductDeleted(record, acknowledgment);
 
         verifyNoInteractions(saveProductCatalogReadModelPort);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ProductDeleted productId 가 null 이면 deleteByProductId 를 호출하지 않는다")
+    @DisplayName("ProductDeleted productId 가 null 이면 deleteByProductId 와 캐시 삭제를 호출하지 않는다")
     void handleProductDeleted_nullProductId_acknowledges() {
         ProductDeletedEvent payload = new ProductDeletedEvent(null);
         EventEnvelope<ProductDeletedEvent> envelope =
@@ -603,12 +642,15 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleProductDeleted(record, acknowledgment);
 
         verifyNoInteractions(saveProductCatalogReadModelPort);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ProductUpdated 이벤트 수신 시 updateProductInfo를 productId 기준으로 호출한다")
-    void handleProductUpdated_validPayload_updatesProductInfo() {
+    @DisplayName("ProductUpdated 이벤트 수신 시 updateProductInfo를 productId 기준으로 호출 후 product:list:first 캐시를 clear한다")
+    void handleProductUpdated_validPayload_updatesProductInfoAndClearsCache() {
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache("product:list:first")).thenReturn(cache);
         ProductUpdatedEvent payload = productUpdatedPayload(100L, "수정된 상품", "수정된 브랜드");
         EventEnvelope<ProductUpdatedEvent> envelope =
                 envelopeOf(KafkaTopicConstants.PRODUCT_UPDATED, "product-service", payload);
@@ -618,11 +660,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleProductUpdated(record, acknowledgment);
 
         verify(saveProductCatalogReadModelPort).updateProductInfo(100L, "수정된 상품", "수정된 브랜드");
+        verify(cache).clear();
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ProductUpdated envelope가 null이면 updateProductInfo를 호출하지 않는다")
+    @DisplayName("ProductUpdated envelope가 null이면 updateProductInfo와 캐시 삭제를 호출하지 않는다")
     void handleProductUpdated_nullEnvelope_acknowledges() {
         ConsumerRecord<String, EventEnvelope<?>> record =
                 new ConsumerRecord<>(KafkaTopicConstants.PRODUCT_UPDATED, 0, 0, "1", null);
@@ -630,11 +673,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleProductUpdated(record, acknowledgment);
 
         verifyNoInteractions(saveProductCatalogReadModelPort);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ProductUpdated productId가 null이면 updateProductInfo를 호출하지 않는다")
+    @DisplayName("ProductUpdated productId가 null이면 updateProductInfo와 캐시 삭제를 호출하지 않는다")
     void handleProductUpdated_nullProductId_acknowledges() {
         ProductUpdatedEvent payload = productUpdatedPayload(null, "수정된 상품", "수정된 브랜드");
         EventEnvelope<ProductUpdatedEvent> envelope =
@@ -645,6 +689,7 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleProductUpdated(record, acknowledgment);
 
         verifyNoInteractions(saveProductCatalogReadModelPort);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
@@ -663,8 +708,8 @@ class ProductCatalogReadModelSyncConsumerTest {
     class CacheEviction {
 
         @Test
-        @DisplayName("9개 핸들러(Product Registered/Updated/Deleted, PricePolicy Created/Deleted, Inventory, Review Registered/Updated/Deleted)에 product:list:first allEntries=true CacheEvict가 적용되어 있다")
-        void nineHandlers_haveCacheEvictAnnotation() {
+        @DisplayName("9개 핸들러(Product Registered/Updated/Deleted, PricePolicy Created/Deleted, Inventory, Review Registered/Updated/Deleted)에는 @CacheEvict 애노테이션이 적용되지 않고 수동 캐시 clear 전략을 사용한다")
+        void nineHandlers_doNotHaveCacheEvictAnnotation() {
             List<String> targetHandlers = List.of(
                     "handleProductRegistered",
                     "handleProductUpdated",
@@ -682,14 +727,8 @@ class ProductCatalogReadModelSyncConsumerTest {
                 CacheEvict cacheEvict = method.getAnnotation(CacheEvict.class);
 
                 assertThat(cacheEvict)
-                        .as("%s 에 @CacheEvict 애노테이션이 적용되어야 한다", handlerName)
-                        .isNotNull();
-                assertThat(cacheEvict.value())
-                        .as("%s @CacheEvict value", handlerName)
-                        .containsExactly("product:list:first");
-                assertThat(cacheEvict.allEntries())
-                        .as("%s @CacheEvict allEntries", handlerName)
-                        .isTrue();
+                        .as("%s 는 Port 호출 성공 후 수동 캐시 clear 전략을 사용하므로 @CacheEvict 미적용이어야 한다", handlerName)
+                        .isNull();
             }
         }
 
