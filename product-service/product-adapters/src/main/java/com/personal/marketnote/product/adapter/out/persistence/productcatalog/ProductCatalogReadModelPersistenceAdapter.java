@@ -37,7 +37,7 @@ public class ProductCatalogReadModelPersistenceAdapter
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     @Cacheable(
             value = "product:list:first",
-            key = "#categoryId + ':' + #pricePolicyIds + ':' + #pageSize + ':' + #isAsc + ':' + #sortProperty + ':' + #searchTarget",
+            key = "#categoryId + ':' + (#pricePolicyIds == null ? 'null' : #pricePolicyIds.stream().distinct().sorted().toList()) + ':' + #pageSize + ':' + #isAsc + ':' + #sortProperty + ':' + #searchTarget",
             condition = "#cursor != null and #cursor == -1L and #searchKeyword == null"
     )
     public List<ProductCatalogItemResult> findCatalogItems(

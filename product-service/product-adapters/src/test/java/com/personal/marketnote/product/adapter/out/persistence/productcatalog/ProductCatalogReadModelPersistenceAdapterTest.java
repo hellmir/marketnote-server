@@ -21,6 +21,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.lang.reflect.Method;
@@ -424,6 +427,20 @@ class ProductCatalogReadModelPersistenceAdapterTest {
     @DisplayName("Caching")
     class Caching {
 
+        private Expression expression;
+
+        @BeforeEach
+        void setUpExpression() throws NoSuchMethodException {
+            Method method = ProductCatalogReadModelPersistenceAdapter.class.getMethod(
+                    "findCatalogItems",
+                    Long.class, List.class, Long.class, int.class, boolean.class,
+                    ProductSortProperty.class, ProductSearchTarget.class, String.class
+            );
+            String keyExpression = method.getAnnotation(Cacheable.class).key();
+            SpelExpressionParser parser = new SpelExpressionParser();
+            expression = parser.parseExpression(keyExpression);
+        }
+
         @Test
         @DisplayName("findCatalogItems 메서드에 product:list:first Cacheable 애노테이션이 적용되어 있다")
         void findCatalogItems_hasCacheableAnnotation() throws NoSuchMethodException {
@@ -438,9 +455,37 @@ class ProductCatalogReadModelPersistenceAdapterTest {
             assertThat(cacheable).isNotNull();
             assertThat(cacheable.value()).containsExactly("product:list:first");
             assertThat(cacheable.key())
-                    .isEqualTo("#categoryId + ':' + #pricePolicyIds + ':' + #pageSize + ':' + #isAsc + ':' + #sortProperty + ':' + #searchTarget");
+                    .isEqualTo("#categoryId + ':' + (#pricePolicyIds == null ? 'null' : #pricePolicyIds.stream().distinct().sorted().toList()) + ':' + #pageSize + ':' + #isAsc + ':' + #sortProperty + ':' + #searchTarget");
             assertThat(cacheable.condition())
                     .isEqualTo("#cursor != null and #cursor == -1L and #searchKeyword == null");
+        }
+
+        @Test
+        @DisplayName("findCatalogItems 캐시 키는 pricePolicyIds 의 요소 순서가 달라도 동일한 키를 생성한다")
+        void findCatalogItems_cacheKeyIsStableAcrossPricePolicyIdsOrder() {
+            String key1 = expression.getValue(buildContext(List.of(3L, 1L, 2L)), String.class);
+            String key2 = expression.getValue(buildContext(List.of(1L, 2L, 3L)), String.class);
+            String key3 = expression.getValue(buildContext(List.of(2L, 3L, 1L)), String.class);
+
+            assertThat(key1).isEqualTo(key2);
+            assertThat(key2).isEqualTo(key3);
+        }
+
+        @Test
+        @DisplayName("findCatalogItems 캐시 키는 pricePolicyIds 에 중복 요소가 있어도 제거되어 동일한 키를 생성한다")
+        void findCatalogItems_cacheKeyIsStableAcrossDuplicatePricePolicyIds() {
+            String key1 = expression.getValue(buildContext(List.of(1L, 1L, 2L)), String.class);
+            String key2 = expression.getValue(buildContext(List.of(1L, 2L)), String.class);
+
+            assertThat(key1).isEqualTo(key2);
+        }
+
+        @Test
+        @DisplayName("findCatalogItems 캐시 키는 pricePolicyIds 가 null 일 때 'null' 문자열을 포함하는 키를 생성한다")
+        void findCatalogItems_cacheKeyRendersNullLiteralWhenPricePolicyIdsIsNull() {
+            String nullKey = expression.getValue(buildContext(null), String.class);
+
+            assertThat(nullKey).isEqualTo("10:null:20:true:DISCOUNT_PRICE:NAME");
         }
 
         @Test
@@ -456,6 +501,17 @@ class ProductCatalogReadModelPersistenceAdapterTest {
             assertThat(cacheable.value()).containsExactly("product:list:first");
             assertThat(cacheable.key()).isEqualTo("'count:' + #categoryId + ':' + #searchTarget");
             assertThat(cacheable.condition()).isEqualTo("#searchKeyword == null");
+        }
+
+        private StandardEvaluationContext buildContext(List<Long> pricePolicyIds) {
+            StandardEvaluationContext context = new StandardEvaluationContext();
+            context.setVariable("categoryId", 10L);
+            context.setVariable("pricePolicyIds", pricePolicyIds);
+            context.setVariable("pageSize", 20);
+            context.setVariable("isAsc", true);
+            context.setVariable("sortProperty", ProductSortProperty.DISCOUNT_PRICE);
+            context.setVariable("searchTarget", ProductSearchTarget.NAME);
+            return context;
         }
     }
 }
