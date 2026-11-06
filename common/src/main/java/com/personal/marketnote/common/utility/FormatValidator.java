@@ -16,6 +16,14 @@ public class FormatValidator {
         return value != null && !value.toString().isBlank();
     }
 
+    public static boolean isNull(Object value) {
+        return value == null;
+    }
+
+    public static boolean isNotNull(Object value) {
+        return value != null;
+    }
+
     public static boolean hasNoValue(Collection<?> value) {
         return !hasValue(value);
     }
