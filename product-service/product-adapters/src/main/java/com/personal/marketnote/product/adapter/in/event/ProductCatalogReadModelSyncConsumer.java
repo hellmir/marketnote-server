@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -38,7 +37,6 @@ public class ProductCatalogReadModelSyncConsumer {
     private final CacheManager cacheManager;
 
     @KafkaListener(topics = KafkaTopicConstants.PRODUCT_REGISTERED, groupId = CONSUMER_GROUP_ID)
-    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleProductRegistered(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -87,6 +85,7 @@ public class ProductCatalogReadModelSyncConsumer {
                 serializeProductTags(payload.productTags(), payload.pricePolicyId()),
                 serializeSelectedOptions(payload.selectedOptions(), payload.pricePolicyId())
         );
+        evictProductListFirstCache();
 
         log.info("상품 카탈로그 Read Model 저장 (상품 등록). pricePolicyId={}", payload.pricePolicyId());
         ack.acknowledge();
@@ -161,7 +160,6 @@ public class ProductCatalogReadModelSyncConsumer {
     }
 
     @KafkaListener(topics = KafkaTopicConstants.PRICE_POLICY_CREATED, groupId = CONSUMER_GROUP_ID)
-    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handlePricePolicyCreated(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -199,11 +197,11 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         syncPricePolicyCreatedUseCase.syncPricePolicyCreated(eventId, payload);
+        evictProductListFirstCache();
         ack.acknowledge();
     }
 
     @KafkaListener(topics = KafkaTopicConstants.PRICE_POLICY_DELETED, groupId = CONSUMER_GROUP_ID)
-    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handlePricePolicyDeleted(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -225,12 +223,12 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         saveProductCatalogReadModelPort.deleteByPricePolicyId(payload.pricePolicyId());
+        evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 삭제 (가격 정책 삭제). pricePolicyId={}", payload.pricePolicyId());
         ack.acknowledge();
     }
 
     @KafkaListener(topics = KafkaTopicConstants.INVENTORY_CHANGED, groupId = CONSUMER_GROUP_ID)
-    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleInventoryChanged(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -252,6 +250,7 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         saveProductCatalogReadModelPort.updateStockQuantity(payload.pricePolicyId(), payload.stockQuantity());
+        evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 재고 업데이트. pricePolicyId={}, stock={}",
                 payload.pricePolicyId(), payload.stockQuantity());
         ack.acknowledge();
@@ -311,7 +310,6 @@ public class ProductCatalogReadModelSyncConsumer {
     }
 
     @KafkaListener(topics = KafkaTopicConstants.REVIEW_REGISTERED, groupId = CONSUMER_GROUP_ID)
-    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleReviewRegistered(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -330,12 +328,12 @@ public class ProductCatalogReadModelSyncConsumer {
         saveProductCatalogReadModelPort.updateReviewAggregate(
                 payload.productId(), payload.totalCount(), payload.averageRating()
         );
+        evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 리뷰 집계 업데이트 (등록). productId={}", payload.productId());
         ack.acknowledge();
     }
 
     @KafkaListener(topics = KafkaTopicConstants.REVIEW_UPDATED, groupId = CONSUMER_GROUP_ID)
-    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleReviewUpdated(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -354,12 +352,12 @@ public class ProductCatalogReadModelSyncConsumer {
         saveProductCatalogReadModelPort.updateReviewAggregate(
                 payload.productId(), payload.totalCount(), payload.averageRating()
         );
+        evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 리뷰 집계 업데이트 (수정). productId={}", payload.productId());
         ack.acknowledge();
     }
 
     @KafkaListener(topics = KafkaTopicConstants.REVIEW_DELETED, groupId = CONSUMER_GROUP_ID)
-    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleReviewDeleted(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -378,6 +376,7 @@ public class ProductCatalogReadModelSyncConsumer {
         saveProductCatalogReadModelPort.updateReviewAggregate(
                 payload.productId(), payload.totalCount(), payload.averageRating()
         );
+        evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 리뷰 집계 업데이트 (삭제). productId={}", payload.productId());
         ack.acknowledge();
     }
@@ -390,7 +389,6 @@ public class ProductCatalogReadModelSyncConsumer {
     }
 
     @KafkaListener(topics = KafkaTopicConstants.PRODUCT_UPDATED, groupId = CONSUMER_GROUP_ID)
-    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleProductUpdated(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -414,12 +412,12 @@ public class ProductCatalogReadModelSyncConsumer {
         saveProductCatalogReadModelPort.updateProductInfo(
                 payload.productId(), payload.productName(), payload.brandName()
         );
+        evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 상품 정보 업데이트. productId={}", payload.productId());
         ack.acknowledge();
     }
 
     @KafkaListener(topics = KafkaTopicConstants.PRODUCT_DELETED, groupId = CONSUMER_GROUP_ID)
-    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleProductDeleted(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -441,6 +439,7 @@ public class ProductCatalogReadModelSyncConsumer {
         }
 
         saveProductCatalogReadModelPort.deleteByProductId(payload.productId());
+        evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 삭제 (상품 삭제). productId={}", payload.productId());
         ack.acknowledge();
     }
