@@ -321,4 +321,26 @@ def registerTaskDefinition(parentScript, String envPrefix) {
     }
 }
 
+def notifyFlywayImmutabilitySkip(parentScript) {
+    def skipReason = parentScript.params.SKIP_REASON?.trim()
+    def reasonText = skipReason ? skipReason : '(사유 미기재)'
+    def skipCommitAuthor = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
+    def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
+    if (ch) {
+        slackSend(
+            channel: "${ch}",
+            color:   "${env.SLACK_FAIL_COLOR}",
+            message: "[AUDIT] Flyway immutability check SKIPPED\n"
+                + "SERVICE: ${parentScript.params.SERVICE}\n"
+                + "BUILD_URL: ${env.BUILD_URL}\n"
+                + "COMMIT: ${env.GIT_COMMIT}\n"
+                + "BRANCH: ${env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'unknown'}\n"
+                + "AUTHOR: ${skipCommitAuthor}\n"
+                + "REASON: ${reasonText}"
+        )
+        return
+    }
+    echo 'SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack SKIP audit notification'
+}
+
 return this
