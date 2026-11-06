@@ -8,13 +8,19 @@
 # validate가 실패하여 배포가 차단된다.
 #
 # 동작:
-#   1) origin/dev 와 HEAD 를 비교하여 V*.sql 파일의 변경 종류를 확인
+#   1) <remote>/dev 와 HEAD 를 비교하여 V*.sql 파일의 변경 종류를 확인
 #   2) M(modified) / D(deleted) / R(renamed) 인 파일이 있으면 exit 1
 #   3) A(added) 만 있으면 통과 (신규 마이그레이션 파일 추가는 허용)
 #
+# remote 이름 동적 감지:
+#   Jenkins SCM "Advanced > Name" 필드가 `origin` 이 아닐 수 있으므로
+#   (예: `dev`) URL 이 설정된 remote 를 동적으로 감지한다. workspace 에
+#   URL 없는 빈 껍데기 remote 섹션이 존재하는 경우에도 이를 건너뛴다.
+#
 # fail-closed 원칙:
-#   - origin/dev fetch 실패 → exit 1
-#   - origin/dev ref 부재 → exit 1
+#   - URL 이 설정된 remote 부재 → exit 1
+#   - <remote>/dev fetch 실패 → exit 1
+#   - <remote>/dev ref 부재 → exit 1
 #   - V*.sql M/D/R 위반 발견 → exit 1
 #   - 위반 없음만 exit 0
 #
@@ -23,19 +29,26 @@
 #
 # 종료 코드:
 #   0  통과 (변경 없음 또는 A만 존재)
-#   1  immutability 위반 발견 또는 origin/dev 획득 실패
+#   1  immutability 위반 발견 또는 <remote>/dev 획득 실패
 #
 
 set -euo pipefail
 
-# origin/dev fetch (자격증명이 주입된 Jenkins 환경에서 호출 전제)
-if ! git fetch --no-tags --quiet origin dev; then
-    echo "[FAIL] origin/dev fetch 실패. Jenkins 자격증명 주입 상태를 확인하세요." >&2
+# URL 이 설정된 remote 이름을 감지 (workspace 에 URL 없는 빈 껍데기 섹션이 있을 수 있음)
+REMOTE_NAME=$(git remote -v | awk 'NF >= 3 {print $1; exit}')
+if [[ -z "$REMOTE_NAME" ]]; then
+    echo "[FAIL] URL 이 설정된 git remote 가 없습니다. workspace git config 를 확인하세요." >&2
     exit 1
 fi
 
-if ! git rev-parse --verify --quiet origin/dev >/dev/null; then
-    echo "[FAIL] origin/dev ref가 없습니다. 'git fetch origin dev' 후 재실행하세요." >&2
+# <remote>/dev fetch (자격증명이 주입된 Jenkins 환경에서 호출 전제)
+if ! git fetch --no-tags --quiet "$REMOTE_NAME" dev; then
+    echo "[FAIL] ${REMOTE_NAME}/dev fetch 실패. Jenkins 자격증명 주입 상태를 확인하세요." >&2
+    exit 1
+fi
+
+if ! git rev-parse --verify --quiet "${REMOTE_NAME}/dev" >/dev/null; then
+    echo "[FAIL] ${REMOTE_NAME}/dev ref 가 없습니다. 'git fetch ${REMOTE_NAME} dev' 후 재실행하세요." >&2
     exit 1
 fi
 
@@ -78,7 +91,7 @@ while IFS= read -r -d '' status; do
             VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
             ;;
     esac
-done < <(git diff -z --name-status origin/dev...HEAD -- ':(glob)**/db/migration/V*.sql')
+done < <(git diff -z --name-status "${REMOTE_NAME}/dev...HEAD" -- ':(glob)**/db/migration/V*.sql')
 
 if [[ "$VIOLATION_COUNT" -eq 0 ]]; then
     echo "[OK] Flyway immutability check passed: no modifications to applied migration files"
@@ -98,7 +111,7 @@ cat >&2 <<EOF
 ${VIOLATIONS}
 해결 방법:
   - SQL semantic이 동일하다면 (IDE auto-format 등): 원본 byte로 복원
-      git checkout origin/dev -- <파일경로>
+      git checkout ${REMOTE_NAME}/dev -- <파일경로>
       ※ 주의: 로컬 변경을 즉시 덮어씁니다. semantic 변경분이 있다면 먼저 신규 V 파일로 분리.
   - SQL semantic을 변경해야 한다면: 신규 V<날짜>__*.sql 파일 추가
 EOF
