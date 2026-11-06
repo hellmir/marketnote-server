@@ -195,6 +195,32 @@ public class ProductCatalogReadModelSyncConsumer {
         ack.acknowledge();
     }
 
+    @KafkaListener(topics = KafkaTopicConstants.PRICE_POLICY_DELETED, groupId = CONSUMER_GROUP_ID)
+    public void handlePricePolicyDeleted(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
+        EventEnvelope<?> envelope = record.value();
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
+                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRICE_POLICY_DELETED)) {
+            ack.acknowledge();
+            return;
+        }
+
+        PricePolicyDeletedEvent payload = envelope.getPayloadAs(PricePolicyDeletedEvent.class, objectMapper);
+        if (FormatValidator.hasNoValue(payload)) {
+            ack.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
+            ack.acknowledge();
+            return;
+        }
+
+        saveProductCatalogReadModelPort.deleteByPricePolicyId(payload.pricePolicyId());
+        log.info("상품 카탈로그 Read Model 삭제 (가격 정책 삭제). pricePolicyId={}", payload.pricePolicyId());
+        ack.acknowledge();
+    }
+
     @KafkaListener(topics = KafkaTopicConstants.INVENTORY_CHANGED, groupId = CONSUMER_GROUP_ID)
     public void handleInventoryChanged(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
