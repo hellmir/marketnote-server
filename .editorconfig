@@ -1,0 +1,27 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{java,kt,kts,groovy}]
+indent_style = space
+indent_size = 4
+
+[*.{yml,yaml,json}]
+indent_style = space
+indent_size = 2
+
+[*.{md,markdown}]
+trim_trailing_whitespace = false
+
+# Flyway 적용 완료 마이그레이션 파일은 byte 단위로 immutable이어야 한다.
+# 자동 포맷이 byte를 변경하면 schema_history.checksum과 mismatch가 발생한다.
+# IDE가 .editorconfig를 따르더라도 SQL formatter는 별도 설정 필요.
+[**/db/migration/V*.sql]
+insert_final_newline = false
+trim_trailing_whitespace = false
+indent_style = unset
+indent_size = unset
