@@ -510,6 +510,48 @@ class ProductCatalogReadModelSyncConsumerTest {
     }
 
     @Test
+    @DisplayName("PricePolicyDeleted 이벤트 수신 시 deleteByPricePolicyId 를 pricePolicyId 기준으로 호출한다")
+    void handlePricePolicyDeleted_validPayload_deletesReadModelByPricePolicyId() {
+        PricePolicyDeletedEvent payload = new PricePolicyDeletedEvent(100L, 200L);
+        EventEnvelope<PricePolicyDeletedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.PRICE_POLICY_DELETED, "product-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRICE_POLICY_DELETED, envelope);
+
+        consumer.handlePricePolicyDeleted(record, acknowledgment);
+
+        verify(saveProductCatalogReadModelPort).deleteByPricePolicyId(200L);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("PricePolicyDeleted envelope 가 null 이면 deleteByPricePolicyId 를 호출하지 않는다")
+    void handlePricePolicyDeleted_nullEnvelope_acknowledges() {
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                new ConsumerRecord<>(KafkaTopicConstants.PRICE_POLICY_DELETED, 0, 0, "1", null);
+
+        consumer.handlePricePolicyDeleted(record, acknowledgment);
+
+        verifyNoInteractions(saveProductCatalogReadModelPort);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("PricePolicyDeleted pricePolicyId 가 null 이면 deleteByPricePolicyId 를 호출하지 않는다")
+    void handlePricePolicyDeleted_nullPricePolicyId_acknowledges() {
+        PricePolicyDeletedEvent payload = new PricePolicyDeletedEvent(100L, null);
+        EventEnvelope<PricePolicyDeletedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.PRICE_POLICY_DELETED, "product-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRICE_POLICY_DELETED, envelope);
+
+        consumer.handlePricePolicyDeleted(record, acknowledgment);
+
+        verifyNoInteractions(saveProductCatalogReadModelPort);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("ProductDeleted 이벤트 수신 시 deleteByProductId 를 호출한다")
     void handleProductDeleted_validPayload_deletesReadModel() {
         ProductDeletedEvent payload = new ProductDeletedEvent(100L);
