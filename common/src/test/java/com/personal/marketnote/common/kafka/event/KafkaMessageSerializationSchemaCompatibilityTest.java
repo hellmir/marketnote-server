@@ -724,7 +724,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
                 "1.5", "국내", "Y", "365", "7",
                 "3", "BOX", "N", "UPRIGHT",
                 "종이", "Y", "100", "N",
-                "1", "https://img.test/1.jpg", "https://external.test/1.jpg"
+                "1", "1", "https://img.test/1.jpg", "https://external.test/1.jpg"
         );
     }
 

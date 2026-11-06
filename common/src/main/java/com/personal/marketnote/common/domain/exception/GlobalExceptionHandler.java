@@ -1,6 +1,8 @@
 package com.personal.marketnote.common.domain.exception;
 
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.personal.marketnote.common.utility.FormatValidator;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.micrometer.core.instrument.Counter;
@@ -101,6 +103,35 @@ public class GlobalExceptionHandler {
             return "";
         }
         return constraintMessage;
+    }
+
+    // 로그 유출 방지: e.getMessage() / 원본 JSON 본문을 제외하고 Jackson path만 추출한다.
+    private String formatHttpMessageNotReadableLogMessage(HttpMessageNotReadableException e) {
+        Throwable cause = e.getCause();
+        if (cause instanceof MismatchedInputException mie) {
+            String path = mie.getPath().stream()
+                    .map(ref -> ref.getFieldName() != null ? ref.getFieldName() : "[" + ref.getIndex() + "]")
+                    .collect(Collectors.joining("."));
+            return "type=HttpMessageNotReadable, cause=" + cause.getClass().getSimpleName()
+                    + (path.isEmpty() ? "" : ", path=" + path);
+        }
+        return "type=HttpMessageNotReadable, cause="
+                + (FormatValidator.hasNoValue(cause) ? "unknown" : cause.getClass().getSimpleName());
+    }
+
+    // 로그 유출 방지: e.getValue() (원본 문자열) 제외. name + requiredType만 포맷한다.
+    private String formatMethodArgumentTypeMismatchLogMessage(MethodArgumentTypeMismatchException e) {
+        String requiredTypeName = FormatValidator.hasNoValue(e.getRequiredType())
+                ? "unknown"
+                : e.getRequiredType().getSimpleName();
+        return "type=MethodArgumentTypeMismatch, name=" + e.getName() + ", requiredType=" + requiredTypeName;
+    }
+
+    // 로그 유출 방지: JJWT 라이브러리가 토큰 일부를 메시지에 포함할 수 있으므로 class/cause만 포맷한다.
+    private String formatJwtExceptionLogMessage(JwtException e) {
+        Throwable cause = e.getCause();
+        return "type=" + e.getClass().getSimpleName()
+                + (FormatValidator.hasNoValue(cause) ? "" : ", cause=" + cause.getClass().getSimpleName());
     }
 
     @ExceptionHandler(IOException.class)
@@ -214,7 +245,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
+        log.info(LOG_INFO_MESSAGE, formatHttpMessageNotReadableLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "요청 본문을 읽을 수 없습니다.");
     }
 
@@ -228,14 +259,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MalformedJwtException.class)
     ResponseEntity<ErrorResponse> handleMalformedJwtException(MalformedJwtException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
+        log.warn(LOG_WARN_MESSAGE, formatJwtExceptionLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "유효하지 않은 토큰입니다.");
     }
 
     @ExceptionHandler(UnsupportedJwtException.class)
     ResponseEntity<ErrorResponse> handleUnsupportedJwtException(UnsupportedJwtException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
+        log.warn(LOG_WARN_MESSAGE, formatJwtExceptionLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "지원하지 않는 토큰입니다.");
     }
 
@@ -281,7 +312,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         String message = "요청 파라미터 '" + e.getName() + "'의 타입이 올바르지 않습니다.";
-        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
+        log.info(LOG_INFO_MESSAGE, formatMethodArgumentTypeMismatchLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), message);
     }
 

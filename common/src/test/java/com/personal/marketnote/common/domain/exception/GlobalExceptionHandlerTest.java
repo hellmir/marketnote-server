@@ -4,6 +4,9 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.micrometer.core.instrument.Counter;
@@ -16,9 +19,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.mail.MailSendException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -27,6 +33,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -836,6 +843,171 @@ class GlobalExceptionHandlerTest {
             }
 
             executor.shutdown();
+        }
+    }
+
+    @Nested
+    @DisplayName("잔여 핸들러 로그 PII 마스킹")
+    class LogPiiMaskingTest {
+
+        private Logger logger;
+        private ListAppender<ILoggingEvent> appender;
+        private boolean previousAdditive;
+
+        @org.junit.jupiter.api.BeforeEach
+        void attachAppender() {
+            logger = (Logger) LoggerFactory.getLogger(GlobalExceptionHandler.class);
+            previousAdditive = logger.isAdditive();
+            logger.setAdditive(false);
+            appender = new ListAppender<>();
+            appender.start();
+            logger.addAppender(appender);
+        }
+
+        @org.junit.jupiter.api.AfterEach
+        void detachAppender() {
+            logger.detachAppender(appender);
+            appender.stop();
+            logger.setAdditive(previousAdditive);
+        }
+
+        private String joinMessages() {
+            StringBuilder builder = new StringBuilder();
+            for (ILoggingEvent event : appender.list) {
+                builder.append(event.getFormattedMessage()).append('\n');
+            }
+            return builder.toString();
+        }
+
+        @Test
+        @DisplayName("HttpMessageNotReadableException 로그에 원본 입력값이 포함되지 않는다")
+        void shouldNotLogRawValueWhenHandlingHttpMessageNotReadableException() {
+            MismatchedInputException mismatchedInputException = mock(MismatchedInputException.class);
+            when(mismatchedInputException.getPath()).thenReturn(List.of(
+                    new JsonMappingException.Reference(null, "amount")
+            ));
+            HttpInputMessage httpInputMessage = mock(HttpInputMessage.class);
+            HttpMessageNotReadableException exception = new HttpMessageNotReadableException(
+                    "JSON parse error: Cannot deserialize value of type `java.lang.Integer` from String \"SENSITIVE_CARD_1234\"",
+                    mismatchedInputException,
+                    httpInputMessage
+            );
+
+            handler.handleHttpMessageNotReadableException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("SENSITIVE_CARD_1234");
+            assertThat(logged).doesNotContain("Cannot deserialize");
+            assertThat(logged).contains("HttpMessageNotReadable");
+            assertThat(logged).contains("amount");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("MethodArgumentTypeMismatchException 로그에 원본 value가 포함되지 않는다")
+        void shouldNotLogRawValueWhenHandlingMethodArgumentTypeMismatchException() {
+            NumberFormatException cause = new NumberFormatException("For input string: \"SENSITIVE_CARD_1234\"");
+            MethodArgumentTypeMismatchException exception = new MethodArgumentTypeMismatchException(
+                    "SENSITIVE_CARD_1234", Integer.class, "orderId", (MethodParameter) null, cause
+            );
+
+            handler.handleMethodArgumentTypeMismatchException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("SENSITIVE_CARD_1234");
+            assertThat(logged).contains("MethodArgumentTypeMismatch");
+            assertThat(logged).contains("orderId");
+            assertThat(logged).contains("Integer");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("MalformedJwtException 로그에 JWT 토큰 일부가 포함되지 않는다")
+        void shouldNotLogJwtTokenWhenHandlingMalformedJwtException() {
+            MalformedJwtException exception = new MalformedJwtException(
+                    "JWT strings must contain exactly 2 period characters. Found: 0 eyJhbGciOiJIUzI1"
+            );
+
+            handler.handleMalformedJwtException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("eyJhbGciOiJIUzI1");
+            assertThat(logged).doesNotContain("eyJhbGc");
+            assertThat(logged).doesNotContain("JWT strings must contain");
+            assertThat(logged).contains("MalformedJwtException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("UnsupportedJwtException 로그에 JWT 토큰 일부가 포함되지 않는다")
+        void shouldNotLogJwtTokenWhenHandlingUnsupportedJwtException() {
+            UnsupportedJwtException exception = new UnsupportedJwtException(
+                    "Signed JWT rejected: Signed with RS256 eyJhbGciOiJIUzI1"
+            );
+
+            handler.handleUnsupportedJwtException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("eyJhbGciOiJIUzI1");
+            assertThat(logged).doesNotContain("eyJhbGc");
+            assertThat(logged).doesNotContain("Signed JWT rejected");
+            assertThat(logged).contains("UnsupportedJwtException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("HttpMessageNotReadableException cause가 null이어도 원본 메시지가 로그에 포함되지 않는다")
+        void shouldNotLogRawMessageWhenHttpMessageNotReadableCauseIsNull() {
+            HttpInputMessage httpInputMessage = mock(HttpInputMessage.class);
+            HttpMessageNotReadableException exception = new HttpMessageNotReadableException(
+                    "Required request body is missing: SENSITIVE_CARD_1234",
+                    httpInputMessage
+            );
+
+            handler.handleHttpMessageNotReadableException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("SENSITIVE_CARD_1234");
+            assertThat(logged).doesNotContain("Required request body is missing");
+            assertThat(logged).contains("HttpMessageNotReadable");
+            assertThat(logged).contains("cause=unknown");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("HttpMessageNotReadableException cause가 JsonParseException이어도 원본 본문이 로그에 포함되지 않는다")
+        void shouldNotLogRawBodyWhenHttpMessageNotReadableCauseIsJsonParseException() {
+            JsonParseException jsonParseException = new JsonParseException(
+                    null,
+                    "Unexpected character ('x' (code 120)) near SENSITIVE_CARD_1234"
+            );
+            HttpInputMessage httpInputMessage = mock(HttpInputMessage.class);
+            HttpMessageNotReadableException exception = new HttpMessageNotReadableException(
+                    "JSON parse error: Unexpected character ('x' (code 120)) near SENSITIVE_CARD_1234",
+                    jsonParseException,
+                    httpInputMessage
+            );
+
+            handler.handleHttpMessageNotReadableException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("SENSITIVE_CARD_1234");
+            assertThat(logged).doesNotContain("Unexpected character");
+            assertThat(logged).contains("HttpMessageNotReadable");
+            assertThat(logged).contains("cause=JsonParseException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
     }
 }
