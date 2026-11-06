@@ -12,6 +12,9 @@ import com.personal.marketnote.product.port.out.productcatalog.SaveProductCatalo
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -26,13 +29,16 @@ import java.util.UUID;
 public class ProductCatalogReadModelSyncConsumer {
 
     private static final String CONSUMER_GROUP_ID = "product-catalog-read-model";
+    private static final String PRODUCT_LIST_FIRST_CACHE = "product:list:first";
 
     private final ObjectMapper objectMapper;
     private final SaveProductCatalogReadModelPort saveProductCatalogReadModelPort;
     private final SyncProductTagChangeUseCase syncProductTagChangeUseCase;
     private final SyncPricePolicyCreatedUseCase syncPricePolicyCreatedUseCase;
+    private final CacheManager cacheManager;
 
     @KafkaListener(topics = KafkaTopicConstants.PRODUCT_REGISTERED, groupId = CONSUMER_GROUP_ID)
+    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleProductRegistered(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -155,6 +161,7 @@ public class ProductCatalogReadModelSyncConsumer {
     }
 
     @KafkaListener(topics = KafkaTopicConstants.PRICE_POLICY_CREATED, groupId = CONSUMER_GROUP_ID)
+    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handlePricePolicyCreated(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -196,6 +203,7 @@ public class ProductCatalogReadModelSyncConsumer {
     }
 
     @KafkaListener(topics = KafkaTopicConstants.PRICE_POLICY_DELETED, groupId = CONSUMER_GROUP_ID)
+    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handlePricePolicyDeleted(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -222,6 +230,7 @@ public class ProductCatalogReadModelSyncConsumer {
     }
 
     @KafkaListener(topics = KafkaTopicConstants.INVENTORY_CHANGED, groupId = CONSUMER_GROUP_ID)
+    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleInventoryChanged(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -279,8 +288,16 @@ public class ProductCatalogReadModelSyncConsumer {
                 payload.imageUrl(),
                 toResizedImageUrls(payload.resizedImages())
         );
+        evictProductListFirstCache();
         log.info("상품 카탈로그 Read Model 대표 이미지 업데이트. productId={}", payload.targetId());
         ack.acknowledge();
+    }
+
+    private void evictProductListFirstCache() {
+        Cache cache = cacheManager.getCache(PRODUCT_LIST_FIRST_CACHE);
+        if (FormatValidator.hasValue(cache)) {
+            cache.clear();
+        }
     }
 
     private List<String> toResizedImageUrls(List<ImageChangedEvent.ResizedImageInfo> resizedImages) {
@@ -294,6 +311,7 @@ public class ProductCatalogReadModelSyncConsumer {
     }
 
     @KafkaListener(topics = KafkaTopicConstants.REVIEW_REGISTERED, groupId = CONSUMER_GROUP_ID)
+    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleReviewRegistered(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -317,6 +335,7 @@ public class ProductCatalogReadModelSyncConsumer {
     }
 
     @KafkaListener(topics = KafkaTopicConstants.REVIEW_UPDATED, groupId = CONSUMER_GROUP_ID)
+    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleReviewUpdated(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -340,6 +359,7 @@ public class ProductCatalogReadModelSyncConsumer {
     }
 
     @KafkaListener(topics = KafkaTopicConstants.REVIEW_DELETED, groupId = CONSUMER_GROUP_ID)
+    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleReviewDeleted(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -370,6 +390,7 @@ public class ProductCatalogReadModelSyncConsumer {
     }
 
     @KafkaListener(topics = KafkaTopicConstants.PRODUCT_UPDATED, groupId = CONSUMER_GROUP_ID)
+    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleProductUpdated(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
@@ -398,6 +419,7 @@ public class ProductCatalogReadModelSyncConsumer {
     }
 
     @KafkaListener(topics = KafkaTopicConstants.PRODUCT_DELETED, groupId = CONSUMER_GROUP_ID)
+    @CacheEvict(value = PRODUCT_LIST_FIRST_CACHE, allEntries = true)
     public void handleProductDeleted(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
         EventEnvelope<?> envelope = record.value();
         if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)

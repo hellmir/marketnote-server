@@ -20,8 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -415,6 +417,45 @@ class ProductCatalogReadModelPersistenceAdapterTest {
 
             assertThat(withNullCursor).hasSize(2);
             assertThat(withZeroCursor).hasSize(2);
+        }
+    }
+
+    @Nested
+    @DisplayName("Caching")
+    class Caching {
+
+        @Test
+        @DisplayName("findCatalogItems 메서드에 product:list:first Cacheable 애노테이션이 적용되어 있다")
+        void findCatalogItems_hasCacheableAnnotation() throws NoSuchMethodException {
+            Method method = ProductCatalogReadModelPersistenceAdapter.class.getMethod(
+                    "findCatalogItems",
+                    Long.class, List.class, Long.class, int.class, boolean.class,
+                    ProductSortProperty.class, ProductSearchTarget.class, String.class
+            );
+
+            Cacheable cacheable = method.getAnnotation(Cacheable.class);
+
+            assertThat(cacheable).isNotNull();
+            assertThat(cacheable.value()).containsExactly("product:list:first");
+            assertThat(cacheable.key())
+                    .isEqualTo("#categoryId + ':' + #pricePolicyIds + ':' + #pageSize + ':' + #isAsc + ':' + #sortProperty + ':' + #searchTarget");
+            assertThat(cacheable.condition())
+                    .isEqualTo("#cursor != null and #cursor == -1L and #searchKeyword == null");
+        }
+
+        @Test
+        @DisplayName("countCatalogItems 메서드에 product:list:first Cacheable 애노테이션이 적용되어 있다")
+        void countCatalogItems_hasCacheableAnnotation() throws NoSuchMethodException {
+            Method method = ProductCatalogReadModelPersistenceAdapter.class.getMethod(
+                    "countCatalogItems", Long.class, ProductSearchTarget.class, String.class
+            );
+
+            Cacheable cacheable = method.getAnnotation(Cacheable.class);
+
+            assertThat(cacheable).isNotNull();
+            assertThat(cacheable.value()).containsExactly("product:list:first");
+            assertThat(cacheable.key()).isEqualTo("'count:' + #categoryId + ':' + #searchTarget");
+            assertThat(cacheable.condition()).isEqualTo("#searchKeyword == null");
         }
     }
 }
