@@ -39,7 +39,7 @@ class ProductCatalogReadModelJpaEntityTest {
         }
 
         @Test
-        @DisplayName("brandName 이 null 로 들어와도 기존 brandName 이 유지된다")
+        @DisplayName("brandName 이 null 로 들어오면 기존 brandName 이 유지된다")
         void preservesBrandNameWhenNull() {
             ProductCatalogReadModelJpaEntity entity = newEntity();
 
@@ -47,6 +47,42 @@ class ProductCatalogReadModelJpaEntityTest {
 
             assertThat(entity.getName()).isEqualTo("상품B");
             assertThat(entity.getBrandName()).isEqualTo("브랜드A");
+            assertThat(entity.getPrimaryCategoryId()).isEqualTo(20L);
+        }
+
+        @Test
+        @DisplayName("brandName 이 빈 문자열로 들어오면 빈 문자열로 갱신된다")
+        void updatesBrandNameWhenEmptyString() {
+            ProductCatalogReadModelJpaEntity entity = newEntity();
+
+            entity.updateProductInfo("상품B", "", 20L);
+
+            assertThat(entity.getName()).isEqualTo("상품B");
+            assertThat(entity.getBrandName()).isEqualTo("");
+            assertThat(entity.getPrimaryCategoryId()).isEqualTo(20L);
+        }
+
+        @Test
+        @DisplayName("brandName 이 공백 문자열로 들어오면 공백 문자열로 갱신된다")
+        void updatesBrandNameWhenBlankString() {
+            ProductCatalogReadModelJpaEntity entity = newEntity();
+
+            entity.updateProductInfo("상품B", "   ", 20L);
+
+            assertThat(entity.getName()).isEqualTo("상품B");
+            assertThat(entity.getBrandName()).isEqualTo("   ");
+            assertThat(entity.getPrimaryCategoryId()).isEqualTo(20L);
+        }
+
+        @Test
+        @DisplayName("brandName 이 유효 값으로 들어오면 새 값으로 갱신된다")
+        void updatesBrandNameWhenValidValue() {
+            ProductCatalogReadModelJpaEntity entity = newEntity();
+
+            entity.updateProductInfo("상품B", "브랜드B", 20L);
+
+            assertThat(entity.getName()).isEqualTo("상품B");
+            assertThat(entity.getBrandName()).isEqualTo("브랜드B");
             assertThat(entity.getPrimaryCategoryId()).isEqualTo(20L);
         }
 
