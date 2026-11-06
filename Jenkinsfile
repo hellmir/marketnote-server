@@ -252,6 +252,7 @@ pipeline {
 	parameters {
 		choice(name: 'SERVICE', choices: ['auto','user-service','product-service','commerce-service','community-service','reward-service','fulfillment-service','file-service','notification-service'], description: '배포 대상 서비스')
 		booleanParam(name: 'SKIP_FLYWAY_IMMUTABILITY_CHECK', defaultValue: false, description: '긴급 revert PR 한정 — 적용 완료 V*.sql 변경 차단 가드 우회. 기본값 false 유지 필수')
+		string(name: 'SKIP_REASON', defaultValue: '', description: 'SKIP_FLYWAY_IMMUTABILITY_CHECK=true 시 우회 사유 (긴급 revert PR 번호 등). SKIP=false 시 무시됨')
 	}
 
 	environment {
@@ -440,6 +441,26 @@ pipeline {
 				script {
 					if (params.SKIP_FLYWAY_IMMUTABILITY_CHECK) {
 						echo "[WARN] Flyway immutability check SKIPPED by parameter. 긴급 revert PR 한정 용도. SERVICE=${params.SERVICE}, BUILD_URL=${env.BUILD_URL}"
+
+						def skipReason = params.SKIP_REASON?.trim()
+						def skipCommitAuthor = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
+						def reasonText = skipReason ? skipReason : '(사유 미기재)'
+						def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
+						if (ch) {
+							slackSend(
+								channel: "${ch}",
+								color:   "${env.SLACK_FAIL_COLOR}",
+								message: "[AUDIT] Flyway immutability check SKIPPED\n"
+									+ "SERVICE: ${params.SERVICE}\n"
+									+ "BUILD_URL: ${env.BUILD_URL}\n"
+									+ "COMMIT: ${env.GIT_COMMIT}\n"
+									+ "BRANCH: ${env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'unknown'}\n"
+									+ "AUTHOR: ${skipCommitAuthor}\n"
+									+ "REASON: ${reasonText}"
+							)
+						} else {
+							echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack SKIP audit notification"
+						}
 						return
 					}
 					withCredentials([gitUsernamePassword(credentialsId: 'MARKETNOTE_GITHUB_WEBHOOK_ACCESS_TOKEN', gitToolName: 'Default')]) {
