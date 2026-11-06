@@ -72,7 +72,6 @@ public class ImageReadModelJpaEntity extends BaseGeneralEntity {
         this.fileSort = fileSort;
         this.imageUrl = imageUrl;
         this.sortOrder = sortOrder;
-        activate();
     }
 
     public void clearResizedFiles() {

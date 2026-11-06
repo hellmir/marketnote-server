@@ -37,7 +37,6 @@ public class InventoryReadModelJpaEntity extends BaseGeneralEntity {
 
     public void updateFrom(Integer stockQuantity) {
         this.stockQuantity = stockQuantity;
-        activate();
     }
 
     public void markInactive() {

@@ -72,8 +72,8 @@ class InventoryReadModelPersistenceAdapterTest {
         }
 
         @Test
-        @DisplayName("비활성화된 재고에 대해 upsert 시 다시 활성화된다")
-        void reactivatesInactiveInventory() {
+        @DisplayName("비활성화된 재고에 대해 upsert 시 stockQuantity만 갱신되고 INACTIVE 상태가 유지된다")
+        void preservesInactiveStatusOnUpsert() {
             // given
             adapter.upsert(1L, 100L, 50);
             InventoryReadModelJpaEntity savedEntity = repository.findByPricePolicyId(1L).get();
@@ -86,7 +86,7 @@ class InventoryReadModelPersistenceAdapterTest {
             // then
             Optional<InventoryReadModelJpaEntity> entity = repository.findByPricePolicyId(1L);
             assertThat(entity).isPresent();
-            assertThat(entity.get().getStatus()).isEqualTo(EntityStatus.ACTIVE);
+            assertThat(entity.get().getStatus()).isEqualTo(EntityStatus.INACTIVE);
             assertThat(entity.get().getStockQuantity()).isEqualTo(40);
         }
     }

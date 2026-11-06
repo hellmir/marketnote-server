@@ -40,7 +40,6 @@ public class ReviewAggregateReadModelJpaEntity extends BaseGeneralEntity {
     public void updateFrom(Integer totalCount, BigDecimal averageRating) {
         this.totalCount = totalCount;
         this.averageRating = averageRating;
-        activate();
     }
 
     public void markInactive() {
