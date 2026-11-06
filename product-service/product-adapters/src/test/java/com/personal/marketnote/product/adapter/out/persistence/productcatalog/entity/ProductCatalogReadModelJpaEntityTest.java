@@ -1,5 +1,6 @@
 package com.personal.marketnote.product.adapter.out.persistence.productcatalog.entity;
 
+import com.personal.marketnote.common.domain.EntityStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -219,6 +220,48 @@ class ProductCatalogReadModelJpaEntityTest {
             entity.increaseSales(3L);
 
             assertThat(entity.getSales()).isEqualTo(13L);
+        }
+    }
+
+    @Nested
+    @DisplayName("updateProductInfo status 보존")
+    class StatusPreservation {
+
+        @Test
+        @DisplayName("updateProductInfo 호출해도 ACTIVE 상태가 유지된다")
+        void shouldPreserveActiveStatus() {
+            ProductCatalogReadModelJpaEntity entity = newEntity();
+            assertThat(entity.getStatus()).isEqualTo(EntityStatus.ACTIVE);
+
+            entity.updateProductInfo("새이름", "새브랜드", 99L);
+
+            assertThat(entity.getStatus()).isEqualTo(EntityStatus.ACTIVE);
+        }
+
+        @Test
+        @DisplayName("updateProductInfo 호출 시 INACTIVE 상태가 재활성화되지 않는다")
+        void shouldNotReactivateInactive() {
+            ProductCatalogReadModelJpaEntity entity = newEntity();
+            entity.markInactive();
+            assertThat(entity.getStatus()).isEqualTo(EntityStatus.INACTIVE);
+
+            entity.updateProductInfo("새이름", "새브랜드", 99L);
+
+            assertThat(entity.getStatus()).isEqualTo(EntityStatus.INACTIVE);
+        }
+
+        @Test
+        @DisplayName("updateProductInfo 호출 시 name/brandName/primaryCategoryId 는 여전히 정상 갱신된다")
+        void shouldStillUpdateFieldsWithoutStatusChange() {
+            ProductCatalogReadModelJpaEntity entity = newEntity();
+            entity.markInactive();
+
+            entity.updateProductInfo("새이름", "새브랜드", 99L);
+
+            assertThat(entity.getName()).isEqualTo("새이름");
+            assertThat(entity.getBrandName()).isEqualTo("새브랜드");
+            assertThat(entity.getPrimaryCategoryId()).isEqualTo(99L);
+            assertThat(entity.getStatus()).isEqualTo(EntityStatus.INACTIVE);
         }
     }
 }

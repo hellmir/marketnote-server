@@ -140,7 +140,6 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
         if (FormatValidator.hasValue(primaryCategoryId)) {
             this.primaryCategoryId = primaryCategoryId;
         }
-        activate();
     }
 
     public void updatePricing(
