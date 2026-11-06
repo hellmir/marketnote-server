@@ -145,12 +145,6 @@ pipeline {
 					script {
 						env.SLACK_NOTIFICATION_CHANNEL = SLACK_NOTIFICATION_CHANNEL
 
-						sh '''
-						  git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-						  git fetch --all --prune --tags || true
-						  git fetch --unshallow         || true
-						'''
-
 						def branchLabel = sh(
 							script: '''
 							  if [ -n "$BRANCH_NAME" ]; then
@@ -218,26 +212,8 @@ pipeline {
 				script {
 					if (params.SKIP_FLYWAY_IMMUTABILITY_CHECK) {
 						echo "[WARN] Flyway immutability check SKIPPED by parameter. 긴급 revert PR 한정 용도. SERVICE=${params.SERVICE}, BUILD_URL=${env.BUILD_URL}"
-
-						def skipReason = params.SKIP_REASON?.trim()
-						def skipCommitAuthor = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
-						def reasonText = skipReason ? skipReason : '(사유 미기재)'
-						def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
-						if (ch) {
-							slackSend(
-								channel: "${ch}",
-								color:   "${env.SLACK_FAIL_COLOR}",
-								message: "[AUDIT] Flyway immutability check SKIPPED\n"
-									+ "SERVICE: ${params.SERVICE}\n"
-									+ "BUILD_URL: ${env.BUILD_URL}\n"
-									+ "COMMIT: ${env.GIT_COMMIT}\n"
-									+ "BRANCH: ${env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'unknown'}\n"
-									+ "AUTHOR: ${skipCommitAuthor}\n"
-									+ "REASON: ${reasonText}"
-							)
-						} else {
-							echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack SKIP audit notification"
-						}
+						def helper = load 'jenkins/resolve-and-register.groovy'
+						helper.notifyFlywayImmutabilitySkip(this)
 						return
 					}
 					withCredentials([gitUsernamePassword(credentialsId: 'MARKETNOTE_GITHUB_WEBHOOK_ACCESS_TOKEN', gitToolName: 'Default')]) {
