@@ -321,10 +321,52 @@ def registerTaskDefinition(parentScript, String envPrefix) {
     }
 }
 
+def resolveBranchLabel(parentScript) {
+    return sh(
+        script: '''
+          if [ -n "$BRANCH_NAME" ]; then
+            echo "$BRANCH_NAME"
+            exit 0
+          fi
+          if [ -n "$CHANGE_ID" ] && [ -n "$CHANGE_BRANCH" ] && [ -n "$CHANGE_TARGET" ]; then
+            echo "PR #$CHANGE_ID ($CHANGE_BRANCH -> $CHANGE_TARGET)"
+            exit 0
+          fi
+          if [ -n "$GIT_BRANCH" ]; then
+            echo "${GIT_BRANCH#origin/}"
+            exit 0
+          fi
+          bn=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+          if [ "$bn" != "HEAD" ] && [ -n "$bn" ]; then
+            echo "$bn"
+            exit 0
+          fi
+          guess=$(git for-each-ref --format="%(refname:short)" --contains HEAD refs/remotes/origin | sed "s#^origin/##" | head -n1)
+          if [ -n "$guess" ]; then
+            echo "$guess"
+            exit 0
+          fi
+          tag=$(git describe --tags --exact-match 2>/dev/null || true)
+          if [ -n "$tag" ]; then
+            echo "tag: $tag"
+            exit 0
+          fi
+          name=$(git name-rev --name-only HEAD 2>/dev/null | sed "s#remotes/origin/##;s#~[0-9]*##")
+          if [ -n "$name" ] && [ "$name" != "undefined" ]; then
+            echo "$name"
+            exit 0
+          fi
+          git rev-parse --short HEAD
+        ''',
+        returnStdout: true
+    ).trim()
+}
+
 def notifyFlywayImmutabilitySkip(parentScript) {
     def skipReason = parentScript.params.SKIP_REASON?.trim()
     def reasonText = skipReason ? skipReason : '(사유 미기재)'
     def skipCommitAuthor = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
+    def branchLabel = env.BRANCH_LABEL?.trim() ?: resolveBranchLabel(parentScript)
     def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
     if (ch) {
         slackSend(
@@ -334,7 +376,7 @@ def notifyFlywayImmutabilitySkip(parentScript) {
                 + "SERVICE: ${parentScript.params.SERVICE}\n"
                 + "BUILD_URL: ${env.BUILD_URL}\n"
                 + "COMMIT: ${env.GIT_COMMIT}\n"
-                + "BRANCH: ${env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'unknown'}\n"
+                + "BRANCH: ${branchLabel}\n"
                 + "AUTHOR: ${skipCommitAuthor}\n"
                 + "REASON: ${reasonText}"
         )

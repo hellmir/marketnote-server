@@ -368,44 +368,9 @@ pipeline {
                     script {
                         env.SLACK_NOTIFICATION_CHANNEL = SLACK_NOTIFICATION_CHANNEL
 
-                        def branchLabel = sh(
-                            script: '''
-                              if [ -n "$BRANCH_NAME" ]; then
-                                echo "$BRANCH_NAME"
-                                exit 0
-                              fi
-                              if [ -n "$CHANGE_ID" ] && [ -n "$CHANGE_BRANCH" ] && [ -n "$CHANGE_TARGET" ]; then
-                                echo "PR #$CHANGE_ID ($CHANGE_BRANCH -> $CHANGE_TARGET)"
-                                exit 0
-                              fi
-                              if [ -n "$GIT_BRANCH" ]; then
-                                echo "${GIT_BRANCH#origin/}"
-                                exit 0
-                              fi
-                              bn=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-                              if [ "$bn" != "HEAD" ] && [ -n "$bn" ]; then
-                                echo "$bn"
-                                exit 0
-                              fi
-                              guess=$(git for-each-ref --format="%(refname:short)" --contains HEAD refs/remotes/origin | sed "s#^origin/##" | head -n1)
-                              if [ -n "$guess" ]; then
-                                echo "$guess"
-                                exit 0
-                              fi
-                              tag=$(git describe --tags --exact-match 2>/dev/null || true)
-                              if [ -n "$tag" ]; then
-                                echo "tag: $tag"
-                                exit 0
-                              fi
-                              name=$(git name-rev --name-only HEAD 2>/dev/null | sed "s#remotes/origin/##;s#~[0-9]*##")
-                              if [ -n "$name" ] && [ "$name" != "undefined" ]; then
-                                echo "$name"
-                                exit 0
-                              fi
-                              git rev-parse --short HEAD
-                            ''',
-                            returnStdout: true
-                        ).trim()
+                        def helper = load 'jenkins/resolve-and-register.groovy'
+                        def branchLabel = helper.resolveBranchLabel(this)
+                        env.BRANCH_LABEL = branchLabel
 
                         def commitAuthor  = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
                         def commitMessage = sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim()
