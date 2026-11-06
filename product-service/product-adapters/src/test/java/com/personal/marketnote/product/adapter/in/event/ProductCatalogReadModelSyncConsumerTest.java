@@ -362,8 +362,10 @@ class ProductCatalogReadModelSyncConsumerTest {
     }
 
     @Test
-    @DisplayName("ProductTagChanged 이벤트 수신 시 SyncProductTagChangeUseCase 에 위임한다")
-    void handleProductTagChanged_validPayload_delegatesToUseCase() {
+    @DisplayName("ProductTagChanged 이벤트 수신 시 SyncProductTagChangeUseCase 에 위임 후 product:list:first 캐시를 clear한다")
+    void handleProductTagChanged_validPayload_delegatesToUseCaseAndClearsCache() {
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache("product:list:first")).thenReturn(cache);
         UUID eventId = UUID.randomUUID();
         ProductTagChangedEvent payload = new ProductTagChangedEvent(
                 777L,
@@ -380,11 +382,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleProductTagChanged(record, acknowledgment);
 
         verify(syncProductTagChangeUseCase).syncProductTagChange(eq(eventId), eq(payload));
+        verify(cache).clear();
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ProductTagChanged 이벤트 envelope이 null 이면 UseCase 를 호출하지 않는다")
+    @DisplayName("ProductTagChanged 이벤트 envelope이 null 이면 UseCase와 캐시 삭제를 호출하지 않는다")
     void handleProductTagChanged_nullEnvelope_acknowledges() {
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
                 KafkaTopicConstants.PRODUCT_TAG_CHANGED, 0, 0, "1", null);
@@ -392,11 +395,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleProductTagChanged(record, acknowledgment);
 
         verifyNoInteractions(syncProductTagChangeUseCase);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ProductTagChanged 이벤트 productId 가 유효하지 않으면 UseCase 를 호출하지 않는다")
+    @DisplayName("ProductTagChanged 이벤트 productId 가 유효하지 않으면 UseCase와 캐시 삭제를 호출하지 않는다")
     void handleProductTagChanged_invalidProductId_acknowledges() {
         ProductTagChangedEvent payload = new ProductTagChangedEvent(
                 null, List.of(), ProductTagChangedEvent.Action.UPDATED
@@ -410,11 +414,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleProductTagChanged(record, acknowledgment);
 
         verifyNoInteractions(syncProductTagChangeUseCase);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ProductTagChanged 이벤트 eventId 가 UUID 형식이 아니면 UseCase 를 호출하지 않는다")
+    @DisplayName("ProductTagChanged 이벤트 eventId 가 UUID 형식이 아니면 UseCase와 캐시 삭제를 호출하지 않는다")
     void handleProductTagChanged_invalidEventId_acknowledges() {
         ProductTagChangedEvent payload = new ProductTagChangedEvent(
                 1L, List.of(), ProductTagChangedEvent.Action.UPDATED
@@ -429,6 +434,7 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleProductTagChanged(record, acknowledgment);
 
         verifyNoInteractions(syncProductTagChangeUseCase);
+        verifyNoInteractions(cacheManager);
         verify(acknowledgment).acknowledge();
     }
 
@@ -708,12 +714,13 @@ class ProductCatalogReadModelSyncConsumerTest {
     class CacheEviction {
 
         @Test
-        @DisplayName("9개 핸들러(Product Registered/Updated/Deleted, PricePolicy Created/Deleted, Inventory, Review Registered/Updated/Deleted)에는 @CacheEvict 애노테이션이 적용되지 않고 수동 캐시 clear 전략을 사용한다")
-        void nineHandlers_doNotHaveCacheEvictAnnotation() {
+        @DisplayName("10개 핸들러(Product Registered/Updated/Deleted/TagChanged, PricePolicy Created/Deleted, Inventory, Review Registered/Updated/Deleted)에는 @CacheEvict 애노테이션이 적용되지 않고 수동 캐시 clear 전략을 사용한다")
+        void tenHandlers_doNotHaveCacheEvictAnnotation() {
             List<String> targetHandlers = List.of(
                     "handleProductRegistered",
                     "handleProductUpdated",
                     "handleProductDeleted",
+                    "handleProductTagChanged",
                     "handlePricePolicyCreated",
                     "handlePricePolicyDeleted",
                     "handleInventoryChanged",
