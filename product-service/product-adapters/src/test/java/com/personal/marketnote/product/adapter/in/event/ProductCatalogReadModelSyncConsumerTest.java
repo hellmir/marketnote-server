@@ -550,4 +550,56 @@ class ProductCatalogReadModelSyncConsumerTest {
         verifyNoInteractions(saveProductCatalogReadModelPort);
         verify(acknowledgment).acknowledge();
     }
+
+    @Test
+    @DisplayName("ProductUpdated 이벤트 수신 시 updateProductInfo를 productId 기준으로 호출한다")
+    void handleProductUpdated_validPayload_updatesProductInfo() {
+        ProductUpdatedEvent payload = productUpdatedPayload(100L, "수정된 상품", "수정된 브랜드");
+        EventEnvelope<ProductUpdatedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.PRODUCT_UPDATED, "product-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRODUCT_UPDATED, envelope);
+
+        consumer.handleProductUpdated(record, acknowledgment);
+
+        verify(saveProductCatalogReadModelPort).updateProductInfo(100L, "수정된 상품", "수정된 브랜드");
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ProductUpdated envelope가 null이면 updateProductInfo를 호출하지 않는다")
+    void handleProductUpdated_nullEnvelope_acknowledges() {
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                new ConsumerRecord<>(KafkaTopicConstants.PRODUCT_UPDATED, 0, 0, "1", null);
+
+        consumer.handleProductUpdated(record, acknowledgment);
+
+        verifyNoInteractions(saveProductCatalogReadModelPort);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ProductUpdated productId가 null이면 updateProductInfo를 호출하지 않는다")
+    void handleProductUpdated_nullProductId_acknowledges() {
+        ProductUpdatedEvent payload = productUpdatedPayload(null, "수정된 상품", "수정된 브랜드");
+        EventEnvelope<ProductUpdatedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.PRODUCT_UPDATED, "product-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRODUCT_UPDATED, envelope);
+
+        consumer.handleProductUpdated(record, acknowledgment);
+
+        verifyNoInteractions(saveProductCatalogReadModelPort);
+        verify(acknowledgment).acknowledge();
+    }
+
+    private ProductUpdatedEvent productUpdatedPayload(Long productId, String productName, String brandName) {
+        return new ProductUpdatedEvent(
+                productId, null, productName, brandName,
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null
+        );
+    }
 }

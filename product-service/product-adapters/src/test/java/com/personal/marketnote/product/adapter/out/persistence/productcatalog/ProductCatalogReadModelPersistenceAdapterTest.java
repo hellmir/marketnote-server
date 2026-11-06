@@ -171,6 +171,63 @@ class ProductCatalogReadModelPersistenceAdapterTest {
     }
 
     @Nested
+    @DisplayName("updateProductInfo")
+    class UpdateProductInfo {
+
+        @Test
+        @DisplayName("updateProductInfo 호출 시 productId 기준 전체 ReadModel 레코드의 name/brandName 이 갱신된다")
+        void updatesAllByProductId() {
+            adapter.upsertCatalog(
+                    1L, 100L, 200L, 10L, "상품A", "브랜드A",
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+            adapter.upsertCatalog(
+                    2L, 100L, 200L, 10L, "상품A", "브랜드A",
+                    11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+
+            adapter.updateProductInfo(100L, "수정된 상품", "수정된 브랜드");
+
+            ProductCatalogReadModelJpaEntity entity1 = repository.findByPricePolicyId(1L).orElseThrow();
+            ProductCatalogReadModelJpaEntity entity2 = repository.findByPricePolicyId(2L).orElseThrow();
+            assertThat(entity1.getName()).isEqualTo("수정된 상품");
+            assertThat(entity1.getBrandName()).isEqualTo("수정된 브랜드");
+            assertThat(entity2.getName()).isEqualTo("수정된 상품");
+            assertThat(entity2.getBrandName()).isEqualTo("수정된 브랜드");
+        }
+
+        @Test
+        @DisplayName("updateProductInfo 호출 시 ReadModel이 존재하지 않으면 예외 없이 종료한다")
+        void doesNothingWhenMissing() {
+            // given
+            // ReadModel에 productId=9999L 레코드가 존재하지 않음
+
+            // when
+            adapter.updateProductInfo(9999L, "누락상품", "누락브랜드");
+
+            // then
+            assertThat(repository.findAllByProductId(9999L)).isEmpty();
+        }
+
+        @Test
+        @DisplayName("updateProductInfo 호출 시 Entity의 primaryCategoryId는 기존 값이 유지된다")
+        void preservesPrimaryCategoryId() {
+            // given
+            adapter.upsertCatalog(
+                    1L, 100L, 200L, 10L, "상품A", "브랜드A",
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+
+            // when
+            adapter.updateProductInfo(100L, "새이름", "새브랜드");
+
+            // then
+            List<ProductCatalogReadModelJpaEntity> entities = repository.findAllByProductId(100L);
+            assertThat(entities).hasSize(1);
+            assertThat(entities.get(0).getPrimaryCategoryId()).isEqualTo(10L);
+            assertThat(entities.get(0).getName()).isEqualTo("새이름");
+            assertThat(entities.get(0).getBrandName()).isEqualTo("새브랜드");
+        }
+    }
+
+    @Nested
     @DisplayName("updateRepresentativeImage")
     class UpdateRepresentativeImage {
 
