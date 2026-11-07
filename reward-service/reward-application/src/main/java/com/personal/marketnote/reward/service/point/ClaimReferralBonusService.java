@@ -2,8 +2,6 @@ package com.personal.marketnote.reward.service.point;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.reward.domain.point.ReferralBonusTier;
-import com.personal.marketnote.reward.domain.point.UserPointChangeType;
-import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.DuplicateReferralBonusClaimException;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
 import com.personal.marketnote.reward.exception.ReferralBonusTierNotAchievedException;
@@ -50,14 +48,7 @@ public class ClaimReferralBonusService implements ClaimReferralBonusUseCase {
             throw new DuplicateReferralBonusClaimException(userId, tier);
         }
 
-        ModifyUserPointCommand modifyCommand = ModifyUserPointCommand.builder()
-                .userId(userId)
-                .changeType(UserPointChangeType.ACCRUAL)
-                .amount((long) tier.getBonusAmount())
-                .sourceType(UserPointSourceType.USER)
-                .sourceId(userId)
-                .reason(tier.getReason())
-                .build();
+        ModifyUserPointCommand modifyCommand = ModifyUserPointCommand.forReferralBonus(userId, tier);
 
         try {
             modifyUserPointUseCase.modify(modifyCommand);

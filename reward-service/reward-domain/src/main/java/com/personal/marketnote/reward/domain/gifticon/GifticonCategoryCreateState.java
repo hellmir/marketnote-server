@@ -8,4 +8,11 @@ import lombok.Getter;
 public class GifticonCategoryCreateState {
     private final String categoryCode;
     private final String categoryName;
+
+    public static GifticonCategoryCreateState of(String categoryCode, String categoryName) {
+        return GifticonCategoryCreateState.builder()
+                .categoryCode(categoryCode)
+                .categoryName(categoryName)
+                .build();
+    }
 }

@@ -28,9 +28,7 @@ public class RegisterAttendancePolicyService implements RegisterAttendancePolicy
                 )
         );
 
-        return RegisterAttendancePolicyResult.builder()
-                .id(saved.getId())
-                .build();
+        return RegisterAttendancePolicyResult.from(saved);
     }
 }
 

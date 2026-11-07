@@ -16,4 +16,15 @@ public record ModifyPendingPointCommand(
     public boolean isAccrual() {
         return changeType.isAccrual();
     }
+
+    public static ModifyPendingPointCommand from(ModifyPendingSharedPointCommand source, Long userId) {
+        return ModifyPendingPointCommand.builder()
+                .userId(userId)
+                .changeType(source.changeType())
+                .amount(source.amount())
+                .sourceType(source.sourceType())
+                .sourceId(source.sourceId())
+                .reason(source.reason())
+                .build();
+    }
 }

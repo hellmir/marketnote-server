@@ -50,14 +50,7 @@ public class ModifyPendingSharedPointService implements ModifyPendingSharedPoint
             return null;
         }
 
-        ModifyPendingPointCommand delegateCommand = ModifyPendingPointCommand.builder()
-                .userId(sharerId)
-                .changeType(command.changeType())
-                .amount(command.amount())
-                .sourceType(command.sourceType())
-                .sourceId(command.sourceId())
-                .reason(command.reason())
-                .build();
+        ModifyPendingPointCommand delegateCommand = ModifyPendingPointCommand.from(command, sharerId);
 
         return modifyPendingPointUseCase.modifyPending(delegateCommand);
     }

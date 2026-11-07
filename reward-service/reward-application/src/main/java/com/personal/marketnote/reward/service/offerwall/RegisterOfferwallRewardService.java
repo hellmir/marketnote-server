@@ -4,8 +4,6 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.offerwall.OfferwallMapper;
-import com.personal.marketnote.reward.domain.point.UserPointChangeType;
-import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.DuplicateOfferwallRewardException;
 import com.personal.marketnote.reward.mapper.RewardCommandToStateMapper;
 import com.personal.marketnote.reward.port.in.command.offerwall.RegisterOfferwallRewardCommand;
@@ -66,14 +64,7 @@ public class RegisterOfferwallRewardService implements RegisterOfferwallRewardUs
         }
 
         modifyUserPointUseCase.modify(
-                ModifyUserPointCommand.builder()
-                        .userKey(command.userKey())
-                        .changeType(UserPointChangeType.ACCRUAL)
-                        .amount(command.quantity())
-                        .sourceType(UserPointSourceType.OFFERWALL)
-                        .sourceId(offerwallMapper.getId())
-                        .reason(String.format("%s 리워드 보상 적립", command.offerwallType().getDescription()))
-                        .build()
+                ModifyUserPointCommand.forOfferwallReward(command, offerwallMapper)
         );
 
         return offerwallMapper.getId();
