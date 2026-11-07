@@ -1,8 +1,11 @@
 package com.personal.marketnote.fulfillment.exception;
 
-public class ShippingTrackerAlreadyExistsException extends RuntimeException {
+import com.personal.marketnote.common.domain.exception.DomainAlreadyExistsException;
 
-    public ShippingTrackerAlreadyExistsException(Long orderId) {
-        super("이미 배송 추적이 등록된 주문입니다. orderId=" + orderId);
+public class ShippingTrackerAlreadyExistsException extends DomainAlreadyExistsException {
+    private static final String MESSAGE = "이미 배송 추적이 등록된 주문입니다.";
+
+    public ShippingTrackerAlreadyExistsException() {
+        super(MESSAGE);
     }
 }

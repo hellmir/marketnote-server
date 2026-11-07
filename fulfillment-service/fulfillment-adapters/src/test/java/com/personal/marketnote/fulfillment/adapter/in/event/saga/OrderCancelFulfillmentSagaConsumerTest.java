@@ -133,7 +133,7 @@ class OrderCancelFulfillmentSagaConsumerTest {
         CancelInternalFulfillmentDeliveryCommand expectedCommand = new CancelInternalFulfillmentDeliveryCommand(
                 1L, List.of("PK-1", "PK-2")
         );
-        doThrow(new FulfillmentDeliveryRegistrationNotFoundException(1L))
+        doThrow(new FulfillmentDeliveryRegistrationNotFoundException())
                 .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(expectedCommand);
 
         consumer.handleOrderCancelFulfillmentStep(record, acknowledgment);

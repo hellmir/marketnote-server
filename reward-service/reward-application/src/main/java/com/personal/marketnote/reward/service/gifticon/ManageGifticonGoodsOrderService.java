@@ -28,7 +28,10 @@ public class ManageGifticonGoodsOrderService implements ManageGifticonGoodsOrder
     public void manageOrder(ManageGifticonGoodsOrderCommand command) {
         for (OrderItem item : command.items()) {
             GifticonGoods goods = findGifticonGoodsPort.findByGoodsCode(item.goodsCode())
-                    .orElseThrow(() -> new GifticonGoodsNotFoundException(item.goodsCode()));
+                    .orElseThrow(() -> {
+                        log.warn("기프티콘 상품을 찾을 수 없습니다. goodsCode={}", item.goodsCode());
+                        return new GifticonGoodsNotFoundException();
+                    });
 
             if (!goods.isExposed()) {
                 log.warn("노출되지 않은 상품에는 정렬 순서를 설정할 수 없습니다. goodsCode={}", item.goodsCode());

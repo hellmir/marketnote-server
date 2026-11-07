@@ -162,7 +162,7 @@ class OrderPaymentCompletedOutboundDeliveryTest {
     void shouldAcknowledgeWhenDeliveryAlreadyRegistered() {
         // given
         setUpFasstoAuth();
-        doThrow(new FulfillmentDeliveryAlreadyRegisteredException(1L))
+        doThrow(new FulfillmentDeliveryAlreadyRegisteredException())
                 .when(registerFulfillmentDeliveryUseCase).registerDeliveryIdempotent(any());
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecordWithShipping();
 

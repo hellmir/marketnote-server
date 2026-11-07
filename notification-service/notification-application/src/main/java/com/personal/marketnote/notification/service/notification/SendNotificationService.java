@@ -92,7 +92,10 @@ public class SendNotificationService implements SendNotificationUseCase {
 
     private NotificationTemplate findTemplate(String templateCode) {
         return findNotificationTemplatePort.findActiveByTemplateCode(templateCode)
-                .orElseThrow(() -> new NotificationTemplateNotFoundException(templateCode));
+                .orElseThrow(() -> {
+                    log.warn("알림 템플릿을 찾을 수 없습니다. templateCode={}", templateCode);
+                    return new NotificationTemplateNotFoundException();
+                });
     }
 
     private boolean shouldSkipByConsent(NotificationCategory category, Long userId, NotificationTemplate template) {

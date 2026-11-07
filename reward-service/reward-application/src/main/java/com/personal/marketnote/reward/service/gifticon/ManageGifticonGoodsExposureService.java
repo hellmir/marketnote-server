@@ -28,7 +28,10 @@ public class ManageGifticonGoodsExposureService implements ManageGifticonGoodsEx
     public void manageExposure(ManageGifticonGoodsExposureCommand command) {
         for (ExposureItem item : command.items()) {
             GifticonGoods goods = findGifticonGoodsPort.findByGoodsCode(item.goodsCode())
-                    .orElseThrow(() -> new GifticonGoodsNotFoundException(item.goodsCode()));
+                    .orElseThrow(() -> {
+                        log.warn("기프티콘 상품을 찾을 수 없습니다. goodsCode={}", item.goodsCode());
+                        return new GifticonGoodsNotFoundException();
+                    });
 
             applyExposure(goods, item);
             updateGifticonGoodsPort.update(goods);

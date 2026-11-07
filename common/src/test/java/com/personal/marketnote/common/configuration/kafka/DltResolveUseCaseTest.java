@@ -193,9 +193,7 @@ class DltResolveUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> dltResolveService.resolve(command, OPERATOR))
-                .isInstanceOf(DltMessageNotFoundException.class)
-                .hasMessageContaining(dltTopic)
-                .hasMessageContaining("99");
+                .isInstanceOf(DltMessageNotFoundException.class);
         verify(resolutionRepository, never()).save(any(DltMessageResolutionJpaEntity.class));
         verify(consumer).close();
     }

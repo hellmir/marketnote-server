@@ -9,10 +9,12 @@ import com.personal.marketnote.reward.domain.exception.GifticonCategoryNotFoundE
 import com.personal.marketnote.reward.domain.gifticon.GifticonCategory;
 import com.personal.marketnote.reward.port.out.gifticon.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class GifticonCategoryPersistenceAdapter implements
@@ -57,7 +59,10 @@ public class GifticonCategoryPersistenceAdapter implements
     @Override
     public void update(GifticonCategory category) {
         GifticonCategoryJpaEntity entity = categoryRepository.findById(category.getId())
-                .orElseThrow(() -> new GifticonCategoryNotFoundException(category.getId()));
+                .orElseThrow(() -> {
+                    log.warn("기프티콘 카테고리를 찾을 수 없습니다. categoryId={}", category.getId());
+                    return new GifticonCategoryNotFoundException();
+                });
         entity.updateFrom(category);
     }
 

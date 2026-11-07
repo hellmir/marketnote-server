@@ -16,12 +16,14 @@ import com.personal.marketnote.notification.port.out.aligo.SendAligoAlimTalkExte
 import com.personal.marketnote.notification.port.out.aligo.SendAligoAlimTalkExternalPort.AligoAlimTalkSendResponse;
 import com.personal.marketnote.notification.port.out.aligo.UpdateAligoMessagePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class SendAligoAlimTalkService implements SendAligoAlimTalkUseCase {
@@ -59,7 +61,10 @@ public class SendAligoAlimTalkService implements SendAligoAlimTalkUseCase {
 
     private AligoTemplate findApprovedTemplate(String templateCode) {
         AligoTemplate template = findAligoTemplatePort.findByTemplateCode(templateCode)
-                .orElseThrow(() -> new AligoTemplateNotFoundException(templateCode));
+                .orElseThrow(() -> {
+                    log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", templateCode);
+                    return new AligoTemplateNotFoundException();
+                });
 
         AligoTemplateInspectionStatus inspStatus = AligoTemplateInspectionStatus.from(template.getInspStatus());
         if (!inspStatus.isApproved()) {

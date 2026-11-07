@@ -7,6 +7,7 @@ import com.personal.marketnote.notification.adapter.out.mapper.NotificationJpaEn
 import com.personal.marketnote.notification.adapter.out.persistence.notification.entity.NotificationJpaEntity;
 import com.personal.marketnote.notification.adapter.out.persistence.notification.repository.NotificationJpaRepository;
 import com.personal.marketnote.notification.domain.notification.Notification;
+import com.personal.marketnote.notification.domain.notification.NotificationNotFoundException;
 import com.personal.marketnote.notification.domain.notification.SendStatus;
 import com.personal.marketnote.notification.domain.template.NotificationDisplayCategory;
 import com.personal.marketnote.notification.port.out.notification.DeleteNotificationPort;
@@ -14,6 +15,7 @@ import com.personal.marketnote.notification.port.out.notification.FindNotificati
 import com.personal.marketnote.notification.port.out.notification.SaveNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
@@ -22,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class NotificationPersistenceAdapter implements FindNotificationPort, SaveNotificationPort, UpdateNotificationPort, DeleteNotificationPort {
@@ -98,11 +101,10 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
     @Override
     public void update(Notification notification) {
         NotificationJpaEntity entity = notificationJpaRepository.findById(notification.getId())
-                .orElseThrow(
-                        () -> new com.personal.marketnote.notification.domain.notification.NotificationNotFoundException(
-                                notification.getId()
-                        )
-                );
+                .orElseThrow(() -> {
+                    log.warn("알림을 찾을 수 없습니다. notificationId={}", notification.getId());
+                    return new NotificationNotFoundException();
+                });
         entity.updateFrom(notification);
     }
 

@@ -1,8 +1,11 @@
 package com.personal.marketnote.fulfillment.domain.exception;
 
-public class ShippingTrackerNotFoundException extends RuntimeException {
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 
-    public ShippingTrackerNotFoundException(Long orderId) {
-        super("배송 추적 정보를 찾을 수 없습니다. orderId=" + orderId);
+public class ShippingTrackerNotFoundException extends DomainNotFoundException {
+    private static final String MESSAGE = "배송 추적 정보를 찾을 수 없습니다.";
+
+    public ShippingTrackerNotFoundException() {
+        super(MESSAGE);
     }
 }

@@ -86,7 +86,8 @@ public class ReorderProductTagsService implements ReorderProductTagsUseCase {
 
         for (ReorderProductTagsCommand.TagOrderItem item : command.tagOrders()) {
             if (!existingTagIds.contains(item.tagId())) {
-                throw new ProductTagNotFoundException(item.tagId(), product.getId());
+                log.warn("상품 태그를 찾을 수 없습니다. tagId={}, productId={}", item.tagId(), product.getId());
+                throw new ProductTagNotFoundException();
             }
         }
     }

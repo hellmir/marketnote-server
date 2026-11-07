@@ -1,9 +1,11 @@
 package com.personal.marketnote.commerce.exception;
 
-public class QuickPaymentCardNotFoundException extends RuntimeException {
-    private static final String MESSAGE = "빠른결제 카드를 찾을 수 없습니다. id=%d, userId=%d";
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 
-    public QuickPaymentCardNotFoundException(Long id, Long userId) {
-        super(String.format(MESSAGE, id, userId));
+public class QuickPaymentCardNotFoundException extends DomainNotFoundException {
+    private static final String MESSAGE = "빠른결제 카드를 찾을 수 없습니다.";
+
+    public QuickPaymentCardNotFoundException() {
+        super(MESSAGE);
     }
 }

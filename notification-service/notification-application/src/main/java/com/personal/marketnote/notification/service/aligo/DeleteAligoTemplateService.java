@@ -9,7 +9,9 @@ import com.personal.marketnote.notification.port.out.aligo.DeleteAligoTemplateEx
 import com.personal.marketnote.notification.port.out.aligo.DeleteAligoTemplatePort;
 import com.personal.marketnote.notification.port.out.aligo.FindAligoTemplatePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class DeleteAligoTemplateService implements DeleteAligoTemplateUseCase {
@@ -21,7 +23,10 @@ public class DeleteAligoTemplateService implements DeleteAligoTemplateUseCase {
     @Override
     public void deleteTemplate(DeleteAligoTemplateCommand command) {
         AligoTemplate template = findAligoTemplatePort.findByTemplateCode(command.templateCode())
-                .orElseThrow(() -> new AligoTemplateNotFoundException(command.templateCode()));
+                .orElseThrow(() -> {
+                    log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", command.templateCode());
+                    return new AligoTemplateNotFoundException();
+                });
         template.validateDeletion();
 
         deleteAligoTemplateExternalPort.deleteTemplate(command.senderKey(), command.templateCode());

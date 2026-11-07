@@ -42,7 +42,13 @@ public class GetMyGifticonOrderDetailService implements GetMyGifticonOrderDetail
 
     private GifticonOrder findOrder(Long orderId, Long userId) {
         return findGifticonOrderPort.findByIdAndUserId(orderId, userId)
-                .orElseThrow(() -> new GifticonOrderNotFoundException(orderId));
+                .orElseThrow(() -> {
+                    log.warn(
+                            "기프티콘 주문을 찾을 수 없습니다. gifticonOrderId={}, userId={}",
+                            orderId, userId
+                    );
+                    return new GifticonOrderNotFoundException();
+                });
     }
 
     private void syncStatusIfIssued(GifticonOrder order) {

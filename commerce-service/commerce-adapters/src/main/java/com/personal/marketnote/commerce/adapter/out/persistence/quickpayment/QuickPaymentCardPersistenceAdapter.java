@@ -11,12 +11,14 @@ import com.personal.marketnote.commerce.port.out.quickpayment.SaveQuickPaymentCa
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import com.personal.marketnote.common.domain.EntityStatus;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class QuickPaymentCardPersistenceAdapter implements SaveQuickPaymentCardPort, FindQuickPaymentCardPort, DeleteQuickPaymentCardPort {
@@ -39,8 +41,13 @@ public class QuickPaymentCardPersistenceAdapter implements SaveQuickPaymentCardP
     @Transactional(isolation = READ_COMMITTED)
     public void deactivate(QuickPaymentCard quickPaymentCard) {
         QuickPaymentCardJpaEntity entity = quickPaymentCardJpaRepository.findById(quickPaymentCard.getId())
-                .orElseThrow(() -> new QuickPaymentCardNotFoundException(
-                        quickPaymentCard.getId(), quickPaymentCard.getUserId()));
+                .orElseThrow(() -> {
+                    log.warn(
+                            "빠른결제 카드를 찾을 수 없습니다. quickPaymentCardId={}, userId={}",
+                            quickPaymentCard.getId(), quickPaymentCard.getUserId()
+                    );
+                    return new QuickPaymentCardNotFoundException();
+                });
         entity.markInactive();
     }
 }

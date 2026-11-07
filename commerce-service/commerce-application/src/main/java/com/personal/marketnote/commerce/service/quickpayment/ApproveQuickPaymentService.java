@@ -39,9 +39,13 @@ public class ApproveQuickPaymentService implements ApproveQuickPaymentUseCase {
 
         QuickPaymentCard card = findQuickPaymentCardPort
                 .findActiveByIdAndUserId(command.quickPaymentCardId(), command.buyerId())
-                .orElseThrow(() -> new QuickPaymentCardNotFoundException(
-                        command.quickPaymentCardId(), command.buyerId()
-                ));
+                .orElseThrow(() -> {
+                    log.warn(
+                            "빠른결제 카드를 찾을 수 없습니다. quickPaymentCardId={}, buyerId={}",
+                            command.quickPaymentCardId(), command.buyerId()
+                    );
+                    return new QuickPaymentCardNotFoundException();
+                });
 
         // TX-1: 검증 + PspPaymentEvent 생성 + EXECUTING
         PaymentApprovalContext context = txHelper.prepareExecutionForQuickPayment(

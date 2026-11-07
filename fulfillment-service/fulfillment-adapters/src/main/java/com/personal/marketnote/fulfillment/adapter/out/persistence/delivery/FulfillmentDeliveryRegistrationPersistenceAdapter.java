@@ -8,10 +8,12 @@ import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryAlreadyR
 import com.personal.marketnote.fulfillment.port.out.delivery.FindFulfillmentDeliveryRegistrationPort;
 import com.personal.marketnote.fulfillment.port.out.delivery.SaveFulfillmentDeliveryRegistrationPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class FulfillmentDeliveryRegistrationPersistenceAdapter
@@ -23,7 +25,8 @@ public class FulfillmentDeliveryRegistrationPersistenceAdapter
         try {
             repository.saveAndFlush(FulfillmentDeliveryRegistrationJpaEntity.from(registration));
         } catch (DataIntegrityViolationException e) {
-            throw new FulfillmentDeliveryAlreadyRegisteredException(registration.getOrderId());
+            log.info("이미 Fulfillment에 출고 요청된 주문입니다. orderId={}", registration.getOrderId());
+            throw new FulfillmentDeliveryAlreadyRegisteredException();
         }
     }
 

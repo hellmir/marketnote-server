@@ -12,6 +12,7 @@ import com.personal.marketnote.reward.port.out.gifticon.FindGifticonOrderPort;
 import com.personal.marketnote.reward.port.out.gifticon.SaveGifticonOrderPort;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonOrderPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class GifticonOrderPersistenceAdapter
@@ -43,7 +45,10 @@ public class GifticonOrderPersistenceAdapter
     @Override
     public void update(GifticonOrder order) {
         GifticonOrderJpaEntity entity = gifticonOrderJpaRepository.findByTrId(order.getTrId())
-                .orElseThrow(() -> new GifticonOrderNotFoundException(order.getTrId()));
+                .orElseThrow(() -> {
+                    log.warn("기프티콘 주문을 찾을 수 없습니다. trId={}", order.getTrId());
+                    return new GifticonOrderNotFoundException();
+                });
         entity.updateFrom(order);
     }
 

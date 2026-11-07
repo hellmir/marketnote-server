@@ -9,6 +9,7 @@ import com.personal.marketnote.notification.port.in.usecase.preference.UpdateNot
 import com.personal.marketnote.notification.port.out.preference.FindNotificationPreferencePort;
 import com.personal.marketnote.notification.port.out.preference.UpdateNotificationPreferencePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class UpdateNotificationPreferenceService implements UpdateNotificationPreferenceUseCase {
@@ -31,7 +33,13 @@ public class UpdateNotificationPreferenceService implements UpdateNotificationPr
 
         NotificationPreference preference = findNotificationPreferencePort
                 .findByUserIdAndNotificationType(command.userId(), notificationType)
-                .orElseThrow(() -> new NotificationPreferenceNotFoundException(command.userId(), notificationType));
+                .orElseThrow(() -> {
+                    log.warn(
+                            "알림 수신 설정을 찾을 수 없습니다. userId={}, notificationType={}",
+                            command.userId(), notificationType
+                    );
+                    return new NotificationPreferenceNotFoundException();
+                });
 
         LocalDateTime now = LocalDateTime.now(clock);
 

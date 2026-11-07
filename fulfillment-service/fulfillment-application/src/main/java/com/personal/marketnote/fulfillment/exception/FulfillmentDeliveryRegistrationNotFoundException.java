@@ -1,7 +1,11 @@
 package com.personal.marketnote.fulfillment.exception;
 
-public class FulfillmentDeliveryRegistrationNotFoundException extends RuntimeException {
-    public FulfillmentDeliveryRegistrationNotFoundException(Long orderId) {
-        super("orderId에 해당하는 출고 등록을 찾을 수 없습니다. orderId=" + orderId);
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
+
+public class FulfillmentDeliveryRegistrationNotFoundException extends DomainNotFoundException {
+    private static final String MESSAGE = "출고 등록을 찾을 수 없습니다.";
+
+    public FulfillmentDeliveryRegistrationNotFoundException() {
+        super(MESSAGE);
     }
 }

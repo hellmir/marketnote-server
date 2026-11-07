@@ -16,6 +16,7 @@ import com.personal.marketnote.common.saga.port.UpdateSagaPort;
 import com.personal.marketnote.common.saga.repository.SagaInstanceJpaRepository;
 import com.personal.marketnote.common.saga.repository.SagaStepJpaRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.PageRequest;
 
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @ConditionalOnProperty(prefix = "saga", name = "enabled", havingValue = "true")
 @RequiredArgsConstructor
@@ -63,14 +65,20 @@ public class SagaPersistenceAdapter implements SaveSagaPort, FindSagaPort, Updat
     @Override
     public void update(SagaInstance instance) {
         SagaInstanceJpaEntity entity = sagaInstanceJpaRepository.findById(instance.getId())
-                .orElseThrow(() -> new SagaInstanceNotFoundException(instance.getId()));
+                .orElseThrow(() -> {
+                    log.warn("SagaInstance를 찾을 수 없습니다. sagaInstanceId={}", instance.getId());
+                    return new SagaInstanceNotFoundException();
+                });
         entity.updateFrom(instance);
     }
 
     @Override
     public void updateStep(SagaStep step) {
         SagaStepJpaEntity entity = sagaStepJpaRepository.findById(step.getId())
-                .orElseThrow(() -> new SagaStepNotFoundException(step.getId()));
+                .orElseThrow(() -> {
+                    log.warn("SagaStep을 찾을 수 없습니다. sagaStepId={}", step.getId());
+                    return new SagaStepNotFoundException();
+                });
         entity.updateFrom(step);
     }
 

@@ -7,10 +7,12 @@ import com.personal.marketnote.notification.port.in.usecase.template.DeleteNotif
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
 import com.personal.marketnote.notification.port.out.template.UpdateNotificationTemplatePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class DeleteNotificationTemplateService implements DeleteNotificationTemplateUseCase {
@@ -30,6 +32,9 @@ public class DeleteNotificationTemplateService implements DeleteNotificationTemp
 
     private NotificationTemplate findNotificationTemplate(Long id) {
         return findNotificationTemplatePort.findActiveById(id)
-                .orElseThrow(() -> new NotificationTemplateNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("알림 템플릿을 찾을 수 없습니다. notificationTemplateId={}", id);
+                    return new NotificationTemplateNotFoundException();
+                });
     }
 }

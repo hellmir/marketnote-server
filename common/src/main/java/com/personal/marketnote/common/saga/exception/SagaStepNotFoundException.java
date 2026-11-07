@@ -1,11 +1,11 @@
 package com.personal.marketnote.common.saga.exception;
 
-public class SagaStepNotFoundException extends RuntimeException {
-    public SagaStepNotFoundException(Long id) {
-        super("SagaStep을 찾을 수 없습니다. id: " + id);
-    }
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 
-    public SagaStepNotFoundException(String stepName) {
-        super("SagaStep을 찾을 수 없습니다. stepName: " + stepName);
+public class SagaStepNotFoundException extends DomainNotFoundException {
+    private static final String MESSAGE = "SagaStep을 찾을 수 없습니다.";
+
+    public SagaStepNotFoundException() {
+        super(MESSAGE);
     }
 }

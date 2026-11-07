@@ -10,12 +10,14 @@ import com.personal.marketnote.notification.domain.aligo.AligoTemplateButton;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplateNotFoundException;
 import com.personal.marketnote.notification.port.out.aligo.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class AligoTemplatePersistenceAdapter
@@ -47,7 +49,10 @@ public class AligoTemplatePersistenceAdapter
     public void update(AligoTemplate template) {
         AligoTemplateJpaEntity entity = aligoTemplateJpaRepository.findByTemplateCodeWithButtons(
                 template.getTemplateCode()
-        ).orElseThrow(() -> new AligoTemplateNotFoundException(template.getTemplateCode()));
+        ).orElseThrow(() -> {
+            log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", template.getTemplateCode());
+            return new AligoTemplateNotFoundException();
+        });
 
         List<AligoTemplateButtonJpaEntity> buttonEntities = mapButtonsToEntities(template.getButtons());
 

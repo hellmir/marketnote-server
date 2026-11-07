@@ -1,8 +1,11 @@
 package com.personal.marketnote.notification.domain.aligo;
 
-public class AligoMessageNotFoundException extends RuntimeException {
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 
-    public AligoMessageNotFoundException(Long id) {
-        super("ERR_ALIGO_MESSAGE_01::알림톡 메시지를 찾을 수 없습니다. id=" + id);
+public class AligoMessageNotFoundException extends DomainNotFoundException {
+    private static final String MESSAGE = "알림톡 메시지를 찾을 수 없습니다.";
+
+    public AligoMessageNotFoundException() {
+        super(MESSAGE);
     }
 }

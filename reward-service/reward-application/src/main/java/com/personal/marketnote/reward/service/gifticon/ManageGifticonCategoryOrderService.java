@@ -27,7 +27,10 @@ public class ManageGifticonCategoryOrderService implements ManageGifticonCategor
     public void manageOrder(ManageGifticonCategoryOrderCommand command) {
         for (OrderItem item : command.items()) {
             GifticonCategory category = findGifticonCategoryPort.findById(item.categoryId())
-                    .orElseThrow(() -> new GifticonCategoryNotFoundException(item.categoryId()));
+                    .orElseThrow(() -> {
+                        log.warn("기프티콘 카테고리를 찾을 수 없습니다. categoryId={}", item.categoryId());
+                        return new GifticonCategoryNotFoundException();
+                    });
 
             if (!category.isExposed()) {
                 log.warn("노출되지 않은 카테고리에는 노출 순서를 설정할 수 없습니다. categoryId={}", item.categoryId());

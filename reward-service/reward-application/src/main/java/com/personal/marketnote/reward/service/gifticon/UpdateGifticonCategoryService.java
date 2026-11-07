@@ -9,10 +9,12 @@ import com.personal.marketnote.reward.port.in.usecase.gifticon.UpdateGifticonCat
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonCategoryPort;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonCategoryPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -23,7 +25,10 @@ public class UpdateGifticonCategoryService implements UpdateGifticonCategoryUseC
     @Override
     public void updateGifticonCategory(UpdateGifticonCategoryCommand command) {
         GifticonCategory category = findGifticonCategoryPort.findById(command.categoryId())
-                .orElseThrow(() -> new GifticonCategoryNotFoundException(command.categoryId()));
+                .orElseThrow(() -> {
+                    log.warn("기프티콘 카테고리를 찾을 수 없습니다. categoryId={}", command.categoryId());
+                    return new GifticonCategoryNotFoundException();
+                });
 
         applyDisplayName(category, command);
         applyIconUrl(category, command);

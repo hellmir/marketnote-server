@@ -11,6 +11,7 @@ import com.personal.marketnote.notification.port.out.aligo.FindBrandTalkMessageP
 import com.personal.marketnote.notification.port.out.aligo.SaveBrandTalkMessagePort;
 import com.personal.marketnote.notification.port.out.aligo.UpdateBrandTalkMessagePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class AligoBrandTalkMessagePersistenceAdapter
@@ -47,7 +49,10 @@ public class AligoBrandTalkMessagePersistenceAdapter
     @Transactional(isolation = READ_COMMITTED)
     public void update(AligoBrandTalkMessage message) {
         AligoBrandTalkMessageJpaEntity entity = repository.findByIdWithRecipients(message.getId())
-                .orElseThrow(() -> new AligoBrandTalkMessageNotFoundException(message.getId()));
+                .orElseThrow(() -> {
+                    log.warn("브랜드메시지를 찾을 수 없습니다. brandTalkMessageId={}", message.getId());
+                    return new AligoBrandTalkMessageNotFoundException();
+                });
 
         if (message.isSent()) {
             entity.updateSendResult(

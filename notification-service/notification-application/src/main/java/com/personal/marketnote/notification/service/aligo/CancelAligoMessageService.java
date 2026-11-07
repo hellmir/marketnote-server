@@ -8,12 +8,14 @@ import com.personal.marketnote.notification.port.out.aligo.CancelAligoMessageExt
 import com.personal.marketnote.notification.port.out.aligo.FindAligoMessagePort;
 import com.personal.marketnote.notification.port.out.aligo.UpdateAligoMessagePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class CancelAligoMessageService implements CancelAligoMessageUseCase {
@@ -27,7 +29,10 @@ public class CancelAligoMessageService implements CancelAligoMessageUseCase {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void cancelMessage(Long messageId) {
         AligoMessage message = findAligoMessagePort.findById(messageId)
-                .orElseThrow(() -> new AligoMessageNotFoundException(messageId));
+                .orElseThrow(() -> {
+                    log.warn("알림톡 메시지를 찾을 수 없습니다. aligoMessageId={}", messageId);
+                    return new AligoMessageNotFoundException();
+                });
 
         LocalDateTime now = LocalDateTime.now(clock);
         message.validateCancellable(now);

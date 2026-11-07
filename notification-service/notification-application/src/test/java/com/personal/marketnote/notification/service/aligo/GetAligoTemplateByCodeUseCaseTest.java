@@ -125,8 +125,7 @@ class GetAligoTemplateByCodeUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getAligoTemplateByCodeService.getTemplateByCode(templateCode))
-                .isInstanceOf(AligoTemplateNotFoundException.class)
-                .hasMessageContaining(templateCode);
+                .isInstanceOf(AligoTemplateNotFoundException.class);
         verify(findAligoTemplatePort).findByTemplateCode(templateCode);
     }
 }

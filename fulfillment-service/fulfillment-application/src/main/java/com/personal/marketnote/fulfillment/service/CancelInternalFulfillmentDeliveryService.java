@@ -20,12 +20,14 @@ import com.personal.marketnote.fulfillment.port.out.vendor.CancelFulfillmentDeli
 import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentCustomerCodePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -78,7 +80,10 @@ public class CancelInternalFulfillmentDeliveryService implements CancelInternalF
 
     private FulfillmentDeliveryRegistration findRegistration(Long orderId) {
         return findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)
-                .orElseThrow(() -> new FulfillmentDeliveryRegistrationNotFoundException(orderId));
+                .orElseThrow(() -> {
+                    log.warn("출고 등록을 찾을 수 없습니다. orderId={}", orderId);
+                    return new FulfillmentDeliveryRegistrationNotFoundException();
+                });
     }
 
     private void validateCancellable(FulfillmentDeliveryRegistration registration) {

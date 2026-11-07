@@ -61,7 +61,10 @@ public class PushNotificationEventListener {
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public void handlePushNotificationRequestedEvent(PushNotificationRequestedEvent event) {
         Notification notification = findNotificationPort.findActiveById(event.notificationId())
-                .orElseThrow(() -> new NotificationNotFoundException(event.notificationId()));
+                .orElseThrow(() -> {
+                    log.warn("알림을 찾을 수 없습니다. notificationId={}", event.notificationId());
+                    return new NotificationNotFoundException();
+                });
 
         List<DeviceToken> deviceTokens = findDeviceTokenPort.findActiveByUserId(event.userId());
 

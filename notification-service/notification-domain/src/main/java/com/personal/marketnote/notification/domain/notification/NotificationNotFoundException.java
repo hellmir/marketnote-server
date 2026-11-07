@@ -1,7 +1,11 @@
 package com.personal.marketnote.notification.domain.notification;
 
-public class NotificationNotFoundException extends RuntimeException {
-    public NotificationNotFoundException(Long id) {
-        super("ERR_NOTIFICATION_01::알림을 찾을 수 없습니다. id=" + id);
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
+
+public class NotificationNotFoundException extends DomainNotFoundException {
+    private static final String MESSAGE = "알림을 찾을 수 없습니다.";
+
+    public NotificationNotFoundException() {
+        super(MESSAGE);
     }
 }
