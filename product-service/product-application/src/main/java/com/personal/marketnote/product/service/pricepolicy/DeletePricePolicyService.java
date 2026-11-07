@@ -7,11 +7,12 @@ import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.pricepolicy.DeletePricePolicyPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -23,7 +24,8 @@ public class DeletePricePolicyService implements DeletePricePolicyUseCase {
     @Override
     public void delete(Long userId, boolean isAdmin, Long productId, Long pricePolicyId) {
         if (!isAdmin && !findProductPort.existsByIdAndSellerId(productId, userId)) {
-            throw new NotProductOwnerException(FIRST_ERROR_CODE, productId);
+            log.warn("상품 소유자가 아닙니다. productId={}", productId);
+            throw new NotProductOwnerException();
         }
 
         deletePricePolicyPort.deleteById(pricePolicyId);

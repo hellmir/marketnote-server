@@ -226,7 +226,8 @@ public class ProductOptionPersistenceAdapter
         }
         long ownedCount = productOptionJpaRepository.countByProductIdAndIds(productId, optionIds);
         if (ownedCount != optionIds.size()) {
-            throw new InvalidProductOptionOwnershipException(productId);
+            log.warn("상품 옵션 소유권 위반입니다. productId={}", productId);
+            throw new InvalidProductOptionOwnershipException();
         }
 
         // 기존 동일 옵션 조합 가격 정책 삭제

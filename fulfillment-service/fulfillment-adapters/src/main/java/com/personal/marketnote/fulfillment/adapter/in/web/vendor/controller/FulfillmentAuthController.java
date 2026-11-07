@@ -43,7 +43,9 @@ public class FulfillmentAuthController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RequestFulfillmentAuthApiDocs
     public ResponseEntity<BaseResponse<FulfillmentAuthTokenResponse>> requestAccessToken() {
-        FulfillmentAccessTokenResult result = FulfillmentAccessTokenResult.from(requestFulfillmentAuthUseCase.requestAccessToken());
+        FulfillmentAccessTokenResult result = FulfillmentAccessTokenResult.from(
+                requestFulfillmentAuthUseCase.requestAccessToken()
+        );
 
         return new ResponseEntity<>(
                 BaseResponse.of(

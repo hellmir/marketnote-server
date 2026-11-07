@@ -8,11 +8,12 @@ import com.personal.marketnote.product.port.in.usecase.product.GetProductKeyUseC
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -23,7 +24,8 @@ public class GetProductKeyService implements GetProductKeyUseCase {
     @Override
     public GetProductKeyResult getProductKey(Long id, Long userId, boolean isAdmin) {
         if (!isAdmin && !findProductPort.existsByIdAndSellerId(id, userId)) {
-            throw new NotProductOwnerException(FIRST_ERROR_CODE, id);
+            log.warn("상품 소유자가 아닙니다. productId={}", id);
+            throw new NotProductOwnerException();
         }
 
         Product product = getProductUseCase.getProduct(id);
