@@ -7,12 +7,14 @@ import com.personal.marketnote.product.port.in.result.category.GetCategoriesResu
 import com.personal.marketnote.product.port.in.usecase.category.GetCategoryUseCase;
 import com.personal.marketnote.product.port.out.category.FindCategoryPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -22,7 +24,10 @@ public class GetCategoryService implements GetCategoryUseCase {
     @Override
     public Category getCategory(Long id) {
         return findCategoryPort.findById(id)
-                .orElseThrow(() -> new CategoryNotFoundException("존재하지 않는 카테고리 ID입니다. 전송된 카테고리 ID: %d", id));
+                .orElseThrow(() -> {
+                    log.warn("존재하지 않는 카테고리입니다. categoryId={}", id);
+                    return new CategoryNotFoundException();
+                });
     }
 
     @Override

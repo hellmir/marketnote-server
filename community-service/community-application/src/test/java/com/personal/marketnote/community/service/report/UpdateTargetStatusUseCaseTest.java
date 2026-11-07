@@ -122,11 +122,10 @@ class UpdateTargetStatusUseCaseTest {
     @DisplayName("존재하지 않는 리뷰의 노출 상태를 변경하면 ReviewNotFoundException이 발생한다")
     void updateTargetStatus_reviewNotFound_throwsReviewNotFoundException() {
         UpdateTargetStatusCommand command = UpdateTargetStatusCommand.of(ReportTargetType.REVIEW, 999L, false);
-        when(getReviewUseCase.getReview(999L)).thenThrow(new ReviewNotFoundException(999L));
+        when(getReviewUseCase.getReview(999L)).thenThrow(new ReviewNotFoundException());
 
         assertThatThrownBy(() -> updateTargetStatusService.updateTargetStatus(command))
-                .isInstanceOf(ReviewNotFoundException.class)
-                .hasMessageContaining("999");
+                .isInstanceOf(ReviewNotFoundException.class);
 
         verifyNoInteractions(updateReviewPort, getPostUseCase, updatePostPort);
     }
@@ -135,11 +134,10 @@ class UpdateTargetStatusUseCaseTest {
     @DisplayName("존재하지 않는 게시글의 노출 상태를 변경하면 PostNotFoundException이 발생한다")
     void updateTargetStatus_postNotFound_throwsPostNotFoundException() {
         UpdateTargetStatusCommand command = UpdateTargetStatusCommand.of(ReportTargetType.POST, 999L, false);
-        when(getPostUseCase.getPost(999L)).thenThrow(new PostNotFoundException(999L));
+        when(getPostUseCase.getPost(999L)).thenThrow(new PostNotFoundException());
 
         assertThatThrownBy(() -> updateTargetStatusService.updateTargetStatus(command))
-                .isInstanceOf(PostNotFoundException.class)
-                .hasMessageContaining("999");
+                .isInstanceOf(PostNotFoundException.class);
 
         verifyNoInteractions(updatePostPort, getReviewUseCase, updateReviewPort, findPostPort);
     }

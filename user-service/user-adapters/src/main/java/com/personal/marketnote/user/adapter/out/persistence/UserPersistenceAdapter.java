@@ -14,6 +14,7 @@ import com.personal.marketnote.user.domain.user.*;
 import com.personal.marketnote.user.port.out.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 import static com.personal.marketnote.user.exception.ExceptionMessage.USER_ID_NOT_FOUND_EXCEPTION_MESSAGE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class UserPersistenceAdapter
@@ -220,9 +222,10 @@ public class UserPersistenceAdapter
     }
 
     private UserJpaEntity findEntityById(Long id) throws UserNotFoundException {
-        return userJpaRepository.findAllStatusUserById(id).orElseThrow(
-                () -> new UserNotFoundException(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id))
-        );
+        return userJpaRepository.findAllStatusUserById(id).orElseThrow(() -> {
+            log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id);
+            return new UserNotFoundException();
+        });
     }
 
     @Override

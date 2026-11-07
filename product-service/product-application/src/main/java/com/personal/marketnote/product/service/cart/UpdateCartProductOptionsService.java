@@ -10,10 +10,12 @@ import com.personal.marketnote.product.port.in.usecase.cart.UpdateCartProductOpt
 import com.personal.marketnote.product.port.in.usecase.pricepolicy.GetPricePolicyUseCase;
 import com.personal.marketnote.product.port.out.cart.UpdateCartProductPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -34,7 +36,8 @@ public class UpdateCartProductOptionsService implements UpdateCartProductOptions
         Long newPolicyId = pricePolicy.getId();
         boolean pricePolicyChanged = !originalPolicyId.equals(newPolicyId);
         if (pricePolicyChanged && getCartProductUseCase.existsByUserIdAndPolicyId(userId, newPolicyId)) {
-            throw new CartProductAlreadyExistsException(userId, newPolicyId);
+            log.warn("장바구니에 이미 해당 상품이 존재합니다. userId={}, pricePolicyId={}", userId, newPolicyId);
+            throw new CartProductAlreadyExistsException();
         }
 
         updateCartProductPort.update(cartProduct, originalPolicyId);

@@ -87,7 +87,7 @@ class GetProductKeyUseCaseTest {
     @DisplayName("상품 productKey 조회 시 상품이 존재하지 않으면 ProductNotFoundException을 전파한다")
     void getProductKey_productNotFound_propagates() {
         Long productId = 30L;
-        ProductNotFoundException exception = new ProductNotFoundException(productId);
+        ProductNotFoundException exception = new ProductNotFoundException();
 
         when(getProductUseCase.getProduct(productId)).thenThrow(exception);
 

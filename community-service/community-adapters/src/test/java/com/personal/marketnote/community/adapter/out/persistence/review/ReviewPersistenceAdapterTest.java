@@ -98,9 +98,7 @@ class ReviewPersistenceAdapterTest {
                     .thenThrow(new DataIntegrityViolationException("duplicate order_id/price_policy_id"));
 
             assertThatThrownBy(() -> adapter.save(sampleReview))
-                    .isInstanceOf(ReviewAlreadyExistsException.class)
-                    .hasMessageContaining("100")
-                    .hasMessageContaining("10000");
+                    .isInstanceOf(ReviewAlreadyExistsException.class);
         }
     }
 

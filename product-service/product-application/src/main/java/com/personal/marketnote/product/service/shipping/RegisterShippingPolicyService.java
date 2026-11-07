@@ -12,10 +12,12 @@ import com.personal.marketnote.product.port.out.event.PublishShippingPolicyEvent
 import com.personal.marketnote.product.port.out.shipping.FindShippingPolicyPort;
 import com.personal.marketnote.product.port.out.shipping.SaveShippingPolicyPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class RegisterShippingPolicyService implements RegisterShippingPolicyUseCase {
@@ -47,7 +49,8 @@ public class RegisterShippingPolicyService implements RegisterShippingPolicyUseC
     private void validateNoDuplicatePolicy(Long sellerId) {
         findShippingPolicyPort.findActiveBySellerId(sellerId)
                 .ifPresent(existing -> {
-                    throw new ShippingPolicyAlreadyExistsException(sellerId);
+                    log.warn("해당 판매자의 배송비 정책이 이미 존재합니다. sellerId={}", sellerId);
+                    throw new ShippingPolicyAlreadyExistsException();
                 });
     }
 }

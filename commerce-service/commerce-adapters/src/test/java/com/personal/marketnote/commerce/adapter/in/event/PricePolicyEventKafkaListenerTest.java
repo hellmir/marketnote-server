@@ -201,7 +201,7 @@ class PricePolicyEventKafkaListenerTest {
     void handlePricePolicyCreatedEvent_inventoryAlreadyExists_acknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
-        doThrow(new InventoryAlreadyExistsException(2L))
+        doThrow(new InventoryAlreadyExistsException())
                 .when(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
 
         // when

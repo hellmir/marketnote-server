@@ -115,7 +115,7 @@ class VerifyCodeUseCaseTest {
         String email = "user@test.com";
         String code = "123456";
         VerifyCodeCommand command = VerifyCodeCommand.of(email, code);
-        UserNotFoundException exception = new UserNotFoundException("not found");
+        UserNotFoundException exception = new UserNotFoundException();
 
         when(verifyCodePort.verify(email, code)).thenReturn(true);
         when(getUserUseCase.getAllStatusUser(email)).thenThrow(exception);

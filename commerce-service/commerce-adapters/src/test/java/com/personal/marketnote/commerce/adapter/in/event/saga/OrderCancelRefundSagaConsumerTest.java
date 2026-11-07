@@ -129,7 +129,7 @@ class OrderCancelRefundSagaConsumerTest {
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
-            doThrow(new PaymentNotFoundException(1L))
+            doThrow(new PaymentNotFoundException())
                     .when(refundPaymentUseCase).refund(any(RefundPaymentCommand.class));
 
             consumer.handleRefundPaymentStep(record, acknowledgment);

@@ -43,7 +43,7 @@ class UpsertLikeUseCaseTest {
         Long userId = 1L;
         UpsertLikeCommand command = UpsertLikeCommand.of(targetType, targetId, true, userId);
         when(getLikeUseCase.getLike(targetType, targetId, userId))
-                .thenThrow(new LikeNotFoundException(targetType, targetId, userId));
+                .thenThrow(new LikeNotFoundException());
 
         UpsertLikeResult result = upsertLikeService.upsertLike(command);
 
@@ -115,7 +115,7 @@ class UpsertLikeUseCaseTest {
         Long userId = 10L;
         UpsertLikeCommand command = UpsertLikeCommand.of(targetType, targetId, true, userId);
         when(getLikeUseCase.getLike(targetType, targetId, userId))
-                .thenThrow(new LikeNotFoundException(targetType, targetId, userId));
+                .thenThrow(new LikeNotFoundException());
 
         upsertLikeService.upsertLike(command);
 

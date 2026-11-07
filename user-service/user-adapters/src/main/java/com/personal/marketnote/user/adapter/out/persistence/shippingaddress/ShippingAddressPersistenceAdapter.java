@@ -12,10 +12,12 @@ import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddress
 import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class ShippingAddressPersistenceAdapter implements FindShippingAddressPort, SaveShippingAddressPort, UpdateShippingAddressPort {
@@ -72,7 +74,10 @@ public class ShippingAddressPersistenceAdapter implements FindShippingAddressPor
     @Override
     public void update(ShippingAddress shippingAddress) {
         ShippingAddressJpaEntity entity = shippingAddressJpaRepository.findById(shippingAddress.getId())
-                .orElseThrow(() -> new ShippingAddressNotFoundException(shippingAddress.getId()));
+                .orElseThrow(() -> {
+                    log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}", shippingAddress.getId());
+                    return new ShippingAddressNotFoundException();
+                });
 
         entity.updateFrom(shippingAddress);
     }

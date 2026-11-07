@@ -23,12 +23,14 @@ import com.personal.marketnote.product.exception.ProductNoPricePolicyException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
 import com.personal.marketnote.product.port.out.productoption.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class ProductOptionPersistenceAdapter
@@ -45,7 +47,10 @@ public class ProductOptionPersistenceAdapter
     public ProductOptionCategory save(ProductOptionCategory productOptionCategory) {
         Long productId = productOptionCategory.getProduct().getId();
         ProductJpaEntity product = productJpaRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId));
+                .orElseThrow(() -> {
+                    log.warn("상품을 찾을 수 없습니다. productId={}", productId);
+                    return new ProductNotFoundException();
+                });
 
         ProductOptionCategoryJpaEntity savedCategory = productOptionCategoryJpaRepository.save(
                 ProductOptionCategoryJpaEntity.from(productOptionCategory, product));

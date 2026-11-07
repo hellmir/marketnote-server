@@ -69,7 +69,10 @@ public class GetOrderService implements GetOrderUseCase {
     @Override
     public Order getOrder(Long id) {
         return findOrderPort.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("주문을 찾을 수 없습니다. orderId={}", id);
+                    return new OrderNotFoundException();
+                });
     }
 
     @Override
@@ -140,7 +143,10 @@ public class GetOrderService implements GetOrderUseCase {
     @Override
     public OrderProduct getOrderProduct(Long orderId, Long pricePolicyId) {
         return findOrderProductPort.findByOrderIdAndPricePolicyId(orderId, pricePolicyId)
-                .orElseThrow(() -> new OrderProductNotFoundException(orderId, pricePolicyId));
+                .orElseThrow(() -> {
+                    log.warn("주문 상품을 찾을 수 없습니다. orderId={}, pricePolicyId={}", orderId, pricePolicyId);
+                    return new OrderProductNotFoundException();
+                });
     }
 
     @Override
@@ -149,7 +155,10 @@ public class GetOrderService implements GetOrderUseCase {
         OrderProduct orderProduct = order.getOrderProducts().stream()
                 .filter(op -> pricePolicyId.equals(op.getPricePolicyId()))
                 .findFirst()
-                .orElseThrow(() -> new OrderProductNotFoundException(orderId, pricePolicyId));
+                .orElseThrow(() -> {
+                    log.warn("주문 상품을 찾을 수 없습니다. orderId={}, pricePolicyId={}", orderId, pricePolicyId);
+                    return new OrderProductNotFoundException();
+                });
 
         return GetOrderProductKeyResult.from(orderProduct);
     }

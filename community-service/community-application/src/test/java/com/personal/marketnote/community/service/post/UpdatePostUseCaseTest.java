@@ -69,7 +69,7 @@ class UpdatePostUseCaseTest {
     @DisplayName("존재하지 않는 게시글을 수정하면 PostNotFoundException을 발생시킨다")
     void updatePost_postNotExists_throwsPostNotFoundException() {
         Long postId = 999L;
-        when(getPostUseCase.getPost(postId)).thenThrow(new PostNotFoundException(postId));
+        when(getPostUseCase.getPost(postId)).thenThrow(new PostNotFoundException());
         UpdatePostCommand command = UpdatePostCommand.of(postId, "제목", "내용");
 
         assertThatThrownBy(() -> updatePostService.updatePost(command))

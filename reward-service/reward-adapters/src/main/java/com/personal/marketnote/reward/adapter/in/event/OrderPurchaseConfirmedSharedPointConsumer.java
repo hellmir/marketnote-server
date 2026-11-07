@@ -90,7 +90,10 @@ public class OrderPurchaseConfirmedSharedPointConsumer {
 
     private void confirmPending(UUID sharerKey, Long orderId) {
         UserPoint userPoint = findUserPointPort.findByUserKey(sharerKey.toString())
-                .orElseThrow(() -> new UserPointNotFoundException(sharerKey.toString()));
+                .orElseThrow(() -> {
+                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userKey={}", sharerKey);
+                    return new UserPointNotFoundException();
+                });
 
         ConfirmPendingPointCommand command = ConfirmPendingPointCommand.builder()
                 .userId(userPoint.getUserId())

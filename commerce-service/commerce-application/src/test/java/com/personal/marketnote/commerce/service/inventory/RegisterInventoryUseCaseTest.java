@@ -128,8 +128,7 @@ class RegisterInventoryUseCaseTest {
             when(findInventoryPort.existsByPricePolicyId(pricePolicyId)).thenReturn(true);
 
             assertThatThrownBy(() -> registerInventoryService.registerInventory(command))
-                    .isInstanceOf(InventoryAlreadyExistsException.class)
-                    .hasMessageContaining("500");
+                    .isInstanceOf(InventoryAlreadyExistsException.class);
         }
 
         @Test

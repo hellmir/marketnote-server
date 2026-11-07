@@ -75,18 +75,6 @@ class GetPostUseCaseTest {
     }
 
     @Test
-    @DisplayName("PostNotFoundException 메시지에 게시글 ID가 포함된다")
-    void getPost_postNotFound_exceptionContainsPostId() {
-        Long postId = 999L;
-        when(findPostPort.findByIdWithReplies(postId)).thenReturn(Optional.empty());
-        GetPostQuery query = buildQuery(Board.ONE_ON_ONE_INQUERY, null, 1L, postId);
-
-        assertThatThrownBy(() -> getPostService.getPost(query))
-                .isInstanceOf(PostNotFoundException.class)
-                .hasMessageContaining(String.valueOf(postId));
-    }
-
-    @Test
     @DisplayName("요청한 게시판과 게시글의 게시판이 일치하지 않으면 PostBoardMismatchException이 발생한다")
     void getPost_boardMismatch_throwsPostBoardMismatchException() {
         Long postId = 1L;

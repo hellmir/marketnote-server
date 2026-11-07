@@ -90,7 +90,7 @@ class GetShippingAddressUseCaseTest {
         // expect
         assertThatThrownBy(() -> getShippingAddressService.getShippingAddress(shippingAddressId, userId))
                 .isInstanceOf(ShippingAddressNotFoundException.class)
-                .hasMessage(String.format("배송지를 찾을 수 없습니다. 전송된 배송지 ID: %d", shippingAddressId));
+                .hasMessage("배송지를 찾을 수 없습니다.");
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoMoreInteractions(findShippingAddressPort);

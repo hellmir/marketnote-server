@@ -53,7 +53,7 @@ class GetPricePolicyUseCaseTest {
 
         assertThatThrownBy(() -> getPricePolicyService.getPricePolicy(id))
                 .isInstanceOf(PricePolicyNotFoundException.class)
-                .hasMessageContaining(String.valueOf(id));
+                .hasMessage("가격 정책을 찾을 수 없습니다.");
 
         verify(findPricePolicyPort).findById(id);
     }
@@ -93,7 +93,7 @@ class GetPricePolicyUseCaseTest {
 
         assertThatThrownBy(() -> getPricePolicyService.getPricePolicy(optionIds))
                 .isInstanceOf(PricePolicyNotFoundException.class)
-                .hasMessageContaining(String.valueOf(-1L));
+                .hasMessage("가격 정책을 찾을 수 없습니다.");
 
         verify(findPricePolicyPort).findByOptionIds(optionIds);
     }

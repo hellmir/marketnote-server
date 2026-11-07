@@ -49,8 +49,7 @@ class GetPostByIdUseCaseTest {
         when(findPostPort.findById(postId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> getPostService.getPost(postId))
-                .isInstanceOf(PostNotFoundException.class)
-                .hasMessageContaining(String.valueOf(postId));
+                .isInstanceOf(PostNotFoundException.class);
     }
 
     private Post buildPost(Long id) {

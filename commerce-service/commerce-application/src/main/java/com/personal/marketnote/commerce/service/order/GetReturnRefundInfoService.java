@@ -129,7 +129,10 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
     private String resolveRefundMethod(Order order) {
         String orderKey = order.getOrderKey().toString();
         PspPaymentEvent paymentEvent = findPspPaymentEventPort.findByOrderKey(orderKey)
-                .orElseThrow(() -> new PaymentEventNotFoundException(orderKey));
+                .orElseThrow(() -> {
+                    log.warn("거래 등록 정보를 찾을 수 없습니다. orderKey={}", orderKey);
+                    return new PaymentEventNotFoundException();
+                });
 
         return PaymentMethod.fromMobileCode(paymentEvent.getMethod()).getDescription();
     }

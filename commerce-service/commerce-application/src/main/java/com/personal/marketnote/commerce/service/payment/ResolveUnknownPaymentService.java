@@ -44,10 +44,16 @@ public class ResolveUnknownPaymentService implements ResolveUnknownPaymentUseCas
     @Override
     public ResolveUnknownPaymentResult resolve(ResolveUnknownPaymentCommand command) {
         PspPaymentEvent event = findPspPaymentEventPort.findByOrderKey(command.orderKey())
-                .orElseThrow(() -> new PaymentEventNotFoundException(command.orderKey()));
+                .orElseThrow(() -> {
+                    log.warn("거래 등록 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
+                    return new PaymentEventNotFoundException();
+                });
 
         Payment payment = findPaymentPort.findByOrderKey(UUID.fromString(command.orderKey()))
-                .orElseThrow(() -> new PaymentNotFoundException(command.orderKey()));
+                .orElseThrow(() -> {
+                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
+                    return new PaymentNotFoundException();
+                });
 
         return switch (command.resolvedStatus()) {
             case RESOLVE_STATUS_COMPLETE -> resolveToComplete(event, payment, command);

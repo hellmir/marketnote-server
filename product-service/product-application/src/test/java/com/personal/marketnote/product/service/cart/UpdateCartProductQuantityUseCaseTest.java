@@ -73,7 +73,7 @@ class UpdateCartProductQuantityUseCaseTest {
 
         UpdateCartProductQuantityCommand command =
                 UpdateCartProductQuantityCommand.of(userId, pricePolicyId, newQuantity);
-        CartProductNotFoundException exception = new CartProductNotFoundException(pricePolicyId);
+        CartProductNotFoundException exception = new CartProductNotFoundException();
 
         when(getCartProductUseCase.getCartProduct(userId, pricePolicyId)).thenThrow(exception);
 

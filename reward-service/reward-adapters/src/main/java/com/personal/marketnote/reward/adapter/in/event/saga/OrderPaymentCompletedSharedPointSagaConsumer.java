@@ -208,7 +208,10 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
 
     private void cancelSharedPendingPoint(Long orderId, UUID sharerKey) {
         UserPoint userPoint = findUserPointPort.findByUserKey(sharerKey.toString())
-                .orElseThrow(() -> new UserPointNotFoundException(sharerKey.toString()));
+                .orElseThrow(() -> {
+                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userKey={}", sharerKey);
+                    return new UserPointNotFoundException();
+                });
 
         CancelPendingPointCommand command = CancelPendingPointCommand.builder()
                 .userId(userPoint.getUserId())

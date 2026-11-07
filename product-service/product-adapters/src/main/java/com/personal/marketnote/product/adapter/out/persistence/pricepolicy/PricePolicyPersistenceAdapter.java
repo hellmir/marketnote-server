@@ -18,6 +18,7 @@ import com.personal.marketnote.product.domain.product.ProductSortProperty;
 import com.personal.marketnote.product.exception.PricePolicyNotFoundException;
 import com.personal.marketnote.product.port.out.pricepolicy.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Sort;
 
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindPricePolicyPort, FindPricePoliciesPort, DeletePricePolicyPort, UpdatePopularityPort {
@@ -230,7 +232,10 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
     public void deleteById(Long pricePolicyId) {
         Long productId = pricePolicyJpaRepository.findById(pricePolicyId)
                 .map(entity -> entity.getProductJpaEntity().getId())
-                .orElseThrow(() -> new PricePolicyNotFoundException(pricePolicyId));
+                .orElseThrow(() -> {
+                    log.warn("가격 정책을 찾을 수 없습니다. pricePolicyId={}", pricePolicyId);
+                    return new PricePolicyNotFoundException();
+                });
         deleteByIdInternal(productId, pricePolicyId);
     }
 

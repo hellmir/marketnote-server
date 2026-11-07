@@ -3,8 +3,9 @@ package com.personal.marketnote.commerce.exception;
 import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 
 public class ShippingPolicyNotFoundException extends DomainNotFoundException {
+    private static final String MESSAGE = "해당 판매자의 배송비 정책을 찾을 수 없습니다.";
 
-    public ShippingPolicyNotFoundException(Long sellerId) {
-        super("해당 판매자의 배송비 정책을 찾을 수 없습니다. sellerId=" + sellerId);
+    public ShippingPolicyNotFoundException() {
+        super(MESSAGE);
     }
 }

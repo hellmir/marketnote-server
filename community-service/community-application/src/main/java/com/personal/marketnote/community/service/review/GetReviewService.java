@@ -22,6 +22,7 @@ import com.personal.marketnote.community.port.out.product.FindProductByPricePoli
 import com.personal.marketnote.community.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.community.port.out.review.FindReviewPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,6 +39,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.FIRST_PAGE_CURS
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -51,13 +53,19 @@ public class GetReviewService implements GetReviewUseCase {
     @Override
     public Review getReview(Long id) {
         return findReviewPort.findById(id)
-                .orElseThrow(() -> new ReviewNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("리뷰를 찾을 수 없습니다. reviewId={}", id);
+                    return new ReviewNotFoundException();
+                });
     }
 
     @Override
     public Review getReview(Long id, Long userId) {
         Review review = findReviewPort.findById(id)
-                .orElseThrow(() -> new ReviewNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("리뷰를 찾을 수 없습니다. reviewId={}", id);
+                    return new ReviewNotFoundException();
+                });
         review.updateIsUserLiked(
                 getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, review.getId(), userId)
         );
@@ -71,7 +79,8 @@ public class GetReviewService implements GetReviewUseCase {
         Long pricePolicyId = command.pricePolicyId();
 
         if (findReviewPort.existsByOrderIdAndPricePolicyId(orderId, pricePolicyId)) {
-            throw new ReviewAlreadyExistsException(orderId, pricePolicyId);
+            log.warn("이미 해당 주문에 대한 리뷰가 존재합니다. orderId={}, pricePolicyId={}", orderId, pricePolicyId);
+            throw new ReviewAlreadyExistsException();
         }
     }
 
@@ -131,7 +140,10 @@ public class GetReviewService implements GetReviewUseCase {
     @Transactional(isolation = READ_COMMITTED, readOnly = true, propagation = REQUIRES_NEW)
     public ProductReviewAggregate getProductReviewAggregate(Long productId) {
         return findReviewPort.findProductReviewAggregateByProductId(productId)
-                .orElseThrow(() -> new ProductReviewAggregateNotFoundException(productId));
+                .orElseThrow(() -> {
+                    log.warn("상품 리뷰 집계 정보를 찾을 수 없습니다. productId={}", productId);
+                    return new ProductReviewAggregateNotFoundException();
+                });
     }
 
     @Override
@@ -213,7 +225,10 @@ public class GetReviewService implements GetReviewUseCase {
     @Override
     public ReviewItemResult getReviewDetail(Long id, Long userId) {
         Review review = findReviewPort.findById(id)
-                .orElseThrow(() -> new ReviewNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("리뷰를 찾을 수 없습니다. reviewId={}", id);
+                    return new ReviewNotFoundException();
+                });
 
         if (FormatValidator.hasValue(userId)) {
             review.updateIsUserLiked(

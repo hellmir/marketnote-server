@@ -29,7 +29,10 @@ public class ShippingAddressReadModelPersistenceAdapter implements FindUserShipp
     public ShippingAddressInfoResult findByIdAndUserId(Long shippingAddressId, Long userId) {
         ShippingAddressReadModelJpaEntity entity = shippingAddressReadModelJpaRepository
                 .findByShippingAddressIdAndUserIdAndStatus(shippingAddressId, userId, EntityStatus.ACTIVE)
-                .orElseThrow(() -> new ShippingAddressNotFoundException(shippingAddressId));
+                .orElseThrow(() -> {
+                    log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}, userId={}", shippingAddressId, userId);
+                    return new ShippingAddressNotFoundException();
+                });
 
         return new ShippingAddressInfoResult(
                 entity.getRecipientName(),

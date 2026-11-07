@@ -17,10 +17,12 @@ import com.personal.marketnote.commerce.port.out.order.*;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, FindOrderProductPort, UpdateOrderPort, UpdateOrderProductPort, FindOrderStatusHistoryPort {
@@ -150,7 +152,10 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
 
     private OrderJpaEntity findEntityById(Long id) throws OrderNotFoundException {
         return orderJpaRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("주문을 찾을 수 없습니다. orderId={}", id);
+                    return new OrderNotFoundException();
+                });
     }
 
     @Override
@@ -190,6 +195,9 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
             Long orderId, Long pricePolicyId
     ) throws OrderProductNotFoundException {
         return orderProductJpaRepository.findByOrderIdAndPricePolicyId(orderId, pricePolicyId)
-                .orElseThrow(() -> new OrderProductNotFoundException(orderId, pricePolicyId));
+                .orElseThrow(() -> {
+                    log.warn("주문 상품을 찾을 수 없습니다. orderId={}, pricePolicyId={}", orderId, pricePolicyId);
+                    return new OrderProductNotFoundException();
+                });
     }
 }

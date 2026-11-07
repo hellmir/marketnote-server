@@ -126,8 +126,7 @@ class GetSettlementUseCaseTest {
 
             // when & then
             assertThatThrownBy(() -> getSettlementService.getSettlement(999L))
-                    .isInstanceOf(SettlementNotFoundException.class)
-                    .hasMessageContaining("999");
+                    .isInstanceOf(SettlementNotFoundException.class);
             verify(findSettlementPort).findById(999L);
         }
     }

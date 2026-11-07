@@ -30,7 +30,10 @@ public class GetSettlementPolicyService implements GetSettlementPolicyUseCase {
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public GetSettlementPolicyResult getPolicy(Long id) {
         SettlementPolicy policy = findSettlementPolicyPort.findById(id)
-                .orElseThrow(() -> new SettlementPolicyNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("정산 정책을 찾을 수 없습니다. settlementPolicyId={}", id);
+                    return new SettlementPolicyNotFoundException();
+                });
 
         return GetSettlementPolicyResult.from(policy);
     }
@@ -39,7 +42,10 @@ public class GetSettlementPolicyService implements GetSettlementPolicyUseCase {
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public GetSettlementPolicyResult getPolicyBySellerId(Long sellerId) {
         SettlementPolicy policy = findSettlementPolicyPort.findActiveBySellerId(sellerId)
-                .orElseThrow(() -> new SettlementPolicyNotFoundException(sellerId));
+                .orElseThrow(() -> {
+                    log.warn("정산 정책을 찾을 수 없습니다. sellerId={}", sellerId);
+                    return new SettlementPolicyNotFoundException();
+                });
 
         return GetSettlementPolicyResult.from(policy);
     }

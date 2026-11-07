@@ -52,7 +52,10 @@ public class ReExecuteSettlementService implements ReExecuteSettlementUseCase {
     @Transactional(isolation = READ_COMMITTED)
     public void reExecuteSettlement(Long settlementId) {
         Settlement settlement = findSettlementPort.findById(settlementId)
-                .orElseThrow(() -> new SettlementNotFoundException(settlementId));
+                .orElseThrow(() -> {
+                    log.warn("정산을 찾을 수 없습니다. settlementId={}", settlementId);
+                    return new SettlementNotFoundException();
+                });
 
         settlement.resetCancelledToPending();
 
@@ -97,11 +100,20 @@ public class ReExecuteSettlementService implements ReExecuteSettlementUseCase {
      */
     private void recordPgSettlementReExecution(Long settlementId, Long totalAllocatedAmount, Long pgFeeAmount) {
         Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_CASH));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_CASH);
+                    return new AccountNotFoundException();
+                });
         Account pgFeeAccount = findAccountPort.findByName(ACCOUNT_PG_FEE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PG_FEE));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_FEE);
+                    return new AccountNotFoundException();
+                });
         Account pgReceivable = findAccountPort.findByName(ACCOUNT_PG_RECEIVABLE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PG_RECEIVABLE));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_RECEIVABLE);
+                    return new AccountNotFoundException();
+                });
 
         List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
 
@@ -153,11 +165,20 @@ public class ReExecuteSettlementService implements ReExecuteSettlementUseCase {
             Long settlementId, Long totalAmount, Long sellerPayoutAmount, Long platformFeeAmount
     ) {
         Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_SELLER_PAYABLE));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_SELLER_PAYABLE);
+                    return new AccountNotFoundException();
+                });
         Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_CASH));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_CASH);
+                    return new AccountNotFoundException();
+                });
         Account platformFeeAccount = findAccountPort.findByName(ACCOUNT_PLATFORM_FEE_REVENUE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PLATFORM_FEE_REVENUE));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PLATFORM_FEE_REVENUE);
+                    return new AccountNotFoundException();
+                });
 
         List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
 

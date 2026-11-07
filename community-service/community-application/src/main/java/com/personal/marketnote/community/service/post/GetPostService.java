@@ -18,6 +18,7 @@ import com.personal.marketnote.community.port.out.post.FindPostPort;
 import com.personal.marketnote.community.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.community.port.out.result.product.ProductInfoResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -34,6 +35,7 @@ import java.util.stream.Stream;
 import static com.personal.marketnote.common.domain.file.FileSort.POST_IMAGE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -252,7 +254,10 @@ public class GetPostService implements GetPostUseCase {
 
     private Post getPostWithReplies(Long id) {
         return findPostPort.findByIdWithReplies(id)
-                .orElseThrow(() -> new PostNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("게시글을 찾을 수 없습니다. postId={}", id);
+                    return new PostNotFoundException();
+                });
     }
 
     private void validateQueryMatchesPost(GetPostQuery query, Post post) {
@@ -308,7 +313,10 @@ public class GetPostService implements GetPostUseCase {
     @Override
     public Post getPost(Long id) {
         return findPostPort.findById(id)
-                .orElseThrow(() -> new PostNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("게시글을 찾을 수 없습니다. postId={}", id);
+                    return new PostNotFoundException();
+                });
     }
 
     private Map<Long, List<GetFileResult>> findPostImages(List<Post> posts) {

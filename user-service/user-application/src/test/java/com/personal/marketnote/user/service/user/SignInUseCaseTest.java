@@ -150,7 +150,7 @@ class SignInUseCaseTest {
         String email = "missing@test.com";
         SignInCommand command = SignInCommand.of(email, "password1!");
 
-        when(getUserUseCase.getAllStatusUser(email)).thenThrow(new UserNotFoundException("not found"));
+        when(getUserUseCase.getAllStatusUser(email)).thenThrow(new UserNotFoundException());
 
         // expect
         assertThatThrownBy(() -> signInService.signIn(command, AuthVendor.NATIVE, null, "127.0.0.1"))
@@ -227,7 +227,7 @@ class SignInUseCaseTest {
         SignInCommand command = SignInCommand.of(null, null);
 
         when(getUserUseCase.getAllStatusUser(AuthVendor.APPLE, oidcId))
-                .thenThrow(new UserNotFoundException("not found"));
+                .thenThrow(new UserNotFoundException());
 
         // expect
         assertThatThrownBy(() -> signInService.signIn(command, AuthVendor.APPLE, oidcId, "127.0.0.1"))

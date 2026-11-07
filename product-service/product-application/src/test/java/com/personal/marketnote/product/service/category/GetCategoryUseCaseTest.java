@@ -50,7 +50,7 @@ class GetCategoryUseCaseTest {
 
         assertThatThrownBy(() -> getCategoryService.getCategory(categoryId))
                 .isInstanceOf(CategoryNotFoundException.class)
-                .hasMessageContaining("카테고리 ID: 11");
+                .hasMessage("존재하지 않는 카테고리입니다.");
     }
 
     @Test

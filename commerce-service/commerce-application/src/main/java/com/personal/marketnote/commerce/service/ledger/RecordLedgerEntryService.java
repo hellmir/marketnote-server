@@ -63,9 +63,15 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED)
     public void recordPaymentApproval(Long orderId, long paymentAmount) {
         Account pgReceivable = findAccountPort.findByName(ACCOUNT_PG_RECEIVABLE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PG_RECEIVABLE));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_RECEIVABLE);
+                    return new AccountNotFoundException();
+                });
         Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_SELLER_PAYABLE));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_SELLER_PAYABLE);
+                    return new AccountNotFoundException();
+                });
 
         RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
                 .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
@@ -94,9 +100,15 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED)
     public void recordPaymentCancellation(Long orderId, long cancelAmount, String idempotencyKey) {
         Account pgReceivable = findAccountPort.findByName(ACCOUNT_PG_RECEIVABLE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PG_RECEIVABLE));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_RECEIVABLE);
+                    return new AccountNotFoundException();
+                });
         Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_SELLER_PAYABLE));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_SELLER_PAYABLE);
+                    return new AccountNotFoundException();
+                });
 
         RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
                 .transactionType(LedgerTransactionType.PAYMENT_CANCELLATION)
@@ -125,11 +137,20 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED)
     public void recordPgSettlement(Long settlementId, long totalAmount, long pgFeeAmount) {
         Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_CASH));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_CASH);
+                    return new AccountNotFoundException();
+                });
         Account pgFeeAccount = findAccountPort.findByName(ACCOUNT_PG_FEE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PG_FEE));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_FEE);
+                    return new AccountNotFoundException();
+                });
         Account pgReceivable = findAccountPort.findByName(ACCOUNT_PG_RECEIVABLE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PG_RECEIVABLE));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PG_RECEIVABLE);
+                    return new AccountNotFoundException();
+                });
 
         List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
 
@@ -172,11 +193,20 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
             Long settlementId, long totalAmount, long sellerPayoutAmount, long platformFeeAmount
     ) {
         Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_SELLER_PAYABLE));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_SELLER_PAYABLE);
+                    return new AccountNotFoundException();
+                });
         Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_CASH));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_CASH);
+                    return new AccountNotFoundException();
+                });
         Account platformFeeAccount = findAccountPort.findByName(ACCOUNT_PLATFORM_FEE_REVENUE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PLATFORM_FEE_REVENUE));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountName={}", ACCOUNT_PLATFORM_FEE_REVENUE);
+                    return new AccountNotFoundException();
+                });
 
         List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
 
@@ -227,7 +257,10 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
     private void validateAccounts(List<RecordLedgerEntryCommand.EntryLine> entryLines) {
         for (RecordLedgerEntryCommand.EntryLine entryLine : entryLines) {
             Account account = findAccountPort.findById(entryLine.accountId())
-                    .orElseThrow(() -> new AccountNotFoundException(entryLine.accountId()));
+                    .orElseThrow(() -> {
+                        log.warn("계정과목을 찾을 수 없습니다. accountId={}", entryLine.accountId());
+                        return new AccountNotFoundException();
+                    });
             if (!account.isActive()) {
                 throw new InactiveAccountException(account.getName());
             }

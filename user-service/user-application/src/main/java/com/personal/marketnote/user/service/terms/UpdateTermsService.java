@@ -9,11 +9,13 @@ import com.personal.marketnote.user.port.in.usecase.terms.UpdateTermsUseCase;
 import com.personal.marketnote.user.port.out.user.FindUserPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.personal.marketnote.user.exception.ExceptionMessage.USER_ID_NOT_FOUND_EXCEPTION_MESSAGE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, timeout = 120)
@@ -24,7 +26,10 @@ public class UpdateTermsService implements UpdateTermsUseCase {
     @Override
     public GetUserTermsResult acceptOrCancelTerms(Long userId, AcceptOrCancelTermsCommand acceptOrCancelTermsCommand) {
         User user = findUserPort.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, userId)));
+                .orElseThrow(() -> {
+                    log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, userId);
+                    return new UserNotFoundException();
+                });
         user.acceptOrCancelTerms(acceptOrCancelTermsCommand.getIds());
         updateUserPort.update(user);
 

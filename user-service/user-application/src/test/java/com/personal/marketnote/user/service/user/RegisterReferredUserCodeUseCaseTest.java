@@ -20,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.SECOND_ERROR_CODE;
 import static com.personal.marketnote.user.exception.ExceptionMessage.USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -112,7 +111,7 @@ class RegisterReferredUserCodeUseCaseTest {
         // expect
         assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
                 .isInstanceOf(ReferredUserCodeAlreadyExistsException.class)
-                .hasMessage(new ReferredUserCodeAlreadyExistsException(SECOND_ERROR_CODE).getMessage());
+                .hasMessage(new ReferredUserCodeAlreadyExistsException().getMessage());
 
         verify(getUserUseCase).existsUser(referredUserCode);
         verify(getUserUseCase).getUser(requestUserId);
@@ -130,7 +129,7 @@ class RegisterReferredUserCodeUseCaseTest {
         // given
         Long requestUserId = 1L;
         String referredUserCode = "REF456";
-        UserNotFoundException exception = new UserNotFoundException("not found");
+        UserNotFoundException exception = new UserNotFoundException();
 
         when(getUserUseCase.existsUser(referredUserCode)).thenReturn(true);
         when(getUserUseCase.getUser(requestUserId)).thenThrow(exception);
@@ -155,7 +154,7 @@ class RegisterReferredUserCodeUseCaseTest {
         User requestUser = spy(UserTestObjectFactory.createDefaultUser(
                 requestUserId, EntityStatus.ACTIVE, false, List.of()
         ));
-        UserNotFoundException exception = new UserNotFoundException("not found");
+        UserNotFoundException exception = new UserNotFoundException();
 
         when(getUserUseCase.existsUser(referredUserCode)).thenReturn(true);
         when(getUserUseCase.getUser(requestUserId)).thenReturn(requestUser);

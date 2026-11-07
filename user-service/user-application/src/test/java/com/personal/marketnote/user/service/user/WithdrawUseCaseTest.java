@@ -242,7 +242,7 @@ class WithdrawUseCaseTest {
     void withdrawUser_userNotFound_throws() {
         // given
         Long id = 8L;
-        UserNotFoundException exception = new UserNotFoundException("not found");
+        UserNotFoundException exception = new UserNotFoundException();
 
         when(getUserUseCase.getAllStatusUser(id)).thenThrow(exception);
 

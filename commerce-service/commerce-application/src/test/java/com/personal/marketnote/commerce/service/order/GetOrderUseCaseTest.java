@@ -471,18 +471,6 @@ class GetOrderUseCaseTest {
         }
 
         @Test
-        @DisplayName("OrderNotFoundException 메시지에 주문 ID가 포함된다")
-        void getOrder_notFound_exceptionContainsOrderId() {
-            Long orderId = 12345L;
-
-            when(findOrderPort.findById(orderId)).thenReturn(Optional.empty());
-
-            assertThatThrownBy(() -> getOrderService.getOrder(orderId))
-                    .isInstanceOf(OrderNotFoundException.class)
-                    .hasMessageContaining("12345");
-        }
-
-        @Test
         @DisplayName("OrderNotFoundException 메시지에 안내 문구가 포함된다")
         void getOrder_notFound_exceptionContainsGuideMessage() {
             Long orderId = 1L;

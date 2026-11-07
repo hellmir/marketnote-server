@@ -12,6 +12,7 @@ import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import com.personal.marketnote.reward.port.out.point.SaveUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.UpdateUserPointPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -35,7 +37,10 @@ public class ModifyPendingPointService implements ModifyPendingPointUseCase {
     )
     public UpdateUserPointResult modifyPending(ModifyPendingPointCommand command) {
         UserPoint userPoint = findUserPointPort.findByUserIdForUpdate(command.userId())
-                .orElseThrow(() -> new UserPointNotFoundException(command.userId()));
+                .orElseThrow(() -> {
+                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userId={}", command.userId());
+                    return new UserPointNotFoundException();
+                });
         addOrDeductExpectedPoint(userPoint, command);
         UserPoint updatedPoint = updateUserPointPort.update(userPoint);
 

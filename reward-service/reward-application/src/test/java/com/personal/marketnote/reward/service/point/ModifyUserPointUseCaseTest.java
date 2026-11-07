@@ -300,7 +300,7 @@ class ModifyUserPointUseCaseTest {
             ModifyUserPointCommand command = createAccrualCommandWithUserId(500L);
 
             when(getUserPointUseCase.getUserPoint(USER_ID))
-                    .thenThrow(new UserNotFoundException("회원 포인트 정보를 찾을 수 없습니다. userId=" + USER_ID));
+                    .thenThrow(new UserNotFoundException());
 
             // expect
             assertThatThrownBy(() -> modifyUserPointService.modify(command))
@@ -317,7 +317,7 @@ class ModifyUserPointUseCaseTest {
             ModifyUserPointCommand command = createAccrualCommandWithUserKey(500L);
 
             when(getUserPointUseCase.getUserPoint(USER_KEY))
-                    .thenThrow(new UserNotFoundException("회원 포인트 정보를 찾을 수 없습니다. userKey=" + USER_KEY));
+                    .thenThrow(new UserNotFoundException());
 
             // expect
             assertThatThrownBy(() -> modifyUserPointService.modify(command))

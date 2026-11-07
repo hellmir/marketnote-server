@@ -169,7 +169,7 @@ class UpdateProductUseCaseTest {
     @DisplayName("상품 조회에 실패하면 예외를 전파한다")
     void update_getProductFails_propagates() {
         UpdateProductCommand command = buildCommand(30L, null);
-        ProductNotFoundException exception = new ProductNotFoundException(30L);
+        ProductNotFoundException exception = new ProductNotFoundException();
 
         when(getProductUseCase.getProduct(30L)).thenThrow(exception);
 
@@ -187,7 +187,7 @@ class UpdateProductUseCaseTest {
         FulfillmentVendorGoodsOptionCommand options = buildFulfillmentOptions();
         UpdateProductCommand command = buildCommand(40L, options);
         Product product = buildProduct(40L, "기존 상품");
-        ProductNotFoundException exception = new ProductNotFoundException(40L);
+        ProductNotFoundException exception = new ProductNotFoundException();
 
         when(findProductPort.existsByIdAndSellerId(40L, userId)).thenReturn(true);
         when(getProductUseCase.getProduct(40L)).thenReturn(product);

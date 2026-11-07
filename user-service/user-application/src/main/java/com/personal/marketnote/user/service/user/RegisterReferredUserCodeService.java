@@ -11,12 +11,14 @@ import com.personal.marketnote.user.port.in.usecase.user.RegisterReferredUserCod
 import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static com.personal.marketnote.user.exception.ExceptionMessage.USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @RequiredArgsConstructor
 @UseCase
 @Transactional(isolation = READ_COMMITTED)
@@ -31,9 +33,8 @@ public class RegisterReferredUserCodeService implements RegisterReferredUserCode
         String normalizedCode = referredUserCodeVo.getValue();
 
         if (!getUserUseCase.existsUser(normalizedCode)) {
-            throw new UserNotFoundException(
-                    String.format(USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, normalizedCode)
-            );
+            log.warn("{} referredUserCode={}", USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, normalizedCode);
+            throw new UserNotFoundException();
         }
 
         User requestUser = getUserUseCase.getUser(requestUserId);

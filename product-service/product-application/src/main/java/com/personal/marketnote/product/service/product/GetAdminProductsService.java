@@ -22,6 +22,7 @@ import com.personal.marketnote.product.port.out.productoption.FindProductOptionC
 import com.personal.marketnote.product.port.out.result.ProductReviewAggregateResult;
 import com.personal.marketnote.product.port.out.review.FindProductReviewAggregatesPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 import static com.personal.marketnote.common.domain.file.FileSort.PRODUCT_CATALOG_IMAGE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -124,7 +126,10 @@ public class GetAdminProductsService implements GetAdminProductsUseCase {
         Product product = FormatValidator.hasValue(pricePolicy.getProduct())
                 ? pricePolicy.getProduct()
                 : findProductPort.findById(pricePolicy.getProductId())
-                .orElseThrow(() -> new ProductNotFoundException(pricePolicy.getProductId()));
+                .orElseThrow(() -> {
+                    log.warn("상품을 찾을 수 없습니다. productId={}", pricePolicy.getProductId());
+                    return new ProductNotFoundException();
+                });
 
         if (!product.isFindAllOptionsYn()) {
             return ProductItemResult.from(product, pricePolicy);

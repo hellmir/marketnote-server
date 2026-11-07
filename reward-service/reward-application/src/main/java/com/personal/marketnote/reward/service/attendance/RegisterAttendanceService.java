@@ -15,6 +15,7 @@ import com.personal.marketnote.reward.port.in.result.attendance.RegisterAttendan
 import com.personal.marketnote.reward.port.in.usecase.attendance.RegisterAttendanceUseCase;
 import com.personal.marketnote.reward.port.out.attendance.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -116,6 +118,9 @@ public class RegisterAttendanceService implements RegisterAttendanceUseCase {
         return findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDate(continuousPeriod, attendedDate)
                 .or(() -> findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDateIsNull(continuousPeriod))
                 .or(() -> findAttendancePolicyPort.findById(DEFAULT_POLICY_ID))
-                .orElseThrow(() -> new AttendancePolicyNotFoundException(DEFAULT_POLICY_ID));
+                .orElseThrow(() -> {
+                    log.warn("출석 정책을 찾을 수 없습니다. attendancePolicyId={}", DEFAULT_POLICY_ID);
+                    return new AttendancePolicyNotFoundException();
+                });
     }
 }

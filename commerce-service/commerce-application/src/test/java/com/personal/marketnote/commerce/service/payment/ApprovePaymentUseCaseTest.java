@@ -140,7 +140,7 @@ class ApprovePaymentUseCaseTest {
         void shouldThrowWhenPaymentNotFound() {
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
 
-            when(txHelper.prepareExecution(command)).thenThrow(new PaymentNotFoundException(ORDER_KEY_STR));
+            when(txHelper.prepareExecution(command)).thenThrow(new PaymentNotFoundException());
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
                     .isInstanceOf(PaymentNotFoundException.class);
@@ -153,7 +153,7 @@ class ApprovePaymentUseCaseTest {
         void shouldThrowWhenPaymentEventNotFound() {
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
 
-            when(txHelper.prepareExecution(command)).thenThrow(new PaymentEventNotFoundException(ORDER_KEY_STR));
+            when(txHelper.prepareExecution(command)).thenThrow(new PaymentEventNotFoundException());
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
                     .isInstanceOf(PaymentEventNotFoundException.class);

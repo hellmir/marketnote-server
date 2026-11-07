@@ -614,7 +614,7 @@ class ReduceProductInventoryUseCaseTest {
         void reduce_updatePortThrowsInventoryNotFound_propagates() {
             List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
             Inventory inventory = buildInventory(1L, 100L, 10);
-            InventoryNotFoundException exception = new InventoryNotFoundException(100L);
+            InventoryNotFoundException exception = new InventoryNotFoundException();
 
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));

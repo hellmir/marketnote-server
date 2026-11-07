@@ -61,7 +61,10 @@ public class PurchaseGifticonTransactionHelper {
             String productImageUrl, Long cashPrice
     ) {
         UserPoint userPoint = findUserPointPort.findByUserIdForUpdate(userId)
-                .orElseThrow(() -> new UserPointNotFoundException(userId));
+                .orElseThrow(() -> {
+                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userId={}", userId);
+                    return new UserPointNotFoundException();
+                });
         Long currentBalance = userPoint.getAmountValue();
 
         if (currentBalance < cashPrice) {

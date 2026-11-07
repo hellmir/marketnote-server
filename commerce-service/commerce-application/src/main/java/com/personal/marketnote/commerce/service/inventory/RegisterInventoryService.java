@@ -11,6 +11,7 @@ import com.personal.marketnote.commerce.port.out.inventory.SaveInventoryPort;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, propagation = REQUIRES_NEW)
@@ -32,7 +34,8 @@ public class RegisterInventoryService implements RegisterInventoryUseCase {
     public void registerInventory(RegisterInventoryCommand command) {
         Long pricePolicyId = command.pricePolicyId();
         if (findInventoryPort.existsByPricePolicyId(pricePolicyId)) {
-            throw new InventoryAlreadyExistsException(pricePolicyId);
+            log.warn("이미 해당 가격 정책에 대한 재고가 존재합니다. pricePolicyId={}", pricePolicyId);
+            throw new InventoryAlreadyExistsException();
         }
 
         Inventory inventory = Inventory.of(command.productId(), command.productKey(), command.pricePolicyId());

@@ -11,10 +11,12 @@ import com.personal.marketnote.user.port.in.usecase.remotearea.RegisterRemoteAre
 import com.personal.marketnote.user.port.out.remotearea.FindRemoteAreaPort;
 import com.personal.marketnote.user.port.out.remotearea.SaveRemoteAreaPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class RegisterRemoteAreaService implements RegisterRemoteAreaUseCase {
@@ -51,7 +53,11 @@ public class RegisterRemoteAreaService implements RegisterRemoteAreaUseCase {
 
     private void validateNotDuplicate(RemoteArea remoteArea) {
         if (findRemoteAreaPort.existsByAddress(remoteArea.getProvince(), remoteArea.getDistrict(), remoteArea.getVillage(), remoteArea.getSubarea())) {
-            throw new RemoteAreaAlreadyExistsException(remoteArea.getProvince(), remoteArea.getDistrict(), remoteArea.getVillage(), remoteArea.getSubarea());
+            log.warn(
+                    "이미 등록된 도서산간 지역입니다. province={}, district={}, village={}, subarea={}",
+                    remoteArea.getProvince(), remoteArea.getDistrict(), remoteArea.getVillage(), remoteArea.getSubarea()
+            );
+            throw new RemoteAreaAlreadyExistsException();
         }
     }
 }

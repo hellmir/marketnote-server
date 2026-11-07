@@ -14,6 +14,7 @@ import com.personal.marketnote.commerce.exception.InventoryNotFoundException;
 import com.personal.marketnote.commerce.port.out.inventory.*;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Optional;
@@ -21,6 +22,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class InventoryPersistenceAdapter implements SaveInventoryPort, FindInventoryPort, UpdateInventoryPort, SaveInventoryDeductionHistoryPort, SaveInventoryRestorationHistoryPort {
@@ -106,7 +108,10 @@ public class InventoryPersistenceAdapter implements SaveInventoryPort, FindInven
             InventoryJpaEntity inventoryEntity = inventoryEntities.stream()
                     .filter(entity -> entity.getPricePolicyId().equals(inventory.getPricePolicyId()))
                     .findFirst()
-                    .orElseThrow(() -> new InventoryNotFoundException(inventory.getPricePolicyId()));
+                    .orElseThrow(() -> {
+                        log.warn("재고를 찾을 수 없습니다. pricePolicyId={}", inventory.getPricePolicyId());
+                        return new InventoryNotFoundException();
+                    });
 
             inventoryEntity.updateFrom(inventory);
         }

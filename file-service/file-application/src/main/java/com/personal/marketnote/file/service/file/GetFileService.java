@@ -12,6 +12,7 @@ import com.personal.marketnote.file.port.in.usecase.file.GetFileUseCase;
 import com.personal.marketnote.file.port.out.file.FindFilePort;
 import com.personal.marketnote.file.port.out.resized.FindResizedFilesPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -30,7 +32,10 @@ public class GetFileService implements GetFileUseCase {
     @Override
     public FileDomain getFile(Long id) {
         return findFilePort.findById(id)
-                .orElseThrow(() -> new FileNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("파일을 찾을 수 없습니다. fileId={}", id);
+                    return new FileNotFoundException();
+                });
     }
 
     @Override

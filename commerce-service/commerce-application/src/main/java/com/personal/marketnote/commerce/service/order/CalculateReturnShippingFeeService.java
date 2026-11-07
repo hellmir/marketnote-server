@@ -19,6 +19,7 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -144,7 +146,8 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
 
             ShippingPolicyInfoResult policy = shippingPolicyMap.get(sellerId);
             if (FormatValidator.hasNoValue(policy)) {
-                throw new ShippingPolicyNotFoundException(sellerId);
+                log.warn("해당 판매자의 배송비 정책을 찾을 수 없습니다. sellerId={}", sellerId);
+                throw new ShippingPolicyNotFoundException();
             }
             long oneWayFee = policy.shippingFee();
             long freeShippingThreshold = policy.freeShippingThreshold();

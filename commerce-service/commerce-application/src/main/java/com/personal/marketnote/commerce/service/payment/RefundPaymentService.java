@@ -78,7 +78,10 @@ public class RefundPaymentService implements RefundPaymentUseCase {
     private Payment findPayment(String orderKey) {
         UUID orderKeyUuid = UUID.fromString(orderKey);
         return findPaymentPort.findByOrderKey(orderKeyUuid)
-                .orElseThrow(() -> new PaymentNotFoundException(orderKey));
+                .orElseThrow(() -> {
+                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
+                    return new PaymentNotFoundException();
+                });
     }
 
     private void validateNotAlreadyRefunded(Payment payment, String orderKey) {
@@ -89,7 +92,10 @@ public class RefundPaymentService implements RefundPaymentUseCase {
 
     private PspPaymentEvent findPspPaymentEvent(String orderKey) {
         return findPspPaymentEventPort.findByOrderKey(orderKey)
-                .orElseThrow(() -> new PaymentNotFoundException(orderKey));
+                .orElseThrow(() -> {
+                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
+                    return new PaymentNotFoundException();
+                });
     }
 
     private void validateRefundable(PspPaymentEvent event, String orderKey) {

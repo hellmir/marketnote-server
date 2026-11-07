@@ -126,8 +126,7 @@ class GetSettlementDetailUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getSettlementDetailService.getSettlementAllocations(settlementId))
-                .isInstanceOf(SettlementNotFoundException.class)
-                .hasMessageContaining("999");
+                .isInstanceOf(SettlementNotFoundException.class);
         verify(findSettlementPort).findById(settlementId);
         verifyNoInteractions(findPaymentAllocationPort);
     }

@@ -12,11 +12,13 @@ import com.personal.marketnote.product.port.out.shipping.FindShippingPolicyPort;
 import com.personal.marketnote.product.port.out.shipping.SaveShippingPolicyPort;
 import com.personal.marketnote.product.port.out.shipping.UpdateShippingPolicyPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class ShippingPolicyPersistenceAdapter implements SaveShippingPolicyPort, FindShippingPolicyPort, UpdateShippingPolicyPort {
@@ -30,7 +32,8 @@ public class ShippingPolicyPersistenceAdapter implements SaveShippingPolicyPort,
             ShippingPolicyJpaEntity saved = shippingPolicyJpaRepository.save(entity);
             return saved.getId();
         } catch (DataIntegrityViolationException dive) {
-            throw new ShippingPolicyAlreadyExistsException(shippingPolicy.getSellerId());
+            log.warn("해당 판매자의 배송비 정책이 이미 존재합니다. sellerId={}", shippingPolicy.getSellerId());
+            throw new ShippingPolicyAlreadyExistsException();
         }
     }
 
@@ -54,7 +57,10 @@ public class ShippingPolicyPersistenceAdapter implements SaveShippingPolicyPort,
     public void update(ShippingPolicy shippingPolicy) {
         ShippingPolicyJpaEntity entity = shippingPolicyJpaRepository
                 .findById(shippingPolicy.getId())
-                .orElseThrow(() -> new ShippingPolicyNotFoundException(shippingPolicy.getSellerId()));
+                .orElseThrow(() -> {
+                    log.warn("해당 판매자의 배송비 정책을 찾을 수 없습니다. sellerId={}", shippingPolicy.getSellerId());
+                    return new ShippingPolicyNotFoundException();
+                });
 
         entity.updateFrom(shippingPolicy);
     }

@@ -35,7 +35,8 @@ public class RegisterSettlementPolicyService implements RegisterSettlementPolicy
     public GetSettlementPolicyResult registerPolicy(RegisterSettlementPolicyCommand command) {
         findSettlementPolicyPort.findActiveBySellerId(command.sellerId())
                 .ifPresent(existing -> {
-                    throw new SettlementPolicyAlreadyExistsException(command.sellerId());
+                    log.warn("해당 판매자의 정산 정책이 이미 존재합니다. sellerId={}", command.sellerId());
+                    throw new SettlementPolicyAlreadyExistsException();
                 });
 
         SettlementPolicy policy = SettlementPolicy.from(SettlementPolicyCreateState.builder()

@@ -9,12 +9,14 @@ import com.personal.marketnote.product.port.in.result.shipping.GetShippingPolicy
 import com.personal.marketnote.product.port.in.usecase.shipping.GetShippingPolicyUseCase;
 import com.personal.marketnote.product.port.out.shipping.FindShippingPolicyPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class GetShippingPolicyService implements GetShippingPolicyUseCase {
@@ -43,6 +45,9 @@ public class GetShippingPolicyService implements GetShippingPolicyUseCase {
 
     private ShippingPolicy findShippingPolicy(Long sellerId) {
         return findShippingPolicyPort.findActiveBySellerId(sellerId)
-                .orElseThrow(() -> new ShippingPolicyNotFoundException(sellerId));
+                .orElseThrow(() -> {
+                    log.warn("해당 판매자의 배송비 정책을 찾을 수 없습니다. sellerId={}", sellerId);
+                    return new ShippingPolicyNotFoundException();
+                });
     }
 }

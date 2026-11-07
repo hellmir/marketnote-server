@@ -121,7 +121,7 @@ class ApplyUserPenaltyUseCaseTest {
         // given
         Long userId = 999L;
         ApplyUserPenaltyCommand command = new ApplyUserPenaltyCommand(userId, 99L, "이유");
-        UserNotFoundException exception = new UserNotFoundException("not found");
+        UserNotFoundException exception = new UserNotFoundException();
 
         when(getUserUseCase.getAllStatusUser(userId)).thenThrow(exception);
 

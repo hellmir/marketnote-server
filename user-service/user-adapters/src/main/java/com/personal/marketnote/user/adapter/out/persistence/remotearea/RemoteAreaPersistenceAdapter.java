@@ -12,11 +12,13 @@ import com.personal.marketnote.user.port.out.remotearea.DeleteRemoteAreaPort;
 import com.personal.marketnote.user.port.out.remotearea.FindRemoteAreaPort;
 import com.personal.marketnote.user.port.out.remotearea.SaveRemoteAreaPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class RemoteAreaPersistenceAdapter implements SaveRemoteAreaPort, FindRemoteAreaPort, DeleteRemoteAreaPort {
@@ -29,9 +31,11 @@ public class RemoteAreaPersistenceAdapter implements SaveRemoteAreaPort, FindRem
         try {
             remoteAreaJpaRepository.save(entity);
         } catch (DataIntegrityViolationException dive) {
-            throw new RemoteAreaAlreadyExistsException(
+            log.warn(
+                    "이미 등록된 도서산간 지역입니다. province={}, district={}, village={}, subarea={}",
                     remoteArea.getProvince(), remoteArea.getDistrict(), remoteArea.getVillage(), remoteArea.getSubarea()
             );
+            throw new RemoteAreaAlreadyExistsException();
         }
     }
 
@@ -58,7 +62,10 @@ public class RemoteAreaPersistenceAdapter implements SaveRemoteAreaPort, FindRem
     @Override
     public void deactivate(RemoteArea remoteArea) {
         RemoteAreaJpaEntity entity = remoteAreaJpaRepository.findById(remoteArea.getId())
-                .orElseThrow(() -> new RemoteAreaNotFoundException(remoteArea.getId()));
+                .orElseThrow(() -> {
+                    log.warn("도서산간 지역을 찾을 수 없습니다. remoteAreaId={}", remoteArea.getId());
+                    return new RemoteAreaNotFoundException();
+                });
         entity.markInactive();
     }
 }

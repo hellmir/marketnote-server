@@ -165,7 +165,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DomainNotFoundException.class)
     ResponseEntity<ErrorResponse> handleDomainNotFoundException(DomainNotFoundException e) {
         HttpStatus httpStatus = HttpStatus.NOT_FOUND;
-        log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
+        log.warn(LOG_WARN_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, e.getMessage());
     }
 
@@ -280,7 +280,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DomainAlreadyExistsException.class)
     ResponseEntity<ErrorResponse> handleDomainAlreadyExistsException(DomainAlreadyExistsException e) {
         HttpStatus httpStatus = HttpStatus.CONFLICT;
-        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
+        log.info(LOG_INFO_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "이미 존재하는 데이터입니다.");
     }
 

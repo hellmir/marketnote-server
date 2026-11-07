@@ -135,7 +135,7 @@ class SetDefaultShippingAddressUseCaseTest {
         assertThatThrownBy(() ->
                 setDefaultShippingAddressService.setDefaultShippingAddress(shippingAddressId, userId))
                 .isInstanceOf(ShippingAddressNotFoundException.class)
-                .hasMessage("배송지를 찾을 수 없습니다. 전송된 배송지 ID: " + shippingAddressId);
+                .hasMessage("배송지를 찾을 수 없습니다.");
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoMoreInteractions(findShippingAddressPort);
