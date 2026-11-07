@@ -22,8 +22,8 @@ import com.personal.marketnote.user.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.user.port.out.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -132,7 +132,8 @@ public class SignUpService implements SignUpUseCase {
         String nickname = signUpCommand.nickname();
         if (FormatValidator.hasValue(nickname)) {
             if (findProfanityWordPort.containsProfanity(nickname)) {
-                throw new InvalidNicknameContainsProfanityException(THIRD_ERROR_CODE, nickname);
+                log.warn("닉네임에 부적절한 단어가 포함되어 있습니다. nickname={}", nickname);
+                throw new InvalidNicknameContainsProfanityException();
             }
 
             if (findUserPort.existsByNickname(nickname)) {
@@ -155,7 +156,8 @@ public class SignUpService implements SignUpUseCase {
 
         // 이메일 인증 코드 검증
         if (!verifyCodePort.verify(email, signUpCommand.verificationCode())) {
-            throw new InvalidVerificationCodeException(FIFTH_ERROR_CODE, email);
+            log.warn("이메일 인증 코드가 유효하지 않거나 만료되었습니다. email={}", email);
+            throw new InvalidVerificationCodeException();
         }
     }
 

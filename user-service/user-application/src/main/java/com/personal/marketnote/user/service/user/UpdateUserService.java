@@ -88,7 +88,8 @@ public class UpdateUserService implements UpdateUserUseCase {
 
     private void validateNicknameProfanity(String nickname) {
         if (findProfanityWordPort.containsProfanity(nickname)) {
-            throw new InvalidNicknameContainsProfanityException(FIFTH_ERROR_CODE, nickname);
+            log.warn("닉네임에 부적절한 단어가 포함되어 있습니다. nickname={}", nickname);
+            throw new InvalidNicknameContainsProfanityException();
         }
     }
 

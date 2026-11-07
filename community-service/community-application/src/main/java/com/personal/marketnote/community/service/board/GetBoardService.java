@@ -7,10 +7,12 @@ import com.personal.marketnote.community.port.in.result.board.GetBoardCategories
 import com.personal.marketnote.community.port.in.result.board.GetBoardsResult;
 import com.personal.marketnote.community.port.in.usecase.board.GetBoardUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -33,7 +35,8 @@ public class GetBoardService implements GetBoardUseCase {
             return GetBoardCategoriesResult.from(OneOnOneInqueryPostCategory.values());
         }
 
-        throw new InvalidBoardException(board.name());
+        log.warn("유효하지 않은 게시판입니다. board={}", board.name());
+        throw new InvalidBoardException();
     }
 
     @Override

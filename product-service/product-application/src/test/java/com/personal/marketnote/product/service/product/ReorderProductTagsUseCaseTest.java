@@ -183,8 +183,7 @@ class ReorderProductTagsUseCaseTest {
 
         assertThatThrownBy(() -> reorderProductTagsService.reorderProductTags(1L, true, command))
                 .isInstanceOf(DuplicateProductTagOrderException.class)
-                .hasMessageContaining("중복된 태그 ID")
-                .hasMessageContaining("tagId=100");
+                .hasMessageContaining("중복된 태그 ID");
 
         verifyNoInteractions(updateProductTagPort, publishProductEventPort);
     }
@@ -203,8 +202,7 @@ class ReorderProductTagsUseCaseTest {
 
         assertThatThrownBy(() -> reorderProductTagsService.reorderProductTags(1L, true, command))
                 .isInstanceOf(DuplicateProductTagOrderException.class)
-                .hasMessageContaining("중복된 순서 번호")
-                .hasMessageContaining("orderNum=1");
+                .hasMessageContaining("중복된 순서 번호");
 
         verifyNoInteractions(updateProductTagPort, publishProductEventPort);
     }

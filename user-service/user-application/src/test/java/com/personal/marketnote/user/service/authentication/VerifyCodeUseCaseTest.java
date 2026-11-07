@@ -16,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.SECOND_ERROR_CODE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -75,7 +74,7 @@ class VerifyCodeUseCaseTest {
         // expect
         assertThatThrownBy(() -> verifyCodeService.verifyCode(command))
                 .isInstanceOf(InvalidVerificationCodeException.class)
-                .hasMessage(new InvalidVerificationCodeException(FIRST_ERROR_CODE, email).getMessage());
+                .hasMessage(new InvalidVerificationCodeException().getMessage());
 
         verify(verifyCodePort).verify(email, code);
         verifyNoInteractions(getUserUseCase);

@@ -74,7 +74,8 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
             throw new ReasonCategoryNoValueException();
         }
         if (!command.reasonCategory().isReturnReason()) {
-            throw new InvalidReasonCategoryException(command.reasonCategory());
+            log.warn("주문 상태 변경에 적합하지 않은 사유 카테고리입니다. reasonCategory={}", command.reasonCategory().name());
+            throw new InvalidReasonCategoryException();
         }
     }
 

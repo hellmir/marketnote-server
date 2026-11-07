@@ -69,10 +69,12 @@ public class ReorderProductTagsService implements ReorderProductTagsUseCase {
         Set<Long> orderNums = new HashSet<>();
         for (ReorderProductTagsCommand.TagOrderItem item : command.tagOrders()) {
             if (!tagIds.add(item.tagId())) {
-                throw DuplicateProductTagOrderException.duplicateTagId(item.tagId());
+                log.warn("중복된 태그 ID가 존재합니다. tagId={}", item.tagId());
+                throw DuplicateProductTagOrderException.duplicateTagId();
             }
             if (!orderNums.add(item.orderNum())) {
-                throw DuplicateProductTagOrderException.duplicateOrderNum(item.orderNum());
+                log.warn("중복된 순서 번호가 존재합니다. orderNum={}", item.orderNum());
+                throw DuplicateProductTagOrderException.duplicateOrderNum();
             }
         }
     }
