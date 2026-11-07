@@ -12,6 +12,7 @@ import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort;
 import com.personal.marketnote.reward.port.out.gifticon.SaveGifticonGoodsPort;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonGoodsPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,7 @@ import java.util.Optional;
 
 import static com.personal.marketnote.common.utility.ApiConstant.FIRST_PAGE_CURSOR_VALUE;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, SaveGifticonGoodsPort, UpdateGifticonGoodsPort, EvictGifticonGoodsCachePort {
@@ -49,7 +51,13 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
     @Override
     public void update(GifticonGoods goods) {
         GifticonGoodsJpaEntity entity = repository.findById(goods.getId())
-                .orElseThrow(() -> new GifticonGoodsNotFoundException(goods.getGoodsCode().getValue()));
+                .orElseThrow(() -> {
+                    log.warn(
+                            "기프티콘 상품을 찾을 수 없습니다. goodsCode={}",
+                            goods.getGoodsCode().getValue()
+                    );
+                    return new GifticonGoodsNotFoundException();
+                });
         entity.updateFrom(goods);
     }
 

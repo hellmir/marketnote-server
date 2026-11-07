@@ -85,10 +85,14 @@ public class PurchaseGifticonService implements PurchaseGifticonUseCase {
 
     private GifticonGoods findAndValidateGoods(String goodsCode) {
         GifticonGoods goods = findGifticonGoodsPort.findByGoodsCode(goodsCode)
-                .orElseThrow(() -> new GifticonGoodsNotFoundException(goodsCode));
+                .orElseThrow(() -> {
+                    log.warn("기프티콘 상품을 찾을 수 없습니다. goodsCode={}", goodsCode);
+                    return new GifticonGoodsNotFoundException();
+                });
 
         if (!goods.isExposed() || !goods.isSale()) {
-            throw new GifticonGoodsNotFoundException(goodsCode);
+            log.warn("기프티콘 상품이 노출되지 않거나 판매 중이 아닙니다. goodsCode={}", goodsCode);
+            throw new GifticonGoodsNotFoundException();
         }
 
         return goods;

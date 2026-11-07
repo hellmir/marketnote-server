@@ -52,7 +52,10 @@ public class AligoMessagePersistenceAdapter
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void update(AligoMessage message) {
         AligoMessageJpaEntity entity = aligoMessageJpaRepository.findByIdWithRecipients(message.getId())
-                .orElseThrow(() -> new AligoMessageNotFoundException(message.getId()));
+                .orElseThrow(() -> {
+                    log.warn("알림톡 메시지를 찾을 수 없습니다. aligoMessageId={}", message.getId());
+                    return new AligoMessageNotFoundException();
+                });
 
         syncRecipientResults(entity, message);
 

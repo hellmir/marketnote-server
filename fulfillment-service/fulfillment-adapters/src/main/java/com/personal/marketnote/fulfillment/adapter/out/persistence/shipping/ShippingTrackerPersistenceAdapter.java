@@ -11,6 +11,7 @@ import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTracker
 import com.personal.marketnote.fulfillment.port.out.shipping.SaveShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class ShippingTrackerPersistenceAdapter implements
@@ -32,7 +34,8 @@ public class ShippingTrackerPersistenceAdapter implements
         try {
             repository.saveAndFlush(ShippingTrackerJpaEntity.from(shippingTracker));
         } catch (DataIntegrityViolationException e) {
-            throw new ShippingTrackerAlreadyExistsException(shippingTracker.getOrderId());
+            log.info("이미 배송 추적이 등록된 주문입니다. orderId={}", shippingTracker.getOrderId());
+            throw new ShippingTrackerAlreadyExistsException();
         }
     }
 
@@ -57,7 +60,8 @@ public class ShippingTrackerPersistenceAdapter implements
     @Override
     public void update(ShippingTracker shippingTracker) {
         if (FormatValidator.hasNoValue(shippingTracker.getId())) {
-            throw new ShippingTrackerNotFoundException(shippingTracker.getOrderId());
+            log.warn("배송 추적 정보를 찾을 수 없습니다. orderId={}", shippingTracker.getOrderId());
+            throw new ShippingTrackerNotFoundException();
         }
         repository.saveAndFlush(ShippingTrackerJpaEntity.from(shippingTracker));
     }

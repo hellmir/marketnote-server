@@ -9,10 +9,12 @@ import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonCat
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonCategoryPort;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonCategoryPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -24,7 +26,10 @@ public class ManageGifticonCategoryExposureService implements ManageGifticonCate
     public void manageExposure(ManageGifticonCategoryExposureCommand command) {
         for (ExposureItem item : command.items()) {
             GifticonCategory category = findGifticonCategoryPort.findById(item.categoryId())
-                    .orElseThrow(() -> new GifticonCategoryNotFoundException(item.categoryId()));
+                    .orElseThrow(() -> {
+                        log.warn("기프티콘 카테고리를 찾을 수 없습니다. categoryId={}", item.categoryId());
+                        return new GifticonCategoryNotFoundException();
+                    });
 
             applyExposure(category, item.exposed());
             updateGifticonCategoryPort.update(category);

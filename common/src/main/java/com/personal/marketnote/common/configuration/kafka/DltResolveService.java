@@ -106,7 +106,8 @@ public class DltResolveService {
                     return record;
                 }
             }
-            throw new DltMessageNotFoundException(dltTopic, partition, offset);
+            log.warn("DLT 메시지를 찾을 수 없습니다. dltTopic={}, partition={}, offset={}", dltTopic, partition, offset);
+            throw new DltMessageNotFoundException();
         }
     }
 

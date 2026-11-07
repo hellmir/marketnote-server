@@ -100,7 +100,7 @@ import java.lang.annotation.*;
                                           "code": "NOT_FOUND",
                                           "timestamp": "2026-06-03T10:00:00.000",
                                           "content": null,
-                                          "message": "ERR_NOTIFICATION_TEMPLATE_03::알림 템플릿을 찾을 수 없습니다. id=999"
+                                          "message": "알림 템플릿을 찾을 수 없습니다."
                                         }
                                         """)
                         )

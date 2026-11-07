@@ -11,10 +11,12 @@ import com.personal.marketnote.notification.port.out.sse.NotificationSseEventTyp
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
 import com.personal.marketnote.notification.port.out.sse.payload.UnreadCountChangedPayload;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class MarkNotificationAsReadService implements MarkNotificationAsReadUseCase {
@@ -27,10 +29,17 @@ public class MarkNotificationAsReadService implements MarkNotificationAsReadUseC
     @Transactional(isolation = READ_COMMITTED)
     public void markAsRead(MarkNotificationAsReadCommand command) {
         Notification notification = findNotificationPort.findActiveById(command.notificationId())
-                .orElseThrow(() -> new NotificationNotFoundException(command.notificationId()));
+                .orElseThrow(() -> {
+                    log.warn("알림을 찾을 수 없습니다. notificationId={}", command.notificationId());
+                    return new NotificationNotFoundException();
+                });
 
         if (!notification.isOwnedBy(command.userId())) {
-            throw new NotificationNotFoundException(command.notificationId());
+            log.warn(
+                    "알림 소유자 불일치. notificationId={}, userId={}",
+                    command.notificationId(), command.userId()
+            );
+            throw new NotificationNotFoundException();
         }
 
         if (notification.isRead()) {

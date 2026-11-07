@@ -12,11 +12,13 @@ import com.personal.marketnote.notification.port.out.template.FindNotificationTe
 import com.personal.marketnote.notification.port.out.template.SaveNotificationTemplatePort;
 import com.personal.marketnote.notification.port.out.template.UpdateNotificationTemplatePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class NotificationTemplatePersistenceAdapter
@@ -59,7 +61,13 @@ public class NotificationTemplatePersistenceAdapter
     public void update(NotificationTemplate notificationTemplate) {
         NotificationTemplateJpaEntity entity = notificationTemplateJpaRepository
                 .findById(notificationTemplate.getId())
-                .orElseThrow(() -> new NotificationTemplateNotFoundException(notificationTemplate.getId()));
+                .orElseThrow(() -> {
+                    log.warn(
+                            "알림 템플릿을 찾을 수 없습니다. notificationTemplateId={}",
+                            notificationTemplate.getId()
+                    );
+                    return new NotificationTemplateNotFoundException();
+                });
 
         entity.updateFrom(notificationTemplate);
     }

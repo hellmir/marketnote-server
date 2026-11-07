@@ -8,12 +8,14 @@ import com.personal.marketnote.notification.port.in.result.aligo.GetAligoTemplat
 import com.personal.marketnote.notification.port.in.usecase.aligo.GetAligoTemplateByCodeUseCase;
 import com.personal.marketnote.notification.port.out.aligo.FindAligoTemplatePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class GetAligoTemplateByCodeService implements GetAligoTemplateByCodeUseCase {
@@ -25,7 +27,10 @@ public class GetAligoTemplateByCodeService implements GetAligoTemplateByCodeUseC
     @Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true)
     public GetAligoTemplateDetailResult getTemplateByCode(String templateCode) {
         AligoTemplate template = findAligoTemplatePort.findByTemplateCode(templateCode)
-                .orElseThrow(() -> new AligoTemplateNotFoundException(templateCode));
+                .orElseThrow(() -> {
+                    log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", templateCode);
+                    return new AligoTemplateNotFoundException();
+                });
 
         return toDetailResult(template);
     }

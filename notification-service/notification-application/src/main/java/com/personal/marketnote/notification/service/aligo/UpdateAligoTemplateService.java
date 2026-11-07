@@ -14,9 +14,11 @@ import com.personal.marketnote.notification.port.out.aligo.FindAligoTemplatePort
 import com.personal.marketnote.notification.port.out.aligo.UpdateAligoTemplateExternalPort;
 import com.personal.marketnote.notification.port.out.aligo.UpdateAligoTemplatePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class UpdateAligoTemplateService implements UpdateAligoTemplateUseCase {
@@ -28,7 +30,10 @@ public class UpdateAligoTemplateService implements UpdateAligoTemplateUseCase {
     @Override
     public UpdateAligoTemplateResult updateTemplate(UpdateAligoTemplateCommand command) {
         AligoTemplate template = findAligoTemplatePort.findByTemplateCode(command.templateCode())
-                .orElseThrow(() -> new AligoTemplateNotFoundException(command.templateCode()));
+                .orElseThrow(() -> {
+                    log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", command.templateCode());
+                    return new AligoTemplateNotFoundException();
+                });
 
         List<AligoTemplateButton> buttons = mapButtons(command.buttons());
         template.updateContent(

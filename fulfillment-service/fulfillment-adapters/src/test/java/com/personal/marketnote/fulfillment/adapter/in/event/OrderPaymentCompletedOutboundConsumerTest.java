@@ -206,7 +206,7 @@ class OrderPaymentCompletedOutboundConsumerTest {
             lenient().when(fasstoAuthProperties.getCustomerCode()).thenReturn("TEST_CODE");
 
             ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 1L, buildOrderProducts());
-            doThrow(new ShippingTrackerAlreadyExistsException(1L))
+            doThrow(new ShippingTrackerAlreadyExistsException())
                     .when(createShippingTrackerUseCase).createShippingTracker(any(CreateShippingTrackerCommand.class));
 
             // when

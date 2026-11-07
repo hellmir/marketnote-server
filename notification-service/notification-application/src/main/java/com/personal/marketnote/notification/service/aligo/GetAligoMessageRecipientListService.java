@@ -9,11 +9,13 @@ import com.personal.marketnote.notification.port.in.result.aligo.GetAligoMessage
 import com.personal.marketnote.notification.port.in.usecase.aligo.GetAligoMessageRecipientListUseCase;
 import com.personal.marketnote.notification.port.out.aligo.FindAligoMessagePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class GetAligoMessageRecipientListService implements GetAligoMessageRecipientListUseCase {
@@ -24,7 +26,10 @@ public class GetAligoMessageRecipientListService implements GetAligoMessageRecip
     @Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true)
     public GetAligoMessageRecipientListResult getRecipientList(Long messageId) {
         AligoMessage message = findAligoMessagePort.findById(messageId)
-                .orElseThrow(() -> new AligoMessageNotFoundException(messageId));
+                .orElseThrow(() -> {
+                    log.warn("알림톡 메시지를 찾을 수 없습니다. aligoMessageId={}", messageId);
+                    return new AligoMessageNotFoundException();
+                });
 
         List<RecipientDetail> recipients = message.getRecipients().stream()
                 .map(this::toRecipientDetail)

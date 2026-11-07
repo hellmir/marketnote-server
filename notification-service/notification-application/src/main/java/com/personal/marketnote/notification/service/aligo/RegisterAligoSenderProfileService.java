@@ -10,9 +10,11 @@ import com.personal.marketnote.notification.port.out.aligo.FindAligoSenderProfil
 import com.personal.marketnote.notification.port.out.aligo.RegisterAligoSenderProfileExternalPort;
 import com.personal.marketnote.notification.port.out.aligo.UpdateAligoSenderProfilePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class RegisterAligoSenderProfileService implements RegisterAligoSenderProfileUseCase {
@@ -35,7 +37,10 @@ public class RegisterAligoSenderProfileService implements RegisterAligoSenderPro
     @Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true)
     public AligoSenderProfile findProfile(String senderKey) {
         return findAligoSenderProfilePort.findBySenderKey(senderKey)
-                .orElseThrow(() -> new AligoSenderProfileNotFoundException(senderKey));
+                .orElseThrow(() -> {
+                    log.warn("발신프로필을 찾을 수 없습니다. senderKey={}", senderKey);
+                    return new AligoSenderProfileNotFoundException();
+                });
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)

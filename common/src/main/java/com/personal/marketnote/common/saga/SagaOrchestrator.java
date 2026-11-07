@@ -328,7 +328,10 @@ public class SagaOrchestrator {
 
     private SagaInstance findSagaInstance(String sagaId) {
         return findSagaPort.findBySagaId(sagaId)
-                .orElseThrow(() -> new SagaInstanceNotFoundException(sagaId));
+                .orElseThrow(() -> {
+                    log.warn("SagaInstance를 찾을 수 없습니다. sagaId={}", sagaId);
+                    return new SagaInstanceNotFoundException();
+                });
     }
 
     private Optional<SagaStep> findProcessingStep(List<SagaStep> steps) {
@@ -341,13 +344,17 @@ public class SagaOrchestrator {
         return steps.stream()
                 .filter(step -> step.getStepName().equals(stepName))
                 .findFirst()
-                .orElseThrow(() -> new SagaStepNotFoundException(stepName));
+                .orElseThrow(() -> {
+                    log.warn("SagaStep을 찾을 수 없습니다. stepName={}", stepName);
+                    return new SagaStepNotFoundException();
+                });
     }
 
     private SagaDefinition<?> getDefinition(String sagaType) {
         SagaDefinition<?> definition = definitionRegistry.get(sagaType);
         if (FormatValidator.hasNoValue(definition)) {
-            throw new SagaDefinitionNotFoundException(sagaType);
+            log.warn("SagaDefinition을 찾을 수 없습니다. sagaType={}", sagaType);
+            throw new SagaDefinitionNotFoundException();
         }
         return definition;
     }
@@ -356,7 +363,10 @@ public class SagaOrchestrator {
         return definition.getSteps().stream()
                 .filter(step -> step.stepName().equals(stepName))
                 .findFirst()
-                .orElseThrow(() -> new SagaStepNotFoundException(stepName));
+                .orElseThrow(() -> {
+                    log.warn("SagaStepDefinition을 찾을 수 없습니다. stepName={}", stepName);
+                    return new SagaStepNotFoundException();
+                });
     }
 
     private void sendFailureAlertAfterCommit(String sagaId, String sagaType, String stepName, String reason) {

@@ -1,11 +1,11 @@
 package com.personal.marketnote.notification.domain.template;
 
-public class NotificationTemplateNotFoundException extends RuntimeException {
-    public NotificationTemplateNotFoundException(Long id) {
-        super("ERR_NOTIFICATION_TEMPLATE_03::알림 템플릿을 찾을 수 없습니다. id=" + id);
-    }
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 
-    public NotificationTemplateNotFoundException(String templateCode) {
-        super("ERR_NOTIFICATION_TEMPLATE_03::알림 템플릿을 찾을 수 없습니다. templateCode=" + templateCode);
+public class NotificationTemplateNotFoundException extends DomainNotFoundException {
+    private static final String MESSAGE = "알림 템플릿을 찾을 수 없습니다.";
+
+    public NotificationTemplateNotFoundException() {
+        super(MESSAGE);
     }
 }

@@ -1,12 +1,11 @@
 package com.personal.marketnote.notification.domain.aligo;
 
-public class AligoTemplateNotFoundException extends RuntimeException {
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 
-    public AligoTemplateNotFoundException(String templateCode) {
-        super("ERR_ALIGO_TEMPLATE_01::알림톡 템플릿을 찾을 수 없습니다. templateCode=" + templateCode);
-    }
+public class AligoTemplateNotFoundException extends DomainNotFoundException {
+    private static final String MESSAGE = "알림톡 템플릿을 찾을 수 없습니다.";
 
-    public AligoTemplateNotFoundException(Long id) {
-        super("ERR_ALIGO_TEMPLATE_01::알림톡 템플릿을 찾을 수 없습니다. id=" + id);
+    public AligoTemplateNotFoundException() {
+        super(MESSAGE);
     }
 }

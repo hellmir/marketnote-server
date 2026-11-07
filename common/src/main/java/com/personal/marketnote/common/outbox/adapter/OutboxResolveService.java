@@ -6,6 +6,7 @@ import com.personal.marketnote.common.outbox.entity.OutboxEventJpaEntity;
 import com.personal.marketnote.common.outbox.exception.OutboxEventNotFoundException;
 import com.personal.marketnote.common.outbox.repository.OutboxEventJpaRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "outbox", name = "enabled", havingValue = "true")
@@ -27,7 +29,10 @@ public class OutboxResolveService {
     @Transactional(isolation = READ_COMMITTED)
     public OutboxResolveResult resolve(OutboxResolveCommand command) {
         OutboxEventJpaEntity entity = outboxEventJpaRepository.findById(command.id())
-                .orElseThrow(() -> new OutboxEventNotFoundException(command.id()));
+                .orElseThrow(() -> {
+                    log.warn("Outbox 이벤트를 찾을 수 없습니다. outboxEventId={}", command.id());
+                    return new OutboxEventNotFoundException();
+                });
 
         if (entity.isAlreadyResolved()) {
             return new OutboxResolveResult(

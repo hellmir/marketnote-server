@@ -1,7 +1,11 @@
 package com.personal.marketnote.common.outbox.exception;
 
-public class OutboxEventNotFoundException extends RuntimeException {
-    public OutboxEventNotFoundException(Long id) {
-        super("Outbox 이벤트를 찾을 수 없습니다. id=" + id);
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
+
+public class OutboxEventNotFoundException extends DomainNotFoundException {
+    private static final String MESSAGE = "Outbox 이벤트를 찾을 수 없습니다.";
+
+    public OutboxEventNotFoundException() {
+        super(MESSAGE);
     }
 }

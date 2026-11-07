@@ -103,7 +103,10 @@ public class PurchaseGifticonTransactionHelper {
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public void commitSuccess(DeductCashAndCreateOrderContext context, SendCouponResult sendResult) {
         GifticonOrder order = findGifticonOrderPort.findByTrId(context.trId())
-                .orElseThrow(() -> new GifticonOrderNotFoundException(context.trId()));
+                .orElseThrow(() -> {
+                    log.warn("기프티콘 주문을 찾을 수 없습니다. trId={}", context.trId());
+                    return new GifticonOrderNotFoundException();
+                });
 
         String encryptedPin = encryptGifticonPinPort.encrypt(sendResult.pinNo());
         LocalDate validEndDate = LocalDate.parse(sendResult.validEndDate(), VALID_END_DATE_FORMAT);
@@ -124,7 +127,10 @@ public class PurchaseGifticonTransactionHelper {
         );
 
         GifticonOrder order = findGifticonOrderPort.findByTrId(context.trId())
-                .orElseThrow(() -> new GifticonOrderNotFoundException(context.trId()));
+                .orElseThrow(() -> {
+                    log.warn("기프티콘 주문을 찾을 수 없습니다. trId={}", context.trId());
+                    return new GifticonOrderNotFoundException();
+                });
 
         order.markSendFailed();
         updateGifticonOrderPort.update(order);

@@ -13,12 +13,14 @@ import com.personal.marketnote.notification.port.out.device.FindDeviceTokenPort;
 import com.personal.marketnote.notification.port.out.device.SaveDeviceTokenPort;
 import com.personal.marketnote.notification.port.out.device.UpdateDeviceTokenPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class DeviceTokenPersistenceAdapter
@@ -60,7 +62,10 @@ public class DeviceTokenPersistenceAdapter
     @Override
     public Long update(DeviceToken deviceToken) {
         DeviceTokenJpaEntity entity = deviceTokenJpaRepository.findById(deviceToken.getId())
-                .orElseThrow(() -> new DeviceTokenNotFoundException(deviceToken.getId()));
+                .orElseThrow(() -> {
+                    log.warn("디바이스 토큰을 찾을 수 없습니다. deviceTokenId={}", deviceToken.getId());
+                    return new DeviceTokenNotFoundException();
+                });
         entity.updateFrom(deviceToken);
         return entity.getId();
     }

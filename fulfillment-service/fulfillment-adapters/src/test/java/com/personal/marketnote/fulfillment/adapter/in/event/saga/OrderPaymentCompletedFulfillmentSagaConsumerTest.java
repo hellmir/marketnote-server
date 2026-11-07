@@ -139,7 +139,7 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
 
             stubAuthenticatedCaller();
             when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST01");
-            doThrow(new FulfillmentDeliveryAlreadyRegisteredException(1L))
+            doThrow(new FulfillmentDeliveryAlreadyRegisteredException())
                     .when(registerFulfillmentDeliveryUseCase).registerDeliveryIdempotent(any());
 
             consumer.handleFulfillmentStep(record, acknowledgment);
@@ -287,7 +287,7 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
-            doThrow(new FulfillmentDeliveryRegistrationNotFoundException(1L))
+            doThrow(new FulfillmentDeliveryRegistrationNotFoundException())
                     .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(any());
 
             consumer.handleFulfillmentStep(record, acknowledgment);

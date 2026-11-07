@@ -110,13 +110,12 @@ class RegisterFulfillmentDeliveryUseCaseTest {
         void registerDeliveryIdempotent_alreadyRegistered_throwsException() {
             // given
             RegisterFulfillmentDeliveryCommand command = buildCommand("12345");
-            doThrow(new FulfillmentDeliveryAlreadyRegisteredException(12345L))
+            doThrow(new FulfillmentDeliveryAlreadyRegisteredException())
                     .when(saveFulfillmentDeliveryRegistrationPort).save(any(FulfillmentDeliveryRegistration.class));
 
             // when & then
             assertThatThrownBy(() -> registerFulfillmentDeliveryService.registerDeliveryIdempotent(command))
-                    .isInstanceOf(FulfillmentDeliveryAlreadyRegisteredException.class)
-                    .hasMessageContaining("orderId=12345");
+                    .isInstanceOf(FulfillmentDeliveryAlreadyRegisteredException.class);
 
             verify(saveFulfillmentDeliveryRegistrationPort).save(any(FulfillmentDeliveryRegistration.class));
             verifyNoInteractions(registerFulfillmentDeliveryPort);

@@ -143,9 +143,7 @@ class ReorderProductTagsUseCaseTest {
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
 
         assertThatThrownBy(() -> reorderProductTagsService.reorderProductTags(1L, true, command))
-                .isInstanceOf(ProductTagNotFoundException.class)
-                .hasMessageContaining("tagId=" + nonExistentTagId)
-                .hasMessageContaining("productId=" + productId);
+                .isInstanceOf(ProductTagNotFoundException.class);
 
         verify(getProductUseCase).getProduct(productId);
         verifyNoInteractions(updateProductTagPort, publishProductEventPort);

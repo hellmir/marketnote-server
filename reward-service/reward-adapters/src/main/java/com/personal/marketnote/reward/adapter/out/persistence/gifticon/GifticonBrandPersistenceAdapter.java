@@ -9,9 +9,11 @@ import com.personal.marketnote.reward.port.out.gifticon.FindGifticonBrandPort;
 import com.personal.marketnote.reward.port.out.gifticon.SaveGifticonBrandPort;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonBrandPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class GifticonBrandPersistenceAdapter implements FindGifticonBrandPort, SaveGifticonBrandPort, UpdateGifticonBrandPort {
@@ -32,7 +34,13 @@ public class GifticonBrandPersistenceAdapter implements FindGifticonBrandPort, S
     @Override
     public void update(GifticonBrand brand) {
         GifticonBrandJpaEntity entity = repository.findById(brand.getId())
-                .orElseThrow(() -> new GifticonBrandNotFoundException(brand.getBrandCode().getValue()));
+                .orElseThrow(() -> {
+                    log.warn(
+                            "기프티콘 브랜드를 찾을 수 없습니다. brandCode={}",
+                            brand.getBrandCode().getValue()
+                    );
+                    return new GifticonBrandNotFoundException();
+                });
         entity.updateFrom(brand);
     }
 }

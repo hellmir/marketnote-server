@@ -10,10 +10,12 @@ import com.personal.marketnote.notification.port.out.aligo.FindAligoSenderProfil
 import com.personal.marketnote.notification.port.out.aligo.SaveAligoSenderProfilePort;
 import com.personal.marketnote.notification.port.out.aligo.UpdateAligoSenderProfilePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class AligoSenderProfilePersistenceAdapter
@@ -44,7 +46,10 @@ public class AligoSenderProfilePersistenceAdapter
     @Override
     public void update(AligoSenderProfile senderProfile) {
         AligoSenderProfileJpaEntity entity = repository.findById(senderProfile.getId())
-                .orElseThrow(() -> new AligoSenderProfileNotFoundException(senderProfile.getId()));
+                .orElseThrow(() -> {
+                    log.warn("발신프로필을 찾을 수 없습니다. senderProfileId={}", senderProfile.getId());
+                    return new AligoSenderProfileNotFoundException();
+                });
         entity.updateFrom(senderProfile);
     }
 }
