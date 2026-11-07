@@ -53,7 +53,7 @@ class ProductUpdatedFulfillmentConsumerTest {
             Long productId, String productName, String godType, String giftDiv
     ) {
         ProductUpdatedEvent event = new ProductUpdatedEvent(
-                productId, UUID.randomUUID(), productName, godType, giftDiv,
+                productId, UUID.randomUUID(), productName, null, godType, giftDiv,
                 null, null, null, null, null, null, null, null, null, // godOptCd1 ~ makeYr (9)
                 null, null, null, null, null, null, null, null, null, // godPr ~ distTermMgtYn (9)
                 null, null, null, null, null, null, null, null, null, // useTermDay ~ useYn (9)
@@ -68,7 +68,7 @@ class ProductUpdatedFulfillmentConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecordWithAllFields() {
         ProductUpdatedEvent event = new ProductUpdatedEvent(
-                10L, UUID.randomUUID(), "테스트 상품", "2", "99",
+                10L, UUID.randomUUID(), "테스트 상품", null, "2", "99",
                 "opt1", "opt2", "Y", "상품명", "SUP", "CATE", "2024", "M", "2024",
                 "12000", "9000", "10000", "ROOM", "A1", "BARCODE", "2.5", "KR", "Y",
                 "30", "7", "7", "BOX", "N", "UP", "COTTON", "Y", "10",
@@ -168,7 +168,7 @@ class ProductUpdatedFulfillmentConsumerTest {
     void handleEvent_nullProductKey_skipsAndAcknowledges() {
         // given
         ProductUpdatedEvent event = new ProductUpdatedEvent(
-                1L, null, "테스트", "1", "01",
+                1L, null, "테스트", null, "1", "01",
                 null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null,
@@ -229,7 +229,7 @@ class ProductUpdatedFulfillmentConsumerTest {
     void handleEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         ProductUpdatedEvent event = new ProductUpdatedEvent(
-                1L, UUID.randomUUID(), "테스트", "1", "01",
+                1L, UUID.randomUUID(), "테스트", null, "1", "01",
                 null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null,
