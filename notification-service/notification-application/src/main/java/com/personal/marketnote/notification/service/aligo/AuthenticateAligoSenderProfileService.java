@@ -2,7 +2,7 @@ package com.personal.marketnote.notification.service.aligo;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.notification.domain.aligo.AligoSenderProfile;
-import com.personal.marketnote.notification.domain.aligo.AligoSenderProfileCreateState;
+import com.personal.marketnote.notification.mapper.AligoSenderProfileCommandToStateMapper;
 import com.personal.marketnote.notification.port.in.command.AuthenticateAligoSenderProfileCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.AuthenticateAligoSenderProfileResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.AuthenticateAligoSenderProfileUseCase;
@@ -35,11 +35,7 @@ public class AuthenticateAligoSenderProfileService implements AuthenticateAligoS
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public AligoSenderProfile saveProfile(String senderKey, AuthenticateAligoSenderProfileCommand command) {
         AligoSenderProfile profile = AligoSenderProfile.from(
-                AligoSenderProfileCreateState.builder()
-                        .senderKey(senderKey)
-                        .plusId(command.plusId())
-                        .phoneNumber(command.phoneNumber())
-                        .build()
+                AligoSenderProfileCommandToStateMapper.mapToState(senderKey, command)
         );
         return saveAligoSenderProfilePort.save(profile);
     }

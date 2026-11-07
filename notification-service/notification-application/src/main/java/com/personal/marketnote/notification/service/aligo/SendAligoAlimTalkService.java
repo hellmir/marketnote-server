@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.aligo.*;
-import com.personal.marketnote.notification.port.in.command.AligoAlimTalkRecipientCommand;
-import com.personal.marketnote.notification.port.in.command.AligoFailoverCommand;
+import com.personal.marketnote.notification.mapper.AligoMessageCommandToStateMapper;
 import com.personal.marketnote.notification.port.in.command.SendAligoAlimTalkCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.SendAligoAlimTalkResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.SendAligoAlimTalkUseCase;
@@ -80,27 +79,10 @@ public class SendAligoAlimTalkService implements SendAligoAlimTalkUseCase {
             AligoTemplate template, SendAligoAlimTalkCommand command,
             String renderedContent, String buttonsJson
     ) {
-        List<AligoMessageRecipientCreateState> recipientStates = command.recipients().stream()
-                .map(this::toRecipientCreateState)
-                .toList();
-
-        AligoMessageCreateState.AligoMessageCreateStateBuilder builder = AligoMessageCreateState.builder()
-                .senderKey(template.getSenderKey())
-                .templateCode(template.getTemplateCode())
-                .sender(command.sender())
-                .messageType(AligoMessageType.AT)
-                .content(renderedContent)
-                .title(template.getTemplateName())
-                .buttons(buttonsJson)
-                .requestedAt(LocalDateTime.now())
-                .recipients(recipientStates);
-
-        if (isFailoverEnabled(command.failover())) {
-            builder.failoverSubject(command.failover().subject())
-                    .failoverMessageBody(command.failover().body());
-        }
-
-        AligoMessage message = AligoMessage.from(builder.build());
+        AligoMessageCreateState state = AligoMessageCommandToStateMapper.mapToState(
+                command, template, renderedContent, buttonsJson, LocalDateTime.now()
+        );
+        AligoMessage message = AligoMessage.from(state);
 
         return saveAligoMessagePort.save(message);
     }
@@ -125,10 +107,6 @@ public class SendAligoAlimTalkService implements SendAligoAlimTalkUseCase {
     private void markMessageFailed(AligoMessage message) {
         message.markAsFailed();
         updateAligoMessagePort.update(message);
-    }
-
-    private boolean isFailoverEnabled(AligoFailoverCommand failover) {
-        return FormatValidator.hasValue(failover) && failover.enabled();
     }
 
     private String renderContent(String templateContent, Map<String, String> variables) {
@@ -169,10 +147,4 @@ public class SendAligoAlimTalkService implements SendAligoAlimTalkUseCase {
         return map;
     }
 
-    private AligoMessageRecipientCreateState toRecipientCreateState(AligoAlimTalkRecipientCommand command) {
-        return AligoMessageRecipientCreateState.builder()
-                .receiver(command.receiver())
-                .recvName(command.recvName())
-                .build();
-    }
 }

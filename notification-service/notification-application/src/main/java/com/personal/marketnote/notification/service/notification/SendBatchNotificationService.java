@@ -10,6 +10,7 @@ import com.personal.marketnote.notification.domain.template.NotificationCategory
 import com.personal.marketnote.notification.domain.template.NotificationTemplate;
 import com.personal.marketnote.notification.domain.template.NotificationTemplateNotFoundException;
 import com.personal.marketnote.notification.domain.template.TemplateRenderer;
+import com.personal.marketnote.notification.mapper.NotificationCommandToStateMapper;
 import com.personal.marketnote.notification.port.in.command.SendBatchNotificationCommand;
 import com.personal.marketnote.notification.port.in.result.notification.SendBatchNotificationResult;
 import com.personal.marketnote.notification.port.in.usecase.notification.SendBatchNotificationUseCase;
@@ -157,15 +158,9 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
     ) {
         return userIds.stream()
                 .map(userId -> {
-                    NotificationCreateState state = NotificationCreateState.builder()
-                            .userId(userId)
-                            .notificationType(template.getNotificationType())
-                            .title(title)
-                            .body(body)
-                            .deliveryChannel(deliveryChannel)
-                            .landingUrl(landingUrl)
-                            .scheduledAt(scheduledAt)
-                            .build();
+                    NotificationCreateState state = NotificationCommandToStateMapper.mapToBatchState(
+                            userId, template, title, body, landingUrl, deliveryChannel, scheduledAt
+                    );
                     return Notification.from(state);
                 })
                 .toList();
@@ -176,13 +171,9 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
     ) {
         return userIds.stream()
                 .map(userId -> {
-                    NotificationCreateState state = NotificationCreateState.builder()
-                            .userId(userId)
-                            .notificationType(template.getNotificationType())
-                            .title(template.getTitle())
-                            .body(template.getBodyTemplate())
-                            .deliveryChannel(deliveryChannel)
-                            .build();
+                    NotificationCreateState state = NotificationCommandToStateMapper.mapToBatchSkippedState(
+                            userId, template, deliveryChannel
+                    );
                     Notification notification = Notification.from(state);
                     notification.markAsSkipped();
                     return notification;
