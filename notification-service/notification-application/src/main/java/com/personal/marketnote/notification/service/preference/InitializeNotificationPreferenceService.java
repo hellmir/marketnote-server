@@ -2,8 +2,8 @@ package com.personal.marketnote.notification.service.preference;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.notification.domain.preference.NotificationPreference;
-import com.personal.marketnote.notification.domain.preference.NotificationPreferenceCreateState;
 import com.personal.marketnote.notification.domain.template.NotificationType;
+import com.personal.marketnote.notification.mapper.NotificationPreferenceCommandToStateMapper;
 import com.personal.marketnote.notification.port.in.command.InitializeNotificationPreferenceCommand;
 import com.personal.marketnote.notification.port.in.usecase.preference.InitializeNotificationPreferenceUseCase;
 import com.personal.marketnote.notification.port.out.preference.SaveNotificationPreferencePort;
@@ -25,11 +25,9 @@ public class InitializeNotificationPreferenceService implements InitializeNotifi
     @Transactional(isolation = READ_COMMITTED)
     public void initializeNotificationPreference(InitializeNotificationPreferenceCommand command) {
         List<NotificationPreference> preferences = Arrays.stream(NotificationType.values())
-                .map(type -> NotificationPreference.from(NotificationPreferenceCreateState.builder()
-                        .userId(command.userId())
-                        .notificationType(type)
-                        .enabled(type.isDefaultEnabled())
-                        .build()))
+                .map(type -> NotificationPreference.from(
+                        NotificationPreferenceCommandToStateMapper.mapToState(command.userId(), type)
+                ))
                 .toList();
 
         saveNotificationPreferencePort.saveAll(preferences);

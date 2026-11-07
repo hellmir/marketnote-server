@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.aligo.*;
+import com.personal.marketnote.notification.mapper.AligoBrandTalkMessageCommandToStateMapper;
 import com.personal.marketnote.notification.port.in.command.BrandTalkFailoverCommand;
 import com.personal.marketnote.notification.port.in.command.BrandTalkRecipientCommand;
 import com.personal.marketnote.notification.port.in.command.SendBrandTalkCommand;
@@ -56,27 +57,19 @@ public class SendBrandTalkService implements SendBrandTalkUseCase {
                 .toList();
 
         return AligoBrandTalkMessage.from(
-                AligoBrandTalkMessageCreateState.builder()
-                        .senderKey(command.senderKey())
-                        .sender(command.sender())
-                        .kakaoTarget(kakaoTarget)
-                        .advertYn(command.advertYn())
-                        .templateCode(command.templateCode())
-                        .failoverEnabled(isFailoverEnabled(command.failover()))
-                        .failoverSubject(resolveFailoverSubject(command.failover()))
-                        .failoverType(failoverType)
-                        .requestedAt(LocalDateTime.now(clock))
-                        .recipients(recipientStates)
-                        .build()
+                AligoBrandTalkMessageCommandToStateMapper.mapToState(
+                        command, kakaoTarget, failoverType,
+                        isFailoverEnabled(command.failover()),
+                        resolveFailoverSubject(command.failover()),
+                        LocalDateTime.now(clock),
+                        recipientStates
+                )
         );
     }
 
     private AligoBrandTalkMessageRecipientCreateState toRecipientCreateState(BrandTalkRecipientCommand recipient) {
         String receiverMessage = serializeVariables(recipient.variables());
-        return AligoBrandTalkMessageRecipientCreateState.builder()
-                .receiver(recipient.receiver())
-                .receiverMessage(receiverMessage)
-                .build();
+        return AligoBrandTalkMessageCommandToStateMapper.mapToRecipientState(recipient, receiverMessage);
     }
 
     private String serializeVariables(Map<String, String> variables) {

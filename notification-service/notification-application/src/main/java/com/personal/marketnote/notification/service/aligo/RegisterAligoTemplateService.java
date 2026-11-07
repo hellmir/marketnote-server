@@ -3,6 +3,7 @@ package com.personal.marketnote.notification.service.aligo;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.aligo.*;
+import com.personal.marketnote.notification.mapper.AligoTemplateCommandToStateMapper;
 import com.personal.marketnote.notification.port.in.command.AligoTemplateButtonCommand;
 import com.personal.marketnote.notification.port.in.command.RegisterAligoTemplateCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterAligoTemplateResult;
@@ -34,23 +35,7 @@ public class RegisterAligoTemplateService implements RegisterAligoTemplateUseCas
     private AligoTemplate createTemplate(RegisterAligoTemplateCommand command) {
         List<AligoTemplateButton> buttons = mapButtons(command.buttons());
 
-        return AligoTemplate.from(
-                AligoTemplateCreateState.builder()
-                        .senderKey(command.senderKey())
-                        .templateCode(command.templateCode())
-                        .templateName(command.templateName())
-                        .templateContent(command.templateContent())
-                        .templateTitle(command.templateTitle())
-                        .templateSubtitle(command.templateSubtitle())
-                        .templateType(AligoTemplateType.from(command.templateType()))
-                        .templateEmType(AligoTemplateEmType.from(command.templateEmType()))
-                        .templateSecure(command.templateSecure())
-                        .templateAdvert(command.templateAdvert())
-                        .imageUrl(command.imageUrl())
-                        .imageName(command.imageName())
-                        .buttons(buttons)
-                        .build()
-        );
+        return AligoTemplate.from(AligoTemplateCommandToStateMapper.mapToState(command, buttons));
     }
 
     private List<AligoTemplateButton> mapButtons(List<AligoTemplateButtonCommand> buttonCommands) {

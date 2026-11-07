@@ -3,6 +3,7 @@ package com.personal.marketnote.notification.service.notification;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.notification.domain.notification.*;
 import com.personal.marketnote.notification.domain.preference.NotificationPreference;
+import com.personal.marketnote.notification.mapper.NotificationCommandToStateMapper;
 import com.personal.marketnote.notification.domain.template.NotificationCategory;
 import com.personal.marketnote.notification.domain.template.NotificationTemplate;
 import com.personal.marketnote.notification.domain.template.NotificationTemplateNotFoundException;
@@ -113,13 +114,9 @@ public class SendNotificationService implements SendNotificationUseCase {
             SendNotificationCommand command, NotificationTemplate template
     ) {
         DeliveryChannel deliveryChannel = DeliveryChannel.valueOf(command.deliveryChannel());
-        NotificationCreateState state = NotificationCreateState.builder()
-                .userId(command.userId())
-                .notificationType(template.getNotificationType())
-                .title(template.getTitle())
-                .body(template.getBodyTemplate())
-                .deliveryChannel(deliveryChannel)
-                .build();
+        NotificationCreateState state = NotificationCommandToStateMapper.mapToSkippedState(
+                command, template, deliveryChannel
+        );
 
         Notification notification = Notification.from(state);
         notification.markAsSkipped();
@@ -133,15 +130,9 @@ public class SendNotificationService implements SendNotificationUseCase {
             String title, String body, String landingUrl,
             DeliveryChannel deliveryChannel, LocalDateTime scheduledAt
     ) {
-        NotificationCreateState state = NotificationCreateState.builder()
-                .userId(command.userId())
-                .notificationType(template.getNotificationType())
-                .title(title)
-                .body(body)
-                .deliveryChannel(deliveryChannel)
-                .landingUrl(landingUrl)
-                .scheduledAt(scheduledAt)
-                .build();
+        NotificationCreateState state = NotificationCommandToStateMapper.mapToState(
+                command, template, title, body, landingUrl, deliveryChannel, scheduledAt
+        );
 
         Notification notification = Notification.from(state);
         return saveNotificationPort.save(notification);

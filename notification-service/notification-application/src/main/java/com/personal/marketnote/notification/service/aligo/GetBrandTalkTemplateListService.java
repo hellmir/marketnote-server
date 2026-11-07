@@ -3,9 +3,8 @@ package com.personal.marketnote.notification.service.aligo;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.aligo.AligoBrandTalkTemplate;
-import com.personal.marketnote.notification.domain.aligo.AligoBrandTalkTemplateSnapshotState;
 import com.personal.marketnote.notification.domain.aligo.BrandTalkTemplateStatus;
-import com.personal.marketnote.notification.domain.aligo.BrandTalkTemplateType;
+import com.personal.marketnote.notification.mapper.AligoBrandTalkTemplateCommandToStateMapper;
 import com.personal.marketnote.notification.port.in.result.aligo.GetBrandTalkTemplateListResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.GetBrandTalkTemplateListUseCase;
 import com.personal.marketnote.notification.port.out.aligo.FindBrandTalkTemplateListPort;
@@ -70,14 +69,7 @@ public class GetBrandTalkTemplateListService implements GetBrandTalkTemplateList
             String senderKey, GetBrandTalkTemplateListResult.ExternalTemplateItem external
     ) {
         AligoBrandTalkTemplate newTemplate = AligoBrandTalkTemplate.from(
-                AligoBrandTalkTemplateSnapshotState.builder()
-                        .senderKey(senderKey)
-                        .templateCode(external.templateCode())
-                        .templateName(external.templateName())
-                        .templateType(BrandTalkTemplateType.from(external.templateType()))
-                        .templateContent("")
-                        .templateStatus(BrandTalkTemplateStatus.from(external.templateStatus()))
-                        .build()
+                AligoBrandTalkTemplateCommandToStateMapper.mapToSnapshotState(senderKey, external)
         );
         saveBrandTalkTemplatePort.save(newTemplate);
     }
