@@ -271,40 +271,6 @@ def buildQaCronSpec() {
 '''
 }
 
-// TimerTrigger 또는 ParameterizedTimerTrigger cause 존재 여부로 cron 발화 빌드 판정.
-// 두 플러그인 모두 cause 클래스명에 'TimerTrigger' 또는 'ParameterizedTimerTrigger'를 포함한다.
-// @NonCPS: getBuildCauses() 반환 객체 순회를 단일 JVM frame에서 완료 — CPS 직렬화 yield 회피.
-@NonCPS
-def isCronTriggered(build) {
-    def causes = build.getBuildCauses() ?: []
-    return causes.any { c ->
-        def cls = (c._class ?: '').toString()
-        return cls.contains('TimerTrigger') || cls.contains('ParameterizedTimerTrigger')
-    }
-}
-
-// 이전 성공 빌드 description에서 동일 SERVICE의 마지막 배포 COMMIT 조회.
-// description 포맷: "SERVICE=<name> COMMIT=<sha>" (post.success에서 기록)
-// 순회 한도 50건 — 8 서비스 × 평균 일 3회 성공 = 약 2일 커버.
-// 미발견 시 null 반환 → fail-open(재배포). 장기간 미배포 서비스 드리프트 방지.
-// @NonCPS: java.util.regex.Matcher와 previousSuccessfulBuild 체인 순회를 단일 frame에서 완료해
-//         CPS yield 시점의 비직렬화 예외(NotSerializableException) 회피.
-@NonCPS
-def findLastDeployedCommit(build, String serviceName) {
-    def prev = build.previousSuccessfulBuild
-    int scanned = 0
-    while (prev != null && scanned < 50) {
-        def desc = prev.description ?: ''
-        def m = desc =~ /SERVICE=(\S+) COMMIT=(\S+)/
-        if (m.find() && m.group(1) == serviceName) {
-            return m.group(2)
-        }
-        prev = prev.previousSuccessfulBuild
-        scanned++
-    }
-    return null
-}
-
 pipeline {
 	agent any
 
@@ -398,29 +364,8 @@ pipeline {
 		stage('Skip If Same Commit (Cron Only)') {
 			steps {
 				script {
-					// cron 트리거가 아닌 경우 가드 비활성 — 수동/Webhook 배포는 항상 진행
-					if (!isCronTriggered(currentBuild)) {
-						echo "Not a cron-triggered build. Skip-guard inactive."
-						return
-					}
-					env.CRON_TRIGGERED = 'true'
-
-					// GIT_COMMIT 미해결 시 명시적 fail-open — SHA 비교 불가 → 배포 진행
-					if (!env.GIT_COMMIT?.trim()) {
-						echo "[QA-CRON] GIT_COMMIT unresolved. Skip-guard bypassed (fail-open)."
-						return
-					}
-
-					def lastCommit = findLastDeployedCommit(currentBuild, env.SERVICE_NAME)
-					boolean sameCommit = lastCommit && lastCommit == env.GIT_COMMIT
-					if (!sameCommit) {
-						echo "[QA-CRON] SERVICE=${env.SERVICE_NAME} 배포 진행. last=${lastCommit ?: 'none'} current=${env.GIT_COMMIT}"
-						return
-					}
-
-					env.CRON_SKIP = 'true'
-					currentBuild.result = 'NOT_BUILT'
-					echo "[QA-CRON] SERVICE=${env.SERVICE_NAME} COMMIT=${env.GIT_COMMIT} 이미 배포됨. 재배포 skip."
+					def helper = load 'jenkins/resolve-and-register.groovy'
+					helper.performCronSkipGuard(this)
 				}
 			}
 		}
@@ -454,7 +399,7 @@ pipeline {
 					echo "ENVIRONMENT               = ${env.ENVIRONMENT_UPPER}"
 					echo "ENV_PREFIX                = ${env.ENV_PREFIX}"
 					echo "CRON_TRIGGERED            = ${env.CRON_TRIGGERED ?: 'false'}"
-					echo "parameterizedCron spec:\n${buildQaCronSpec()}"
+					echo "parameterizedCron spec:\n" + buildQaCronSpec()
 				}
 			}
 		}

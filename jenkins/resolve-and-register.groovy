@@ -385,4 +385,64 @@ def notifyFlywayImmutabilitySkip(parentScript) {
     echo 'SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack SKIP audit notification'
 }
 
+// cron 재배포 skip 가드 — QA Jenkinsfile 'Skip If Same Commit' stage에서 호출.
+// Jenkinsfile CPS 메서드 크기(64KB) 초과 방지를 위해 외부 groovy helper로 추출.
+// parentScript.currentBuild / parentScript.env 통해 상태 갱신.
+def performCronSkipGuard(parentScript) {
+    def build = parentScript.currentBuild
+    def environment = parentScript.env
+
+    if (!isCronTriggered(build)) {
+        parentScript.echo "Not a cron-triggered build. Skip-guard inactive."
+        return
+    }
+    environment.CRON_TRIGGERED = 'true'
+
+    if (!environment.GIT_COMMIT?.trim()) {
+        parentScript.echo "[QA-CRON] GIT_COMMIT unresolved. Skip-guard bypassed (fail-open)."
+        return
+    }
+
+    def lastCommit = findLastDeployedCommit(build, environment.SERVICE_NAME)
+    boolean sameCommit = lastCommit && lastCommit == environment.GIT_COMMIT
+    if (!sameCommit) {
+        parentScript.echo "[QA-CRON] SERVICE=${environment.SERVICE_NAME} 배포 진행. last=${lastCommit ?: 'none'} current=${environment.GIT_COMMIT}"
+        return
+    }
+
+    environment.CRON_SKIP = 'true'
+    build.result = 'NOT_BUILT'
+    parentScript.echo "[QA-CRON] SERVICE=${environment.SERVICE_NAME} COMMIT=${environment.GIT_COMMIT} 이미 배포됨. 재배포 skip."
+}
+
+// TimerTrigger 또는 ParameterizedTimerTrigger cause 존재 여부로 cron 발화 빌드 판정.
+@NonCPS
+def isCronTriggered(build) {
+    def causes = build.getBuildCauses() ?: []
+    return causes.any { c ->
+        def cls = (c._class ?: '').toString()
+        return cls.contains('TimerTrigger') || cls.contains('ParameterizedTimerTrigger')
+    }
+}
+
+// 이전 성공 빌드 description에서 동일 SERVICE의 마지막 배포 COMMIT 조회.
+// description 포맷: "SERVICE=<name> COMMIT=<sha>" (post.success에서 기록)
+// 순회 한도 50건 — 8 서비스 × 평균 일 3회 성공 = 약 2일 커버.
+// 미발견 시 null 반환 → fail-open(재배포). 장기간 미배포 서비스 드리프트 방지.
+@NonCPS
+def findLastDeployedCommit(build, String serviceName) {
+    def prev = build.previousSuccessfulBuild
+    int scanned = 0
+    while (prev != null && scanned < 50) {
+        def desc = prev.description ?: ''
+        def m = desc =~ /SERVICE=(\S+) COMMIT=(\S+)/
+        if (m.find() && m.group(1) == serviceName) {
+            return m.group(2)
+        }
+        prev = prev.previousSuccessfulBuild
+        scanned++
+    }
+    return null
+}
+
 return this
