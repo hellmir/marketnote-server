@@ -99,21 +99,13 @@ public class CompleteReturnService implements CompleteReturnUseCase {
     }
 
     private OrderStatusHistory createReturnedHistory(Long orderId, Order order) {
-        return OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.builder()
-                        .orderId(orderId)
-                        .orderStatus(order.getOrderStatus())
-                        .reasonCategory(order.getStatusChangeReasonCategory())
-                        .build()
-        );
+        return OrderStatusHistory.from(OrderStatusHistoryCreateState.of(
+                orderId, order.getOrderStatus(), order.getStatusChangeReasonCategory(), null
+        ));
     }
 
     private long calculateReturnShippingFee(Order order, List<Long> returnPricePolicyIds) {
-        CalculateReturnShippingFeeCommand feeCommand = CalculateReturnShippingFeeCommand.builder()
-                .orderId(order.getId())
-                .reasonCategory(order.getStatusChangeReasonCategory())
-                .returnPricePolicyIds(returnPricePolicyIds)
-                .build();
+        CalculateReturnShippingFeeCommand feeCommand = CalculateReturnShippingFeeCommand.of(order, returnPricePolicyIds);
 
         CalculateReturnShippingFeeResult feeResult =
                 calculateReturnShippingFeeUseCase.calculateReturnShippingFee(feeCommand);

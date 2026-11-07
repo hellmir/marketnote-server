@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
+import lombok.Builder;
 
 /**
  * 결제 취소 트랜잭션 간 데이터 전달 컨텍스트
@@ -27,6 +28,7 @@ import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCom
  * @param modType              PG 취소 타입 (STSC/STPC)
  * @param originalCommand      원본 CancelPaymentCommand
  */
+@Builder
 public record PaymentCancelContext(
         Payment payment,
         PspPaymentEvent event,
@@ -44,39 +46,4 @@ public record PaymentCancelContext(
         String modType,
         CancelPaymentCommand originalCommand
 ) {
-    public static PaymentCancelContext of(
-            Payment payment,
-            PspPaymentEvent event,
-            Order order,
-            Long cancelAmount,
-            Long adjustedCancelAmount,
-            Long remainAmount,
-            Long alreadyRefunded,
-            Long shippingFeeDeduction,
-            boolean isFullCancel,
-            String cancelReason,
-            String adjustedCancelReason,
-            String cancelId,
-            String transactionNumber,
-            String modType,
-            CancelPaymentCommand originalCommand
-    ) {
-        return new PaymentCancelContext(
-                payment,
-                event,
-                order,
-                cancelAmount,
-                adjustedCancelAmount,
-                remainAmount,
-                alreadyRefunded,
-                shippingFeeDeduction,
-                isFullCancel,
-                cancelReason,
-                adjustedCancelReason,
-                cancelId,
-                transactionNumber,
-                modType,
-                originalCommand
-        );
-    }
 }

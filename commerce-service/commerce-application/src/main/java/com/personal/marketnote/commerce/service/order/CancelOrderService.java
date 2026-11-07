@@ -162,12 +162,9 @@ public class CancelOrderService implements CancelOrderUseCase {
         order.changeAllProductsStatus(targetStatus, null, 0L);
 
         OrderStatusHistory history = OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.builder()
-                        .orderId(command.id())
-                        .orderStatus(targetStatus)
-                        .reasonCategory(command.reasonCategory())
-                        .reason(command.reason())
-                        .build()
+                OrderStatusHistoryCreateState.of(
+                        command.id(), targetStatus, command.reasonCategory(), command.reason()
+                )
         );
 
         updateOrderPort.update(order, history);
@@ -180,12 +177,9 @@ public class CancelOrderService implements CancelOrderUseCase {
         order.changeProductsStatus(pricePolicyIds, targetProductStatus, null, 0L);
 
         OrderStatusHistory history = OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.builder()
-                        .orderId(command.id())
-                        .orderStatus(order.getOrderStatus())
-                        .reasonCategory(command.reasonCategory())
-                        .reason(command.reason())
-                        .build()
+                OrderStatusHistoryCreateState.of(
+                        command.id(), order.getOrderStatus(), command.reasonCategory(), command.reason()
+                )
         );
 
         updateOrderPort.update(order, history);

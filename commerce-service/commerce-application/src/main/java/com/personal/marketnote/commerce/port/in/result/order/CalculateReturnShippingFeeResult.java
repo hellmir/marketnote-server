@@ -6,4 +6,7 @@ import lombok.Builder;
 public record CalculateReturnShippingFeeResult(
         long returnShippingFee
 ) {
+    public static CalculateReturnShippingFeeResult of(long returnShippingFee) {
+        return new CalculateReturnShippingFeeResult(returnShippingFee);
+    }
 }

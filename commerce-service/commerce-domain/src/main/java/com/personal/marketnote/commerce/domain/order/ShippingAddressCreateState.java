@@ -17,4 +17,40 @@ public class ShippingAddressCreateState {
     private final String addressDetail;
     private final DeliveryRequestType deliveryRequestType;
     private final String deliveryRequestMessage;
+
+    public static ShippingAddressCreateState forShipping(
+            String recipientName,
+            String recipientPhoneNumber,
+            String address,
+            String addressDetail,
+            DeliveryRequestType deliveryRequestType,
+            String deliveryRequestMessage
+    ) {
+        return ShippingAddressCreateState.builder()
+                .recipientName(recipientName)
+                .recipientPhoneNumber(recipientPhoneNumber)
+                .address(address)
+                .addressDetail(addressDetail)
+                .deliveryRequestType(deliveryRequestType)
+                .deliveryRequestMessage(deliveryRequestMessage)
+                .build();
+    }
+
+    public static ShippingAddressCreateState forReturnPickup(
+            String recipientName,
+            String recipientPhoneNumber,
+            String zipCode,
+            String address,
+            String addressDetail,
+            String pickupRequestMessage
+    ) {
+        return ShippingAddressCreateState.builder()
+                .recipientName(recipientName)
+                .recipientPhoneNumber(recipientPhoneNumber)
+                .zipCode(zipCode)
+                .address(address)
+                .addressDetail(addressDetail)
+                .deliveryRequestMessage(pickupRequestMessage)
+                .build();
+    }
 }

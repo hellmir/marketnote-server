@@ -15,6 +15,8 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class RefundCreateState {
+    private static final String PROCESSED_BY_SYSTEM = "SYSTEM";
+
     private final Long paymentId;
     private final Long orderId;
     private final RefundType refundType;
@@ -23,4 +25,42 @@ public class RefundCreateState {
     private final String processedBy;
     private final String pgRefundKey;
     private final String pgRawResponse;
+
+    public static RefundCreateState withPg(
+            Long paymentId,
+            Long orderId,
+            RefundType refundType,
+            Long refundAmount,
+            String cancelReason,
+            String pgRefundKey,
+            String pgRawResponse
+    ) {
+        return RefundCreateState.builder()
+                .paymentId(paymentId)
+                .orderId(orderId)
+                .refundType(refundType)
+                .refundAmount(refundAmount)
+                .cancelReason(cancelReason)
+                .processedBy(PROCESSED_BY_SYSTEM)
+                .pgRefundKey(pgRefundKey)
+                .pgRawResponse(pgRawResponse)
+                .build();
+    }
+
+    public static RefundCreateState withoutPg(
+            Long paymentId,
+            Long orderId,
+            RefundType refundType,
+            Long refundAmount,
+            String cancelReason
+    ) {
+        return RefundCreateState.builder()
+                .paymentId(paymentId)
+                .orderId(orderId)
+                .refundType(refundType)
+                .refundAmount(refundAmount)
+                .cancelReason(cancelReason)
+                .processedBy(PROCESSED_BY_SYSTEM)
+                .build();
+    }
 }

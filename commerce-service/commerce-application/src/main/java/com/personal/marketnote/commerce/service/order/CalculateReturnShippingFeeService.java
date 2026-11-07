@@ -64,9 +64,7 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
                 initialShippingFeeBySellerIdMap, shippingPolicyMap, regionType
         );
 
-        return CalculateReturnShippingFeeResult.builder()
-                .returnShippingFee(totalReturnShippingFee)
-                .build();
+        return CalculateReturnShippingFeeResult.of(totalReturnShippingFee);
     }
 
     private void validateReasonCategory(CalculateReturnShippingFeeCommand command) {
@@ -157,17 +155,15 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
             ReturnType sellerReturnType = resolveSellerReturnType(sellerProducts, returnPricePolicyIdSet, returnType);
             long remainingAmount = calculateRemainingAmount(sellerProducts, returnPricePolicyIdSet);
 
-            ReturnShippingFeeContext context = ReturnShippingFeeContext.from(
-                    ReturnShippingFeeContextCreateState.builder()
-                            .faultType(faultType)
-                            .initialShippingType(initialShippingType)
-                            .returnType(sellerReturnType)
-                            .remainingAmount(Money.of(remainingAmount))
-                            .freeShippingThreshold(Money.of(freeShippingThreshold))
-                            .shippingFee(Money.of(oneWayFee))
-                            .regionSurcharge(Money.of(surcharge))
-                            .build()
-            );
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.from(ReturnShippingFeeContextCreateState.forCalculation(
+                    faultType,
+                    initialShippingType,
+                    sellerReturnType,
+                    Money.of(remainingAmount),
+                    Money.of(freeShippingThreshold),
+                    Money.of(oneWayFee),
+                    Money.of(surcharge)
+            ));
 
             totalFee = Math.addExact(totalFee, ReturnShippingFeeCalculator.calculate(context).getValue());
         }

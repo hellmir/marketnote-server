@@ -9,4 +9,11 @@ import lombok.*;
 public class ReturnTrackerCreateState {
     private Long orderId;
     private String returnSlipNumber;
+
+    public static ReturnTrackerCreateState of(Long orderId, String returnSlipNumber) {
+        return ReturnTrackerCreateState.builder()
+                .orderId(orderId)
+                .returnSlipNumber(returnSlipNumber)
+                .build();
+    }
 }

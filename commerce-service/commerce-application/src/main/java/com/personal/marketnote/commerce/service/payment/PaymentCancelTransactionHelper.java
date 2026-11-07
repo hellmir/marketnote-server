@@ -12,6 +12,7 @@ import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
 import com.personal.marketnote.commerce.domain.shipping.ShippingFeeCalculator;
 import com.personal.marketnote.commerce.domain.shipping.ShippingFeeContext;
 import com.personal.marketnote.commerce.exception.*;
+import com.personal.marketnote.commerce.mapper.PaymentCancelContextMapper;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
@@ -143,12 +144,19 @@ public class PaymentCancelTransactionHelper {
         Long remainAmount = Math.subtractExact(refundableAmount, adjustedCancelAmount);
         String cancelId = isFullCancel ? null : UUID.randomUUID().toString();
 
-        return PaymentCancelContext.of(
-                payment, event, order, cancelAmount, adjustedCancelAmount, remainAmount,
-                alreadyRefunded, shippingFeeDeduction, isFullCancel,
-                command.cancelReason(), adjustedCancelReason, cancelId,
-                transactionNumber, modType, command
+        PaymentCancelComputation computation = PaymentCancelComputation.of(
+                cancelAmount,
+                adjustedCancelAmount,
+                remainAmount,
+                alreadyRefunded,
+                shippingFeeDeduction,
+                isFullCancel,
+                adjustedCancelReason,
+                cancelId,
+                transactionNumber,
+                modType
         );
+        return PaymentCancelContextMapper.from(payment, event, order, command, computation);
     }
 
     /**
@@ -338,16 +346,15 @@ public class PaymentCancelTransactionHelper {
             String cancelReason, PaymentCancelVendorResult vendorResult
     ) {
         RefundType refundType = isFullCancel ? RefundType.FULL_REFUND : RefundType.PARTIAL_REFUND;
-        RefundCreateState createState = RefundCreateState.builder()
-                .paymentId(payment.getId())
-                .orderId(payment.getOrderId())
-                .refundType(refundType)
-                .refundAmount(cancelAmount)
-                .cancelReason(cancelReason)
-                .processedBy("SYSTEM")
-                .pgRefundKey(payment.getPgPaymentKey())
-                .pgRawResponse(vendorResult.rawResponse())
-                .build();
+        RefundCreateState createState = RefundCreateState.withPg(
+                payment.getId(),
+                payment.getOrderId(),
+                refundType,
+                cancelAmount,
+                cancelReason,
+                payment.getPgPaymentKey(),
+                vendorResult.rawResponse()
+        );
         Refund refund = Refund.from(createState);
         saveRefundPort.save(refund);
     }
@@ -442,14 +449,13 @@ public class PaymentCancelTransactionHelper {
     private void saveRefundRecordWithoutPg(
             Payment payment, Long originalCancelAmount, long shippingFeeDeduction, String cancelReason
     ) {
-        RefundCreateState createState = RefundCreateState.builder()
-                .paymentId(payment.getId())
-                .orderId(payment.getOrderId())
-                .refundType(RefundType.PARTIAL_REFUND)
-                .refundAmount(0L)
-                .cancelReason(cancelReason)
-                .processedBy("SYSTEM")
-                .build();
+        RefundCreateState createState = RefundCreateState.withoutPg(
+                payment.getId(),
+                payment.getOrderId(),
+                RefundType.PARTIAL_REFUND,
+                0L,
+                cancelReason
+        );
         Refund refund = Refund.from(createState);
         saveRefundPort.save(refund);
     }
@@ -480,14 +486,9 @@ public class PaymentCancelTransactionHelper {
 
         try {
             List<OrderProduct> cancelTargetProducts = command.cancelProducts().stream()
-                    .map(item -> OrderProduct.from(
-                            OrderProductSnapshotState.builder()
-                                    .pricePolicyId(item.pricePolicyId())
-                                    .quantity(item.quantity())
-                                    .unitAmount(0L)
-                                    .accumulatedPoint(0L)
-                                    .build()
-                    ))
+                    .map(item -> OrderProduct.from(OrderProductSnapshotState.forInventoryRestore(
+                            item.pricePolicyId(), item.quantity()
+                    )))
                     .toList();
             restoreProductInventoryUseCase.restore(cancelTargetProducts, order.getId(), "주문 부분 취소에 의한 재고 복구");
         } catch (Exception e) {
@@ -632,14 +633,9 @@ public class PaymentCancelTransactionHelper {
         }
 
         return command.cancelProducts().stream()
-                .map(item -> OrderProduct.from(
-                        OrderProductSnapshotState.builder()
-                                .pricePolicyId(item.pricePolicyId())
-                                .quantity(item.quantity())
-                                .unitAmount(0L)
-                                .accumulatedPoint(0L)
-                                .build()
-                ))
+                .map(item -> OrderProduct.from(OrderProductSnapshotState.forInventoryRestore(
+                        item.pricePolicyId(), item.quantity()
+                )))
                 .toList();
     }
 

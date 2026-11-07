@@ -17,4 +17,24 @@ public class ReturnShippingFeeContextCreateState {
     private final Money freeShippingThreshold;
     private final Money shippingFee;
     private final Money regionSurcharge;
+
+    public static ReturnShippingFeeContextCreateState forCalculation(
+            FaultType faultType,
+            InitialShippingType initialShippingType,
+            ReturnType returnType,
+            Money remainingAmount,
+            Money freeShippingThreshold,
+            Money shippingFee,
+            Money regionSurcharge
+    ) {
+        return ReturnShippingFeeContextCreateState.builder()
+                .faultType(faultType)
+                .initialShippingType(initialShippingType)
+                .returnType(returnType)
+                .remainingAmount(remainingAmount)
+                .freeShippingThreshold(freeShippingThreshold)
+                .shippingFee(shippingFee)
+                .regionSurcharge(regionSurcharge)
+                .build();
+    }
 }

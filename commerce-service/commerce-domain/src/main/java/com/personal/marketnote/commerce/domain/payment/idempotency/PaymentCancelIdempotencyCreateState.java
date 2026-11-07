@@ -10,4 +10,12 @@ public class PaymentCancelIdempotencyCreateState {
     private String idempotencyKey;
     private Long paymentId;
     private Long buyerId;
+
+    public static PaymentCancelIdempotencyCreateState of(String idempotencyKey, Long paymentId, Long buyerId) {
+        return PaymentCancelIdempotencyCreateState.builder()
+                .idempotencyKey(idempotencyKey)
+                .paymentId(paymentId)
+                .buyerId(buyerId)
+                .build();
+    }
 }

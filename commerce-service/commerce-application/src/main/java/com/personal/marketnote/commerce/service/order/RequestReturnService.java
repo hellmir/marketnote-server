@@ -60,12 +60,9 @@ public class RequestReturnService implements RequestReturnUseCase {
         order.applyPickupAddress(buildPickupAddress(command));
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.builder()
-                        .orderId(command.id())
-                        .orderStatus(order.getOrderStatus())
-                        .reasonCategory(command.reasonCategory())
-                        .reason(command.reason())
-                        .build()
+                OrderStatusHistoryCreateState.of(
+                        command.id(), order.getOrderStatus(), command.reasonCategory(), command.reason()
+                )
         );
 
         updateOrderPort.update(order, orderStatusHistory);
@@ -158,19 +155,23 @@ public class RequestReturnService implements RequestReturnUseCase {
     }
 
     private ShippingAddress buildPickupAddress(RequestReturnCommand command) {
-        return ShippingAddress.from(ShippingAddressCreateState.builder().recipientName(command.pickupRecipientName()).recipientPhoneNumber(command.pickupRecipientPhoneNumber()).zipCode(command.pickupZipCode()).address(command.pickupAddress()).addressDetail(command.pickupAddressDetail()).deliveryRequestType(null).deliveryRequestMessage(command.pickupRequestMessage()).build());
+        return ShippingAddress.from(ShippingAddressCreateState.forReturnPickup(
+                command.pickupRecipientName(),
+                command.pickupRecipientPhoneNumber(),
+                command.pickupZipCode(),
+                command.pickupAddress(),
+                command.pickupAddressDetail(),
+                command.pickupRequestMessage()
+        ));
     }
 
     private RegisterFulfillmentReturnDeliveryCommand buildReturnDeliveryCommand(
             RequestReturnCommand command,
             Order order
     ) {
-        ShippingAddress shippingAddress = order.getShippingAddress();
         String orderDate = FormatValidator.hasValue(order.getCreatedAt())
                 ? order.getCreatedAt().format(ORDER_DATE_FORMATTER)
                 : "";
-
-        String fullAddress = buildFullAddress(shippingAddress);
 
         List<RegisterFulfillmentReturnDeliveryCommand.ProductItem> products = collectReturnDeliveryProducts(command, order);
 
@@ -182,22 +183,13 @@ public class RequestReturnService implements RequestReturnUseCase {
                 ? PhoneNumber.of(command.pickupRecipientPhoneNumber()).getValue()
                 : null;
 
-        return RegisterFulfillmentReturnDeliveryCommand.builder()
-                .orderId(command.id())
-                .orderDate(orderDate)
-                .recipientName(shippingAddress.getRecipientName().getValue())
-                .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber().getValue())
-                .recipientAddress(fullAddress)
-                .pickupRecipientName(command.pickupRecipientName())
-                .pickupRecipientPhoneNumber(pickupPhoneCanonical)
-                .pickupZipCode(command.pickupZipCode())
-                .pickupAddress(command.pickupAddress())
-                .pickupAddressDetail(command.pickupAddressDetail())
-                .returnReason(reasonCategory)
-                .returnDetailReason(command.reason())
-                .returnShippingRequest(command.pickupRequestMessage())
-                .products(products)
-                .build();
+        return RegisterFulfillmentReturnDeliveryCommand.from(
+                command,
+                order,
+                RegisterFulfillmentReturnDeliveryCommand.DerivedInputs.of(
+                        products, pickupPhoneCanonical, reasonCategory, orderDate
+                )
+        );
     }
 
     private List<RegisterFulfillmentReturnDeliveryCommand.ProductItem> collectReturnDeliveryProducts(
@@ -223,16 +215,6 @@ public class RequestReturnService implements RequestReturnUseCase {
                 productKey.toString(),
                 orderProduct.getQuantity().getValue()
         );
-    }
-
-    private String buildFullAddress(ShippingAddress shippingAddress) {
-        String address = FormatValidator.hasValue(shippingAddress.getAddress())
-                ? shippingAddress.getAddress()
-                : "";
-        String detail = FormatValidator.hasValue(shippingAddress.getAddressDetail())
-                ? " " + shippingAddress.getAddressDetail()
-                : "";
-        return address + detail;
     }
 
     private void runAfterCommit(Runnable action) {

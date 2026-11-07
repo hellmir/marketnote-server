@@ -15,4 +15,15 @@ public class InventoryReservationCreateState {
     private final Long pricePolicyId;
     private final int quantity;
     private final LocalDateTime reservedAt;
+
+    public static InventoryReservationCreateState of(
+            Long orderId, Long pricePolicyId, int quantity, LocalDateTime reservedAt
+    ) {
+        return InventoryReservationCreateState.builder()
+                .orderId(orderId)
+                .pricePolicyId(pricePolicyId)
+                .quantity(quantity)
+                .reservedAt(reservedAt)
+                .build();
+    }
 }

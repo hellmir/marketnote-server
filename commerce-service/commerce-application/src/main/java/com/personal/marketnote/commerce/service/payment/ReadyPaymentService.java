@@ -49,12 +49,7 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
         verifyNoDuplicatePaymentReady(command.orderKey());
         saveReadyEvent(payment, command.payMethod());
 
-        TradeRegisterVendorCommand vendorCommand = TradeRegisterVendorCommand.builder()
-                .orderKey(payment.getOrderKey().toString())
-                .orderAmount(String.valueOf(payment.getPaymentAmount().getValue()))
-                .payMethod(command.payMethod())
-                .goodName(command.goodName())
-                .build();
+        TradeRegisterVendorCommand vendorCommand = TradeRegisterVendorCommand.of(payment, command);
 
         TradeRegisterVendorResult vendorResult = paymentVendorPort.registerTrade(vendorCommand);
 
@@ -62,12 +57,7 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
             throw PaymentApprovalException.tradeRegisterFailed(vendorResult.resultCode(), vendorResult.resultMessage());
         }
 
-        return ReadyPaymentResult.builder()
-                .orderKey(payment.getOrderKey().toString())
-                .approvalKey(vendorResult.approvalKey())
-                .payUrl(vendorResult.payUrl())
-                .traceNo(vendorResult.traceNo())
-                .build();
+        return ReadyPaymentResult.of(payment, vendorResult);
     }
 
     private void verifyOrderForPayment(Long orderId, Long buyerId) {

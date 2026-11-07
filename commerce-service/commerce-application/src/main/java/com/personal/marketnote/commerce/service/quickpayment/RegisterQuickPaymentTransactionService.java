@@ -28,9 +28,7 @@ public class RegisterQuickPaymentTransactionService implements RegisterQuickPaym
         String transactionId = UUID.randomUUID().toString();
         log.info("빠른결제 거래등록 요청 - userId: {}, transactionId: {}", command.userId(), transactionId);
 
-        RegisterQuickPaymentTransactionPortCommand portCommand = RegisterQuickPaymentTransactionPortCommand.builder()
-                .transactionId(transactionId)
-                .build();
+        RegisterQuickPaymentTransactionPortCommand portCommand = RegisterQuickPaymentTransactionPortCommand.of(transactionId);
 
         RegisterQuickPaymentTransactionPortResult portResult =
                 registerQuickPaymentTransactionPort.registerTransaction(portCommand);
@@ -39,11 +37,8 @@ public class RegisterQuickPaymentTransactionService implements RegisterQuickPaym
             throw new QuickPaymentTransactionFailedException(portResult.resultCode(), portResult.resultMessage());
         }
 
-        return RegisterQuickPaymentTransactionResult.builder()
-                .transactionId(transactionId)
-                .approvalKey(portResult.approvalKey())
-                .payUrl(portResult.payUrl())
-                .traceNo(portResult.traceNo())
-                .build();
+        return RegisterQuickPaymentTransactionResult.of(
+                transactionId, portResult.approvalKey(), portResult.payUrl(), portResult.traceNo()
+        );
     }
 }

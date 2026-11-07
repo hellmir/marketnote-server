@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.payment;
 
+import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.exception.PaymentCancelException;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.in.usecase.payment.CancelPaymentUseCase;
@@ -93,7 +94,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
 
         // PG 취소 API 호출 (트랜잭션 외부)
         PaymentCancelVendorResult vendorResult = requestPaymentCancellationToPsp(
-                context.transactionNumber(),
+                context.event(),
                 context.modType(),
                 context.adjustedCancelAmount(),
                 context.remainAmount(),
@@ -117,15 +118,12 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     }
 
     private PaymentCancelVendorResult requestPaymentCancellationToPsp(
-            String transactionNumber, String cancelType, Long cancelAmount, Long remainAmount, String cancelReason
+            PspPaymentEvent event, String cancelType, Long cancelAmount, Long remainAmount, String cancelReason
     ) {
-        PaymentCancelVendorCommand vendorCommand = PaymentCancelVendorCommand.builder()
-                .transactionId(transactionNumber)
-                .cancelType(cancelType)
-                .cancelAmount(cancelAmount)
-                .remainAmount(remainAmount)
-                .cancelReason(cancelReason)
-                .build();
+        PaymentCancelVendorCommand vendorCommand = PaymentCancelVendorCommand.from(
+                event,
+                PaymentCancelVendorCommand.CancelDirective.of(cancelType, cancelAmount, remainAmount, cancelReason)
+        );
 
         return paymentVendorPort.cancelPayment(vendorCommand);
     }

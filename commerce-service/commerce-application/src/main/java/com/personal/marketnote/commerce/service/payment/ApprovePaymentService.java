@@ -55,7 +55,7 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
     ) {
         // PG사 호출 (트랜잭션 외부 — 어댑터에서 재시도 수행)
         try {
-            return paymentVendorPort.approvePayment(buildVendorCommand(command, context));
+            return paymentVendorPort.approvePayment(PaymentApprovalVendorCommand.of(command, context.payment()));
         } catch (PaymentVendorConnectionFailedException e) {
             // TX-2: 연결 실패 → FAILED (요청이 PG사에 도달하지 않음)
             txHelper.commitFailure(context, "CONN_FAIL", e.getMessage());
@@ -65,18 +65,6 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
             txHelper.commitUnknown(context, "UNKNOWN", "PG사 통신 오류: " + e.getMessage());
             throw PaymentApprovalException.approvalRequestFailed(e);
         }
-    }
-
-    private PaymentApprovalVendorCommand buildVendorCommand(
-            ApprovePaymentCommand command, PaymentApprovalContext context
-    ) {
-        return PaymentApprovalVendorCommand.builder()
-                .encData(command.encData())
-                .encInfo(command.encInfo())
-                .orderAmount(String.valueOf(context.paymentAmount()))
-                .orderNumber(command.orderKey())
-                .payType(command.payType())
-                .build();
     }
 
     private Installment parseInstallment(String quota) {

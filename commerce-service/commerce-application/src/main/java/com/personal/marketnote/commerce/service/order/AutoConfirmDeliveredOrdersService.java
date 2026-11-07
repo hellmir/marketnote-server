@@ -55,11 +55,7 @@ public class AutoConfirmDeliveredOrdersService implements AutoConfirmDeliveredOr
 
     private void confirmOrderSafely(Long orderId) {
         try {
-            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.CONFIRMED)
-                    .build();
-            changeOrderStatusUseCase.changeOrderStatus(command);
+            changeOrderStatusUseCase.changeOrderStatus(ChangeOrderStatusCommand.toConfirmed(orderId));
             log.info("주문 자동 확정 완료 - orderId: {}", orderId);
         } catch (Exception e) {
             log.error("주문 자동 확정 실패 - orderId: {}, error: {}", orderId, e.getMessage(), e);

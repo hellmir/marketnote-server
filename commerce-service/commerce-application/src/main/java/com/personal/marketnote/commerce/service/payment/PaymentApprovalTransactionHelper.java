@@ -130,13 +130,7 @@ public class PaymentApprovalTransactionHelper {
      * 향후 확장 대비 방어적 명시.</p>
      */
     private void changeOrderToExecuting(Long orderId) {
-        changeOrderStatusUseCase.changeOrderStatus(
-                ChangeOrderStatusCommand.builder()
-                        .id(orderId)
-                        .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                        .skipSubsequentProcesses(true)
-                        .build()
-        );
+        changeOrderStatusUseCase.changeOrderStatus(ChangeOrderStatusCommand.toExecuting(orderId));
     }
 
     /**
@@ -175,42 +169,17 @@ public class PaymentApprovalTransactionHelper {
                 });
 
         if (orderPaymentSagaStarter.isPresent()) {
-            changeOrderStatusUseCase.changeOrderStatus(
-                    ChangeOrderStatusCommand.builder()
-                            .id(payment.getOrderId())
-                            .orderStatus(OrderStatus.PAID)
-                            .skipSubsequentProcesses(true)
-                            .paidAmount(payment.getPaymentAmount().getValue())
-                            .build()
-            );
+            changeOrderStatusUseCase.changeOrderStatus(ChangeOrderStatusCommand.toPaidSkipSubsequent(payment));
             startOrderPaymentSaga(order, payment);
-            return buildApprovePaymentResult(payment, vendorResult);
+            return ApprovePaymentResult.of(payment, vendorResult);
         }
 
-        changeOrderStatusUseCase.changeOrderStatus(
-                ChangeOrderStatusCommand.builder()
-                        .id(payment.getOrderId())
-                        .orderStatus(OrderStatus.PAID)
-                        .paidAmount(payment.getPaymentAmount().getValue())
-                        .build()
-        );
+        changeOrderStatusUseCase.changeOrderStatus(ChangeOrderStatusCommand.toPaid(payment));
 
         // [#929][#1033] 결제 승인 분개는 Kafka Consumer(PaymentApprovedLedgerConsumer)로 전환 완료
         publishPaymentApprovedEvent(payment);
 
-        return buildApprovePaymentResult(payment, vendorResult);
-    }
-
-    private ApprovePaymentResult buildApprovePaymentResult(Payment payment, PaymentApprovalVendorResult vendorResult) {
-        return ApprovePaymentResult.builder()
-                .orderId(payment.getOrderId())
-                .orderKey(payment.getOrderKey().toString())
-                .pgPaymentKey(vendorResult.transactionId())
-                .amount(payment.getPaymentAmount().getValue())
-                .resultCode(vendorResult.resultCode())
-                .resultMessage(vendorResult.resultMessage())
-                .payMethod(vendorResult.payMethod())
-                .build();
+        return ApprovePaymentResult.of(payment, vendorResult);
     }
 
     /**
@@ -227,12 +196,7 @@ public class PaymentApprovalTransactionHelper {
         event.failExecution(resultCode, resultMessage);
         updatePspPaymentEventPort.update(event);
 
-        changeOrderStatusUseCase.changeOrderStatus(
-                ChangeOrderStatusCommand.builder()
-                        .id(payment.getOrderId())
-                        .orderStatus(OrderStatus.FAILED)
-                        .build()
-        );
+        changeOrderStatusUseCase.changeOrderStatus(ChangeOrderStatusCommand.toFailed(payment.getOrderId()));
 
         publishPaymentFailedEvent(payment, resultCode, resultMessage);
     }
@@ -249,19 +213,7 @@ public class PaymentApprovalTransactionHelper {
     }
 
     private void reserveInventory(Order order) {
-        List<ReserveInventoryCommand.OrderProductItem> orderProductItems = order.getOrderProducts().stream()
-                .map(op -> ReserveInventoryCommand.OrderProductItem.builder()
-                        .pricePolicyId(op.getPricePolicyId())
-                        .quantity(op.getQuantity().getValue())
-                        .build())
-                .toList();
-
-        reserveInventoryUseCase.reserveInventory(
-                ReserveInventoryCommand.builder()
-                        .orderId(order.getId())
-                        .orderProducts(orderProductItems)
-                        .build()
-        );
+        reserveInventoryUseCase.reserveInventory(ReserveInventoryCommand.from(order));
     }
 
     private void verifyPaymentAmount(Order order, Payment payment) {

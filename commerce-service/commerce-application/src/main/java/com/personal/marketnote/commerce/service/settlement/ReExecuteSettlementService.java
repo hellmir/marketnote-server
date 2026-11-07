@@ -1,8 +1,6 @@
 package com.personal.marketnote.commerce.service.settlement;
 
 import com.personal.marketnote.commerce.domain.ledger.Account;
-import com.personal.marketnote.commerce.domain.ledger.LedgerTransactionType;
-import com.personal.marketnote.commerce.domain.ledger.TransactionType;
 import com.personal.marketnote.commerce.domain.settlement.Settlement;
 import com.personal.marketnote.commerce.exception.AccountNotFoundException;
 import com.personal.marketnote.commerce.exception.SettlementNotFoundException;
@@ -118,34 +116,15 @@ public class ReExecuteSettlementService implements ReExecuteSettlementUseCase {
         List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
 
         long cashAmount = totalAllocatedAmount - pgFeeAmount;
-        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                .accountId(cashAccount.getId())
-                .amount(cashAmount)
-                .transactionType(TransactionType.DEBIT)
-                .build());
+        entries.add(RecordLedgerEntryCommand.EntryLine.debit(cashAccount.getId(), cashAmount));
 
         if (pgFeeAmount > 0) {
-            entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                    .accountId(pgFeeAccount.getId())
-                    .amount(pgFeeAmount)
-                    .transactionType(TransactionType.DEBIT)
-                    .build());
+            entries.add(RecordLedgerEntryCommand.EntryLine.debit(pgFeeAccount.getId(), pgFeeAmount));
         }
 
-        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                .accountId(pgReceivable.getId())
-                .amount(totalAllocatedAmount)
-                .transactionType(TransactionType.CREDIT)
-                .build());
+        entries.add(RecordLedgerEntryCommand.EntryLine.credit(pgReceivable.getId(), totalAllocatedAmount));
 
-        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                .transactionType(LedgerTransactionType.PG_SETTLEMENT)
-                .targetType("SETTLEMENT")
-                .targetId(settlementId)
-                .description("PG 정산 재실행 분개")
-                .idempotencyKey("PG_SETTLEMENT_REEXEC:" + settlementId)
-                .entries(entries)
-                .build();
+        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.forPgSettlementReExec(settlementId, entries);
 
         recordLedgerEntryUseCase.record(command);
     }
@@ -182,34 +161,15 @@ public class ReExecuteSettlementService implements ReExecuteSettlementUseCase {
 
         List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
 
-        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                .accountId(sellerPayable.getId())
-                .amount(totalAmount)
-                .transactionType(TransactionType.DEBIT)
-                .build());
+        entries.add(RecordLedgerEntryCommand.EntryLine.debit(sellerPayable.getId(), totalAmount));
 
-        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                .accountId(cashAccount.getId())
-                .amount(sellerPayoutAmount)
-                .transactionType(TransactionType.CREDIT)
-                .build());
+        entries.add(RecordLedgerEntryCommand.EntryLine.credit(cashAccount.getId(), sellerPayoutAmount));
 
         if (platformFeeAmount > 0) {
-            entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                    .accountId(platformFeeAccount.getId())
-                    .amount(platformFeeAmount)
-                    .transactionType(TransactionType.CREDIT)
-                    .build());
+            entries.add(RecordLedgerEntryCommand.EntryLine.credit(platformFeeAccount.getId(), platformFeeAmount));
         }
 
-        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                .transactionType(LedgerTransactionType.SELLER_SETTLEMENT)
-                .targetType("SETTLEMENT")
-                .targetId(settlementId)
-                .description("판매자 정산 재실행 분개")
-                .idempotencyKey("SELLER_SETTLEMENT_REEXEC:" + settlementId)
-                .entries(entries)
-                .build();
+        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.forSellerSettlementReExec(settlementId, entries);
 
         recordLedgerEntryUseCase.record(command);
     }

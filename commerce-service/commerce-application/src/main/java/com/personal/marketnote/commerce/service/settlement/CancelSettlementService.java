@@ -1,8 +1,6 @@
 package com.personal.marketnote.commerce.service.settlement;
 
 import com.personal.marketnote.commerce.domain.ledger.Account;
-import com.personal.marketnote.commerce.domain.ledger.LedgerTransactionType;
-import com.personal.marketnote.commerce.domain.ledger.TransactionType;
 import com.personal.marketnote.commerce.domain.settlement.Settlement;
 import com.personal.marketnote.commerce.exception.AccountNotFoundException;
 import com.personal.marketnote.commerce.exception.SettlementNotFoundException;
@@ -127,61 +125,30 @@ public class CancelSettlementService implements CancelSettlementUseCase {
         List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
 
         // PG 역분개 DEBIT: 매출채권_PG
-        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                .accountId(pgReceivable.getId())
-                .amount(totalAllocatedAmount)
-                .transactionType(TransactionType.DEBIT)
-                .build());
+        entries.add(RecordLedgerEntryCommand.EntryLine.debit(pgReceivable.getId(), totalAllocatedAmount));
 
         // Seller 역분개 DEBIT: 보통예금
-        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                .accountId(cashAccount.getId())
-                .amount(sellerPayoutAmount)
-                .transactionType(TransactionType.DEBIT)
-                .build());
+        entries.add(RecordLedgerEntryCommand.EntryLine.debit(cashAccount.getId(), sellerPayoutAmount));
 
         // Seller 역분개 DEBIT: 플랫폼수수료수익 (platformFeeAmount > 0일 때만)
         if (platformFeeAmount > 0) {
-            entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                    .accountId(platformFeeAccount.getId())
-                    .amount(platformFeeAmount)
-                    .transactionType(TransactionType.DEBIT)
-                    .build());
+            entries.add(RecordLedgerEntryCommand.EntryLine.debit(platformFeeAccount.getId(), platformFeeAmount));
         }
 
         // PG 역분개 CREDIT: 보통예금 (totalAllocated - pgFee)
         long pgCashCredit = Math.subtractExact(totalAllocatedAmount, pgFeeAmount);
-        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                .accountId(cashAccount.getId())
-                .amount(pgCashCredit)
-                .transactionType(TransactionType.CREDIT)
-                .build());
+        entries.add(RecordLedgerEntryCommand.EntryLine.credit(cashAccount.getId(), pgCashCredit));
 
         // PG 역분개 CREDIT: PG수수료비용 (pgFeeAmount > 0일 때만)
         if (pgFeeAmount > 0) {
-            entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                    .accountId(pgFeeAccount.getId())
-                    .amount(pgFeeAmount)
-                    .transactionType(TransactionType.CREDIT)
-                    .build());
+            entries.add(RecordLedgerEntryCommand.EntryLine.credit(pgFeeAccount.getId(), pgFeeAmount));
         }
 
         // Seller 역분개 CREDIT: 미지급금_판매자 (sellerPayout + platformFee)
         long sellerPayableCredit = Math.addExact(sellerPayoutAmount, platformFeeAmount);
-        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                .accountId(sellerPayable.getId())
-                .amount(sellerPayableCredit)
-                .transactionType(TransactionType.CREDIT)
-                .build());
+        entries.add(RecordLedgerEntryCommand.EntryLine.credit(sellerPayable.getId(), sellerPayableCredit));
 
-        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                .transactionType(LedgerTransactionType.SETTLEMENT_CANCELLATION)
-                .targetType("SETTLEMENT")
-                .targetId(settlementId)
-                .description("정산 취소 역분개")
-                .idempotencyKey("SETTLEMENT_CANCEL:" + settlementId)
-                .entries(entries)
-                .build();
+        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.forSettlementCancellation(settlementId, entries);
 
         recordLedgerEntryUseCase.record(command);
     }

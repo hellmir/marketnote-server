@@ -41,12 +41,9 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
         OrderStatusReasonCategory reasonCategory = resolveReasonCategory(command.reasonCategory());
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.builder()
-                        .orderId(command.orderId())
-                        .orderStatus(order.getOrderStatus())
-                        .reasonCategory(reasonCategory)
-                        .reason(command.reason())
-                        .build()
+                OrderStatusHistoryCreateState.of(
+                        command.orderId(), order.getOrderStatus(), reasonCategory, command.reason()
+                )
         );
 
         updateOrderPort.update(order, orderStatusHistory);
@@ -102,15 +99,9 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
             return List.of();
         }
         return items.stream()
-                .map(item -> OrderProduct.from(
-                        OrderProductSnapshotState.builder()
-                                .pricePolicyId(item.pricePolicyId())
-                                .sharerKey(item.sharerKey())
-                                .quantity(item.quantity())
-                                .unitAmount(item.unitAmount())
-                                .accumulatedPoint(0L)
-                                .build()
-                ))
+                .map(item -> OrderProduct.from(OrderProductSnapshotState.forCancelItem(
+                        item.pricePolicyId(), item.sharerKey(), item.quantity(), item.unitAmount(), 0L
+                )))
                 .toList();
     }
 
