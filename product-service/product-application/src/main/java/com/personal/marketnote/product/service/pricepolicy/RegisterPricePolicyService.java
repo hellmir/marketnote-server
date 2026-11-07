@@ -22,13 +22,14 @@ import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.productoption.FindProductOptionPort;
 import com.personal.marketnote.product.port.out.productoption.UpdateOptionPricePolicyPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -46,7 +47,8 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
     ) {
         Long productId = command.productId();
         if (!isAdmin && !findProductPort.existsByIdAndSellerId(productId, userId)) {
-            throw new NotProductOwnerException(FIRST_ERROR_CODE, productId);
+            log.warn("상품 소유자가 아닙니다. productId={}", productId);
+            throw new NotProductOwnerException();
         }
 
         validateDiscountPriceNotExceedPrice(command);
@@ -62,7 +64,8 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
         if (FormatValidator.hasValue(optionIds)) {
             List<ProductOption> ownedOptions = findProductOptionPort.findByProductIdAndIds(productId, optionIds);
             if (ownedOptions.size() != optionIds.size()) {
-                throw new InvalidProductOptionOwnershipException(productId);
+                log.warn("상품 옵션 소유권 위반입니다. productId={}", productId);
+                throw new InvalidProductOptionOwnershipException();
             }
             optionSnapshots = toOptionSnapshots(ownedOptions);
             updateOptionPricePolicyPort.assignPricePolicyToOptions(productId, id, optionIds);

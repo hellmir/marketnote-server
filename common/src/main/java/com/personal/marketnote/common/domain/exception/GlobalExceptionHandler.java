@@ -209,7 +209,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessSecurityException.class)
     ResponseEntity<ErrorResponse> handleBusinessSecurityException(BusinessSecurityException e) {
         HttpStatus httpStatus = HttpStatus.FORBIDDEN;
-        log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
+        log.warn(LOG_WARN_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, e.getMessage());
     }
 

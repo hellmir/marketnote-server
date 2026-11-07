@@ -13,15 +13,16 @@ import com.personal.marketnote.product.port.out.category.FindCategoryPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.productcategory.ReplaceProductCategoriesPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -40,7 +41,8 @@ public class RegisterProductCategoriesService implements RegisterProductCategori
 
         // 관리자 또는 상품의 소유자가 아닌 경우
         if (!isAdmin && !findProductPort.existsByIdAndSellerId(productId, userId)) {
-            throw new NotProductOwnerException(FIRST_ERROR_CODE, productId);
+            log.warn("상품 소유자가 아닙니다. productId={}", productId);
+            throw new NotProductOwnerException();
         }
 
         List<Long> categoryIds = command.categoryIds();

@@ -15,14 +15,15 @@ import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.product.UpdateProductTagPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -58,7 +59,8 @@ public class ReorderProductTagsService implements ReorderProductTagsUseCase {
             return;
         }
         if (!findProductPort.existsByIdAndSellerId(productId, userId)) {
-            throw new NotProductOwnerException(FIRST_ERROR_CODE, productId);
+            log.warn("상품 소유자가 아닙니다. productId={}", productId);
+            throw new NotProductOwnerException();
         }
     }
 
