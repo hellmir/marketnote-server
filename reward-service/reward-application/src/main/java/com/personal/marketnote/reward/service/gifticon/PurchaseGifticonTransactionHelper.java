@@ -3,11 +3,9 @@ package com.personal.marketnote.reward.service.gifticon;
 import com.personal.marketnote.reward.domain.exception.GifticonInsufficientCashException;
 import com.personal.marketnote.reward.domain.exception.GifticonOrderNotFoundException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrder;
-import com.personal.marketnote.reward.domain.gifticon.GifticonOrderCreateState;
 import com.personal.marketnote.reward.domain.point.UserPoint;
-import com.personal.marketnote.reward.domain.point.UserPointChangeType;
-import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.UserPointNotFoundException;
+import com.personal.marketnote.reward.mapper.GifticonToStateMapper;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
 import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
 import com.personal.marketnote.reward.port.out.gifticon.EncryptGifticonPinPort;
@@ -73,24 +71,14 @@ public class PurchaseGifticonTransactionHelper {
 
         String trId = generateTrId(userId);
 
-        modifyUserPointUseCase.modify(ModifyUserPointCommand.builder()
-                .userId(userId)
-                .changeType(UserPointChangeType.DEDUCTION)
-                .amount(cashPrice)
-                .sourceType(UserPointSourceType.GIFTICON_PURCHASE)
-                .reason("기프티콘 구매: " + goodsName)
-                .build()
+        modifyUserPointUseCase.modify(
+                ModifyUserPointCommand.forGifticonPurchase(userId, goodsName, cashPrice)
         );
 
-        GifticonOrder order = GifticonOrder.from(GifticonOrderCreateState.builder()
-                .userId(userId)
-                .goodsCode(goodsCode)
-                .goodsName(goodsName)
-                .brandName(brandName)
-                .productImageUrl(productImageUrl)
-                .trId(trId)
-                .cashPrice(cashPrice)
-                .build()
+        GifticonOrder order = GifticonOrder.from(
+                GifticonToStateMapper.mapToOrderCreateState(
+                        userId, goodsCode, goodsName, brandName, productImageUrl, trId, cashPrice
+                )
         );
 
         GifticonOrder savedOrder = saveGifticonOrderPort.save(order);
@@ -117,13 +105,10 @@ public class PurchaseGifticonTransactionHelper {
 
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public void commitFailure(DeductCashAndCreateOrderContext context) {
-        modifyUserPointUseCase.modify(ModifyUserPointCommand.builder()
-                .userId(context.userId())
-                .changeType(UserPointChangeType.ACCRUAL)
-                .amount(context.cashPrice())
-                .sourceType(UserPointSourceType.GIFTICON_REFUND)
-                .reason("기프티콘 구매 실패 환불: " + context.goodsName())
-                .build()
+        modifyUserPointUseCase.modify(
+                ModifyUserPointCommand.forGifticonRefund(
+                        context.userId(), context.goodsName(), context.cashPrice()
+                )
         );
 
         GifticonOrder order = findGifticonOrderPort.findByTrId(context.trId())

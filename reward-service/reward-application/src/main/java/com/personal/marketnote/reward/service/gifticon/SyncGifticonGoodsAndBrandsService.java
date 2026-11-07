@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.service.gifticon;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.reward.domain.gifticon.*;
+import com.personal.marketnote.reward.mapper.GifticonToStateMapper;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.SyncGifticonGoodsAndBrandsUseCase;
 import com.personal.marketnote.reward.port.out.gifticon.*;
 import com.personal.marketnote.reward.port.out.gifticon.FetchGifticonBrandPort.FetchGifticonBrandResult;
@@ -105,11 +106,8 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
             return;
         }
 
-        GifticonBrand brand = GifticonBrand.from(GifticonBrandCreateState.builder()
-                .brandCode(item.brandCode())
-                .brandName(item.brandName())
-                .brandImageUrl(item.brandIconImg())
-                .build()
+        GifticonBrand brand = GifticonBrand.from(
+                GifticonBrandCreateState.of(item.brandCode(), item.brandName(), item.brandIconImg())
         );
         saveGifticonBrandPort.save(brand);
     }
@@ -146,10 +144,8 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
             return;
         }
 
-        GifticonCategory category = GifticonCategory.from(GifticonCategoryCreateState.builder()
-                .categoryCode(category1Seq)
-                .categoryName(category1Name)
-                .build()
+        GifticonCategory category = GifticonCategory.from(
+                GifticonCategoryCreateState.of(category1Seq, category1Name)
         );
         GifticonCategory savedCategory = saveGifticonCategoryPort.save(category);
         saveGifticonCategoryMappingPort.save(category1Seq, savedCategory.getId());
@@ -180,40 +176,12 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
 
         if (existing.isPresent()) {
             GifticonGoods goods = existing.get();
-            goods.syncFromApi(GifticonGoodsSyncState.builder()
-                    .goodsName(item.goodsName())
-                    .brandCode(item.brandCode())
-                    .brandName(item.brandName())
-                    .brandImageUrl(item.brandIconImg())
-                    .categoryCode(item.category1Seq())
-                    .realPrice(item.realPrice())
-                    .salePrice(item.salePrice())
-                    .imageUrl(item.goodsImgB())
-                    .description(item.content())
-                    .validDays(item.limitDay())
-                    .goodsStatus(GoodsStatus.from(item.goodsStatus()))
-                    .build()
-            );
+            goods.syncFromApi(GifticonToStateMapper.mapToGoodsSyncState(item));
             updateGifticonGoodsPort.update(goods);
             return;
         }
 
-        GifticonGoods goods = GifticonGoods.from(GifticonGoodsCreateState.builder()
-                .goodsCode(item.goodsCode())
-                .goodsName(item.goodsName())
-                .brandCode(item.brandCode())
-                .brandName(item.brandName())
-                .brandImageUrl(item.brandIconImg())
-                .categoryCode(item.category1Seq())
-                .realPrice(item.realPrice())
-                .salePrice(item.salePrice())
-                .cashPrice(item.salePrice())
-                .imageUrl(item.goodsImgB())
-                .description(item.content())
-                .validDays(item.limitDay())
-                .goodsStatus(GoodsStatus.from(item.goodsStatus()))
-                .build()
-        );
+        GifticonGoods goods = GifticonGoods.from(GifticonToStateMapper.mapToGoodsCreateState(item));
         saveGifticonGoodsPort.save(goods);
     }
 
