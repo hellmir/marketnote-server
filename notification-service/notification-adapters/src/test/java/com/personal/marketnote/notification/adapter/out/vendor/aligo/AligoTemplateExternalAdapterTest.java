@@ -119,13 +119,15 @@ class AligoTemplateExternalAdapterTest {
                     .andExpect(content().string(org.hamcrest.Matchers.containsString("linkType")))
                     .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
-            AligoTemplateButton button = AligoTemplateButton.builder()
-                    .ordering(1)
-                    .name("자세히 보기")
-                    .linkType(AligoTemplateButtonLinkType.WL)
-                    .linkMo("https://m.example.com")
-                    .linkPc("https://www.example.com")
-                    .build();
+            AligoTemplateButton button = AligoTemplateButton.from(
+                    AligoTemplateButtonCreateState.builder()
+                            .ordering(1)
+                            .name("자세히 보기")
+                            .linkType(AligoTemplateButtonLinkType.WL)
+                            .linkMo("https://m.example.com")
+                            .linkPc("https://www.example.com")
+                            .build()
+            );
 
             AligoTemplate template = AligoTemplate.from(
                     AligoTemplateCreateState.builder()

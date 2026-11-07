@@ -49,13 +49,15 @@ class GetAligoTemplateByCodeUseCaseTest {
                 .templateStatus(AligoTemplateStatus.A)
                 .status(EntityStatus.ACTIVE)
                 .buttons(List.of(
-                        AligoTemplateButton.builder()
-                                .ordering(1)
-                                .name("주문 상세")
-                                .linkType(AligoTemplateButtonLinkType.WL)
-                                .linkMo("https://m.example.com/orders")
-                                .linkPc("https://example.com/orders")
-                                .build()
+                        AligoTemplateButton.from(
+                                AligoTemplateButtonCreateState.builder()
+                                        .ordering(1)
+                                        .name("주문 상세")
+                                        .linkType(AligoTemplateButtonLinkType.WL)
+                                        .linkMo("https://m.example.com/orders")
+                                        .linkPc("https://example.com/orders")
+                                        .build()
+                        )
                 ))
                 .build());
 
