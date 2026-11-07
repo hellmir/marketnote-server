@@ -740,8 +740,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             assertThatThrownBy(() -> getOrderService.getOrderAndOrderProducts(orderId))
                     .isInstanceOf(OrderNotFoundException.class)
-                    .hasMessageContaining("주문을 찾을 수 없습니다")
-                    .hasMessageContaining("999");
+                    .hasMessageContaining("주문을 찾을 수 없습니다");
         }
 
         @Test

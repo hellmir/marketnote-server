@@ -10,10 +10,12 @@ import com.personal.marketnote.product.domain.cart.CartProduct;
 import com.personal.marketnote.product.exception.CartProductNotFoundException;
 import com.personal.marketnote.product.port.out.cart.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class CartPersistenceAdapter implements SaveCartProductPort, FindCartProductsPort, FindCartProductPort, UpdateCartProductPort, DeleteCartProductPort {
@@ -75,7 +77,10 @@ public class CartPersistenceAdapter implements SaveCartProductPort, FindCartProd
     private CartProductJpaEntity findCartProductEntity(Long userId, Long pricePolicyId)
             throws CartProductNotFoundException {
         return cartJpaRepository.findByIdUserIdAndPricePolicyId(userId, pricePolicyId)
-                .orElseThrow(() -> new CartProductNotFoundException(pricePolicyId));
+                .orElseThrow(() -> {
+                    log.warn("장바구니 상품을 찾을 수 없습니다. userId={}, pricePolicyId={}", userId, pricePolicyId);
+                    return new CartProductNotFoundException();
+                });
     }
 
     @Override

@@ -219,7 +219,7 @@ public class User extends BaseDomain {
 
     public void registerReferredUserCode(ReferenceCode referredUserCode) {
         if (FormatValidator.hasValue(this.referredUserCode)) {
-            throw new ReferredUserCodeAlreadyExistsException(SECOND_ERROR_CODE);
+            throw new ReferredUserCodeAlreadyExistsException();
         }
 
         this.referredUserCode = referredUserCode;

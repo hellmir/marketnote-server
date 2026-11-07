@@ -40,7 +40,10 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
         UUID orderKey = UUID.fromString(command.orderKey());
 
         Payment payment = findPaymentPort.findByOrderKey(orderKey)
-                .orElseThrow(() -> new PaymentNotFoundException(command.orderKey()));
+                .orElseThrow(() -> {
+                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
+                    return new PaymentNotFoundException();
+                });
 
         verifyOrderForPayment(payment.getOrderId(), command.buyerId());
         verifyNoDuplicatePaymentReady(command.orderKey());
@@ -69,7 +72,10 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
 
     private void verifyOrderForPayment(Long orderId, Long buyerId) {
         Order order = findOrderPort.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException(orderId));
+                .orElseThrow(() -> {
+                    log.warn("주문을 찾을 수 없습니다. orderId={}", orderId);
+                    return new OrderNotFoundException();
+                });
 
         if (!order.isBuyer(buyerId)) {
             log.warn("거래 등록 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}", orderId, order.getBuyerId(), buyerId);

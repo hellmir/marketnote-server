@@ -46,7 +46,7 @@ class DeleteCategoryUseCaseTest {
 
         assertThatThrownBy(() -> deleteCategoryService.deleteCategory(command))
                 .isInstanceOf(CategoryNotFoundException.class)
-                .hasMessageContaining("카테고리 ID: 10");
+                .hasMessage("존재하지 않는 카테고리입니다.");
 
         verify(findCategoryPort).existsById(10L);
         verify(findCategoryPort, never()).existsChildren(anyLong());

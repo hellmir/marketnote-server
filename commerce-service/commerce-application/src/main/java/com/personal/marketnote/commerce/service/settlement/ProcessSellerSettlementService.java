@@ -66,7 +66,8 @@ public class ProcessSellerSettlementService {
         Integer month = command.month();
 
         if (findSettlementPort.existsBySellerIdAndYearAndMonth(sellerId, year, month)) {
-            throw new SettlementAlreadyExistsException(sellerId, year, month);
+            log.warn("이미 해당 기간의 정산이 존재합니다. sellerId={}, year={}, month={}", sellerId, year, month);
+            throw new SettlementAlreadyExistsException();
         }
 
         long totalAllocatedAmount = calculateNetAmount(

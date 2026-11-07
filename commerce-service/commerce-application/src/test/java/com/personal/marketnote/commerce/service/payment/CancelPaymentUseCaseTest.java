@@ -201,7 +201,7 @@ class CancelPaymentUseCaseTest {
             CancelPaymentCommand command = createFullCancelCommand();
 
             when(txHelper.prepareCancel(command))
-                    .thenThrow(new com.personal.marketnote.commerce.exception.PaymentNotFoundException(ORDER_KEY_STR));
+                    .thenThrow(new com.personal.marketnote.commerce.exception.PaymentNotFoundException());
 
             assertThatThrownBy(() -> cancelPaymentService.cancel(command))
                     .isInstanceOf(com.personal.marketnote.commerce.exception.PaymentNotFoundException.class);

@@ -115,7 +115,7 @@ class OfferwallControllerTest {
         @Test
         @DisplayName("UserNotFoundException 발생 시 3200 코드로 실패 핸들러를 호출한다")
         void shouldHandleUserNotFound() {
-            given(handleOfferwallRewardUseCase.handle(any())).willThrow(new UserNotFoundException("user-99"));
+            given(handleOfferwallRewardUseCase.handle(any())).willThrow(new UserNotFoundException());
             given(vendorCommunicationFailureHandler.handleFailure(any(), any(), any(), any(), any(), anyInt(), anyString()))
                     .willReturn(ResponseEntity.badRequest().body("fail"));
 

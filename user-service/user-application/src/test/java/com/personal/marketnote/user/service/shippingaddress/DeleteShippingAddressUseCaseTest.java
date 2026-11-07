@@ -85,7 +85,7 @@ class DeleteShippingAddressUseCaseTest {
         // expect
         assertThatThrownBy(() -> deleteShippingAddressService.deleteShippingAddress(shippingAddressId, userId))
                 .isInstanceOf(ShippingAddressNotFoundException.class)
-                .hasMessageContaining(String.valueOf(shippingAddressId));
+                .hasMessage("배송지를 찾을 수 없습니다.");
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoMoreInteractions(findShippingAddressPort);

@@ -62,7 +62,10 @@ public class PaymentApprovalTransactionHelper {
     public PaymentApprovalContext prepareExecution(ApprovePaymentCommand command) {
         UUID orderKey = UUID.fromString(command.orderKey());
         Payment payment = findPaymentPort.findByOrderKey(orderKey)
-                .orElseThrow(() -> new PaymentNotFoundException(command.orderKey()));
+                .orElseThrow(() -> {
+                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
+                    return new PaymentNotFoundException();
+                });
 
         Order order = findVerifiedOrder(payment.getOrderId(), command.buyerId());
         verifyPaymentAmount(order, payment);
@@ -70,7 +73,10 @@ public class PaymentApprovalTransactionHelper {
         reserveInventory(order);
 
         PspPaymentEvent event = findPspPaymentEventPort.findByOrderKey(command.orderKey())
-                .orElseThrow(() -> new PaymentEventNotFoundException(command.orderKey()));
+                .orElseThrow(() -> {
+                    log.warn("거래 등록 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
+                    return new PaymentEventNotFoundException();
+                });
         event.startExecution();
         updatePspPaymentEventPort.update(event);
 
@@ -91,7 +97,10 @@ public class PaymentApprovalTransactionHelper {
     ) {
         UUID orderKeyUuid = UUID.fromString(orderKey);
         Payment payment = findPaymentPort.findByOrderKey(orderKeyUuid)
-                .orElseThrow(() -> new PaymentNotFoundException(orderKey));
+                .orElseThrow(() -> {
+                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
+                    return new PaymentNotFoundException();
+                });
 
         Order order = findVerifiedOrder(payment.getOrderId(), buyerId);
         verifyPaymentAmount(order, payment);
@@ -160,7 +169,10 @@ public class PaymentApprovalTransactionHelper {
         updatePspPaymentEventPort.update(event);
 
         Order order = findOrderPort.findById(payment.getOrderId())
-                .orElseThrow(() -> new OrderNotFoundException(payment.getOrderId()));
+                .orElseThrow(() -> {
+                    log.warn("주문을 찾을 수 없습니다. orderId={}", payment.getOrderId());
+                    return new OrderNotFoundException();
+                });
 
         if (orderPaymentSagaStarter.isPresent()) {
             changeOrderStatusUseCase.changeOrderStatus(
@@ -271,7 +283,10 @@ public class PaymentApprovalTransactionHelper {
 
     private Order findVerifiedOrder(Long orderId, Long buyerId) {
         Order order = findOrderPort.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException(orderId));
+                .orElseThrow(() -> {
+                    log.warn("주문을 찾을 수 없습니다. orderId={}", orderId);
+                    return new OrderNotFoundException();
+                });
         if (!order.isBuyer(buyerId)) {
             log.warn("결제 승인 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}", orderId, order.getBuyerId(), buyerId);
             throw new UnauthorizedOrderAccessException();

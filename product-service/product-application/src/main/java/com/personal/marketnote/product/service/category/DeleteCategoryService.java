@@ -12,12 +12,14 @@ import com.personal.marketnote.product.port.out.category.FindCategoryPort;
 import com.personal.marketnote.product.port.out.category.UpdateCategoryPort;
 import com.personal.marketnote.product.port.out.productcategory.FindProductCategoryPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.SECOND_ERROR_CODE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -32,7 +34,8 @@ public class DeleteCategoryService implements DeleteCategoryUseCase {
         Long categoryId = command.categoryId();
 
         if (!findCategoryPort.existsById(categoryId)) {
-            throw new CategoryNotFoundException("존재하지 않는 카테고리 ID입니다. 전송된 카테고리 ID: %d", categoryId);
+            log.warn("존재하지 않는 카테고리입니다. categoryId={}", categoryId);
+            throw new CategoryNotFoundException();
         }
 
         if (findCategoryPort.existsChildren(categoryId)) {

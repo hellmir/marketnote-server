@@ -94,12 +94,18 @@ public class PaymentCancelTransactionHelper {
     public PaymentCancelContext prepareCancel(CancelPaymentCommand command) {
         UUID orderKeyUuid = UUID.fromString(command.orderKey());
         Payment payment = findPaymentPort.findByOrderKey(orderKeyUuid)
-                .orElseThrow(() -> new PaymentNotFoundException(command.orderKey()));
+                .orElseThrow(() -> {
+                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
+                    return new PaymentNotFoundException();
+                });
 
         Order order = findVerifiedOrder(payment.getOrderId(), command.buyerId());
 
         PspPaymentEvent event = findPspPaymentEventPort.findByOrderKey(command.orderKey())
-                .orElseThrow(() -> new PaymentNotFoundException(command.orderKey()));
+                .orElseThrow(() -> {
+                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", command.orderKey());
+                    return new PaymentNotFoundException();
+                });
 
         String transactionNumber = event.getPgPaymentKey();
         boolean isFullCancel = command.isFullCancel();
@@ -186,7 +192,10 @@ public class PaymentCancelTransactionHelper {
         }
 
         Payment payment = findPaymentPort.findByOrderKey(context.payment().getOrderKey())
-                .orElseThrow(() -> new PaymentNotFoundException(context.originalCommand().orderKey()));
+                .orElseThrow(() -> {
+                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", context.originalCommand().orderKey());
+                    return new PaymentNotFoundException();
+                });
         Order order = context.order();
         CancelPaymentCommand command = context.originalCommand();
         boolean isFullCancel = context.isFullCancel();
@@ -447,7 +456,10 @@ public class PaymentCancelTransactionHelper {
 
     private Order findVerifiedOrder(Long orderId, Long buyerId) {
         return findOrderPort.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException(orderId));
+                .orElseThrow(() -> {
+                    log.warn("주문을 찾을 수 없습니다. orderId={}", orderId);
+                    return new OrderNotFoundException();
+                });
     }
 
     private void restoreInventory(Order order) {

@@ -10,6 +10,7 @@ import com.personal.marketnote.commerce.port.out.ledger.FindLedgerEntryPort;
 import com.personal.marketnote.commerce.port.out.ledger.dto.AccountBalanceDto;
 import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
  * @author 성효빈
  * @since 2026-03-02
  */
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -41,7 +43,10 @@ public class GetAccountBalanceService implements GetAccountBalanceUseCase {
 
     private GetAccountBalanceResult toAccountBalanceResult(AccountBalanceDto dto) {
         Account account = findAccountPort.findById(dto.accountId())
-                .orElseThrow(() -> new AccountNotFoundException(dto.accountId()));
+                .orElseThrow(() -> {
+                    log.warn("계정과목을 찾을 수 없습니다. accountId={}", dto.accountId());
+                    return new AccountNotFoundException();
+                });
 
         AccountBalance accountBalance = AccountBalance.of(account, dto.debitTotal(), dto.creditTotal());
         return GetAccountBalanceResult.from(accountBalance);

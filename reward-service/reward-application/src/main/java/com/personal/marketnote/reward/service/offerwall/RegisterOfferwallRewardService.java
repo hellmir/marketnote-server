@@ -17,6 +17,7 @@ import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCa
 import com.personal.marketnote.reward.port.out.offerwall.SaveOfferwallMapperPort;
 import com.personal.marketnote.reward.port.out.offerwall.ValidateOfferwallSignaturePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @Transactional(isolation = READ_COMMITTED)
 @RequiredArgsConstructor
@@ -92,7 +94,8 @@ public class RegisterOfferwallRewardService implements RegisterOfferwallRewardUs
     private void validateUser(RegisterOfferwallRewardCommand command) {
         String userKey = command.userKey();
         if (!getUserPointUseCase.existsUserPoint(userKey)) {
-            throw new UserNotFoundException(String.format("회원 정보를 찾을 수 없습니다. userKey: %s", userKey));
+            log.warn("회원을 찾을 수 없습니다. userKey={}", userKey);
+            throw new UserNotFoundException();
         }
     }
 

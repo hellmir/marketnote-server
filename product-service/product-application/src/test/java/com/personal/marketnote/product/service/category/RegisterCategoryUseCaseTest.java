@@ -42,7 +42,7 @@ class RegisterCategoryUseCaseTest {
 
         assertThatThrownBy(() -> registerCategoryService.registerCategory(command))
                 .isInstanceOf(CategoryNotFoundException.class)
-                .hasMessageContaining("상위 카테고리 ID: 10");
+                .hasMessage("존재하지 않는 카테고리입니다.");
 
         verify(findCategoryPort).findAllActiveByIds(List.of(10L));
         verifyNoInteractions(saveCategoryPort);

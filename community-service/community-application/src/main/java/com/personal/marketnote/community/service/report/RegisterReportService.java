@@ -13,10 +13,12 @@ import com.personal.marketnote.community.port.in.usecase.report.RegisterReportUs
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
 import com.personal.marketnote.community.port.out.report.SaveReportPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -50,14 +52,16 @@ public class RegisterReportService implements RegisterReportUseCase {
 
         if (command.isReviewReport()) {
             if (!getReviewUseCase.existsReview(targetId)) {
-                throw new ReviewNotFoundException(targetId);
+                log.warn("리뷰를 찾을 수 없습니다. reviewId={}", targetId);
+                throw new ReviewNotFoundException();
             }
 
             return;
         }
 
         if (!getPostUseCase.existsPost(targetId)) {
-            throw new PostNotFoundException(targetId);
+            log.warn("게시글을 찾을 수 없습니다. postId={}", targetId);
+            throw new PostNotFoundException();
         }
     }
 }

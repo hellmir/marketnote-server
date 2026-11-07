@@ -36,7 +36,10 @@ public class RetryFailedSettlementService implements RetryFailedSettlementUseCas
     @Transactional(isolation = READ_COMMITTED)
     public void retrySettlement(Long settlementId) {
         Settlement settlement = findSettlementPort.findById(settlementId)
-                .orElseThrow(() -> new SettlementNotFoundException(settlementId));
+                .orElseThrow(() -> {
+                    log.warn("정산을 찾을 수 없습니다. settlementId={}", settlementId);
+                    return new SettlementNotFoundException();
+                });
 
         settlement.resetToPending();
 

@@ -35,7 +35,10 @@ public class GetOrderStatusHistoryService implements GetOrderStatusHistoryUseCas
         log.info("주문 상태 이력 조회 - orderId={}", orderId);
 
         findOrderPort.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException(orderId));
+                .orElseThrow(() -> {
+                    log.warn("주문을 찾을 수 없습니다. orderId={}", orderId);
+                    return new OrderNotFoundException();
+                });
 
         List<OrderStatusHistory> histories = findOrderStatusHistoryPort.findAllByOrderId(orderId);
 

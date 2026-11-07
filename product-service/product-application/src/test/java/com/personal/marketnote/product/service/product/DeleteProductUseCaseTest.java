@@ -97,7 +97,7 @@ class DeleteProductUseCaseTest {
     @DisplayName("상품 삭제 시 상품 조회가 실패하면 예외를 전파한다")
     void delete_getProductFails_propagates() {
         DeleteProductCommand command = DeleteProductCommand.of(30L);
-        ProductNotFoundException exception = new ProductNotFoundException(30L);
+        ProductNotFoundException exception = new ProductNotFoundException();
 
         when(getProductUseCase.getProduct(30L)).thenThrow(exception);
 
@@ -114,7 +114,7 @@ class DeleteProductUseCaseTest {
         Long userId = 3L;
         DeleteProductCommand command = DeleteProductCommand.of(40L);
         Product product = buildProduct(40L);
-        ProductNotFoundException exception = new ProductNotFoundException(40L);
+        ProductNotFoundException exception = new ProductNotFoundException();
 
         when(findProductPort.existsByIdAndSellerId(40L, userId)).thenReturn(true);
         when(getProductUseCase.getProduct(40L)).thenReturn(product);

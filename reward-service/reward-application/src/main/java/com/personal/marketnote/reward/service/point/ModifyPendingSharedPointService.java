@@ -3,6 +3,7 @@ package com.personal.marketnote.reward.service.point;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.point.UserPoint;
+import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.port.in.command.point.ModifyPendingPointCommand;
 import com.personal.marketnote.reward.port.in.command.point.ModifyPendingSharedPointCommand;
 import com.personal.marketnote.reward.port.in.result.point.UpdateUserPointResult;
@@ -36,11 +37,10 @@ public class ModifyPendingSharedPointService implements ModifyPendingSharedPoint
     )
     public UpdateUserPointResult modifyPending(ModifyPendingSharedPointCommand command) {
         UserPoint sharerPoint = findUserPointPort.findByUserKey(command.sharerKey().toString())
-                .orElseThrow(
-                        () -> new com.personal.marketnote.reward.exception.UserPointNotFoundException(
-                                command.sharerKey().toString()
-                        )
-                );
+                .orElseThrow(() -> {
+                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userKey={}", command.sharerKey());
+                    return new UserPointNotFoundException();
+                });
 
         Long sharerId = sharerPoint.getUserId();
 

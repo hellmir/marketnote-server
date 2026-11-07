@@ -29,7 +29,10 @@ public class DeleteSettlementPolicyService implements DeleteSettlementPolicyUseC
     @Transactional(isolation = READ_COMMITTED)
     public void deletePolicy(Long id) {
         SettlementPolicy policy = findSettlementPolicyPort.findById(id)
-                .orElseThrow(() -> new SettlementPolicyNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("정산 정책을 찾을 수 없습니다. settlementPolicyId={}", id);
+                    return new SettlementPolicyNotFoundException();
+                });
 
         policy.deactivate();
         updateSettlementPolicyPort.update(policy);

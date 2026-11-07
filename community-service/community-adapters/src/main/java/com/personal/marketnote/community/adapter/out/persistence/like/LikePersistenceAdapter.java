@@ -11,9 +11,11 @@ import com.personal.marketnote.community.port.out.like.FindLikePort;
 import com.personal.marketnote.community.port.out.like.SaveLikePort;
 import com.personal.marketnote.community.port.out.like.UpdateLikePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class LikePersistenceAdapter implements SaveLikePort, FindLikePort, UpdateLikePort {
@@ -46,6 +48,9 @@ public class LikePersistenceAdapter implements SaveLikePort, FindLikePort, Updat
     private LikeJpaEntity findEntityByTargetAndUser(LikeTargetType targetType, Long targetId, Long userId)
             throws LikeNotFoundException {
         return likeJpaRepository.findByTargetAndUser(targetType, targetId, userId)
-                .orElseThrow(() -> new LikeNotFoundException(targetType, targetId, userId));
+                .orElseThrow(() -> {
+                    log.warn("좋아요를 찾을 수 없습니다. targetType={}, targetId={}, userId={}", targetType, targetId, userId);
+                    return new LikeNotFoundException();
+                });
     }
 }

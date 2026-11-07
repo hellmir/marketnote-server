@@ -9,12 +9,14 @@ import com.personal.marketnote.commerce.port.in.usecase.settlement.GetSettlement
 import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPort;
 import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class GetSettlementService implements GetSettlementUseCase {
@@ -24,7 +26,10 @@ public class GetSettlementService implements GetSettlementUseCase {
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public GetSettlementResult getSettlement(Long id) {
         Settlement settlement = findSettlementPort.findById(id)
-                .orElseThrow(() -> new SettlementNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("정산을 찾을 수 없습니다. settlementId={}", id);
+                    return new SettlementNotFoundException();
+                });
         return GetSettlementResult.from(settlement);
     }
 

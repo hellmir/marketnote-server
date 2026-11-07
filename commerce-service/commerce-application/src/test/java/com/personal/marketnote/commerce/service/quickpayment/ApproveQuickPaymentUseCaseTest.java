@@ -200,7 +200,7 @@ class ApproveQuickPaymentUseCaseTest {
             when(paymentVendorPort.getVendorKey()).thenReturn("NHN_KCP");
             when(paymentVendorPort.getShopCode()).thenReturn("T0000");
             when(txHelper.prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000"))
-                    .thenThrow(new PaymentNotFoundException(ORDER_KEY_STR));
+                    .thenThrow(new PaymentNotFoundException());
 
             assertThatThrownBy(() -> approveQuickPaymentService.approve(command))
                     .isInstanceOf(PaymentNotFoundException.class);

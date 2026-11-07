@@ -158,7 +158,7 @@ class ReorderProductTagsUseCaseTest {
         ReorderProductTagsCommand command = buildCommand(productId, List.of(
                 new ReorderProductTagsCommand.TagOrderItem(100L, 1L)
         ));
-        ProductNotFoundException exception = new ProductNotFoundException(productId);
+        ProductNotFoundException exception = new ProductNotFoundException();
 
         when(getProductUseCase.getProduct(productId)).thenThrow(exception);
 

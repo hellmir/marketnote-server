@@ -56,7 +56,7 @@ class RegisterReviewUseCaseTest {
         Review savedReview = buildSavedReview(1L, command);
         when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
         when(getReviewUseCase.getProductReviewAggregate(anyLong()))
-                .thenThrow(new ProductReviewAggregateNotFoundException(command.productId()));
+                .thenThrow(new ProductReviewAggregateNotFoundException());
 
         registerReviewService.registerReview(command);
 
@@ -74,7 +74,7 @@ class RegisterReviewUseCaseTest {
         Review savedReview = buildSavedReview(1L, command);
         when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
         when(getReviewUseCase.getProductReviewAggregate(anyLong()))
-                .thenThrow(new ProductReviewAggregateNotFoundException(command.productId()));
+                .thenThrow(new ProductReviewAggregateNotFoundException());
 
         registerReviewService.registerReview(command);
 
@@ -125,7 +125,7 @@ class RegisterReviewUseCaseTest {
         Review savedReview = buildSavedReview(1L, command);
         when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
         when(getReviewUseCase.getProductReviewAggregate(anyLong()))
-                .thenThrow(new ProductReviewAggregateNotFoundException(command.productId()));
+                .thenThrow(new ProductReviewAggregateNotFoundException());
 
         registerReviewService.registerReview(command);
 
@@ -140,7 +140,7 @@ class RegisterReviewUseCaseTest {
         Review savedReview = buildSavedReview(1L, command);
         when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
         when(getReviewUseCase.getProductReviewAggregate(command.productId()))
-                .thenThrow(new ProductReviewAggregateNotFoundException(command.productId()));
+                .thenThrow(new ProductReviewAggregateNotFoundException());
 
         registerReviewService.registerReview(command);
 
@@ -165,7 +165,7 @@ class RegisterReviewUseCaseTest {
     @DisplayName("중복 리뷰 검증 실패 시 주문 소유권 검증을 수행하지 않는다")
     void registerReview_duplicateReview_skipsOwnershipVerification() {
         RegisterReviewCommand command = buildCommand("테스트유저");
-        doThrow(new ReviewAlreadyExistsException(command.orderId(), command.pricePolicyId()))
+        doThrow(new ReviewAlreadyExistsException())
                 .when(getReviewUseCase).validateDuplicateReview(command);
 
         assertThatThrownBy(() -> registerReviewService.registerReview(command))
@@ -223,7 +223,7 @@ class RegisterReviewUseCaseTest {
         Review savedReview = buildSavedReview(1L, command);
         when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
         when(getReviewUseCase.getProductReviewAggregate(anyLong()))
-                .thenThrow(new ProductReviewAggregateNotFoundException(command.productId()));
+                .thenThrow(new ProductReviewAggregateNotFoundException());
 
         registerReviewService.registerReview(command);
 
@@ -242,7 +242,7 @@ class RegisterReviewUseCaseTest {
         Review savedReview = buildSavedReviewWithKey(1L, command, expectedReviewKey);
         when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
         when(getReviewUseCase.getProductReviewAggregate(anyLong()))
-                .thenThrow(new ProductReviewAggregateNotFoundException(command.productId()));
+                .thenThrow(new ProductReviewAggregateNotFoundException());
 
         RegisterReviewResult result = registerReviewService.registerReview(command);
 

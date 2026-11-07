@@ -18,12 +18,14 @@ import com.personal.marketnote.file.port.out.file.SaveFilesPort;
 import com.personal.marketnote.file.port.out.file.UpdateFilePort;
 import com.personal.marketnote.file.port.out.file.UpdateFilesPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class FilePersistenceAdapter implements SaveFilesPort, FindFilePort, UpdateFilesPort, UpdateFilePort {
@@ -87,7 +89,10 @@ public class FilePersistenceAdapter implements SaveFilesPort, FindFilePort, Upda
     public void update(FileDomain file) {
         Long id = file.getId();
         FileJpaEntity entity = fileJpaRepository.findById(id)
-                .orElseThrow(() -> new FileNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("파일을 찾을 수 없습니다. fileId={}", id);
+                    return new FileNotFoundException();
+                });
         entity.updateFrom(file);
     }
 

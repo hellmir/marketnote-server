@@ -101,8 +101,7 @@ class RegisterReportUseCaseTest {
         when(getReviewUseCase.existsReview(999L)).thenReturn(false);
 
         assertThatThrownBy(() -> registerReportService.report(command))
-                .isInstanceOf(ReviewNotFoundException.class)
-                .hasMessageContaining("999");
+                .isInstanceOf(ReviewNotFoundException.class);
 
         verifyNoInteractions(saveReportPort);
     }
@@ -114,8 +113,7 @@ class RegisterReportUseCaseTest {
         when(getPostUseCase.existsPost(999L)).thenReturn(false);
 
         assertThatThrownBy(() -> registerReportService.report(command))
-                .isInstanceOf(PostNotFoundException.class)
-                .hasMessageContaining("999");
+                .isInstanceOf(PostNotFoundException.class);
 
         verifyNoInteractions(saveReportPort);
     }

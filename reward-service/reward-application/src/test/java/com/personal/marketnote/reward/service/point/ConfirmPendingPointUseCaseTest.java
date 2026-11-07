@@ -201,7 +201,7 @@ class ConfirmPendingPointUseCaseTest {
                 USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(List.of(pendingHistory));
         when(getUserPointUseCase.getUserPoint(USER_ID))
-                .thenThrow(new UserPointNotFoundException(USER_ID));
+                .thenThrow(new UserPointNotFoundException());
 
         ConfirmPendingPointCommand command = createCommand();
 

@@ -341,7 +341,7 @@ class UpdateUserUseCaseTest {
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
                 .email("user@test.com")
                 .build();
-        UserNotFoundException exception = new UserNotFoundException("not found");
+        UserNotFoundException exception = new UserNotFoundException();
 
         when(getUserUseCase.getUser(id)).thenThrow(exception);
 

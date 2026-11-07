@@ -100,7 +100,7 @@ class GetCartProductUseCaseTest {
 
         assertThatThrownBy(() -> getCartProductService.getCartProduct(userId, pricePolicyId))
                 .isInstanceOf(CartProductNotFoundException.class)
-                .hasMessageContaining("가격 정책 ID: 1100");
+                .hasMessage("장바구니 상품을 찾을 수 없습니다.");
     }
 
     @Test

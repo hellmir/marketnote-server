@@ -30,7 +30,10 @@ public class CompleteReturnRefundService implements CompleteReturnRefundUseCase 
     @Override
     public void completeReturnRefund(CompleteReturnRefundCommand command) {
         ReturnTracker tracker = findReturnTrackerPort.findByOrderId(command.orderId())
-                .orElseThrow(() -> new ReturnTrackerNotFoundException(command.orderId()));
+                .orElseThrow(() -> {
+                    log.warn("반품 추적 정보를 찾을 수 없습니다. orderId={}", command.orderId());
+                    return new ReturnTrackerNotFoundException();
+                });
 
         RefundPaymentCommand refundCommand = buildRefundCommand(command);
 

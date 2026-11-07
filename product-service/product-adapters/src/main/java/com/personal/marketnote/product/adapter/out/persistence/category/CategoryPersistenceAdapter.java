@@ -13,10 +13,12 @@ import com.personal.marketnote.product.port.out.category.FindCategoryPort;
 import com.personal.marketnote.product.port.out.category.SaveCategoryPort;
 import com.personal.marketnote.product.port.out.category.UpdateCategoryPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class CategoryPersistenceAdapter implements FindCategoryPort, SaveCategoryPort, DeleteCategoryPort, UpdateCategoryPort {
@@ -50,10 +52,10 @@ public class CategoryPersistenceAdapter implements FindCategoryPort, SaveCategor
         CategoryJpaEntity saved = categoryJpaRepository.save(entity);
 
         return CategoryJpaEntityToDomainMapper.mapToDomain(saved)
-                .orElseThrow(() -> new CategoryNotFoundException(
-                        "저장된 카테고리를 도메인으로 매핑할 수 없습니다. 저장된 카테고리 ID: %d",
-                        saved.getId()
-                ));
+                .orElseThrow(() -> {
+                    log.warn("저장된 카테고리를 도메인으로 매핑할 수 없습니다. categoryId={}", saved.getId());
+                    return new CategoryNotFoundException();
+                });
     }
 
     @Override
@@ -75,9 +77,10 @@ public class CategoryPersistenceAdapter implements FindCategoryPort, SaveCategor
     public void update(Category category) {
         Long id = category.getId();
         CategoryJpaEntity entity = categoryJpaRepository.findById(id)
-                .orElseThrow(
-                        () -> new CategoryNotFoundException("존재하지 않는 카테고리 ID입니다. 전송된 카테고리 ID: %d", id)
-                );
+                .orElseThrow(() -> {
+                    log.warn("존재하지 않는 카테고리입니다. categoryId={}", id);
+                    return new CategoryNotFoundException();
+                });
 
         entity.updateFrom(category);
     }

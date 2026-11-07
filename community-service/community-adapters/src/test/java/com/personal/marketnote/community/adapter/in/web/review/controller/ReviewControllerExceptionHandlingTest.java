@@ -88,7 +88,7 @@ class ReviewControllerExceptionHandlingTest {
         @DisplayName("ProductReviewAggregateNotFoundException 발생 시 0건 응답으로 fallback 한다")
         void returnsEmptyAggregateOnNotFound() {
             when(getReviewUseCase.getProductReviewAggregate(1L))
-                    .thenThrow(new ProductReviewAggregateNotFoundException(1L));
+                    .thenThrow(new ProductReviewAggregateNotFoundException());
 
             ResponseEntity<BaseResponse<GetProductReviewAggregateResponse>> response =
                     controller.getProductReviewAggregate(1L);

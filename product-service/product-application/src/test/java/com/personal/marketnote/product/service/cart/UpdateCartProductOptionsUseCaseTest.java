@@ -128,7 +128,7 @@ class UpdateCartProductOptionsUseCaseTest {
 
         UpdateCartProductOptionCommand command =
                 UpdateCartProductOptionCommand.of(userId, pricePolicyId, newOptionIds);
-        CartProductNotFoundException exception = new CartProductNotFoundException(pricePolicyId);
+        CartProductNotFoundException exception = new CartProductNotFoundException();
 
         when(getCartProductUseCase.getCartProduct(userId, pricePolicyId)).thenThrow(exception);
 

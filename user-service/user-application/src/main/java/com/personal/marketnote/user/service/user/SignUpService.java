@@ -23,6 +23,7 @@ import com.personal.marketnote.user.port.out.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.*;
 import static com.personal.marketnote.user.exception.ExceptionMessage.*;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @RequiredArgsConstructor
 @UseCase
 @Transactional(isolation = READ_COMMITTED)
@@ -123,9 +125,8 @@ public class SignUpService implements SignUpUseCase {
         }
 
         if (!authVendor.isNative() && findUserPort.existsByAuthVendorAndOidcId(authVendor, oidcId)) {
-            throw new UserExistsException(
-                    String.format(OIDC_ID_ALREADY_EXISTS_EXCEPTION_MESSAGE, SECOND_ERROR_CODE, oidcId)
-            );
+            log.warn("이미 가입된 OIDC ID입니다. authVendor={}, oidcId={}", authVendor, oidcId);
+            throw new UserExistsException(String.format(OIDC_ID_ALREADY_EXISTS_EXCEPTION_MESSAGE, SECOND_ERROR_CODE));
         }
 
         String nickname = signUpCommand.nickname();
@@ -135,18 +136,16 @@ public class SignUpService implements SignUpUseCase {
             }
 
             if (findUserPort.existsByNickname(nickname)) {
-                throw new UserExistsException(
-                        String.format(NICKNAME_ALREADY_EXISTS_EXCEPTION_MESSAGE, THIRD_ERROR_CODE, nickname)
-                );
+                log.warn("이미 가입된 닉네임입니다. nickname={}", nickname);
+                throw new UserExistsException(String.format(NICKNAME_ALREADY_EXISTS_EXCEPTION_MESSAGE, THIRD_ERROR_CODE));
             }
         }
 
         if (signUpCommand.hasPhoneNumber()) {
             PhoneNumber phoneNumber = PhoneNumber.of(signUpCommand.phoneNumber());
             if (findUserPort.existsByPhoneNumber(phoneNumber.getValue())) {
-                throw new UserExistsException(
-                        String.format(PHONE_NUMBER_ALREADY_EXISTS_EXCEPTION_MESSAGE, FOURTH_ERROR_CODE)
-                );
+                log.warn("이미 가입된 전화번호입니다. phoneNumber={}", phoneNumber.getValue());
+                throw new UserExistsException(String.format(PHONE_NUMBER_ALREADY_EXISTS_EXCEPTION_MESSAGE, FOURTH_ERROR_CODE));
             }
         }
 

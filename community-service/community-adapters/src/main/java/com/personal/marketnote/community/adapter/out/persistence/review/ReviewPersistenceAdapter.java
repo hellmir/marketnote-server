@@ -17,6 +17,7 @@ import com.personal.marketnote.community.port.out.review.FindReviewPort;
 import com.personal.marketnote.community.port.out.review.SaveReviewPort;
 import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @com.personal.marketnote.common.adapter.out.PersistenceAdapter
 @RequiredArgsConstructor
 public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort, UpdateReviewPort {
@@ -45,7 +47,11 @@ public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort,
 
             return ReviewJpaEntityToDomainMapper.mapToDomain(savedEntity).orElse(null);
         } catch (DataIntegrityViolationException e) {
-            throw new ReviewAlreadyExistsException(review.getOrderId(), review.getPricePolicyId());
+            log.warn(
+                    "이미 해당 주문에 대한 리뷰가 존재합니다. orderId={}, pricePolicyId={}",
+                    review.getOrderId(), review.getPricePolicyId()
+            );
+            throw new ReviewAlreadyExistsException();
         }
     }
 
@@ -204,13 +210,19 @@ public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort,
 
     private ReviewJpaEntity findEntityById(Long id) throws ReviewNotFoundException {
         return reviewJpaRepository.findById(id)
-                .orElseThrow(() -> new ReviewNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("리뷰를 찾을 수 없습니다. reviewId={}", id);
+                    return new ReviewNotFoundException();
+                });
     }
 
     private ProductReviewAggregateJpaEntity findEntityByProductId(Long productId)
             throws ProductReviewAggregateNotFoundException {
         return productReviewAggregateJpaRepository.findByProductId(productId)
-                .orElseThrow(() -> new ProductReviewAggregateNotFoundException(productId));
+                .orElseThrow(() -> {
+                    log.warn("상품 리뷰 집계 정보를 찾을 수 없습니다. productId={}", productId);
+                    return new ProductReviewAggregateNotFoundException();
+                });
     }
 
     private boolean isAscending(Pageable pageable, ReviewSortProperty sortProperty) {

@@ -11,12 +11,14 @@ import com.personal.marketnote.product.port.in.usecase.category.RegisterCategory
 import com.personal.marketnote.product.port.out.category.FindCategoryPort;
 import com.personal.marketnote.product.port.out.category.SaveCategoryPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -33,10 +35,8 @@ public class RegisterCategoryService implements RegisterCategoryUseCase {
                 FormatValidator.hasValue(parentCategoryId)
                         && findCategoryPort.findAllActiveByIds(List.of(parentCategoryId)).isEmpty()
         ) {
-            throw new CategoryNotFoundException(
-                    "존재하지 않는 상위 카테고리 ID입니다. 전송된 상위 카테고리 ID: %d",
-                    parentCategoryId
-            );
+            log.warn("존재하지 않는 상위 카테고리입니다. parentCategoryId={}", parentCategoryId);
+            throw new CategoryNotFoundException();
         }
 
         Category savedCategory = saveCategoryPort.save(

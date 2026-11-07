@@ -6,10 +6,12 @@ import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointUseCase;
 import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -24,12 +26,18 @@ public class GetUserPointService implements GetUserPointUseCase {
     @Override
     public UserPoint getUserPoint(Long userId) {
         return findUserPointPort.findByUserId(userId)
-                .orElseThrow(() -> new UserNotFoundException("회원 포인트 정보를 찾을 수 없습니다. userId=" + userId));
+                .orElseThrow(() -> {
+                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userId={}", userId);
+                    return new UserNotFoundException();
+                });
     }
 
     @Override
     public UserPoint getUserPoint(String userKey) {
         return findUserPointPort.findByUserKey(userKey)
-                .orElseThrow(() -> new UserNotFoundException("회원 포인트 정보를 찾을 수 없습니다. userKey=" + userKey));
+                .orElseThrow(() -> {
+                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userKey={}", userKey);
+                    return new UserNotFoundException();
+                });
     }
 }

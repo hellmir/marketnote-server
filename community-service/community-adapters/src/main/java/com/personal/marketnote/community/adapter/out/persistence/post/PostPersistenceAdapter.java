@@ -12,6 +12,7 @@ import com.personal.marketnote.community.port.out.post.FindPostPort;
 import com.personal.marketnote.community.port.out.post.SavePostPort;
 import com.personal.marketnote.community.port.out.post.UpdatePostPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class PostPersistenceAdapter implements SavePostPort, FindPostPort, UpdatePostPort {
@@ -282,6 +284,9 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
 
     private PostJpaEntity findEntityById(Long id) throws PostNotFoundException {
         return postJpaRepository.findById(id)
-                .orElseThrow(() -> new PostNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("게시글을 찾을 수 없습니다. postId={}", id);
+                    return new PostNotFoundException();
+                });
     }
 }

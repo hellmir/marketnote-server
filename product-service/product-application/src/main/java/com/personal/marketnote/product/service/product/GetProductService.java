@@ -24,6 +24,7 @@ import com.personal.marketnote.product.port.out.productcatalog.FindProductCatalo
 import com.personal.marketnote.product.port.out.productoption.FindProductOptionCategoryPort;
 import com.personal.marketnote.product.port.out.shipping.FindShippingPolicyPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +41,7 @@ import static com.personal.marketnote.common.domain.file.FileSort.PRODUCT_REPRES
 import static com.personal.marketnote.common.utility.ApiConstant.FIRST_PAGE_CURSOR_VALUE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -60,7 +62,8 @@ public class GetProductService implements GetProductUseCase {
     public GetProductInfoWithOptionsResult getProductInfo(Long pricePolicyId) {
         List<PricePolicy> pricePolicies = getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(pricePolicyId));
         if (FormatValidator.hasNoValue(pricePolicies)) {
-            throw new PricePolicyNotFoundException(pricePolicyId);
+            log.warn("가격 정책을 찾을 수 없습니다. pricePolicyId={}", pricePolicyId);
+            throw new PricePolicyNotFoundException();
         }
         PricePolicy targetPricePolicy = pricePolicies.getFirst();
         targetPricePolicy.syncOptionIdsFromOptions();
@@ -71,7 +74,10 @@ public class GetProductService implements GetProductUseCase {
     @Override
     public GetProductInfoWithOptionsResult getProductInfo(Long id, List<Long> selectedOptionIds) {
         Product product = findProductPort.findActiveById(id)
-                .orElseThrow(() -> new ProductNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("상품을 찾을 수 없습니다. productId={}", id);
+                    return new ProductNotFoundException();
+                });
         return buildProductInfo(product, id, selectedOptionIds);
     }
 
@@ -124,7 +130,8 @@ public class GetProductService implements GetProductUseCase {
         }
 
         if (FormatValidator.hasNoValue(selectedPricePolicy)) {
-            throw new PricePolicyNotFoundException(null);
+            log.warn("선택된 옵션에 해당하는 가격 정책을 찾을 수 없습니다. productId={}, selectedOptionIds={}", id, selectedOptionIds);
+            throw new PricePolicyNotFoundException();
         }
 
         Long pricePolicyId = selectedPricePolicy.getId();
@@ -176,7 +183,10 @@ public class GetProductService implements GetProductUseCase {
     @Override
     public Product getProduct(Long id) {
         return findProductPort.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("상품을 찾을 수 없습니다. productId={}", id);
+                    return new ProductNotFoundException();
+                });
     }
 
     @Override

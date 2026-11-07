@@ -11,6 +11,7 @@ import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.out.user.FindUserPort;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ import java.util.UUID;
 import static com.personal.marketnote.user.exception.ExceptionMessage.*;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -41,23 +43,28 @@ public class GetUserService implements GetUserUseCase {
     @Override
     public User getUser(Long id) {
         return findUserPort.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id)));
+                .orElseThrow(() -> {
+                    log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id);
+                    return new UserNotFoundException();
+                });
     }
 
     @Override
     public User getUser(AuthVendor authVendor, String oidcId) {
         return findUserPort.findByAuthVendorAndOidcId(authVendor, oidcId)
-                .orElseThrow(() -> new UserNotFoundException(
-                        String.format(USER_OIDC_ID_NOT_FOUND_EXCEPTION_MESSAGE, oidcId)
-                ));
+                .orElseThrow(() -> {
+                    log.warn("{} authVendor={}, oidcId={}", USER_OIDC_ID_NOT_FOUND_EXCEPTION_MESSAGE, authVendor, oidcId);
+                    return new UserNotFoundException();
+                });
     }
 
     @Override
     public User getUser(String referredUserCode) {
         return findUserPort.findByReferenceCode(referredUserCode)
-                .orElseThrow(() -> new UserNotFoundException(
-                        String.format(USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, referredUserCode)
-                ));
+                .orElseThrow(() -> {
+                    log.warn("{} referredUserCode={}", USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, referredUserCode);
+                    return new UserNotFoundException();
+                });
     }
 
     @Override
@@ -68,29 +75,37 @@ public class GetUserService implements GetUserUseCase {
     @Override
     public User getAllStatusUser(Long id) {
         return findUserPort.findAllStatusUserById(id)
-                .orElseThrow(() -> new UserNotFoundException(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id)));
+                .orElseThrow(() -> {
+                    log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id);
+                    return new UserNotFoundException();
+                });
     }
 
     @Override
     public User getAllStatusUser(String email) throws UserNotFoundException {
         return findUserPort.findAllStatusUserByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(
-                        String.format(USER_EMAIL_NOT_FOUND_EXCEPTION_MESSAGE, email))
-                );
+                .orElseThrow(() -> {
+                    log.warn("{} email={}", USER_EMAIL_NOT_FOUND_EXCEPTION_MESSAGE, email);
+                    return new UserNotFoundException();
+                });
     }
 
     @Override
     public User getAllStatusUser(AuthVendor authVendor, String oidcId) {
         return findUserPort.findByAuthVendorAndOidcId(authVendor, oidcId)
-                .orElseThrow(() -> new UserNotFoundException(
-                        String.format(USER_OIDC_ID_NOT_FOUND_EXCEPTION_MESSAGE, oidcId)
-                ));
+                .orElseThrow(() -> {
+                    log.warn("{} authVendor={}, oidcId={}", USER_OIDC_ID_NOT_FOUND_EXCEPTION_MESSAGE, authVendor, oidcId);
+                    return new UserNotFoundException();
+                });
     }
 
     @Override
     public UUID getUserKey(Long id) {
         return findUserPort.findUserKeyById(id)
-                .orElseThrow(() -> new UserNotFoundException(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id)));
+                .orElseThrow(() -> {
+                    log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id);
+                    return new UserNotFoundException();
+                });
     }
 
     @Override

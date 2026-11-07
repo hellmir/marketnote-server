@@ -59,9 +59,7 @@ class GetLikeUseCaseTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> getLikeService.getLike(targetType, targetId, userId))
-                .isInstanceOf(LikeNotFoundException.class)
-                .hasMessageContaining(String.valueOf(targetId))
-                .hasMessageContaining(String.valueOf(userId));
+                .isInstanceOf(LikeNotFoundException.class);
     }
 
     private Like buildLike(LikeTargetType targetType, Long targetId, Long userId, EntityStatus status) {

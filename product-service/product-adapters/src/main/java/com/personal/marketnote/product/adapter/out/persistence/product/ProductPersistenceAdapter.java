@@ -12,12 +12,14 @@ import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.product.SaveProductPort;
 import com.personal.marketnote.product.port.out.product.UpdateProductPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 
 import java.util.*;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class ProductPersistenceAdapter implements SaveProductPort, FindProductPort, UpdateProductPort {
@@ -31,7 +33,10 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
         savedEntity.getProductTagJpaEntities().forEach(ProductTagJpaEntity::setIdToOrderNum);
 
         return ProductJpaEntityToDomainMapper.mapToDomain(savedEntity)
-                .orElseThrow(() -> new ProductNotFoundException(savedEntity.getId()));
+                .orElseThrow(() -> {
+                    log.warn("저장된 상품을 도메인으로 매핑할 수 없습니다. productId={}", savedEntity.getId());
+                    return new ProductNotFoundException();
+                });
     }
 
     @Override
@@ -93,7 +98,10 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
 
     private ProductJpaEntity findEntityById(Long id) throws ProductNotFoundException {
         return productJpaRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException(id));
+                .orElseThrow(() -> {
+                    log.warn("상품을 찾을 수 없습니다. productId={}", id);
+                    return new ProductNotFoundException();
+                });
     }
 
     private List<ProductJpaEntity> loadProductsWithAssociations(List<ProductJpaEntity> baseEntities) {

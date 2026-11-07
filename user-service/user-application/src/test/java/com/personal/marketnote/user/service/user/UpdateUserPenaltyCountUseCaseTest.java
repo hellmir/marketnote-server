@@ -121,7 +121,7 @@ class UpdateUserPenaltyCountUseCaseTest {
         // given
         Long userId = 999L;
         UpdateUserPenaltyCountCommand command = new UpdateUserPenaltyCountCommand(userId, 99L, 3, "이유");
-        UserNotFoundException exception = new UserNotFoundException("not found");
+        UserNotFoundException exception = new UserNotFoundException();
 
         when(getUserUseCase.getAllStatusUser(userId)).thenThrow(exception);
 

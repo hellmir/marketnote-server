@@ -15,6 +15,7 @@ import com.personal.marketnote.user.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.user.port.out.user.FindUserPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.*;
 import static com.personal.marketnote.user.exception.ExceptionMessage.*;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @RequiredArgsConstructor
 @UseCase
 @Transactional(isolation = READ_COMMITTED)
@@ -92,25 +94,22 @@ public class UpdateUserService implements UpdateUserUseCase {
 
     private void validateDuplicateEmail(String email) {
         if (findUserPort.existsByEmail(email)) {
-            throw new UserExistsException(
-                    String.format(EMAIL_ALREADY_EXISTS_EXCEPTION_MESSAGE, FOURTH_ERROR_CODE, email)
-            );
+            log.warn("이미 가입된 이메일 주소입니다. email={}", email);
+            throw new UserExistsException(String.format(EMAIL_ALREADY_EXISTS_EXCEPTION_MESSAGE, FOURTH_ERROR_CODE));
         }
     }
 
     private void validateDuplicateNickname(String nickname) {
         if (findUserPort.existsByNickname(nickname)) {
-            throw new UserExistsException(
-                    String.format(NICKNAME_ALREADY_EXISTS_EXCEPTION_MESSAGE, FIFTH_ERROR_CODE, nickname)
-            );
+            log.warn("이미 가입된 닉네임입니다. nickname={}", nickname);
+            throw new UserExistsException(String.format(NICKNAME_ALREADY_EXISTS_EXCEPTION_MESSAGE, FIFTH_ERROR_CODE));
         }
     }
 
     private void validateDuplicatePhoneNumber(String phoneNumber) {
         if (findUserPort.existsByPhoneNumber(phoneNumber)) {
-            throw new UserExistsException(
-                    String.format(PHONE_NUMBER_ALREADY_EXISTS_EXCEPTION_MESSAGE, SIXTH_ERROR_CODE)
-            );
+            log.warn("이미 가입된 전화번호입니다. phoneNumber={}", phoneNumber);
+            throw new UserExistsException(String.format(PHONE_NUMBER_ALREADY_EXISTS_EXCEPTION_MESSAGE, SIXTH_ERROR_CODE));
         }
     }
 }

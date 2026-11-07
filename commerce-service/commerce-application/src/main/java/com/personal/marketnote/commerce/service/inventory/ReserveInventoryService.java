@@ -10,6 +10,7 @@ import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort
 import com.personal.marketnote.commerce.port.out.inventory.*;
 import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -79,7 +81,8 @@ public class ReserveInventoryService implements ReserveInventoryUseCase {
                 .filter(id -> !foundPricePolicyIds.contains(id))
                 .findFirst()
                 .orElseThrow();
-        throw new InventoryNotFoundException(missingPricePolicyId);
+        log.warn("재고를 찾을 수 없습니다. pricePolicyId={}", missingPricePolicyId);
+        throw new InventoryNotFoundException();
     }
 
     private List<InventoryReservation> createReservations(Long orderId, Map<Long, Integer> quantitiesByPricePolicyId) {

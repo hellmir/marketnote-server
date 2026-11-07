@@ -241,11 +241,15 @@ public class PaymentCancelIdempotencyHelper {
 
     private Long resolvePaymentId(String orderKey) {
         if (FormatValidator.hasNoValue(orderKey)) {
-            throw new PaymentNotFoundException(orderKey);
+            log.warn("결제 정보를 찾을 수 없습니다. orderKey 누락");
+            throw new PaymentNotFoundException();
         }
         UUID orderKeyUuid = UUID.fromString(orderKey);
         Payment payment = findPaymentPort.findByOrderKey(orderKeyUuid)
-                .orElseThrow(() -> new PaymentNotFoundException(orderKey));
+                .orElseThrow(() -> {
+                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
+                    return new PaymentNotFoundException();
+                });
         return payment.getId();
     }
 

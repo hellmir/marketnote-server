@@ -9,6 +9,7 @@ import com.personal.marketnote.product.port.in.usecase.product.GetProductInvento
 import com.personal.marketnote.product.port.out.cart.FindCartProductPort;
 import com.personal.marketnote.product.port.out.cart.FindCartProductsPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -27,7 +29,10 @@ public class GetCartProductService implements GetCartProductUseCase {
     @Override
     public CartProduct getCartProduct(Long userId, Long pricePolicyId) {
         return findCartProductPort.findCartProductByUserIdAndPricePolicyId(userId, pricePolicyId)
-                .orElseThrow(() -> new CartProductNotFoundException(pricePolicyId));
+                .orElseThrow(() -> {
+                    log.warn("장바구니 상품을 찾을 수 없습니다. userId={}, pricePolicyId={}", userId, pricePolicyId);
+                    return new CartProductNotFoundException();
+                });
     }
 
     @Override

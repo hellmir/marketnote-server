@@ -105,7 +105,7 @@ class UpdateOrderProductUseCaseTest {
         UpdateOrderProductReviewStatusCommand command =
                 UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, true);
         when(getOrderUseCase.getOrderProduct(orderId, pricePolicyId))
-                .thenThrow(new OrderProductNotFoundException(orderId, pricePolicyId));
+                .thenThrow(new OrderProductNotFoundException());
 
         // when & then
         assertThatThrownBy(() -> updateOrderProductService.updateReviewStatus(command))

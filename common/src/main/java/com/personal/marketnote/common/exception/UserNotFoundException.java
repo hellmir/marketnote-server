@@ -1,11 +1,11 @@
 package com.personal.marketnote.common.exception;
 
 import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
-import lombok.Getter;
 
-@Getter
 public class UserNotFoundException extends DomainNotFoundException {
-    public UserNotFoundException(String message) {
-        super(message);
+    private static final String MESSAGE = "회원을 찾을 수 없습니다.";
+
+    public UserNotFoundException() {
+        super(MESSAGE);
     }
 }

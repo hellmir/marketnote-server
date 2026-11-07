@@ -9,10 +9,12 @@ import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPo
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @RequiredArgsConstructor
 @UseCase
 @Transactional(isolation = READ_COMMITTED)
@@ -24,7 +26,10 @@ public class DeleteShippingAddressService implements DeleteShippingAddressUseCas
     @Override
     public void deleteShippingAddress(Long shippingAddressId, Long userId) {
         ShippingAddress shippingAddress = findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId)
-                .orElseThrow(() -> new ShippingAddressNotFoundException(shippingAddressId));
+                .orElseThrow(() -> {
+                    log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}, userId={}", shippingAddressId, userId);
+                    return new ShippingAddressNotFoundException();
+                });
 
         shippingAddress.delete();
 
