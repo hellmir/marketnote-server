@@ -134,10 +134,42 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // then
             ProductUpdatedEvent result = deserialized.getPayloadAs(ProductUpdatedEvent.class, OBJECT_MAPPER);
             assertThat(result.productId()).isEqualTo(event.productId());
+            assertThat(result.productKey()).isEqualTo(event.productKey());
             assertThat(result.productName()).isEqualTo(event.productName());
+            assertThat(result.brandName()).isEqualTo(event.brandName());
             assertThat(result.goodsType()).isEqualTo(event.goodsType());
+            assertThat(result.giftDivision()).isEqualTo(event.giftDivision());
+            assertThat(result.goodsOptionCode1()).isEqualTo(event.goodsOptionCode1());
+            assertThat(result.goodsOptionCode2()).isEqualTo(event.goodsOptionCode2());
+            assertThat(result.invoiceGoodsNameEnabled()).isEqualTo(event.invoiceGoodsNameEnabled());
+            assertThat(result.invoiceGoodsName()).isEqualTo(event.invoiceGoodsName());
+            assertThat(result.supplierCode()).isEqualTo(event.supplierCode());
+            assertThat(result.categoryCode()).isEqualTo(event.categoryCode());
+            assertThat(result.seasonCode()).isEqualTo(event.seasonCode());
+            assertThat(result.genderCode()).isEqualTo(event.genderCode());
+            assertThat(result.manufactureYear()).isEqualTo(event.manufactureYear());
+            assertThat(result.unitPrice()).isEqualTo(event.unitPrice());
+            assertThat(result.supplyPrice()).isEqualTo(event.supplyPrice());
+            assertThat(result.salePrice()).isEqualTo(event.salePrice());
+            assertThat(result.handlingTemperature()).isEqualTo(event.handlingTemperature());
+            assertThat(result.pickingFacility()).isEqualTo(event.pickingFacility());
             assertThat(result.goodsBarcode()).isEqualTo(event.goodsBarcode());
+            assertThat(result.boxWeight()).isEqualTo(event.boxWeight());
+            assertThat(result.origin()).isEqualTo(event.origin());
+            assertThat(result.expirationDateManagementEnabled()).isEqualTo(event.expirationDateManagementEnabled());
+            assertThat(result.shelfLifeDays()).isEqualTo(event.shelfLifeDays());
+            assertThat(result.outboundAvailableDays()).isEqualTo(event.outboundAvailableDays());
+            assertThat(result.inboundAvailableDays()).isEqualTo(event.inboundAvailableDays());
+            assertThat(result.outboundBoxType()).isEqualTo(event.outboundBoxType());
+            assertThat(result.cushioningEnabled()).isEqualTo(event.cushioningEnabled());
+            assertThat(result.loadingDirection()).isEqualTo(event.loadingDirection());
+            assertThat(result.subsidiaryMaterialCode()).isEqualTo(event.subsidiaryMaterialCode());
+            assertThat(result.enabled()).isEqualTo(event.enabled());
             assertThat(result.safetyStock()).isEqualTo(event.safetyStock());
+            assertThat(result.feeApplied()).isEqualTo(event.feeApplied());
+            assertThat(result.saleUnitQuantity()).isEqualTo(event.saleUnitQuantity());
+            assertThat(result.customerGoodsImageUrl()).isEqualTo(event.customerGoodsImageUrl());
+            assertThat(result.externalGoodsImageUrl()).isEqualTo(event.externalGoodsImageUrl());
         }
 
         @Test
@@ -717,14 +749,15 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
 
     private ProductUpdatedEvent buildSampleProductUpdatedEvent() {
         return new ProductUpdatedEvent(
-                1L, UUID.randomUUID(), "업데이트 상품", "1", "N", "OPT1", "OPT2",
+                1L, UUID.randomUUID(), "업데이트 상품", "테스트 브랜드",
+                "1", "N", "OPT1", "OPT2",
                 "Y", "커스텀상품명", "SUP001", "CATE01",
                 "SS2026", "U", "2026", "50000", "30000",
                 "45000", "NORMAL", "PICK01", "8801234567890",
                 "1.5", "국내", "Y", "365", "7",
                 "3", "BOX", "N", "UPRIGHT",
                 "종이", "Y", "100", "N",
-                "1", "1", "https://img.test/1.jpg", "https://external.test/1.jpg"
+                "1", "https://img.test/1.jpg", "https://external.test/1.jpg"
         );
     }
 
