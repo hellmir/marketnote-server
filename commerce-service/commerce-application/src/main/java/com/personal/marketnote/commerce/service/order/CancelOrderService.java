@@ -205,7 +205,8 @@ public class CancelOrderService implements CancelOrderUseCase {
         }
 
         if (!reasonCategory.isCancelReason()) {
-            throw new InvalidReasonCategoryException(reasonCategory);
+            log.warn("주문 상태 변경에 적합하지 않은 사유 카테고리입니다. reasonCategory={}", reasonCategory.name());
+            throw new InvalidReasonCategoryException();
         }
     }
 

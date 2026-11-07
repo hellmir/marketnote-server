@@ -10,12 +10,13 @@ import com.personal.marketnote.user.port.in.usecase.authentication.VerifyCodeUse
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.out.authentication.VerifyCodePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.SECOND_ERROR_CODE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @RequiredArgsConstructor
 @UseCase
 @Transactional(isolation = READ_COMMITTED, timeout = 180)
@@ -32,7 +33,8 @@ public class VerifyCodeService implements VerifyCodeUseCase {
                         email, verifyCodeCommand.getVerificationCode()
                 )
         ) {
-            throw new InvalidVerificationCodeException(FIRST_ERROR_CODE, email);
+            log.warn("이메일 인증 코드가 유효하지 않거나 만료되었습니다. email={}", email);
+            throw new InvalidVerificationCodeException();
         }
 
         User signedUpUser = getUserUseCase.getAllStatusUser(email);

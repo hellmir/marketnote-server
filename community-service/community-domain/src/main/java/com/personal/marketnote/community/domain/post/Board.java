@@ -4,9 +4,11 @@ import com.personal.marketnote.common.utility.FormatConverter;
 import com.personal.marketnote.community.domain.post.exception.InvalidPostCategoryException;
 import com.personal.marketnote.community.domain.post.exception.InvalidPostCategoryForBoardException;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 
+@Slf4j
 @Getter
 public enum Board {
     NOTICE("공지"),
@@ -27,31 +29,44 @@ public enum Board {
             return Arrays.stream(NoticePostCategory.values())
                     .filter(category -> category.isMe(categoryCode))
                     .findFirst()
-                    .orElseThrow(() -> new InvalidPostCategoryForBoardException(categoryCode));
+                    .orElseThrow(() -> {
+                        log.warn("게시판에 맞지 않는 카테고리입니다. board={}, categoryCode={}", this.name(), categoryCode);
+                        return new InvalidPostCategoryForBoardException();
+                    });
         }
 
         if (this == FAQ) {
             return Arrays.stream(FaqPostCategory.values())
                     .filter(category -> category.isMe(categoryCode))
                     .findFirst()
-                    .orElseThrow(() -> new InvalidPostCategoryForBoardException(categoryCode));
+                    .orElseThrow(() -> {
+                        log.warn("게시판에 맞지 않는 카테고리입니다. board={}, categoryCode={}", this.name(), categoryCode);
+                        return new InvalidPostCategoryForBoardException();
+                    });
         }
 
         if (this == PRODUCT_INQUERY) {
             return Arrays.stream(ProductInqueryPostCategory.values())
                     .filter(category -> category.isMe(categoryCode))
                     .findFirst()
-                    .orElseThrow(() -> new InvalidPostCategoryForBoardException(categoryCode));
+                    .orElseThrow(() -> {
+                        log.warn("게시판에 맞지 않는 카테고리입니다. board={}, categoryCode={}", this.name(), categoryCode);
+                        return new InvalidPostCategoryForBoardException();
+                    });
         }
 
         if (this == ONE_ON_ONE_INQUERY) {
             return Arrays.stream(OneOnOneInqueryPostCategory.values())
                     .filter(category -> category.isMe(categoryCode))
                     .findFirst()
-                    .orElseThrow(() -> new InvalidPostCategoryForBoardException(categoryCode));
+                    .orElseThrow(() -> {
+                        log.warn("게시판에 맞지 않는 카테고리입니다. board={}, categoryCode={}", this.name(), categoryCode);
+                        return new InvalidPostCategoryForBoardException();
+                    });
         }
 
-        throw new InvalidPostCategoryException(categoryCode);
+        log.warn("유효하지 않은 카테고리명입니다. board={}, categoryCode={}", this.name(), categoryCode);
+        throw new InvalidPostCategoryException();
     }
 
     public boolean isAdminRequired() {
