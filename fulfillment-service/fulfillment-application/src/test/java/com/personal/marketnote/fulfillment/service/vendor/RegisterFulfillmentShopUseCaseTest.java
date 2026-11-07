@@ -27,11 +27,28 @@ class RegisterFulfillmentShopUseCaseTest {
     @DisplayName("출고처 등록 커맨드를 포트에 직접 전달하여 결과를 반환한다")
     void shouldDelegateCommandDirectlyToPort() {
         // given
-        RegisterFulfillmentShopCommand command = RegisterFulfillmentShopCommand.of(
-                "CUST001", "token", "출고처명", "CST01", "20260401", "20270401",
-                "12345", "서울시", "강남구", "대표자", "123-45-67890", "01012345678",
-                "01", "01", "Y", "01", "담당자", "매니저", "01098765432", "Y"
-        );
+        RegisterFulfillmentShopCommand command = RegisterFulfillmentShopCommand.builder()
+                .customerCode("CUST001")
+                .accessToken("token")
+                .shopName("출고처명")
+                .customerShopCode("CST01")
+                .dealStartDate("20260401")
+                .dealEndDate("20270401")
+                .zipCode("12345")
+                .address1("서울시")
+                .address2("강남구")
+                .ceoName("대표자")
+                .businessNumber("123-45-67890")
+                .phoneNumber("01012345678")
+                .unloadMethod("01")
+                .inspectionMethod("01")
+                .standbyYn("Y")
+                .formType("01")
+                .managerName("담당자")
+                .managerPosition("매니저")
+                .managerPhoneNumber("01098765432")
+                .useYn("Y")
+                .build();
         RegisterFulfillmentShopResult expectedResult = RegisterFulfillmentShopResult.of("등록 성공", "200", "SHOP001");
         when(registerFulfillmentShopPort.registerShop(command)).thenReturn(expectedResult);
 

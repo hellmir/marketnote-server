@@ -60,20 +60,13 @@ class FasstoGoodsCommandToRequestMapperTest {
     }
 
     private static UpdateFulfillmentGoodsItemCommand buildUpdateItem(UUID productKey, String productCode) {
-        return UpdateFulfillmentGoodsItemCommand.of(
-                productKey,
-                productCode,
-                "상품명",
-                "TYPE01",
-                "N",
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null
-        );
+        return UpdateFulfillmentGoodsItemCommand.builder()
+                .productKey(productKey)
+                .productCode(productCode)
+                .productName("상품명")
+                .productType("TYPE01")
+                .giftDivision("N")
+                .build();
     }
 
     @Nested

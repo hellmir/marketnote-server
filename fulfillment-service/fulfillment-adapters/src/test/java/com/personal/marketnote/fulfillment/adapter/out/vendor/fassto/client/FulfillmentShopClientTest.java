@@ -114,13 +114,28 @@ class FulfillmentShopClientTest {
             stubPayloadGenerator();
             stubPatchChainThrows(new RuntimeException("Connection refused"));
 
-            RegisterFulfillmentShopCommand command = RegisterFulfillmentShopCommand.of(
-                    "CUST001", "valid-token", "테스트 매장", "SHOP001",
-                    "20260101", "20261231", "12345", "서울시", "강남구",
-                    "홍길동", "123-45-67890", "02-1234-5678",
-                    "01", "01", "Y", "01",
-                    "김철수", "과장", "010-1234-5678", "Y"
-            );
+            RegisterFulfillmentShopCommand command = RegisterFulfillmentShopCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .shopName("테스트 매장")
+                    .customerShopCode("SHOP001")
+                    .dealStartDate("20260101")
+                    .dealEndDate("20261231")
+                    .zipCode("12345")
+                    .address1("서울시")
+                    .address2("강남구")
+                    .ceoName("홍길동")
+                    .businessNumber("123-45-67890")
+                    .phoneNumber("02-1234-5678")
+                    .unloadMethod("01")
+                    .inspectionMethod("01")
+                    .standbyYn("Y")
+                    .formType("01")
+                    .managerName("김철수")
+                    .managerPosition("과장")
+                    .managerPhoneNumber("010-1234-5678")
+                    .useYn("Y")
+                    .build();
 
             // when & then
             assertThatThrownBy(() -> client.registerShop(command))

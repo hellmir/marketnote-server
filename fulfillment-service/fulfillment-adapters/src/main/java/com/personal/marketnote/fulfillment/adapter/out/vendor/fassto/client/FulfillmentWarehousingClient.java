@@ -1491,30 +1491,30 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 ? item.goodsSerialNo()
                 : List.of();
 
-        return FulfillmentWarehousingInfoResult.of(
-                item.ordDt(),
-                item.whCd(),
-                item.whNm(),
-                item.ordNo(),
-                item.slipNo(),
-                item.cstCd(),
-                item.cstNm(),
-                item.supCd(),
-                item.cstSupCd(),
-                item.sku(),
-                item.supNm(),
-                item.ordQty(),
-                item.inQty(),
-                item.inWay(),
-                item.inWayNm(),
-                item.parcelComp(),
-                item.parcelInvoiceNo(),
-                item.wrkStat(),
-                item.wrkStatNm(),
-                item.emgrYn(),
-                item.remark(),
-                goodsSerialNo
-        );
+        return FulfillmentWarehousingInfoResult.builder()
+                .orderDate(item.ordDt())
+                .warehouseCode(item.whCd())
+                .warehouseName(item.whNm())
+                .orderNumber(item.ordNo())
+                .slipNumber(item.slipNo())
+                .customerCode(item.cstCd())
+                .customerName(item.cstNm())
+                .supplierCode(item.supCd())
+                .customerSupplierCode(item.cstSupCd())
+                .sku(item.sku())
+                .supplierName(item.supNm())
+                .orderQuantity(item.ordQty())
+                .inboundQuantity(item.inQty())
+                .inboundMethod(item.inWay())
+                .inboundMethodName(item.inWayNm())
+                .courierCompany(item.parcelComp())
+                .trackingNumber(item.parcelInvoiceNo())
+                .workStatus(item.wrkStat())
+                .workStatusName(item.wrkStatNm())
+                .emergencyYn(item.emgrYn())
+                .remark(item.remark())
+                .goodsSerialNo(goodsSerialNo)
+                .build();
     }
 
     private FulfillmentWarehousingDetailInfoResult mapWarehousingDetailInfo(FulfillmentWarehousingDetailItemResponse item) {
@@ -1522,56 +1522,56 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 ? item.goods().stream().map(this::mapWarehousingDetailGoods).toList()
                 : List.of();
 
-        return FulfillmentWarehousingDetailInfoResult.of(
-                item.ordDt(),
-                item.whCd(),
-                item.whNm(),
-                item.slipNo(),
-                item.ordNo(),
-                item.cstCd(),
-                item.cstNm(),
-                item.supCd(),
-                item.supNm(),
-                item.cstSupCd(),
-                item.sku(),
-                item.ordQty(),
-                item.inQty(),
-                item.tarQty(),
-                item.inWay(),
-                item.inWayNm(),
-                item.parcelComp(),
-                item.parcelInvoiceNo(),
-                item.wrkStat(),
-                item.wrkStatNm(),
-                item.emgrYn(),
-                item.remark(),
-                goods
-        );
+        return FulfillmentWarehousingDetailInfoResult.builder()
+                .orderDate(item.ordDt())
+                .warehouseCode(item.whCd())
+                .warehouseName(item.whNm())
+                .slipNumber(item.slipNo())
+                .orderNumber(item.ordNo())
+                .customerCode(item.cstCd())
+                .customerName(item.cstNm())
+                .supplierCode(item.supCd())
+                .supplierName(item.supNm())
+                .customerSupplierCode(item.cstSupCd())
+                .sku(item.sku())
+                .orderQuantity(item.ordQty())
+                .inboundQuantity(item.inQty())
+                .targetQuantity(item.tarQty())
+                .inboundMethod(item.inWay())
+                .inboundMethodName(item.inWayNm())
+                .courierCompany(item.parcelComp())
+                .trackingNumber(item.parcelInvoiceNo())
+                .workStatus(item.wrkStat())
+                .workStatusName(item.wrkStatNm())
+                .emergencyYn(item.emgrYn())
+                .remark(item.remark())
+                .goods(goods)
+                .build();
     }
 
     private FulfillmentWarehousingDetailGoodsInfoResult mapWarehousingDetailGoods(FulfillmentWarehousingDetailGoodsResponse item) {
-        return FulfillmentWarehousingDetailGoodsInfoResult.of(
-                item.ordDt(),
-                item.whCd(),
-                item.slipNo(),
-                item.cstCd(),
-                item.shopCd(),
-                item.supCd(),
-                item.godCd(),
-                item.cstGodCd(),
-                item.godNm(),
-                item.orgGodCd(),
-                item.godType(),
-                item.godTypeNm(),
-                item.distTermDt(),
-                item.stockQty(),
-                item.ordQty(),
-                item.addGodOrdQty(),
-                item.ordQtySum(),
-                item.giftDiv(),
-                item.addType(),
-                item.emgrYn()
-        );
+        return FulfillmentWarehousingDetailGoodsInfoResult.builder()
+                .orderDate(item.ordDt())
+                .warehouseCode(item.whCd())
+                .slipNumber(item.slipNo())
+                .customerCode(item.cstCd())
+                .shopCode(item.shopCd())
+                .supplierCode(item.supCd())
+                .productCode(item.godCd())
+                .customerProductCode(item.cstGodCd())
+                .productName(item.godNm())
+                .originalProductCode(item.orgGodCd())
+                .productType(item.godType())
+                .productTypeName(item.godTypeNm())
+                .expirationDate(item.distTermDt())
+                .stockQuantity(item.stockQty())
+                .orderQuantity(item.ordQty())
+                .additionalProductOrderQuantity(item.addGodOrdQty())
+                .orderQuantitySum(item.ordQtySum())
+                .giftDivision(item.giftDiv())
+                .additionalType(item.addType())
+                .emergencyYn(item.emgrYn())
+                .build();
     }
 
     private FulfillmentWarehousingInspecDetailInfoResult mapWarehousingInspecDetailInfo(
@@ -1580,30 +1580,30 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
         List<Object> goods = FormatValidator.hasValue(item.goods()) ? item.goods() : List.of();
         List<Object> goodsSerialNo = FormatValidator.hasValue(item.goodsSerialNo()) ? item.goodsSerialNo() : List.of();
 
-        return FulfillmentWarehousingInspecDetailInfoResult.of(
-                item.ordDt(),
-                item.whCd(),
-                item.whNm(),
-                item.slipNo(),
-                item.cstCd(),
-                item.cstNm(),
-                item.supCd(),
-                item.supNm(),
-                item.inWay(),
-                item.inWayNm(),
-                item.godCd(),
-                item.ordQty(),
-                item.totInQty(),
-                item.parcelComp(),
-                item.parcelInvoiceNo(),
-                item.wrkStat(),
-                item.wrkStatNm(),
-                item.remark(),
-                goods,
-                goodsSerialNo,
-                item.externalGodImgUrl(),
-                item.distTermDt()
-        );
+        return FulfillmentWarehousingInspecDetailInfoResult.builder()
+                .orderDate(item.ordDt())
+                .warehouseCode(item.whCd())
+                .warehouseName(item.whNm())
+                .slipNumber(item.slipNo())
+                .customerCode(item.cstCd())
+                .customerName(item.cstNm())
+                .supplierCode(item.supCd())
+                .supplierName(item.supNm())
+                .inboundMethod(item.inWay())
+                .inboundMethodName(item.inWayNm())
+                .productCode(item.godCd())
+                .orderQuantity(item.ordQty())
+                .totalInboundQuantity(item.totInQty())
+                .courierCompany(item.parcelComp())
+                .trackingNumber(item.parcelInvoiceNo())
+                .workStatus(item.wrkStat())
+                .workStatusName(item.wrkStatNm())
+                .remark(item.remark())
+                .goods(goods)
+                .goodsSerialNo(goodsSerialNo)
+                .externalProductImageUrl(item.externalGodImgUrl())
+                .expirationDate(item.distTermDt())
+                .build();
     }
 
     private FulfillmentWarehousingAbnormalInfoResult mapWarehousingAbnormalInfo(FulfillmentWarehousingAbnormalItemResponse item) {
@@ -1611,25 +1611,25 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 ? item.imageUrl()
                 : List.of();
 
-        return FulfillmentWarehousingAbnormalInfoResult.of(
-                item.slipNo(),
-                item.goodsSerialNo(),
-                item.goodsSerialStatus(),
-                item.whCd(),
-                item.cstCd(),
-                item.cstNm(),
-                item.godCd(),
-                item.description(),
-                item.remark(),
-                item.fileSeq(),
-                item.lastFileSeqNo(),
-                item.regDate(),
-                item.regNM(),
-                item.updDate(),
-                item.updNm(),
-                item.fileNo(),
-                imageUrl
-        );
+        return FulfillmentWarehousingAbnormalInfoResult.builder()
+                .slipNumber(item.slipNo())
+                .goodsSerialNo(item.goodsSerialNo())
+                .goodsSerialStatus(item.goodsSerialStatus())
+                .warehouseCode(item.whCd())
+                .customerCode(item.cstCd())
+                .customerName(item.cstNm())
+                .productCode(item.godCd())
+                .description(item.description())
+                .remark(item.remark())
+                .fileSequence(item.fileSeq())
+                .lastFileSequenceNumber(item.lastFileSeqNo())
+                .registeredDate(item.regDate())
+                .registeredByName(item.regNM())
+                .updatedDate(item.updDate())
+                .updatedByName(item.updNm())
+                .fileNumber(item.fileNo())
+                .imageUrl(imageUrl)
+                .build();
     }
 
     private String maskValue(String value) {

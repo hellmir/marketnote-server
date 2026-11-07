@@ -1,5 +1,8 @@
 package com.personal.marketnote.fulfillment.port.in.result.vendor;
 
+import lombok.Builder;
+
+@Builder
 public record FulfillmentShopInfoResult(
         String shopCode,
         String shopName,
@@ -24,53 +27,4 @@ public record FulfillmentShopInfoResult(
         String managerPhoneNumber,
         String useYn
 ) {
-    public static FulfillmentShopInfoResult of(
-            String shopCode,
-            String shopName,
-            String customerShopCode,
-            String customerCode,
-            String customerName,
-            String shopType,
-            String dealStartDate,
-            String dealEndDate,
-            String zipCode,
-            String address1,
-            String address2,
-            String ceoName,
-            String businessNumber,
-            String phoneNumber,
-            String unloadMethod,
-            String inspectionMethod,
-            String standbyYn,
-            String formType,
-            String managerName,
-            String managerPosition,
-            String managerPhoneNumber,
-            String useYn
-    ) {
-        return new FulfillmentShopInfoResult(
-                shopCode,
-                shopName,
-                customerShopCode,
-                customerCode,
-                customerName,
-                shopType,
-                dealStartDate,
-                dealEndDate,
-                zipCode,
-                address1,
-                address2,
-                ceoName,
-                businessNumber,
-                phoneNumber,
-                unloadMethod,
-                inspectionMethod,
-                standbyYn,
-                formType,
-                managerName,
-                managerPosition,
-                managerPhoneNumber,
-                useYn
-        );
-    }
 }

@@ -117,15 +117,14 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
             String workStatus
     ) {
         GetFulfillmentWarehousingResult result = getFulfillmentWarehousingUseCase.getWarehousing(
-                GetFulfillmentWarehousingCommand.of(
-                        context.customerCode(),
-                        accessToken,
-                        context.startDate(),
-                        context.endDate(),
-                        null,
-                        context.ordNo(),
-                        workStatus
-                )
+                GetFulfillmentWarehousingCommand.builder()
+                        .customerCode(context.customerCode())
+                        .accessToken(accessToken)
+                        .startDate(context.startDate())
+                        .endDate(context.endDate())
+                        .orderNumber(context.ordNo())
+                        .workStatus(workStatus)
+                        .build()
         );
         if (FormatValidator.hasNoValue(result) || FormatValidator.hasNoValue(result.warehousing())) {
             return null;

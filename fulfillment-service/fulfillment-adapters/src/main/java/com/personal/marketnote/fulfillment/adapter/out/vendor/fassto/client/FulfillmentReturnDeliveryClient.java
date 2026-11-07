@@ -455,13 +455,13 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
     private RegisterFulfillmentDeliveryItemResult mapDeliveryItem(
             RegisterFulfillmentDeliveryItemResponse item
     ) {
-        return RegisterFulfillmentDeliveryItemResult.of(
-                item.fmsSlipNo(),
-                item.orderNo(),
-                item.msg(),
-                item.code(),
-                item.outOfStockGoodsDetail()
-        );
+        return RegisterFulfillmentDeliveryItemResult.builder()
+                .fulfillmentSlipNumber(item.fmsSlipNo())
+                .orderNumber(item.orderNo())
+                .message(item.msg())
+                .code(item.code())
+                .outOfStockGoodsDetail(item.outOfStockGoodsDetail())
+                .build();
     }
 
     // ── 반품 상품 상세 조회 응답 파싱/매핑 ──
@@ -520,47 +520,47 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
                 ? item.godList().stream().map(this::mapReturnGodDetailGoods).toList()
                 : List.of();
 
-        return FulfillmentReturnGodDetailInfoResult.of(
-                item.ordNo(),
-                item.supCd(),
-                item.inSlipNo(),
-                item.cstCd(),
-                item.whCd(),
-                item.inOrdSlipNo(),
-                item.inOrdDt(),
-                item.outOrdSlipNo(),
-                item.supNm(),
-                item.custNm(),
-                item.outInvoiceNo(),
-                item.rtnInvoiceNo(),
-                item.inRtnPayCd(),
-                item.inRtnPayNm(),
-                item.inRtnPay(),
-                item.rtnMisYn(),
-                item.rtnType(),
-                item.rtnTypeNm(),
-                item.custTelNo(),
-                item.cstMemo(),
-                item.rtnReason(),
-                item.rtnReasonNm(),
-                item.rtnDetailReason(),
-                item.rtnGubun(),
-                item.rtnGubunNm(),
-                godList
-        );
+        return FulfillmentReturnGodDetailInfoResult.builder()
+                .orderNumber(item.ordNo())
+                .supplierCode(item.supCd())
+                .inboundSlipNumber(item.inSlipNo())
+                .customerCode(item.cstCd())
+                .warehouseCode(item.whCd())
+                .inboundOrderSlipNumber(item.inOrdSlipNo())
+                .inboundOrderDate(item.inOrdDt())
+                .releaseOrderSlipNumber(item.outOrdSlipNo())
+                .supplierName(item.supNm())
+                .recipientName(item.custNm())
+                .releaseInvoiceNumber(item.outInvoiceNo())
+                .returnInvoiceNumber(item.rtnInvoiceNo())
+                .returnShippingPaymentCode(item.inRtnPayCd())
+                .returnShippingPaymentName(item.inRtnPayNm())
+                .returnShippingPayment(item.inRtnPay())
+                .returnMismatchYn(item.rtnMisYn())
+                .returnType(item.rtnType())
+                .returnTypeName(item.rtnTypeNm())
+                .recipientPhoneNumber(item.custTelNo())
+                .customerMemo(item.cstMemo())
+                .returnReason(item.rtnReason())
+                .returnReasonName(item.rtnReasonNm())
+                .returnDetailReason(item.rtnDetailReason())
+                .returnClassification(item.rtnGubun())
+                .returnClassificationName(item.rtnGubunNm())
+                .products(godList)
+                .build();
     }
 
     private FulfillmentReturnGodDetailGoodsResult mapReturnGodDetailGoods(FulfillmentReturnGodDetailGoodsResponse goods) {
-        return FulfillmentReturnGodDetailGoodsResult.of(
-                goods.cstGodCd(),
-                goods.godNm(),
-                goods.makeDt(),
-                goods.distTermDt(),
-                goods.inQty(),
-                goods.remark(),
-                goods.rtnGodCheckStat(),
-                goods.rtnGodCheckStatNm()
-        );
+        return FulfillmentReturnGodDetailGoodsResult.builder()
+                .customerProductCode(goods.cstGodCd())
+                .productName(goods.godNm())
+                .manufacturingDate(goods.makeDt())
+                .expirationDate(goods.distTermDt())
+                .inboundQuantity(goods.inQty())
+                .remark(goods.remark())
+                .returnProductCheckStatus(goods.rtnGodCheckStat())
+                .returnProductCheckStatusName(goods.rtnGodCheckStatNm())
+                .build();
     }
 
     private String resolveReturnGodDetailVendorMessage(FulfillmentReturnGodDetailListResponse parsedResponse, String rawBody) {

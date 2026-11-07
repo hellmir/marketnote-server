@@ -58,7 +58,12 @@ class RegisterFulfillmentDeliveryUseCaseTest {
 
     private RegisterFulfillmentDeliveryResult buildResult() {
         return RegisterFulfillmentDeliveryResult.of(1, List.of(
-                RegisterFulfillmentDeliveryItemResult.of("FMS001", "12345", "등록 성공", "200", null)
+                RegisterFulfillmentDeliveryItemResult.builder()
+                        .fulfillmentSlipNumber("FMS001")
+                        .orderNumber("12345")
+                        .message("등록 성공")
+                        .code("200")
+                        .build()
         ));
     }
 

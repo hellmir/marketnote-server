@@ -110,19 +110,13 @@ class FulfillmentGoodsClientTest {
     }
 
     private UpdateFulfillmentGoodsCommand buildValidUpdateCommand() {
-        UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.of(
-                null,
-                "PROD001",
-                "테스트 상품",
-                "1",
-                "01",
-                null, null, null, null, "SUP001",
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null, null
-        );
+        UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.builder()
+                .productCode("PROD001")
+                .productName("테스트 상품")
+                .productType("1")
+                .giftDivision("01")
+                .supplierCode("SUP001")
+                .build();
         return UpdateFulfillmentGoodsCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 

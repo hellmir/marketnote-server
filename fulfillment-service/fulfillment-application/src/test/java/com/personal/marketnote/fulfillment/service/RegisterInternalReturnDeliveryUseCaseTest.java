@@ -145,7 +145,12 @@ class RegisterInternalReturnDeliveryUseCaseTest {
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         RegisterFulfillmentDeliveryResult fasstoResult = RegisterFulfillmentDeliveryResult.of(1, List.of(
-                RegisterFulfillmentDeliveryItemResult.of("RETURN001", String.valueOf(orderId), "성공", "00", null)
+                RegisterFulfillmentDeliveryItemResult.builder()
+                        .fulfillmentSlipNumber("RETURN001")
+                        .orderNumber(String.valueOf(orderId))
+                        .message("성공")
+                        .code("00")
+                        .build()
         ));
         when(registerFulfillmentReturnDeliveryPort.registerReturnDelivery(any())).thenReturn(fasstoResult);
     }

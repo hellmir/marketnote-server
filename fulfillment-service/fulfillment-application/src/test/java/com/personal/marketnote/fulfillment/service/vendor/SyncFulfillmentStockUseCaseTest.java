@@ -109,10 +109,16 @@ class SyncFulfillmentStockUseCaseTest {
         void shouldSyncAllAndUpdateInventory() {
             // given
             UUID productKey = UUID.randomUUID();
-            FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.of(
-                    "WH001", "GOD001", productKey.toString(), "상품명", null, null, null,
-                    10, 0, 10, null, null, null, List.of(), null
-            );
+            FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.builder()
+                    .warehouseCode("WH001")
+                    .productCode("GOD001")
+                    .customerProductCode(productKey.toString())
+                    .productName("상품명")
+                    .stockQuantity(10)
+                    .defectiveStockQuantity(0)
+                    .availableStockQuantity(10)
+                    .goodsSerialNumbers(List.of())
+                    .build();
             when(getFulfillmentStocksUseCase.getStocks(any(GetFulfillmentStocksCommand.class)))
                     .thenReturn(GetFulfillmentStocksResult.of(1, List.of(stockInfo)));
             SyncFulfillmentAllStockCommand command = SyncFulfillmentAllStockCommand.of("CUST001");
@@ -177,10 +183,16 @@ class SyncFulfillmentStockUseCaseTest {
         void shouldPublishProductKeyInInventoryItem() {
             // given
             UUID productKey = UUID.randomUUID();
-            FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.of(
-                    "WH001", "GOD001", productKey.toString(), "상품명", null, null, null,
-                    5, 0, 5, null, null, null, List.of(), null
-            );
+            FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.builder()
+                    .warehouseCode("WH001")
+                    .productCode("GOD001")
+                    .customerProductCode(productKey.toString())
+                    .productName("상품명")
+                    .stockQuantity(5)
+                    .defectiveStockQuantity(0)
+                    .availableStockQuantity(5)
+                    .goodsSerialNumbers(List.of())
+                    .build();
             when(getFulfillmentStockDetailUseCase.getStockDetail(any(GetFulfillmentStockDetailCommand.class)))
                     .thenReturn(GetFulfillmentStocksResult.of(1, List.of(stockInfo)));
             SyncFulfillmentStockCommand command =
@@ -208,10 +220,16 @@ class SyncFulfillmentStockUseCaseTest {
         void shouldParseUuidAndPublishProductKey() {
             // given
             UUID productKey = UUID.randomUUID();
-            FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.of(
-                    "WH001", "GOD001", productKey.toString(), "상품명", null, null, null,
-                    3, 0, 3, null, null, null, List.of(), null
-            );
+            FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.builder()
+                    .warehouseCode("WH001")
+                    .productCode("GOD001")
+                    .customerProductCode(productKey.toString())
+                    .productName("상품명")
+                    .stockQuantity(3)
+                    .defectiveStockQuantity(0)
+                    .availableStockQuantity(3)
+                    .goodsSerialNumbers(List.of())
+                    .build();
             when(getFulfillmentStocksUseCase.getStocks(any(GetFulfillmentStocksCommand.class)))
                     .thenReturn(GetFulfillmentStocksResult.of(1, List.of(stockInfo)));
             SyncFulfillmentAllStockCommand command = SyncFulfillmentAllStockCommand.of("CUST001");
@@ -232,10 +250,16 @@ class SyncFulfillmentStockUseCaseTest {
         @DisplayName("customerProductCode가 UUID가 아니면 해당 항목을 skip하고 이벤트를 발행하지 않는다")
         void shouldSkipWhenParsingFails() {
             // given
-            FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.of(
-                    "WH001", "GOD001", "INVALID-CODE", "상품명", null, null, null,
-                    10, 0, 10, null, null, null, List.of(), null
-            );
+            FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.builder()
+                    .warehouseCode("WH001")
+                    .productCode("GOD001")
+                    .customerProductCode("INVALID-CODE")
+                    .productName("상품명")
+                    .stockQuantity(10)
+                    .defectiveStockQuantity(0)
+                    .availableStockQuantity(10)
+                    .goodsSerialNumbers(List.of())
+                    .build();
             when(getFulfillmentStocksUseCase.getStocks(any(GetFulfillmentStocksCommand.class)))
                     .thenReturn(GetFulfillmentStocksResult.of(1, List.of(stockInfo)));
             SyncFulfillmentAllStockCommand command = SyncFulfillmentAllStockCommand.of("CUST001");
@@ -251,10 +275,16 @@ class SyncFulfillmentStockUseCaseTest {
         @DisplayName("customerProductCode가 숫자 포맷이어도 UUID가 아니면 skip한다 (productId fallback 제거)")
         void shouldSkipLegacyLongFormat() {
             // given
-            FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.of(
-                    "WH001", "GOD001", "42", "상품명", null, null, null,
-                    9, 0, 9, null, null, null, List.of(), null
-            );
+            FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.builder()
+                    .warehouseCode("WH001")
+                    .productCode("GOD001")
+                    .customerProductCode("42")
+                    .productName("상품명")
+                    .stockQuantity(9)
+                    .defectiveStockQuantity(0)
+                    .availableStockQuantity(9)
+                    .goodsSerialNumbers(List.of())
+                    .build();
             when(getFulfillmentStocksUseCase.getStocks(any(GetFulfillmentStocksCommand.class)))
                     .thenReturn(GetFulfillmentStocksResult.of(1, List.of(stockInfo)));
             SyncFulfillmentAllStockCommand command = SyncFulfillmentAllStockCommand.of("CUST001");

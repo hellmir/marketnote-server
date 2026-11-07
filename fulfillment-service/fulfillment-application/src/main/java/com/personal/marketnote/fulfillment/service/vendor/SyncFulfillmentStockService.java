@@ -58,10 +58,9 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
         for (UUID productKey : productKeys) {
             GetFulfillmentStocksResult stockDetail = fulfillmentAuthenticatedCaller.call(token ->
                     getFulfillmentStockDetailUseCase.getStockDetail(
-                            GetFulfillmentStockDetailCommand.of(
+                            GetFulfillmentStockDetailCommand.forProductKey(
                                     command.customerCode(),
                                     token,
-                                    productKey.toString(),
                                     productKey,
                                     DEFAULT_OUT_OF_STOCK_INCLUDED
                             )

@@ -30,9 +30,14 @@ class GetFulfillmentDeliveriesUseCaseTest {
     @DisplayName("출고 목록 조회 커맨드를 전달하면 포트를 통해 출고 목록을 반환한다")
     void shouldReturnDeliveriesFromPort() {
         // given
-        GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.of(
-                "CUST001", "token", "20260401", "20260402", "01", "01"
-        );
+        GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
+                .customerCode("CUST001")
+                .accessToken("token")
+                .startDate("20260401")
+                .endDate("20260402")
+                .status("01")
+                .releaseType("01")
+                .build();
         GetFulfillmentDeliveriesResult expectedResult = GetFulfillmentDeliveriesResult.of(0, List.of());
         when(getFulfillmentDeliveriesPort.getDeliveries(any())).thenReturn(expectedResult);
 

@@ -82,9 +82,13 @@ class FasstoWarehousingCommandToRequestMapperTest {
             UpdateFulfillmentWarehousingGoodsCommand goods = UpdateFulfillmentWarehousingGoodsCommand.of(
                     productKey, "GOD001", "20260420", 10
             );
-            UpdateFulfillmentWarehousingItemCommand item = UpdateFulfillmentWarehousingItemCommand.of(
-                    "20260420", "ORD001", "NORMAL", "SLIP001", null, null, null, null, null, null, null, List.of(goods)
-            );
+            UpdateFulfillmentWarehousingItemCommand item = UpdateFulfillmentWarehousingItemCommand.builder()
+                    .orderDate("20260420")
+                    .orderNumber("ORD001")
+                    .warehousingMethod("NORMAL")
+                    .slipNumber("SLIP001")
+                    .products(List.of(goods))
+                    .build();
             UpdateFulfillmentWarehousingCommand command = UpdateFulfillmentWarehousingCommand.of(
                     "CUST001", "token", List.of(item)
             );
@@ -104,9 +108,13 @@ class FasstoWarehousingCommandToRequestMapperTest {
             UpdateFulfillmentWarehousingGoodsCommand goods = UpdateFulfillmentWarehousingGoodsCommand.of(
                     "GOD001", "20260420", 10
             );
-            UpdateFulfillmentWarehousingItemCommand item = UpdateFulfillmentWarehousingItemCommand.of(
-                    "20260420", "ORD001", "NORMAL", "SLIP001", null, null, null, null, null, null, null, List.of(goods)
-            );
+            UpdateFulfillmentWarehousingItemCommand item = UpdateFulfillmentWarehousingItemCommand.builder()
+                    .orderDate("20260420")
+                    .orderNumber("ORD001")
+                    .warehousingMethod("NORMAL")
+                    .slipNumber("SLIP001")
+                    .products(List.of(goods))
+                    .build();
             UpdateFulfillmentWarehousingCommand command = UpdateFulfillmentWarehousingCommand.of(
                     "CUST001", "token", List.of(item)
             );
@@ -129,9 +137,15 @@ class FasstoWarehousingCommandToRequestMapperTest {
             // given
             UUID productKey = UUID.randomUUID();
             GetFulfillmentWarehousingAbnormalImageCommand command =
-                    GetFulfillmentWarehousingAbnormalImageCommand.of(
-                            "token", "SLIP001", productKey, "GOD001", "SN001", "1", "IMG001"
-                    );
+                    GetFulfillmentWarehousingAbnormalImageCommand.builder()
+                            .accessToken("token")
+                            .slipNumber("SLIP001")
+                            .productKey(productKey)
+                            .productCode("GOD001")
+                            .goodsSerialNo("SN001")
+                            .fileSeq("1")
+                            .imageNumber("IMG001")
+                            .build();
 
             // when
             FulfillmentWarehousingAbnormalImageQuery query =
@@ -146,9 +160,14 @@ class FasstoWarehousingCommandToRequestMapperTest {
         void shouldFallbackToProductCodeWhenProductKeyAbsent() {
             // given
             GetFulfillmentWarehousingAbnormalImageCommand command =
-                    GetFulfillmentWarehousingAbnormalImageCommand.of(
-                            "token", "SLIP001", "GOD001", "SN001", "1", "IMG001"
-                    );
+                    GetFulfillmentWarehousingAbnormalImageCommand.builder()
+                            .accessToken("token")
+                            .slipNumber("SLIP001")
+                            .productCode("GOD001")
+                            .goodsSerialNo("SN001")
+                            .fileSeq("1")
+                            .imageNumber("IMG001")
+                            .build();
 
             // when
             FulfillmentWarehousingAbnormalImageQuery query =

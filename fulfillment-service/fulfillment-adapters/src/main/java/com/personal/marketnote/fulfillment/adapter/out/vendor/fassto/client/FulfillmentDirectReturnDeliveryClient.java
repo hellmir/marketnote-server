@@ -288,13 +288,13 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
     private RegisterFulfillmentDeliveryItemResult mapDeliveryItem(
             com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentDeliveryItemResponse item
     ) {
-        return RegisterFulfillmentDeliveryItemResult.of(
-                item.fmsSlipNo(),
-                item.orderNo(),
-                item.msg(),
-                item.code(),
-                item.outOfStockGoodsDetail()
-        );
+        return RegisterFulfillmentDeliveryItemResult.builder()
+                .fulfillmentSlipNumber(item.fmsSlipNo())
+                .orderNumber(item.orderNo())
+                .message(item.msg())
+                .code(item.code())
+                .outOfStockGoodsDetail(item.outOfStockGoodsDetail())
+                .build();
     }
 
     private JsonNode buildRequestPayloadJson(

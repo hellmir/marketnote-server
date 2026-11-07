@@ -23,9 +23,15 @@ class FasstoDeliveryCommandToRequestMapperTest {
         @DisplayName("모든 필드가 FulfillmentDeliveryQuery로 매핑된다")
         void shouldMapAllFields() {
             // given
-            GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.of(
-                    "CUST001", "token", "20260101", "20260131", "A1", "O", "ORD001"
-            );
+            GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .status("A1")
+                    .releaseType("O")
+                    .orderNumber("ORD001")
+                    .build();
 
             // when
             FulfillmentDeliveryQuery query = FasstoDeliveryCommandToRequestMapper.mapToQuery(command);
@@ -44,9 +50,14 @@ class FasstoDeliveryCommandToRequestMapperTest {
         @DisplayName("orderNumber가 null이어도 매핑된다")
         void shouldMapWhenOrderNumberIsNull() {
             // given
-            GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.of(
-                    "CUST001", "token", "20260101", "20260131", "A1", "O"
-            );
+            GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .status("A1")
+                    .releaseType("O")
+                    .build();
 
             // when
             FulfillmentDeliveryQuery query = FasstoDeliveryCommandToRequestMapper.mapToQuery(command);
@@ -102,9 +113,13 @@ class FasstoDeliveryCommandToRequestMapperTest {
         @DisplayName("모든 필드가 FulfillmentDeliveryStatusQuery로 매핑된다")
         void shouldMapAllFields() {
             // given
-            GetFulfillmentDeliveryStatusesCommand command = GetFulfillmentDeliveryStatusesCommand.of(
-                    "CUST001", "token", "20260101", "20260131", "O"
-            );
+            GetFulfillmentDeliveryStatusesCommand command = GetFulfillmentDeliveryStatusesCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .releaseType("O")
+                    .build();
 
             // when
             FulfillmentDeliveryStatusQuery query = FasstoDeliveryCommandToRequestMapper.mapToDeliveryStatusQuery(command);
@@ -149,9 +164,13 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapAllFields() {
             // given
             GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command =
-                    GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.of(
-                            "CUST001", "token", "20260101", "20260131", "ORD001"
-                    );
+                    GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.builder()
+                            .customerCode("CUST001")
+                            .accessToken("token")
+                            .startDate("20260101")
+                            .endDate("20260131")
+                            .orderNumber("ORD001")
+                            .build();
 
             // when
             FulfillmentDeliveryOutOrdGoodsByOrdNoQuery query =
@@ -174,9 +193,13 @@ class FasstoDeliveryCommandToRequestMapperTest {
         @DisplayName("모든 필드가 FulfillmentDeliveryGoodDetailQuery로 매핑된다")
         void shouldMapAllFields() {
             // given
-            GetFulfillmentDeliveryGoodDetailCommand command = GetFulfillmentDeliveryGoodDetailCommand.of(
-                    "CUST001", "token", "20260101", "20260131", "ORD001"
-            );
+            GetFulfillmentDeliveryGoodDetailCommand command = GetFulfillmentDeliveryGoodDetailCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .orderNumber("ORD001")
+                    .build();
 
             // when
             FulfillmentDeliveryGoodDetailQuery query =

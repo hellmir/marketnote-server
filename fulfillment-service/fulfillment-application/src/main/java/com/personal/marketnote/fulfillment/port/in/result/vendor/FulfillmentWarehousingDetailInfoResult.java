@@ -2,6 +2,9 @@ package com.personal.marketnote.fulfillment.port.in.result.vendor;
 
 import java.util.List;
 
+import lombok.Builder;
+
+@Builder
 public record FulfillmentWarehousingDetailInfoResult(
         String orderDate,
         String warehouseCode,
@@ -27,55 +30,4 @@ public record FulfillmentWarehousingDetailInfoResult(
         String remark,
         List<FulfillmentWarehousingDetailGoodsInfoResult> goods
 ) {
-    public static FulfillmentWarehousingDetailInfoResult of(
-            String orderDate,
-            String warehouseCode,
-            String warehouseName,
-            String slipNumber,
-            String orderNumber,
-            String customerCode,
-            String customerName,
-            String supplierCode,
-            String supplierName,
-            String customerSupplierCode,
-            Integer sku,
-            Integer orderQuantity,
-            Integer inboundQuantity,
-            Integer targetQuantity,
-            String inboundMethod,
-            String inboundMethodName,
-            String courierCompany,
-            String trackingNumber,
-            String workStatus,
-            String workStatusName,
-            String emergencyYn,
-            String remark,
-            List<FulfillmentWarehousingDetailGoodsInfoResult> goods
-    ) {
-        return new FulfillmentWarehousingDetailInfoResult(
-                orderDate,
-                warehouseCode,
-                warehouseName,
-                slipNumber,
-                orderNumber,
-                customerCode,
-                customerName,
-                supplierCode,
-                supplierName,
-                customerSupplierCode,
-                sku,
-                orderQuantity,
-                inboundQuantity,
-                targetQuantity,
-                inboundMethod,
-                inboundMethodName,
-                courierCompany,
-                trackingNumber,
-                workStatus,
-                workStatusName,
-                emergencyYn,
-                remark,
-                goods
-        );
-    }
 }

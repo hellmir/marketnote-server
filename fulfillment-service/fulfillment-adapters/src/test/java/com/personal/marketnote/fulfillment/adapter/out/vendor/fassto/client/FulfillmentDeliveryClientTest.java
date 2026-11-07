@@ -598,9 +598,15 @@ class FulfillmentDeliveryClientTest {
                     """;
             stubGetChainReturns(successJson(body));
 
-            GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131", "01", "01", "ORD001"
-            );
+            GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .status("01")
+                    .releaseType("01")
+                    .orderNumber("ORD001")
+                    .build();
 
             // when
             GetFulfillmentDeliveriesResult result = client.getDeliveries(command);
@@ -620,9 +626,14 @@ class FulfillmentDeliveryClientTest {
             stubPayloadGenerator();
             stubGetChainThrows(new RuntimeException("Connection refused"));
 
-            GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131", "01", "01", null
-            );
+            GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .status("01")
+                    .releaseType("01")
+                    .build();
 
             // when & then
             assertThatThrownBy(() -> client.getDeliveries(command))
@@ -648,9 +659,13 @@ class FulfillmentDeliveryClientTest {
                     """;
             stubGetChainReturns(successJson(body));
 
-            GetFulfillmentDeliveryStatusesCommand command = GetFulfillmentDeliveryStatusesCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131", "01"
-            );
+            GetFulfillmentDeliveryStatusesCommand command = GetFulfillmentDeliveryStatusesCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .releaseType("01")
+                    .build();
 
             // when
             GetFulfillmentDeliveryStatusesResult result = client.getDeliveryStatuses(command);
@@ -670,9 +685,13 @@ class FulfillmentDeliveryClientTest {
             stubPayloadGenerator();
             stubGetChainThrows(new RuntimeException("Connection refused"));
 
-            GetFulfillmentDeliveryStatusesCommand command = GetFulfillmentDeliveryStatusesCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131", "01"
-            );
+            GetFulfillmentDeliveryStatusesCommand command = GetFulfillmentDeliveryStatusesCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .releaseType("01")
+                    .build();
 
             // when & then
             assertThatThrownBy(() -> client.getDeliveryStatuses(command))
@@ -821,9 +840,13 @@ class FulfillmentDeliveryClientTest {
                     """;
             stubGetChainReturns(successJson(body));
 
-            GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command = GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131", "ORD001"
-            );
+            GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command = GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .orderNumber("ORD001")
+                    .build();
 
             // when
             GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult result = client.getOutOrdGoodsByOrdNo(command);
@@ -853,9 +876,13 @@ class FulfillmentDeliveryClientTest {
                     """;
             stubGetChainReturns(successJson(body));
 
-            GetFulfillmentDeliveryGoodDetailCommand command = GetFulfillmentDeliveryGoodDetailCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131", "ORD001"
-            );
+            GetFulfillmentDeliveryGoodDetailCommand command = GetFulfillmentDeliveryGoodDetailCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .orderNumber("ORD001")
+                    .build();
 
             // when
             GetFulfillmentDeliveryGoodDetailResult result = client.getDeliveryGoodDetail(command);
@@ -874,9 +901,12 @@ class FulfillmentDeliveryClientTest {
             stubPayloadGenerator();
             stubGetChainThrows(new RuntimeException("Connection refused"));
 
-            GetFulfillmentDeliveryGoodDetailCommand command = GetFulfillmentDeliveryGoodDetailCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131", null
-            );
+            GetFulfillmentDeliveryGoodDetailCommand command = GetFulfillmentDeliveryGoodDetailCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .build();
 
             // when & then
             assertThatThrownBy(() -> client.getDeliveryGoodDetail(command))
@@ -899,9 +929,14 @@ class FulfillmentDeliveryClientTest {
                     """;
             stubGetChainReturns(responseWithStatus(body, HttpStatus.UNAUTHORIZED));
 
-            GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131", "01", "01", null
-            );
+            GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .status("01")
+                    .releaseType("01")
+                    .build();
 
             // when & then
             assertThatThrownBy(() -> client.getDeliveries(command))
@@ -955,9 +990,14 @@ class FulfillmentDeliveryClientTest {
             // given
             when(properties.getBaseUrl()).thenReturn(null);
 
-            GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131", "01", "01", null
-            );
+            GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .status("01")
+                    .releaseType("01")
+                    .build();
 
             // when & then
             assertThatThrownBy(() -> client.getDeliveries(command))

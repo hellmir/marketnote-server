@@ -1,5 +1,8 @@
 package com.personal.marketnote.fulfillment.port.in.result.vendor;
 
+import lombok.Builder;
+
+@Builder
 public record FulfillmentSupplierInfoResult(
         String supplierCode,
         String supplierName,
@@ -27,59 +30,4 @@ public record FulfillmentSupplierInfoResult(
         String secondaryManagerEmail,
         String useYn
 ) {
-    public static FulfillmentSupplierInfoResult of(
-            String supplierCode,
-            String supplierName,
-            String customerSupplierCode,
-            String customerCode,
-            String customerName,
-            String dealStartDate,
-            String dealEndDate,
-            String zipCode,
-            String address1,
-            String address2,
-            String ceoName,
-            String businessNumber,
-            String businessCategory,
-            String businessType,
-            String phoneNumber,
-            String faxNumber,
-            String primaryManagerName,
-            String primaryManagerPosition,
-            String primaryManagerPhoneNumber,
-            String primaryManagerEmail,
-            String secondaryManagerName,
-            String secondaryManagerPosition,
-            String secondaryManagerPhoneNumber,
-            String secondaryManagerEmail,
-            String useYn
-    ) {
-        return new FulfillmentSupplierInfoResult(
-                supplierCode,
-                supplierName,
-                customerSupplierCode,
-                customerCode,
-                customerName,
-                dealStartDate,
-                dealEndDate,
-                zipCode,
-                address1,
-                address2,
-                ceoName,
-                businessNumber,
-                businessCategory,
-                businessType,
-                phoneNumber,
-                faxNumber,
-                primaryManagerName,
-                primaryManagerPosition,
-                primaryManagerPhoneNumber,
-                primaryManagerEmail,
-                secondaryManagerName,
-                secondaryManagerPosition,
-                secondaryManagerPhoneNumber,
-                secondaryManagerEmail,
-                useYn
-        );
-    }
 }

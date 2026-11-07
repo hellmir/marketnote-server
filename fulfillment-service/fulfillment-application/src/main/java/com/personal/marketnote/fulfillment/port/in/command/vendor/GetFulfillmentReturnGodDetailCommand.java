@@ -1,5 +1,8 @@
 package com.personal.marketnote.fulfillment.port.in.command.vendor;
 
+import lombok.Builder;
+
+@Builder
 public record GetFulfillmentReturnGodDetailCommand(
         String customerCode,
         String accessToken,
@@ -8,16 +11,15 @@ public record GetFulfillmentReturnGodDetailCommand(
         String returnSlipNumbers,
         String warehouseCode
 ) {
-    public static GetFulfillmentReturnGodDetailCommand of(
+    public static GetFulfillmentReturnGodDetailCommand forReturnSlipNumbers(
             String customerCode,
             String accessToken,
-            String startDate,
-            String endDate,
-            String returnSlipNumbers,
-            String warehouseCode
+            String returnSlipNumbers
     ) {
-        return new GetFulfillmentReturnGodDetailCommand(
-                customerCode, accessToken, startDate, endDate, returnSlipNumbers, warehouseCode
-        );
+        return GetFulfillmentReturnGodDetailCommand.builder()
+                .customerCode(customerCode)
+                .accessToken(accessToken)
+                .returnSlipNumbers(returnSlipNumbers)
+                .build();
     }
 }

@@ -30,9 +30,14 @@ class GetFulfillmentReturnGodDetailUseCaseTest {
     @DisplayName("반품 상품 상세 조회 커맨드를 전달하면 포트를 통해 상세 정보를 반환한다")
     void shouldReturnReturnGodDetailResultFromPort() {
         // given
-        GetFulfillmentReturnGodDetailCommand command = GetFulfillmentReturnGodDetailCommand.of(
-                "CUST001", "token", "2026-01-01", "2026-01-31", "RTN001", "WH001"
-        );
+        GetFulfillmentReturnGodDetailCommand command = GetFulfillmentReturnGodDetailCommand.builder()
+                .customerCode("CUST001")
+                .accessToken("token")
+                .startDate("2026-01-01")
+                .endDate("2026-01-31")
+                .returnSlipNumbers("RTN001")
+                .warehouseCode("WH001")
+                .build();
         GetFulfillmentReturnGodDetailResult expectedResult = GetFulfillmentReturnGodDetailResult.of(0, List.of());
         when(getFulfillmentReturnGodDetailPort.getReturnGodDetail(any())).thenReturn(expectedResult);
 

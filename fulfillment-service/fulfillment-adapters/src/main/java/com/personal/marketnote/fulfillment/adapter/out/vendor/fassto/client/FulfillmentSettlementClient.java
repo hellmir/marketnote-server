@@ -311,21 +311,21 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
     }
 
     private FulfillmentSettlementDailyCostInfoResult mapDailyCostInfo(FulfillmentSettlementDailyCostItemResponse item) {
-        return FulfillmentSettlementDailyCostInfoResult.of(
-                item.cloDt(),       // closeDate
-                item.whCd(),        // warehouseCode
-                item.cstCd(),       // customerCode
-                item.inpAmt(),      // inboundAmount
-                item.outAmt(),      // outboundAmount
-                item.outcarAmt(),   // outboundCarAmount
-                item.outairAmt(),   // outboundAirAmount
-                item.keepAmt(),     // storageAmount
-                item.retAmt(),      // returnAmount
-                item.cashAmt(),     // cashAmount
-                item.founAmt(),     // foundationAmount
-                item.othAmt(),      // otherAmount
-                item.totAmt()       // totalAmount
-        );
+        return FulfillmentSettlementDailyCostInfoResult.builder()
+                .closeDate(item.cloDt())
+                .warehouseCode(item.whCd())
+                .customerCode(item.cstCd())
+                .inboundAmount(item.inpAmt())
+                .outboundAmount(item.outAmt())
+                .outboundCarAmount(item.outcarAmt())
+                .outboundAirAmount(item.outairAmt())
+                .storageAmount(item.keepAmt())
+                .returnAmount(item.retAmt())
+                .cashAmount(item.cashAmt())
+                .foundationAmount(item.founAmt())
+                .otherAmount(item.othAmt())
+                .totalAmount(item.totAmt())
+                .build();
     }
 
     private String maskValue(String value) {

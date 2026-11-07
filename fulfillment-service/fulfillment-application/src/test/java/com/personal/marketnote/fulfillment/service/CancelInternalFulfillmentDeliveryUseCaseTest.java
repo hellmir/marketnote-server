@@ -82,7 +82,12 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
-                CancelFulfillmentDeliveryItemResult.of("SLIP001", String.valueOf(orderId), "성공", "00", null)
+                CancelFulfillmentDeliveryItemResult.builder()
+                        .fulfillmentSlipNumber("SLIP001")
+                        .orderNumber(String.valueOf(orderId))
+                        .message("성공")
+                        .code("00")
+                        .build()
         ));
         when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(fasstoResult);
 
@@ -171,7 +176,12 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
-                CancelFulfillmentDeliveryItemResult.of("SLIP001", String.valueOf(orderId), "성공", "00", null)
+                CancelFulfillmentDeliveryItemResult.builder()
+                        .fulfillmentSlipNumber("SLIP001")
+                        .orderNumber(String.valueOf(orderId))
+                        .message("성공")
+                        .code("00")
+                        .build()
         ));
         when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(fasstoResult);
 
@@ -201,7 +211,12 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
-                CancelFulfillmentDeliveryItemResult.of("SLIP001", String.valueOf(orderId), "성공", "00", null)
+                CancelFulfillmentDeliveryItemResult.builder()
+                        .fulfillmentSlipNumber("SLIP001")
+                        .orderNumber(String.valueOf(orderId))
+                        .message("성공")
+                        .code("00")
+                        .build()
         ));
         when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(fasstoResult);
 
@@ -235,7 +250,12 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
-                CancelFulfillmentDeliveryItemResult.of("SLIP001", String.valueOf(orderId), "성공", "00", null)
+                CancelFulfillmentDeliveryItemResult.builder()
+                        .fulfillmentSlipNumber("SLIP001")
+                        .orderNumber(String.valueOf(orderId))
+                        .message("성공")
+                        .code("00")
+                        .build()
         ));
         when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(fasstoResult);
 
@@ -264,7 +284,12 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
-                CancelFulfillmentDeliveryItemResult.of("SLIP001", String.valueOf(orderId), "성공", "00", null)
+                CancelFulfillmentDeliveryItemResult.builder()
+                        .fulfillmentSlipNumber("SLIP001")
+                        .orderNumber(String.valueOf(orderId))
+                        .message("성공")
+                        .code("00")
+                        .build()
         ));
         when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(fasstoResult);
 

@@ -1,5 +1,8 @@
 package com.personal.marketnote.fulfillment.port.in.command.vendor;
 
+import lombok.Builder;
+
+@Builder
 public record GetFulfillmentWarehousingCommand(
         String customerCode,
         String accessToken,
@@ -15,18 +18,15 @@ public record GetFulfillmentWarehousingCommand(
             String startDate,
             String endDate
     ) {
-        return new GetFulfillmentWarehousingCommand(customerCode, accessToken, startDate, endDate, null, null, null);
+        return GetFulfillmentWarehousingCommand.builder()
+                .customerCode(customerCode)
+                .accessToken(accessToken)
+                .startDate(startDate)
+                .endDate(endDate)
+                .warehousingMethod(null)
+                .orderNumber(null)
+                .workStatus(null)
+                .build();
     }
 
-    public static GetFulfillmentWarehousingCommand of(
-            String customerCode,
-            String accessToken,
-            String startDate,
-            String endDate,
-            String warehousingMethod,
-            String orderNumber,
-            String workStatus
-    ) {
-        return new GetFulfillmentWarehousingCommand(customerCode, accessToken, startDate, endDate, warehousingMethod, orderNumber, workStatus);
-    }
 }
