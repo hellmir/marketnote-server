@@ -247,8 +247,36 @@ def FLYWAY_MIGRATED_SERVICES = [
     'product-service', 'file-service'
 ]
 
+// QA 잡 한정 매일 새벽 자동 배포 cron spec.
+// 공용 Jenkinsfile이 qa/stage/prod 잡에 모두 사용되므로 JOB_NAME 프로젝트 세그먼트 접미사로 QA만 분기한다.
+// 판정 로직은 Environment Setup stage의 기존 선례와 동일(jobName.split('/')[0] 매칭)하여 이중 방어를 확보한다.
+// 비-QA 환경에서는 '#'로 시작하는 주석 라인만 반환하여 parameterizedCron parser가 무시하게 한다.
+// 스케줄: 02:00~05:30 KST, 30분 간격 8개 서비스 (기반→상위→cross-cutting 의존성 순서)
+def buildQaCronSpec() {
+    def jobName = env.JOB_NAME ?: ''
+    def projectName = jobName.split('/')[0]
+    def matcher = (projectName =~ /-(qa|stage|prod)$/)
+    if (!matcher.find() || matcher.group(1) != 'qa') {
+        return '# marketnote-qa 한정. 현재 JOB_NAME은 QA 잡이 아니므로 cron 미발화'
+    }
+    return '''\
+0 2 * * * %SERVICE=user-service
+30 2 * * * %SERVICE=file-service
+0 3 * * * %SERVICE=product-service
+30 3 * * * %SERVICE=reward-service
+0 4 * * * %SERVICE=commerce-service
+30 4 * * * %SERVICE=community-service
+0 5 * * * %SERVICE=fulfillment-service
+30 5 * * * %SERVICE=notification-service
+'''
+}
+
 pipeline {
 	agent any
+
+	triggers {
+		parameterizedCron(buildQaCronSpec())
+	}
 
 	parameters {
 		choice(name: 'SERVICE', choices: ['auto','user-service','product-service','commerce-service','community-service','reward-service','fulfillment-service','file-service','notification-service'], description: '배포 대상 서비스')
@@ -746,10 +774,10 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",        variable: 'AWS_ACCOUNT_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",              variable: 'AWS_ACCOUNT_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",           variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",       variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",          variable: 'AWS_DEFAULT_REGION'),
 						string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_ECR_REPOSITORY",   variable: 'PROMETHEUS_ECR_REPOSITORY')
 					]) {
 						sh '''
@@ -824,11 +852,11 @@ pipeline {
 						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_EXECUTION_ROLE_ARN",     variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
 						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_ROLE_ARN",               variable: 'ECS_TASK_ROLE_ARN'),
 						string(credentialsId: "${env.ENV_PREFIX}_CLOUDWATCH_LOG_GROUP_PROMETHEUS", variable: 'CLOUDWATCH_LOG_GROUP_PROMETHEUS'),
-						string(credentialsId: "${env.ENV_PREFIX}_SERVER_DOMAIN",                variable: 'MARKETNOTE_SERVER_DOMAIN'),
-						string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_PRIVATE_IP",       variable: 'FULFILLMENT_PRIVATE_IP'),
-						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_1_PRIVATE_IP",    variable: 'KAFKA_BROKER_1_PRIVATE_IP'),
-						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_2_PRIVATE_IP",    variable: 'KAFKA_BROKER_2_PRIVATE_IP'),
-						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_3_PRIVATE_IP",    variable: 'KAFKA_BROKER_3_PRIVATE_IP')
+						string(credentialsId: "${env.ENV_PREFIX}_SERVER_DOMAIN",                   variable: 'MARKETNOTE_SERVER_DOMAIN'),
+						string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_PRIVATE_IP",          variable: 'FULFILLMENT_PRIVATE_IP'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_1_PRIVATE_IP",       variable: 'KAFKA_BROKER_1_PRIVATE_IP'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_2_PRIVATE_IP",       variable: 'KAFKA_BROKER_2_PRIVATE_IP'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_3_PRIVATE_IP",       variable: 'KAFKA_BROKER_3_PRIVATE_IP')
 					]) {
 						sh '''
                         aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_PROMETHEUS" --region "$AWS_DEFAULT_REGION" || true
@@ -913,7 +941,7 @@ pipeline {
 						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_DOMAIN",                 variable: 'GRAFANA_DOMAIN'),
 						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_ROOT_URL",               variable: 'GRAFANA_ROOT_URL'),
 						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_SERVE_FROM_SUB_PATH",    variable: 'GRAFANA_SERVE_FROM_SUB_PATH'),
-						string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_URL",              variable: 'PROMETHEUS_URL')
+						string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_URL",                 variable: 'PROMETHEUS_URL')
 					]) {
 						sh '''
                         aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_GRAFANA" --region "$AWS_DEFAULT_REGION" || true
