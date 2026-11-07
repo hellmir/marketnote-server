@@ -172,6 +172,7 @@ def buildPrometheusTaskDefinition(env) {
             ],
             environment: [
                 [name: "ENVIRONMENT",               value: "${env.ENVIRONMENT_UPPER.toLowerCase()}"],
+                [name: "MARKETNOTE_SERVER_DOMAIN",        value: "${env.MARKETNOTE_SERVER_DOMAIN}"],
                 [name: "FULFILLMENT_PRIVATE_IP",    value: "${env.FULFILLMENT_PRIVATE_IP}"],
                 [name: "KAFKA_BROKER_1_PRIVATE_IP", value: "${env.KAFKA_BROKER_1_PRIVATE_IP}"],
                 [name: "KAFKA_BROKER_2_PRIVATE_IP", value: "${env.KAFKA_BROKER_2_PRIVATE_IP}"],
@@ -823,6 +824,7 @@ pipeline {
 						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_EXECUTION_ROLE_ARN",     variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
 						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_ROLE_ARN",               variable: 'ECS_TASK_ROLE_ARN'),
 						string(credentialsId: "${env.ENV_PREFIX}_CLOUDWATCH_LOG_GROUP_PROMETHEUS", variable: 'CLOUDWATCH_LOG_GROUP_PROMETHEUS'),
+						string(credentialsId: "${env.ENV_PREFIX}_SERVER_DOMAIN",                variable: 'MARKETNOTE_SERVER_DOMAIN'),
 						string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_PRIVATE_IP",       variable: 'FULFILLMENT_PRIVATE_IP'),
 						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_1_PRIVATE_IP",    variable: 'KAFKA_BROKER_1_PRIVATE_IP'),
 						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_2_PRIVATE_IP",    variable: 'KAFKA_BROKER_2_PRIVATE_IP'),

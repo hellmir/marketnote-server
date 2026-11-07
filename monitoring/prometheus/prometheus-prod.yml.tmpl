@@ -17,7 +17,7 @@ scrape_configs:
     scheme: https
     static_configs:
       - targets:
-          - 'users.marketnote.store:443'
+          - 'users.${MARKETNOTE_SERVER_DOMAIN}:443'
         labels:
           service: 'user-service'
 
@@ -26,7 +26,7 @@ scrape_configs:
     scheme: https
     static_configs:
       - targets:
-          - 'products.marketnote.store:443'
+          - 'products.${MARKETNOTE_SERVER_DOMAIN}:443'
         labels:
           service: 'product-service'
 
@@ -35,7 +35,7 @@ scrape_configs:
     scheme: https
     static_configs:
       - targets:
-          - 'commerce.marketnote.store:443'
+          - 'commerce.${MARKETNOTE_SERVER_DOMAIN}:443'
         labels:
           service: 'commerce-service'
 
@@ -44,7 +44,7 @@ scrape_configs:
     scheme: https
     static_configs:
       - targets:
-          - 'community.marketnote.store:443'
+          - 'community.${MARKETNOTE_SERVER_DOMAIN}:443'
         labels:
           service: 'community-service'
 
@@ -53,7 +53,7 @@ scrape_configs:
     scheme: https
     static_configs:
       - targets:
-          - 'rewards.marketnote.store:443'
+          - 'rewards.${MARKETNOTE_SERVER_DOMAIN}:443'
         labels:
           service: 'reward-service'
 
@@ -62,7 +62,7 @@ scrape_configs:
     scheme: https
     static_configs:
       - targets:
-          - 'fulfillment.marketnote.store:443'
+          - 'fulfillment.${MARKETNOTE_SERVER_DOMAIN}:443'
         labels:
           service: 'fulfillment-service'
 
@@ -71,7 +71,7 @@ scrape_configs:
     scheme: https
     static_configs:
       - targets:
-          - 'files.marketnote.store:443'
+          - 'files.${MARKETNOTE_SERVER_DOMAIN}:443'
         labels:
           service: 'file-service'
 
