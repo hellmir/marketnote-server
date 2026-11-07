@@ -271,8 +271,46 @@ def buildQaCronSpec() {
 '''
 }
 
+// TimerTrigger 또는 ParameterizedTimerTrigger cause 존재 여부로 cron 발화 빌드 판정.
+// 두 플러그인 모두 cause 클래스명에 'TimerTrigger' 또는 'ParameterizedTimerTrigger'를 포함한다.
+// @NonCPS: getBuildCauses() 반환 객체 순회를 단일 JVM frame에서 완료 — CPS 직렬화 yield 회피.
+@NonCPS
+def isCronTriggered(build) {
+    def causes = build.getBuildCauses() ?: []
+    return causes.any { c ->
+        def cls = (c._class ?: '').toString()
+        return cls.contains('TimerTrigger') || cls.contains('ParameterizedTimerTrigger')
+    }
+}
+
+// 이전 성공 빌드 description에서 동일 SERVICE의 마지막 배포 COMMIT 조회.
+// description 포맷: "SERVICE=<name> COMMIT=<sha>" (post.success에서 기록)
+// 순회 한도 50건 — 8 서비스 × 평균 일 3회 성공 = 약 2일 커버.
+// 미발견 시 null 반환 → fail-open(재배포). 장기간 미배포 서비스 드리프트 방지.
+// @NonCPS: java.util.regex.Matcher와 previousSuccessfulBuild 체인 순회를 단일 frame에서 완료해
+//         CPS yield 시점의 비직렬화 예외(NotSerializableException) 회피.
+@NonCPS
+def findLastDeployedCommit(build, String serviceName) {
+    def prev = build.previousSuccessfulBuild
+    int scanned = 0
+    while (prev != null && scanned < 50) {
+        def desc = prev.description ?: ''
+        def m = desc =~ /SERVICE=(\S+) COMMIT=(\S+)/
+        if (m.find() && m.group(1) == serviceName) {
+            return m.group(2)
+        }
+        prev = prev.previousSuccessfulBuild
+        scanned++
+    }
+    return null
+}
+
 pipeline {
 	agent any
+
+	options {
+		disableConcurrentBuilds()
+	}
 
 	triggers {
 		parameterizedCron(buildQaCronSpec())
@@ -357,7 +395,38 @@ pipeline {
 			}
 		}
 
+		stage('Skip If Same Commit (Cron Only)') {
+			steps {
+				script {
+					// cron 트리거가 아닌 경우 가드 비활성 — 수동/Webhook 배포는 항상 진행
+					if (!isCronTriggered(currentBuild)) {
+						echo "Not a cron-triggered build. Skip-guard inactive."
+						return
+					}
+					env.CRON_TRIGGERED = 'true'
+
+					// GIT_COMMIT 미해결 시 명시적 fail-open — SHA 비교 불가 → 배포 진행
+					if (!env.GIT_COMMIT?.trim()) {
+						echo "[QA-CRON] GIT_COMMIT unresolved. Skip-guard bypassed (fail-open)."
+						return
+					}
+
+					def lastCommit = findLastDeployedCommit(currentBuild, env.SERVICE_NAME)
+					boolean sameCommit = lastCommit && lastCommit == env.GIT_COMMIT
+					if (!sameCommit) {
+						echo "[QA-CRON] SERVICE=${env.SERVICE_NAME} 배포 진행. last=${lastCommit ?: 'none'} current=${env.GIT_COMMIT}"
+						return
+					}
+
+					env.CRON_SKIP = 'true'
+					currentBuild.result = 'NOT_BUILT'
+					echo "[QA-CRON] SERVICE=${env.SERVICE_NAME} COMMIT=${env.GIT_COMMIT} 이미 배포됨. 재배포 skip."
+				}
+			}
+		}
+
 		stage('Environment Setup') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					sh 'chmod +x ./gradlew'
@@ -375,21 +444,23 @@ pipeline {
 					matcher = null
 					env.ENVIRONMENT_UPPER = environment
 					env.ENV_PREFIX = "MARKETNOTE_${environment}"
+
+					echo 'Environment variables set'
+					echo "CANDIDATE_SERVICES        = ${env.CANDIDATE_SERVICES}"
+					echo "SERVICE_NAME              = ${env.SERVICE_NAME}"
+					echo "SERVICE_DIRECTORY         = ${env.SERVICE_DIRECTORY}"
+					echo "PROJECT_NAME              = ${env.PROJECT_NAME}"
+					echo "PROJECT_VERSION           = ${env.PROJECT_VERSION}"
+					echo "ENVIRONMENT               = ${env.ENVIRONMENT_UPPER}"
+					echo "ENV_PREFIX                = ${env.ENV_PREFIX}"
+					echo "CRON_TRIGGERED            = ${env.CRON_TRIGGERED ?: 'false'}"
+					echo "parameterizedCron spec:\n${buildQaCronSpec()}"
 				}
-
-				echo 'Environment variables set'
-
-				echo "CANDIDATE_SERVICES        = ${env.CANDIDATE_SERVICES}"
-				echo "SERVICE_NAME              = ${env.SERVICE_NAME}"
-				echo "SERVICE_DIRECTORY         = ${env.SERVICE_DIRECTORY}"
-				echo "PROJECT_NAME              = ${env.PROJECT_NAME}"
-				echo "PROJECT_VERSION           = ${env.PROJECT_VERSION}"
-				echo "ENVIRONMENT               = ${env.ENVIRONMENT_UPPER}"
-				echo "ENV_PREFIX                = ${env.ENV_PREFIX}"
 			}
 		}
 
         stage('Notify Start') {
+            when { not { environment name: 'CRON_SKIP', value: 'true' } }
             steps {
                 withCredentials([
                     string(credentialsId: "${env.ENV_PREFIX}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
@@ -403,11 +474,12 @@ pipeline {
 
                         def commitAuthor  = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
                         def commitMessage = sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim()
+                        def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
 
                         slackSend(
                             channel: "${env.SLACK_NOTIFICATION_CHANNEL}",
                             color:   "${env.SLACK_GENERAL_COLOR}",
-                            message: "[${env.ENVIRONMENT_UPPER}] Start a build\n"
+                            message: "${cronPrefix}[${env.ENVIRONMENT_UPPER}] Start a build\n"
                                 + "SERVICE: ${env.SERVICE_NAME}\n"
                                 + "PROJECT_NAME: ${env.PROJECT_NAME}\n"
                                 + "VERSION: ${env.PROJECT_VERSION}\n"
@@ -425,6 +497,7 @@ pipeline {
         }
 
 		stage('Check Flyway Immutability') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					if (params.SKIP_FLYWAY_IMMUTABILITY_CHECK) {
@@ -441,6 +514,7 @@ pipeline {
 		}
 
 		stage('Test') {
+            when { not { environment name: 'CRON_SKIP', value: 'true' } }
             steps {
                 sh "chmod u+x ${WORKSPACE}/gradlew"
                 sh "./gradlew -p ${env.SERVICE_NAME} clean test"
@@ -449,6 +523,7 @@ pipeline {
         }
 
         stage('Build') {
+            when { not { environment name: 'CRON_SKIP', value: 'true' } }
             steps {
                 sh "./gradlew -p ${env.SERVICE_DIRECTORY} build -x test"
                 echo "Build complete"
@@ -456,6 +531,7 @@ pipeline {
         }
 
 		stage('Resolve Service Mappings') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def helper = load 'jenkins/resolve-and-register.groovy'
@@ -465,6 +541,7 @@ pipeline {
 		}
 
 		stage('Detect Redis Changes') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def base = sh(script: 'git rev-parse HEAD~1 || git rev-parse HEAD', returnStdout: true).trim()
@@ -492,6 +569,7 @@ pipeline {
 		}
 
 		stage('Register Redis Task Definition') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					if (env.REDIS_CHANGED != "true") {
@@ -536,6 +614,7 @@ pipeline {
 		}
 
 		stage('Deploy Redis Service') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					if (env.REDIS_CHANGED != "true") {
@@ -594,6 +673,7 @@ pipeline {
 		}
 
 		stage('Build Marketnote Service Image') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def dockerImageTag = "${env.PROJECT_NAME}:${env.PROJECT_VERSION}"
@@ -610,6 +690,7 @@ pipeline {
 		}
 
 		stage('Push Marketnote Service Image') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					withCredentials([
@@ -633,7 +714,10 @@ pipeline {
 
 		stage('Run Flyway Migration') {
 			when {
-				expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
+				allOf {
+					expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
+					not { environment name: 'CRON_SKIP', value: 'true' }
+				}
 			}
 			steps {
 				script {
@@ -644,6 +728,7 @@ pipeline {
 		}
 
 		stage('Run Concurrent Indexes') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				timeout(time: 30, unit: 'MINUTES') {
 					script {
@@ -660,7 +745,10 @@ pipeline {
 
 		stage('Override Spring Flyway Enabled=false') {
 			when {
-				expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
+				allOf {
+					expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
+					not { environment name: 'CRON_SKIP', value: 'true' }
+				}
 			}
 			steps {
 				script {
@@ -671,6 +759,7 @@ pipeline {
 		}
 
 		stage('Register Marketnote Service Task Definition') {
+            when { not { environment name: 'CRON_SKIP', value: 'true' } }
             steps {
                 script {
                     def helper = load 'jenkins/resolve-and-register.groovy'
@@ -680,6 +769,7 @@ pipeline {
         }
 
 		stage('Deploy Marketnote Service') {
+            when { not { environment name: 'CRON_SKIP', value: 'true' } }
             steps {
                 script {
                     withCredentials([
@@ -745,6 +835,7 @@ pipeline {
         }
 
 		stage('Build Prometheus Image') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -767,6 +858,7 @@ pipeline {
 		}
 
 		stage('Push Prometheus Image') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -793,6 +885,7 @@ pipeline {
 		}
 
 		stage('Build Grafana Image') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -813,6 +906,7 @@ pipeline {
 		}
 
 		stage('Push Grafana Image') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -839,6 +933,7 @@ pipeline {
 		}
 
 		stage('Register Prometheus Task Definition') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -871,6 +966,7 @@ pipeline {
 		}
 
 		stage('Deploy Prometheus Service') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -924,6 +1020,7 @@ pipeline {
 		}
 
 		stage('Register Grafana Task Definition') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -956,6 +1053,7 @@ pipeline {
 		}
 
 		stage('Deploy Grafana Service') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -1009,6 +1107,7 @@ pipeline {
 		}
 
 		stage('Archive Artifacts') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				archiveArtifacts artifacts: "${env.SERVICE_DIRECTORY}/build/libs/*.jar", fingerprint: true
 			}
@@ -1025,12 +1124,18 @@ pipeline {
 		success {
 			echo '====================================Build Success====================================='
 			script {
+				// cron skip 재배포 판정용 description 기록 — findLastDeployedCommit에서 파싱.
+				// 포맷 고정: "SERVICE=<name> COMMIT=<sha>" (공백 구분, 정규식 \S+ 매칭)
+				if (env.SERVICE_NAME?.trim() && env.GIT_COMMIT?.trim()) {
+					currentBuild.description = "SERVICE=${env.SERVICE_NAME} COMMIT=${env.GIT_COMMIT}"
+				}
 				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
 				if (ch) {
+					def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
 					slackSend(
 						channel: ch,
 						color:   "${env.SLACK_SUCCESS_COLOR}",
-						message: "Build Success!!\n"
+						message: "${cronPrefix}Build Success!!\n"
 						+ "SERVICE: ${env.SERVICE_NAME}\n"
 						+ "ECS_SERVICE: ${env.ECS_SERVICE_NAME}\n"
 						+ "IMAGE: ${env.IMAGE_URI?:'N/A'}\n"
@@ -1047,10 +1152,11 @@ pipeline {
 			script {
 				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
 				if (ch) {
+					def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
 					slackSend(
 						channel: ch,
 						color:   "${env.SLACK_FAIL_COLOR}",
-						message: "Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
+						message: "${cronPrefix}Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
 					)
 				} else {
 					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack failure notification"
