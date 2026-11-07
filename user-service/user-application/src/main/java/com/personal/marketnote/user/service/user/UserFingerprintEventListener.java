@@ -2,7 +2,7 @@ package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.user.UserFingerprint;
-import com.personal.marketnote.user.domain.user.UserFingerprintCreateState;
+import com.personal.marketnote.user.mapper.UserFingerprintEventToStateMapper;
 import com.personal.marketnote.user.port.in.event.UserFingerprintSavedEvent;
 import com.personal.marketnote.user.port.out.user.SaveUserFingerprintPort;
 import lombok.RequiredArgsConstructor;
@@ -34,12 +34,7 @@ public class UserFingerprintEventListener {
 
         try {
             UserFingerprint userFingerprint = UserFingerprint.from(
-                    UserFingerprintCreateState.builder()
-                            .userId(event.userId())
-                            .fingerprint(event.fingerprint())
-                            .source(event.source())
-                            .firstSeenAt(LocalDateTime.now(clock))
-                            .build()
+                    UserFingerprintEventToStateMapper.mapToCreateState(event, LocalDateTime.now(clock))
             );
 
             saveUserFingerprintPort.save(userFingerprint);
