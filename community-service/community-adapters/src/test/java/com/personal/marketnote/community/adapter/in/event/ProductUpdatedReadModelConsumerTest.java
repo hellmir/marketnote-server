@@ -59,7 +59,7 @@ class ProductUpdatedReadModelConsumerTest {
 
     private ProductUpdatedEvent createPayload(Long productId, String productName) {
         return new ProductUpdatedEvent(
-                productId, UUID.randomUUID(), productName, null, null, null, null, null,
+                productId, UUID.randomUUID(), productName, null, null, null, null, null, null,
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,

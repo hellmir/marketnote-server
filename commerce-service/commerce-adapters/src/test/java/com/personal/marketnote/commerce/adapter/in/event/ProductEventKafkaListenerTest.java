@@ -69,7 +69,7 @@ class ProductEventKafkaListenerTest {
         ProductUpdatedEvent event = new ProductUpdatedEvent(
                 productId, productKey, "이름", null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, null
+                null, null, null, null, null, null, null, null, null, null, null, null
         );
         EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "product.product.updated", "product-service",
