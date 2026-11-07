@@ -371,7 +371,6 @@ pipeline {
 		}
 
 		stage('Environment Setup') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					sh 'chmod +x ./gradlew'
@@ -405,7 +404,6 @@ pipeline {
 		}
 
         stage('Notify Start') {
-            when { not { environment name: 'CRON_SKIP', value: 'true' } }
             steps {
                 withCredentials([
                     string(credentialsId: "${env.ENV_PREFIX}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
@@ -442,7 +440,6 @@ pipeline {
         }
 
 		stage('Check Flyway Immutability') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					if (params.SKIP_FLYWAY_IMMUTABILITY_CHECK) {
@@ -459,7 +456,6 @@ pipeline {
 		}
 
 		stage('Test') {
-            when { not { environment name: 'CRON_SKIP', value: 'true' } }
             steps {
                 sh "chmod u+x ${WORKSPACE}/gradlew"
                 sh "./gradlew -p ${env.SERVICE_NAME} clean test"
@@ -468,7 +464,6 @@ pipeline {
         }
 
         stage('Build') {
-            when { not { environment name: 'CRON_SKIP', value: 'true' } }
             steps {
                 sh "./gradlew -p ${env.SERVICE_DIRECTORY} build -x test"
                 echo "Build complete"
@@ -476,7 +471,6 @@ pipeline {
         }
 
 		stage('Resolve Service Mappings') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def helper = load 'jenkins/resolve-and-register.groovy'
@@ -486,7 +480,6 @@ pipeline {
 		}
 
 		stage('Detect Redis Changes') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def base = sh(script: 'git rev-parse HEAD~1 || git rev-parse HEAD', returnStdout: true).trim()
@@ -514,7 +507,6 @@ pipeline {
 		}
 
 		stage('Register Redis Task Definition') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					if (env.REDIS_CHANGED != "true") {
@@ -559,7 +551,6 @@ pipeline {
 		}
 
 		stage('Deploy Redis Service') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					if (env.REDIS_CHANGED != "true") {
@@ -618,7 +609,6 @@ pipeline {
 		}
 
 		stage('Build Marketnote Service Image') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def dockerImageTag = "${env.PROJECT_NAME}:${env.PROJECT_VERSION}"
@@ -635,7 +625,6 @@ pipeline {
 		}
 
 		stage('Push Marketnote Service Image') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					withCredentials([
@@ -659,10 +648,7 @@ pipeline {
 
 		stage('Run Flyway Migration') {
 			when {
-				allOf {
-					expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
-					not { environment name: 'CRON_SKIP', value: 'true' }
-				}
+				expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
 			}
 			steps {
 				script {
@@ -673,7 +659,6 @@ pipeline {
 		}
 
 		stage('Run Concurrent Indexes') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				timeout(time: 30, unit: 'MINUTES') {
 					script {
@@ -690,10 +675,7 @@ pipeline {
 
 		stage('Override Spring Flyway Enabled=false') {
 			when {
-				allOf {
-					expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
-					not { environment name: 'CRON_SKIP', value: 'true' }
-				}
+				expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
 			}
 			steps {
 				script {
@@ -704,7 +686,6 @@ pipeline {
 		}
 
 		stage('Register Marketnote Service Task Definition') {
-            when { not { environment name: 'CRON_SKIP', value: 'true' } }
             steps {
                 script {
                     def helper = load 'jenkins/resolve-and-register.groovy'
@@ -714,7 +695,6 @@ pipeline {
         }
 
 		stage('Deploy Marketnote Service') {
-            when { not { environment name: 'CRON_SKIP', value: 'true' } }
             steps {
                 script {
                     withCredentials([
@@ -780,7 +760,6 @@ pipeline {
         }
 
 		stage('Build Prometheus Image') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -803,7 +782,6 @@ pipeline {
 		}
 
 		stage('Push Prometheus Image') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -830,7 +808,6 @@ pipeline {
 		}
 
 		stage('Build Grafana Image') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -851,7 +828,6 @@ pipeline {
 		}
 
 		stage('Push Grafana Image') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -878,7 +854,6 @@ pipeline {
 		}
 
 		stage('Register Prometheus Task Definition') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -911,7 +886,6 @@ pipeline {
 		}
 
 		stage('Deploy Prometheus Service') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -965,7 +939,6 @@ pipeline {
 		}
 
 		stage('Register Grafana Task Definition') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -998,7 +971,6 @@ pipeline {
 		}
 
 		stage('Deploy Grafana Service') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				script {
 					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
@@ -1052,7 +1024,6 @@ pipeline {
 		}
 
 		stage('Archive Artifacts') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
 			steps {
 				archiveArtifacts artifacts: "${env.SERVICE_DIRECTORY}/build/libs/*.jar", fingerprint: true
 			}
@@ -1096,16 +1067,29 @@ pipeline {
 			echo '====================================Build Failed======================================='
 			script {
 				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
-				if (ch) {
-					def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
+				if (!ch) {
+					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack failure notification"
+					return
+				}
+				// cron skip으로 인한 error() 중단은 실패로 분류되지만 '[QA-CRON] Skipped' 별도 포맷으로 구분
+				if (env.CRON_SKIP == 'true') {
 					slackSend(
 						channel: ch,
-						color:   "${env.SLACK_FAIL_COLOR}",
-						message: "${cronPrefix}Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
+						color:   "${env.SLACK_GENERAL_COLOR}",
+						message: "[QA-CRON] Skipped\n"
+							+ "SERVICE: ${env.SERVICE_NAME ?: 'N/A'}\n"
+							+ "COMMIT: ${env.GIT_COMMIT}\n"
+							+ "REASON: same commit already deployed\n"
+							+ "BUILD_NUMBER: ${env.BUILD_NUMBER}"
 					)
-				} else {
-					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack failure notification"
+					return
 				}
+				def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
+				slackSend(
+					channel: ch,
+					color:   "${env.SLACK_FAIL_COLOR}",
+					message: "${cronPrefix}Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
+				)
 			}
 		}
 	}

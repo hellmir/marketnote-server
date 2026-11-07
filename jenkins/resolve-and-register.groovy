@@ -386,8 +386,10 @@ def notifyFlywayImmutabilitySkip(parentScript) {
 }
 
 // cron 재배포 skip 가드 — QA Jenkinsfile 'Skip If Same Commit' stage에서 호출.
-// Jenkinsfile CPS 메서드 크기(64KB) 초과 방지를 위해 외부 groovy helper로 추출.
-// parentScript.currentBuild / parentScript.env 통해 상태 갱신.
+// Jenkinsfile CPS 메서드 크기(64KB) 초과 방지 목적으로 외부 helper에 위임.
+// parentScript.currentBuild / parentScript.env 통해 상태 갱신 + skip 시 error()로 pipeline 중단.
+// 중단 방식: error() → FAILURE 상태. post.failure에서 env.CRON_SKIP=='true' 분기해 '[QA-CRON] Skipped' 메시지 발송.
+// (when { not { environment ... } } 가드 25개를 제거하여 CPS 메서드 크기 추가 감축)
 def performCronSkipGuard(parentScript) {
     def build = parentScript.currentBuild
     def environment = parentScript.env
@@ -411,8 +413,8 @@ def performCronSkipGuard(parentScript) {
     }
 
     environment.CRON_SKIP = 'true'
-    build.result = 'NOT_BUILT'
     parentScript.echo "[QA-CRON] SERVICE=${environment.SERVICE_NAME} COMMIT=${environment.GIT_COMMIT} 이미 배포됨. 재배포 skip."
+    parentScript.error("[QA-CRON] skip: same commit already deployed")
 }
 
 // TimerTrigger 또는 ParameterizedTimerTrigger cause 존재 여부로 cron 발화 빌드 판정.
