@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 
@@ -298,6 +299,21 @@ class ProductCatalogReadModelJpaEntityTest {
             assertThat(entity.getBrandName()).isEqualTo("새브랜드");
             assertThat(entity.getPrimaryCategoryId()).isEqualTo(99L);
             assertThat(entity.getStatus()).isEqualTo(EntityStatus.INACTIVE);
+        }
+
+        @Test
+        @DisplayName("updateProductInfo 호출 시 UNEXPOSED 상태가 재활성화되지 않는다")
+        void shouldNotReactivateUnexposed() {
+            ProductCatalogReadModelJpaEntity entity = newEntity();
+            ReflectionTestUtils.setField(entity, "status", EntityStatus.UNEXPOSED);
+            assertThat(entity.getStatus()).isEqualTo(EntityStatus.UNEXPOSED);
+
+            entity.updateProductInfo("새이름", "새브랜드", 99L);
+
+            assertThat(entity.getStatus()).isEqualTo(EntityStatus.UNEXPOSED);
+            assertThat(entity.getName()).isEqualTo("새이름");
+            assertThat(entity.getBrandName()).isEqualTo("새브랜드");
+            assertThat(entity.getPrimaryCategoryId()).isEqualTo(99L);
         }
     }
 }
