@@ -134,17 +134,24 @@ public class GlobalExceptionHandler {
                 + (FormatValidator.hasNoValue(cause) ? "" : ", cause=" + cause.getClass().getSimpleName());
     }
 
+    // 로그 유출 방지: 원본 메시지(파일 경로, SQL, PII, 내부 클래스명 등)를 제외하고 예외 type/cause만 포맷한다.
+    private static String formatGenericLogMessage(Throwable e) {
+        Throwable cause = e.getCause();
+        return "type=" + e.getClass().getSimpleName()
+                + (FormatValidator.hasNoValue(cause) ? "" : ", cause=" + cause.getClass().getSimpleName());
+    }
+
     @ExceptionHandler(IOException.class)
     ResponseEntity<ErrorResponse> handleIOException(IOException e) {
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-        log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
+        log.error(LOG_ERROR_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "서버 내부 오류가 발생했습니다.");
     }
 
     @ExceptionHandler(NullPointerException.class)
     ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException e) {
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-        log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
+        log.error(LOG_ERROR_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "서버 내부 오류가 발생했습니다.");
     }
 
@@ -174,28 +181,28 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoHandlerFoundException.class)
     ResponseEntity<ErrorResponse> handleNoHandlerFoundException(NoHandlerFoundException e) {
         HttpStatus httpStatus = HttpStatus.NOT_FOUND;
-        log.info(LOG_INFO_MESSAGE, e.getMessage());
+        log.info(LOG_INFO_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "요청한 경로를 찾을 수 없습니다.");
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException e) {
         HttpStatus httpStatus = HttpStatus.NOT_FOUND;
-        log.info(LOG_INFO_MESSAGE, e.getMessage());
+        log.info(LOG_INFO_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "요청한 리소스를 찾을 수 없습니다.");
     }
 
     @ExceptionHandler(AuthenticationException.class)
     ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e) {
         HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
-        log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
+        log.warn(LOG_WARN_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "인증에 실패했습니다.");
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
         HttpStatus httpStatus = HttpStatus.FORBIDDEN;
-        log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
+        log.warn(LOG_WARN_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "접근이 거부되었습니다.");
     }
 
@@ -225,7 +232,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
+        log.info(LOG_INFO_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, e.getMessage());
     }
 
@@ -280,21 +287,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalStateException.class)
     ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException e) {
         HttpStatus httpStatus = HttpStatus.CONFLICT;
-        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
+        log.info(LOG_INFO_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(MailException.class)
     ResponseEntity<ErrorResponse> handleMailException(MailException e) {
         HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
-        log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
+        log.error(LOG_ERROR_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "메일 발송에 실패했습니다.");
     }
 
     @ExceptionHandler(UncheckedIOException.class)
     ResponseEntity<ErrorResponse> handleUncheckedIOException(UncheckedIOException e) {
         HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
-        log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
+        log.error(LOG_ERROR_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "서버 내부 오류가 발생했습니다.");
     }
 
@@ -326,7 +333,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         HttpStatus httpStatus = HttpStatus.CONFLICT;
-        log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
+        log.error(LOG_ERROR_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "데이터 무결성 제약 조건을 위반했습니다.");
     }
 
@@ -342,7 +349,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     ResponseEntity<ErrorResponse> handleException(Exception e) {
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-        log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
+        log.error(LOG_ERROR_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "서버 내부 오류가 발생했습니다.");
     }
 }
