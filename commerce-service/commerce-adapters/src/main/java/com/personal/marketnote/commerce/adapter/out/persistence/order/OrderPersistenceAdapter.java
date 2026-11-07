@@ -51,15 +51,15 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
 
     @Override
     public Optional<Order> findById(Long id) {
-        OrderStatusHistoryJpaEntity orderStatusInfo
-                = orderHistoryJpaRepository.findTopByOrderJpaEntityIdOrderByIdDesc(id);
-        OrderJpaEntity orderJpaEntity = findEntityById(id);
-
-        if (FormatValidator.hasValue(orderStatusInfo)) {
-            return OrderJpaEntityToDomainMapper.mapToDomainWithStatusInfo(orderJpaEntity, orderStatusInfo);
-        }
-
-        return OrderJpaEntityToDomainMapper.mapToDomain(orderJpaEntity);
+        return orderJpaRepository.findById(id)
+                .flatMap(orderJpaEntity -> {
+                    OrderStatusHistoryJpaEntity orderStatusInfo
+                            = orderHistoryJpaRepository.findTopByOrderJpaEntityIdOrderByIdDesc(id);
+                    if (FormatValidator.hasValue(orderStatusInfo)) {
+                        return OrderJpaEntityToDomainMapper.mapToDomainWithStatusInfo(orderJpaEntity, orderStatusInfo);
+                    }
+                    return OrderJpaEntityToDomainMapper.mapToDomain(orderJpaEntity);
+                });
     }
 
     @Override

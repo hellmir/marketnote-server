@@ -221,11 +221,13 @@ class OrderPersistenceAdapterTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 ID로 조회 시 OrderNotFoundException이 발생한다")
-        void shouldThrowWhenNotFound() {
-            // when & then
-            assertThatThrownBy(() -> adapter.findById(999L))
-                    .isInstanceOf(OrderNotFoundException.class);
+        @DisplayName("존재하지 않는 ID로 조회 시 빈 Optional을 반환한다")
+        void shouldReturnEmptyWhenNotFound() {
+            // when
+            Optional<Order> found = adapter.findById(999L);
+
+            // then
+            assertThat(found).isEmpty();
         }
     }
 
