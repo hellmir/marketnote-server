@@ -3,9 +3,9 @@ package com.personal.marketnote.user.service.remotearea;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.remotearea.RemoteArea;
-import com.personal.marketnote.user.domain.remotearea.RemoteAreaCreateState;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.exception.RemoteAreaAlreadyExistsException;
+import com.personal.marketnote.user.mapper.RemoteAreaCommandToStateMapper;
 import com.personal.marketnote.user.port.in.command.remotearea.RegisterRemoteAreaCommand;
 import com.personal.marketnote.user.port.in.usecase.remotearea.RegisterRemoteAreaUseCase;
 import com.personal.marketnote.user.port.out.remotearea.FindRemoteAreaPort;
@@ -30,13 +30,7 @@ public class RegisterRemoteAreaService implements RegisterRemoteAreaUseCase {
         ShippingAddressRegionType regionType = resolveRegionType(command.regionType());
 
         RemoteArea remoteArea = RemoteArea.from(
-                RemoteAreaCreateState.builder()
-                        .province(command.province())
-                        .district(command.district())
-                        .village(command.village())
-                        .subarea(command.subarea())
-                        .regionType(regionType)
-                        .build()
+                RemoteAreaCommandToStateMapper.mapToCreateState(command, regionType)
         );
 
         validateNotDuplicate(remoteArea);
