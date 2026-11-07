@@ -25,6 +25,25 @@ public class ResizedFile {
                 .build();
     }
 
+    public static ResizedFile of(Long fileId, String size) {
+        return ResizedFile.from(
+                ResizedFileCreateState.builder()
+                        .fileId(fileId)
+                        .size(size)
+                        .build()
+        );
+    }
+
+    public static ResizedFile withStorageUrl(ResizedFile base, String storageUrl) {
+        return ResizedFile.from(
+                ResizedFileCreateState.builder()
+                        .fileId(base.getFileId())
+                        .size(base.getSize())
+                        .storageUrl(storageUrl)
+                        .build()
+        );
+    }
+
     public static ResizedFile from(ResizedFileSnapshotState state) {
         return ResizedFile.builder()
                 .id(state.getId())
