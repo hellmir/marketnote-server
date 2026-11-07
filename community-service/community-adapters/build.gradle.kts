@@ -85,6 +85,7 @@ dependencies {
 
     // 🔹 테스트 관련 의존성
     testImplementation("org.springframework.boot:spring-boot-starter-test") // 테스트를 위한 기본 라이브러리
+    testImplementation(testFixtures(project(":common"))) // ArchUnit 공유 룰 (#4710)
     testImplementation("org.springframework.security:spring-security-test") // Spring Security 테스트 지원
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") // JUnit 테스트 런처
     testImplementation("org.awaitility:awaitility:4.2.0") // 비동기,스케줄링 테스트 지원

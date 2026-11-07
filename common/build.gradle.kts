@@ -2,6 +2,7 @@ val queryDslVersion = "5.1.0"
 
 plugins {
     java
+    `java-test-fixtures`
     id("org.springframework.boot") version "3.5.6"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlin.jvm") version "1.7.22" apply false
@@ -76,6 +77,10 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+
+    // ArchUnit — 도메인 예외 네이밍/상속 매핑 및 생성자 규약 강제
+    testFixturesApi("com.tngtech.archunit:archunit-junit5:1.3.0")
+    testImplementation(testFixtures(project(":common")))
 }
 
 tasks.withType<Test> {
