@@ -12,12 +12,14 @@ import com.personal.marketnote.reward.exception.InvalidOfferwallTypeException;
 import com.personal.marketnote.reward.exception.RewardTargetInfoNotFoundException;
 import com.personal.marketnote.reward.port.out.offerwall.ValidateOfferwallSignaturePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Function;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OfferwallSignatureValidationAdapter implements ValidateOfferwallSignaturePort {
@@ -101,9 +103,11 @@ public class OfferwallSignatureValidationAdapter implements ValidateOfferwallSig
 
         String hashKey = deviceHashKeys.get(userDeviceType);
         if (FormatValidator.hasNoValue(hashKey)) {
-            throw new RewardTargetInfoNotFoundException(
-                    "오퍼월 리워드 지급 대상 디바이스 정보가 없습니다."
+            log.warn(
+                    "오퍼월 리워드 지급 대상 디바이스 정보가 없습니다. offerwallType={}, userDeviceType={}",
+                    offerwallType, userDeviceType
             );
+            throw new RewardTargetInfoNotFoundException();
         }
 
         return requireHashKey(hashKey);
