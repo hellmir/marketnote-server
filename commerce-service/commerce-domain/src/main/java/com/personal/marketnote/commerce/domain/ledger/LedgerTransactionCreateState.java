@@ -12,4 +12,20 @@ public class LedgerTransactionCreateState {
     private Long targetId;
     private String description;
     private IdempotencyKey idempotencyKey;
+
+    public static LedgerTransactionCreateState forTransaction(
+            LedgerTransactionType transactionType,
+            String targetType,
+            Long targetId,
+            String description,
+            IdempotencyKey idempotencyKey
+    ) {
+        return LedgerTransactionCreateState.builder()
+                .transactionType(transactionType)
+                .targetType(targetType)
+                .targetId(targetId)
+                .description(description)
+                .idempotencyKey(idempotencyKey)
+                .build();
+    }
 }

@@ -88,14 +88,9 @@ public class ReserveInventoryService implements ReserveInventoryUseCase {
     private List<InventoryReservation> createReservations(Long orderId, Map<Long, Integer> quantitiesByPricePolicyId) {
         LocalDateTime reservedAt = LocalDateTime.now(clock);
         return quantitiesByPricePolicyId.entrySet().stream()
-                .map(entry -> InventoryReservation.from(
-                        InventoryReservationCreateState.builder()
-                                .orderId(orderId)
-                                .pricePolicyId(entry.getKey())
-                                .quantity(entry.getValue())
-                                .reservedAt(reservedAt)
-                                .build()
-                ))
+                .map(entry -> InventoryReservation.from(InventoryReservationCreateState.of(
+                        orderId, entry.getKey(), entry.getValue(), reservedAt
+                )))
                 .toList();
     }
 }

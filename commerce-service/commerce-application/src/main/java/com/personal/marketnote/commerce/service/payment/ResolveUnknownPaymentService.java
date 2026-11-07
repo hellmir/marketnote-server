@@ -79,22 +79,13 @@ public class ResolveUnknownPaymentService implements ResolveUnknownPaymentUseCas
         payment.markAsSuccess(command.pgPaymentKey());
         updatePaymentPort.update(payment);
 
-        changeOrderStatusUseCase.changeOrderStatus(
-                ChangeOrderStatusCommand.builder()
-                        .id(payment.getOrderId())
-                        .orderStatus(OrderStatus.PAID)
-                        .build()
-        );
+        changeOrderStatusUseCase.changeOrderStatus(ChangeOrderStatusCommand.toPaidWithoutAmount(payment.getOrderId()));
 
         recordLedgerEntry(payment);
 
         log.info("UNKNOWN → COMPLETE 해소 - orderKey: {}, orderId: {}", command.orderKey(), payment.getOrderId());
 
-        return ResolveUnknownPaymentResult.builder()
-                .orderKey(command.orderKey())
-                .resolvedStatus(RESOLVE_STATUS_COMPLETE)
-                .orderId(payment.getOrderId())
-                .build();
+        return ResolveUnknownPaymentResult.of(command.orderKey(), RESOLVE_STATUS_COMPLETE, payment);
     }
 
     private ResolveUnknownPaymentResult resolveToFailed(
@@ -106,20 +97,11 @@ public class ResolveUnknownPaymentService implements ResolveUnknownPaymentUseCas
         payment.markAsFailed();
         updatePaymentPort.update(payment);
 
-        changeOrderStatusUseCase.changeOrderStatus(
-                ChangeOrderStatusCommand.builder()
-                        .id(payment.getOrderId())
-                        .orderStatus(OrderStatus.FAILED)
-                        .build()
-        );
+        changeOrderStatusUseCase.changeOrderStatus(ChangeOrderStatusCommand.toFailed(payment.getOrderId()));
 
         log.info("UNKNOWN → FAILED 해소 - orderKey: {}, orderId: {}", command.orderKey(), payment.getOrderId());
 
-        return ResolveUnknownPaymentResult.builder()
-                .orderKey(command.orderKey())
-                .resolvedStatus(RESOLVE_STATUS_FAILED)
-                .orderId(payment.getOrderId())
-                .build();
+        return ResolveUnknownPaymentResult.of(command.orderKey(), RESOLVE_STATUS_FAILED, payment);
     }
 
     private void recordLedgerEntry(Payment payment) {

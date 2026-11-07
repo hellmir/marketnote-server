@@ -26,10 +26,7 @@ public class IssueBatchKeyService implements IssueBatchKeyUseCase {
     public IssueBatchKeyResult issueBatchKey(IssueBatchKeyCommand command) {
         log.info("빠른결제 배치키 발급 요청 - userId: {}", command.userId());
 
-        IssueBatchKeyPortCommand portCommand = IssueBatchKeyPortCommand.builder()
-                .encData(command.encData())
-                .encInfo(command.encInfo())
-                .build();
+        IssueBatchKeyPortCommand portCommand = IssueBatchKeyPortCommand.from(command);
 
         IssueBatchKeyPortResult portResult = issueBatchKeyPort.issueBatchKey(portCommand);
 
@@ -37,25 +34,18 @@ public class IssueBatchKeyService implements IssueBatchKeyUseCase {
             throw new QuickPaymentBatchKeyIssuanceFailedException(portResult.resultCode(), portResult.resultMessage());
         }
 
-        QuickPaymentCardCreateState createState = QuickPaymentCardCreateState.builder()
-                .userId(command.userId())
-                .batchKey(portResult.batchKey())
-                .cardCode(portResult.cardCode())
-                .cardName(portResult.cardName())
-                .maskedCardNumber(MaskedCardNumber.fromNullable(command.maskedCardNumber()))
-                .cardBinType01(portResult.cardBinType01())
-                .cardBinType02(portResult.cardBinType02())
-                .build();
+        QuickPaymentCardCreateState createState = QuickPaymentCardCreateState.forIssued(
+                command.userId(),
+                portResult.batchKey(),
+                portResult.cardCode(),
+                portResult.cardName(),
+                MaskedCardNumber.fromNullable(command.maskedCardNumber()),
+                portResult.cardBinType01(),
+                portResult.cardBinType02()
+        );
 
         QuickPaymentCard savedCard = saveQuickPaymentCardPort.save(QuickPaymentCard.from(createState));
 
-        return IssueBatchKeyResult.builder()
-                .quickPaymentCardId(savedCard.getId())
-                .cardCode(savedCard.getCardCode())
-                .cardName(savedCard.getCardName())
-                .maskedCardNumber(MaskedCardNumber.toNullableValue(savedCard.getMaskedCardNumber()))
-                .cardBinType01(savedCard.getCardBinType01())
-                .cardBinType02(savedCard.getCardBinType02())
-                .build();
+        return IssueBatchKeyResult.from(savedCard);
     }
 }

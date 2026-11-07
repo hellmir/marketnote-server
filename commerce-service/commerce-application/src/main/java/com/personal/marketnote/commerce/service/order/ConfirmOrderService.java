@@ -44,10 +44,7 @@ public class ConfirmOrderService implements ConfirmOrderUseCase {
         order.changeAllProductsStatus(TARGET_STATUS, now, 0L);
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.builder()
-                        .orderId(command.id())
-                        .orderStatus(TARGET_STATUS)
-                        .build()
+                OrderStatusHistoryCreateState.forStatusOnly(command.id(), TARGET_STATUS)
         );
 
         updateOrderPort.update(order, orderStatusHistory);

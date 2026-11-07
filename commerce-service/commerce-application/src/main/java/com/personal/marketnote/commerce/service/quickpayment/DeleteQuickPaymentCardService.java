@@ -32,12 +32,7 @@ public class DeleteQuickPaymentCardService implements DeleteQuickPaymentCardUseC
                     return new QuickPaymentCardNotFoundException();
                 });
 
-        DeleteBatchKeyPortResult portResult = deleteBatchKeyPort.deleteBatchKey(
-                DeleteBatchKeyPortCommand.builder()
-                        .batchKey(card.getBatchKey())
-                        .groupId(card.getGroupId())
-                        .build()
-        );
+        DeleteBatchKeyPortResult portResult = deleteBatchKeyPort.deleteBatchKey(DeleteBatchKeyPortCommand.from(card));
 
         if (!portResult.success()) {
             throw new QuickPaymentBatchKeyDeletionFailedException(portResult.resultCode(), portResult.resultMessage());

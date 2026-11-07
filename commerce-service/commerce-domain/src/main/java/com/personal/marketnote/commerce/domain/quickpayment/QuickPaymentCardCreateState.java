@@ -16,4 +16,24 @@ public class QuickPaymentCardCreateState {
     private MaskedCardNumber maskedCardNumber;
     private String cardBinType01;
     private String cardBinType02;
+
+    public static QuickPaymentCardCreateState forIssued(
+            Long userId,
+            String batchKey,
+            String cardCode,
+            String cardName,
+            MaskedCardNumber maskedCardNumber,
+            String cardBinType01,
+            String cardBinType02
+    ) {
+        return QuickPaymentCardCreateState.builder()
+                .userId(userId)
+                .batchKey(batchKey)
+                .cardCode(cardCode)
+                .cardName(cardName)
+                .maskedCardNumber(maskedCardNumber)
+                .cardBinType01(cardBinType01)
+                .cardBinType02(cardBinType02)
+                .build();
+    }
 }

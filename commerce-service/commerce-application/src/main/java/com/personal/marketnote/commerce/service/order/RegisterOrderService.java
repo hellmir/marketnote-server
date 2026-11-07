@@ -401,16 +401,14 @@ public class RegisterOrderService implements RegisterOrderUseCase {
     private ShippingAddress resolveShippingAddress(
             RegisterOrderCommand command, ShippingAddressInfoResult addressInfo
     ) {
-        return ShippingAddress.from(
-                ShippingAddressCreateState.builder().
-                        recipientName(addressInfo.recipientName())
-                        .recipientPhoneNumber(addressInfo.recipientPhoneNumber())
-                        .address(addressInfo.address())
-                        .addressDetail(addressInfo.addressDetail())
-                        .deliveryRequestType(command.deliveryRequestType())
-                        .deliveryRequestMessage(command.deliveryRequestMessage())
-                        .build()
-        );
+        return ShippingAddress.from(ShippingAddressCreateState.forShipping(
+                addressInfo.recipientName(),
+                addressInfo.recipientPhoneNumber(),
+                addressInfo.address(),
+                addressInfo.addressDetail(),
+                command.deliveryRequestType(),
+                command.deliveryRequestMessage()
+        ));
     }
 
     private long resolveAmount(Long amount) {

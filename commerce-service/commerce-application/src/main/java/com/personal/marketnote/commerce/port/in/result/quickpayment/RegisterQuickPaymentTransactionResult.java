@@ -9,4 +9,9 @@ public record RegisterQuickPaymentTransactionResult(
         String payUrl,
         String traceNo
 ) {
+    public static RegisterQuickPaymentTransactionResult of(
+            String transactionId, String approvalKey, String payUrl, String traceNo
+    ) {
+        return new RegisterQuickPaymentTransactionResult(transactionId, approvalKey, payUrl, traceNo);
+    }
 }

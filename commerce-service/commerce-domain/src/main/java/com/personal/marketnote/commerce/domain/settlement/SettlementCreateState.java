@@ -15,4 +15,26 @@ public class SettlementCreateState {
     private Long pgFeeAmount;
     private Long platformFeeAmount;
     private Long sellerPayoutAmount;
+
+    public static SettlementCreateState forMonthly(
+            Long sellerId,
+            Integer year,
+            Integer month,
+            Long totalAllocatedAmount,
+            Long shippingFee,
+            Long pgFeeAmount,
+            Long platformFeeAmount,
+            Long sellerPayoutAmount
+    ) {
+        return SettlementCreateState.builder()
+                .sellerId(sellerId)
+                .year(year)
+                .month(month)
+                .totalAllocatedAmount(totalAllocatedAmount)
+                .shippingFee(shippingFee)
+                .pgFeeAmount(pgFeeAmount)
+                .platformFeeAmount(platformFeeAmount)
+                .sellerPayoutAmount(sellerPayoutAmount)
+                .build();
+    }
 }

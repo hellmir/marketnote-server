@@ -83,16 +83,16 @@ public class ProcessSellerSettlementService {
         long platformFeeAmount = Math.multiplyExact(feeBase, platformFeeRate) / BASIS_POINT_DENOMINATOR;
         long sellerPayoutAmount = feeBase - pgFeeAmount - platformFeeAmount;
 
-        Settlement settlement = Settlement.from(SettlementCreateState.builder()
-                .sellerId(sellerId)
-                .year(year)
-                .month(month)
-                .totalAllocatedAmount(totalAllocatedAmount)
-                .shippingFee(totalShippingFee)
-                .pgFeeAmount(pgFeeAmount)
-                .platformFeeAmount(platformFeeAmount)
-                .sellerPayoutAmount(sellerPayoutAmount)
-                .build());
+        Settlement settlement = Settlement.from(SettlementCreateState.forMonthly(
+                sellerId,
+                year,
+                month,
+                totalAllocatedAmount,
+                totalShippingFee,
+                pgFeeAmount,
+                platformFeeAmount,
+                sellerPayoutAmount
+        ));
 
         Settlement savedSettlement = saveSettlementPort.save(settlement);
         Long settlementId = savedSettlement.getId();

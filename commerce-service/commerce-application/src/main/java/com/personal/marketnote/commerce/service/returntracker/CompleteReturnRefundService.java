@@ -35,7 +35,7 @@ public class CompleteReturnRefundService implements CompleteReturnRefundUseCase 
                     return new ReturnTrackerNotFoundException();
                 });
 
-        RefundPaymentCommand refundCommand = buildRefundCommand(command);
+        RefundPaymentCommand refundCommand = RefundPaymentCommand.from(command);
 
         try {
             refundPaymentUseCase.refund(refundCommand);
@@ -47,17 +47,6 @@ public class CompleteReturnRefundService implements CompleteReturnRefundUseCase 
             log.error("PG 환불 실패. orderId={}, message={}", command.orderId(), e.getMessage());
             failRefund(tracker);
         }
-    }
-
-    private RefundPaymentCommand buildRefundCommand(CompleteReturnRefundCommand command) {
-        return RefundPaymentCommand.builder()
-                .orderKey(command.orderKey())
-                .orderId(command.orderId())
-                .cancelAmount(command.returnAmount())
-                .paymentAmount(command.paymentAmount())
-                .isFullCancel(command.isFullReturn())
-                .returnShippingFee(command.returnShippingFee())
-                .build();
     }
 
     private void completeRefund(ReturnTracker tracker) {

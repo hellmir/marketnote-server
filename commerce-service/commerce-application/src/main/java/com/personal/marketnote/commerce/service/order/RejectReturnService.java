@@ -45,12 +45,9 @@ public class RejectReturnService implements RejectReturnUseCase {
         order.changeProductsStatus(returnRequestedPricePolicyIds, TARGET_STATUS, now, 0L);
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.builder()
-                        .orderId(command.id())
-                        .orderStatus(order.getOrderStatus())
-                        .reasonCategory(command.reasonCategory())
-                        .reason(command.reason())
-                        .build()
+                OrderStatusHistoryCreateState.of(
+                        command.id(), order.getOrderStatus(), command.reasonCategory(), command.reason()
+                )
         );
 
         updateOrderPort.update(order, orderStatusHistory);

@@ -39,13 +39,13 @@ public class RegisterSettlementPolicyService implements RegisterSettlementPolicy
                     throw new SettlementPolicyAlreadyExistsException();
                 });
 
-        SettlementPolicy policy = SettlementPolicy.from(SettlementPolicyCreateState.builder()
-                .sellerId(command.sellerId())
-                .pgFeeRate(FeeRate.of(command.pgFeeRate()))
-                .platformFeeRate(FeeRate.of(command.platformFeeRate()))
-                .settlementCycle(SettlementCycle.valueOf(command.settlementCycle()))
-                .minPayoutAmount(command.minPayoutAmount())
-                .build());
+        SettlementPolicy policy = SettlementPolicy.from(SettlementPolicyCreateState.forSeller(
+                command.sellerId(),
+                FeeRate.of(command.pgFeeRate()),
+                FeeRate.of(command.platformFeeRate()),
+                SettlementCycle.valueOf(command.settlementCycle()),
+                command.minPayoutAmount()
+        ));
 
         SettlementPolicy saved = saveSettlementPolicyPort.save(policy);
 

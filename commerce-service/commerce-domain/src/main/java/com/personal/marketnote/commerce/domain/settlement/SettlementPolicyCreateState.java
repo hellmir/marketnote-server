@@ -12,4 +12,20 @@ public class SettlementPolicyCreateState {
     private FeeRate platformFeeRate;
     private SettlementCycle settlementCycle;
     private Long minPayoutAmount;
+
+    public static SettlementPolicyCreateState forSeller(
+            Long sellerId,
+            FeeRate pgFeeRate,
+            FeeRate platformFeeRate,
+            SettlementCycle settlementCycle,
+            Long minPayoutAmount
+    ) {
+        return SettlementPolicyCreateState.builder()
+                .sellerId(sellerId)
+                .pgFeeRate(pgFeeRate)
+                .platformFeeRate(platformFeeRate)
+                .settlementCycle(settlementCycle)
+                .minPayoutAmount(minPayoutAmount)
+                .build();
+    }
 }

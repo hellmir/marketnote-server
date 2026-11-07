@@ -462,14 +462,23 @@ class PaymentCancelRetryableIntegrationTest {
                 .cancelAmount(cancelAmount)
                 .cancelReason("테스트 부분 취소")
                 .build();
-        return PaymentCancelContext.of(
-                payment, event, order,
-                cancelAmount, cancelAmount, PAYMENT_AMOUNT - cancelAmount,
-                0L, 0L, false,
-                "테스트 부분 취소", "테스트 부분 취소",
-                UUID.randomUUID().toString(), PG_PAYMENT_KEY, "STPC",
-                command
-        );
+        return PaymentCancelContext.builder()
+                .payment(payment)
+                .event(event)
+                .order(order)
+                .cancelAmount(cancelAmount)
+                .adjustedCancelAmount(cancelAmount)
+                .remainAmount(PAYMENT_AMOUNT - cancelAmount)
+                .alreadyRefunded(0L)
+                .shippingFeeDeduction(0L)
+                .isFullCancel(false)
+                .cancelReason("테스트 부분 취소")
+                .adjustedCancelReason("테스트 부분 취소")
+                .cancelId(UUID.randomUUID().toString())
+                .transactionNumber(PG_PAYMENT_KEY)
+                .modType("STPC")
+                .originalCommand(command)
+                .build();
     }
 
     private PaymentCancelContext buildPartialCancelContextWithProducts(Long cancelAmount) {
@@ -484,14 +493,23 @@ class PaymentCancelRetryableIntegrationTest {
                 .cancelReason("테스트 부분 취소")
                 .cancelProducts(List.of(new CancelPaymentCommand.CancelProductItem(100L, 1)))
                 .build();
-        return PaymentCancelContext.of(
-                payment, event, order,
-                cancelAmount, cancelAmount, PAYMENT_AMOUNT - cancelAmount,
-                0L, 0L, false,
-                "테스트 부분 취소", "테스트 부분 취소",
-                UUID.randomUUID().toString(), PG_PAYMENT_KEY, "STPC",
-                command
-        );
+        return PaymentCancelContext.builder()
+                .payment(payment)
+                .event(event)
+                .order(order)
+                .cancelAmount(cancelAmount)
+                .adjustedCancelAmount(cancelAmount)
+                .remainAmount(PAYMENT_AMOUNT - cancelAmount)
+                .alreadyRefunded(0L)
+                .shippingFeeDeduction(0L)
+                .isFullCancel(false)
+                .cancelReason("테스트 부분 취소")
+                .adjustedCancelReason("테스트 부분 취소")
+                .cancelId(UUID.randomUUID().toString())
+                .transactionNumber(PG_PAYMENT_KEY)
+                .modType("STPC")
+                .originalCommand(command)
+                .build();
     }
 
     private Payment createPayment(Long refundAmount) {

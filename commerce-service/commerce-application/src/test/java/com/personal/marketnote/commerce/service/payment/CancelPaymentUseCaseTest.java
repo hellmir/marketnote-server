@@ -260,12 +260,23 @@ class CancelPaymentUseCaseTest {
         Order order = createOrder();
         boolean fullFlag = isFullCancel;
         String modType = fullFlag ? "STSC" : "STPC";
-        return PaymentCancelContext.of(
-                payment, event, order,
-                50000L, adjustedCancelAmount, 50000L - adjustedCancelAmount, 0L, shippingFeeDeduction,
-                fullFlag, "고객 요청", "고객 요청", fullFlag ? null : UUID.randomUUID().toString(),
-                "tno_123", modType, createFullCancelCommand()
-        );
+        return PaymentCancelContext.builder()
+                .payment(payment)
+                .event(event)
+                .order(order)
+                .cancelAmount(50000L)
+                .adjustedCancelAmount(adjustedCancelAmount)
+                .remainAmount(50000L - adjustedCancelAmount)
+                .alreadyRefunded(0L)
+                .shippingFeeDeduction(shippingFeeDeduction)
+                .isFullCancel(fullFlag)
+                .cancelReason("고객 요청")
+                .adjustedCancelReason("고객 요청")
+                .cancelId(fullFlag ? null : UUID.randomUUID().toString())
+                .transactionNumber("tno_123")
+                .modType(modType)
+                .originalCommand(createFullCancelCommand())
+                .build();
     }
 
     private Payment createSuccessPayment() {

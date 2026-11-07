@@ -61,9 +61,9 @@ public class ApproveQuickPaymentService implements ApproveQuickPaymentUseCase {
         // TX-2: 성공 또는 실패
         if (portResult.success()) {
             Installment installment = parseInstallment(portResult.installmentMonths());
-            PaymentApprovalVendorResult vendorResult = toVendorResult(portResult);
+            PaymentApprovalVendorResult vendorResult = PaymentApprovalVendorResult.from(portResult);
             ApprovePaymentResult paymentResult = txHelper.commitSuccess(context, vendorResult, installment);
-            return toQuickPaymentResult(paymentResult);
+            return ApproveQuickPaymentResult.from(paymentResult);
         }
 
         txHelper.commitFailure(context, portResult.resultCode(), portResult.resultMessage());
@@ -74,13 +74,9 @@ public class ApproveQuickPaymentService implements ApproveQuickPaymentUseCase {
             ApproveQuickPaymentCommand command, QuickPaymentCard card, PaymentApprovalContext context
     ) {
         try {
-            ApproveQuickPaymentPortCommand portCommand = ApproveQuickPaymentPortCommand.builder()
-                    .batchKey(card.getBatchKey())
-                    .groupId(card.getGroupId())
-                    .orderKey(command.orderKey())
-                    .amount(String.valueOf(context.paymentAmount()))
-                    .goodName(command.goodName())
-                    .build();
+            ApproveQuickPaymentPortCommand portCommand = ApproveQuickPaymentPortCommand.of(
+                    command, card, context.payment()
+            );
             return approveQuickPaymentPort.approvePayment(portCommand);
         } catch (PaymentVendorConnectionFailedException e) {
             txHelper.commitFailure(context, "CONN_FAIL", e.getMessage());
@@ -89,40 +85,6 @@ public class ApproveQuickPaymentService implements ApproveQuickPaymentUseCase {
             txHelper.commitUnknown(context, "UNKNOWN", "PG사 통신 오류: " + e.getMessage());
             throw QuickPaymentApprovalFailedException.approvalRequestFailed(e);
         }
-    }
-
-    private PaymentApprovalVendorResult toVendorResult(ApproveQuickPaymentPortResult portResult) {
-        return PaymentApprovalVendorResult.builder()
-                .success(portResult.success())
-                .resultCode(portResult.resultCode())
-                .resultMessage(portResult.resultMessage())
-                .transactionId(portResult.transactionId())
-                .amount(portResult.amount())
-                .payMethod(portResult.payMethod())
-                .cardCode(portResult.cardCode())
-                .cardName(portResult.cardName())
-                .cardNumber(portResult.cardNumber())
-                .approvalNumber(portResult.approvalNumber())
-                .approvalTime(portResult.approvalTime())
-                .installmentMonths(portResult.installmentMonths())
-                .cardAmount(portResult.cardAmount())
-                .partialCancelYn(portResult.partialCancelYn())
-                .cardBinType01(portResult.cardBinType01())
-                .cardBinType02(portResult.cardBinType02())
-                .rawResponse(portResult.rawResponse())
-                .build();
-    }
-
-    private ApproveQuickPaymentResult toQuickPaymentResult(ApprovePaymentResult paymentResult) {
-        return ApproveQuickPaymentResult.builder()
-                .orderId(paymentResult.orderId())
-                .orderKey(paymentResult.orderKey())
-                .pgPaymentKey(paymentResult.pgPaymentKey())
-                .amount(paymentResult.amount())
-                .resultCode(paymentResult.resultCode())
-                .resultMessage(paymentResult.resultMessage())
-                .payMethod(paymentResult.payMethod())
-                .build();
     }
 
     private Installment parseInstallment(String quota) {

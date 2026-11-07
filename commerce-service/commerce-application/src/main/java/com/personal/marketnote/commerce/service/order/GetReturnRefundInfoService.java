@@ -61,13 +61,9 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
                 totalProductAmount, returnShippingFee, estimatedRefundCash
         );
 
-        return GetReturnRefundInfoResult.builder()
-                .totalProductAmount(totalProductAmount)
-                .returnShippingFee(returnShippingFee)
-                .refundMethod(refundMethod)
-                .estimatedRefundAmount(estimatedRefundAmount)
-                .estimatedRefundCash(estimatedRefundCash)
-                .build();
+        return GetReturnRefundInfoResult.of(
+                totalProductAmount, returnShippingFee, refundMethod, estimatedRefundAmount, estimatedRefundCash
+        );
     }
 
     private void validateBuyerOwnership(Order order, Long buyerId) {
@@ -115,14 +111,8 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
     }
 
     private long calculateReturnShippingFee(GetReturnRefundInfoCommand command) {
-        CalculateReturnShippingFeeCommand shippingFeeCommand = CalculateReturnShippingFeeCommand.builder()
-                .orderId(command.orderId())
-                .reasonCategory(command.reasonCategory())
-                .returnPricePolicyIds(command.returnPricePolicyIds())
-                .build();
-
         CalculateReturnShippingFeeResult result = calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                shippingFeeCommand
+                CalculateReturnShippingFeeCommand.from(command)
         );
         return result.returnShippingFee();
     }

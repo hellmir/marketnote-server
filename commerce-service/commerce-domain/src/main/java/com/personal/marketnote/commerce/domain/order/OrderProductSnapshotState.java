@@ -28,5 +28,28 @@ public class OrderProductSnapshotState {
     private final LocalDateTime confirmedAt;
     private final LocalDateTime deliveredAt;
     private final LocalDateTime scheduledAutoConfirmAt;
+
+    public static OrderProductSnapshotState forCancelItem(
+            Long pricePolicyId, UUID sharerKey, Integer quantity, Long unitAmount, Long accumulatedPoint
+    ) {
+        return OrderProductSnapshotState.builder()
+                .pricePolicyId(pricePolicyId)
+                .sharerKey(sharerKey)
+                .quantity(quantity)
+                .unitAmount(unitAmount)
+                .accumulatedPoint(accumulatedPoint)
+                .build();
+    }
+
+    public static OrderProductSnapshotState forInventoryRestore(
+            Long pricePolicyId, Integer quantity
+    ) {
+        return OrderProductSnapshotState.builder()
+                .pricePolicyId(pricePolicyId)
+                .quantity(quantity)
+                .unitAmount(0L)
+                .accumulatedPoint(0L)
+                .build();
+    }
 }
 

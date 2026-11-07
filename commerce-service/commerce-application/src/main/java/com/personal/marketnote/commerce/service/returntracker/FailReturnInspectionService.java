@@ -50,11 +50,7 @@ public class FailReturnInspectionService {
         order.changeProductsStatus(returnRequestedPricePolicyIds, TARGET_STATUS, now, 0L);
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.builder()
-                        .orderId(tracker.getOrderId())
-                        .orderStatus(order.getOrderStatus())
-                        .reason("반품 검수 불합격")
-                        .build()
+                OrderStatusHistoryCreateState.of(tracker.getOrderId(), order.getOrderStatus(), null, "반품 검수 불합격")
         );
 
         updateOrderPort.update(order, orderStatusHistory);

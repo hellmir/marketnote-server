@@ -73,25 +73,13 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
                     return new AccountNotFoundException();
                 });
 
-        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                .targetType("PAYMENT")
-                .targetId(orderId)
-                .description("결제 승인 분개")
-                .idempotencyKey("PAYMENT_APPROVAL:" + orderId)
-                .entries(List.of(
-                        RecordLedgerEntryCommand.EntryLine.builder()
-                                .accountId(pgReceivable.getId())
-                                .amount(paymentAmount)
-                                .transactionType(TransactionType.DEBIT)
-                                .build(),
-                        RecordLedgerEntryCommand.EntryLine.builder()
-                                .accountId(sellerPayable.getId())
-                                .amount(paymentAmount)
-                                .transactionType(TransactionType.CREDIT)
-                                .build()
-                ))
-                .build();
+        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.forPaymentApproval(
+                orderId,
+                List.of(
+                        RecordLedgerEntryCommand.EntryLine.debit(pgReceivable.getId(), paymentAmount),
+                        RecordLedgerEntryCommand.EntryLine.credit(sellerPayable.getId(), paymentAmount)
+                )
+        );
 
         record(command);
     }
@@ -110,25 +98,14 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
                     return new AccountNotFoundException();
                 });
 
-        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                .transactionType(LedgerTransactionType.PAYMENT_CANCELLATION)
-                .targetType("PAYMENT")
-                .targetId(orderId)
-                .description("결제 취소/환불 역분개")
-                .idempotencyKey(idempotencyKey)
-                .entries(List.of(
-                        RecordLedgerEntryCommand.EntryLine.builder()
-                                .accountId(sellerPayable.getId())
-                                .amount(cancelAmount)
-                                .transactionType(TransactionType.DEBIT)
-                                .build(),
-                        RecordLedgerEntryCommand.EntryLine.builder()
-                                .accountId(pgReceivable.getId())
-                                .amount(cancelAmount)
-                                .transactionType(TransactionType.CREDIT)
-                                .build()
-                ))
-                .build();
+        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.forPaymentCancellation(
+                orderId,
+                idempotencyKey,
+                List.of(
+                        RecordLedgerEntryCommand.EntryLine.debit(sellerPayable.getId(), cancelAmount),
+                        RecordLedgerEntryCommand.EntryLine.credit(pgReceivable.getId(), cancelAmount)
+                )
+        );
 
         record(command);
     }
@@ -155,34 +132,15 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
         List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
 
         long cashAmount = totalAmount - pgFeeAmount;
-        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                .accountId(cashAccount.getId())
-                .amount(cashAmount)
-                .transactionType(TransactionType.DEBIT)
-                .build());
+        entries.add(RecordLedgerEntryCommand.EntryLine.debit(cashAccount.getId(), cashAmount));
 
         if (pgFeeAmount > 0) {
-            entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                    .accountId(pgFeeAccount.getId())
-                    .amount(pgFeeAmount)
-                    .transactionType(TransactionType.DEBIT)
-                    .build());
+            entries.add(RecordLedgerEntryCommand.EntryLine.debit(pgFeeAccount.getId(), pgFeeAmount));
         }
 
-        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                .accountId(pgReceivable.getId())
-                .amount(totalAmount)
-                .transactionType(TransactionType.CREDIT)
-                .build());
+        entries.add(RecordLedgerEntryCommand.EntryLine.credit(pgReceivable.getId(), totalAmount));
 
-        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                .transactionType(LedgerTransactionType.PG_SETTLEMENT)
-                .targetType("SETTLEMENT")
-                .targetId(settlementId)
-                .description("PG 정산 입금 분개")
-                .idempotencyKey("PG_SETTLEMENT:" + settlementId)
-                .entries(entries)
-                .build();
+        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.forPgSettlement(settlementId, entries);
 
         record(command);
     }
@@ -210,34 +168,15 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
 
         List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
 
-        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                .accountId(sellerPayable.getId())
-                .amount(totalAmount)
-                .transactionType(TransactionType.DEBIT)
-                .build());
+        entries.add(RecordLedgerEntryCommand.EntryLine.debit(sellerPayable.getId(), totalAmount));
 
-        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                .accountId(cashAccount.getId())
-                .amount(sellerPayoutAmount)
-                .transactionType(TransactionType.CREDIT)
-                .build());
+        entries.add(RecordLedgerEntryCommand.EntryLine.credit(cashAccount.getId(), sellerPayoutAmount));
 
         if (platformFeeAmount > 0) {
-            entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                    .accountId(platformFeeAccount.getId())
-                    .amount(platformFeeAmount)
-                    .transactionType(TransactionType.CREDIT)
-                    .build());
+            entries.add(RecordLedgerEntryCommand.EntryLine.credit(platformFeeAccount.getId(), platformFeeAmount));
         }
 
-        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                .transactionType(LedgerTransactionType.SELLER_SETTLEMENT)
-                .targetType("SETTLEMENT")
-                .targetId(settlementId)
-                .description("판매자 정산 분개")
-                .idempotencyKey("SELLER_SETTLEMENT:" + settlementId)
-                .entries(entries)
-                .build();
+        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.forSellerSettlement(settlementId, entries);
 
         record(command);
     }
@@ -270,23 +209,21 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
     private List<LedgerEntry> createEntries(List<RecordLedgerEntryCommand.EntryLine> entryLines) {
         List<LedgerEntry> entries = new ArrayList<>();
         for (RecordLedgerEntryCommand.EntryLine entryLine : entryLines) {
-            LedgerEntry entry = LedgerEntry.from(LedgerEntryCreateState.builder()
-                    .accountId(entryLine.accountId())
-                    .amount(entryLine.amount())
-                    .transactionType(entryLine.transactionType())
-                    .build());
+            LedgerEntry entry = LedgerEntry.from(LedgerEntryCreateState.of(
+                    entryLine.accountId(), entryLine.amount(), entryLine.transactionType()
+            ));
             entries.add(entry);
         }
         return entries;
     }
 
     private LedgerTransaction createTransaction(RecordLedgerEntryCommand command) {
-        return LedgerTransaction.from(LedgerTransactionCreateState.builder()
-                .transactionType(command.transactionType())
-                .targetType(command.targetType())
-                .targetId(command.targetId())
-                .description(command.description())
-                .idempotencyKey(IdempotencyKey.of(command.idempotencyKey()))
-                .build());
+        return LedgerTransaction.from(LedgerTransactionCreateState.forTransaction(
+                command.transactionType(),
+                command.targetType(),
+                command.targetId(),
+                command.description(),
+                IdempotencyKey.of(command.idempotencyKey())
+        ));
     }
 }

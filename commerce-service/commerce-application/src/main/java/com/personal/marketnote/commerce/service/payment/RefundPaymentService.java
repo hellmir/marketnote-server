@@ -69,7 +69,7 @@ public class RefundPaymentService implements RefundPaymentUseCase {
         String cancelType = command.isFullCancel() ? PSP_FULL_CANCEL_TYPE_CODE : PSP_PARTIAL_CANCEL_TYPE_CODE;
 
         PaymentCancelVendorResult vendorResult = requestPgCancellation(
-                event.getPgPaymentKey(), cancelType, adjustedCancelAmount, remainAmount
+                event, cancelType, adjustedCancelAmount, remainAmount
         );
 
         persistRefundResult(command, payment, event, vendorResult, adjustedCancelAmount);
@@ -143,14 +143,13 @@ public class RefundPaymentService implements RefundPaymentUseCase {
     private void saveRefundRecordWithoutPg(Payment payment, Long cancelAmount, Long returnShippingFee) {
         try {
             String cancelReason = "반품 환불 (반품 배송비 " + returnShippingFee + "원 차감, PG 환불 생략)";
-            RefundCreateState createState = RefundCreateState.builder()
-                    .paymentId(payment.getId())
-                    .orderId(payment.getOrderId())
-                    .refundType(RefundType.PARTIAL_REFUND)
-                    .refundAmount(cancelAmount)
-                    .cancelReason(cancelReason)
-                    .processedBy("SYSTEM")
-                    .build();
+            RefundCreateState createState = RefundCreateState.withoutPg(
+                    payment.getId(),
+                    payment.getOrderId(),
+                    RefundType.PARTIAL_REFUND,
+                    cancelAmount,
+                    cancelReason
+            );
             Refund refund = Refund.from(createState);
             saveRefundPort.save(refund);
         } catch (Exception e) {
@@ -159,21 +158,18 @@ public class RefundPaymentService implements RefundPaymentUseCase {
     }
 
     private PaymentCancelVendorResult requestPgCancellation(
-            String transactionNumber, String cancelType, Long cancelAmount, Long remainAmount
+            PspPaymentEvent event, String cancelType, Long cancelAmount, Long remainAmount
     ) {
-        PaymentCancelVendorCommand vendorCommand = PaymentCancelVendorCommand.builder()
-                .transactionId(transactionNumber)
-                .cancelType(cancelType)
-                .cancelAmount(cancelAmount)
-                .remainAmount(remainAmount)
-                .cancelReason("주문 취소")
-                .build();
+        PaymentCancelVendorCommand vendorCommand = PaymentCancelVendorCommand.from(
+                event,
+                PaymentCancelVendorCommand.CancelDirective.of(cancelType, cancelAmount, remainAmount, "주문 취소")
+        );
 
         PaymentCancelVendorResult vendorResult = paymentVendorPort.cancelPayment(vendorCommand);
 
         if (!vendorResult.success()) {
             log.error("PG 결제 환불 실패 - transactionNumber: {}, resultCode: {}, resultMessage: {}",
-                    transactionNumber, vendorResult.resultCode(), vendorResult.resultMessage()
+                    event.getPgPaymentKey(), vendorResult.resultCode(), vendorResult.resultMessage()
             );
             throw new PaymentCancelException("결제 환불에 실패했습니다.");
         }
@@ -217,16 +213,15 @@ public class RefundPaymentService implements RefundPaymentUseCase {
     ) {
         try {
             RefundType refundType = isFullCancel ? RefundType.FULL_REFUND : RefundType.PARTIAL_REFUND;
-            RefundCreateState createState = RefundCreateState.builder()
-                    .paymentId(payment.getId())
-                    .orderId(payment.getOrderId())
-                    .refundType(refundType)
-                    .refundAmount(cancelAmount)
-                    .cancelReason("주문 취소")
-                    .processedBy("SYSTEM")
-                    .pgRefundKey(payment.getPgPaymentKey())
-                    .pgRawResponse(vendorResult.rawResponse())
-                    .build();
+            RefundCreateState createState = RefundCreateState.withPg(
+                    payment.getId(),
+                    payment.getOrderId(),
+                    refundType,
+                    cancelAmount,
+                    "주문 취소",
+                    payment.getPgPaymentKey(),
+                    vendorResult.rawResponse()
+            );
             Refund refund = Refund.from(createState);
             saveRefundPort.save(refund);
         } catch (Exception e) {

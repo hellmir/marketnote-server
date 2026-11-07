@@ -175,14 +175,22 @@ class PaymentCancelResultSerializerTest {
                 .idempotencyKey(UUID.randomUUID().toString())
                 .build();
         String cancelId = isFullCancel ? null : UUID.randomUUID().toString();
-        return PaymentCancelContext.of(
-                null, null, null,
-                originalCancelAmount, adjustedCancelAmount,
-                originalCancelAmount - adjustedCancelAmount,
-                0L, shippingFeeDeduction,
-                isFullCancel, "고객 요청", "고객 요청",
-                cancelId, "tno_123",
-                isFullCancel ? "STSC" : "STPC", command
-        );
+        return PaymentCancelContext.builder()
+                .payment(null)
+                .event(null)
+                .order(null)
+                .cancelAmount(originalCancelAmount)
+                .adjustedCancelAmount(adjustedCancelAmount)
+                .remainAmount(originalCancelAmount - adjustedCancelAmount)
+                .alreadyRefunded(0L)
+                .shippingFeeDeduction(shippingFeeDeduction)
+                .isFullCancel(isFullCancel)
+                .cancelReason("고객 요청")
+                .adjustedCancelReason("고객 요청")
+                .cancelId(cancelId)
+                .transactionNumber("tno_123")
+                .modType(isFullCancel ? "STSC" : "STPC")
+                .originalCommand(command)
+                .build();
     }
 }

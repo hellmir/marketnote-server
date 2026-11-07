@@ -90,11 +90,7 @@ public class PaymentCancelIdempotencyHelper {
         Long paymentId = resolvePaymentId(orderKey);
 
         PaymentCancelIdempotency created = PaymentCancelIdempotency.from(
-                PaymentCancelIdempotencyCreateState.builder()
-                        .idempotencyKey(idempotencyKey)
-                        .paymentId(paymentId)
-                        .buyerId(buyerId)
-                        .build()
+                PaymentCancelIdempotencyCreateState.of(idempotencyKey, paymentId, buyerId)
         );
 
         try {

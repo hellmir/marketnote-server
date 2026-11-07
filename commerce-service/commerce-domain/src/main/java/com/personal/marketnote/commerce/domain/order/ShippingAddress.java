@@ -79,6 +79,12 @@ public class ShippingAddress {
         return FormatValidator.hasValue(recipientName);
     }
 
+    public String getFullAddress() {
+        String addressPart = FormatValidator.hasValue(address) ? address : "";
+        String detailPart = FormatValidator.hasValue(addressDetail) ? " " + addressDetail : "";
+        return addressPart + detailPart;
+    }
+
     public ShippingAddress withoutDeliveryRequest() {
         return ShippingAddress.builder()
                 .recipientName(recipientName)
