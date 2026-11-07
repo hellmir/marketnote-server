@@ -114,14 +114,28 @@ class FulfillmentSupplierClientTest {
             stubPayloadGenerator();
             stubPatchChainThrows(new RuntimeException("Connection refused"));
 
-            RegisterFulfillmentSupplierCommand command = RegisterFulfillmentSupplierCommand.of(
-                    "CUST001", "valid-token", "테스트 공급사", "SUP001",
-                    "Y", "20260101", "20261231", "12345", "서울시", "강남구",
-                    "홍길동", "123-45-67890", "도매", "유통",
-                    "02-1234-5678", "02-1234-5679",
-                    "김철수", "과장", "010-1234-5678", "test@test.com",
-                    null, null, null, null
-            );
+            RegisterFulfillmentSupplierCommand command = RegisterFulfillmentSupplierCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .supplierName("테스트 공급사")
+                    .customerSupplierCode("SUP001")
+                    .useYn("Y")
+                    .dealStartDate("20260101")
+                    .dealEndDate("20261231")
+                    .zipCode("12345")
+                    .address1("서울시")
+                    .address2("강남구")
+                    .ceoName("홍길동")
+                    .businessNumber("123-45-67890")
+                    .businessCategory("도매")
+                    .businessType("유통")
+                    .phoneNumber("02-1234-5678")
+                    .faxNumber("02-1234-5679")
+                    .primaryManagerName("김철수")
+                    .primaryManagerPosition("과장")
+                    .primaryManagerPhoneNumber("010-1234-5678")
+                    .primaryManagerEmail("test@test.com")
+                    .build();
 
             // when & then
             assertThatThrownBy(() -> client.registerSupplier(command))

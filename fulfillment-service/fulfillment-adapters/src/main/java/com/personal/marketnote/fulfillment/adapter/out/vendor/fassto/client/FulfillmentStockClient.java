@@ -406,23 +406,23 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
                 ? item.goodsSerialNo()
                 : List.of();
 
-        return FulfillmentStockInfoResult.of(
-                item.whCd(),
-                item.godCd(),
-                item.cstGodCd(),
-                item.godNm(),
-                item.distTermDt(),
-                item.distTermMgtYn(),
-                item.godBarcd(),
-                item.stockQty(),
-                item.badStockQty(),
-                item.canStockQty(),
-                item.cstSupCd(),
-                item.supNm(),
-                item.giftDiv(),
-                goodsSerialNumbers,
-                item.slipNo()
-        );
+        return FulfillmentStockInfoResult.builder()
+                .warehouseCode(item.whCd())
+                .productCode(item.godCd())
+                .customerProductCode(item.cstGodCd())
+                .productName(item.godNm())
+                .distributionTermDate(item.distTermDt())
+                .distributionTermManagementYn(item.distTermMgtYn())
+                .productBarcode(item.godBarcd())
+                .stockQuantity(item.stockQty())
+                .defectiveStockQuantity(item.badStockQty())
+                .availableStockQuantity(item.canStockQty())
+                .customerSupplierCode(item.cstSupCd())
+                .supplierName(item.supNm())
+                .giftDivision(item.giftDiv())
+                .goodsSerialNumbers(goodsSerialNumbers)
+                .slipNumber(item.slipNo())
+                .build();
     }
 
     private String maskValue(String value) {

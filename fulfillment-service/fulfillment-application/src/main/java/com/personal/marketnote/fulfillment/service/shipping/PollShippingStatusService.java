@@ -7,8 +7,8 @@ import com.personal.marketnote.fulfillment.domain.shipping.CarrierCode;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
 import com.personal.marketnote.fulfillment.domain.shipping.TrackingNumber;
+import com.personal.marketnote.fulfillment.mapper.PollShippingStatusCommandFactory;
 import com.personal.marketnote.fulfillment.port.in.command.PollShippingStatusCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentDeliveryStatusesCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentDeliveryStatusInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentDeliveryStatusesResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.PollShippingStatusUseCase;
@@ -116,8 +116,8 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
 
         GetFulfillmentDeliveryStatusesResult result = fulfillmentAuthenticatedCaller.call(token ->
                 getDeliveryStatusesPort.getDeliveryStatuses(
-                        GetFulfillmentDeliveryStatusesCommand.of(
-                                command.customerCode(),
+                        PollShippingStatusCommandFactory.toDeliveryStatusesCommand(
+                                command,
                                 token,
                                 startDate.format(DATE_FORMATTER),
                                 endDate.format(DATE_FORMATTER),

@@ -130,20 +130,14 @@ class FulfillmentWarehousingClientTest {
         UpdateFulfillmentWarehousingGoodsCommand goodsCommand = UpdateFulfillmentWarehousingGoodsCommand.of(
                 null, "PROD001", null, 10
         );
-        UpdateFulfillmentWarehousingItemCommand itemCommand = UpdateFulfillmentWarehousingItemCommand.of(
-                "20260414",
-                "ORD001",
-                "01",
-                "SLIP001",
-                null,
-                null,
-                null,
-                "SUP001",
-                null,
-                null,
-                null,
-                List.of(goodsCommand)
-        );
+        UpdateFulfillmentWarehousingItemCommand itemCommand = UpdateFulfillmentWarehousingItemCommand.builder()
+                .orderDate("20260414")
+                .orderNumber("ORD001")
+                .warehousingMethod("01")
+                .slipNumber("SLIP001")
+                .supplierCode("SUP001")
+                .products(List.of(goodsCommand))
+                .build();
         return UpdateFulfillmentWarehousingCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 

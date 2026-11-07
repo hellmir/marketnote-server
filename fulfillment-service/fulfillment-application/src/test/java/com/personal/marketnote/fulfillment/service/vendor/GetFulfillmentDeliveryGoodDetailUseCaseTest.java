@@ -30,9 +30,13 @@ class GetFulfillmentDeliveryGoodDetailUseCaseTest {
     @DisplayName("출고 상품 상세 조회 커맨드를 전달하면 포트를 통해 상세 정보를 반환한다")
     void shouldReturnDeliveryGoodDetailResultFromPort() {
         // given
-        GetFulfillmentDeliveryGoodDetailCommand command = GetFulfillmentDeliveryGoodDetailCommand.of(
-                "CUST001", "token", "2026-01-01", "2026-01-31", "ORD001"
-        );
+        GetFulfillmentDeliveryGoodDetailCommand command = GetFulfillmentDeliveryGoodDetailCommand.builder()
+                .customerCode("CUST001")
+                .accessToken("token")
+                .startDate("2026-01-01")
+                .endDate("2026-01-31")
+                .orderNumber("ORD001")
+                .build();
         GetFulfillmentDeliveryGoodDetailResult expectedResult = GetFulfillmentDeliveryGoodDetailResult.of(0, List.of());
         when(getFulfillmentDeliveryGoodDetailPort.getDeliveryGoodDetail(any())).thenReturn(expectedResult);
 

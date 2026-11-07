@@ -519,33 +519,33 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
     }
 
     private FulfillmentSupplierInfoResult mapSupplierInfo(FulfillmentSuppliersItemResponse item) {
-        return FulfillmentSupplierInfoResult.of(
-                item.supCd(),        // supplierCode
-                item.supNm(),        // supplierName
-                item.cstSupCd(),     // customerSupplierCode
-                item.cstCd(),        // customerCode
-                item.cstNm(),        // customerName
-                item.dealStrDt(),    // dealStartDate
-                item.dealEndDt(),    // dealEndDate
-                item.zipNo(),        // zipCode
-                item.addr1(),        // address1
-                item.addr2(),        // address2
-                item.ceoNm(),        // ceoName
-                item.busNo(),        // businessNumber
-                item.busSp(),        // businessCategory
-                item.busTp(),        // businessType
-                item.telNo(),        // phoneNumber
-                item.faxNo(),        // faxNumber
-                item.empNm1(),       // primaryManagerName
-                item.empPosit1(),    // primaryManagerPosition
-                item.empTelNo1(),    // primaryManagerPhoneNumber
-                item.empEmail1(),    // primaryManagerEmail
-                item.empNm2(),       // secondaryManagerName
-                item.empPosit2(),    // secondaryManagerPosition
-                item.empTelNo2(),    // secondaryManagerPhoneNumber
-                item.empEmail2(),    // secondaryManagerEmail
-                item.useYn()         // useYn
-        );
+        return FulfillmentSupplierInfoResult.builder()
+                .supplierCode(item.supCd())
+                .supplierName(item.supNm())
+                .customerSupplierCode(item.cstSupCd())
+                .customerCode(item.cstCd())
+                .customerName(item.cstNm())
+                .dealStartDate(item.dealStrDt())
+                .dealEndDate(item.dealEndDt())
+                .zipCode(item.zipNo())
+                .address1(item.addr1())
+                .address2(item.addr2())
+                .ceoName(item.ceoNm())
+                .businessNumber(item.busNo())
+                .businessCategory(item.busSp())
+                .businessType(item.busTp())
+                .phoneNumber(item.telNo())
+                .faxNumber(item.faxNo())
+                .primaryManagerName(item.empNm1())
+                .primaryManagerPosition(item.empPosit1())
+                .primaryManagerPhoneNumber(item.empTelNo1())
+                .primaryManagerEmail(item.empEmail1())
+                .secondaryManagerName(item.empNm2())
+                .secondaryManagerPosition(item.empPosit2())
+                .secondaryManagerPhoneNumber(item.empTelNo2())
+                .secondaryManagerEmail(item.empEmail2())
+                .useYn(item.useYn())
+                .build();
     }
 
     private String maskValue(String value) {

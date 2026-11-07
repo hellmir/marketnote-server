@@ -163,9 +163,12 @@ class FulfillmentReturnDeliveryClientTest {
             stubPayloadGenerator();
             stubGetChainThrows(new RuntimeException("Connection refused"));
 
-            GetFulfillmentReturnGodDetailCommand command = GetFulfillmentReturnGodDetailCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131", null, null
-            );
+            GetFulfillmentReturnGodDetailCommand command = GetFulfillmentReturnGodDetailCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .build();
 
             // when & then
             assertThatThrownBy(() -> client.getReturnGodDetail(command))
@@ -183,9 +186,12 @@ class FulfillmentReturnDeliveryClientTest {
             // given
             when(properties.getBaseUrl()).thenReturn(null);
 
-            GetFulfillmentReturnGodDetailCommand command = GetFulfillmentReturnGodDetailCommand.of(
-                    "CUST001", "valid-token", "20260101", "20260131", null, null
-            );
+            GetFulfillmentReturnGodDetailCommand command = GetFulfillmentReturnGodDetailCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .build();
 
             // when & then
             assertThatThrownBy(() -> client.getReturnGodDetail(command))

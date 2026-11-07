@@ -2445,23 +2445,23 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private RegisterFulfillmentDeliveryItemResult mapDeliveryItem(RegisterFulfillmentDeliveryItemResponse item) {
-        return RegisterFulfillmentDeliveryItemResult.of(
-                item.fmsSlipNo(),
-                item.orderNo(),
-                item.msg(),
-                item.code(),
-                item.outOfStockGoodsDetail()
-        );
+        return RegisterFulfillmentDeliveryItemResult.builder()
+                .fulfillmentSlipNumber(item.fmsSlipNo())
+                .orderNumber(item.orderNo())
+                .message(item.msg())
+                .code(item.code())
+                .outOfStockGoodsDetail(item.outOfStockGoodsDetail())
+                .build();
     }
 
     private CancelFulfillmentDeliveryItemResult mapCancelDeliveryItem(RegisterFulfillmentDeliveryItemResponse item) {
-        return CancelFulfillmentDeliveryItemResult.of(
-                item.fmsSlipNo(),
-                item.orderNo(),
-                item.msg(),
-                item.code(),
-                item.outOfStockGoodsDetail()
-        );
+        return CancelFulfillmentDeliveryItemResult.builder()
+                .fulfillmentSlipNumber(item.fmsSlipNo())
+                .orderNumber(item.orderNo())
+                .message(item.msg())
+                .code(item.code())
+                .outOfStockGoodsDetail(item.outOfStockGoodsDetail())
+                .build();
     }
 
     private FulfillmentDeliveryInfoResult mapDeliveryInfo(FulfillmentDeliveryItemResponse item) {
@@ -2469,47 +2469,47 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 ? item.goodsSerialNo()
                 : List.of();
 
-        return FulfillmentDeliveryInfoResult.of(
-                item.outDt(),
-                item.ordDt(),
-                item.whCd(),
-                item.whNm(),
-                item.slipNo(),
-                item.cstCd(),
-                item.cstNm(),
-                item.shopCd(),
-                item.mapSlipNo(),
-                item.shopNm(),
-                item.sku(),
-                item.ordQty(),
-                item.addGodOrdQty(),
-                item.outDiv(),
-                item.outDivNm(),
-                item.cstShopCd(),
-                item.ordNo(),
-                item.ordSeq(),
-                item.shipReqTerm(),
-                item.salChanel(),
-                item.outWay(),
-                item.ordDiv(),
-                item.outWayNm(),
-                item.wrkStat(),
-                item.wrkStatNm(),
-                item.invoiceNo(),
-                item.parcelNm(),
-                item.parcelCd(),
-                item.custNm(),
-                goodsSerialNo,
-                item.custAddr(),
-                item.supCd(),
-                item.custTelNo(),
-                item.supNm(),
-                item.remark(),
-                item.sendNm(),
-                item.sendTelNo(),
-                item.updUserNm(),
-                item.updTime()
-        );
+        return FulfillmentDeliveryInfoResult.builder()
+                .releaseDate(item.outDt())
+                .orderDate(item.ordDt())
+                .warehouseCode(item.whCd())
+                .warehouseName(item.whNm())
+                .slipNumber(item.slipNo())
+                .customerCode(item.cstCd())
+                .customerName(item.cstNm())
+                .shopCode(item.shopCd())
+                .mappingSlipNumber(item.mapSlipNo())
+                .shopName(item.shopNm())
+                .sku(item.sku())
+                .orderQuantity(item.ordQty())
+                .additionalProductOrderQuantity(item.addGodOrdQty())
+                .releaseDivision(item.outDiv())
+                .releaseDivisionName(item.outDivNm())
+                .customerShopCode(item.cstShopCd())
+                .orderNumber(item.ordNo())
+                .orderSequence(item.ordSeq())
+                .shippingRequestTerm(item.shipReqTerm())
+                .salesChannel(item.salChanel())
+                .releaseMethod(item.outWay())
+                .orderDivision(item.ordDiv())
+                .releaseMethodName(item.outWayNm())
+                .workStatus(item.wrkStat())
+                .workStatusName(item.wrkStatNm())
+                .invoiceNumber(item.invoiceNo())
+                .courierName(item.parcelNm())
+                .courierCode(item.parcelCd())
+                .recipientName(item.custNm())
+                .goodsSerialNo(goodsSerialNo)
+                .recipientAddress(item.custAddr())
+                .supplierCode(item.supCd())
+                .recipientPhoneNumber(item.custTelNo())
+                .supplierName(item.supNm())
+                .remark(item.remark())
+                .senderName(item.sendNm())
+                .senderPhoneNumber(item.sendTelNo())
+                .updatedByName(item.updUserNm())
+                .updatedTime(item.updTime())
+                .build();
     }
 
     private FulfillmentDeliveryStatusInfoResult mapDeliveryStatusInfo(FulfillmentDeliveryStatusItemResponse item) {
@@ -2517,54 +2517,54 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 ? item.goodsSerialNo()
                 : List.of();
 
-        return FulfillmentDeliveryStatusInfoResult.of(
-                item.boxDiv(),
-                item.boxDivNm(),
-                item.boxNm(),
-                item.boxNo(),
-                item.boxTp(),
-                item.crgSt(),
-                item.crgStNm(),
-                item.cstCd(),
-                item.cstNm(),
-                item.custAddr(),
-                item.custNm(),
-                item.custTelNo(),
-                item.dlvMisYn(),
-                item.godCd(),
-                item.godNm(),
-                item.invoiceNo(),
-                item.ordNo(),
-                item.ordSeq(),
-                item.outDiv(),
-                item.outDivNm(),
-                item.outOrdSlipNo(),
-                item.packDt(),
-                item.packQty(),
-                item.packSeq(),
-                item.parcelCd(),
-                item.parcelLinkYn(),
-                item.parcelNm(),
-                item.pickSeq(),
-                item.postYn(),
-                item.printCnt(),
-                item.rtnAddr1(),
-                item.rtnAddr2(),
-                item.rtnCheck(),
-                item.rtnEmpNm(),
-                item.rtnOrdDt(),
-                item.rtnTelNo(),
-                item.rtnZipCd(),
-                item.salChanel(),
-                item.shipReqTerm(),
-                item.shopCd(),
-                item.shopNm(),
-                item.sku(),
-                item.whCd(),
-                goodsSerialNo,
-                item.supCd(),
-                item.supNm()
-        );
+        return FulfillmentDeliveryStatusInfoResult.builder()
+                .boxDivision(item.boxDiv())
+                .boxDivisionName(item.boxDivNm())
+                .boxName(item.boxNm())
+                .boxNumber(item.boxNo())
+                .boxType(item.boxTp())
+                .cargoStatus(item.crgSt())
+                .cargoStatusName(item.crgStNm())
+                .customerCode(item.cstCd())
+                .customerName(item.cstNm())
+                .recipientAddress(item.custAddr())
+                .recipientName(item.custNm())
+                .recipientPhoneNumber(item.custTelNo())
+                .deliveryMismatchYn(item.dlvMisYn())
+                .productCode(item.godCd())
+                .productName(item.godNm())
+                .invoiceNumber(item.invoiceNo())
+                .orderNumber(item.ordNo())
+                .orderSequence(item.ordSeq())
+                .releaseDivision(item.outDiv())
+                .releaseDivisionName(item.outDivNm())
+                .releaseOrderSlipNumber(item.outOrdSlipNo())
+                .packingDate(item.packDt())
+                .packingQuantity(item.packQty())
+                .packingSequence(item.packSeq())
+                .courierCode(item.parcelCd())
+                .courierLinkYn(item.parcelLinkYn())
+                .courierName(item.parcelNm())
+                .pickingSequence(item.pickSeq())
+                .postYn(item.postYn())
+                .printCount(item.printCnt())
+                .returnAddress1(item.rtnAddr1())
+                .returnAddress2(item.rtnAddr2())
+                .returnCheck(item.rtnCheck())
+                .returnEmployeeName(item.rtnEmpNm())
+                .returnOrderDate(item.rtnOrdDt())
+                .returnPhoneNumber(item.rtnTelNo())
+                .returnZipCode(item.rtnZipCd())
+                .salesChannel(item.salChanel())
+                .shippingRequestTerm(item.shipReqTerm())
+                .shopCode(item.shopCd())
+                .shopName(item.shopNm())
+                .sku(item.sku())
+                .warehouseCode(item.whCd())
+                .goodsSerialNo(goodsSerialNo)
+                .supplierCode(item.supCd())
+                .supplierName(item.supNm())
+                .build();
     }
 
     private FulfillmentDeliveryDetailInfoResult mapDeliveryDetailInfo(FulfillmentDeliveryDetailItemResponse item) {
@@ -2572,70 +2572,70 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 ? item.goods().stream().map(this::mapDeliveryDetailGoods).toList()
                 : List.of();
 
-        return FulfillmentDeliveryDetailInfoResult.of(
-                item.outDt(),
-                item.ordDt(),
-                item.whCd(),
-                item.whNm(),
-                item.slipNo(),
-                item.cstCd(),
-                item.cstNm(),
-                item.cstShopCd(),
-                item.shopCd(),
-                item.mapSlipNo(),
-                item.shopNm(),
-                item.sku(),
-                item.ordQty(),
-                item.addGodOrdQty(),
-                item.outDiv(),
-                item.outDivNm(),
-                item.ordNo(),
-                item.ordSeq(),
-                item.shipReqTerm(),
-                item.salChanel(),
-                item.outWay(),
-                item.ordDiv(),
-                item.outWayNm(),
-                item.wrkStat(),
-                item.wrkStatNm(),
-                item.invoiceNo(),
-                item.parcelNm(),
-                item.parcelCd(),
-                item.custNm(),
-                item.custAddr(),
-                item.custTelNo(),
-                item.sendNm(),
-                item.sendTelNo(),
-                item.updUserNm(),
-                item.updTime(),
-                goods,
-                item.remark()
-        );
+        return FulfillmentDeliveryDetailInfoResult.builder()
+                .releaseDate(item.outDt())
+                .orderDate(item.ordDt())
+                .warehouseCode(item.whCd())
+                .warehouseName(item.whNm())
+                .slipNumber(item.slipNo())
+                .customerCode(item.cstCd())
+                .customerName(item.cstNm())
+                .customerShopCode(item.cstShopCd())
+                .shopCode(item.shopCd())
+                .mappingSlipNumber(item.mapSlipNo())
+                .shopName(item.shopNm())
+                .sku(item.sku())
+                .orderQuantity(item.ordQty())
+                .additionalProductOrderQuantity(item.addGodOrdQty())
+                .releaseDivision(item.outDiv())
+                .releaseDivisionName(item.outDivNm())
+                .orderNumber(item.ordNo())
+                .orderSequence(item.ordSeq())
+                .shippingRequestTerm(item.shipReqTerm())
+                .salesChannel(item.salChanel())
+                .releaseMethod(item.outWay())
+                .orderDivision(item.ordDiv())
+                .releaseMethodName(item.outWayNm())
+                .workStatus(item.wrkStat())
+                .workStatusName(item.wrkStatNm())
+                .invoiceNumber(item.invoiceNo())
+                .courierName(item.parcelNm())
+                .courierCode(item.parcelCd())
+                .recipientName(item.custNm())
+                .recipientAddress(item.custAddr())
+                .recipientPhoneNumber(item.custTelNo())
+                .senderName(item.sendNm())
+                .senderPhoneNumber(item.sendTelNo())
+                .updatedByName(item.updUserNm())
+                .updatedTime(item.updTime())
+                .goods(goods)
+                .remark(item.remark())
+                .build();
     }
 
     private FulfillmentDeliveryDetailGoodsInfoResult mapDeliveryDetailGoods(FulfillmentDeliveryDetailGoodsResponse item) {
-        return FulfillmentDeliveryDetailGoodsInfoResult.of(
-                item.ordDt(),
-                item.whCd(),
-                item.slipNo(),
-                item.cstCd(),
-                item.shopCd(),
-                item.supCd(),
-                item.godCd(),
-                item.cstGodCd(),
-                item.godNm(),
-                item.orgGodCd(),
-                item.godType(),
-                item.godTypeNm(),
-                item.distTermDt(),
-                item.stockQty(),
-                item.ordQty(),
-                item.addGodOrdQty(),
-                item.ordQtySum(),
-                item.giftDiv(),
-                item.addType(),
-                item.emgrYn()
-        );
+        return FulfillmentDeliveryDetailGoodsInfoResult.builder()
+                .orderDate(item.ordDt())
+                .warehouseCode(item.whCd())
+                .slipNumber(item.slipNo())
+                .customerCode(item.cstCd())
+                .shopCode(item.shopCd())
+                .supplierCode(item.supCd())
+                .productCode(item.godCd())
+                .customerProductCode(item.cstGodCd())
+                .productName(item.godNm())
+                .originalProductCode(item.orgGodCd())
+                .productType(item.godType())
+                .productTypeName(item.godTypeNm())
+                .expirationDate(item.distTermDt())
+                .stockQuantity(item.stockQty())
+                .orderQuantity(item.ordQty())
+                .additionalProductOrderQuantity(item.addGodOrdQty())
+                .orderQuantitySum(item.ordQtySum())
+                .giftDivision(item.giftDiv())
+                .additionalType(item.addType())
+                .emergencyYn(item.emgrYn())
+                .build();
     }
 
     private FulfillmentDeliveryOutOrdGoodsInfoResult mapOutOrdGoodsByInvoice(FulfillmentOutOrdGoodsByInvoiceResponse item) {
@@ -2663,26 +2663,26 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private FulfillmentDeliveryGoodDetailInfoResult mapDeliveryGoodDetailItem(FulfillmentDeliveryGoodDetailItemResponse item) {
-        return FulfillmentDeliveryGoodDetailInfoResult.of(
-                item.outDt(),
-                item.slipNo(),
-                item.outOrdSlipNo(),
-                item.orderNo(),
-                item.productOrderNo(),
-                item.ordDiv(),
-                item.invoiceNo(),
-                item.sellerChannel(),
-                item.custNm(),
-                item.godCd(),
-                item.cstGodCd(),
-                item.godNm(),
-                item.outQty(),
-                item.markedPrAmount(),
-                item.sellingPrAmount(),
-                item.dcAmount(),
-                item.sellerDcAmount(),
-                item.naverDcAmount()
-        );
+        return FulfillmentDeliveryGoodDetailInfoResult.builder()
+                .releaseDate(item.outDt())
+                .slipNumber(item.slipNo())
+                .releaseOrderSlipNumber(item.outOrdSlipNo())
+                .orderNumber(item.orderNo())
+                .productOrderNo(item.productOrderNo())
+                .orderDivision(item.ordDiv())
+                .invoiceNumber(item.invoiceNo())
+                .sellerChannel(item.sellerChannel())
+                .recipientName(item.custNm())
+                .productCode(item.godCd())
+                .customerProductCode(item.cstGodCd())
+                .productName(item.godNm())
+                .releaseQuantity(item.outQty())
+                .markedPrAmount(item.markedPrAmount())
+                .sellingPrAmount(item.sellingPrAmount())
+                .dcAmount(item.dcAmount())
+                .sellerDcAmount(item.sellerDcAmount())
+                .naverDcAmount(item.naverDcAmount())
+                .build();
     }
 
     private CompleteFulfillmentDeliveryIcsItemResult mapDeliveryIcsCompletionItem(FulfillmentDeliveryIcsCompletionItemResponse item) {

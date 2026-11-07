@@ -545,30 +545,30 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
     }
 
     private FulfillmentShopInfoResult mapShopInfo(FulfillmentShopItemResponse item) {
-        return FulfillmentShopInfoResult.of(
-                item.shopCd(),       // shopCode
-                item.shopNm(),       // shopName
-                item.cstShopCd(),    // customerShopCode
-                item.cstCd(),        // customerCode
-                item.cstNm(),        // customerName
-                item.shopTp(),       // shopType
-                item.dealStrDt(),    // dealStartDate
-                item.dealEndDt(),    // dealEndDate
-                item.zipNo(),        // zipCode
-                item.addr1(),        // address1
-                item.addr2(),        // address2
-                item.ceoNm(),        // ceoName
-                item.busNo(),        // businessNumber
-                item.telNo(),        // phoneNumber
-                item.unloadWay(),    // unloadMethod
-                item.checkWay(),     // inspectionMethod
-                item.standYn(),      // standbyYn
-                item.formType(),     // formType
-                item.empNm(),        // managerName
-                item.empPosit(),     // managerPosition
-                item.empTelNo(),     // managerPhoneNumber
-                item.useYn()         // useYn
-        );
+        return FulfillmentShopInfoResult.builder()
+                .shopCode(item.shopCd())
+                .shopName(item.shopNm())
+                .customerShopCode(item.cstShopCd())
+                .customerCode(item.cstCd())
+                .customerName(item.cstNm())
+                .shopType(item.shopTp())
+                .dealStartDate(item.dealStrDt())
+                .dealEndDate(item.dealEndDt())
+                .zipCode(item.zipNo())
+                .address1(item.addr1())
+                .address2(item.addr2())
+                .ceoName(item.ceoNm())
+                .businessNumber(item.busNo())
+                .phoneNumber(item.telNo())
+                .unloadMethod(item.unloadWay())
+                .inspectionMethod(item.checkWay())
+                .standbyYn(item.standYn())
+                .formType(item.formType())
+                .managerName(item.empNm())
+                .managerPosition(item.empPosit())
+                .managerPhoneNumber(item.empTelNo())
+                .useYn(item.useYn())
+                .build();
     }
 
     private String resolveVendorMessage(FulfillmentShopsResponse response, String rawBody) {

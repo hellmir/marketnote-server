@@ -162,30 +162,13 @@ class FulfillmentWarehousingPollingSchedulerTest {
     }
 
     private FulfillmentWarehousingInfoResult buildWarehousingInfo(String orderNumber, String warehouseCode, String workStatus) {
-        return FulfillmentWarehousingInfoResult.of(
-                "20260116",
-                warehouseCode,
-                null,
-                orderNumber,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                workStatus,
-                null,
-                null,
-                null,
-                List.of()
-        );
+        return FulfillmentWarehousingInfoResult.builder()
+                .orderDate("20260116")
+                .warehouseCode(warehouseCode)
+                .orderNumber(orderNumber)
+                .workStatus(workStatus)
+                .goodsSerialNo(List.of())
+                .build();
     }
 
     private Instant parseInstant(String localDateTime) {

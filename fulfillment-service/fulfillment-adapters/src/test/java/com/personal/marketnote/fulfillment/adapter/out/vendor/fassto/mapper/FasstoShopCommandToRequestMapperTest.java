@@ -24,28 +24,28 @@ class FasstoShopCommandToRequestMapperTest {
         @DisplayName("쇼핑몰 필드가 FulfillmentShopMapper로 매핑되고 shopCd는 'registration'으로 고정된다")
         void shouldMapAllFields() {
             // given
-            RegisterFulfillmentShopCommand command = RegisterFulfillmentShopCommand.of(
-                    "CUST001",
-                    "token",
-                    "쇼핑몰명",
-                    "CSTSHOP001",
-                    "20260101",
-                    "20261231",
-                    "06000",
-                    "서울시 강남구",
-                    "101호",
-                    "김대표",
-                    "123-45-67890",
-                    "02-1234-5678",
-                    "하차방식",
-                    "검수방식",
-                    "Y",
-                    "일반",
-                    "담당자",
-                    "직책",
-                    "010-1111-2222",
-                    "Y"
-            );
+            RegisterFulfillmentShopCommand command = RegisterFulfillmentShopCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("token")
+                    .shopName("쇼핑몰명")
+                    .customerShopCode("CSTSHOP001")
+                    .dealStartDate("20260101")
+                    .dealEndDate("20261231")
+                    .zipCode("06000")
+                    .address1("서울시 강남구")
+                    .address2("101호")
+                    .ceoName("김대표")
+                    .businessNumber("123-45-67890")
+                    .phoneNumber("02-1234-5678")
+                    .unloadMethod("하차방식")
+                    .inspectionMethod("검수방식")
+                    .standbyYn("Y")
+                    .formType("일반")
+                    .managerName("담당자")
+                    .managerPosition("직책")
+                    .managerPhoneNumber("010-1111-2222")
+                    .useYn("Y")
+                    .build();
 
             // when
             FulfillmentShopMapper mapper = FasstoShopCommandToRequestMapper.mapToRegisterRequest(command);
@@ -80,13 +80,11 @@ class FasstoShopCommandToRequestMapperTest {
         @DisplayName("선택 필드가 null이면 payload에서 제외된다")
         void shouldOmitNullOptionalFields() {
             // given
-            RegisterFulfillmentShopCommand command = RegisterFulfillmentShopCommand.of(
-                    "CUST001",
-                    "token",
-                    "쇼핑몰명",
-                    null, null, null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null, null
-            );
+            RegisterFulfillmentShopCommand command = RegisterFulfillmentShopCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("token")
+                    .shopName("쇼핑몰명")
+                    .build();
 
             // when
             FulfillmentShopMapper mapper = FasstoShopCommandToRequestMapper.mapToRegisterRequest(command);
@@ -105,29 +103,29 @@ class FasstoShopCommandToRequestMapperTest {
         @DisplayName("shopCode가 shopCd로 매핑된다")
         void shouldMapShopCode() {
             // given
-            UpdateFulfillmentShopCommand command = UpdateFulfillmentShopCommand.of(
-                    "CUST001",
-                    "token",
-                    "SHOP001",
-                    "쇼핑몰명",
-                    "CSTSHOP001",
-                    "20260101",
-                    "20261231",
-                    "06000",
-                    "서울시 강남구",
-                    "101호",
-                    "김대표",
-                    "123-45-67890",
-                    "02-1234-5678",
-                    "하차방식",
-                    "검수방식",
-                    "Y",
-                    "일반",
-                    "담당자",
-                    "직책",
-                    "010-1111-2222",
-                    "Y"
-            );
+            UpdateFulfillmentShopCommand command = UpdateFulfillmentShopCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("token")
+                    .shopCode("SHOP001")
+                    .shopName("쇼핑몰명")
+                    .customerShopCode("CSTSHOP001")
+                    .dealStartDate("20260101")
+                    .dealEndDate("20261231")
+                    .zipCode("06000")
+                    .address1("서울시 강남구")
+                    .address2("101호")
+                    .ceoName("김대표")
+                    .businessNumber("123-45-67890")
+                    .phoneNumber("02-1234-5678")
+                    .unloadMethod("하차방식")
+                    .inspectionMethod("검수방식")
+                    .standbyYn("Y")
+                    .formType("일반")
+                    .managerName("담당자")
+                    .managerPosition("직책")
+                    .managerPhoneNumber("010-1111-2222")
+                    .useYn("Y")
+                    .build();
 
             // when
             FulfillmentShopMapper mapper = FasstoShopCommandToRequestMapper.mapToUpdateRequest(command);

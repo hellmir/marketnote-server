@@ -31,10 +31,13 @@ class UpdateFulfillmentWarehousingUseCaseTest {
     @DisplayName("Command를 Port에 위임하여 결과를 반환한다")
     void shouldDelegateToPort() {
         // given
-        UpdateFulfillmentWarehousingItemCommand item = UpdateFulfillmentWarehousingItemCommand.of(
-                "20260402", "ORD001", "01", "SLIP001", null, null, null, null, null, null, null,
-                List.of(UpdateFulfillmentWarehousingGoodsCommand.of("GOD001", "20260501", 10))
-        );
+        UpdateFulfillmentWarehousingItemCommand item = UpdateFulfillmentWarehousingItemCommand.builder()
+                .orderDate("20260402")
+                .orderNumber("ORD001")
+                .warehousingMethod("01")
+                .slipNumber("SLIP001")
+                .products(List.of(UpdateFulfillmentWarehousingGoodsCommand.of("GOD001", "20260501", 10)))
+                .build();
         UpdateFulfillmentWarehousingCommand command = UpdateFulfillmentWarehousingCommand.of("CUST001", "token", List.of(item));
         UpdateFulfillmentWarehousingResult expectedResult = UpdateFulfillmentWarehousingResult.of(0, List.of());
         when(updateFulfillmentWarehousingPort.updateWarehousing(any())).thenReturn(expectedResult);

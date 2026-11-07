@@ -947,79 +947,79 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
     }
 
     private UpdateFulfillmentGoodsItemResult mapUpdateGoodsItem(UpdateFulfillmentGoodsItemResponse item) {
-        return UpdateFulfillmentGoodsItemResult.of(
-                item.fmsSlipNo(),
-                item.orderNo(),
-                item.msg(),
-                item.code(),
-                item.outOfStockGoodsDetail()
-        );
+        return UpdateFulfillmentGoodsItemResult.builder()
+                .fulfillmentSlipNumber(item.fmsSlipNo())
+                .orderNumber(item.orderNo())
+                .message(item.msg())
+                .code(item.code())
+                .outOfStockGoodsDetail(item.outOfStockGoodsDetail())
+                .build();
     }
 
     private FulfillmentGoodsInfoResult mapGoodsInfo(FulfillmentGoodsItemResponse item) {
-        return FulfillmentGoodsInfoResult.of(
-                item.godCd(),
-                item.godType(),
-                item.godNm(),
-                item.godTypeNm(),
-                item.invGodNmUseYn(),
-                item.cstGodCd(),
-                item.godOptCd1(),
-                item.godOptCd2(),
-                item.cstCd(),
-                item.cstNm(),
-                item.supCd(),
-                item.supNm(),
-                item.cateCd(),
-                item.cateNm(),
-                item.seasonCd(),
-                item.genderCd(),
-                item.godPr(),
-                item.inPr(),
-                item.salPr(),
-                item.dealTemp(),
-                item.pickFac(),
-                item.giftDiv(),
-                item.giftDivNm(),
-                item.godWidth(),
-                item.godLength(),
-                item.godHeight(),
-                item.makeYr(),
-                item.godBulk(),
-                item.godWeight(),
-                item.godSideSum(),
-                item.godVolume(),
-                item.godBarcd(),
-                item.boxWidth(),
-                item.boxLength(),
-                item.boxHeight(),
-                item.boxBulk(),
-                item.boxWeight(),
-                item.inBoxBarcd(),
-                item.inBoxLength(),
-                item.inBoxHeight(),
-                item.inBoxBulk(),
-                item.inBoxWidth(),
-                item.inBoxWeight(),
-                item.inBoxSideSum(),
-                item.boxInCnt(),
-                item.inBoxInCnt(),
-                item.pltInCnt(),
-                item.origin(),
-                item.distTermMgtYn(),
-                item.useTermDay(),
-                item.outCanDay(),
-                item.inCanDay(),
-                item.boxDiv(),
-                item.bufGodYn(),
-                item.loadingDirection(),
-                item.firstInDt(),
-                item.useYn(),
-                item.feeYn(),
-                item.saleUnitQty(),
-                item.cstOneDayDeliveryYn(),
-                item.safetyStock()
-        );
+        return FulfillmentGoodsInfoResult.builder()
+                .productCode(item.godCd())
+                .productType(item.godType())
+                .productName(item.godNm())
+                .productTypeName(item.godTypeNm())
+                .inventoryProductNameUseYn(item.invGodNmUseYn())
+                .customerProductCode(item.cstGodCd())
+                .productOptionCode1(item.godOptCd1())
+                .productOptionCode2(item.godOptCd2())
+                .customerCode(item.cstCd())
+                .customerName(item.cstNm())
+                .supplierCode(item.supCd())
+                .supplierName(item.supNm())
+                .categoryCode(item.cateCd())
+                .categoryName(item.cateNm())
+                .seasonCode(item.seasonCd())
+                .genderCode(item.genderCd())
+                .productPrice(item.godPr())
+                .inboundPrice(item.inPr())
+                .salePrice(item.salPr())
+                .dealTemperature(item.dealTemp())
+                .pickingFacility(item.pickFac())
+                .giftDivision(item.giftDiv())
+                .giftDivisionName(item.giftDivNm())
+                .productWidth(item.godWidth())
+                .productLength(item.godLength())
+                .productHeight(item.godHeight())
+                .manufacturingYear(item.makeYr())
+                .productBulk(item.godBulk())
+                .productWeight(item.godWeight())
+                .productSideSum(item.godSideSum())
+                .productVolume(item.godVolume())
+                .productBarcode(item.godBarcd())
+                .boxWidth(item.boxWidth())
+                .boxLength(item.boxLength())
+                .boxHeight(item.boxHeight())
+                .boxBulk(item.boxBulk())
+                .boxWeight(item.boxWeight())
+                .innerBoxBarcode(item.inBoxBarcd())
+                .innerBoxLength(item.inBoxLength())
+                .innerBoxHeight(item.inBoxHeight())
+                .innerBoxBulk(item.inBoxBulk())
+                .innerBoxWidth(item.inBoxWidth())
+                .innerBoxWeight(item.inBoxWeight())
+                .innerBoxSideSum(item.inBoxSideSum())
+                .boxInCount(item.boxInCnt())
+                .innerBoxInCount(item.inBoxInCnt())
+                .palletInCount(item.pltInCnt())
+                .origin(item.origin())
+                .expirationDateManagementYn(item.distTermMgtYn())
+                .usableTermDays(item.useTermDay())
+                .releaseCanDays(item.outCanDay())
+                .inboundCanDays(item.inCanDay())
+                .boxDivision(item.boxDiv())
+                .bufferProductYn(item.bufGodYn())
+                .loadingDirection(item.loadingDirection())
+                .firstInboundDate(item.firstInDt())
+                .useYn(item.useYn())
+                .feeYn(item.feeYn())
+                .saleUnitQuantity(item.saleUnitQty())
+                .customerOneDayDeliveryYn(item.cstOneDayDeliveryYn())
+                .safetyStock(item.safetyStock())
+                .build();
     }
 
     private FulfillmentGoodsElementInfoResult mapGoodsElementInfo(FulfillmentGoodsElementResponse item) {
@@ -1029,25 +1029,25 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
                 .toList()
                 : List.of();
 
-        return FulfillmentGoodsElementInfoResult.of(
-                item.godCd(),
-                item.cstGodCd(),
-                item.godNm(),
-                item.useYn(),
-                elements
-        );
+        return FulfillmentGoodsElementInfoResult.builder()
+                .productCode(item.godCd())
+                .customerProductCode(item.cstGodCd())
+                .productName(item.godNm())
+                .useYn(item.useYn())
+                .elementList(elements)
+                .build();
     }
 
     private FulfillmentGoodsElementItemResult mapGoodsElementItem(FulfillmentGoodsElementItemResponse item) {
-        return FulfillmentGoodsElementItemResult.of(
-                item.godCd(),
-                item.cstGodCd(),
-                item.godBarcd(),
-                item.godNm(),
-                item.godType(),
-                item.godTypeNm(),
-                item.qty()
-        );
+        return FulfillmentGoodsElementItemResult.builder()
+                .productCode(item.godCd())
+                .customerProductCode(item.cstGodCd())
+                .productBarcode(item.godBarcd())
+                .productName(item.godNm())
+                .productType(item.godType())
+                .productTypeName(item.godTypeNm())
+                .quantity(item.qty())
+                .build();
     }
 
     private String maskValue(String value) {

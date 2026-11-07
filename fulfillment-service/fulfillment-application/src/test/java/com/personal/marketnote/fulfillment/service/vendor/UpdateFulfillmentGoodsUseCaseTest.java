@@ -37,20 +37,22 @@ class UpdateFulfillmentGoodsUseCaseTest {
     @DisplayName("상품 수정 커맨드를 전달하면 포트를 통해 수정 결과를 반환한다")
     void shouldReturnUpdateResultFromPort() {
         // given
-        UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.of(
-                UUID.randomUUID(), null, "테스트 상품", "1", "01",
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null
-        );
+        UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.builder()
+                .productKey(UUID.randomUUID())
+                .productName("테스트 상품")
+                .productType("1")
+                .giftDivision("01")
+                .build();
         UpdateFulfillmentGoodsCommand command = UpdateFulfillmentGoodsCommand.of(
                 "CUST001", "token", List.of(itemCommand)
         );
         UpdateFulfillmentGoodsResult expectedResult = UpdateFulfillmentGoodsResult.of(1, List.of(
-                UpdateFulfillmentGoodsItemResult.of("SLIP001", "ORD001", "수정 성공", "200", null)
+                UpdateFulfillmentGoodsItemResult.builder()
+                        .fulfillmentSlipNumber("SLIP001")
+                        .orderNumber("ORD001")
+                        .message("수정 성공")
+                        .code("200")
+                        .build()
         ));
         when(updateFulfillmentGoodsPort.updateGoods(any())).thenReturn(expectedResult);
 
@@ -66,24 +68,18 @@ class UpdateFulfillmentGoodsUseCaseTest {
     @DisplayName("상품 목록의 각 항목에 대해 동기화 이벤트를 발행한다")
     void shouldPublishSyncedEventForEachGoodsItem() {
         // given
-        UpdateFulfillmentGoodsItemCommand item1 = UpdateFulfillmentGoodsItemCommand.of(
-                UUID.randomUUID(), null, "상품1", "1", "01",
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null
-        );
-        UpdateFulfillmentGoodsItemCommand item2 = UpdateFulfillmentGoodsItemCommand.of(
-                UUID.randomUUID(), null, "상품2", "1", "01",
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null
-        );
+        UpdateFulfillmentGoodsItemCommand item1 = UpdateFulfillmentGoodsItemCommand.builder()
+                .productKey(UUID.randomUUID())
+                .productName("상품1")
+                .productType("1")
+                .giftDivision("01")
+                .build();
+        UpdateFulfillmentGoodsItemCommand item2 = UpdateFulfillmentGoodsItemCommand.builder()
+                .productKey(UUID.randomUUID())
+                .productName("상품2")
+                .productType("1")
+                .giftDivision("01")
+                .build();
         UpdateFulfillmentGoodsCommand command = UpdateFulfillmentGoodsCommand.of(
                 "CUST001", "token", List.of(item1, item2)
         );

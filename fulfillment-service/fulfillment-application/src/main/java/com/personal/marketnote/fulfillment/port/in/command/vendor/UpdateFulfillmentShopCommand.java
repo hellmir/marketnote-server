@@ -1,5 +1,8 @@
 package com.personal.marketnote.fulfillment.port.in.command.vendor;
 
+import lombok.Builder;
+
+@Builder
 public record UpdateFulfillmentShopCommand(
         String customerCode,
         String accessToken,
@@ -23,51 +26,4 @@ public record UpdateFulfillmentShopCommand(
         String managerPhoneNumber,
         String useYn
 ) {
-    public static UpdateFulfillmentShopCommand of(
-            String customerCode,
-            String accessToken,
-            String shopCode,
-            String shopName,
-            String customerShopCode,
-            String dealStartDate,
-            String dealEndDate,
-            String zipCode,
-            String address1,
-            String address2,
-            String ceoName,
-            String businessNumber,
-            String phoneNumber,
-            String unloadMethod,
-            String inspectionMethod,
-            String standbyYn,
-            String formType,
-            String managerName,
-            String managerPosition,
-            String managerPhoneNumber,
-            String useYn
-    ) {
-        return new UpdateFulfillmentShopCommand(
-                customerCode,
-                accessToken,
-                shopCode,
-                shopName,
-                customerShopCode,
-                dealStartDate,
-                dealEndDate,
-                zipCode,
-                address1,
-                address2,
-                ceoName,
-                businessNumber,
-                phoneNumber,
-                unloadMethod,
-                inspectionMethod,
-                standbyYn,
-                formType,
-                managerName,
-                managerPosition,
-                managerPhoneNumber,
-                useYn
-        );
-    }
 }

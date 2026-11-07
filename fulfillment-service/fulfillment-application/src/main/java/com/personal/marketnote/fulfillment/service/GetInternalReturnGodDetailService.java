@@ -58,13 +58,8 @@ public class GetInternalReturnGodDetailService implements GetInternalReturnGodDe
             String accessToken,
             GetInternalReturnGodDetailCommand command
     ) {
-        return GetFulfillmentReturnGodDetailCommand.of(
-                customerCode,
-                accessToken,
-                null,
-                null,
-                command.returnSlipNumbers(),
-                null
+        return GetFulfillmentReturnGodDetailCommand.forReturnSlipNumbers(
+                customerCode, accessToken, command.returnSlipNumbers()
         );
     }
 

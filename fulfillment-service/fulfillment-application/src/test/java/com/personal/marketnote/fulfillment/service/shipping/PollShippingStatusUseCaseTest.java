@@ -648,13 +648,11 @@ class PollShippingStatusUseCaseTest {
 
     private FulfillmentDeliveryStatusInfoResult createDeliveryStatusInfo(
             String ordNo, String crgStNm, String invoiceNo, String courierCode) {
-        return FulfillmentDeliveryStatusInfoResult.of(
-                null, null, null, null, null,
-                null, crgStNm, null, null, null, null, null, null, null, null,
-                invoiceNo, ordNo, null, null, null, null, null, null, null,
-                courierCode, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null,
-                null, null, null
-        );
+        return FulfillmentDeliveryStatusInfoResult.builder()
+                .cargoStatusName(crgStNm)
+                .invoiceNumber(invoiceNo)
+                .orderNumber(ordNo)
+                .courierCode(courierCode)
+                .build();
     }
 }

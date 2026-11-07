@@ -24,32 +24,32 @@ class FasstoSupplierCommandToRequestMapperTest {
         @DisplayName("공급사 필드가 FulfillmentSupplierMapper로 매핑되고 supCd는 'registration'으로 고정된다")
         void shouldMapAllFields() {
             // given
-            RegisterFulfillmentSupplierCommand command = RegisterFulfillmentSupplierCommand.of(
-                    "CUST001",
-                    "token",
-                    "공급사명",
-                    "CSTSUP001",
-                    "Y",
-                    "20260101",
-                    "20261231",
-                    "06000",
-                    "서울시 강남구",
-                    "101호",
-                    "김대표",
-                    "123-45-67890",
-                    "업태",
-                    "업종",
-                    "02-1234-5678",
-                    "02-1234-5679",
-                    "담당자1",
-                    "직책1",
-                    "010-1111-2222",
-                    "m1@example.com",
-                    "담당자2",
-                    "직책2",
-                    "010-3333-4444",
-                    "m2@example.com"
-            );
+            RegisterFulfillmentSupplierCommand command = RegisterFulfillmentSupplierCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("token")
+                    .supplierName("공급사명")
+                    .customerSupplierCode("CSTSUP001")
+                    .useYn("Y")
+                    .dealStartDate("20260101")
+                    .dealEndDate("20261231")
+                    .zipCode("06000")
+                    .address1("서울시 강남구")
+                    .address2("101호")
+                    .ceoName("김대표")
+                    .businessNumber("123-45-67890")
+                    .businessCategory("업태")
+                    .businessType("업종")
+                    .phoneNumber("02-1234-5678")
+                    .faxNumber("02-1234-5679")
+                    .primaryManagerName("담당자1")
+                    .primaryManagerPosition("직책1")
+                    .primaryManagerPhoneNumber("010-1111-2222")
+                    .primaryManagerEmail("m1@example.com")
+                    .secondaryManagerName("담당자2")
+                    .secondaryManagerPosition("직책2")
+                    .secondaryManagerPhoneNumber("010-3333-4444")
+                    .secondaryManagerEmail("m2@example.com")
+                    .build();
 
             // when
             FulfillmentSupplierMapper mapper = FasstoSupplierCommandToRequestMapper.mapToRegisterRequest(command);
@@ -88,14 +88,11 @@ class FasstoSupplierCommandToRequestMapperTest {
         @DisplayName("선택 필드가 null이면 payload에서 제외된다")
         void shouldOmitNullOptionalFields() {
             // given
-            RegisterFulfillmentSupplierCommand command = RegisterFulfillmentSupplierCommand.of(
-                    "CUST001",
-                    "token",
-                    "공급사명",
-                    null, null, null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null, null,
-                    null, null, null, null
-            );
+            RegisterFulfillmentSupplierCommand command = RegisterFulfillmentSupplierCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("token")
+                    .supplierName("공급사명")
+                    .build();
 
             // when
             FulfillmentSupplierMapper mapper = FasstoSupplierCommandToRequestMapper.mapToRegisterRequest(command);
@@ -114,33 +111,33 @@ class FasstoSupplierCommandToRequestMapperTest {
         @DisplayName("supplierCode가 supCd로 매핑된다")
         void shouldMapSupplierCode() {
             // given
-            UpdateFulfillmentSupplierCommand command = UpdateFulfillmentSupplierCommand.of(
-                    "CUST001",
-                    "token",
-                    "SUP001",
-                    "공급사명",
-                    "CSTSUP001",
-                    "Y",
-                    "20260101",
-                    "20261231",
-                    "06000",
-                    "서울시 강남구",
-                    "101호",
-                    "김대표",
-                    "123-45-67890",
-                    "업태",
-                    "업종",
-                    "02-1234-5678",
-                    "02-1234-5679",
-                    "담당자1",
-                    "직책1",
-                    "010-1111-2222",
-                    "m1@example.com",
-                    "담당자2",
-                    "직책2",
-                    "010-3333-4444",
-                    "m2@example.com"
-            );
+            UpdateFulfillmentSupplierCommand command = UpdateFulfillmentSupplierCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("token")
+                    .supplierCode("SUP001")
+                    .supplierName("공급사명")
+                    .customerSupplierCode("CSTSUP001")
+                    .useYn("Y")
+                    .dealStartDate("20260101")
+                    .dealEndDate("20261231")
+                    .zipCode("06000")
+                    .address1("서울시 강남구")
+                    .address2("101호")
+                    .ceoName("김대표")
+                    .businessNumber("123-45-67890")
+                    .businessCategory("업태")
+                    .businessType("업종")
+                    .phoneNumber("02-1234-5678")
+                    .faxNumber("02-1234-5679")
+                    .primaryManagerName("담당자1")
+                    .primaryManagerPosition("직책1")
+                    .primaryManagerPhoneNumber("010-1111-2222")
+                    .primaryManagerEmail("m1@example.com")
+                    .secondaryManagerName("담당자2")
+                    .secondaryManagerPosition("직책2")
+                    .secondaryManagerPhoneNumber("010-3333-4444")
+                    .secondaryManagerEmail("m2@example.com")
+                    .build();
 
             // when
             FulfillmentSupplierMapper mapper = FasstoSupplierCommandToRequestMapper.mapToUpdateRequest(command);

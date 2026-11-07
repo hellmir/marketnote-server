@@ -65,44 +65,43 @@ public class ProductUpdatedFulfillmentConsumer {
             return;
         }
 
-        UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.of(
-                payload.productKey(),
-                null,
-                payload.productName(),
-                payload.goodsType(),
-                payload.giftDivision(),
-                payload.goodsOptionCode1(),
-                payload.goodsOptionCode2(),
-                payload.invoiceGoodsNameEnabled(),
-                payload.invoiceGoodsName(),
-                payload.supplierCode(),
-                payload.categoryCode(),
-                payload.seasonCode(),
-                payload.genderCode(),
-                payload.manufactureYear(),
-                payload.unitPrice(),
-                payload.supplyPrice(),
-                payload.salePrice(),
-                payload.handlingTemperature(),
-                payload.pickingFacility(),
-                payload.goodsBarcode(),
-                payload.boxWeight(),
-                payload.origin(),
-                payload.expirationDateManagementEnabled(),
-                payload.shelfLifeDays(),
-                payload.outboundAvailableDays(),
-                payload.inboundAvailableDays(),
-                payload.outboundBoxType(),
-                payload.cushioningEnabled(),
-                payload.loadingDirection(),
-                payload.subsidiaryMaterialCode(),
-                payload.enabled(),
-                payload.safetyStock(),
-                payload.feeApplied(),
-                payload.saleUnitQuantity(),
-                payload.customerGoodsImageUrl(),
-                payload.externalGoodsImageUrl()
-        );
+        UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.builder()
+                .productKey(payload.productKey())
+                .productName(payload.productName())
+                .productType(payload.goodsType())
+                .giftDivision(payload.giftDivision())
+                .productOptionCode1(payload.goodsOptionCode1())
+                .productOptionCode2(payload.goodsOptionCode2())
+                .inventoryProductNameUseYn(payload.invoiceGoodsNameEnabled())
+                .inventoryProductName(payload.invoiceGoodsName())
+                .supplierCode(payload.supplierCode())
+                .categoryCode(payload.categoryCode())
+                .seasonCode(payload.seasonCode())
+                .genderCode(payload.genderCode())
+                .manufactureYear(payload.manufactureYear())
+                .productPrice(payload.unitPrice())
+                .inboundPrice(payload.supplyPrice())
+                .salePrice(payload.salePrice())
+                .dealTemperature(payload.handlingTemperature())
+                .pickFactor(payload.pickingFacility())
+                .productBarcode(payload.goodsBarcode())
+                .boxWeight(payload.boxWeight())
+                .origin(payload.origin())
+                .expirationManagementYn(payload.expirationDateManagementEnabled())
+                .shelfLifeDays(payload.shelfLifeDays())
+                .outboundCancelDays(payload.outboundAvailableDays())
+                .inboundCancelDays(payload.inboundAvailableDays())
+                .boxDivision(payload.outboundBoxType())
+                .bufferProductYn(payload.cushioningEnabled())
+                .loadingDirection(payload.loadingDirection())
+                .subMaterial(payload.subsidiaryMaterialCode())
+                .useYn(payload.enabled())
+                .safetyStock(payload.safetyStock())
+                .feeYn(payload.feeApplied())
+                .saleUnitQuantity(payload.saleUnitQuantity())
+                .customerProductImageUrl(payload.customerGoodsImageUrl())
+                .externalProductImageUrl(payload.externalGoodsImageUrl())
+                .build();
 
         fulfillmentAuthenticatedCaller.call(token -> {
             updateFulfillmentGoodsUseCase.updateGoods(

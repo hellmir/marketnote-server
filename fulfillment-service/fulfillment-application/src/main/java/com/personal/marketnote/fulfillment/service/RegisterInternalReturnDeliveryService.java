@@ -25,8 +25,6 @@ import java.util.List;
 @UseCase
 @RequiredArgsConstructor
 public class RegisterInternalReturnDeliveryService implements RegisterInternalReturnDeliveryUseCase {
-    private static final String FASSTO_RETURN_TYPE_NORMAL = "01";
-
     private final GetFulfillmentCustomerCodePort getFulfillmentCustomerCodePort;
     private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
     private final DisconnectFulfillmentAuthPort disconnectFulfillmentAuthPort;
@@ -77,33 +75,13 @@ public class RegisterInternalReturnDeliveryService implements RegisterInternalRe
             String accessToken,
             RegisterInternalReturnDeliveryCommand command
     ) {
-        String orderNumber = String.valueOf(command.orderId());
-
         List<RegisterFulfillmentDeliveryGoodsCommand> goods = command.products().stream()
                 .map(product -> RegisterFulfillmentDeliveryGoodsCommand.of(
                         product.productKey(), product.quantity()
                 ))
                 .toList();
 
-        RegisterFulfillmentReturnDeliveryItemCommand itemCommand = RegisterFulfillmentReturnDeliveryItemCommand.builder()
-                .orderDate(command.orderDate())
-                .orderNumber(orderNumber)
-                .courierCode("")
-                .invoiceNumber("")
-                .recipientName(command.recipientName())
-                .recipientPhoneNumber(command.recipientPhoneNumber())
-                .recipientAddress(command.recipientAddress())
-                .returnReceiverName(command.pickupRecipientName())
-                .returnReceiverPhoneNumber(command.pickupRecipientPhoneNumber())
-                .returnZipCode(command.pickupZipCode())
-                .returnAddress1(command.pickupAddress())
-                .returnAddress2(command.pickupAddressDetail())
-                .returnType(FASSTO_RETURN_TYPE_NORMAL)
-                .returnReason(command.returnReason())
-                .returnDetailReason(command.returnDetailReason())
-                .returnShippingRequest(command.returnShippingRequest())
-                .products(goods)
-                .build();
+        RegisterFulfillmentReturnDeliveryItemCommand itemCommand = RegisterFulfillmentReturnDeliveryItemCommand.from(command, goods);
 
         return RegisterFulfillmentReturnDeliveryCommand.of(customerCode, accessToken, List.of(itemCommand));
     }

@@ -30,9 +30,13 @@ class GetFulfillmentDeliveryOutOrdGoodsByOrdNoUseCaseTest {
     @DisplayName("주문번호별 출고 상품 조회 커맨드를 전달하면 포트를 통해 결과를 반환한다")
     void shouldReturnOutOrdGoodsByOrdNoResultFromPort() {
         // given
-        GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command = GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.of(
-                "CUST001", "token", "2026-01-01", "2026-01-31", "ORD001"
-        );
+        GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command = GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.builder()
+                .customerCode("CUST001")
+                .accessToken("token")
+                .startDate("2026-01-01")
+                .endDate("2026-01-31")
+                .orderNumber("ORD001")
+                .build();
         GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult expectedResult = GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult.of(0, List.of());
         when(getFulfillmentDeliveryOutOrdGoodsByOrdNoPort.getOutOrdGoodsByOrdNo(any())).thenReturn(expectedResult);
 

@@ -72,16 +72,44 @@ class GetInternalReturnGodDetailUseCaseTest {
             GetInternalReturnGodDetailCommand cmd = command();
             when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(firstToken());
             when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn(CUSTOMER_CODE);
-            FulfillmentReturnGodDetailGoodsResult goods = FulfillmentReturnGodDetailGoodsResult.of(
-                    "PROD-1", "상품1", "2025-01-01", "2030-01-01", "2", "비고", "ST", "상태명"
-            );
-            FulfillmentReturnGodDetailInfoResult info = FulfillmentReturnGodDetailInfoResult.of(
-                    "ORDER-1", "SUP", "IN-1", CUSTOMER_CODE, "WH", "IN-ORD-1",
-                    "20250101", "OUT-1", "공급사", "수령자", "INV-1",
-                    "RTN-1", "C1", "착불", "0", "N", "RT1", "회수",
-                    "010-0000-0000", "메모", "RR", "사유명", "상세사유",
-                    "CL1", "분류명", List.of(goods)
-            );
+            FulfillmentReturnGodDetailGoodsResult goods = FulfillmentReturnGodDetailGoodsResult.builder()
+                    .customerProductCode("PROD-1")
+                    .productName("상품1")
+                    .manufacturingDate("2025-01-01")
+                    .expirationDate("2030-01-01")
+                    .inboundQuantity("2")
+                    .remark("비고")
+                    .returnProductCheckStatus("ST")
+                    .returnProductCheckStatusName("상태명")
+                    .build();
+            FulfillmentReturnGodDetailInfoResult info = FulfillmentReturnGodDetailInfoResult.builder()
+                    .orderNumber("ORDER-1")
+                    .supplierCode("SUP")
+                    .inboundSlipNumber("IN-1")
+                    .customerCode(CUSTOMER_CODE)
+                    .warehouseCode("WH")
+                    .inboundOrderSlipNumber("IN-ORD-1")
+                    .inboundOrderDate("20250101")
+                    .releaseOrderSlipNumber("OUT-1")
+                    .supplierName("공급사")
+                    .recipientName("수령자")
+                    .releaseInvoiceNumber("INV-1")
+                    .returnInvoiceNumber("RTN-1")
+                    .returnShippingPaymentCode("C1")
+                    .returnShippingPaymentName("착불")
+                    .returnShippingPayment("0")
+                    .returnMismatchYn("N")
+                    .returnType("RT1")
+                    .returnTypeName("회수")
+                    .recipientPhoneNumber("010-0000-0000")
+                    .customerMemo("메모")
+                    .returnReason("RR")
+                    .returnReasonName("사유명")
+                    .returnDetailReason("상세사유")
+                    .returnClassification("CL1")
+                    .returnClassificationName("분류명")
+                    .products(List.of(goods))
+                    .build();
             when(getFulfillmentReturnGodDetailPort.getReturnGodDetail(any(GetFulfillmentReturnGodDetailCommand.class)))
                     .thenReturn(GetFulfillmentReturnGodDetailResult.of(1, List.of(info)));
 
@@ -115,13 +143,11 @@ class GetInternalReturnGodDetailUseCaseTest {
             GetInternalReturnGodDetailCommand cmd = command();
             when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(firstToken());
             when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn(CUSTOMER_CODE);
-            FulfillmentReturnGodDetailInfoResult info = FulfillmentReturnGodDetailInfoResult.of(
-                    "ORDER-1", null, null, CUSTOMER_CODE, null, "IN-ORD-1",
-                    null, null, null, null, null,
-                    null, null, null, null, null, null, null,
-                    null, null, null, null, null,
-                    null, null, null
-            );
+            FulfillmentReturnGodDetailInfoResult info = FulfillmentReturnGodDetailInfoResult.builder()
+                    .orderNumber("ORDER-1")
+                    .customerCode(CUSTOMER_CODE)
+                    .inboundOrderSlipNumber("IN-ORD-1")
+                    .build();
             when(getFulfillmentReturnGodDetailPort.getReturnGodDetail(any(GetFulfillmentReturnGodDetailCommand.class)))
                     .thenReturn(GetFulfillmentReturnGodDetailResult.of(1, List.of(info)));
 

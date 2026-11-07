@@ -30,9 +30,13 @@ class GetFulfillmentDeliveryStatusesUseCaseTest {
     @DisplayName("출고 상태 목록 조회 커맨드를 전달하면 포트를 통해 상태 목록을 반환한다")
     void shouldReturnDeliveryStatusesResultFromPort() {
         // given
-        GetFulfillmentDeliveryStatusesCommand command = GetFulfillmentDeliveryStatusesCommand.of(
-                "CUST001", "token", "2026-01-01", "2026-01-31", "OUT_DIV"
-        );
+        GetFulfillmentDeliveryStatusesCommand command = GetFulfillmentDeliveryStatusesCommand.builder()
+                .customerCode("CUST001")
+                .accessToken("token")
+                .startDate("2026-01-01")
+                .endDate("2026-01-31")
+                .releaseType("OUT_DIV")
+                .build();
         GetFulfillmentDeliveryStatusesResult expectedResult = GetFulfillmentDeliveryStatusesResult.of(0, List.of());
         when(getFulfillmentDeliveryStatusesPort.getDeliveryStatuses(any())).thenReturn(expectedResult);
 

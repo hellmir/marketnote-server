@@ -75,7 +75,15 @@ public class FulfillmentDeliveryRequestToCommandMapper {
             String outDiv,
             String ordNo
     ) {
-        return GetFulfillmentDeliveriesCommand.of(customerCode, accessToken, startDate, endDate, status, outDiv, ordNo);
+        return GetFulfillmentDeliveriesCommand.builder()
+                .customerCode(customerCode)
+                .accessToken(accessToken)
+                .startDate(startDate)
+                .endDate(endDate)
+                .status(status)
+                .releaseType(outDiv)
+                .orderNumber(ordNo)
+                .build();
     }
 
     public static GetFulfillmentDeliveryDetailCommand mapToDeliveryDetailCommand(
@@ -94,7 +102,13 @@ public class FulfillmentDeliveryRequestToCommandMapper {
             String endDate,
             String outDiv
     ) {
-        return GetFulfillmentDeliveryStatusesCommand.of(customerCode, accessToken, startDate, endDate, outDiv);
+        return GetFulfillmentDeliveryStatusesCommand.builder()
+                .customerCode(customerCode)
+                .accessToken(accessToken)
+                .startDate(startDate)
+                .endDate(endDate)
+                .releaseType(outDiv)
+                .build();
     }
 
     public static CancelFulfillmentDeliveryCommand mapToCancelCommand(
@@ -124,7 +138,13 @@ public class FulfillmentDeliveryRequestToCommandMapper {
             String endDate,
             String ordNo
     ) {
-        return GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.of(customerCode, accessToken, startDate, endDate, ordNo);
+        return GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.builder()
+                .customerCode(customerCode)
+                .accessToken(accessToken)
+                .startDate(startDate)
+                .endDate(endDate)
+                .orderNumber(ordNo)
+                .build();
     }
 
     public static GetFulfillmentDeliveryGoodDetailCommand mapToDeliveryGoodDetailCommand(
@@ -134,7 +154,13 @@ public class FulfillmentDeliveryRequestToCommandMapper {
             String endDate,
             String ordNo
     ) {
-        return GetFulfillmentDeliveryGoodDetailCommand.of(customerCode, accessToken, startDate, endDate, ordNo);
+        return GetFulfillmentDeliveryGoodDetailCommand.builder()
+                .customerCode(customerCode)
+                .accessToken(accessToken)
+                .startDate(startDate)
+                .endDate(endDate)
+                .orderNumber(ordNo)
+                .build();
     }
 
     public static CompleteFulfillmentDeliveryIcsCommand mapToIcsCompletionCommand(

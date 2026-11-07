@@ -2,7 +2,7 @@ package com.personal.marketnote.fulfillment.service.shipping;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerCreateState;
+import com.personal.marketnote.fulfillment.mapper.CreateShippingTrackerCommandToStateMapper;
 import com.personal.marketnote.fulfillment.port.in.command.CreateShippingTrackerCommand;
 import com.personal.marketnote.fulfillment.port.in.usecase.CreateShippingTrackerUseCase;
 import com.personal.marketnote.fulfillment.port.out.shipping.SaveShippingTrackerPort;
@@ -20,10 +20,7 @@ public class CreateShippingTrackerService implements CreateShippingTrackerUseCas
     @Override
     public void createShippingTracker(CreateShippingTrackerCommand command) {
         ShippingTracker shippingTracker = ShippingTracker.from(
-                ShippingTrackerCreateState.builder()
-                        .orderId(command.orderId())
-                        .buyerId(command.buyerId())
-                        .build()
+                CreateShippingTrackerCommandToStateMapper.mapToCreateState(command)
         );
         saveShippingTrackerPort.save(shippingTracker);
     }

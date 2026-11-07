@@ -30,7 +30,15 @@ public class FulfillmentWarehousingRequestToCommandMapper {
             String ordNo,
             String wrkStat
     ) {
-        return GetFulfillmentWarehousingCommand.of(customerCode, accessToken, startDate, endDate, inWay, ordNo, wrkStat);
+        return GetFulfillmentWarehousingCommand.builder()
+                .customerCode(customerCode)
+                .accessToken(accessToken)
+                .startDate(startDate)
+                .endDate(endDate)
+                .warehousingMethod(inWay)
+                .orderNumber(ordNo)
+                .workStatus(wrkStat)
+                .build();
     }
 
     public static GetFulfillmentWarehousingDetailCommand mapToWarehousingDetailCommand(
@@ -59,14 +67,14 @@ public class FulfillmentWarehousingRequestToCommandMapper {
             String fileSeq,
             String imgNo
     ) {
-        return GetFulfillmentWarehousingAbnormalImageCommand.of(
-                accessToken,
-                slipNo,
-                godCd,
-                goodsSerialNo,
-                fileSeq,
-                imgNo
-        );
+        return GetFulfillmentWarehousingAbnormalImageCommand.builder()
+                .accessToken(accessToken)
+                .slipNumber(slipNo)
+                .productCode(godCd)
+                .goodsSerialNo(goodsSerialNo)
+                .fileSeq(fileSeq)
+                .imageNumber(imgNo)
+                .build();
     }
 
     public static GetFulfillmentWarehousingInspecDetailCommand mapToWarehousingInspecDetailCommand(
@@ -116,20 +124,20 @@ public class FulfillmentWarehousingRequestToCommandMapper {
                 .map(FulfillmentWarehousingRequestToCommandMapper::mapUpdateGoods)
                 .toList();
 
-        return UpdateFulfillmentWarehousingItemCommand.of(
-                item.getOrdDt(),
-                item.getOrdNo(),
-                item.getInWay(),
-                item.getSlipNo(),
-                item.getParcelComp(),
-                item.getParcelInvoiceNo(),
-                item.getRemark(),
-                item.getCstSupCd(),
-                item.getDistTermDt(),
-                item.getMakeDt(),
-                item.getPreArv(),
-                goods
-        );
+        return UpdateFulfillmentWarehousingItemCommand.builder()
+                .orderDate(item.getOrdDt())
+                .orderNumber(item.getOrdNo())
+                .warehousingMethod(item.getInWay())
+                .slipNumber(item.getSlipNo())
+                .courierCompany(item.getParcelComp())
+                .trackingNumber(item.getParcelInvoiceNo())
+                .remark(item.getRemark())
+                .supplierCode(item.getCstSupCd())
+                .expirationDate(item.getDistTermDt())
+                .manufacturingDate(item.getMakeDt())
+                .preArrival(item.getPreArv())
+                .products(goods)
+                .build();
     }
 
     private static RegisterFulfillmentWarehousingGoodsCommand mapGoods(RegisterFulfillmentWarehousingGoodsRequest item) {

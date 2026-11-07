@@ -32,7 +32,14 @@ public class FulfillmentReturnDeliveryRequestToCommandMapper {
             String rtnSlipNoList,
             String whCd
     ) {
-        return GetFulfillmentReturnGodDetailCommand.of(customerCode, accessToken, strDt, endDt, rtnSlipNoList, whCd);
+        return GetFulfillmentReturnGodDetailCommand.builder()
+                .customerCode(customerCode)
+                .accessToken(accessToken)
+                .startDate(strDt)
+                .endDate(endDt)
+                .returnSlipNumbers(rtnSlipNoList)
+                .warehouseCode(whCd)
+                .build();
     }
 
     private static RegisterFulfillmentReturnDeliveryItemCommand mapItem(RegisterFulfillmentReturnDeliveryRequest item) {

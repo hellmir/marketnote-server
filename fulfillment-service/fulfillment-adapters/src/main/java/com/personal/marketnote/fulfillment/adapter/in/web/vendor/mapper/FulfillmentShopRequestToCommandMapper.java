@@ -12,28 +12,28 @@ public class FulfillmentShopRequestToCommandMapper {
             String accessToken,
             RegisterFulfillmentShopRequest request
     ) {
-        return RegisterFulfillmentShopCommand.of(
-                customerCode,
-                accessToken,
-                request.getShopName(),
-                request.getCustomerShopCode(),
-                request.getDealStartDate(),
-                request.getDealEndDate(),
-                request.getZipCode(),
-                request.getAddress1(),
-                request.getAddress2(),
-                request.getCeoName(),
-                request.getBusinessNumber(),
-                request.getPhoneNumber(),
-                request.getUnloadMethod(),
-                request.getInspectionMethod(),
-                request.getStandbyYn(),
-                request.getFormType(),
-                request.getManagerName(),
-                request.getManagerPosition(),
-                request.getManagerPhoneNumber(),
-                request.getUseYn()
-        );
+        return RegisterFulfillmentShopCommand.builder()
+                .customerCode(customerCode)
+                .accessToken(accessToken)
+                .shopName(request.getShopName())
+                .customerShopCode(request.getCustomerShopCode())
+                .dealStartDate(request.getDealStartDate())
+                .dealEndDate(request.getDealEndDate())
+                .zipCode(request.getZipCode())
+                .address1(request.getAddress1())
+                .address2(request.getAddress2())
+                .ceoName(request.getCeoName())
+                .businessNumber(request.getBusinessNumber())
+                .phoneNumber(request.getPhoneNumber())
+                .unloadMethod(request.getUnloadMethod())
+                .inspectionMethod(request.getInspectionMethod())
+                .standbyYn(request.getStandbyYn())
+                .formType(request.getFormType())
+                .managerName(request.getManagerName())
+                .managerPosition(request.getManagerPosition())
+                .managerPhoneNumber(request.getManagerPhoneNumber())
+                .useYn(request.getUseYn())
+                .build();
     }
 
     public static GetFulfillmentShopsCommand mapToShopsCommand(
@@ -48,28 +48,28 @@ public class FulfillmentShopRequestToCommandMapper {
             String accessToken,
             UpdateFulfillmentShopRequest request
     ) {
-        return UpdateFulfillmentShopCommand.of(
-                customerCode,
-                accessToken,
-                request.getShopCode(),
-                request.getShopName(),
-                request.getCustomerShopCode(),
-                request.getDealStartDate(),
-                request.getDealEndDate(),
-                request.getZipCode(),
-                request.getAddress1(),
-                request.getAddress2(),
-                request.getCeoName(),
-                request.getBusinessNumber(),
-                request.getPhoneNumber(),
-                request.getUnloadMethod(),
-                request.getInspectionMethod(),
-                request.getStandbyYn(),
-                request.getFormType(),
-                request.getManagerName(),
-                request.getManagerPosition(),
-                request.getManagerPhoneNumber(),
-                request.getUseYn()
-        );
+        return UpdateFulfillmentShopCommand.builder()
+                .customerCode(customerCode)
+                .accessToken(accessToken)
+                .shopCode(request.getShopCode())
+                .shopName(request.getShopName())
+                .customerShopCode(request.getCustomerShopCode())
+                .dealStartDate(request.getDealStartDate())
+                .dealEndDate(request.getDealEndDate())
+                .zipCode(request.getZipCode())
+                .address1(request.getAddress1())
+                .address2(request.getAddress2())
+                .ceoName(request.getCeoName())
+                .businessNumber(request.getBusinessNumber())
+                .phoneNumber(request.getPhoneNumber())
+                .unloadMethod(request.getUnloadMethod())
+                .inspectionMethod(request.getInspectionMethod())
+                .standbyYn(request.getStandbyYn())
+                .formType(request.getFormType())
+                .managerName(request.getManagerName())
+                .managerPosition(request.getManagerPosition())
+                .managerPhoneNumber(request.getManagerPhoneNumber())
+                .useYn(request.getUseYn())
+                .build();
     }
 }
