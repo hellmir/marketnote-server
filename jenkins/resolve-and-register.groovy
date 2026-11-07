@@ -385,4 +385,136 @@ def notifyFlywayImmutabilitySkip(parentScript) {
     echo 'SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack SKIP audit notification'
 }
 
+// cron 재배포 skip 가드 — QA Jenkinsfile 'Skip If Same Commit' stage에서 호출.
+// parentScript.currentBuild / parentScript.env 통해 상태 갱신. skip 시 result=NOT_BUILT.
+// 이후 stage는 nested stage의 단일 when { not { environment CRON_SKIP } }로 skip 처리.
+def performCronSkipGuard(parentScript) {
+    def build = parentScript.currentBuild
+
+    if (!isCronTriggered(build)) {
+        echo "Not a cron-triggered build. Skip-guard inactive."
+        return
+    }
+    env.CRON_TRIGGERED = 'true'
+
+    if (!env.GIT_COMMIT?.trim()) {
+        echo "[QA-CRON] GIT_COMMIT unresolved. Skip-guard bypassed (fail-open)."
+        return
+    }
+
+    def lastCommit = findLastDeployedCommit(build, env.SERVICE_NAME)
+    boolean sameCommit = lastCommit && lastCommit == env.GIT_COMMIT
+    if (!sameCommit) {
+        echo "[QA-CRON] SERVICE=${env.SERVICE_NAME} 배포 진행. last=${lastCommit ?: 'none'} current=${env.GIT_COMMIT}"
+        return
+    }
+
+    env.CRON_SKIP = 'true'
+    build.result = 'NOT_BUILT'
+    echo "[QA-CRON] SERVICE=${env.SERVICE_NAME} COMMIT=${env.GIT_COMMIT} 이미 배포됨. 재배포 skip."
+}
+
+// Environment Setup에서 호출 — CRON_TRIGGERED / parameterizedCron spec 로그.
+// Jenkinsfile CPS 메서드 크기 축소 목적으로 분리. buildQaCronSpec은 parentScript(Jenkinsfile) 소유.
+def logCronInfo(parentScript) {
+    echo "CRON_TRIGGERED            = ${env.CRON_TRIGGERED ?: 'false'}"
+    echo "parameterizedCron spec:\n" + parentScript.buildQaCronSpec()
+}
+
+// Notify Start stage 본문 — withCredentials / branchLabel / slackSend 전체.
+def sendStartNotification(parentScript) {
+    withCredentials([
+        string(credentialsId: "${env.ENV_PREFIX}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
+    ]) {
+        env.SLACK_NOTIFICATION_CHANNEL = SLACK_NOTIFICATION_CHANNEL
+        def branchLabel = resolveBranchLabel(parentScript)
+        env.BRANCH_LABEL = branchLabel
+        def commitAuthor  = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
+        def commitMessage = sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim()
+        def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
+        slackSend(
+            channel: "${env.SLACK_NOTIFICATION_CHANNEL}",
+            color:   "${env.SLACK_GENERAL_COLOR}",
+            message: "${cronPrefix}[${env.ENVIRONMENT_UPPER}] Start a build\n"
+                + "SERVICE: ${env.SERVICE_NAME}\n"
+                + "PROJECT_NAME: ${env.PROJECT_NAME}\n"
+                + "VERSION: ${env.PROJECT_VERSION}\n"
+                + "JOB_NAME: ${env.JOB_NAME}\n"
+                + "BUILD_NUMBER: ${env.BUILD_NUMBER}\n"
+                + "BUILD_URL: ${env.BUILD_URL}\n"
+                + "BRANCH: ${branchLabel}\n"
+                + "AUTHOR: ${commitAuthor}\n"
+                + "COMMIT: ${env.GIT_COMMIT}\n"
+                + "MESSAGE: ${commitMessage}"
+        )
+    }
+}
+
+// post.success 본문 — description 기록 + Slack 성공 알림.
+def handleBuildSuccess(parentScript) {
+    if (env.SERVICE_NAME?.trim() && env.GIT_COMMIT?.trim()) {
+        parentScript.currentBuild.description = "SERVICE=${env.SERVICE_NAME} COMMIT=${env.GIT_COMMIT}"
+    }
+    def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
+    if (!ch) {
+        echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack success notification"
+        return
+    }
+    def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
+    slackSend(
+        channel: ch,
+        color:   "${env.SLACK_SUCCESS_COLOR}",
+        message: "${cronPrefix}Build Success!!\n"
+            + "SERVICE: ${env.SERVICE_NAME}\n"
+            + "ECS_SERVICE: ${env.ECS_SERVICE_NAME}\n"
+            + "IMAGE: ${env.IMAGE_URI ?: 'N/A'}\n"
+            + "BUILD_NUMBER: ${env.BUILD_NUMBER}"
+    )
+}
+
+// post.failure 본문 — Slack 실패 알림 ([QA-CRON] prefix 조건부).
+def handleBuildFailure(parentScript) {
+    def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
+    if (!ch) {
+        echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack failure notification"
+        return
+    }
+    def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
+    slackSend(
+        channel: ch,
+        color:   "${env.SLACK_FAIL_COLOR}",
+        message: "${cronPrefix}Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
+    )
+}
+
+// TimerTrigger 또는 ParameterizedTimerTrigger cause 존재 여부로 cron 발화 빌드 판정.
+@NonCPS
+def isCronTriggered(build) {
+    def causes = build.getBuildCauses() ?: []
+    return causes.any { c ->
+        def cls = (c._class ?: '').toString()
+        return cls.contains('TimerTrigger') || cls.contains('ParameterizedTimerTrigger')
+    }
+}
+
+// 이전 성공 빌드 description에서 동일 SERVICE의 마지막 배포 COMMIT 조회.
+// description 포맷: "SERVICE=<name> COMMIT=<sha>" (post.success에서 기록)
+// 순회 한도 50건 — 8 서비스 × 평균 일 3회 성공 = 약 2일 커버.
+// 미발견 시 null 반환 → fail-open(재배포). 장기간 미배포 서비스 드리프트 방지.
+@NonCPS
+def findLastDeployedCommit(build, String serviceName) {
+    def prev = build.previousSuccessfulBuild
+    int scanned = 0
+    while (prev != null && scanned < 50) {
+        def desc = prev.description ?: ''
+        def m = desc =~ /SERVICE=(\S+) COMMIT=(\S+)/
+        if (m.find() && m.group(1) == serviceName) {
+            return m.group(2)
+        }
+        prev = prev.previousSuccessfulBuild
+        scanned++
+    }
+    return null
+}
+
 return this
