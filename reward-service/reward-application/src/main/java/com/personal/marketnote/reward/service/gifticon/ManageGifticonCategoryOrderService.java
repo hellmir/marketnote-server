@@ -10,10 +10,12 @@ import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonCat
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonCategoryPort;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonCategoryPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -28,7 +30,8 @@ public class ManageGifticonCategoryOrderService implements ManageGifticonCategor
                     .orElseThrow(() -> new GifticonCategoryNotFoundException(item.categoryId()));
 
             if (!category.isExposed()) {
-                throw new GifticonCategoryNotExposedException(item.categoryId());
+                log.warn("노출되지 않은 카테고리에는 노출 순서를 설정할 수 없습니다. categoryId={}", item.categoryId());
+                throw new GifticonCategoryNotExposedException();
             }
 
             category.changeOrderNum(item.orderNum());

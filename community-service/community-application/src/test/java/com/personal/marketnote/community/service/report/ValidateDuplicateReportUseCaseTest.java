@@ -49,9 +49,7 @@ class ValidateDuplicateReportUseCaseTest {
                 .thenReturn(true);
 
         assertThatThrownBy(() -> getReportService.validateDuplicateReport(targetType, targetId, reporterId))
-                .isInstanceOf(ReviewAlreadyReportedException.class)
-                .hasMessageContaining(String.valueOf(targetId))
-                .hasMessageContaining(String.valueOf(reporterId));
+                .isInstanceOf(ReviewAlreadyReportedException.class);
     }
 
     @Test
@@ -79,9 +77,7 @@ class ValidateDuplicateReportUseCaseTest {
                 .thenReturn(true);
 
         assertThatThrownBy(() -> getReportService.validateDuplicateReport(targetType, targetId, reporterId))
-                .isInstanceOf(PostAlreadyReportedException.class)
-                .hasMessageContaining(String.valueOf(targetId))
-                .hasMessageContaining(String.valueOf(reporterId));
+                .isInstanceOf(PostAlreadyReportedException.class);
     }
 
     @Test

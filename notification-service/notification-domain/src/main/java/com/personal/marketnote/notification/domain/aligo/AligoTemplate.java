@@ -3,10 +3,12 @@ package com.personal.marketnote.notification.domain.aligo;
 import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
@@ -147,7 +149,8 @@ public class AligoTemplate extends BaseDomain {
             List<AligoTemplateButton> buttons
     ) {
         if (!canModify()) {
-            throw new InvalidAligoTemplateModificationException(templateCode);
+            log.warn("템플릿을 수정할 수 없는 상태입니다. templateCode={}", templateCode);
+            throw new InvalidAligoTemplateModificationException();
         }
         this.templateName = templateName;
         this.templateContent = templateContent;
@@ -166,7 +169,8 @@ public class AligoTemplate extends BaseDomain {
 
     public void validateDeletion() {
         if (!canDelete()) {
-            throw new InvalidAligoTemplateDeletionException(templateCode);
+            log.warn("템플릿을 삭제할 수 없는 상태입니다. templateCode={}", templateCode);
+            throw new InvalidAligoTemplateDeletionException();
         }
     }
 

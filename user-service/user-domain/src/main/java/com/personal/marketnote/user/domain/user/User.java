@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
@@ -24,8 +25,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.*;
-
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
@@ -249,25 +249,29 @@ public class User extends BaseDomain {
 
     public void validateDifferentEmail(Email email) {
         if (FormatValidator.equals(this.email, email)) {
-            throw new SameUpdateTargetException(FIRST_ERROR_CODE, "***");
+            log.warn("업데이트할 대상의 값과 입력한 값이 동일합니다. field=email");
+            throw new SameUpdateTargetException();
         }
     }
 
     public void validateDifferentNickname(Nickname nickname) {
         if (FormatValidator.equals(this.nickname, nickname)) {
-            throw new SameUpdateTargetException(SECOND_ERROR_CODE, nickname.getValue());
+            log.warn("업데이트할 대상의 값과 입력한 값이 동일합니다. field=nickname");
+            throw new SameUpdateTargetException();
         }
     }
 
     public void validateDifferentPhoneNumber(PhoneNumber phoneNumber) {
         if (FormatValidator.equals(this.phoneNumber, phoneNumber)) {
-            throw new SameUpdateTargetException(THIRD_ERROR_CODE, "***");
+            log.warn("업데이트할 대상의 값과 입력한 값이 동일합니다. field=phoneNumber");
+            throw new SameUpdateTargetException();
         }
     }
 
     public void validateDifferentPenaltyCount(int penaltyCount) {
         if (this.penaltyCount == penaltyCount) {
-            throw new SameUpdateTargetException(FOURTH_ERROR_CODE, String.valueOf(penaltyCount));
+            log.warn("업데이트할 대상의 값과 입력한 값이 동일합니다. field=penaltyCount, penaltyCount={}", penaltyCount);
+            throw new SameUpdateTargetException();
         }
     }
 

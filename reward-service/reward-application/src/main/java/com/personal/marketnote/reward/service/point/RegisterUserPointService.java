@@ -11,12 +11,14 @@ import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import com.personal.marketnote.reward.port.out.point.SaveUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.SaveUserPointPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -46,7 +48,8 @@ public class RegisterUserPointService implements RegisterUserPointUseCase {
 
     private void validateDuplicate(Long userId) {
         if (findUserPointPort.existsByUserId(userId)) {
-            throw new DuplicateUserPointException(userId);
+            log.warn("이미 회원 포인트 정보가 생성되어 있습니다. userId={}", userId);
+            throw new DuplicateUserPointException();
         }
     }
 }

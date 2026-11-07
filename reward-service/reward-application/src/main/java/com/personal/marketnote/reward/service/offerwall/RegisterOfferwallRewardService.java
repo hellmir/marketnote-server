@@ -58,7 +58,8 @@ public class RegisterOfferwallRewardService implements RegisterOfferwallRewardUs
         } catch (DataIntegrityViolationException e) {
             // 동시성 이슈로 인해 유효성 검사에 실패하여 리워드 키 유니크 제약 조건에 위배되는 경우, DuplicateOfferwallRewardException 예외로 변환
             if (isOfferwallSuccessUniqueViolation(e)) {
-                throw new DuplicateOfferwallRewardException(command.rewardKey());
+                log.warn("이미 해당 캠페인에 대한 리워드가 지급되었습니다. rewardKey={}", command.rewardKey());
+                throw new DuplicateOfferwallRewardException();
             }
 
             throw e;
@@ -104,7 +105,8 @@ public class RegisterOfferwallRewardService implements RegisterOfferwallRewardUs
                 command.offerwallType(),
                 command.rewardKey()
         )) {
-            throw new DuplicateOfferwallRewardException(command.rewardKey());
+            log.warn("이미 해당 캠페인에 대한 리워드가 지급되었습니다. rewardKey={}", command.rewardKey());
+            throw new DuplicateOfferwallRewardException();
         }
     }
 

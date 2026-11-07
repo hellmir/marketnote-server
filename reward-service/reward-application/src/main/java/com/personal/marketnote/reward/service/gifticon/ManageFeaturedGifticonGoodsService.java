@@ -11,10 +11,12 @@ import com.personal.marketnote.reward.port.out.gifticon.EvictGifticonGoodsCacheP
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonGoodsPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -42,7 +44,8 @@ public class ManageFeaturedGifticonGoodsService implements ManageFeaturedGiftico
             return;
         }
         if (!goods.isExposed()) {
-            throw new GifticonGoodsNotExposedException(item.goodsCode());
+            log.warn("노출되지 않은 상품에는 추천 설정을 할 수 없습니다. goodsCode={}", item.goodsCode());
+            throw new GifticonGoodsNotExposedException();
         }
         goods.markPopular(item.popularOrderNum());
     }

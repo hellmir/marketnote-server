@@ -133,7 +133,7 @@ class OfferwallControllerTest {
         @Test
         @DisplayName("DuplicateOfferwallRewardException 발생 시 3100 코드로 실패 핸들러를 호출한다")
         void shouldHandleDuplicate() {
-            given(handleOfferwallRewardUseCase.handle(any())).willThrow(new DuplicateOfferwallRewardException("dup"));
+            given(handleOfferwallRewardUseCase.handle(any())).willThrow(new DuplicateOfferwallRewardException());
             given(vendorCommunicationFailureHandler.handleFailure(any(), any(), any(), any(), any(), anyInt(), anyString()))
                     .willReturn(ResponseEntity.badRequest().body("fail"));
 
@@ -218,7 +218,7 @@ class OfferwallControllerTest {
         @Test
         @DisplayName("DuplicateOfferwallRewardException 발생 시 3100 코드로 핸들러 호출 후 예외 재전파한다")
         void shouldHandleDuplicateAndRethrow() {
-            given(handleOfferwallRewardUseCase.handle(any())).willThrow(new DuplicateOfferwallRewardException("dup"));
+            given(handleOfferwallRewardUseCase.handle(any())).willThrow(new DuplicateOfferwallRewardException());
 
             assertThatThrownBy(() -> controller.handleAdiscopeCallback(
                     "REW-3", "user-3", UserDeviceType.ANDROID, "CAMP-3", "TYPE", "캠페인",

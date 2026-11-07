@@ -243,8 +243,7 @@ class ReadyPaymentUseCaseTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(activeEvent));
 
             assertThatThrownBy(() -> readyPaymentService.ready(command))
-                    .isInstanceOf(DuplicatePaymentReadyException.class)
-                    .hasMessageContaining(ORDER_KEY_STR);
+                    .isInstanceOf(DuplicatePaymentReadyException.class);
 
             verify(paymentVendorPort, never()).registerTrade(any());
         }

@@ -165,7 +165,7 @@ class UserSignupCompletedRewardConsumerTest {
     void handleUserSignupCompletedEvent_duplicateUserPoint_acknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "user-key-123");
-        doThrow(new DuplicateUserPointException(1L))
+        doThrow(new DuplicateUserPointException())
                 .when(registerUserPointUseCase).register(any(RegisterUserPointCommand.class));
 
         // when

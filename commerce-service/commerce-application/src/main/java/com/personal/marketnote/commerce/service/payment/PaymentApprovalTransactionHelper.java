@@ -108,8 +108,8 @@ public class PaymentApprovalTransactionHelper {
         findPspPaymentEventPort.findByOrderKey(orderKey)
                 .filter(PspPaymentEvent::isUnresolved)
                 .ifPresent(event -> {
-                    log.warn("빠른결제 중복 결제 시도 - orderKey: {}, 기존 이벤트 상태: {}", orderKey, event.getPoStatus());
-                    throw new DuplicatePaymentReadyException(orderKey);
+                    log.warn("빠른결제 중복 결제 시도. orderKey={}, 기존 이벤트 상태={}", orderKey, event.getPoStatus());
+                    throw new DuplicatePaymentReadyException();
                 });
 
         reserveInventory(order);
