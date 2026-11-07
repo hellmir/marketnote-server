@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -1005,6 +1006,236 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("Unexpected character");
             assertThat(logged).contains("HttpMessageNotReadable");
             assertThat(logged).contains("cause=JsonParseException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("IOException 처리 시 파일 경로가 로그에 포함되지 않는다")
+        void shouldNotLogFilePathWhenHandlingIOException() {
+            IOException exception = new IOException("/var/log/app/secret.log (No such file or directory)");
+
+            handler.handleIOException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("/var/log");
+            assertThat(logged).doesNotContain("secret.log");
+            assertThat(logged).doesNotContain("No such file");
+            assertThat(logged).contains("type=IOException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("NullPointerException 처리 시 내부 클래스명이 로그에 포함되지 않는다")
+        void shouldNotLogInternalClassNameWhenHandlingNullPointerException() {
+            NullPointerException exception = new NullPointerException(
+                    "Cannot invoke \"com.personal.marketnote.commerce.domain.order.OrderStatus.isMe()\" because \"status\" is null"
+            );
+
+            handler.handleNullPointerException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("com.personal");
+            assertThat(logged).doesNotContain("OrderStatus");
+            assertThat(logged).doesNotContain("Cannot invoke");
+            assertThat(logged).contains("type=NullPointerException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("NoHandlerFoundException 처리 시 요청 경로가 로그에 포함되지 않는다")
+        void shouldNotLogRequestPathWhenHandlingNoHandlerFoundException() {
+            NoHandlerFoundException exception =
+                    new NoHandlerFoundException("GET", "/api/v1/internal/secret", null);
+
+            handler.handleNoHandlerFoundException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("/api/v1/internal/secret");
+            assertThat(logged).doesNotContain("/api/v1");
+            assertThat(logged).contains("type=NoHandlerFoundException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("NoResourceFoundException 처리 시 리소스 경로가 로그에 포함되지 않는다")
+        void shouldNotLogResourcePathWhenHandlingNoResourceFoundException() {
+            NoResourceFoundException exception =
+                    new NoResourceFoundException(HttpMethod.GET, "/internal/config.json");
+
+            handler.handleNoResourceFoundException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("/internal/config.json");
+            assertThat(logged).doesNotContain("/internal");
+            assertThat(logged).contains("type=NoResourceFoundException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("AuthenticationException 처리 시 인증 상세가 로그에 포함되지 않는다")
+        void shouldNotLogAuthenticationDetailWhenHandlingAuthenticationException() {
+            BadCredentialsException exception = new BadCredentialsException(
+                    "Full authentication is required to access this resource at /api/v1/internal with user=admin"
+            );
+
+            handler.handleAuthenticationException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("/api/v1/internal");
+            assertThat(logged).doesNotContain("user=admin");
+            assertThat(logged).doesNotContain("Full authentication");
+            assertThat(logged).contains("type=BadCredentialsException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("AccessDeniedException 처리 시 사용자/리소스 상세가 로그에 포함되지 않는다")
+        void shouldNotLogUserOrResourceDetailWhenHandlingAccessDeniedException() {
+            AccessDeniedException exception = new AccessDeniedException(
+                    "Access denied for user 'admin' to resource /api/v1/admin/settings"
+            );
+
+            handler.handleAccessDeniedException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("/api/v1/admin");
+            assertThat(logged).doesNotContain("'admin'");
+            assertThat(logged).doesNotContain("Access denied for user");
+            assertThat(logged).contains("type=AccessDeniedException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("IllegalArgumentException 처리 시 NumberFormatException cause 의 사용자 입력이 로그에 포함되지 않는다")
+        void shouldNotLogRawValueWhenHandlingIllegalArgumentExceptionWithNumberFormatCause() {
+            NumberFormatException cause = new NumberFormatException("For input string: \"SENSITIVE_CARD_1234\"");
+            IllegalArgumentException exception =
+                    new IllegalArgumentException("Invalid input: SENSITIVE_CARD_1234", cause);
+
+            handler.handleIllegalArgumentException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("SENSITIVE_CARD_1234");
+            assertThat(logged).doesNotContain("For input string");
+            assertThat(logged).doesNotContain("Invalid input");
+            assertThat(logged).contains("type=IllegalArgumentException");
+            assertThat(logged).contains("cause=NumberFormatException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("IllegalStateException 처리 시 상태 상세가 로그에 포함되지 않는다")
+        void shouldNotLogStateDetailWhenHandlingIllegalStateException() {
+            IllegalStateException exception = new IllegalStateException(
+                    "Order with id=ORDER_SENSITIVE_9999 is already cancelled at /api/v1/orders"
+            );
+
+            handler.handleIllegalStateException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("ORDER_SENSITIVE_9999");
+            assertThat(logged).doesNotContain("/api/v1/orders");
+            assertThat(logged).doesNotContain("already cancelled");
+            assertThat(logged).contains("type=IllegalStateException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("MailException 처리 시 메일 서버 호스트/수신자가 로그에 포함되지 않는다")
+        void shouldNotLogMailServerHostOrRecipientWhenHandlingMailException() {
+            MailSendException exception = new MailSendException(
+                    "Mail server connection failed; nested exception: javax.mail.MessagingException: "
+                            + "Could not connect to SMTP host: smtp.internal.personal.com, port: 587, "
+                            + "recipient: user-secret@example.com"
+            );
+
+            handler.handleMailException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("smtp.internal.personal.com");
+            assertThat(logged).doesNotContain("user-secret@example.com");
+            assertThat(logged).doesNotContain("Mail server connection failed");
+            assertThat(logged).contains("type=MailSendException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("UncheckedIOException 처리 시 네트워크 상세가 로그에 포함되지 않는다")
+        void shouldNotLogNetworkDetailWhenHandlingUncheckedIOException() {
+            UncheckedIOException exception =
+                    new UncheckedIOException(new IOException("Connection reset by peer: /10.0.1.5:8080"));
+
+            handler.handleUncheckedIOException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("10.0.1.5");
+            assertThat(logged).doesNotContain("8080");
+            assertThat(logged).doesNotContain("Connection reset");
+            assertThat(logged).contains("type=UncheckedIOException");
+            assertThat(logged).contains("cause=IOException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("DataIntegrityViolationException 처리 시 SQL 쿼리/바인딩 값이 로그에 포함되지 않는다")
+        void shouldNotLogSqlOrBindingValueWhenHandlingDataIntegrityViolationException() {
+            DataIntegrityViolationException exception = new DataIntegrityViolationException(
+                    "could not execute statement [ERROR: duplicate key value violates unique constraint "
+                            + "\"uk_user_email\"  Detail: Key (email)=(leaked-pii@example.com) already exists.] "
+                            + "[INSERT INTO users (email, password) VALUES ('leaked-pii@example.com', 'plain-pw-1234')]"
+            );
+
+            handler.handleDataIntegrityViolationException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("leaked-pii@example.com");
+            assertThat(logged).doesNotContain("plain-pw-1234");
+            assertThat(logged).doesNotContain("INSERT INTO");
+            assertThat(logged).doesNotContain("uk_user_email");
+            assertThat(logged).contains("type=DataIntegrityViolationException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
+        @DisplayName("Exception (catch-all) 처리 시 원본 메시지가 로그에 포함되지 않는다")
+        void shouldNotLogOriginalMessageWhenHandlingCatchAllException() {
+            Exception exception = new Exception(
+                    "org.hibernate.query.sqm.UnknownPathException: Could not resolve attribute "
+                            + "'accumulatedPointRate' of 'com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity'"
+            );
+
+            handler.handleException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("com.personal");
+            assertThat(logged).doesNotContain("PricePolicyJpaEntity");
+            assertThat(logged).doesNotContain("accumulatedPointRate");
+            assertThat(logged).doesNotContain("UnknownPathException");
+            assertThat(logged).contains("type=Exception");
             assertThat(appender.list)
                     .hasSize(1)
                     .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
