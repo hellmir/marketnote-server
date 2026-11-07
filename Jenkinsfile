@@ -370,661 +370,645 @@ pipeline {
 			}
 		}
 
-		stage('Environment Setup') {
-			steps {
-				script {
-					sh 'chmod +x ./gradlew'
-					env.PROJECT_NAME = sh(script: "./gradlew -p ${env.SERVICE_DIRECTORY} -q printProjectName", returnStdout: true).trim()
-					env.PROJECT_VERSION = sh(script: "./gradlew -p ${env.SERVICE_DIRECTORY} -q printProjectVersion", returnStdout: true).trim()
-					env.DOCKERFILE_PATH = "${WORKSPACE}/${env.SERVICE_DIRECTORY}/Dockerfile"
-					env.BUILD_CONTEXT = "${WORKSPACE}/${env.SERVICE_DIRECTORY}"
-					def jobName = env.JOB_NAME ?: ''
-					def projectName = jobName.split('/')[0]
-					def matcher = (projectName =~ /-(qa|stage|prod)$/)
-					if (!matcher.find()) {
-						error "JOB_NAME '${jobName}' (project='${projectName}') must end with one of: -qa, -stage, -prod"
-					}
-					def environment = matcher.group(1).toUpperCase()
-					matcher = null
-					env.ENVIRONMENT_UPPER = environment
-					env.ENV_PREFIX = "MARKETNOTE_${environment}"
-
-				}
-
-				echo 'Environment variables set'
-
-				echo "CANDIDATE_SERVICES        = ${env.CANDIDATE_SERVICES}"
-				echo "SERVICE_NAME              = ${env.SERVICE_NAME}"
-				echo "SERVICE_DIRECTORY         = ${env.SERVICE_DIRECTORY}"
-				echo "PROJECT_NAME              = ${env.PROJECT_NAME}"
-				echo "PROJECT_VERSION           = ${env.PROJECT_VERSION}"
-				echo "ENVIRONMENT               = ${env.ENVIRONMENT_UPPER}"
-				echo "ENV_PREFIX                = ${env.ENV_PREFIX}"
-			}
-		}
-
-        stage('Notify Start') {
-            steps {
-                withCredentials([
-                    string(credentialsId: "${env.ENV_PREFIX}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
-                ]) {
-                    script {
-                        env.SLACK_NOTIFICATION_CHANNEL = SLACK_NOTIFICATION_CHANNEL
-
-                        def helper = load 'jenkins/resolve-and-register.groovy'
-                        def branchLabel = helper.resolveBranchLabel(this)
-                        env.BRANCH_LABEL = branchLabel
-
-                        def commitAuthor  = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
-                        def commitMessage = sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim()
-
-                        slackSend(
-                            channel: "${env.SLACK_NOTIFICATION_CHANNEL}",
-                            color:   "${env.SLACK_GENERAL_COLOR}",
-                            message: "[${env.ENVIRONMENT_UPPER}] Start a build\n"
-                                + "SERVICE: ${env.SERVICE_NAME}\n"
-                                + "PROJECT_NAME: ${env.PROJECT_NAME}\n"
-                                + "VERSION: ${env.PROJECT_VERSION}\n"
-                                + "JOB_NAME: ${env.JOB_NAME}\n"
-                                + "BUILD_NUMBER: ${env.BUILD_NUMBER}\n"
-                                + "BUILD_URL: ${env.BUILD_URL}\n"
-                                + "BRANCH: ${branchLabel}\n"
-                                + "AUTHOR: ${commitAuthor}\n"
-                                + "COMMIT: ${env.GIT_COMMIT}\n"
-                                + "MESSAGE: ${commitMessage}"
-                        )
-                    }
-                }
-            }
-        }
-
-		stage('Check Flyway Immutability') {
-			steps {
-				script {
-					if (params.SKIP_FLYWAY_IMMUTABILITY_CHECK) {
-						echo "[WARN] Flyway immutability check SKIPPED by parameter. 긴급 revert PR 한정 용도. SERVICE=${params.SERVICE}, BUILD_URL=${env.BUILD_URL}"
-						def helper = load 'jenkins/resolve-and-register.groovy'
-						helper.notifyFlywayImmutabilitySkip(this)
-						return
-					}
-					withCredentials([gitUsernamePassword(credentialsId: 'MARKETNOTE_GITHUB_WEBHOOK_ACCESS_TOKEN', gitToolName: 'Default')]) {
-						sh 'bash scripts/check-flyway-immutability.sh'
-					}
-				}
-			}
-		}
-
-		stage('Test') {
-            steps {
-                sh "chmod u+x ${WORKSPACE}/gradlew"
-                sh "./gradlew -p ${env.SERVICE_NAME} clean test"
-                echo "Tests complete"
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh "./gradlew -p ${env.SERVICE_DIRECTORY} build -x test"
-                echo "Build complete"
-            }
-        }
-
-		stage('Resolve Service Mappings') {
-			steps {
-				script {
-					def helper = load 'jenkins/resolve-and-register.groovy'
-					helper.resolveServiceMappings(this, env.ENV_PREFIX)
-				}
-			}
-		}
-
-		stage('Detect Redis Changes') {
-			steps {
-				script {
-					def base = sh(script: 'git rev-parse HEAD~1 || git rev-parse HEAD', returnStdout: true).trim()
-					def changed = sh(script: "git diff --name-only ${base} HEAD || true", returnStdout: true)
-					.trim()
-					.split('\n')
-					.findAll {
-						it?.trim()
-					} as List
-					def redisChanged = changed.any {
-						p ->
-						p ==~ /.*user-service\/.*\/src\/.*\/com\/personal\/marketnote\/user\/configuration\/CacheConfig\.java/ ||
-						p ==~ /.*user-service\/.*\/src\/.*\/com\/personal\/marketnote\/user\/configuration\/SessionConfig\.java/
-					}
-					if (!redisChanged && changed.contains('Jenkinsfile')) {
-						redisChanged = sh(
-							script: "git diff --unified=0 ${base} HEAD -- Jenkinsfile | grep -E '^[+-]' | grep -iq 'redis' && echo match || true",
-							returnStdout: true
-						).trim() == 'match'
-					}
-					env.REDIS_CHANGED = redisChanged ? "true" : "false"
-					echo "REDIS_CHANGED              = ${env.REDIS_CHANGED}"
-				}
-			}
-		}
-
-		stage('Register Redis Task Definition') {
-			steps {
-				script {
-					if (env.REDIS_CHANGED != "true") {
-						sleep time: 1, unit: 'SECONDS'; return
-					}
-					withCredentials([
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",           variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",       variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",          variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_EXECUTION_ROLE_ARN", variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
-						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_ROLE_ARN",           variable: 'ECS_TASK_ROLE_ARN'),
-						string(credentialsId: "${env.ENV_PREFIX}_CLOUDWATCH_LOG_GROUP_REDIS",  variable: 'CLOUDWATCH_LOG_GROUP_REDIS'),
-						string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_NAME",          variable: 'REDIS_SERVICE_NAME'),
-						string(credentialsId: "${env.ENV_PREFIX}_REDIS_PASSWORD",              variable: 'REDIS_PASSWORD')
-					]) {
-						sh '''
-				          LG="$CLOUDWATCH_LOG_GROUP_REDIS"
-				          EXISTS=$(aws logs describe-log-groups --log-group-name-prefix "$LG" --region "$AWS_DEFAULT_REGION" --query "length(logGroups[?logGroupName=='$LG'])" --output text || echo 0)
-				          if [ "$EXISTS" = "0" ]; then
-				            aws logs create-log-group --log-group-name "$LG" --region "$AWS_DEFAULT_REGION"
-				          fi
-				        '''
-
-						def redisTask = buildRedisTaskDefinition(env)
-
-						def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(redisTask))
-						writeFile file: 'redis-taskdef.json', text: json
-
-						def out = sh(
-							script: 'aws ecs register-task-definition --cli-input-json file://redis-taskdef.json --region $AWS_DEFAULT_REGION --query \'taskDefinition.taskDefinitionArn\' --output text',
-							returnStdout: true
-						).trim()
-
-						if (!out || out == 'None') {
-							error 'Failed to register Redis task definition'
-						}
-						env.REDIS_TASK_DEF_ARN = out
-						echo "Registered Redis TaskDef ARN = ${env.REDIS_TASK_DEF_ARN}"
-					}
-				}
-			}
-		}
-
-		stage('Deploy Redis Service') {
-			steps {
-				script {
-					if (env.REDIS_CHANGED != "true") {
-						sleep time: 1, unit: 'SECONDS'; return
-					}
-					withCredentials([
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",            variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",        variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",           variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",             variable: 'ECS_CLUSTER_NAME'),
-						string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_NAME",           variable: 'REDIS_SERVICE_NAME'),
-						string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",                   variable: 'SUBNET_IDS'),
-						string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",           variable: 'SECURITY_GROUP_IDS'),
-						string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_DISCOVERY_ARN",  variable: 'REDIS_SERVICE_DISCOVERY_ARN')
-					]) {
-						def latestTask = env.REDIS_TASK_DEF_ARN?.trim()
-						if (!latestTask) {
-							latestTask = sh(script: 'aws ecs list-task-definitions --family-prefix redis --sort DESC --region $AWS_DEFAULT_REGION --query \'taskDefinitionArns[0]\' --output text', returnStdout: true).trim()
-						}
-						if (!latestTask || latestTask == 'None') {
-							error 'No Redis TaskDefinition found to deploy'
-						}
-
-						def exists = sh(script: 'aws ecs describe-services --cluster $ECS_CLUSTER_NAME --services $REDIS_SERVICE_NAME --region $AWS_DEFAULT_REGION --query \'services[0].status\' --output text || true', returnStdout: true).trim()
-						def subnets = sh(script: 'printf "%s" "$SUBNET_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
-						def sgs = sh(script: 'printf "%s" "$SECURITY_GROUP_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
-
-						if (exists == "ACTIVE" || exists == "DRAINING") {
-							sh """
-          					  aws ecs update-service \
-          					    --cluster \$ECS_CLUSTER_NAME \
-          					    --service \$REDIS_SERVICE_NAME \
-          					    --task-definition ${latestTask} \
-          					    --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
-          					    --desired-count 1 \
-          					    --region \$AWS_DEFAULT_REGION \
-          					    --force-new-deployment
-          					"""
-						} else {
-							sh """
-          					  aws ecs create-service \
-          					    --cluster \$ECS_CLUSTER_NAME \
-          					    --service-name \$REDIS_SERVICE_NAME \
-          					    --task-definition ${latestTask} \
-          					    --desired-count 1 \
-          					    --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
-          					    --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${sgs}],assignPublicIp=ENABLED}" \
-          					    --service-registries registryArn=\$REDIS_SERVICE_DISCOVERY_ARN \
-          					    --region \$AWS_DEFAULT_REGION
-          					"""
-						}
-						sh 'aws ecs wait services-stable --cluster $ECS_CLUSTER_NAME --services $REDIS_SERVICE_NAME --region $AWS_DEFAULT_REGION'
-					}
-				}
-			}
-		}
-
-		stage('Build Marketnote Service Image') {
-			steps {
-				script {
-					def dockerImageTag = "${env.PROJECT_NAME}:${env.PROJECT_VERSION}"
-					env.DOCKER_IMAGE_TAG = dockerImageTag
-					sh '''
-			          docker build \
-			            --build-arg JAR_FILE=build/libs/$PROJECT_NAME-$PROJECT_VERSION.jar \
-			            -t $DOCKER_IMAGE_TAG \
-			            -f "$DOCKERFILE_PATH" \
-			            "$BUILD_CONTEXT"
-			        '''
-				}
-			}
-		}
-
-		stage('Push Marketnote Service Image') {
-			steps {
-				script {
-					withCredentials([
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",        variable: 'AWS_ACCOUNT_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
-					]) {
-						sh '''
-                        aws --version
-                        aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-                        aws ecr describe-repositories --repository-names $ECR_REPOSITORY --region $AWS_DEFAULT_REGION || aws ecr create-repository --repository-name $ECR_REPOSITORY --region $AWS_DEFAULT_REGION
-                        docker tag $DOCKER_IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY:$PROJECT_VERSION
-                        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY:$PROJECT_VERSION
-                        '''
-						env.IMAGE_URI = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com/${env.ECR_REPOSITORY}:${env.PROJECT_VERSION}"
-					}
-				}
-			}
-		}
-
-		stage('Run Flyway Migration') {
-			when {
-				expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
-			}
-			steps {
-				script {
-					def helper = load 'jenkins/resolve-and-register.groovy'
-					helper.runFlywayMigrationStage(this, env.ENV_PREFIX)
-				}
-			}
-		}
-
-		stage('Run Concurrent Indexes') {
-			steps {
-				timeout(time: 30, unit: 'MINUTES') {
+		stage('Deploy Pipeline') {
+			when { not { environment name: 'CRON_SKIP', value: 'true' } }
+			stages {
+			stage('Environment Setup') {
+				steps {
 					script {
-						if (!fileExists("${env.SERVICE_DIRECTORY}/src/main/resources/db/concurrent-indexes")) {
+						sh 'chmod +x ./gradlew'
+						env.PROJECT_NAME = sh(script: "./gradlew -p ${env.SERVICE_DIRECTORY} -q printProjectName", returnStdout: true).trim()
+						env.PROJECT_VERSION = sh(script: "./gradlew -p ${env.SERVICE_DIRECTORY} -q printProjectVersion", returnStdout: true).trim()
+						env.DOCKERFILE_PATH = "${WORKSPACE}/${env.SERVICE_DIRECTORY}/Dockerfile"
+						env.BUILD_CONTEXT = "${WORKSPACE}/${env.SERVICE_DIRECTORY}"
+						def jobName = env.JOB_NAME ?: ''
+						def projectName = jobName.split('/')[0]
+						def matcher = (projectName =~ /-(qa|stage|prod)$/)
+						if (!matcher.find()) {
+							error "JOB_NAME '${jobName}' (project='${projectName}') must end with one of: -qa, -stage, -prod"
+						}
+						def environment = matcher.group(1).toUpperCase()
+						matcher = null
+						env.ENVIRONMENT_UPPER = environment
+						env.ENV_PREFIX = "MARKETNOTE_${environment}"
+
+					}
+
+					echo 'Environment variables set'
+
+					echo "CANDIDATE_SERVICES        = ${env.CANDIDATE_SERVICES}"
+					echo "SERVICE_NAME              = ${env.SERVICE_NAME}"
+					echo "SERVICE_DIRECTORY         = ${env.SERVICE_DIRECTORY}"
+					echo "PROJECT_NAME              = ${env.PROJECT_NAME}"
+					echo "PROJECT_VERSION           = ${env.PROJECT_VERSION}"
+					echo "ENVIRONMENT               = ${env.ENVIRONMENT_UPPER}"
+					echo "ENV_PREFIX                = ${env.ENV_PREFIX}"
+
+					script {
+						def helper = load 'jenkins/resolve-and-register.groovy'
+						helper.logCronInfo(this)
+					}
+				}
+			}
+
+	        stage('Notify Start') {
+	            steps {
+	                script {
+	                    def helper = load 'jenkins/resolve-and-register.groovy'
+	                    helper.sendStartNotification(this)
+	                }
+	            }
+	        }
+
+			stage('Check Flyway Immutability') {
+				steps {
+					script {
+						if (params.SKIP_FLYWAY_IMMUTABILITY_CHECK) {
+							echo "[WARN] Flyway immutability check SKIPPED by parameter. 긴급 revert PR 한정 용도. SERVICE=${params.SERVICE}, BUILD_URL=${env.BUILD_URL}"
+							def helper = load 'jenkins/resolve-and-register.groovy'
+							helper.notifyFlywayImmutabilitySkip(this)
+							return
+						}
+						withCredentials([gitUsernamePassword(credentialsId: 'MARKETNOTE_GITHUB_WEBHOOK_ACCESS_TOKEN', gitToolName: 'Default')]) {
+							sh 'bash scripts/check-flyway-immutability.sh'
+						}
+					}
+				}
+			}
+
+			stage('Test') {
+	            steps {
+	                sh "chmod u+x ${WORKSPACE}/gradlew"
+	                sh "./gradlew -p ${env.SERVICE_NAME} clean test"
+	                echo "Tests complete"
+	            }
+	        }
+
+	        stage('Build') {
+	            steps {
+	                sh "./gradlew -p ${env.SERVICE_DIRECTORY} build -x test"
+	                echo "Build complete"
+	            }
+	        }
+
+			stage('Resolve Service Mappings') {
+				steps {
+					script {
+						def helper = load 'jenkins/resolve-and-register.groovy'
+						helper.resolveServiceMappings(this, env.ENV_PREFIX)
+					}
+				}
+			}
+
+			stage('Detect Redis Changes') {
+				steps {
+					script {
+						def base = sh(script: 'git rev-parse HEAD~1 || git rev-parse HEAD', returnStdout: true).trim()
+						def changed = sh(script: "git diff --name-only ${base} HEAD || true", returnStdout: true)
+						.trim()
+						.split('\n')
+						.findAll {
+							it?.trim()
+						} as List
+						def redisChanged = changed.any {
+							p ->
+							p ==~ /.*user-service\/.*\/src\/.*\/com\/personal\/marketnote\/user\/configuration\/CacheConfig\.java/ ||
+							p ==~ /.*user-service\/.*\/src\/.*\/com\/personal\/marketnote\/user\/configuration\/SessionConfig\.java/
+						}
+						if (!redisChanged && changed.contains('Jenkinsfile')) {
+							redisChanged = sh(
+								script: "git diff --unified=0 ${base} HEAD -- Jenkinsfile | grep -E '^[+-]' | grep -iq 'redis' && echo match || true",
+								returnStdout: true
+							).trim() == 'match'
+						}
+						env.REDIS_CHANGED = redisChanged ? "true" : "false"
+						echo "REDIS_CHANGED              = ${env.REDIS_CHANGED}"
+					}
+				}
+			}
+
+			stage('Register Redis Task Definition') {
+				steps {
+					script {
+						if (env.REDIS_CHANGED != "true") {
 							sleep time: 1, unit: 'SECONDS'; return
 						}
+						withCredentials([
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",           variable: 'AWS_ACCESS_KEY_ID'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",       variable: 'AWS_SECRET_ACCESS_KEY'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",          variable: 'AWS_DEFAULT_REGION'),
+							string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_EXECUTION_ROLE_ARN", variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
+							string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_ROLE_ARN",           variable: 'ECS_TASK_ROLE_ARN'),
+							string(credentialsId: "${env.ENV_PREFIX}_CLOUDWATCH_LOG_GROUP_REDIS",  variable: 'CLOUDWATCH_LOG_GROUP_REDIS'),
+							string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_NAME",          variable: 'REDIS_SERVICE_NAME'),
+							string(credentialsId: "${env.ENV_PREFIX}_REDIS_PASSWORD",              variable: 'REDIS_PASSWORD')
+						]) {
+							sh '''
+					          LG="$CLOUDWATCH_LOG_GROUP_REDIS"
+					          EXISTS=$(aws logs describe-log-groups --log-group-name-prefix "$LG" --region "$AWS_DEFAULT_REGION" --query "length(logGroups[?logGroupName=='$LG'])" --output text || echo 0)
+					          if [ "$EXISTS" = "0" ]; then
+					            aws logs create-log-group --log-group-name "$LG" --region "$AWS_DEFAULT_REGION"
+					          fi
+					        '''
+
+							def redisTask = buildRedisTaskDefinition(env)
+
+							def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(redisTask))
+							writeFile file: 'redis-taskdef.json', text: json
+
+							def out = sh(
+								script: 'aws ecs register-task-definition --cli-input-json file://redis-taskdef.json --region $AWS_DEFAULT_REGION --query \'taskDefinition.taskDefinitionArn\' --output text',
+								returnStdout: true
+							).trim()
+
+							if (!out || out == 'None') {
+								error 'Failed to register Redis task definition'
+							}
+							env.REDIS_TASK_DEF_ARN = out
+							echo "Registered Redis TaskDef ARN = ${env.REDIS_TASK_DEF_ARN}"
+						}
+					}
+				}
+			}
+
+			stage('Deploy Redis Service') {
+				steps {
+					script {
+						if (env.REDIS_CHANGED != "true") {
+							sleep time: 1, unit: 'SECONDS'; return
+						}
+						withCredentials([
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",            variable: 'AWS_ACCESS_KEY_ID'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",        variable: 'AWS_SECRET_ACCESS_KEY'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",           variable: 'AWS_DEFAULT_REGION'),
+							string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",             variable: 'ECS_CLUSTER_NAME'),
+							string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_NAME",           variable: 'REDIS_SERVICE_NAME'),
+							string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",                   variable: 'SUBNET_IDS'),
+							string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",           variable: 'SECURITY_GROUP_IDS'),
+							string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_DISCOVERY_ARN",  variable: 'REDIS_SERVICE_DISCOVERY_ARN')
+						]) {
+							def latestTask = env.REDIS_TASK_DEF_ARN?.trim()
+							if (!latestTask) {
+								latestTask = sh(script: 'aws ecs list-task-definitions --family-prefix redis --sort DESC --region $AWS_DEFAULT_REGION --query \'taskDefinitionArns[0]\' --output text', returnStdout: true).trim()
+							}
+							if (!latestTask || latestTask == 'None') {
+								error 'No Redis TaskDefinition found to deploy'
+							}
+
+							def exists = sh(script: 'aws ecs describe-services --cluster $ECS_CLUSTER_NAME --services $REDIS_SERVICE_NAME --region $AWS_DEFAULT_REGION --query \'services[0].status\' --output text || true', returnStdout: true).trim()
+							def subnets = sh(script: 'printf "%s" "$SUBNET_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
+							def sgs = sh(script: 'printf "%s" "$SECURITY_GROUP_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
+
+							if (exists == "ACTIVE" || exists == "DRAINING") {
+								sh """
+	          					  aws ecs update-service \
+	          					    --cluster \$ECS_CLUSTER_NAME \
+	          					    --service \$REDIS_SERVICE_NAME \
+	          					    --task-definition ${latestTask} \
+	          					    --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	          					    --desired-count 1 \
+	          					    --region \$AWS_DEFAULT_REGION \
+	          					    --force-new-deployment
+	          					"""
+							} else {
+								sh """
+	          					  aws ecs create-service \
+	          					    --cluster \$ECS_CLUSTER_NAME \
+	          					    --service-name \$REDIS_SERVICE_NAME \
+	          					    --task-definition ${latestTask} \
+	          					    --desired-count 1 \
+	          					    --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	          					    --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${sgs}],assignPublicIp=ENABLED}" \
+	          					    --service-registries registryArn=\$REDIS_SERVICE_DISCOVERY_ARN \
+	          					    --region \$AWS_DEFAULT_REGION
+	          					"""
+							}
+							sh 'aws ecs wait services-stable --cluster $ECS_CLUSTER_NAME --services $REDIS_SERVICE_NAME --region $AWS_DEFAULT_REGION'
+						}
+					}
+				}
+			}
+
+			stage('Build Marketnote Service Image') {
+				steps {
+					script {
+						def dockerImageTag = "${env.PROJECT_NAME}:${env.PROJECT_VERSION}"
+						env.DOCKER_IMAGE_TAG = dockerImageTag
+						sh '''
+				          docker build \
+				            --build-arg JAR_FILE=build/libs/$PROJECT_NAME-$PROJECT_VERSION.jar \
+				            -t $DOCKER_IMAGE_TAG \
+				            -f "$DOCKERFILE_PATH" \
+				            "$BUILD_CONTEXT"
+				        '''
+					}
+				}
+			}
+
+			stage('Push Marketnote Service Image') {
+				steps {
+					script {
+						withCredentials([
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",        variable: 'AWS_ACCOUNT_ID'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
+						]) {
+							sh '''
+	                        aws --version
+	                        aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+	                        aws ecr describe-repositories --repository-names $ECR_REPOSITORY --region $AWS_DEFAULT_REGION || aws ecr create-repository --repository-name $ECR_REPOSITORY --region $AWS_DEFAULT_REGION
+	                        docker tag $DOCKER_IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY:$PROJECT_VERSION
+	                        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY:$PROJECT_VERSION
+	                        '''
+							env.IMAGE_URI = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com/${env.ECR_REPOSITORY}:${env.PROJECT_VERSION}"
+						}
+					}
+				}
+			}
+
+			stage('Run Flyway Migration') {
+				when {
+					expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
+				}
+				steps {
+					script {
 						def helper = load 'jenkins/resolve-and-register.groovy'
-						helper.runConcurrentIndexes(this, env.ENV_PREFIX)
-						echo 'Concurrent indexes applied'
+						helper.runFlywayMigrationStage(this, env.ENV_PREFIX)
 					}
 				}
 			}
-		}
 
-		stage('Override Spring Flyway Enabled=false') {
-			when {
-				expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
-			}
-			steps {
-				script {
-					env.SPRING_FLYWAY_ENABLED = "false"
-					echo "Set SPRING_FLYWAY_ENABLED=false for ${env.SERVICE_NAME}"
-				}
-			}
-		}
-
-		stage('Register Marketnote Service Task Definition') {
-            steps {
-                script {
-                    def helper = load 'jenkins/resolve-and-register.groovy'
-                    helper.registerTaskDefinition(this, env.ENV_PREFIX)
-                }
-            }
-        }
-
-		stage('Deploy Marketnote Service') {
-            steps {
-                script {
-                    withCredentials([
-                        string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",        variable: 'AWS_ACCOUNT_ID'),
-                        string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
-                        string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
-                        string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
-                        string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",      variable: 'ECS_CLUSTER_NAME'),
-                        string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",            variable: 'SUBNET_IDS'),
-                        string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",    variable: 'SECURITY_GROUP_IDS'),
-                    ]) {
-                        if (!env.APP_TASK_DEF_ARN?.trim()) {
-                            error 'No application TaskDefinition ARN (APP_TASK_DEF_ARN) found to deploy'
-                        }
-
-                        sh '''
-                          EXISTS=$(aws ecs describe-services --cluster "$ECS_CLUSTER_NAME" --services "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION" --query 'services[0].status' --output text 2>/dev/null || true)
-                          SUBNETS=$(printf "%s" "$SUBNET_IDS" | awk -F, '{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}')
-                          SGS=$(printf "%s" "$SECURITY_GROUP_IDS" | awk -F, '{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}')
-
-                          if [ "$EXISTS" = "ACTIVE" ] || [ "$EXISTS" = "DRAINING" ]; then
-                            aws ecs update-service \
-                              --cluster "$ECS_CLUSTER_NAME" \
-                              --service "$ECS_SERVICE_NAME" \
-                              --task-definition "$APP_TASK_DEF_ARN" \
-                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
-                              --desired-count 1 \
-                              --health-check-grace-period-seconds 240 \
-                              --region "$AWS_DEFAULT_REGION" \
-                              --force-new-deployment
-                          else
-                            aws ecs create-service \
-                              --cluster "$ECS_CLUSTER_NAME" \
-                              --service-name "$ECS_SERVICE_NAME" \
-                              --task-definition "$APP_TASK_DEF_ARN" \
-                              --desired-count 1 \
-                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
-                              --load-balancers targetGroupArn="$TARGET_GROUP_ARN",containerName="$PROJECT_NAME",containerPort=8080 \
-                              --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SGS],assignPublicIp=ENABLED}" \
-                              --region "$AWS_DEFAULT_REGION"
-                          fi
-
-                          aws ecs update-service --cluster "$ECS_CLUSTER_NAME" --service "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION" --health-check-grace-period-seconds 240 || true
-
-                          MAX_WAIT_RETRIES=20
-                          i=1
-                          while [ $i -le $MAX_WAIT_RETRIES ]; do
-                            if aws ecs wait services-stable --cluster "$ECS_CLUSTER_NAME" --services "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION"; then
-                              echo "ECS services-stable 성공 (attempt $i)"
-                              break
-                            fi
-                            echo "ECS services-stable 타임아웃 (attempt $i) → 재시도"
-                            sleep 20
-                            if [ $i -eq $MAX_WAIT_RETRIES ]; then
-                              exit 1
-                            fi
-                            i=$((i+1))
-                          done
-                        '''
-                    }
-                }
-            }
-        }
-
-		stage('Build Prometheus Image') {
-			steps {
-				script {
-					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
-					if (!changed) {
-						sleep time: 1, unit: 'SECONDS'; return
-					}
-					sh 'test -f monitoring/prometheus/Dockerfile'
-					sh 'test -f monitoring/prometheus/prometheus-qa.yml.tmpl'
-					sh 'test -f monitoring/prometheus/prometheus-prod.yml.tmpl'
-					def prometheusTag = "prometheus:${env.PROJECT_VERSION}"
-					env.PROMETHEUS_LOCAL_TAG = prometheusTag
-					sh """
-                    docker build \
-                     -t ${prometheusTag} \
-                     -f ${env.WORKSPACE}/monitoring/prometheus/Dockerfile \
-                     ${env.WORKSPACE}/monitoring/prometheus
-                    """
-				}
-			}
-		}
-
-		stage('Push Prometheus Image') {
-			steps {
-				script {
-					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
-					if (!changed) {
-						sleep time: 1, unit: 'SECONDS'; return
-					}
-					withCredentials([
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",              variable: 'AWS_ACCOUNT_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",           variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",       variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",          variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_ECR_REPOSITORY",   variable: 'PROMETHEUS_ECR_REPOSITORY')
-					]) {
-						sh '''
-                        aws ecr describe-repositories --repository-names $PROMETHEUS_ECR_REPOSITORY --region $AWS_DEFAULT_REGION || aws ecr create-repository --repository-name $PROMETHEUS_ECR_REPOSITORY --region $AWS_DEFAULT_REGION
-                        aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-                        docker tag $PROMETHEUS_LOCAL_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$PROMETHEUS_ECR_REPOSITORY:$PROJECT_VERSION
-                        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$PROMETHEUS_ECR_REPOSITORY:$PROJECT_VERSION
-                        '''
-						env.PROMETHEUS_IMAGE_URI = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com/${env.PROMETHEUS_ECR_REPOSITORY}:${env.PROJECT_VERSION}"
-					}
-				}
-			}
-		}
-
-		stage('Build Grafana Image') {
-			steps {
-				script {
-					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
-					if (!changed) {
-						sleep time: 1, unit: 'SECONDS'; return
-					}
-					sh 'test -f monitoring/grafana/Dockerfile'
-					def grafanaTag = "grafana:${env.PROJECT_VERSION}"
-					env.GRAFANA_LOCAL_TAG = grafanaTag
-					sh """
-                    docker build \
-                     -t ${grafanaTag} \
-                     -f ${env.WORKSPACE}/monitoring/grafana/Dockerfile \
-                     ${env.WORKSPACE}/monitoring/grafana
-                    """
-				}
-			}
-		}
-
-		stage('Push Grafana Image') {
-			steps {
-				script {
-					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
-					if (!changed) {
-						sleep time: 1, unit: 'SECONDS'; return
-					}
-					withCredentials([
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",             variable: 'AWS_ACCOUNT_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",          variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",      variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",         variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_ECR_REPOSITORY",     variable: 'GRAFANA_ECR_REPOSITORY')
-					]) {
-						sh '''
-                        aws ecr describe-repositories --repository-names $GRAFANA_ECR_REPOSITORY --region $AWS_DEFAULT_REGION || aws ecr create-repository --repository-name $GRAFANA_ECR_REPOSITORY --region $AWS_DEFAULT_REGION
-                        aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-                        docker tag $GRAFANA_LOCAL_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$GRAFANA_ECR_REPOSITORY:$PROJECT_VERSION
-                        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$GRAFANA_ECR_REPOSITORY:$PROJECT_VERSION
-                        '''
-						env.GRAFANA_IMAGE_URI = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com/${env.GRAFANA_ECR_REPOSITORY}:${env.PROJECT_VERSION}"
-					}
-				}
-			}
-		}
-
-		stage('Register Prometheus Task Definition') {
-			steps {
-				script {
-					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
-					if (!changed) {
-						sleep time: 1, unit: 'SECONDS'; return
-					}
-					withCredentials([
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",               variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",           variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",              variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_EXECUTION_ROLE_ARN",     variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
-						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_ROLE_ARN",               variable: 'ECS_TASK_ROLE_ARN'),
-						string(credentialsId: "${env.ENV_PREFIX}_CLOUDWATCH_LOG_GROUP_PROMETHEUS", variable: 'CLOUDWATCH_LOG_GROUP_PROMETHEUS'),
-						string(credentialsId: "${env.ENV_PREFIX}_SERVER_DOMAIN",                   variable: 'MARKETNOTE_SERVER_DOMAIN'),
-						string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_PRIVATE_IP",          variable: 'FULFILLMENT_PRIVATE_IP'),
-						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_1_PRIVATE_IP",       variable: 'KAFKA_BROKER_1_PRIVATE_IP'),
-						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_2_PRIVATE_IP",       variable: 'KAFKA_BROKER_2_PRIVATE_IP'),
-						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_3_PRIVATE_IP",       variable: 'KAFKA_BROKER_3_PRIVATE_IP')
-					]) {
-						sh '''
-                        aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_PROMETHEUS" --region "$AWS_DEFAULT_REGION" || true
-                        '''
-						def promTask = buildPrometheusTaskDefinition(env)
-						def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(promTask))
-						writeFile file: 'prom-taskdef.json', text: json
-						sh 'aws ecs register-task-definition --cli-input-json file://prom-taskdef.json'
-					}
-				}
-			}
-		}
-
-		stage('Deploy Prometheus Service') {
-			steps {
-				script {
-					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
-					if (!changed) {
-						sleep time: 1, unit: 'SECONDS'; return
-					}
-					withCredentials([
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",       variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",   variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",      variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",        variable: 'ECS_CLUSTER_NAME'),
-						string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_SERVICE_NAME", variable: 'PROMETHEUS_SERVICE_NAME'),
-						string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",              variable: 'SUBNET_IDS'),
-						string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",      variable: 'SECURITY_GROUP_IDS')
-					]) {
-						def latestTask = sh(script: 'aws ecs list-task-definitions --family-prefix prometheus --sort DESC --region $AWS_DEFAULT_REGION --query \'taskDefinitionArns[0]\' --output text', returnStdout: true).trim()
-						if (!latestTask || latestTask == 'None') {
-							error 'No Prometheus TaskDefinition found to deploy'
+			stage('Run Concurrent Indexes') {
+				steps {
+					timeout(time: 30, unit: 'MINUTES') {
+						script {
+							if (!fileExists("${env.SERVICE_DIRECTORY}/src/main/resources/db/concurrent-indexes")) {
+								sleep time: 1, unit: 'SECONDS'; return
+							}
+							def helper = load 'jenkins/resolve-and-register.groovy'
+							helper.runConcurrentIndexes(this, env.ENV_PREFIX)
+							echo 'Concurrent indexes applied'
 						}
-						def exists = sh(script: 'aws ecs describe-services --cluster $ECS_CLUSTER_NAME --services $PROMETHEUS_SERVICE_NAME --region $AWS_DEFAULT_REGION --query \'services[0].status\' --output text || true', returnStdout: true).trim()
-						def subnets = sh(script: 'printf "%s" "$SUBNET_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
-						def sgs = sh(script: 'printf "%s" "$SECURITY_GROUP_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
-
-						if (exists == "ACTIVE" || exists == "DRAINING") {
-							sh """
-                            aws ecs update-service \
-                              --cluster \$ECS_CLUSTER_NAME \
-                              --service \$PROMETHEUS_SERVICE_NAME \
-                              --task-definition ${latestTask} \
-                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
-                              --desired-count 1 \
-                              --region \$AWS_DEFAULT_REGION \
-                              --force-new-deployment
-                            """
-						} else {
-							sh """
-                            aws ecs create-service \
-                              --cluster \$ECS_CLUSTER_NAME \
-                              --service-name \$PROMETHEUS_SERVICE_NAME \
-                              --task-definition ${latestTask} \
-                              --desired-count 1 \
-                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
-                              --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${sgs}],assignPublicIp=ENABLED}" \
-                              --region \$AWS_DEFAULT_REGION
-                            """
-						}
-						sh 'aws ecs wait services-stable --cluster $ECS_CLUSTER_NAME --services $PROMETHEUS_SERVICE_NAME --region $AWS_DEFAULT_REGION'
 					}
 				}
 			}
-		}
 
-		stage('Register Grafana Task Definition') {
-			steps {
-				script {
-					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
-					if (!changed) {
-						sleep time: 1, unit: 'SECONDS'; return
-					}
-					withCredentials([
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",              variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",          variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",             variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_EXECUTION_ROLE_ARN",    variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
-						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_ROLE_ARN",              variable: 'ECS_TASK_ROLE_ARN'),
-						string(credentialsId: "${env.ENV_PREFIX}_CLOUDWATCH_LOG_GROUP_GRAFANA",   variable: 'CLOUDWATCH_LOG_GROUP_GRAFANA'),
-						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_ADMIN_PASSWORD",         variable: 'GRAFANA_ADMIN_PASSWORD'),
-						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_DOMAIN",                 variable: 'GRAFANA_DOMAIN'),
-						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_ROOT_URL",               variable: 'GRAFANA_ROOT_URL'),
-						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_SERVE_FROM_SUB_PATH",    variable: 'GRAFANA_SERVE_FROM_SUB_PATH'),
-						string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_URL",                 variable: 'PROMETHEUS_URL')
-					]) {
-						sh '''
-                        aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_GRAFANA" --region "$AWS_DEFAULT_REGION" || true
-                        '''
-						def grafanaTask = buildGrafanaTaskDefinition(env)
-						def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(grafanaTask))
-						writeFile file: 'grafana-taskdef.json', text: json
-						sh 'aws ecs register-task-definition --cli-input-json file://grafana-taskdef.json'
+			stage('Override Spring Flyway Enabled=false') {
+				when {
+					expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
+				}
+				steps {
+					script {
+						env.SPRING_FLYWAY_ENABLED = "false"
+						echo "Set SPRING_FLYWAY_ENABLED=false for ${env.SERVICE_NAME}"
 					}
 				}
 			}
-		}
 
-		stage('Deploy Grafana Service') {
-			steps {
-				script {
-					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
-					if (!changed) {
-						sleep time: 1, unit: 'SECONDS'; return
-					}
-					withCredentials([
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",      variable: 'ECS_CLUSTER_NAME'),
-						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_SERVICE_NAME",  variable: 'GRAFANA_SERVICE_NAME'),
-						string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",            variable: 'SUBNET_IDS'),
-						string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",    variable: 'SECURITY_GROUP_IDS')
-					]) {
-						def latestTask = sh(script: 'aws ecs list-task-definitions --family-prefix grafana --sort DESC --region $AWS_DEFAULT_REGION --query \'taskDefinitionArns[0]\' --output text', returnStdout: true).trim()
-						if (!latestTask || latestTask == 'None') {
-							error 'No Grafana TaskDefinition found to deploy'
-						}
-						def exists = sh(script: 'aws ecs describe-services --cluster $ECS_CLUSTER_NAME --services $GRAFANA_SERVICE_NAME --region $AWS_DEFAULT_REGION --query \'services[0].status\' --output text || true', returnStdout: true).trim()
-						def subnets = sh(script: 'printf "%s" "$SUBNET_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
-						def sgs = sh(script: 'printf "%s" "$SECURITY_GROUP_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
+			stage('Register Marketnote Service Task Definition') {
+	            steps {
+	                script {
+	                    def helper = load 'jenkins/resolve-and-register.groovy'
+	                    helper.registerTaskDefinition(this, env.ENV_PREFIX)
+	                }
+	            }
+	        }
 
-						if (exists == "ACTIVE" || exists == "DRAINING") {
-							sh """
-                            aws ecs update-service \
-                              --cluster \$ECS_CLUSTER_NAME \
-                              --service \$GRAFANA_SERVICE_NAME \
-                              --task-definition ${latestTask} \
-                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
-                              --desired-count 1 \
-                              --region \$AWS_DEFAULT_REGION \
-                              --force-new-deployment
-                            """
-						} else {
-							sh """
-                            aws ecs create-service \
-                              --cluster \$ECS_CLUSTER_NAME \
-                              --service-name \$GRAFANA_SERVICE_NAME \
-                              --task-definition ${latestTask} \
-                              --desired-count 1 \
-                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
-                              --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${sgs}],assignPublicIp=ENABLED}" \
-                              --region \$AWS_DEFAULT_REGION
-                            """
+			stage('Deploy Marketnote Service') {
+	            steps {
+	                script {
+	                    withCredentials([
+	                        string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",        variable: 'AWS_ACCOUNT_ID'),
+	                        string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
+	                        string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
+	                        string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
+	                        string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",      variable: 'ECS_CLUSTER_NAME'),
+	                        string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",            variable: 'SUBNET_IDS'),
+	                        string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",    variable: 'SECURITY_GROUP_IDS'),
+	                    ]) {
+	                        if (!env.APP_TASK_DEF_ARN?.trim()) {
+	                            error 'No application TaskDefinition ARN (APP_TASK_DEF_ARN) found to deploy'
+	                        }
+
+	                        sh '''
+	                          EXISTS=$(aws ecs describe-services --cluster "$ECS_CLUSTER_NAME" --services "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION" --query 'services[0].status' --output text 2>/dev/null || true)
+	                          SUBNETS=$(printf "%s" "$SUBNET_IDS" | awk -F, '{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}')
+	                          SGS=$(printf "%s" "$SECURITY_GROUP_IDS" | awk -F, '{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}')
+
+	                          if [ "$EXISTS" = "ACTIVE" ] || [ "$EXISTS" = "DRAINING" ]; then
+	                            aws ecs update-service \
+	                              --cluster "$ECS_CLUSTER_NAME" \
+	                              --service "$ECS_SERVICE_NAME" \
+	                              --task-definition "$APP_TASK_DEF_ARN" \
+	                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	                              --desired-count 1 \
+	                              --health-check-grace-period-seconds 240 \
+	                              --region "$AWS_DEFAULT_REGION" \
+	                              --force-new-deployment
+	                          else
+	                            aws ecs create-service \
+	                              --cluster "$ECS_CLUSTER_NAME" \
+	                              --service-name "$ECS_SERVICE_NAME" \
+	                              --task-definition "$APP_TASK_DEF_ARN" \
+	                              --desired-count 1 \
+	                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	                              --load-balancers targetGroupArn="$TARGET_GROUP_ARN",containerName="$PROJECT_NAME",containerPort=8080 \
+	                              --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SGS],assignPublicIp=ENABLED}" \
+	                              --region "$AWS_DEFAULT_REGION"
+	                          fi
+
+	                          aws ecs update-service --cluster "$ECS_CLUSTER_NAME" --service "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION" --health-check-grace-period-seconds 240 || true
+
+	                          MAX_WAIT_RETRIES=20
+	                          i=1
+	                          while [ $i -le $MAX_WAIT_RETRIES ]; do
+	                            if aws ecs wait services-stable --cluster "$ECS_CLUSTER_NAME" --services "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION"; then
+	                              echo "ECS services-stable 성공 (attempt $i)"
+	                              break
+	                            fi
+	                            echo "ECS services-stable 타임아웃 (attempt $i) → 재시도"
+	                            sleep 20
+	                            if [ $i -eq $MAX_WAIT_RETRIES ]; then
+	                              exit 1
+	                            fi
+	                            i=$((i+1))
+	                          done
+	                        '''
+	                    }
+	                }
+	            }
+	        }
+
+			stage('Build Prometheus Image') {
+				steps {
+					script {
+						def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
+						if (!changed) {
+							sleep time: 1, unit: 'SECONDS'; return
 						}
-						sh 'aws ecs wait services-stable --cluster $ECS_CLUSTER_NAME --services $GRAFANA_SERVICE_NAME --region $AWS_DEFAULT_REGION'
+						sh 'test -f monitoring/prometheus/Dockerfile'
+						sh 'test -f monitoring/prometheus/prometheus-qa.yml.tmpl'
+						sh 'test -f monitoring/prometheus/prometheus-prod.yml.tmpl'
+						def prometheusTag = "prometheus:${env.PROJECT_VERSION}"
+						env.PROMETHEUS_LOCAL_TAG = prometheusTag
+						sh """
+	                    docker build \
+	                     -t ${prometheusTag} \
+	                     -f ${env.WORKSPACE}/monitoring/prometheus/Dockerfile \
+	                     ${env.WORKSPACE}/monitoring/prometheus
+	                    """
 					}
 				}
 			}
-		}
 
-		stage('Archive Artifacts') {
-			steps {
-				archiveArtifacts artifacts: "${env.SERVICE_DIRECTORY}/build/libs/*.jar", fingerprint: true
+			stage('Push Prometheus Image') {
+				steps {
+					script {
+						def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
+						if (!changed) {
+							sleep time: 1, unit: 'SECONDS'; return
+						}
+						withCredentials([
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",              variable: 'AWS_ACCOUNT_ID'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",           variable: 'AWS_ACCESS_KEY_ID'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",       variable: 'AWS_SECRET_ACCESS_KEY'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",          variable: 'AWS_DEFAULT_REGION'),
+							string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_ECR_REPOSITORY",   variable: 'PROMETHEUS_ECR_REPOSITORY')
+						]) {
+							sh '''
+	                        aws ecr describe-repositories --repository-names $PROMETHEUS_ECR_REPOSITORY --region $AWS_DEFAULT_REGION || aws ecr create-repository --repository-name $PROMETHEUS_ECR_REPOSITORY --region $AWS_DEFAULT_REGION
+	                        aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+	                        docker tag $PROMETHEUS_LOCAL_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$PROMETHEUS_ECR_REPOSITORY:$PROJECT_VERSION
+	                        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$PROMETHEUS_ECR_REPOSITORY:$PROJECT_VERSION
+	                        '''
+							env.PROMETHEUS_IMAGE_URI = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com/${env.PROMETHEUS_ECR_REPOSITORY}:${env.PROJECT_VERSION}"
+						}
+					}
+				}
+			}
+
+			stage('Build Grafana Image') {
+				steps {
+					script {
+						def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
+						if (!changed) {
+							sleep time: 1, unit: 'SECONDS'; return
+						}
+						sh 'test -f monitoring/grafana/Dockerfile'
+						def grafanaTag = "grafana:${env.PROJECT_VERSION}"
+						env.GRAFANA_LOCAL_TAG = grafanaTag
+						sh """
+	                    docker build \
+	                     -t ${grafanaTag} \
+	                     -f ${env.WORKSPACE}/monitoring/grafana/Dockerfile \
+	                     ${env.WORKSPACE}/monitoring/grafana
+	                    """
+					}
+				}
+			}
+
+			stage('Push Grafana Image') {
+				steps {
+					script {
+						def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
+						if (!changed) {
+							sleep time: 1, unit: 'SECONDS'; return
+						}
+						withCredentials([
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",             variable: 'AWS_ACCOUNT_ID'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",          variable: 'AWS_ACCESS_KEY_ID'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",      variable: 'AWS_SECRET_ACCESS_KEY'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",         variable: 'AWS_DEFAULT_REGION'),
+							string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_ECR_REPOSITORY",     variable: 'GRAFANA_ECR_REPOSITORY')
+						]) {
+							sh '''
+	                        aws ecr describe-repositories --repository-names $GRAFANA_ECR_REPOSITORY --region $AWS_DEFAULT_REGION || aws ecr create-repository --repository-name $GRAFANA_ECR_REPOSITORY --region $AWS_DEFAULT_REGION
+	                        aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+	                        docker tag $GRAFANA_LOCAL_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$GRAFANA_ECR_REPOSITORY:$PROJECT_VERSION
+	                        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$GRAFANA_ECR_REPOSITORY:$PROJECT_VERSION
+	                        '''
+							env.GRAFANA_IMAGE_URI = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com/${env.GRAFANA_ECR_REPOSITORY}:${env.PROJECT_VERSION}"
+						}
+					}
+				}
+			}
+
+			stage('Register Prometheus Task Definition') {
+				steps {
+					script {
+						def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
+						if (!changed) {
+							sleep time: 1, unit: 'SECONDS'; return
+						}
+						withCredentials([
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",               variable: 'AWS_ACCESS_KEY_ID'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",           variable: 'AWS_SECRET_ACCESS_KEY'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",              variable: 'AWS_DEFAULT_REGION'),
+							string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_EXECUTION_ROLE_ARN",     variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
+							string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_ROLE_ARN",               variable: 'ECS_TASK_ROLE_ARN'),
+							string(credentialsId: "${env.ENV_PREFIX}_CLOUDWATCH_LOG_GROUP_PROMETHEUS", variable: 'CLOUDWATCH_LOG_GROUP_PROMETHEUS'),
+							string(credentialsId: "${env.ENV_PREFIX}_SERVER_DOMAIN",                   variable: 'MARKETNOTE_SERVER_DOMAIN'),
+							string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_PRIVATE_IP",          variable: 'FULFILLMENT_PRIVATE_IP'),
+							string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_1_PRIVATE_IP",       variable: 'KAFKA_BROKER_1_PRIVATE_IP'),
+							string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_2_PRIVATE_IP",       variable: 'KAFKA_BROKER_2_PRIVATE_IP'),
+							string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_3_PRIVATE_IP",       variable: 'KAFKA_BROKER_3_PRIVATE_IP')
+						]) {
+							sh '''
+	                        aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_PROMETHEUS" --region "$AWS_DEFAULT_REGION" || true
+	                        '''
+							def promTask = buildPrometheusTaskDefinition(env)
+							def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(promTask))
+							writeFile file: 'prom-taskdef.json', text: json
+							sh 'aws ecs register-task-definition --cli-input-json file://prom-taskdef.json'
+						}
+					}
+				}
+			}
+
+			stage('Deploy Prometheus Service') {
+				steps {
+					script {
+						def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
+						if (!changed) {
+							sleep time: 1, unit: 'SECONDS'; return
+						}
+						withCredentials([
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",       variable: 'AWS_ACCESS_KEY_ID'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",   variable: 'AWS_SECRET_ACCESS_KEY'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",      variable: 'AWS_DEFAULT_REGION'),
+							string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",        variable: 'ECS_CLUSTER_NAME'),
+							string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_SERVICE_NAME", variable: 'PROMETHEUS_SERVICE_NAME'),
+							string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",              variable: 'SUBNET_IDS'),
+							string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",      variable: 'SECURITY_GROUP_IDS')
+						]) {
+							def latestTask = sh(script: 'aws ecs list-task-definitions --family-prefix prometheus --sort DESC --region $AWS_DEFAULT_REGION --query \'taskDefinitionArns[0]\' --output text', returnStdout: true).trim()
+							if (!latestTask || latestTask == 'None') {
+								error 'No Prometheus TaskDefinition found to deploy'
+							}
+							def exists = sh(script: 'aws ecs describe-services --cluster $ECS_CLUSTER_NAME --services $PROMETHEUS_SERVICE_NAME --region $AWS_DEFAULT_REGION --query \'services[0].status\' --output text || true', returnStdout: true).trim()
+							def subnets = sh(script: 'printf "%s" "$SUBNET_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
+							def sgs = sh(script: 'printf "%s" "$SECURITY_GROUP_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
+
+							if (exists == "ACTIVE" || exists == "DRAINING") {
+								sh """
+	                            aws ecs update-service \
+	                              --cluster \$ECS_CLUSTER_NAME \
+	                              --service \$PROMETHEUS_SERVICE_NAME \
+	                              --task-definition ${latestTask} \
+	                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	                              --desired-count 1 \
+	                              --region \$AWS_DEFAULT_REGION \
+	                              --force-new-deployment
+	                            """
+							} else {
+								sh """
+	                            aws ecs create-service \
+	                              --cluster \$ECS_CLUSTER_NAME \
+	                              --service-name \$PROMETHEUS_SERVICE_NAME \
+	                              --task-definition ${latestTask} \
+	                              --desired-count 1 \
+	                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	                              --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${sgs}],assignPublicIp=ENABLED}" \
+	                              --region \$AWS_DEFAULT_REGION
+	                            """
+							}
+							sh 'aws ecs wait services-stable --cluster $ECS_CLUSTER_NAME --services $PROMETHEUS_SERVICE_NAME --region $AWS_DEFAULT_REGION'
+						}
+					}
+				}
+			}
+
+			stage('Register Grafana Task Definition') {
+				steps {
+					script {
+						def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
+						if (!changed) {
+							sleep time: 1, unit: 'SECONDS'; return
+						}
+						withCredentials([
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",              variable: 'AWS_ACCESS_KEY_ID'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",          variable: 'AWS_SECRET_ACCESS_KEY'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",             variable: 'AWS_DEFAULT_REGION'),
+							string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_EXECUTION_ROLE_ARN",    variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
+							string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_ROLE_ARN",              variable: 'ECS_TASK_ROLE_ARN'),
+							string(credentialsId: "${env.ENV_PREFIX}_CLOUDWATCH_LOG_GROUP_GRAFANA",   variable: 'CLOUDWATCH_LOG_GROUP_GRAFANA'),
+							string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_ADMIN_PASSWORD",         variable: 'GRAFANA_ADMIN_PASSWORD'),
+							string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_DOMAIN",                 variable: 'GRAFANA_DOMAIN'),
+							string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_ROOT_URL",               variable: 'GRAFANA_ROOT_URL'),
+							string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_SERVE_FROM_SUB_PATH",    variable: 'GRAFANA_SERVE_FROM_SUB_PATH'),
+							string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_URL",                 variable: 'PROMETHEUS_URL')
+						]) {
+							sh '''
+	                        aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_GRAFANA" --region "$AWS_DEFAULT_REGION" || true
+	                        '''
+							def grafanaTask = buildGrafanaTaskDefinition(env)
+							def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(grafanaTask))
+							writeFile file: 'grafana-taskdef.json', text: json
+							sh 'aws ecs register-task-definition --cli-input-json file://grafana-taskdef.json'
+						}
+					}
+				}
+			}
+
+			stage('Deploy Grafana Service') {
+				steps {
+					script {
+						def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
+						if (!changed) {
+							sleep time: 1, unit: 'SECONDS'; return
+						}
+						withCredentials([
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
+							string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",      variable: 'ECS_CLUSTER_NAME'),
+							string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_SERVICE_NAME",  variable: 'GRAFANA_SERVICE_NAME'),
+							string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",            variable: 'SUBNET_IDS'),
+							string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",    variable: 'SECURITY_GROUP_IDS')
+						]) {
+							def latestTask = sh(script: 'aws ecs list-task-definitions --family-prefix grafana --sort DESC --region $AWS_DEFAULT_REGION --query \'taskDefinitionArns[0]\' --output text', returnStdout: true).trim()
+							if (!latestTask || latestTask == 'None') {
+								error 'No Grafana TaskDefinition found to deploy'
+							}
+							def exists = sh(script: 'aws ecs describe-services --cluster $ECS_CLUSTER_NAME --services $GRAFANA_SERVICE_NAME --region $AWS_DEFAULT_REGION --query \'services[0].status\' --output text || true', returnStdout: true).trim()
+							def subnets = sh(script: 'printf "%s" "$SUBNET_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
+							def sgs = sh(script: 'printf "%s" "$SECURITY_GROUP_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
+
+							if (exists == "ACTIVE" || exists == "DRAINING") {
+								sh """
+	                            aws ecs update-service \
+	                              --cluster \$ECS_CLUSTER_NAME \
+	                              --service \$GRAFANA_SERVICE_NAME \
+	                              --task-definition ${latestTask} \
+	                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	                              --desired-count 1 \
+	                              --region \$AWS_DEFAULT_REGION \
+	                              --force-new-deployment
+	                            """
+							} else {
+								sh """
+	                            aws ecs create-service \
+	                              --cluster \$ECS_CLUSTER_NAME \
+	                              --service-name \$GRAFANA_SERVICE_NAME \
+	                              --task-definition ${latestTask} \
+	                              --desired-count 1 \
+	                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	                              --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${sgs}],assignPublicIp=ENABLED}" \
+	                              --region \$AWS_DEFAULT_REGION
+	                            """
+							}
+							sh 'aws ecs wait services-stable --cluster $ECS_CLUSTER_NAME --services $GRAFANA_SERVICE_NAME --region $AWS_DEFAULT_REGION'
+						}
+					}
+				}
+			}
+
+			stage('Archive Artifacts') {
+				steps {
+					archiveArtifacts artifacts: "${env.SERVICE_DIRECTORY}/build/libs/*.jar", fingerprint: true
+				}
+			}
 			}
 		}
 	}
@@ -1039,37 +1023,16 @@ pipeline {
 		success {
 			echo '====================================Build Success====================================='
 			script {
-				currentBuild.description = "SERVICE=${env.SERVICE_NAME} COMMIT=${env.GIT_COMMIT}"
-				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
-				if (ch) {
-					slackSend(
-						channel: ch,
-						color:   "${env.SLACK_SUCCESS_COLOR}",
-						message: "Build Success!!\n"
-						+ "SERVICE: ${env.SERVICE_NAME}\n"
-						+ "ECS_SERVICE: ${env.ECS_SERVICE_NAME}\n"
-						+ "IMAGE: ${env.IMAGE_URI?:'N/A'}\n"
-						+ "BUILD_NUMBER: ${env.BUILD_NUMBER}"
-					)
-				} else {
-					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack success notification"
-				}
+				def helper = load 'jenkins/resolve-and-register.groovy'
+				helper.handleBuildSuccess(this)
 			}
 		}
 
 		failure {
 			echo '====================================Build Failed======================================='
 			script {
-				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
-				if (ch) {
-					slackSend(
-						channel: ch,
-						color:   "${env.SLACK_FAIL_COLOR}",
-						message: "Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
-					)
-				} else {
-					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack failure notification"
-				}
+				def helper = load 'jenkins/resolve-and-register.groovy'
+				helper.handleBuildFailure(this)
 			}
 		}
 	}
