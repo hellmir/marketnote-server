@@ -389,17 +389,17 @@ pipeline {
 					env.ENVIRONMENT_UPPER = environment
 					env.ENV_PREFIX = "MARKETNOTE_${environment}"
 
-					echo 'Environment variables set'
-					echo "CANDIDATE_SERVICES        = ${env.CANDIDATE_SERVICES}"
-					echo "SERVICE_NAME              = ${env.SERVICE_NAME}"
-					echo "SERVICE_DIRECTORY         = ${env.SERVICE_DIRECTORY}"
-					echo "PROJECT_NAME              = ${env.PROJECT_NAME}"
-					echo "PROJECT_VERSION           = ${env.PROJECT_VERSION}"
-					echo "ENVIRONMENT               = ${env.ENVIRONMENT_UPPER}"
-					echo "ENV_PREFIX                = ${env.ENV_PREFIX}"
-					echo "CRON_TRIGGERED            = ${env.CRON_TRIGGERED ?: 'false'}"
-					echo "parameterizedCron spec:\n" + buildQaCronSpec()
 				}
+
+				echo 'Environment variables set'
+
+				echo "CANDIDATE_SERVICES        = ${env.CANDIDATE_SERVICES}"
+				echo "SERVICE_NAME              = ${env.SERVICE_NAME}"
+				echo "SERVICE_DIRECTORY         = ${env.SERVICE_DIRECTORY}"
+				echo "PROJECT_NAME              = ${env.PROJECT_NAME}"
+				echo "PROJECT_VERSION           = ${env.PROJECT_VERSION}"
+				echo "ENVIRONMENT               = ${env.ENVIRONMENT_UPPER}"
+				echo "ENV_PREFIX                = ${env.ENV_PREFIX}"
 			}
 		}
 
@@ -417,12 +417,11 @@ pipeline {
 
                         def commitAuthor  = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
                         def commitMessage = sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim()
-                        def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
 
                         slackSend(
                             channel: "${env.SLACK_NOTIFICATION_CHANNEL}",
                             color:   "${env.SLACK_GENERAL_COLOR}",
-                            message: "${cronPrefix}[${env.ENVIRONMENT_UPPER}] Start a build\n"
+                            message: "[${env.ENVIRONMENT_UPPER}] Start a build\n"
                                 + "SERVICE: ${env.SERVICE_NAME}\n"
                                 + "PROJECT_NAME: ${env.PROJECT_NAME}\n"
                                 + "VERSION: ${env.PROJECT_VERSION}\n"
@@ -1040,18 +1039,13 @@ pipeline {
 		success {
 			echo '====================================Build Success====================================='
 			script {
-				// cron skip 재배포 판정용 description 기록 — findLastDeployedCommit에서 파싱.
-				// 포맷 고정: "SERVICE=<name> COMMIT=<sha>" (공백 구분, 정규식 \S+ 매칭)
-				if (env.SERVICE_NAME?.trim() && env.GIT_COMMIT?.trim()) {
-					currentBuild.description = "SERVICE=${env.SERVICE_NAME} COMMIT=${env.GIT_COMMIT}"
-				}
+				currentBuild.description = "SERVICE=${env.SERVICE_NAME} COMMIT=${env.GIT_COMMIT}"
 				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
 				if (ch) {
-					def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
 					slackSend(
 						channel: ch,
 						color:   "${env.SLACK_SUCCESS_COLOR}",
-						message: "${cronPrefix}Build Success!!\n"
+						message: "Build Success!!\n"
 						+ "SERVICE: ${env.SERVICE_NAME}\n"
 						+ "ECS_SERVICE: ${env.ECS_SERVICE_NAME}\n"
 						+ "IMAGE: ${env.IMAGE_URI?:'N/A'}\n"
@@ -1067,29 +1061,15 @@ pipeline {
 			echo '====================================Build Failed======================================='
 			script {
 				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
-				if (!ch) {
-					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack failure notification"
-					return
-				}
-				// cron skip으로 인한 error() 중단은 실패로 분류되지만 '[QA-CRON] Skipped' 별도 포맷으로 구분
-				if (env.CRON_SKIP == 'true') {
+				if (ch) {
 					slackSend(
 						channel: ch,
-						color:   "${env.SLACK_GENERAL_COLOR}",
-						message: "[QA-CRON] Skipped\n"
-							+ "SERVICE: ${env.SERVICE_NAME ?: 'N/A'}\n"
-							+ "COMMIT: ${env.GIT_COMMIT}\n"
-							+ "REASON: same commit already deployed\n"
-							+ "BUILD_NUMBER: ${env.BUILD_NUMBER}"
+						color:   "${env.SLACK_FAIL_COLOR}",
+						message: "Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
 					)
-					return
+				} else {
+					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack failure notification"
 				}
-				def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
-				slackSend(
-					channel: ch,
-					color:   "${env.SLACK_FAIL_COLOR}",
-					message: "${cronPrefix}Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
-				)
 			}
 		}
 	}
