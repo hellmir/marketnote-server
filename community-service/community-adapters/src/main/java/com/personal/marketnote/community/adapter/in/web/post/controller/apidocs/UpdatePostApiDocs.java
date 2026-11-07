@@ -136,7 +136,7 @@ import java.lang.annotation.*;
                                 examples = @ExampleObject("""
                                         {
                                           "statusCode": 409,
-                                          "code": "CONFLICT",
+                                          "code": "ERR_POST_EDIT_01",
                                           "timestamp": "2026-01-15T16:35:05.895046",
                                           "content": null,
                                           "message": "수정할 수 없는 게시판입니다."
