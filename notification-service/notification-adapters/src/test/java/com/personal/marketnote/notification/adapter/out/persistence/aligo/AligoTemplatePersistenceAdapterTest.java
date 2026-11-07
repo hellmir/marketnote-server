@@ -41,25 +41,31 @@ class AligoTemplatePersistenceAdapterTest {
     void shouldSaveTemplateWithButtonsAndKeepOrdering() {
         // given
         List<AligoTemplateButton> buttons = List.of(
-                AligoTemplateButton.builder()
-                        .ordering(1)
-                        .name("버튼1")
-                        .linkType(AligoTemplateButtonLinkType.WL)
-                        .linkMo("https://m.example.com/1")
-                        .linkPc("https://example.com/1")
-                        .build(),
-                AligoTemplateButton.builder()
-                        .ordering(2)
-                        .name("버튼2")
-                        .linkType(AligoTemplateButtonLinkType.AL)
-                        .linkIos("ios-link")
-                        .linkAnd("and-link")
-                        .build(),
-                AligoTemplateButton.builder()
-                        .ordering(3)
-                        .name("버튼3")
-                        .linkType(AligoTemplateButtonLinkType.AC)
-                        .build()
+                AligoTemplateButton.from(
+                        AligoTemplateButtonCreateState.builder()
+                                .ordering(1)
+                                .name("버튼1")
+                                .linkType(AligoTemplateButtonLinkType.WL)
+                                .linkMo("https://m.example.com/1")
+                                .linkPc("https://example.com/1")
+                                .build()
+                ),
+                AligoTemplateButton.from(
+                        AligoTemplateButtonCreateState.builder()
+                                .ordering(2)
+                                .name("버튼2")
+                                .linkType(AligoTemplateButtonLinkType.AL)
+                                .linkIos("ios-link")
+                                .linkAnd("and-link")
+                                .build()
+                ),
+                AligoTemplateButton.from(
+                        AligoTemplateButtonCreateState.builder()
+                                .ordering(3)
+                                .name("버튼3")
+                                .linkType(AligoTemplateButtonLinkType.AC)
+                                .build()
+                )
         );
         AligoTemplate template = AligoTemplate.from(
                 AligoTemplateCreateState.builder()
@@ -113,13 +119,15 @@ class AligoTemplatePersistenceAdapterTest {
         entityManager.clear();
 
         List<AligoTemplateButton> newButtons = List.of(
-                AligoTemplateButton.builder()
-                        .ordering(1)
-                        .name("새 버튼")
-                        .linkType(AligoTemplateButtonLinkType.WL)
-                        .linkMo("https://m.example.com/new")
-                        .linkPc("https://example.com/new")
-                        .build()
+                AligoTemplateButton.from(
+                        AligoTemplateButtonCreateState.builder()
+                                .ordering(1)
+                                .name("새 버튼")
+                                .linkType(AligoTemplateButtonLinkType.WL)
+                                .linkMo("https://m.example.com/new")
+                                .linkPc("https://example.com/new")
+                                .build()
+                )
         );
         AligoTemplate updateRequest = AligoTemplate.from(
                 AligoTemplateSnapshotState.builder()
@@ -188,11 +196,13 @@ class AligoTemplatePersistenceAdapterTest {
     void shouldDeleteTemplateAndCascadeButtons() {
         // given
         List<AligoTemplateButton> buttons = List.of(
-                AligoTemplateButton.builder()
-                        .ordering(1)
-                        .name("버튼A")
-                        .linkType(AligoTemplateButtonLinkType.AC)
-                        .build()
+                AligoTemplateButton.from(
+                        AligoTemplateButtonCreateState.builder()
+                                .ordering(1)
+                                .name("버튼A")
+                                .linkType(AligoTemplateButtonLinkType.AC)
+                                .build()
+                )
         );
         AligoTemplate template = AligoTemplate.from(
                 AligoTemplateCreateState.builder()
@@ -227,16 +237,20 @@ class AligoTemplatePersistenceAdapterTest {
     void shouldFetchButtonsEagerlyViaJoinFetch() {
         // given
         List<AligoTemplateButton> buttons = List.of(
-                AligoTemplateButton.builder()
-                        .ordering(1)
-                        .name("버튼1")
-                        .linkType(AligoTemplateButtonLinkType.AC)
-                        .build(),
-                AligoTemplateButton.builder()
-                        .ordering(2)
-                        .name("버튼2")
-                        .linkType(AligoTemplateButtonLinkType.AC)
-                        .build()
+                AligoTemplateButton.from(
+                        AligoTemplateButtonCreateState.builder()
+                                .ordering(1)
+                                .name("버튼1")
+                                .linkType(AligoTemplateButtonLinkType.AC)
+                                .build()
+                ),
+                AligoTemplateButton.from(
+                        AligoTemplateButtonCreateState.builder()
+                                .ordering(2)
+                                .name("버튼2")
+                                .linkType(AligoTemplateButtonLinkType.AC)
+                                .build()
+                )
         );
         AligoTemplate template = AligoTemplate.from(
                 AligoTemplateCreateState.builder()

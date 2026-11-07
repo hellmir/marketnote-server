@@ -60,12 +60,12 @@ class AligoTemplateTest {
     void shouldThrowExceptionWhenButtonsExceedMax() {
         // given
         List<AligoTemplateButton> buttons = List.of(
-                AligoTemplateButton.builder().ordering(1).name("1").linkType(AligoTemplateButtonLinkType.WL).build(),
-                AligoTemplateButton.builder().ordering(2).name("2").linkType(AligoTemplateButtonLinkType.WL).build(),
-                AligoTemplateButton.builder().ordering(3).name("3").linkType(AligoTemplateButtonLinkType.WL).build(),
-                AligoTemplateButton.builder().ordering(4).name("4").linkType(AligoTemplateButtonLinkType.WL).build(),
-                AligoTemplateButton.builder().ordering(5).name("5").linkType(AligoTemplateButtonLinkType.WL).build(),
-                AligoTemplateButton.builder().ordering(6).name("6").linkType(AligoTemplateButtonLinkType.WL).build()
+                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(1).name("1").linkType(AligoTemplateButtonLinkType.WL).build()),
+                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(2).name("2").linkType(AligoTemplateButtonLinkType.WL).build()),
+                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(3).name("3").linkType(AligoTemplateButtonLinkType.WL).build()),
+                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(4).name("4").linkType(AligoTemplateButtonLinkType.WL).build()),
+                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(5).name("5").linkType(AligoTemplateButtonLinkType.WL).build()),
+                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(6).name("6").linkType(AligoTemplateButtonLinkType.WL).build())
         );
         AligoTemplateCreateState state = AligoTemplateCreateState.builder()
                 .senderKey("test-sender-key")

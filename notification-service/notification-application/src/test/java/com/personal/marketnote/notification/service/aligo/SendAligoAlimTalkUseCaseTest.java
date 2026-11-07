@@ -305,13 +305,15 @@ class SendAligoAlimTalkUseCaseTest {
     void shouldSerializeButtonsWhenTemplateHasButtons() {
         // given
         String templateCode = "TPL_BTN";
-        AligoTemplateButton button = AligoTemplateButton.builder()
-                .ordering(1)
-                .name("주문 상세 보기")
-                .linkType(AligoTemplateButtonLinkType.WL)
-                .linkMo("https://m.example.com/order")
-                .linkPc("https://www.example.com/order")
-                .build();
+        AligoTemplateButton button = AligoTemplateButton.from(
+                AligoTemplateButtonCreateState.builder()
+                        .ordering(1)
+                        .name("주문 상세 보기")
+                        .linkType(AligoTemplateButtonLinkType.WL)
+                        .linkMo("https://m.example.com/order")
+                        .linkPc("https://www.example.com/order")
+                        .build()
+        );
         AligoTemplate template = createApprovedTemplateWithButtons(templateCode, "주문 완료 알림입니다.", List.of(button));
 
         SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(

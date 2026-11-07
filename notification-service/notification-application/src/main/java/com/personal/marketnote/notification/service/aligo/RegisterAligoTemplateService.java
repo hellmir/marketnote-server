@@ -1,10 +1,9 @@
 package com.personal.marketnote.notification.service.aligo;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.notification.domain.aligo.*;
+import com.personal.marketnote.notification.domain.aligo.AligoTemplate;
+import com.personal.marketnote.notification.domain.aligo.AligoTemplateButton;
 import com.personal.marketnote.notification.mapper.AligoTemplateCommandToStateMapper;
-import com.personal.marketnote.notification.port.in.command.AligoTemplateButtonCommand;
 import com.personal.marketnote.notification.port.in.command.RegisterAligoTemplateCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterAligoTemplateResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.RegisterAligoTemplateUseCase;
@@ -33,26 +32,8 @@ public class RegisterAligoTemplateService implements RegisterAligoTemplateUseCas
     }
 
     private AligoTemplate createTemplate(RegisterAligoTemplateCommand command) {
-        List<AligoTemplateButton> buttons = mapButtons(command.buttons());
+        List<AligoTemplateButton> buttons = AligoTemplateCommandToStateMapper.mapButtons(command.buttons());
 
         return AligoTemplate.from(AligoTemplateCommandToStateMapper.mapToState(command, buttons));
-    }
-
-    private List<AligoTemplateButton> mapButtons(List<AligoTemplateButtonCommand> buttonCommands) {
-        if (FormatValidator.hasNoValue(buttonCommands)) {
-            return List.of();
-        }
-        return buttonCommands.stream()
-                .map(btn -> AligoTemplateButton.builder()
-                        .ordering(btn.ordering())
-                        .name(btn.name())
-                        .linkType(AligoTemplateButtonLinkType.from(btn.linkType()))
-                        .linkMo(btn.linkMo())
-                        .linkPc(btn.linkPc())
-                        .linkIos(btn.linkIos())
-                        .linkAnd(btn.linkAnd())
-                        .build()
-                )
-                .toList();
     }
 }
