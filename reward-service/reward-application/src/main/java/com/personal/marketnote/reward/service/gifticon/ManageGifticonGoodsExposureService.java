@@ -10,10 +10,12 @@ import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoo
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonGoodsPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -39,7 +41,8 @@ public class ManageGifticonGoodsExposureService implements ManageGifticonGoodsEx
             return;
         }
         if (!goods.isSale()) {
-            throw new GifticonGoodsNotSaleException(item.goodsCode(), goods.getGoodsStatus());
+            log.warn("SALE 상태가 아닌 상품은 노출할 수 없습니다. goodsCode={}, goodsStatus={}", item.goodsCode(), goods.getGoodsStatus());
+            throw new GifticonGoodsNotSaleException();
         }
         goods.expose();
     }

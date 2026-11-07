@@ -1,12 +1,9 @@
 package com.personal.marketnote.product.exception;
 
-import lombok.Getter;
-
-@Getter
 public class ProductNoPricePolicyException extends IllegalStateException {
-    private static final String PRODUCT_NO_PRICE_POLICY_EXCEPTION_MESSAGE = "상품에 가격 정책이 존재하지 않습니다. 대상 상품 ID: %d";
+    private static final String MESSAGE = "ERR_PRODUCT_PRICE_POLICY_01::상품에 가격 정책이 존재하지 않습니다.";
 
-    public ProductNoPricePolicyException(Long productId) {
-        super(String.format(PRODUCT_NO_PRICE_POLICY_EXCEPTION_MESSAGE, productId));
+    public ProductNoPricePolicyException() {
+        super(MESSAGE);
     }
 }

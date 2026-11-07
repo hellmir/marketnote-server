@@ -1,9 +1,11 @@
 package com.personal.marketnote.reward.exception;
 
-public class DuplicateUserPointException extends IllegalStateException {
-    private static final String MESSAGE = "이미 회원 포인트 정보가 생성되어 있습니다. 회원 ID: %d";
+import com.personal.marketnote.common.domain.exception.DomainAlreadyExistsException;
 
-    public DuplicateUserPointException(Long userId) {
-        super(String.format(MESSAGE, userId));
+public class DuplicateUserPointException extends DomainAlreadyExistsException {
+    private static final String MESSAGE = "이미 회원 포인트 정보가 생성되어 있습니다.";
+
+    public DuplicateUserPointException() {
+        super(MESSAGE);
     }
 }

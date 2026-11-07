@@ -15,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.SECOND_ERROR_CODE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @Slf4j
@@ -39,11 +37,13 @@ public class DeleteCategoryService implements DeleteCategoryUseCase {
         }
 
         if (findCategoryPort.existsChildren(categoryId)) {
-            throw new CategoryHasChildrenException(FIRST_ERROR_CODE, categoryId);
+            log.warn("하위 카테고리가 존재합니다. categoryId={}", categoryId);
+            throw new CategoryHasChildrenException();
         }
 
         if (findProductCategoryPort.existsByCategoryId(categoryId)) {
-            throw new CategoryHasProductsException(SECOND_ERROR_CODE, categoryId);
+            log.warn("해당 카테고리에 등록된 상품이 존재합니다. categoryId={}", categoryId);
+            throw new CategoryHasProductsException();
         }
 
         Category category = getCategoryUseCase.getCategory(categoryId);

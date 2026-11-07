@@ -283,7 +283,8 @@ public class GetReviewService implements GetReviewUseCase {
     @Override
     public void validateAuthor(Long id, Long reviewerId) {
         if (!findReviewPort.existsByIdAndReviewerId(id, reviewerId)) {
-            throw new NotReviewAuthorException(id, reviewerId);
+            log.warn("리뷰 작성자가 아닙니다. reviewId={}, reviewerId={}", id, reviewerId);
+            throw new NotReviewAuthorException();
         }
     }
 

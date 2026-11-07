@@ -70,7 +70,7 @@ class RegisterReportUseCaseTest {
     @DisplayName("중복 리뷰 신고 시 ReviewAlreadyReportedException이 발생한다")
     void report_duplicateReviewReport_throwsReviewAlreadyReportedException() {
         ReportCommand command = buildReviewReportCommand(1L, 100L);
-        doThrow(new ReviewAlreadyReportedException(1L, 100L))
+        doThrow(new ReviewAlreadyReportedException())
                 .when(getReportUseCase).validateDuplicateReport(ReportTargetType.REVIEW, 1L, 100L);
 
         assertThatThrownBy(() -> registerReportService.report(command))
@@ -84,7 +84,7 @@ class RegisterReportUseCaseTest {
     @DisplayName("중복 게시글 신고 시 PostAlreadyReportedException이 발생한다")
     void report_duplicatePostReport_throwsPostAlreadyReportedException() {
         ReportCommand command = buildPostReportCommand(2L, 200L);
-        doThrow(new PostAlreadyReportedException(2L, 200L))
+        doThrow(new PostAlreadyReportedException())
                 .when(getReportUseCase).validateDuplicateReport(ReportTargetType.POST, 2L, 200L);
 
         assertThatThrownBy(() -> registerReportService.report(command))

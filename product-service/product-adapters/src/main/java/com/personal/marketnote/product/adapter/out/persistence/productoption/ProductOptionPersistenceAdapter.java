@@ -100,7 +100,8 @@ public class ProductOptionPersistenceAdapter
 
         // 상품 가격 정책이 존재하지 않는 경우 예외 발생
         if (FormatValidator.hasNoValue(defaultPricePolicy)) {
-            throw new ProductNoPricePolicyException(product.getId());
+            log.warn("상품에 가격 정책이 존재하지 않습니다. productId={}", product.getId());
+            throw new ProductNoPricePolicyException();
         }
 
         // 옵션 카테고리가 새로 생성된 것 하나인 경우 새로 생성된 카테고리의 각 옵션에 대해 가격 정책 생성

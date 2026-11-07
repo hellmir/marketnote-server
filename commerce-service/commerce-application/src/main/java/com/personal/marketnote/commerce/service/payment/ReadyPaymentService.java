@@ -92,8 +92,8 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
         findPspPaymentEventPort.findByOrderKey(orderKey)
                 .filter(PspPaymentEvent::isUnresolved)
                 .ifPresent(event -> {
-                    log.warn("중복 거래 등록 시도 - orderKey: {}, 기존 이벤트 상태: {}", orderKey, event.getPoStatus());
-                    throw new DuplicatePaymentReadyException(orderKey);
+                    log.warn("중복 거래 등록 시도. orderKey={}, 기존 이벤트 상태={}", orderKey, event.getPoStatus());
+                    throw new DuplicatePaymentReadyException();
                 });
     }
 
@@ -105,8 +105,8 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
         try {
             savePspPaymentEventPort.save(readyEvent);
         } catch (DataIntegrityViolationException e) {
-            log.warn("Race Condition으로 인한 중복 거래 등록 감지 - orderKey: {}", payment.getOrderKey(), e);
-            throw new DuplicatePaymentReadyException(payment.getOrderKey().toString());
+            log.warn("Race Condition으로 인한 중복 거래 등록 감지. orderKey={}", payment.getOrderKey(), e);
+            throw new DuplicatePaymentReadyException();
         }
     }
 }
