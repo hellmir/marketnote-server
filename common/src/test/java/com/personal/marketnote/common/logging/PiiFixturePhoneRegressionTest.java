@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.logging;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -24,9 +25,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * 유출 경로가 된다. {@link PiiFixtureRegressionTest}가 이메일 도메인을 스캔하듯이 전화번호도
  * 화이트리스트 기반으로 스캔한다.
  *
- * <p>규칙: 프로젝트 전체 {@code *Test.java}(빌드 산출물/로컬 히스토리 제외) 파일에서 {@code 010}으로
- * 시작하는 한국 휴대전화 패턴을 추출하여 하이픈 제거 후 11자리로 정규화한다. 정규화된 값이
+ * <p>규칙: 프로젝트 전체 {@code *Test.java}(빌드 산출물/로컬 히스토리 제외) 파일에서 한국 휴대전화
+ * prefix({@code 010}, {@code 011}, {@code 016}, {@code 017}, {@code 018}, {@code 019})로 시작하는
+ * 패턴을 추출하여 하이픈 제거 후 10/11자리로 정규화한다. 정규화된 값이
  * {@link #DUMMY_PHONE_WHITELIST}에 포함되지 않으면 회귀 실패로 처리하여 실PII 유입을 차단한다.
+ * 위반 리포트에는 일치한 번호의 뒷 4자리를 {@code *}로 마스킹하여 리포트 자체가 유출 경로가
+ * 되지 않도록 한다.
  *
  * <p>실성명: 한국어 2~3글자 성명 패턴은 Java import/클래스명/변수명과 false positive 중첩이 크기
  * 때문에 현 시점에서는 허용 성명 {@link #ALLOWED_DUMMY_NAMES} 상수만 정의하여 fixture 작성 가이드로
@@ -34,22 +38,24 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * <p>재현 쉘 명령:
  * <pre>{@code
- * grep -rhoE --include="*Test.java" '(^|[^0-9])010-?[0-9]{3,4}-?[0-9]{4}([^0-9]|$)' . \
+ * grep -rhoE --include="*Test.java" '(^|[^0-9])01[016789]-?[0-9]{3,4}-?[0-9]{4}([^0-9]|$)' . \
  *     | grep -v '/build/' | grep -v '/.history/' \
- *     | grep -oE '010-?[0-9]{3,4}-?[0-9]{4}' | tr -d '-' \
- *     | awk 'length($0)==11' | sort -u
+ *     | grep -oE '01[016789]-?[0-9]{3,4}-?[0-9]{4}' | tr -d '-' \
+ *     | awk 'length($0)==10 || length($0)==11' | sort -u
  * }</pre>
  */
 class PiiFixturePhoneRegressionTest {
 
     /**
-     * 테스트 공용 더미 전화번호(정규화된 11자리). 현재 fixture 초기 감사 결과 기반으로 구성.
+     * 테스트 공용 더미 전화번호(정규화된 10/11자리). 현재 fixture 초기 감사 결과 기반으로 구성.
      *
      * <p>추가 시 원칙:
      * <ul>
      *   <li>반복 자릿수(예: {@code 01011111111}, {@code 01000000000})</li>
      *   <li>순차/공용 시퀀스(예: {@code 01012345678}, {@code 01098765432})</li>
      *   <li>테스트 데이터 시드로 명백한 패턴(예: {@code 010xxxx0001})</li>
+     *   <li>10자리 canonical 샘플(예: {@code 0101234567}) — 전화번호 검증 테스트의 성공 샘플</li>
+     *   <li>011/016/017/018/019 prefix canonical 샘플 — 이통사 통합 이후 DB 잔존 및 검증 테스트용</li>
      * </ul>
      * 실제 유통 가능성이 있는 번호(예: 임직원 사번 연관/실 사용자 DB 유출 번호)는 절대 추가 금지.
      */
@@ -103,7 +109,20 @@ class PiiFixturePhoneRegressionTest {
             "01087654321",
             "01098765432",
             "01099990001",
-            "01099998888"
+            "01099998888",
+            "0101234000",
+            "0101234567",
+            "0109000000",
+            "0111234567",
+            "0161234567",
+            "0171234567",
+            "0181234567",
+            "0191234567",
+            "01112345678",
+            "01612345678",
+            "01712345678",
+            "01812345678",
+            "01912345678"
     );
 
     /**
@@ -125,9 +144,13 @@ class PiiFixturePhoneRegressionTest {
             "최민수"
     );
 
-    /** 앞뒤 숫자 경계를 확인하여 타임스탬프/시퀀스 리터럴 오탐을 차단한다. */
+    /**
+     * 앞뒤 숫자 경계를 확인하여 타임스탬프/시퀀스 리터럴 오탐을 차단한다. 허용 prefix는
+     * {@code 010/011/016/017/018/019} 여섯 가지로 {@link com.personal.marketnote.common.utility.RegularExpressionConstant}의
+     * {@code PHONE_NUMBER_PATTERN}과 정합한다.
+     */
     private static final Pattern PHONE_PATTERN = Pattern.compile(
-            "(?<!\\d)010-?\\d{3,4}-?\\d{4}(?!\\d)"
+            "(?<!\\d)01[016789]-?\\d{3,4}-?\\d{4}(?!\\d)"
     );
 
     private static final List<String> EXCLUDED_PATH_SEGMENTS = List.of(
@@ -208,14 +231,72 @@ class PiiFixturePhoneRegressionTest {
             while (matcher.find()) {
                 String matched = matcher.group();
                 String normalized = matched.replace("-", "");
-                if (normalized.length() != 11) {
+                if (normalized.length() != 10 && normalized.length() != 11) {
                     continue;
                 }
                 if (DUMMY_PHONE_WHITELIST.contains(normalized)) {
                     continue;
                 }
-                violations.add(relative + ":" + (index + 1) + " -> " + matched + " (normalized=" + normalized + ")");
+                violations.add(
+                        relative + ":" + (index + 1) + " -> " + maskLastFourDigits(matched)
+                                + " (normalized=" + maskNormalizedLastFourDigits(normalized) + ")"
+                );
             }
+        }
+    }
+
+    /**
+     * 일치한 원문 전화번호의 뒷 4자리 숫자만 {@code *}로 치환하여 반환한다. 하이픈은 보존한다.
+     *
+     * <p>예: {@code 010-1234-5678} → {@code 010-1234-****}, {@code 0101234567} → {@code 010123****}.
+     */
+    private static String maskLastFourDigits(String matched) {
+        char[] chars = matched.toCharArray();
+        int remaining = 4;
+        for (int i = chars.length - 1; i >= 0 && remaining > 0; i--) {
+            if (Character.isDigit(chars[i])) {
+                chars[i] = '*';
+                remaining--;
+            }
+        }
+        return new String(chars);
+    }
+
+    /**
+     * 정규화된(하이픈 제거) 전화번호의 뒷 4자리를 {@code *}로 치환하여 반환한다.
+     *
+     * <p>예: {@code 01012345678} → {@code 0101234****}, {@code 0101234567} → {@code 010123****}.
+     */
+    private static String maskNormalizedLastFourDigits(String normalized) {
+        if (normalized.length() <= 4) {
+            return "****";
+        }
+        return normalized.substring(0, normalized.length() - 4) + "****";
+    }
+
+    @Nested
+    @DisplayName("마스킹 유틸")
+    class 마스킹_유틸 {
+
+        @Test
+        @DisplayName("11자리 매치는 뒷 4자리를 *로 마스킹한다")
+        void shouldMaskLastFourDigitsForElevenDigitMatch() {
+            assertThat(maskLastFourDigits("01012345678")).isEqualTo("0101234****");
+            assertThat(maskNormalizedLastFourDigits("01012345678")).isEqualTo("0101234****");
+        }
+
+        @Test
+        @DisplayName("10자리 매치는 뒷 4자리를 *로 마스킹한다")
+        void shouldMaskLastFourDigitsForTenDigitMatch() {
+            assertThat(maskLastFourDigits("0101234567")).isEqualTo("010123****");
+            assertThat(maskNormalizedLastFourDigits("0101234567")).isEqualTo("010123****");
+        }
+
+        @Test
+        @DisplayName("하이픈 포함 매치의 하이픈은 보존한다")
+        void shouldPreserveHyphenWhenMasking() {
+            assertThat(maskLastFourDigits("010-1234-5678")).isEqualTo("010-1234-****");
+            assertThat(maskLastFourDigits("010-123-4567")).isEqualTo("010-123-****");
         }
     }
 }
