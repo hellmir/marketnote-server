@@ -48,4 +48,27 @@ class BrandTalkCarouselCommerceTest {
         assertThat(commerce.getDiscountPrice()).isEqualTo("8000");
         assertThat(commerce.getDiscountRate()).isEqualTo("20");
     }
+
+    @Test
+    @DisplayName("BrandTalkCarouselCommerce — SnapshotState로 생성 시 검증 없이 필드를 매핑한다")
+    void shouldRestoreFromSnapshotWithoutValidation() {
+        // given: invariant 위반(title null, regularPrice null)도 복원 성공해야 함
+        // when
+        BrandTalkCarouselCommerce commerce = BrandTalkCarouselCommerce.from(
+                BrandTalkCarouselCommerceSnapshotState.builder()
+                        .title(null)
+                        .regularPrice(null)
+                        .discountPrice("8000")
+                        .discountRate("20")
+                        .discountFixed("2000")
+                        .build()
+        );
+
+        // then
+        assertThat(commerce.getTitle()).isNull();
+        assertThat(commerce.getRegularPrice()).isNull();
+        assertThat(commerce.getDiscountPrice()).isEqualTo("8000");
+        assertThat(commerce.getDiscountRate()).isEqualTo("20");
+        assertThat(commerce.getDiscountFixed()).isEqualTo("2000");
+    }
 }

@@ -32,6 +32,17 @@ public class BrandTalkCarouselItem {
                 .build();
     }
 
+    public static BrandTalkCarouselItem from(BrandTalkCarouselItemSnapshotState state) {
+        List<BrandTalkButton> buttons = state.getButtons();
+        return BrandTalkCarouselItem.builder()
+                .header(state.getHeader())
+                .content(state.getContent())
+                .imageUrl(state.getImageUrl())
+                .buttons(FormatValidator.hasValue(buttons) ? buttons : List.of())
+                .coupon(state.getCoupon())
+                .build();
+    }
+
     public boolean hasButtons() {
         return FormatValidator.hasValue(buttons);
     }
