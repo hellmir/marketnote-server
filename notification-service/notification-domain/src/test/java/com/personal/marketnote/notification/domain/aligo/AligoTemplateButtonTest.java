@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AligoTemplateButtonTest {
 
@@ -57,5 +58,109 @@ class AligoTemplateButtonTest {
         assertThat(button.getLinkType()).isEqualTo(AligoTemplateButtonLinkType.AL);
         assertThat(button.getLinkIos()).isEqualTo("ios://app");
         assertThat(button.getLinkAnd()).isEqualTo("android://app");
+    }
+
+    @Test
+    @DisplayName("AligoTemplateButton — name이 null이면 InvalidAligoTemplateButtonException")
+    void shouldRequireNameNotNull() {
+        // given
+        AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
+                .ordering(1)
+                .name(null)
+                .linkType(AligoTemplateButtonLinkType.AC)
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoTemplateButton.from(state))
+                .isInstanceOf(InvalidAligoTemplateButtonException.class)
+                .hasMessageContaining("버튼 name은 필수입니다.");
+    }
+
+    @Test
+    @DisplayName("AligoTemplateButton — name이 빈 문자열이면 InvalidAligoTemplateButtonException")
+    void shouldRequireNameNotBlank() {
+        // given
+        AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
+                .ordering(1)
+                .name("")
+                .linkType(AligoTemplateButtonLinkType.AC)
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoTemplateButton.from(state))
+                .isInstanceOf(InvalidAligoTemplateButtonException.class)
+                .hasMessageContaining("버튼 name은 필수입니다.");
+    }
+
+    @Test
+    @DisplayName("AligoTemplateButton — WL 타입인데 linkMo가 null이면 예외")
+    void shouldRequireLinkMoForWlType() {
+        // given
+        AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
+                .ordering(1)
+                .name("웹링크")
+                .linkType(AligoTemplateButtonLinkType.WL)
+                .linkMo(null)
+                .linkPc("https://www.example.com")
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoTemplateButton.from(state))
+                .isInstanceOf(InvalidAligoTemplateButtonException.class)
+                .hasMessageContaining("WL 타입 버튼은 linkMo, linkPc가 필수입니다.");
+    }
+
+    @Test
+    @DisplayName("AligoTemplateButton — WL 타입인데 linkPc가 null이면 예외")
+    void shouldRequireLinkPcForWlType() {
+        // given
+        AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
+                .ordering(1)
+                .name("웹링크")
+                .linkType(AligoTemplateButtonLinkType.WL)
+                .linkMo("https://m.example.com")
+                .linkPc(null)
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoTemplateButton.from(state))
+                .isInstanceOf(InvalidAligoTemplateButtonException.class)
+                .hasMessageContaining("WL 타입 버튼은 linkMo, linkPc가 필수입니다.");
+    }
+
+    @Test
+    @DisplayName("AligoTemplateButton — AL 타입인데 linkIos가 null이면 예외")
+    void shouldRequireLinkIosForAlType() {
+        // given
+        AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
+                .ordering(1)
+                .name("앱링크")
+                .linkType(AligoTemplateButtonLinkType.AL)
+                .linkIos(null)
+                .linkAnd("android://app")
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoTemplateButton.from(state))
+                .isInstanceOf(InvalidAligoTemplateButtonException.class)
+                .hasMessageContaining("AL 타입 버튼은 linkIos, linkAnd가 필수입니다.");
+    }
+
+    @Test
+    @DisplayName("AligoTemplateButton — AL 타입인데 linkAnd가 null이면 예외")
+    void shouldRequireLinkAndForAlType() {
+        // given
+        AligoTemplateButtonCreateState state = AligoTemplateButtonCreateState.builder()
+                .ordering(1)
+                .name("앱링크")
+                .linkType(AligoTemplateButtonLinkType.AL)
+                .linkIos("ios://app")
+                .linkAnd(null)
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoTemplateButton.from(state))
+                .isInstanceOf(InvalidAligoTemplateButtonException.class)
+                .hasMessageContaining("AL 타입 버튼은 linkIos, linkAnd가 필수입니다.");
     }
 }

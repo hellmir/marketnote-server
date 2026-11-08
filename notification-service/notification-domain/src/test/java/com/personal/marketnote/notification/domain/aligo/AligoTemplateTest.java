@@ -60,12 +60,12 @@ class AligoTemplateTest {
     void shouldThrowExceptionWhenButtonsExceedMax() {
         // given
         List<AligoTemplateButton> buttons = List.of(
-                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(1).name("1").linkType(AligoTemplateButtonLinkType.WL).build()),
-                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(2).name("2").linkType(AligoTemplateButtonLinkType.WL).build()),
-                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(3).name("3").linkType(AligoTemplateButtonLinkType.WL).build()),
-                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(4).name("4").linkType(AligoTemplateButtonLinkType.WL).build()),
-                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(5).name("5").linkType(AligoTemplateButtonLinkType.WL).build()),
-                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(6).name("6").linkType(AligoTemplateButtonLinkType.WL).build())
+                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(1).name("1").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/1").linkPc("https://example.com/1").build()),
+                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(2).name("2").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/2").linkPc("https://example.com/2").build()),
+                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(3).name("3").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/3").linkPc("https://example.com/3").build()),
+                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(4).name("4").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/4").linkPc("https://example.com/4").build()),
+                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(5).name("5").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/5").linkPc("https://example.com/5").build()),
+                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(6).name("6").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/6").linkPc("https://example.com/6").build())
         );
         AligoTemplateCreateState state = AligoTemplateCreateState.builder()
                 .senderKey("test-sender-key")
