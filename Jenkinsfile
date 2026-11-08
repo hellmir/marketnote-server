@@ -259,7 +259,10 @@ def buildQaCronSpec() {
     if (!matcher.find() || matcher.group(1) != 'qa') {
         return '# marketnote-qa 한정. 현재 JOB_NAME은 QA 잡이 아니므로 cron 미발화'
     }
+    // TZ=Asia/Seoul 미지정 시 Jenkins controller JVM 기본 TZ(UTC) 로 cron 이 해석됨.
+    // 첫 줄 TZ 선언으로 KST 의도(02:00~05:30)를 spec 자체에 표현 → 주석/동작 정합 + 실수 회귀 차단.
     return '''\
+TZ=Asia/Seoul
 0 2 * * * %SERVICE=user-service
 30 2 * * * %SERVICE=file-service
 0 3 * * * %SERVICE=product-service
