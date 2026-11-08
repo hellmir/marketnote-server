@@ -384,9 +384,12 @@ pipeline {
 						echo "[DISPATCHER] common/root changed = ${commonOrRootChanged}"
 						echo "[DISPATCHER] candidates          = ${candidates}"
 
+						def helper = load 'jenkins/resolve-and-register.groovy'
+
 						if (!candidates) {
 							currentBuild.description = '[DISPATCHER] no deploy target'
 							echo '[DISPATCHER] no candidates detected; exiting without deploy'
+							helper.sendDispatcherSummaryNotification(this, [], commonOrRootChanged)
 							return
 						}
 
@@ -404,7 +407,8 @@ pipeline {
 							)
 						}
 
-						currentBuild.description = "[DISPATCHER] re-triggered: ${candidates.join(',')}"
+						currentBuild.description = "[DISPATCHER] re-triggered ${candidates.size()}: ${candidates.join(',')}"
+						helper.sendDispatcherSummaryNotification(this, candidates, commonOrRootChanged)
 						return
 					}
 

@@ -436,6 +436,57 @@ def logCronInfo(parentScript) {
     echo "parameterizedCron spec:\n" + parentScript.buildQaCronSpec()
 }
 
+// JOB_NAME 의 -qa/-stage/-prod 접미사로부터 ENV_PREFIX(MARKETNOTE_QA/MARKETNOTE_STAGE/MARKETNOTE_PROD) 도출.
+// Environment Setup stage 의 동일 로직을 dispatcher 분기에서도 재사용 (ENV_PREFIX 미설정 상태에서 credential 로드 필요).
+// 잡 이름이 -qa/-stage/-prod 로 끝나지 않으면 fail-fast.
+def resolveEnvPrefixFromJobName(parentScript) {
+    def jobName = env.JOB_NAME ?: ''
+    def projectName = jobName.split('/')[0]
+    def matcher = (projectName =~ /-(qa|stage|prod)$/)
+    if (!matcher.find()) {
+        error "JOB_NAME '${jobName}' (project='${projectName}') must end with one of: -qa, -stage, -prod"
+    }
+    def environment = matcher.group(1).toUpperCase()
+    matcher = null
+    return [envPrefix: "MARKETNOTE_${environment}", envUpper: environment]
+}
+
+// dispatcher 빌드(SERVICE=auto) 가 자식 N건을 큐잉한 직후 1회 발송하는 요약 Slack 알림.
+// disableConcurrentBuilds 와 wait:false 로 인해 자식 결과 집계는 본 함수 책임 외 (#4811 후속 분리).
+// SLACK_NOTIFICATION_CHANNEL credential 미해결 시 fail-open (echo 후 return).
+def sendDispatcherSummaryNotification(parentScript, candidates, boolean commonOrRootChanged) {
+    def envInfo = resolveEnvPrefixFromJobName(parentScript)
+    withCredentials([
+        string(credentialsId: "${envInfo.envPrefix}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
+    ]) {
+        def ch = SLACK_NOTIFICATION_CHANNEL?.trim()
+        if (!ch) {
+            echo '[DISPATCHER] SLACK_NOTIFICATION_CHANNEL unresolved; skipping dispatcher summary notification'
+            return
+        }
+        def branchLabel = resolveBranchLabel(parentScript)
+        def commitAuthor  = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
+        def commitMessage = sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim()
+        def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
+        def candidateList = candidates ?: []
+        def servicesText = candidateList ? candidateList.join(', ') : '(none)'
+        slackSend(
+            channel: ch,
+            color:   "${env.SLACK_GENERAL_COLOR}",
+            message: "${cronPrefix}[DISPATCHER][${envInfo.envUpper}] re-triggered ${candidateList.size()} services\n"
+                + "SERVICES: ${servicesText}\n"
+                + "COMMON_OR_ROOT_CHANGED: ${commonOrRootChanged}\n"
+                + "JOB_NAME: ${env.JOB_NAME}\n"
+                + "BUILD_NUMBER: ${env.BUILD_NUMBER}\n"
+                + "BUILD_URL: ${env.BUILD_URL}\n"
+                + "BRANCH: ${branchLabel}\n"
+                + "AUTHOR: ${commitAuthor}\n"
+                + "COMMIT: ${env.GIT_COMMIT}\n"
+                + "MESSAGE: ${commitMessage}"
+        )
+    }
+}
+
 // Notify Start stage 본문 — withCredentials / branchLabel / slackSend 전체.
 def sendStartNotification(parentScript) {
     withCredentials([
