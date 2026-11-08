@@ -99,8 +99,8 @@ class BrandTalkCarouselItemTest {
     }
 
     @Test
-    @DisplayName("BrandTalkCarouselItem — SnapshotState의 buttons가 null이면 빈 리스트로 매핑한다")
-    void shouldRestoreFromSnapshotWithNullButtons() {
+    @DisplayName("BrandTalkCarouselItem — SnapshotState의 buttons가 null이거나 비어있으면 빈 리스트로 매핑한다")
+    void shouldRestoreFromSnapshotWithNullOrEmptyButtons() {
         // when
         BrandTalkCarouselItem item = BrandTalkCarouselItem.from(
                 BrandTalkCarouselItemSnapshotState.builder()
@@ -114,5 +114,87 @@ class BrandTalkCarouselItemTest {
 
         // then
         assertThat(item.getButtons()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("BrandTalkCarouselItem — SnapshotState의 중첩 Button/Coupon SnapshotState를 도메인으로 복원한다")
+    void shouldRestoreNestedSnapshotStatesIntoDomain() {
+        // given
+        BrandTalkButtonSnapshotState buttonState1 = BrandTalkButtonSnapshotState.builder()
+                .name("버튼1")
+                .linkType(AligoTemplateButtonLinkType.WL)
+                .linkM("https://m.ex.com")
+                .linkP("https://www.ex.com")
+                .linkI(null)
+                .linkA(null)
+                .build();
+        BrandTalkButtonSnapshotState buttonState2 = BrandTalkButtonSnapshotState.builder()
+                .name("버튼2")
+                .linkType(AligoTemplateButtonLinkType.BK)
+                .linkM(null)
+                .linkP(null)
+                .linkI(null)
+                .linkA(null)
+                .build();
+        BrandTalkCouponSnapshotState couponState = BrandTalkCouponSnapshotState.builder()
+                .title("10% 할인")
+                .description("설명")
+                .linkM("https://m.ex.com")
+                .linkP("https://www.ex.com")
+                .linkI(null)
+                .linkA(null)
+                .build();
+
+        // when
+        BrandTalkCarouselItem item = BrandTalkCarouselItem.from(
+                BrandTalkCarouselItemSnapshotState.builder()
+                        .header("헤더")
+                        .content("컨텐츠")
+                        .imageUrl("https://img.com/1.jpg")
+                        .buttons(List.of(buttonState1, buttonState2))
+                        .coupon(couponState)
+                        .build()
+        );
+
+        // then
+        assertThat(item.getHeader()).isEqualTo("헤더");
+        assertThat(item.getContent()).isEqualTo("컨텐츠");
+        assertThat(item.getImageUrl()).isEqualTo("https://img.com/1.jpg");
+        assertThat(item.getButtons()).hasSize(2);
+        assertThat(item.getButtons().get(0).getName()).isEqualTo("버튼1");
+        assertThat(item.getButtons().get(0).getLinkType()).isEqualTo(AligoTemplateButtonLinkType.WL);
+        assertThat(item.getButtons().get(1).getName()).isEqualTo("버튼2");
+        assertThat(item.getCoupon()).isNotNull();
+        assertThat(item.getCoupon().getTitle()).isEqualTo("10% 할인");
+        assertThat(item.getCoupon().getDescription()).isEqualTo("설명");
+    }
+
+    @Test
+    @DisplayName("BrandTalkCarouselItem — SnapshotState의 coupon이 null이면 도메인 coupon도 null이다")
+    void shouldRestoreFromSnapshotWithNullCoupon() {
+        // given
+        BrandTalkButtonSnapshotState buttonState = BrandTalkButtonSnapshotState.builder()
+                .name("버튼")
+                .linkType(AligoTemplateButtonLinkType.WL)
+                .linkM("https://m.ex.com")
+                .linkP("https://www.ex.com")
+                .linkI(null)
+                .linkA(null)
+                .build();
+
+        // when
+        BrandTalkCarouselItem item = BrandTalkCarouselItem.from(
+                BrandTalkCarouselItemSnapshotState.builder()
+                        .header("제목")
+                        .content("내용")
+                        .imageUrl(null)
+                        .buttons(List.of(buttonState))
+                        .coupon(null)
+                        .build()
+        );
+
+        // then
+        assertThat(item.getButtons()).hasSize(1);
+        assertThat(item.getCoupon()).isNull();
     }
 }

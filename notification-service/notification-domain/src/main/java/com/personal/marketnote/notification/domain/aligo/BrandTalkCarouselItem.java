@@ -33,13 +33,20 @@ public class BrandTalkCarouselItem {
     }
 
     public static BrandTalkCarouselItem from(BrandTalkCarouselItemSnapshotState state) {
-        List<BrandTalkButton> buttons = state.getButtons();
+        List<BrandTalkButton> buttons = FormatValidator.hasValue(state.getButtons())
+                ? state.getButtons().stream()
+                .map(BrandTalkButton::from)
+                .toList()
+                : List.of();
+        BrandTalkCoupon coupon = FormatValidator.hasValue(state.getCoupon())
+                ? BrandTalkCoupon.from(state.getCoupon())
+                : null;
         return BrandTalkCarouselItem.builder()
                 .header(state.getHeader())
                 .content(state.getContent())
                 .imageUrl(state.getImageUrl())
-                .buttons(FormatValidator.hasValue(buttons) ? buttons : List.of())
-                .coupon(state.getCoupon())
+                .buttons(buttons)
+                .coupon(coupon)
                 .build();
     }
 
