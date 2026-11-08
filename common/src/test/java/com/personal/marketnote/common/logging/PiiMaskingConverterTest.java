@@ -1,0 +1,179 @@
+package com.personal.marketnote.common.logging;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PiiMaskingConverterTest {
+
+    @Nested
+    @DisplayName("email 마스킹")
+    class EmailMasking {
+
+        @Test
+        @DisplayName("정상 이메일은 local-part 첫 글자 + *** + @도메인 형식으로 마스킹된다")
+        void masksEmailToFirstCharAndDomain() {
+            String masked = PiiMaskingConverter.mask("email=user@example.com");
+            assertThat(masked).isEqualTo("email=u***@example.com");
+        }
+
+        @Test
+        @DisplayName("@ 미포함 잘못된 이메일은 원본을 유지한다")
+        void keepsOriginalWhenInvalidEmail() {
+            String masked = PiiMaskingConverter.mask("email=invalid");
+            assertThat(masked).isEqualTo("email=invalid");
+        }
+
+        @Test
+        @DisplayName("maskEmail 헬퍼는 null 입력 시 null을 반환한다")
+        void maskEmailReturnsNullForNull() {
+            assertThat(PiiMaskingConverter.maskEmail(null)).isNull();
+        }
+
+        @Test
+        @DisplayName("maskEmail 헬퍼는 빈 문자열 입력 시 빈 문자열을 반환한다")
+        void maskEmailReturnsBlankForBlank() {
+            assertThat(PiiMaskingConverter.maskEmail("")).isEmpty();
+        }
+
+        @Test
+        @DisplayName("문장 종결 마침표가 붙은 이메일도 마스킹되고 마침표는 유지된다")
+        void masksEmailWithTrailingPeriod() {
+            String masked = PiiMaskingConverter.mask("email=user@example.com.");
+            assertThat(masked).isEqualTo("email=u***@example.com.");
+        }
+
+        @Test
+        @DisplayName("@ 이중 포함된 잘못된 이메일은 원본을 유지한다")
+        void keepsOriginalForDoubleAt() {
+            String masked = PiiMaskingConverter.mask("email=a@b@c.com");
+            assertThat(masked).isEqualTo("email=a@b@c.com");
+        }
+    }
+
+    @Nested
+    @DisplayName("nickname 마스킹")
+    class NicknameMasking {
+
+        @Test
+        @DisplayName("한글 닉네임은 첫 글자 + 별표로 마스킹된다")
+        void masksKoreanNickname() {
+            String masked = PiiMaskingConverter.mask("nickname=홍길동");
+            assertThat(masked).isEqualTo("nickname=홍**");
+        }
+
+        @Test
+        @DisplayName("영문 닉네임은 첫 글자 + 별표로 마스킹된다")
+        void masksEnglishNickname() {
+            String masked = PiiMaskingConverter.mask("nickname=alice");
+            assertThat(masked).isEqualTo("nickname=a****");
+        }
+
+        @Test
+        @DisplayName("한 글자 닉네임은 원본을 유지한다")
+        void keepsOriginalForSingleChar() {
+            assertThat(PiiMaskingConverter.maskNickname("홍")).isEqualTo("홍");
+        }
+    }
+
+    @Nested
+    @DisplayName("phone 마스킹")
+    class PhoneMasking {
+
+        @Test
+        @DisplayName("하이픈 포함 전화번호는 가운데 4자리가 별표로 마스킹된다")
+        void masksPhoneWithHyphens() {
+            String masked = PiiMaskingConverter.mask("phone=010-1234-5678");
+            assertThat(masked).isEqualTo("phone=010-****-5678");
+        }
+
+        @Test
+        @DisplayName("하이픈 없는 전화번호도 가운데 4자리가 마스킹된 형식으로 정규화된다")
+        void masksPhoneWithoutHyphens() {
+            String masked = PiiMaskingConverter.mask("phone=01012345678");
+            assertThat(masked).isEqualTo("phone=010-****-5678");
+        }
+
+        @Test
+        @DisplayName("전화번호 형식이 아니면 원본을 유지한다")
+        void keepsOriginalWhenInvalidPhone() {
+            String masked = PiiMaskingConverter.mask("phone=abc");
+            assertThat(masked).isEqualTo("phone=abc");
+        }
+
+        @Test
+        @DisplayName("문장 종결 콜론이 붙은 전화번호도 마스킹되고 콜론은 유지된다")
+        void masksPhoneWithTrailingColon() {
+            String masked = PiiMaskingConverter.mask("처리 실패: phone=010-1234-5678:");
+            assertThat(masked).isEqualTo("처리 실패: phone=010-****-5678:");
+        }
+
+        @Test
+        @DisplayName("문장 종결 마침표가 붙은 전화번호도 마스킹되고 마침표는 유지된다")
+        void masksPhoneWithTrailingPeriod() {
+            String masked = PiiMaskingConverter.mask("phone=010-1234-5678.");
+            assertThat(masked).isEqualTo("phone=010-****-5678.");
+        }
+    }
+
+    @Nested
+    @DisplayName("name 마스킹")
+    class NameMasking {
+
+        @Test
+        @DisplayName("한글 이름은 첫 글자 + 별표로 마스킹된다")
+        void masksKoreanName() {
+            String masked = PiiMaskingConverter.mask("name=홍길동");
+            assertThat(masked).isEqualTo("name=홍**");
+        }
+
+        @Test
+        @DisplayName("lastName/firstName 같은 토큰은 마스킹하지 않는다")
+        void doesNotMaskSuffixedTokens() {
+            String masked = PiiMaskingConverter.mask("lastName=홍길동");
+            assertThat(masked).isEqualTo("lastName=홍길동");
+        }
+
+        @Test
+        @DisplayName("문장 종결 물음표가 붙은 이름도 마스킹되고 물음표는 유지된다")
+        void masksNameWithTrailingQuestion() {
+            String masked = PiiMaskingConverter.mask("정말 name=홍길동?");
+            assertThat(masked).isEqualTo("정말 name=홍**?");
+        }
+    }
+
+    @Nested
+    @DisplayName("복합 로그 메시지 마스킹")
+    class CompositeMessage {
+
+        @Test
+        @DisplayName("email/userId/phone이 혼재한 메시지는 PII만 동시에 마스킹한다")
+        void masksMultipleTokensAtOnce() {
+            String masked = PiiMaskingConverter.mask(
+                    "email=foo@bar.com, userId=123, phone=010-1234-5678"
+            );
+            assertThat(masked).isEqualTo("email=f***@bar.com, userId=123, phone=010-****-5678");
+        }
+
+        @Test
+        @DisplayName("null 메시지는 null을 반환한다")
+        void returnsNullForNullInput() {
+            assertThat(PiiMaskingConverter.mask(null)).isNull();
+        }
+
+        @Test
+        @DisplayName("빈 메시지는 빈 메시지를 반환한다")
+        void returnsEmptyForEmptyInput() {
+            assertThat(PiiMaskingConverter.mask("")).isEmpty();
+        }
+
+        @Test
+        @DisplayName("PII 토큰이 없는 메시지는 원본을 유지한다")
+        void keepsOriginalWhenNoPiiTokens() {
+            String message = "order created orderId=123 totalAmount=10000";
+            assertThat(PiiMaskingConverter.mask(message)).isEqualTo(message);
+        }
+    }
+}
