@@ -334,9 +334,30 @@ pipeline {
 						}
 					}
 
-					def commonChanged = changed.any { it.startsWith('common/') }
+					// 전역 영향 파일/디렉토리 — 변경 시 8개 서비스 전체 재트리거.
+					// 정확 매칭: 루트 build/설정 파일, Gradle wrapper 런처 (서비스 하위 동명 파일은 serviceTouched 가 별도 감지).
+					// Prefix 매칭: common 모듈, jenkins 헬퍼 디렉토리, gradle wrapper, 공용 scripts
+					//             — 전부 모든 서비스 빌드가 직접 의존하는 경로.
+					def globalExactPaths = [
+						'build.gradle.kts',
+						'settings.gradle.kts',
+						'gradle.properties',
+						'Jenkinsfile',
+						'gradlew',
+						'gradlew.bat',
+					]
+					def globalPrefixes = [
+						'common/',
+						'jenkins/',
+						'gradle/',
+						'scripts/',
+					]
 
-					def candidates = commonChanged
+					def commonOrRootChanged = changed.any { p ->
+						globalExactPaths.contains(p) || globalPrefixes.any { pre -> p.startsWith(pre) }
+					}
+
+					def candidates = commonOrRootChanged
 					? (targetAdapters.keySet() as List)
 					: (targetAdapters.findAll {
 						svc, adp -> serviceTouched(svc, adp)
@@ -360,7 +381,7 @@ pipeline {
 						env.CANDIDATE_SERVICES = candidates.join(',')
 
 						echo "[DISPATCHER] changed files       = ${changed.size()}"
-						echo "[DISPATCHER] common changed      = ${commonChanged}"
+						echo "[DISPATCHER] common/root changed = ${commonOrRootChanged}"
 						echo "[DISPATCHER] candidates          = ${candidates}"
 
 						if (!candidates) {
@@ -400,7 +421,7 @@ pipeline {
 					sh "test -d '${env.SERVICE_DIRECTORY}'"
 
 					echo "Changed fileDomain count       = ${changed.size()}"
-					echo "COMMON changed?           = ${commonChanged}"
+					echo "COMMON/ROOT changed?      = ${commonOrRootChanged}"
 				}
 			}
 		}
