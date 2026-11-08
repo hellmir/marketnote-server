@@ -57,7 +57,16 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             List<ButtonDto> dtos = objectMapper.readValue(buttonsJson, new TypeReference<>() {
             });
             return dtos.stream()
-                    .map(dto -> BrandTalkButton.from(BrandTalkButtonSnapshotState.builder().name(dto.name()).linkType(AligoTemplateButtonLinkType.from(dto.linkType())).linkM(dto.linkM()).linkP(dto.linkP()).linkI(dto.linkI()).linkA(dto.linkA()).build()))
+                    .map(dto -> BrandTalkButton.from(
+                            BrandTalkButtonSnapshotState.builder()
+                                    .name(dto.name())
+                                    .linkType(AligoTemplateButtonLinkType.from(dto.linkType()))
+                                    .linkM(dto.linkM())
+                                    .linkP(dto.linkP())
+                                    .linkI(dto.linkI())
+                                    .linkA(dto.linkA())
+                                    .build()
+                    ))
                     .toList();
         } catch (JsonProcessingException e) {
             return List.of();
@@ -114,7 +123,16 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                     .map(dto -> {
                         List<BrandTalkButton> itemButtons = FormatValidator.hasValue(dto.buttons())
                                 ? dto.buttons().stream()
-                                .map(b -> BrandTalkButton.from(BrandTalkButtonSnapshotState.builder().name(b.name()).linkType(AligoTemplateButtonLinkType.from(b.linkType())).linkM(b.linkM()).linkP(b.linkP()).linkI(b.linkI()).linkA(b.linkA()).build()))
+                                .map(b -> BrandTalkButton.from(
+                                        BrandTalkButtonSnapshotState.builder()
+                                                .name(b.name())
+                                                .linkType(AligoTemplateButtonLinkType.from(b.linkType()))
+                                                .linkM(b.linkM())
+                                                .linkP(b.linkP())
+                                                .linkI(b.linkI())
+                                                .linkA(b.linkA())
+                                                .build()
+                                ))
                                 .toList()
                                 : List.of();
                         BrandTalkCoupon itemCoupon = FormatValidator.hasValue(dto.coupon())
