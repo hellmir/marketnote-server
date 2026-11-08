@@ -4,6 +4,7 @@ import ch.qos.logback.classic.pattern.ClassicConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.function.UnaryOperator;
 
 /**
@@ -37,6 +38,18 @@ import java.util.function.UnaryOperator;
  */
 public class PiiMdcMaskingConverter extends ClassicConverter {
 
+    /**
+     * Allowed PII MDC keys — case-sensitive, lowercase single-word convention.
+     *
+     * <p>MDC key naming rules:
+     * <ul>
+     *     <li>Lowercase only: {@code email}, {@code phone}, {@code nickname}, {@code name}</li>
+     *     <li>Variants pass through unchanged: {@code userEmail}, {@code user_email}, {@code phoneNumber}, {@code NAME}</li>
+     *     <li>Callers must use the canonical key to opt into masking</li>
+     * </ul>
+     */
+    private static final Set<String> ALLOWED_PII_KEYS = Set.of("email", "phone", "nickname", "name");
+
     @Override
     public String convert(ILoggingEvent event) {
         String key = getFirstOption();
@@ -55,6 +68,9 @@ public class PiiMdcMaskingConverter extends ClassicConverter {
     }
 
     private UnaryOperator<String> resolveMasker(String key) {
+        if (!ALLOWED_PII_KEYS.contains(key)) {
+            return UnaryOperator.identity();
+        }
         if ("email".equals(key)) {
             return PiiMaskingConverter::maskEmail;
         }

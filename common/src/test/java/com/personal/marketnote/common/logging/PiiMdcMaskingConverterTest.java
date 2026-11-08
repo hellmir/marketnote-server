@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -104,13 +105,27 @@ class PiiMdcMaskingConverterTest {
         assertThat(result).isEqualTo("abc-123");
     }
 
+    @Test
+    @DisplayName("허용 키 외(userEmail/user_email/phoneNumber/NAME)는 마스킹하지 않고 원본을 반환한다")
+    void passesThroughNonAllowedPiiKeyVariants() {
+        assertPassThrough("userEmail", "test@example.com");
+        assertPassThrough("user_email", "test@example.com");
+        assertPassThrough("phoneNumber", "010-1234-5678");
+        assertPassThrough("NAME", "홍길동");
+    }
+
+    private void assertPassThrough(String key, String value) {
+        PiiMdcMaskingConverter converter = converterWithOption(key);
+        ILoggingEvent event = eventWithMdc(Map.of(key, value));
+
+        String result = converter.convert(event);
+
+        assertThat(result).isEqualTo(value);
+    }
+
     private PiiMdcMaskingConverter converterWithOption(String option) {
-        PiiMdcMaskingConverter converter = new PiiMdcMaskingConverter() {
-            @Override
-            public String getFirstOption() {
-                return option;
-            }
-        };
+        PiiMdcMaskingConverter converter = new PiiMdcMaskingConverter();
+        converter.setOptionList(List.of(option));
         converter.start();
         return converter;
     }
