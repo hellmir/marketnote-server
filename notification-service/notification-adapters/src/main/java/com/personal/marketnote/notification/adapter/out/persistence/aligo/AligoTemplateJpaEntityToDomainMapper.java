@@ -4,7 +4,7 @@ import com.personal.marketnote.notification.adapter.out.persistence.aligo.entity
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.entity.AligoTemplateJpaEntity;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplate;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplateButton;
-import com.personal.marketnote.notification.domain.aligo.AligoTemplateButtonCreateState;
+import com.personal.marketnote.notification.domain.aligo.AligoTemplateButtonSnapshotState;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplateSnapshotState;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public final class AligoTemplateJpaEntityToDomainMapper {
 
     private static AligoTemplateButton mapButton(AligoTemplateButtonJpaEntity entity) {
         return AligoTemplateButton.from(
-                AligoTemplateButtonCreateState.builder()
+                AligoTemplateButtonSnapshotState.builder()
                         .ordering(entity.getOrdering())
                         .name(entity.getName())
                         .linkType(entity.getLinkType())

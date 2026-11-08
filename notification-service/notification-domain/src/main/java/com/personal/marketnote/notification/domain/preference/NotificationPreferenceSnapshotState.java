@@ -2,21 +2,20 @@ package com.personal.marketnote.notification.domain.preference;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.notification.domain.template.NotificationType;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 @Getter
+@Builder
 public class NotificationPreferenceSnapshotState {
-    private Long id;
-    private Long userId;
-    private NotificationType notificationType;
-    private boolean enabled;
-    private LocalDateTime consentedAt;
-    private EntityStatus status;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private final Long id;
+    private final Long userId;
+    private final NotificationType notificationType;
+    private final boolean enabled;
+    private final LocalDateTime consentedAt;
+    private final EntityStatus status;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime modifiedAt;
 }

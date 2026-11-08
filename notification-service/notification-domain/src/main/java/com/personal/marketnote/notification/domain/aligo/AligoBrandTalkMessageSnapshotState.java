@@ -7,30 +7,30 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Builder
 @Getter
+@Builder
 public class AligoBrandTalkMessageSnapshotState {
 
-    private Long id;
-    private String senderKey;
-    private String sender;
-    private BrandTalkKakaoTarget kakaoTarget;
-    private boolean advertYn;
-    private String templateCode;
-    private BrandTalkMessageStatus messageStatus;
-    private BrandTalkMessageCostType costType;
-    private Integer unitCost;
-    private Integer totalCost;
-    private String aligoMid;
-    private int successCount;
-    private int failCount;
-    private boolean failoverEnabled;
-    private String failoverSubject;
-    private BrandTalkFailoverType failoverType;
-    private LocalDateTime requestedAt;
-    private LocalDateTime sentAt;
-    private List<AligoBrandTalkMessageRecipientSnapshotState> recipients;
-    private EntityStatus status;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private final Long id;
+    private final String senderKey;
+    private final String sender;
+    private final BrandTalkKakaoTarget kakaoTarget;
+    private final boolean advertYn;
+    private final String templateCode;
+    private final BrandTalkMessageStatus messageStatus;
+    private final BrandTalkMessageCostType costType;
+    private final Integer unitCost;
+    private final Integer totalCost;
+    private final String aligoMid;
+    private final int successCount;
+    private final int failCount;
+    private final boolean failoverEnabled;
+    private final String failoverSubject;
+    private final BrandTalkFailoverType failoverType;
+    private final LocalDateTime requestedAt;
+    private final LocalDateTime sentAt;
+    private final List<AligoBrandTalkMessageRecipientSnapshotState> recipients;
+    private final EntityStatus status;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime modifiedAt;
 }

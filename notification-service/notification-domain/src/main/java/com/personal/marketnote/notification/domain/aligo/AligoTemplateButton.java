@@ -33,6 +33,18 @@ public class AligoTemplateButton {
                 .build();
     }
 
+    public static AligoTemplateButton from(AligoTemplateButtonSnapshotState state) {
+        return AligoTemplateButton.builder()
+                .ordering(state.getOrdering())
+                .name(state.getName())
+                .linkType(state.getLinkType())
+                .linkMo(state.getLinkMo())
+                .linkPc(state.getLinkPc())
+                .linkIos(state.getLinkIos())
+                .linkAnd(state.getLinkAnd())
+                .build();
+    }
+
     private static void validate(
             String name, AligoTemplateButtonLinkType linkType,
             String linkMo, String linkPc, String linkIos, String linkAnd
