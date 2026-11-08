@@ -180,7 +180,7 @@ class PurchaseGifticonUseCaseTest {
         when(transactionHelper.deductCashAndCreateOrder(
                 eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
         ))
-                .thenThrow(new DuplicateGifticonOrderException("NC100_260404210000000000000"))
+                .thenThrow(new DuplicateGifticonOrderException())
                 .thenReturn(context);
 
         SendCouponResult sendResult = SendCouponResult.builder()
@@ -217,7 +217,7 @@ class PurchaseGifticonUseCaseTest {
 
         when(transactionHelper.deductCashAndCreateOrder(
                 eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
-        )).thenThrow(new DuplicateGifticonOrderException("NC100_260404210000000000000"));
+        )).thenThrow(new DuplicateGifticonOrderException());
 
         PurchaseGifticonCommand command = new PurchaseGifticonCommand(USER_ID, GOODS_CODE);
 

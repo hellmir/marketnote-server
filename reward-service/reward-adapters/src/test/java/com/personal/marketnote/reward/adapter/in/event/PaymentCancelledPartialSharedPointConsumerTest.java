@@ -370,7 +370,7 @@ class PaymentCancelledPartialSharedPointConsumerTest {
                 new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, false, 30000L, 80000L, orderProducts);
-        doThrow(new DuplicateUserPointHistoryException(200L, UserPointSourceType.ORDER, 1L, "부분 결제 취소 공유 적립 예정 포인트 차감"))
+        doThrow(new DuplicateUserPointHistoryException())
                 .when(modifyPendingSharedPointUseCase).modifyPending(any(ModifyPendingSharedPointCommand.class));
 
         // when
@@ -391,9 +391,7 @@ class PaymentCancelledPartialSharedPointConsumerTest {
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, false, 30000L, 80000L, orderProducts);
         when(modifyPendingSharedPointUseCase.modifyPending(any(ModifyPendingSharedPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException(
-                        200L, UserPointSourceType.ORDER, 1L, "부분 결제 취소 공유 적립 예정 포인트 차감"
-                ))
+                .thenThrow(new DuplicateUserPointHistoryException())
                 .thenReturn(null);
 
         // when
@@ -414,12 +412,8 @@ class PaymentCancelledPartialSharedPointConsumerTest {
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, false, 30000L, 80000L, orderProducts);
         when(modifyPendingSharedPointUseCase.modifyPending(any(ModifyPendingSharedPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException(
-                        200L, UserPointSourceType.ORDER, 1L, "부분 결제 취소 공유 적립 예정 포인트 차감"
-                ))
-                .thenThrow(new DuplicateUserPointHistoryException(
-                        300L, UserPointSourceType.ORDER, 1L, "부분 결제 취소 공유 적립 예정 포인트 차감"
-                ));
+                .thenThrow(new DuplicateUserPointHistoryException())
+                .thenThrow(new DuplicateUserPointHistoryException());
 
         // when
         consumer.handlePaymentCancelledEvent(record, acknowledgment);

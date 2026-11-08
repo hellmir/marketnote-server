@@ -1,9 +1,11 @@
 package com.personal.marketnote.reward.exception;
 
-import com.personal.marketnote.reward.domain.point.ReferralBonusTier;
+import com.personal.marketnote.common.domain.exception.DomainAlreadyExistsException;
 
-public class DuplicateReferralBonusClaimException extends RuntimeException {
-    public DuplicateReferralBonusClaimException(Long userId, ReferralBonusTier tier) {
-        super("ERR_REFERRAL_02::이미 수령한 보너스입니다. userId=" + userId + ", tier=" + tier);
+public class DuplicateReferralBonusClaimException extends DomainAlreadyExistsException {
+    private static final String MESSAGE = "ERR_REFERRAL_02::이미 수령한 보너스입니다.";
+
+    public DuplicateReferralBonusClaimException() {
+        super(MESSAGE);
     }
 }

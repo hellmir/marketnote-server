@@ -263,7 +263,7 @@ class PaymentCancelledPointRefundConsumerTest {
     void handlePaymentCancelledEvent_duplicateEvent_idempotentAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, true);
-        doThrow(new DuplicateUserPointHistoryException(100L, UserPointSourceType.ORDER, 1L, "주문 취소 포인트 환불"))
+        doThrow(new DuplicateUserPointHistoryException())
                 .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // when

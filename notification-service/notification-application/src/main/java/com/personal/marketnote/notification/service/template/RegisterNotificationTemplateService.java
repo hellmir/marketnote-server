@@ -10,10 +10,12 @@ import com.personal.marketnote.notification.port.in.usecase.template.RegisterNot
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
 import com.personal.marketnote.notification.port.out.template.SaveNotificationTemplatePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 public class RegisterNotificationTemplateService implements RegisterNotificationTemplateUseCase {
@@ -40,7 +42,8 @@ public class RegisterNotificationTemplateService implements RegisterNotification
     private void validateNoDuplicateTemplateCode(String templateCode) {
         findNotificationTemplatePort.findActiveByTemplateCode(templateCode)
                 .ifPresent(existing -> {
-                    throw new DuplicateNotificationTemplateException(templateCode);
+                    log.warn("이미 존재하는 템플릿 코드입니다. templateCode={}", templateCode);
+                    throw new DuplicateNotificationTemplateException();
                 });
     }
 }

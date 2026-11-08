@@ -281,7 +281,7 @@ class OrderPaymentCompletedProductPointConsumerTest {
     void handleOrderPaymentCompletedEvent_duplicateEvent_idempotentAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, 1500L);
-        doThrow(new DuplicateUserPointHistoryException(100L, UserPointSourceType.ORDER, 1L, "상품 구매 적립"))
+        doThrow(new DuplicateUserPointHistoryException())
                 .when(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
 
         // when

@@ -224,7 +224,7 @@ class OrderReturnedPointRefundConsumerTest {
     void handleOrderReturnedEvent_duplicateEvent_idempotentAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, true);
-        doThrow(new DuplicateUserPointHistoryException(100L, UserPointSourceType.ORDER, 1L, "반품 완료 포인트 환불"))
+        doThrow(new DuplicateUserPointHistoryException())
                 .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // when
@@ -326,7 +326,7 @@ class OrderReturnedPointRefundConsumerTest {
     void handleOrderReturnedEvent_partialReturn_duplicateEvent_idempotentAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, false);
-        doThrow(new DuplicateUserPointHistoryException(100L, UserPointSourceType.ORDER, 1L, "부분 반품 포인트 환불"))
+        doThrow(new DuplicateUserPointHistoryException())
                 .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // when

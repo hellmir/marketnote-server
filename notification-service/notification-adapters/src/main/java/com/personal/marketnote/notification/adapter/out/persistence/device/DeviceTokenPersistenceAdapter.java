@@ -55,7 +55,11 @@ public class DeviceTokenPersistenceAdapter
             DeviceTokenJpaEntity saved = deviceTokenJpaRepository.save(entity);
             return saved.getId();
         } catch (DataIntegrityViolationException dive) {
-            throw new DuplicateDeviceTokenException(deviceToken.getDeviceId());
+            log.warn(
+                    "이미 등록된 디바이스 ID입니다. deviceId={}",
+                    deviceToken.getDeviceId()
+            );
+            throw new DuplicateDeviceTokenException();
         }
     }
 

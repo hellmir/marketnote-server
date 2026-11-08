@@ -310,7 +310,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
                 new OrderProductItem(1L, null, null, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, orderProducts);
-        doThrow(new DuplicateUserPointHistoryException(200L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"))
+        doThrow(new DuplicateUserPointHistoryException())
                 .when(modifyPendingSharedPointUseCase).modifyPending(any(ModifyPendingSharedPointCommand.class));
 
         // when
@@ -331,9 +331,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, orderProducts);
         when(modifyPendingSharedPointUseCase.modifyPending(any(ModifyPendingSharedPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException(
-                        200L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"
-                ))
+                .thenThrow(new DuplicateUserPointHistoryException())
                 .thenReturn(null);
 
         // when
@@ -354,12 +352,8 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, orderProducts);
         when(modifyPendingSharedPointUseCase.modifyPending(any(ModifyPendingSharedPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException(
-                        200L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"
-                ))
-                .thenThrow(new DuplicateUserPointHistoryException(
-                        300L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"
-                ));
+                .thenThrow(new DuplicateUserPointHistoryException())
+                .thenThrow(new DuplicateUserPointHistoryException());
 
         // when
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);

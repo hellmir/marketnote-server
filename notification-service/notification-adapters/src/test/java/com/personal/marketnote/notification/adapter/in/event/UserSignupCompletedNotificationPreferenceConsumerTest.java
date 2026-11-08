@@ -139,7 +139,7 @@ class UserSignupCompletedNotificationPreferenceConsumerTest {
     void shouldHandleDuplicateIdempotently() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "user-key-123");
-        doThrow(new DuplicateNotificationPreferenceException(1L))
+        doThrow(new DuplicateNotificationPreferenceException())
                 .when(initializeNotificationPreferenceUseCase).initializeNotificationPreference(
                         any(InitializeNotificationPreferenceCommand.class)
                 );

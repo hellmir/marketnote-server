@@ -12,12 +12,14 @@ import com.personal.marketnote.notification.port.out.preference.FindNotification
 import com.personal.marketnote.notification.port.out.preference.SaveNotificationPreferencePort;
 import com.personal.marketnote.notification.port.out.preference.UpdateNotificationPreferencePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class NotificationPreferencePersistenceAdapter implements SaveNotificationPreferencePort, FindNotificationPreferencePort, UpdateNotificationPreferencePort {
@@ -33,7 +35,8 @@ public class NotificationPreferencePersistenceAdapter implements SaveNotificatio
             notificationPreferenceJpaRepository.saveAll(entities);
         } catch (DataIntegrityViolationException dive) {
             Long userId = preferences.isEmpty() ? null : preferences.get(0).getUserId();
-            throw new DuplicateNotificationPreferenceException(userId);
+            log.warn("이미 초기화된 알림 수신 설정입니다. userId={}", userId);
+            throw new DuplicateNotificationPreferenceException();
         }
     }
 

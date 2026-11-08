@@ -75,9 +75,7 @@ class UserAttendanceHistoryPersistenceAdapterTest {
 
         // when & then
         assertThatThrownBy(() -> adapter.save(history))
-                .isInstanceOf(DuplicateAttendanceException.class)
-                .hasMessageContaining("userAttendanceId=10")
-                .hasMessageContaining("attendedDate=" + today);
+                .isInstanceOf(DuplicateAttendanceException.class);
     }
 
     @Test
