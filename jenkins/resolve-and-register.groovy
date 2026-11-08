@@ -362,9 +362,24 @@ def resolveBranchLabel(parentScript) {
     ).trim()
 }
 
+// SKIP_REASON 파라미터 화이트리스트 검증. 형식: "#<PR번호> <설명>" (설명 1~200자, 줄바꿈/탭 금지).
+// Slack mrkdwn 메시지 주입(줄바꿈 위장으로 AUTHOR/COMMIT 라인 조작) 차단 + 긴급 revert PR 추적성 강제.
+// SKIP=true 경로에서만 호출되며 (notifyFlywayImmutabilitySkip 진입 시점) SKIP=false 빌드에는 영향 없음.
+// 구분자는 리터럴 공백(`[ ]+`)로 한정 — `\s` 는 \n/\t 를 포함하므로 인젝션 차단 목적에 부적합.
+def validateSkipReason(String reason) {
+    if (!reason?.trim()) {
+        error "SKIP_REASON 파라미터가 비어있다. SKIP_FLYWAY_IMMUTABILITY_CHECK=true 사용 시 필수. 형식: '#<PR번호> <설명>' (예: '#4806 마이그레이션 V102 revert')"
+    }
+    def trimmed = reason.trim()
+    if (!(trimmed ==~ /^#\d+ +[^\r\n\t]{1,200}$/)) {
+        error "SKIP_REASON 형식 위반: '${reason}'. 허용 형식: '#<PR번호> <설명>' (설명 1~200자, 줄바꿈/탭 금지, 구분자는 공백만)"
+    }
+}
+
 def notifyFlywayImmutabilitySkip(parentScript) {
-    def skipReason = parentScript.params.SKIP_REASON?.trim()
-    def reasonText = skipReason ? skipReason : '(사유 미기재)'
+    def rawReason = parentScript.params.SKIP_REASON
+    validateSkipReason(rawReason)
+    def skipReason = rawReason.trim()
     def skipCommitAuthor = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
     def branchLabel = env.BRANCH_LABEL?.trim() ?: resolveBranchLabel(parentScript)
     def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
@@ -378,7 +393,7 @@ def notifyFlywayImmutabilitySkip(parentScript) {
                 + "COMMIT: ${env.GIT_COMMIT}\n"
                 + "BRANCH: ${branchLabel}\n"
                 + "AUTHOR: ${skipCommitAuthor}\n"
-                + "REASON: ${reasonText}"
+                + "REASON: ${skipReason}"
         )
         return
     }
