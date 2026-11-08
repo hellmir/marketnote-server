@@ -57,16 +57,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             List<ButtonDto> dtos = objectMapper.readValue(buttonsJson, new TypeReference<>() {
             });
             return dtos.stream()
-                    .map(dto -> BrandTalkButton.from(
-                            BrandTalkButtonSnapshotState.builder()
-                                    .name(dto.name())
-                                    .linkType(AligoTemplateButtonLinkType.from(dto.linkType()))
-                                    .linkM(dto.linkM())
-                                    .linkP(dto.linkP())
-                                    .linkI(dto.linkI())
-                                    .linkA(dto.linkA())
-                                    .build()
-                    ))
+                    .map(dto -> BrandTalkButton.from(mapToButtonSnapshotState(dto)))
                     .toList();
         } catch (JsonProcessingException e) {
             return List.of();
@@ -79,19 +70,32 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
         }
         try {
             CouponDto dto = objectMapper.readValue(couponJson, CouponDto.class);
-            return BrandTalkCoupon.from(
-                    BrandTalkCouponSnapshotState.builder()
-                            .title(dto.title())
-                            .description(dto.description())
-                            .linkM(dto.linkM())
-                            .linkP(dto.linkP())
-                            .linkI(dto.linkI())
-                            .linkA(dto.linkA())
-                            .build()
-            );
+            return BrandTalkCoupon.from(mapToCouponSnapshotState(dto));
         } catch (JsonProcessingException e) {
             return null;
         }
+    }
+
+    private static BrandTalkButtonSnapshotState mapToButtonSnapshotState(ButtonDto dto) {
+        return BrandTalkButtonSnapshotState.builder()
+                .name(dto.name())
+                .linkType(AligoTemplateButtonLinkType.from(dto.linkType()))
+                .linkM(dto.linkM())
+                .linkP(dto.linkP())
+                .linkI(dto.linkI())
+                .linkA(dto.linkA())
+                .build();
+    }
+
+    private static BrandTalkCouponSnapshotState mapToCouponSnapshotState(CouponDto dto) {
+        return BrandTalkCouponSnapshotState.builder()
+                .title(dto.title())
+                .description(dto.description())
+                .linkM(dto.linkM())
+                .linkP(dto.linkP())
+                .linkI(dto.linkI())
+                .linkA(dto.linkA())
+                .build();
     }
 
     private static BrandTalkWideItem deserializeWideItem(String json, ObjectMapper objectMapper) {
@@ -150,43 +154,21 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
     }
 
     private static BrandTalkCarouselItem mapToCarouselItem(CarouselItemDto dto) {
-        List<BrandTalkButton> itemButtons = FormatValidator.hasValue(dto.buttons())
+        List<BrandTalkButtonSnapshotState> buttons = FormatValidator.hasValue(dto.buttons())
                 ? dto.buttons().stream()
-                .map(b -> BrandTalkButton.from(
-                        BrandTalkButtonSnapshotState.builder()
-                                .name(b.name())
-                                .linkType(AligoTemplateButtonLinkType.from(b.linkType()))
-                                .linkM(b.linkM())
-                                .linkP(b.linkP())
-                                .linkI(b.linkI())
-                                .linkA(b.linkA())
-                                .build()
-                ))
+                .map(AligoBrandTalkTemplateJpaEntityToDomainMapper::mapToButtonSnapshotState)
                 .toList()
                 : List.of();
-        BrandTalkCoupon itemCoupon = FormatValidator.hasValue(dto.coupon())
-                ? mapToCoupon(dto.coupon())
+        BrandTalkCouponSnapshotState coupon = FormatValidator.hasValue(dto.coupon())
+                ? mapToCouponSnapshotState(dto.coupon())
                 : null;
         return BrandTalkCarouselItem.from(
                 BrandTalkCarouselItemSnapshotState.builder()
                         .header(dto.header())
                         .content(dto.content())
                         .imageUrl(dto.imageUrl())
-                        .buttons(itemButtons)
-                        .coupon(itemCoupon)
-                        .build()
-        );
-    }
-
-    private static BrandTalkCoupon mapToCoupon(CouponDto dto) {
-        return BrandTalkCoupon.from(
-                BrandTalkCouponSnapshotState.builder()
-                        .title(dto.title())
-                        .description(dto.description())
-                        .linkM(dto.linkM())
-                        .linkP(dto.linkP())
-                        .linkI(dto.linkI())
-                        .linkA(dto.linkA())
+                        .buttons(buttons)
+                        .coupon(coupon)
                         .build()
         );
     }

@@ -11,6 +11,6 @@ public class BrandTalkCarouselItemSnapshotState {
     private final String header;
     private final String content;
     private final String imageUrl;
-    private final List<BrandTalkButton> buttons;
-    private final BrandTalkCoupon coupon;
+    private final List<BrandTalkButtonSnapshotState> buttons;
+    private final BrandTalkCouponSnapshotState coupon;
 }
