@@ -151,10 +151,10 @@ import java.lang.annotation.*;
                                 examples = @ExampleObject("""
                                         {
                                           "statusCode": 403,
-                                          "code": "ERR06",
+                                          "code": "FORBIDDEN",
                                           "timestamp": "2025-12-28T16:13:25.045291",
                                           "content": null,
-                                          "message": "비활성화된 계정입니다. email=example@example.com"
+                                          "message": "접근이 거부되었습니다."
                                         }
                                         """)
                         )
