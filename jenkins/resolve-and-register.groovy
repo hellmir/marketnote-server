@@ -517,6 +517,9 @@ def sendStartNotification(parentScript) {
         string(credentialsId: "${env.ENV_PREFIX}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
     ]) {
         env.SLACK_NOTIFICATION_CHANNEL = SLACK_NOTIFICATION_CHANNEL
+        if (env.SERVICE_NAME?.trim()) {
+            parentScript.currentBuild.description = composeChildDescription(parentScript, "SERVICE=${env.SERVICE_NAME}")
+        }
         def branchLabel = sanitizeSlackLine(resolveBranchLabel(parentScript))
         env.BRANCH_LABEL = branchLabel
         def commitAuthor  = sanitizeSlackLine(sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim())
@@ -540,6 +543,17 @@ def sendStartNotification(parentScript) {
     }
 }
 
+// 자식 빌드 description 에 dispatcher BUILD_NUMBER prefix 합성. 수동/cron 트리거 시 prefix 없이 suffix 그대로 반환.
+// #4816: build(wait: false) 가 자식 BUILD_NUMBER 미반환 → 자식이 자기 description 에 부모 역기록으로 양방향 추적.
+// findLastDeployedCommit 의 SERVICE=...COMMIT=... substring 매칭과 정합 — prefix 추가는 회귀 없음.
+def composeChildDescription(parentScript, String coreSuffix) {
+    def num = parentScript.params.DISPATCHER_BUILD_NUMBER?.trim()
+    if (num) {
+        return "dispatcher: #${num} ${coreSuffix}"
+    }
+    return coreSuffix
+}
+
 // post.success 본문 — description 기록 + Slack 성공 알림.
 def handleBuildSuccess(parentScript) {
     if (env.DISPATCHER_MODE == 'true') {
@@ -547,7 +561,7 @@ def handleBuildSuccess(parentScript) {
         return
     }
     if (env.SERVICE_NAME?.trim() && env.GIT_COMMIT?.trim()) {
-        parentScript.currentBuild.description = "SERVICE=${env.SERVICE_NAME} COMMIT=${env.GIT_COMMIT}"
+        parentScript.currentBuild.description = composeChildDescription(parentScript, "SERVICE=${env.SERVICE_NAME} COMMIT=${env.GIT_COMMIT}")
     }
     def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
     if (!ch) {
@@ -571,6 +585,10 @@ def handleBuildFailure(parentScript) {
     if (env.DISPATCHER_MODE == 'true') {
         echo "[DISPATCHER] skipping failure notification"
         return
+    }
+    if (env.SERVICE_NAME?.trim()) {
+        def failedSuffix = env.GIT_COMMIT?.trim() ? "SERVICE=${env.SERVICE_NAME} COMMIT=${env.GIT_COMMIT} FAILED" : "SERVICE=${env.SERVICE_NAME} FAILED"
+        parentScript.currentBuild.description = composeChildDescription(parentScript, failedSuffix)
     }
     def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
     if (!ch) {
