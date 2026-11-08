@@ -147,6 +147,17 @@ class PiiMaskingConverterTest {
             assertThat(PiiMaskingConverter.maskPhone(raw)).isEqualTo(expected);
         }
 
+        @ParameterizedTest(name = "{0} → {1}")
+        @CsvSource({
+                "010-123-4567, 010-****-4567",
+                "02-1234-5678, 02-****-5678",
+                "031-123-4567, 031-****-4567"
+        })
+        @DisplayName("하이픈 포함 10자리 포맷(이통사 3-3-4 / 서울 2-4-4 / 지역 3-3-4)은 중간 자릿수가 마스킹된다")
+        void masksHyphenatedTenDigitPhoneByFormat(String raw, String expected) {
+            assertThat(PiiMaskingConverter.maskPhone(raw)).isEqualTo(expected);
+        }
+
         @Test
         @DisplayName("하이픈 포함 010-1234-5678은 010-****-5678로 마스킹된다")
         void masksHyphenatedPhoneDirectly() {
