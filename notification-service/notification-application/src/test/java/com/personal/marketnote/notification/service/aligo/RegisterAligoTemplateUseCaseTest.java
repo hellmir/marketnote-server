@@ -39,7 +39,7 @@ class RegisterAligoTemplateUseCaseTest {
         RegisterAligoTemplateCommand command = new RegisterAligoTemplateCommand(
                 "sender-key", "TPL001", "테스트 템플릿", "안녕하세요",
                 null, null, "BA", "NONE", false, false, null, null,
-                List.of(new AligoTemplateButtonCommand(1, "확인", "WL", "https://m.example.com", null, null, null))
+                List.of(new AligoTemplateButtonCommand(1, "확인", "WL", "https://m.example.com", "https://www.example.com", null, null))
         );
 
         when(saveAligoTemplatePort.save(any(AligoTemplate.class))).thenAnswer(invocation -> {
