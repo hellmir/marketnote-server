@@ -6,6 +6,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
+
 import static com.personal.marketnote.common.domain.exception.ExceptionMessage.INVALID_EMAIL_EXCEPTION_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,6 +35,20 @@ class ExceptionMessageTest {
         String masked = PiiMaskingConverter.mask(INVALID_EMAIL_EXCEPTION_MESSAGE);
 
         assertThat(masked).isEqualTo(INVALID_EMAIL_EXCEPTION_MESSAGE);
+    }
+
+    @Test
+    @DisplayName("ExceptionMessage 클래스는 final 이다")
+    void exceptionMessageClassIsFinal() {
+        assertThat(Modifier.isFinal(ExceptionMessage.class.getModifiers())).isTrue();
+    }
+
+    @Test
+    @DisplayName("ExceptionMessage 클래스는 private 생성자만 갖는다")
+    void exceptionMessageHasOnlyPrivateConstructor() {
+        Constructor<?>[] constructors = ExceptionMessage.class.getDeclaredConstructors();
+        assertThat(constructors).hasSize(1);
+        assertThat(Modifier.isPrivate(constructors[0].getModifiers())).isTrue();
     }
 
     @Nested
