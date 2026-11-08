@@ -31,4 +31,27 @@ class BrandTalkCommerceInfoTest {
         assertThat(info.getTitle()).isEqualTo("상품명");
         assertThat(info.getRegularPrice()).isEqualTo("10000");
     }
+
+    @Test
+    @DisplayName("BrandTalkCommerceInfo — SnapshotState로 생성 시 검증 없이 필드를 매핑한다")
+    void shouldRestoreFromSnapshotWithoutValidation() {
+        // given: invariant 위반(title null, regularPrice null)도 복원 성공해야 함
+        // when
+        BrandTalkCommerceInfo info = BrandTalkCommerceInfo.from(
+                BrandTalkCommerceInfoSnapshotState.builder()
+                        .title(null)
+                        .regularPrice(null)
+                        .discountPrice("8000")
+                        .discountRate("20")
+                        .discountFixed("2000")
+                        .build()
+        );
+
+        // then
+        assertThat(info.getTitle()).isNull();
+        assertThat(info.getRegularPrice()).isNull();
+        assertThat(info.getDiscountPrice()).isEqualTo("8000");
+        assertThat(info.getDiscountRate()).isEqualTo("20");
+        assertThat(info.getDiscountFixed()).isEqualTo("2000");
+    }
 }

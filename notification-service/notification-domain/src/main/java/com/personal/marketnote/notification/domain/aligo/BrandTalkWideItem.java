@@ -28,6 +28,17 @@ public class BrandTalkWideItem {
                 .build();
     }
 
+    public static BrandTalkWideItem from(BrandTalkWideItemSnapshotState state) {
+        return BrandTalkWideItem.builder()
+                .title(state.getTitle())
+                .imageUrl(state.getImageUrl())
+                .linkM(state.getLinkM())
+                .linkP(state.getLinkP())
+                .linkI(state.getLinkI())
+                .linkA(state.getLinkA())
+                .build();
+    }
+
     private static void validate(String title) {
         if (FormatValidator.hasNoValue(title)) {
             throw new InvalidBrandTalkTemplateException("와이드 아이템의 title은 필수입니다.");

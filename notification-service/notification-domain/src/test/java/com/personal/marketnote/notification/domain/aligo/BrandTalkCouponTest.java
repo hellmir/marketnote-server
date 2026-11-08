@@ -37,4 +37,31 @@ class BrandTalkCouponTest {
     void shouldThrowExceptionWhenTitleIsEmpty() {
         assertThatThrownBy(() -> BrandTalkCoupon.from(BrandTalkCouponCreateState.builder().title(null).description("설명").linkM(null).linkP(null).linkI(null).linkA(null).build())).isInstanceOf(InvalidBrandTalkCouponException.class);
     }
+
+    @Test
+    @DisplayName("BrandTalkCoupon — SnapshotState로 생성 시 검증 없이 필드를 매핑한다")
+    void shouldRestoreFromSnapshotWithoutValidation() {
+        // given: invariant 위반(title null, description 최대 길이 초과)도 복원 성공해야 함
+        String longDescription = "가".repeat(500);
+
+        // when
+        BrandTalkCoupon coupon = BrandTalkCoupon.from(
+                BrandTalkCouponSnapshotState.builder()
+                        .title(null)
+                        .description(longDescription)
+                        .linkM("https://m.example.com")
+                        .linkP("https://www.example.com")
+                        .linkI("example://open")
+                        .linkA("android://open")
+                        .build()
+        );
+
+        // then
+        assertThat(coupon.getTitle()).isNull();
+        assertThat(coupon.getDescription()).isEqualTo(longDescription);
+        assertThat(coupon.getLinkM()).isEqualTo("https://m.example.com");
+        assertThat(coupon.getLinkP()).isEqualTo("https://www.example.com");
+        assertThat(coupon.getLinkI()).isEqualTo("example://open");
+        assertThat(coupon.getLinkA()).isEqualTo("android://open");
+    }
 }

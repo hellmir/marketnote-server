@@ -131,4 +131,29 @@ class BrandTalkWideItemTest {
         assertThatThrownBy(() -> BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title(null).imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()))
                 .isInstanceOf(InvalidBrandTalkTemplateException.class);
     }
+
+    @Test
+    @DisplayName("BrandTalkWideItem — SnapshotState로 생성 시 검증 없이 필드를 매핑한다")
+    void shouldRestoreFromSnapshotWithoutValidation() {
+        // given: invariant 위반(title null)도 복원 성공해야 함
+        // when
+        BrandTalkWideItem item = BrandTalkWideItem.from(
+                BrandTalkWideItemSnapshotState.builder()
+                        .title(null)
+                        .imageUrl("https://img.example.com/1.jpg")
+                        .linkM("https://m.example.com")
+                        .linkP("https://www.example.com")
+                        .linkI("example://open")
+                        .linkA("android://open")
+                        .build()
+        );
+
+        // then
+        assertThat(item.getTitle()).isNull();
+        assertThat(item.getImageUrl()).isEqualTo("https://img.example.com/1.jpg");
+        assertThat(item.getLinkM()).isEqualTo("https://m.example.com");
+        assertThat(item.getLinkP()).isEqualTo("https://www.example.com");
+        assertThat(item.getLinkI()).isEqualTo("example://open");
+        assertThat(item.getLinkA()).isEqualTo("android://open");
+    }
 }

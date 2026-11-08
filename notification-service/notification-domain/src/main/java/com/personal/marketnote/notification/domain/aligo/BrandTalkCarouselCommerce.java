@@ -26,6 +26,16 @@ public class BrandTalkCarouselCommerce {
                 .build();
     }
 
+    public static BrandTalkCarouselCommerce from(BrandTalkCarouselCommerceSnapshotState state) {
+        return BrandTalkCarouselCommerce.builder()
+                .title(state.getTitle())
+                .regularPrice(state.getRegularPrice())
+                .discountPrice(state.getDiscountPrice())
+                .discountRate(state.getDiscountRate())
+                .discountFixed(state.getDiscountFixed())
+                .build();
+    }
+
     private static void validate(String title, String regularPrice) {
         if (FormatValidator.hasNoValue(title)) {
             throw new InvalidBrandTalkTemplateException("캐러셀 커머스의 title은 필수입니다.");

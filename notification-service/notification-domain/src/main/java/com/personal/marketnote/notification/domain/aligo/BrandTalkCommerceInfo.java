@@ -26,6 +26,16 @@ public class BrandTalkCommerceInfo {
                 .build();
     }
 
+    public static BrandTalkCommerceInfo from(BrandTalkCommerceInfoSnapshotState state) {
+        return BrandTalkCommerceInfo.builder()
+                .title(state.getTitle())
+                .regularPrice(state.getRegularPrice())
+                .discountPrice(state.getDiscountPrice())
+                .discountRate(state.getDiscountRate())
+                .discountFixed(state.getDiscountFixed())
+                .build();
+    }
+
     private static void validate(String title, String regularPrice) {
         if (FormatValidator.hasNoValue(title)) {
             throw new InvalidBrandTalkTemplateException("커머스의 title은 필수입니다.");

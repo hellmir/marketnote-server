@@ -30,6 +30,17 @@ public class BrandTalkCoupon {
                 .build();
     }
 
+    public static BrandTalkCoupon from(BrandTalkCouponSnapshotState state) {
+        return BrandTalkCoupon.builder()
+                .title(state.getTitle())
+                .description(state.getDescription())
+                .linkM(state.getLinkM())
+                .linkP(state.getLinkP())
+                .linkI(state.getLinkI())
+                .linkA(state.getLinkA())
+                .build();
+    }
+
     private static void validate(String title, String description) {
         if (FormatValidator.hasNoValue(title)) {
             throw new InvalidBrandTalkCouponException("쿠폰 title은 필수입니다.");

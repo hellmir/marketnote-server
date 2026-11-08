@@ -74,4 +74,45 @@ class BrandTalkCarouselItemTest {
         assertThat(item.getCoupon()).isNotNull();
         assertThat(item.getCoupon().getTitle()).isEqualTo("10% 할인");
     }
+
+    @Test
+    @DisplayName("BrandTalkCarouselItem — SnapshotState로 생성 시 검증 없이 필드를 매핑한다")
+    void shouldRestoreFromSnapshotWithoutValidation() {
+        // given: invariant 위반(버튼 0개)도 복원 성공해야 함
+        // when
+        BrandTalkCarouselItem item = BrandTalkCarouselItem.from(
+                BrandTalkCarouselItemSnapshotState.builder()
+                        .header("제목")
+                        .content("내용")
+                        .imageUrl("https://img.com/1.jpg")
+                        .buttons(List.of())
+                        .coupon(null)
+                        .build()
+        );
+
+        // then
+        assertThat(item.getHeader()).isEqualTo("제목");
+        assertThat(item.getContent()).isEqualTo("내용");
+        assertThat(item.getImageUrl()).isEqualTo("https://img.com/1.jpg");
+        assertThat(item.getButtons()).isEmpty();
+        assertThat(item.getCoupon()).isNull();
+    }
+
+    @Test
+    @DisplayName("BrandTalkCarouselItem — SnapshotState의 buttons가 null이면 빈 리스트로 매핑한다")
+    void shouldRestoreFromSnapshotWithNullButtons() {
+        // when
+        BrandTalkCarouselItem item = BrandTalkCarouselItem.from(
+                BrandTalkCarouselItemSnapshotState.builder()
+                        .header("제목")
+                        .content("내용")
+                        .imageUrl(null)
+                        .buttons(null)
+                        .coupon(null)
+                        .build()
+        );
+
+        // then
+        assertThat(item.getButtons()).isEmpty();
+    }
 }
