@@ -159,7 +159,7 @@ import java.lang.annotation.*;
                                           "code": "ERR06",
                                           "timestamp": "2025-12-28T16:13:25.045291",
                                           "content": null,
-                                          "message": "비활성화된 계정입니다. 전송된 이메일 주소: example@example.com"
+                                          "message": "비활성화된 계정입니다. email=example@example.com"
                                         }
                                         """)
                         )
