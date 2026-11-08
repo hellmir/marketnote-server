@@ -329,13 +329,16 @@ public class PaymentCancelTransactionHelper {
         }
 
         if (FormatValidator.hasNoValue(partialCancelAmount) || partialCancelAmount <= 0L) {
-            throw new InvalidCancelAmountException("부분취소 금액은 0보다 커야 합니다");
+            log.warn("부분취소 금액이 0 이하입니다. partialCancelAmount={}", partialCancelAmount);
+            throw InvalidCancelAmountException.nonPositiveAmount();
         }
 
         if (partialCancelAmount > refundableAmount) {
-            throw new InvalidCancelAmountException(
-                    "취소 금액(" + partialCancelAmount + ")이 환불 가능 금액(" + refundableAmount + ")을 초과합니다"
+            log.warn(
+                    "취소 금액이 환불 가능 금액을 초과합니다. partialCancelAmount={}, refundableAmount={}",
+                    partialCancelAmount, refundableAmount
             );
+            throw InvalidCancelAmountException.exceedsRefundable();
         }
 
         return partialCancelAmount;
@@ -442,8 +445,10 @@ public class PaymentCancelTransactionHelper {
         return order.getOrderProducts().stream()
                 .filter(op -> op.getPricePolicyId().equals(pricePolicyId))
                 .findFirst()
-                .orElseThrow(() -> new InvalidCancelProductException(
-                        "주문에 존재하지 않는 상품입니다. pricePolicyId=" + pricePolicyId));
+                .orElseThrow(() -> {
+                    log.warn("주문에 존재하지 않는 상품입니다. pricePolicyId={}", pricePolicyId);
+                    return InvalidCancelProductException.productNotInOrder();
+                });
     }
 
     private void saveRefundRecordWithoutPg(
@@ -503,7 +508,8 @@ public class PaymentCancelTransactionHelper {
                 .distinct()
                 .count();
         if (distinctCount != cancelProducts.size()) {
-            throw new InvalidCancelProductException("중복된 상품이 포함되어 있습니다.");
+            log.warn("중복된 상품이 포함되어 있습니다. cancelProductsSize={}", cancelProducts.size());
+            throw InvalidCancelProductException.duplicateProduct();
         }
 
         Map<Long, Integer> orderQuantityByPricePolicyId = order.getOrderProducts().stream()
@@ -513,18 +519,23 @@ public class PaymentCancelTransactionHelper {
 
         for (CancelPaymentCommand.CancelProductItem item : cancelProducts) {
             if (FormatValidator.hasNoValue(item.quantity()) || item.quantity() <= 0) {
-                throw new InvalidCancelProductException(
-                        "취소 수량은 1 이상이어야 합니다. pricePolicyId=" + item.pricePolicyId());
+                log.warn(
+                        "취소 수량이 1 미만입니다. pricePolicyId={}, quantity={}",
+                        item.pricePolicyId(), item.quantity()
+                );
+                throw InvalidCancelProductException.invalidQuantity();
             }
             Integer orderQuantity = orderQuantityByPricePolicyId.get(item.pricePolicyId());
             if (FormatValidator.hasNoValue(orderQuantity)) {
-                throw new InvalidCancelProductException(
-                        "주문에 존재하지 않는 상품입니다. pricePolicyId=" + item.pricePolicyId());
+                log.warn("주문에 존재하지 않는 상품입니다. pricePolicyId={}", item.pricePolicyId());
+                throw InvalidCancelProductException.productNotInOrder();
             }
             if (item.quantity() > orderQuantity) {
-                throw new InvalidCancelProductException(
-                        "취소 수량이 주문 수량을 초과합니다. pricePolicyId=" + item.pricePolicyId()
-                                + ", 주문수량=" + orderQuantity + ", 취소수량=" + item.quantity());
+                log.warn(
+                        "취소 수량이 주문 수량을 초과합니다. pricePolicyId={}, orderQuantity={}, cancelQuantity={}",
+                        item.pricePolicyId(), orderQuantity, item.quantity()
+                );
+                throw InvalidCancelProductException.quantityExceedsOrder();
             }
         }
     }
