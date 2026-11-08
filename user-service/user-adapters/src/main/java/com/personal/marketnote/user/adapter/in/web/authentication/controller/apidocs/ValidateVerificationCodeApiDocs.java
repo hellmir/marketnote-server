@@ -95,10 +95,10 @@ import java.lang.annotation.*;
                                 examples = @ExampleObject("""
                                         {
                                           "statusCode": 401,
-                                          "code": "ERR01",
+                                          "code": "UNAUTHORIZED",
                                           "timestamp": "2026-01-01T09:23:22.091551",
                                           "content": null,
-                                          "message": "이메일 인증 코드가 유효하지 않거나 만료되었습니다. 전송된 이메일 주소: example@example.com"
+                                          "message": "인증에 실패했습니다."
                                         }
                                         """)
                         )
@@ -113,7 +113,7 @@ import java.lang.annotation.*;
                                           "code": "NOT_FOUND",
                                           "timestamp": "2026-01-01T09:23:22.091551",
                                           "content": null,
-                                          "message": "존재하지 않는 회원입니다. 전송된 회원 이메일 주소: example@example.com"
+                                          "message": "회원을 찾을 수 없습니다."
                                         }
                                         """)
                         )

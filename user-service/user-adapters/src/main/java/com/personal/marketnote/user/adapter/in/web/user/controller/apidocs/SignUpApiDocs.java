@@ -121,10 +121,10 @@ import java.lang.annotation.*;
                                 examples = @ExampleObject("""
                                         {
                                           "statusCode": 409,
-                                          "code": "ERR01",
+                                          "code": "CONFLICT",
                                           "timestamp": "2025-12-28T11:50:53.656526",
                                           "content": null,
-                                          "message": "이미 가입된 회원입니다. 가입된 OIDC ID: 1234"
+                                          "message": "이미 존재하는 데이터입니다."
                                         }
                                         """)
                         )
@@ -136,10 +136,10 @@ import java.lang.annotation.*;
                                 examples = @ExampleObject("""
                                         {
                                           "statusCode": 401,
-                                          "code": "ERR05",
+                                          "code": "UNAUTHORIZED",
                                           "timestamp": "2025-12-282T09:23:22.091551",
                                           "content": null,
-                                          "message": "이메일 인증 코드가 유효하지 않거나 만료되었습니다. 전송된 이메일 주소: example@example.com"
+                                          "message": "인증에 실패했습니다."
                                         }
                                         """)
                         )
