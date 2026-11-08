@@ -288,7 +288,7 @@ pipeline {
 	parameters {
 		choice(name: 'SERVICE', choices: ['auto','user-service','product-service','commerce-service','community-service','reward-service','fulfillment-service','file-service','notification-service'], description: '배포 대상 서비스')
 		booleanParam(name: 'SKIP_FLYWAY_IMMUTABILITY_CHECK', defaultValue: false, description: '긴급 revert PR 한정 — 적용 완료 V*.sql 변경 차단 가드 우회. 기본값 false 유지 필수')
-		string(name: 'SKIP_REASON', defaultValue: '', description: 'SKIP_FLYWAY_IMMUTABILITY_CHECK=true 시 우회 사유 (긴급 revert PR 번호 등). SKIP=false 시 무시됨')
+		string(name: 'SKIP_REASON', defaultValue: '', description: 'SKIP_FLYWAY_IMMUTABILITY_CHECK=true 시 우회 사유. 형식: "#<PR번호> <설명>" (예: "#4806 마이그레이션 V102 revert"). 설명 1~200자, 줄바꿈/탭 금지. SKIP=true 시 필수 — 형식 위반 시 빌드 차단. SKIP=false 시 무시됨')
 	}
 
 	environment {
