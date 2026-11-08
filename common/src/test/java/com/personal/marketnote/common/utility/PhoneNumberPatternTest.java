@@ -39,7 +39,11 @@ class PhoneNumberPatternTest {
         @ParameterizedTest(name = "canonical 10자리 {0} 형식은 검증에 성공한다")
         @ValueSource(strings = {
                 "0101234567",
-                "0111234567"
+                "0111234567",
+                "0161234567",
+                "0171234567",
+                "0181234567",
+                "0191234567"
         })
         @DisplayName("허용 prefix + canonical 10자리 형식은 검증에 성공한다")
         void shouldPassCanonicalTenDigits(String value) {
