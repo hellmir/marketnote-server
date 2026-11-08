@@ -5,10 +5,14 @@
     <springProfile name="!test">
         <conversionRule conversionWord="pii"
                         converterClass="com.personal.marketnote.common.logging.PiiMaskingConverter"/>
+        <conversionRule conversionWord="piiMdc"
+                        converterClass="com.personal.marketnote.common.logging.PiiMdcMaskingConverter"/>
+        <conversionRule conversionWord="piiEx"
+                        converterClass="com.personal.marketnote.common.logging.PiiExceptionMaskingConverter"/>
 
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread] %-5level %logger{35} - %pii%n</pattern>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread] %-5level %logger{35} - %pii%n%piiEx</pattern>
                 <charset>UTF-8</charset>
             </encoder>
         </appender>
