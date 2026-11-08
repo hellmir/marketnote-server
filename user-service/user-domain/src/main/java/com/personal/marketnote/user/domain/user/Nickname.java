@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 
 public final class Nickname {
     private static final String NO_VALUE_MESSAGE = "닉네임은 필수값입니다.";
-    private static final String INVALID_FORMAT_MESSAGE = "닉네임 형식이 올바르지 않습니다.";
     private static final Pattern NICKNAME_PATTERN = Pattern.compile(RegularExpressionConstant.NICKNAME_PATTERN);
     private static final String MASKED_TOSTRING = "Nickname{value=***}";
 
@@ -42,7 +41,7 @@ public final class Nickname {
 
     private static void validateFormat(String value) {
         if (!NICKNAME_PATTERN.matcher(value).matches()) {
-            throw new InvalidNicknameException(INVALID_FORMAT_MESSAGE);
+            throw new InvalidNicknameException();
         }
     }
 

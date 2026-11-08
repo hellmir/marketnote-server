@@ -19,12 +19,13 @@ import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddress
 import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.SECOND_ERROR_CODE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @RequiredArgsConstructor
 @UseCase
 @Transactional(isolation = READ_COMMITTED)
@@ -94,7 +95,11 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
             case OTHER -> {
                 long count = findShippingAddressPort.countByUserIdAndAddressType(userId, ShippingAddressType.OTHER);
                 if (count >= MAX_OTHER_ADDRESS_COUNT) {
-                    throw new TooManyOtherAddressesException(SECOND_ERROR_CODE, MAX_OTHER_ADDRESS_COUNT);
+                    log.warn(
+                            "기타 배송지 등록 개수 제한 초과. userId={}, currentCount={}, maxCount={}",
+                            userId, count, MAX_OTHER_ADDRESS_COUNT
+                    );
+                    throw new TooManyOtherAddressesException();
                 }
             }
         }

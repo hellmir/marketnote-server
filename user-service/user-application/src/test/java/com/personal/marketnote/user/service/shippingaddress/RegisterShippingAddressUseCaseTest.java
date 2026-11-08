@@ -8,6 +8,7 @@ import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegion
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import com.personal.marketnote.user.exception.DeliveryImpossibleAreaException;
+import com.personal.marketnote.user.exception.TooManyOtherAddressesException;
 import com.personal.marketnote.user.port.in.command.shippingaddress.RegisterShippingAddressCommand;
 import com.personal.marketnote.user.port.in.result.shippingaddress.RegisterShippingAddressResult;
 import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPort;
@@ -204,8 +205,8 @@ class RegisterShippingAddressUseCaseTest {
     }
 
     @Test
-    @DisplayName("OTHER 타입 배송지가 10개 이상이면 IllegalArgumentException이 발생한다")
-    void registerShippingAddress_otherLimitExceeded_throwsIllegalArgumentException() {
+    @DisplayName("OTHER 타입 배송지가 10개 이상이면 TooManyOtherAddressesException이 발생한다")
+    void registerShippingAddress_otherLimitExceeded_throwsTooManyOtherAddressesException() {
         // given
         Long userId = 1L;
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
@@ -224,8 +225,7 @@ class RegisterShippingAddressUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> registerShippingAddressService.registerShippingAddress(command))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("기타 배송지는 최대 10개까지 등록할 수 있습니다");
+                .isInstanceOf(TooManyOtherAddressesException.class);
 
         verify(findShippingAddressPort).countByUserIdAndAddressType(userId, ShippingAddressType.OTHER);
         verifyNoMoreInteractions(findShippingAddressPort);

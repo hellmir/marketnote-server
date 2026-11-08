@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 
 public final class ReferenceCode {
     private static final String NO_VALUE_MESSAGE = "추천인 코드는 필수값입니다.";
-    private static final String INVALID_FORMAT_MESSAGE = "추천인 코드 형식이 올바르지 않습니다.";
     private static final Pattern REFERENCE_CODE_PATTERN = Pattern.compile(RegularExpressionConstant.REFERENCE_CODE_PATTERN);
     private static final String MASKED_TOSTRING = "ReferenceCode{value=***}";
 
@@ -42,7 +41,7 @@ public final class ReferenceCode {
 
     private static void validateFormat(String value) {
         if (!REFERENCE_CODE_PATTERN.matcher(value).matches()) {
-            throw new InvalidReferenceCodeException(INVALID_FORMAT_MESSAGE);
+            throw new InvalidReferenceCodeException();
         }
     }
 

@@ -230,7 +230,11 @@ public class CancelOrderService implements CancelOrderUseCase {
     private void validateCancelProducts(List<Long> cancelPricePolicyIds, Order order) {
         Set<Long> uniqueCancelIds = new HashSet<>(cancelPricePolicyIds);
         if (uniqueCancelIds.size() != cancelPricePolicyIds.size()) {
-            throw new InvalidPartialCancelProductException("취소 대상 상품에 중복된 pricePolicyId가 포함되어 있습니다.");
+            log.warn(
+                    "취소 대상 상품에 중복된 pricePolicyId가 포함되어 있습니다. cancelPricePolicyIdsSize={}",
+                    cancelPricePolicyIds.size()
+            );
+            throw InvalidPartialCancelProductException.duplicatePricePolicy();
         }
 
         Map<Long, OrderProduct> orderProductByPolicyId = order.getOrderProducts().stream()
@@ -239,10 +243,18 @@ public class CancelOrderService implements CancelOrderUseCase {
         for (Long cancelPricePolicyId : cancelPricePolicyIds) {
             OrderProduct orderProduct = orderProductByPolicyId.get(cancelPricePolicyId);
             if (FormatValidator.hasNoValue(orderProduct)) {
-                throw new InvalidPartialCancelProductException("취소 대상에 주문에 포함되지 않은 상품이 있습니다.");
+                log.warn(
+                        "취소 대상에 주문에 포함되지 않은 상품이 있습니다. cancelPricePolicyId={}",
+                        cancelPricePolicyId
+                );
+                throw InvalidPartialCancelProductException.notInOrder();
             }
             if (orderProduct.isCancelled()) {
-                throw new InvalidPartialCancelProductException("이미 취소된 상품이 취소 대상에 포함되어 있습니다.");
+                log.warn(
+                        "이미 취소된 상품이 취소 대상에 포함되어 있습니다. cancelPricePolicyId={}",
+                        cancelPricePolicyId
+                );
+                throw InvalidPartialCancelProductException.alreadyCancelled();
             }
         }
     }
