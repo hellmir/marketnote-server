@@ -613,6 +613,263 @@ def isCronTriggered(build) {
     }
 }
 
+// ===== #4815 dispatcher monitor 지원 helper =====
+
+// dispatcher 분기에서 monitor job 트리거. fail-open: 미존재/실패 시 echo 만 (monitor 미존재해도 dispatcher 흐름 유지).
+// monitor job 명: dispatcher project + '-dispatcher-monitor'. 동일 branch path 유지.
+// 예: dispatcher = shop-qa/main → monitor = shop-qa-dispatcher-monitor/main
+def triggerDispatcherMonitor(parentScript, candidates) {
+    if (!candidates) {
+        echo '[DISPATCHER] no candidates; skipping monitor trigger'
+        return
+    }
+    def jobName = env.JOB_NAME ?: ''
+    def parts = jobName.split('/') as List
+    if (parts.size() < 1 || !parts[0]) {
+        echo "[DISPATCHER] JOB_NAME='${jobName}' invalid; skipping monitor trigger"
+        return
+    }
+    def project = parts[0]
+    def branchPath = parts.size() > 1 ? parts.drop(1).join('/') : ''
+    def monitorProject = "${project}-dispatcher-monitor"
+    def monitorJobName = branchPath ? "${monitorProject}/${branchPath}" : monitorProject
+    def envInfo = resolveEnvPrefixFromJobName(parentScript)
+    try {
+        parentScript.build(
+                job: monitorJobName,
+                wait: false,
+                propagate: false,
+                parameters: [
+                    parentScript.string(name: 'DISPATCHER_BUILD_NUMBER', value: env.BUILD_NUMBER),
+                    parentScript.string(name: 'DISPATCHER_BUILD_URL', value: env.BUILD_URL),
+                    parentScript.string(name: 'PARENT_JOB_NAME', value: env.JOB_NAME),
+                    parentScript.string(name: 'SERVICES', value: candidates.join(',')),
+                    parentScript.string(name: 'ENV_PREFIX', value: envInfo.envPrefix)
+                ]
+        )
+        echo "[DISPATCHER] monitor job triggered: ${monitorJobName}"
+    } catch (Exception e) {
+        echo "[DISPATCHER] monitor trigger failed (fail-open): ${e.message}. Job '${monitorJobName}' may not exist yet — operations task pending."
+    }
+}
+
+// dispatcher description 끝에 ' MONITOR=<url>' append (REST POST submitDescription).
+// 기존 description 보존 + monitor URL 역기록. 실패 시 fail-open (echo 만, monitor 진행 계속).
+def appendDispatcherMonitorLink(parentScript) {
+    def envPrefix = parentScript.params.ENV_PREFIX
+    def parentJobName = parentScript.params.PARENT_JOB_NAME
+    def dispatcherNum = parentScript.params.DISPATCHER_BUILD_NUMBER
+    def monitorUrl = env.BUILD_URL ?: ''
+    if (!monitorUrl) {
+        echo '[MONITOR] BUILD_URL unresolved; skipping dispatcher reverse link'
+        return
+    }
+    try {
+        withCredentials([
+            usernamePassword(credentialsId: "${envPrefix}_JENKINS_API", usernameVariable: 'J_USER', passwordVariable: 'J_TOKEN')
+        ]) {
+            def jobPath = parentJobName.split('/').collect { "job/${it}" }.join('/')
+            def baseUrl = (env.JENKINS_URL ?: '').replaceAll(/\/$/, '')
+            def descUrl = "${baseUrl}/${jobPath}/${dispatcherNum}/submitDescription"
+            def getUrl = "${baseUrl}/${jobPath}/${dispatcherNum}/api/json?tree=description"
+            // sh 보간 인젝션 방지 — URL/description 을 withEnv 로 위임 후 single-quote sh 본문에서 $VAR 참조.
+            String raw = ''
+            parentScript.withEnv(["GET_URL=${getUrl}"]) {
+                raw = sh(script: 'curl -sf -u "$J_USER:$J_TOKEN" "$GET_URL"', returnStdout: true).trim()
+            }
+            def parsed = parentScript.readJSON(text: raw)
+            def existing = (parsed.description ?: '').toString()
+            if (existing.contains('MONITOR=')) {
+                echo "[MONITOR] dispatcher #${dispatcherNum} already has MONITOR link; skipping"
+                return
+            }
+            def newDesc = "${existing} MONITOR=${monitorUrl}".trim()
+            parentScript.withEnv(["NEW_DESC=${newDesc}", "DESC_URL=${descUrl}"]) {
+                sh '''
+                    curl -sf -u "$J_USER:$J_TOKEN" -X POST \
+                         --data-urlencode "description=$NEW_DESC" \
+                         "$DESC_URL" -o /dev/null
+                '''
+            }
+            echo "[MONITOR] dispatcher #${dispatcherNum} description updated with monitor link"
+        }
+    } catch (Exception e) {
+        echo "[MONITOR] dispatcher reverse link failed (fail-open): ${e.message}"
+    }
+}
+
+// 자식 빌드 결과 폴링. 30초 간격, 60분 타임아웃 (env.POLL_INTERVAL_SECONDS / POLL_TIMEOUT_MINUTES).
+// description prefix 'dispatcher: #N SERVICE=<svc>' 매칭으로 자식 식별 (#4816 join key).
+// 모든 SERVICE 종결 시 조기 break. 결과는 env.MONITOR_RESULTS_JSON 직렬화 저장.
+def pollDispatcherChildren(parentScript) {
+    def envPrefix = parentScript.params.ENV_PREFIX
+    def parentJobName = parentScript.params.PARENT_JOB_NAME
+    def dispatcherNum = parentScript.params.DISPATCHER_BUILD_NUMBER
+    def services = (parentScript.params.SERVICES ?: '').split(',').collect { it.trim() }.findAll { it }
+    int intervalSec = (env.POLL_INTERVAL_SECONDS ?: '30') as Integer
+    int timeoutMin = (env.POLL_TIMEOUT_MINUTES ?: '60') as Integer
+    int maxIterations = ((timeoutMin * 60) / intervalSec) as int
+
+    def results = [:]
+    services.each { svc -> results[svc] = [result: null, url: null, number: null, duration: null] }
+
+    long startTime = System.currentTimeMillis()
+    boolean timedOut = false
+
+    // credential 미존재 시 CredentialNotFoundException → fail-open: 모든 서비스 PENDING + timedOut=true.
+    // monitor SUCCESS 유지 정책 일관성 (Fix 4 — code MEDIUM-1).
+    try {
+        withCredentials([
+            usernamePassword(credentialsId: "${envPrefix}_JENKINS_API", usernameVariable: 'J_USER', passwordVariable: 'J_TOKEN')
+        ]) {
+            def jobPath = parentJobName.split('/').collect { "job/${it}" }.join('/')
+            def baseUrl = (env.JENKINS_URL ?: '').replaceAll(/\/$/, '')
+            def listUrl = "${baseUrl}/${jobPath}/api/json?tree=builds[number,description,result,timestamp,duration,url]{0,50}"
+
+            // sh 보간 인젝션 방지 — listUrl 을 withEnv 로 위임 후 single-quote sh 본문에서 $LIST_URL 참조.
+            // withEnv 블록은 폴링 루프 전체를 감싸 매 반복마다 환경변수 재설정 비용을 회피.
+            parentScript.withEnv(["LIST_URL=${listUrl}"]) {
+                for (int i = 0; i < maxIterations; i++) {
+                    def remainingServices = services.findAll { results[it].result == null }
+                    if (!remainingServices) {
+                        echo "[MONITOR] all ${services.size()} services completed at iteration ${i}"
+                        break
+                    }
+                    echo "[MONITOR] poll ${i + 1}/${maxIterations}, pending=${remainingServices}"
+                    try {
+                        def raw = sh(
+                                script: 'curl -sf -u "$J_USER:$J_TOKEN" "$LIST_URL"',
+                                returnStdout: true
+                        ).trim()
+                        def json = parentScript.readJSON(text: raw)
+                        def builds = json.builds ?: []
+                        builds.each { b ->
+                            def desc = (b.description ?: '').toString()
+                            def matcher = (desc =~ /dispatcher: #${dispatcherNum} SERVICE=(\S+)/)
+                            if (matcher.find()) {
+                                def svc = matcher.group(1)
+                                if (results.containsKey(svc) && results[svc].result == null && b.result != null) {
+                                    results[svc].result = b.result
+                                    results[svc].url = b.url
+                                    results[svc].number = b.number
+                                    results[svc].duration = b.duration
+                                    echo "[MONITOR] ${svc} completed: ${b.result} #${b.number}"
+                                }
+                            }
+                            matcher = null
+                        }
+                    } catch (Exception e) {
+                        echo "[MONITOR] poll iteration ${i + 1} failed (fail-open): ${e.message}"
+                    }
+                    if (i < maxIterations - 1) {
+                        sleep time: intervalSec, unit: 'SECONDS'
+                    }
+                }
+            }
+            if (services.any { results[it].result == null }) {
+                timedOut = true
+                echo "[MONITOR] timeout after ${timeoutMin}min, pending services not completed"
+            }
+        }
+    } catch (Exception e) {
+        echo "[MONITOR] credential/poll failure (fail-open): ${e.message}. All services marked PENDING."
+        timedOut = true
+    }
+
+    long elapsedMs = System.currentTimeMillis() - startTime
+    env.MONITOR_RESULTS_JSON = parentScript.writeJSON(
+            returnText: true,
+            json: [results: results, timedOut: timedOut, elapsedMs: elapsedMs, services: services]
+    )
+}
+
+// 폴링 결과 집계 + Slack 통합 알림.
+// fail-open: timeout 시 Slack 경고 발송 후 monitor SUCCESS 유지 (미종결은 운영자 직접 확인).
+def sendDispatcherChildrenSummary(parentScript) {
+    def envPrefix = parentScript.params.ENV_PREFIX
+    def dispatcherNum = parentScript.params.DISPATCHER_BUILD_NUMBER
+    def dispatcherUrl = parentScript.params.DISPATCHER_BUILD_URL
+    // monitor JOB_NAME 은 'shop-qa-dispatcher-monitor/...' 형식으로 dispatcher 의 '-qa/-stage/-prod' 접미사 패턴과 다름.
+    // resolveEnvPrefixFromJobName 호출 시 정규식 미매치로 error throw → Send Summary stage 영구 실패 (Fix 1 — code CRITICAL).
+    // params.ENV_PREFIX(MARKETNOTE_QA/MARKETNOTE_STAGE/MARKETNOTE_PROD)에서 'MARKETNOTE_' 접두사만 제거하여 envUpper 도출.
+    def envUpper = (envPrefix ?: '').replaceFirst(/^MARKETNOTE_/, '')
+
+    if (!env.MONITOR_RESULTS_JSON) {
+        echo '[MONITOR] no results to summarize'
+        return
+    }
+    def parsed = parentScript.readJSON(text: env.MONITOR_RESULTS_JSON)
+    def results = parsed.results
+    boolean timedOut = parsed.timedOut as boolean
+    long elapsedMs = (parsed.elapsedMs ?: 0L) as long
+    def services = parsed.services ?: []
+
+    int successCount = services.count { results[it]?.result == 'SUCCESS' }
+    def failed = services.findAll { results[it]?.result == 'FAILURE' || results[it]?.result == 'ABORTED' || results[it]?.result == 'UNSTABLE' }
+    def pending = services.findAll { results[it]?.result == null }
+
+    int elapsedMin = (elapsedMs / 60000) as int
+    int elapsedSec = ((elapsedMs % 60000) / 1000) as int
+
+    def color = (failed || pending) ? env.SLACK_FAIL_COLOR : env.SLACK_SUCCESS_COLOR
+    def header = (failed || pending) ? '[DISPATCHER-MONITOR] partial/failed' : '[DISPATCHER-MONITOR] all success'
+
+    def lines = []
+    lines << "${header} dispatcher: #${dispatcherNum} (${envUpper})"
+    lines << "DISPATCHER: ${dispatcherUrl}"
+    lines << "TOTAL: ${services.size()}, SUCCESS: ${successCount}, FAILED: ${failed.size()}, PENDING(timeout): ${pending.size()}"
+    lines << "ELAPSED: ${elapsedMin}m ${elapsedSec}s"
+    if (failed) {
+        lines << 'FAILED_SERVICES:'
+        failed.each { svc -> lines << "  - ${svc} ${results[svc].result}: ${results[svc].url ?: '(no url)'}" }
+    }
+    if (pending) {
+        lines << 'PENDING_SERVICES (60min timeout):'
+        pending.each { svc -> lines << "  - ${svc}" }
+    }
+    // monitor job 자체는 항상 SUCCESS — 컬러/헤더는 자식 결과 반영하지만 빌드 결과는 fail-open (Fix 5 — code MEDIUM-4).
+    // 운영자 혼란(Slack RED + monitor SUCCESS) 방지용 명시적 안내.
+    if (timedOut || failed || pending) {
+        lines << '[NOTE] monitor job 자체는 SUCCESS — 자식 빌드 실패/미종결은 위 BUILD_URL 직접 확인'
+    }
+
+    withCredentials([
+        string(credentialsId: "${envPrefix}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
+    ]) {
+        def ch = SLACK_NOTIFICATION_CHANNEL?.trim()
+        if (!ch) {
+            echo '[MONITOR] SLACK_NOTIFICATION_CHANNEL unresolved; printing summary only'
+            echo lines.join('\n')
+            return
+        }
+        slackSend(channel: ch, color: color, message: lines.join('\n'))
+    }
+}
+
+// monitor 자체 실패 (post.failure) Slack 경고. 시스템 오류 알림용.
+def notifyMonitorFailure(parentScript) {
+    def envPrefix = (parentScript.params.ENV_PREFIX ?: '').toString()
+    if (!envPrefix) {
+        echo '[MONITOR] ENV_PREFIX unset; skipping failure notification'
+        return
+    }
+    try {
+        withCredentials([
+            string(credentialsId: "${envPrefix}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
+        ]) {
+            def ch = SLACK_NOTIFICATION_CHANNEL?.trim()
+            if (!ch) return
+            slackSend(
+                    channel: ch,
+                    color: env.SLACK_FAIL_COLOR,
+                    message: "[DISPATCHER-MONITOR][SYSTEM-ERROR] dispatcher: #${parentScript.params.DISPATCHER_BUILD_NUMBER}\nMONITOR_BUILD: ${env.BUILD_URL}"
+            )
+        }
+    } catch (Exception e) {
+        echo "[MONITOR] notifyMonitorFailure failed: ${e.message}"
+    }
+}
+
 // 이전 성공 빌드 description에서 동일 SERVICE의 마지막 배포 COMMIT 조회.
 // description 포맷: "SERVICE=<name> COMMIT=<sha>" (post.success에서 기록)
 // 순회 한도 50건 — 8 서비스 × 평균 일 3회 성공 = 약 2일 커버.

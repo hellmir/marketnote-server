@@ -411,6 +411,7 @@ pipeline {
 
 						currentBuild.description = "[DISPATCHER] re-triggered ${candidates.size()}: ${candidates.join(',')}"
 						helper.sendDispatcherSummaryNotification(this, candidates, commonOrRootChanged)
+						helper.triggerDispatcherMonitor(this, candidates)
 						return
 					}
 

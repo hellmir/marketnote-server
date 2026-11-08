@@ -1,0 +1,89 @@
+// Jenkinsfile.dispatcher-monitor
+// #4815 — dispatcher(SERVICE=auto) 가 트리거한 자식 빌드 N건의 결과를 별도 executor 에서 폴링/집계 후 통합 Slack 알림.
+// 별도 잡으로 분리한 이유: dispatcher 잡의 disableConcurrentBuilds() 와 build(wait: true) 가 교착 — 동일 잡 self-trigger 에 wait 시 자식이 큐에서 대기.
+// 자식 식별: dispatcher 가 'DISPATCHER_BUILD_NUMBER' 파라미터 전달 → 자식이 자기 description 에 'dispatcher: #N SERVICE=<svc>' 기록 (#4816). 본 모니터는 description 정규식으로 join.
+// 폴링: Jenkins REST API '/job/.../api/json?tree=builds[...]' (curl + readJSON). 30초 간격, 60분 타임아웃 (이슈 #4815 명시값).
+// fail-open: monitor 트리거/폴링/Slack 실패는 echo 만 하고 진행 — 실 배포 흐름(자식 빌드)은 본 잡과 무관하게 독립 진행.
+
+pipeline {
+    agent any
+
+    options {
+        timeout(time: 70, unit: 'MINUTES') // 60분 폴링 + 마진 10분
+        buildDiscarder(logRotator(numToKeepStr: '50'))
+    }
+
+    parameters {
+        string(name: 'DISPATCHER_BUILD_NUMBER', defaultValue: '', description: '부모 dispatcher BUILD_NUMBER (필수)')
+        string(name: 'DISPATCHER_BUILD_URL', defaultValue: '', description: '부모 dispatcher BUILD_URL (역기록용)')
+        string(name: 'PARENT_JOB_NAME', defaultValue: '', description: '부모 dispatcher JOB_NAME (예: shop-qa/main). 자식 빌드 검색 대상 잡')
+        string(name: 'SERVICES', defaultValue: '', description: '추적 대상 SERVICE 목록 (comma-separated). 예: user-service,product-service')
+        string(name: 'ENV_PREFIX', defaultValue: '', description: '환경 prefix (MARKETNOTE_QA/MARKETNOTE_STAGE/MARKETNOTE_PROD). credential 로딩용')
+    }
+
+    environment {
+        SLACK_SUCCESS_COLOR = "#2C953C"
+        SLACK_FAIL_COLOR = "#E03131"
+        SLACK_GENERAL_COLOR = "#5C7CFA"
+        POLL_INTERVAL_SECONDS = "30"
+        POLL_TIMEOUT_MINUTES = "60"
+    }
+
+    stages {
+        stage('Validate Inputs') {
+            steps {
+                script {
+                    if (!params.DISPATCHER_BUILD_NUMBER?.trim()) {
+                        error '[MONITOR] DISPATCHER_BUILD_NUMBER 필수'
+                    }
+                    if (!params.PARENT_JOB_NAME?.trim()) {
+                        error '[MONITOR] PARENT_JOB_NAME 필수'
+                    }
+                    if (!params.SERVICES?.trim()) {
+                        error '[MONITOR] SERVICES 필수'
+                    }
+                    if (!params.ENV_PREFIX?.trim()) {
+                        error '[MONITOR] ENV_PREFIX 필수'
+                    }
+                    currentBuild.description = "MONITOR for dispatcher: #${params.DISPATCHER_BUILD_NUMBER} SERVICES=${params.SERVICES}"
+                }
+            }
+        }
+
+        stage('Reverse Link to Dispatcher') {
+            steps {
+                script {
+                    def helper = load 'jenkins/resolve-and-register.groovy'
+                    helper.appendDispatcherMonitorLink(this)
+                }
+            }
+        }
+
+        stage('Poll Children') {
+            steps {
+                script {
+                    def helper = load 'jenkins/resolve-and-register.groovy'
+                    helper.pollDispatcherChildren(this)
+                }
+            }
+        }
+
+        stage('Send Summary') {
+            steps {
+                script {
+                    def helper = load 'jenkins/resolve-and-register.groovy'
+                    helper.sendDispatcherChildrenSummary(this)
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            script {
+                def helper = load 'jenkins/resolve-and-register.groovy'
+                helper.notifyMonitorFailure(this)
+            }
+        }
+    }
+}
