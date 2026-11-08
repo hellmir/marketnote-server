@@ -117,19 +117,26 @@ public class AligoTemplateExternalAdapter
 
     private AligoTemplate toTemplateDomain(AligoTemplateListApiResponse.TemplateItem item) {
         return AligoTemplate.from(
-                AligoTemplateSnapshotState.builder()
+                AligoTemplateExternalState.builder()
                         .senderKey(item.senderkey())
                         .templateCode(item.templtCode())
                         .templateName(item.templtName())
-                        .templateContent(FormatValidator.hasValue(item.templtContent()) ? item.templtContent() : "")
+                        .templateContent(item.templtContent())
                         .templateType(AligoTemplateType.from(item.templateType()))
-                        .templateEmType(AligoTemplateEmType.from(FormatValidator.hasValue(item.templateEmphasizeType()) ? item.templateEmphasizeType() : "NONE"))
+                        .templateEmType(resolveEmType(item.templateEmphasizeType()))
                         .inspStatus(item.inspStatus())
                         .templateStatus(AligoTemplateStatus.from(item.status()))
                         .comments(item.comments())
                         .buttons(List.of())
                         .build()
         );
+    }
+
+    private AligoTemplateEmType resolveEmType(String raw) {
+        if (FormatValidator.hasNoValue(raw)) {
+            return AligoTemplateEmType.NONE;
+        }
+        return AligoTemplateEmType.from(raw);
     }
 
     private Map<String, String> buttonToMap(AligoTemplateButton button) {

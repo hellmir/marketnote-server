@@ -221,6 +221,142 @@ class AligoTemplateTest {
                 .isInstanceOf(InvalidAligoTemplateTransitionException.class);
     }
 
+    @Test
+    @DisplayName("ExternalState로 생성 시 벤더 응답 필드가 그대로 매핑된다")
+    void shouldMapFromExternalState() {
+        // given
+        AligoTemplateExternalState state = AligoTemplateExternalState.builder()
+                .senderKey("SK")
+                .templateCode("TPL001")
+                .templateName("이름")
+                .templateContent("본문")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .inspStatus("APR")
+                .templateStatus(AligoTemplateStatus.A)
+                .comments("코멘트")
+                .buttons(List.of())
+                .build();
+
+        // when
+        AligoTemplate template = AligoTemplate.from(state);
+
+        // then
+        assertThat(template.getSenderKey()).isEqualTo("SK");
+        assertThat(template.getTemplateCode()).isEqualTo("TPL001");
+        assertThat(template.getTemplateName()).isEqualTo("이름");
+        assertThat(template.getTemplateContent()).isEqualTo("본문");
+        assertThat(template.getTemplateType()).isEqualTo(AligoTemplateType.BA);
+        assertThat(template.getTemplateEmType()).isEqualTo(AligoTemplateEmType.NONE);
+        assertThat(template.getInspStatus()).isEqualTo("APR");
+        assertThat(template.getTemplateStatus()).isEqualTo(AligoTemplateStatus.A);
+        assertThat(template.getComments()).isEqualTo("코멘트");
+        assertThat(template.getButtons()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("ExternalState의 buttons가 null이면 빈 리스트로 매핑된다")
+    void shouldMapNullButtonsToEmptyListFromExternalState() {
+        // given
+        AligoTemplateExternalState state = AligoTemplateExternalState.builder()
+                .senderKey("SK")
+                .templateCode("TPL001")
+                .templateName("이름")
+                .templateContent("본문")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .inspStatus("REG")
+                .templateStatus(AligoTemplateStatus.R)
+                .buttons(null)
+                .build();
+
+        // when
+        AligoTemplate template = AligoTemplate.from(state);
+
+        // then
+        assertThat(template.getButtons()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("ExternalState에 templateCode가 없으면 예외가 발생한다")
+    void shouldThrowExceptionWhenExternalStateTemplateCodeMissing() {
+        // given
+        AligoTemplateExternalState state = AligoTemplateExternalState.builder()
+                .senderKey("SK")
+                .templateName("이름")
+                .templateContent("본문")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .inspStatus("REG")
+                .templateStatus(AligoTemplateStatus.R)
+                .buttons(List.of())
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoTemplate.from(state))
+                .isInstanceOf(InvalidAligoTemplateException.class);
+    }
+
+    @Test
+    @DisplayName("ExternalState에 templateName이 없으면 예외가 발생한다")
+    void shouldThrowExceptionWhenExternalStateTemplateNameMissing() {
+        // given
+        AligoTemplateExternalState state = AligoTemplateExternalState.builder()
+                .senderKey("SK")
+                .templateCode("TPL001")
+                .templateContent("본문")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .inspStatus("REG")
+                .templateStatus(AligoTemplateStatus.R)
+                .buttons(List.of())
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoTemplate.from(state))
+                .isInstanceOf(InvalidAligoTemplateException.class);
+    }
+
+    @Test
+    @DisplayName("ExternalState에 templateContent가 없으면 예외가 발생한다")
+    void shouldThrowExceptionWhenExternalStateTemplateContentMissing() {
+        // given
+        AligoTemplateExternalState state = AligoTemplateExternalState.builder()
+                .senderKey("SK")
+                .templateCode("TPL001")
+                .templateName("이름")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .inspStatus("REG")
+                .templateStatus(AligoTemplateStatus.R)
+                .buttons(List.of())
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoTemplate.from(state))
+                .isInstanceOf(InvalidAligoTemplateException.class);
+    }
+
+    @Test
+    @DisplayName("ExternalState에 templateType이 없으면 예외가 발생한다")
+    void shouldThrowExceptionWhenExternalStateTemplateTypeMissing() {
+        // given
+        AligoTemplateExternalState state = AligoTemplateExternalState.builder()
+                .senderKey("SK")
+                .templateCode("TPL001")
+                .templateName("이름")
+                .templateContent("본문")
+                .templateEmType(AligoTemplateEmType.NONE)
+                .inspStatus("REG")
+                .templateStatus(AligoTemplateStatus.R)
+                .buttons(List.of())
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoTemplate.from(state))
+                .isInstanceOf(InvalidAligoTemplateException.class);
+    }
+
     private AligoTemplate createTemplateWithInspStatus(String inspStatus) {
         return AligoTemplate.from(
                 AligoTemplateSnapshotState.builder()
