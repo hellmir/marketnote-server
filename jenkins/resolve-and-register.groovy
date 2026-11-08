@@ -475,6 +475,129 @@ def resolveEnvPrefixFromJobName(parentScript) {
     return [envPrefix: "MARKETNOTE_${environment}", envUpper: environment]
 }
 
+// Select Target Service stage 본문 — 변경 파일 감지 → 후보 서비스 결정 → dispatcher 분기 / 단일 서비스 분기.
+// Jenkinsfile inline 분량을 helper 로 이관하여 WorkflowScript CPS 메서드 64KB 한계 회피 (#4725 선례 패턴).
+// 부수효과:
+//   - dispatcher 분기: env.DISPATCHER_MODE='true', env.CANDIDATE_SERVICES, currentBuild.description, 자식 build N건 트리거
+//   - 단일 서비스 분기: env.SERVICE_NAME, env.SERVICE_DIRECTORY, env.CANDIDATE_SERVICES
+def selectTargetService(parentScript) {
+    def base = sh(script: 'git rev-parse HEAD~1 || git rev-parse HEAD', returnStdout: true).trim()
+    def changed = sh(script: "git diff --name-only ${base} HEAD || true", returnStdout: true)
+        .trim()
+        .split('\n')
+        .findAll { it?.trim() } as List
+
+    def targetAdapters = [
+        'user-service'         : 'user-adapters',
+        'product-service'      : 'product-adapters',
+        'commerce-service'     : 'commerce-adapters',
+        'community-service'    : 'community-adapters',
+        'reward-service'       : 'reward-adapters',
+        'fulfillment-service'  : 'fulfillment-adapters',
+        'file-service'         : 'file-adapters',
+        'notification-service' : 'notification-adapters',
+    ]
+
+    def serviceTouched = { svc, adp ->
+        def prefixes = [
+            "${svc}/${adp}/",
+            "${svc}/${svc.replace('-service','')}-application/",
+            "${svc}/${svc.replace('-service','')}-domain/"
+        ]
+        changed.any { p -> prefixes.any { pre -> p.startsWith(pre) } }
+    }
+
+    // 전역 영향 파일/디렉토리 — 변경 시 8개 서비스 전체 재트리거.
+    // 정확 매칭: 루트 build/설정 파일, Gradle wrapper 런처 (서비스 하위 동명 파일은 serviceTouched 가 별도 감지).
+    // Prefix 매칭: common 모듈, jenkins 헬퍼 디렉토리, gradle wrapper, 공용 scripts
+    //             — 전부 모든 서비스 빌드가 직접 의존하는 경로.
+    def globalExactPaths = [
+        'build.gradle.kts',
+        'settings.gradle.kts',
+        'gradle.properties',
+        'Jenkinsfile',
+        'gradlew',
+        'gradlew.bat',
+    ]
+    def globalPrefixes = [
+        'common/',
+        'jenkins/',
+        'gradle/',
+        'scripts/',
+    ]
+
+    def commonOrRootChanged = changed.any { p ->
+        globalExactPaths.contains(p) || globalPrefixes.any { pre -> p.startsWith(pre) }
+    }
+
+    def candidates = commonOrRootChanged
+        ? (targetAdapters.keySet() as List)
+        : (targetAdapters.findAll { svc, adp -> serviceTouched(svc, adp) }.keySet() as List)
+    candidates = candidates.sort()
+
+    // auto 실행은 dispatcher 역할: 감지된 서비스 각각을 SERVICE=<svc> 로 재트리거 후 종료.
+    // disableConcurrentBuilds() 가 동일 잡의 동시 실행을 막아 자식 빌드 N건이 큐에서 직렬 소비됨.
+    // 재트리거된 빌드는 params.SERVICE != 'auto' 분기로 진입하여 단일 서비스 배포 흐름을 그대로 수행.
+    // NOTE: dispatcher 빌드는 env.DISPATCHER_MODE='true' 가 설정된 채 이후 stage 를 모두 스킵한다.
+    //       Skip If Same Commit / Deploy Pipeline 외 top-level stage 를 추가하는 경우 반드시
+    //       when { not { environment name: 'DISPATCHER_MODE', value: 'true' } } 가드를 추가할 것.
+    if (parentScript.params.SERVICE == 'auto') {
+        // 긴급 revert 우회(SKIP_FLYWAY_IMMUTABILITY_CHECK)는 단일 서비스 지정 전제 — auto 광역 우회 차단.
+        if (parentScript.params.SKIP_FLYWAY_IMMUTABILITY_CHECK) {
+            error "SKIP_FLYWAY_IMMUTABILITY_CHECK=true 는 SERVICE 를 구체 서비스로 지정한 경우에만 허용된다. (긴급 revert PR 한정 정책)"
+        }
+
+        env.DISPATCHER_MODE = 'true'
+        env.CANDIDATE_SERVICES = candidates.join(',')
+
+        echo "[DISPATCHER] changed files       = ${changed.size()}"
+        echo "[DISPATCHER] common/root changed = ${commonOrRootChanged}"
+        echo "[DISPATCHER] candidates          = ${candidates}"
+
+        if (!candidates) {
+            parentScript.currentBuild.description = '[DISPATCHER] no deploy target'
+            echo '[DISPATCHER] no candidates detected; exiting without deploy'
+            sendDispatcherSummaryNotification(parentScript, [], commonOrRootChanged)
+            return
+        }
+
+        candidates.each { svc ->
+            echo "[DISPATCHER] re-triggering ${env.JOB_NAME} with SERVICE=${svc}"
+            parentScript.build(
+                job: env.JOB_NAME,
+                wait: false,
+                propagate: false,
+                parameters: [
+                    parentScript.string(name: 'SERVICE', value: svc),
+                    parentScript.booleanParam(name: 'SKIP_FLYWAY_IMMUTABILITY_CHECK', value: false),
+                    parentScript.string(name: 'SKIP_REASON', value: parentScript.params.SKIP_REASON ?: ''),
+                    parentScript.string(name: 'DISPATCHER_BUILD_NUMBER', value: env.BUILD_NUMBER)
+                ]
+            )
+        }
+
+        parentScript.currentBuild.description = "[DISPATCHER] re-triggered ${candidates.size()}: ${candidates.join(',')}"
+        sendDispatcherSummaryNotification(parentScript, candidates, commonOrRootChanged)
+        triggerDispatcherMonitor(parentScript, candidates)
+        return
+    }
+
+    def targetService = parentScript.params.SERVICE
+
+    if (!targetAdapters.containsKey(targetService)) {
+        error "Unknown SERVICE '${targetService}'. Allowed: ${targetAdapters.keySet()}"
+    }
+
+    env.SERVICE_NAME = targetService
+    env.SERVICE_DIRECTORY = "${targetService}/${targetAdapters[targetService]}"
+    env.CANDIDATE_SERVICES = candidates.join(',')
+
+    sh "test -d '${env.SERVICE_DIRECTORY}'"
+
+    echo "Changed fileDomain count       = ${changed.size()}"
+    echo "COMMON/ROOT changed?      = ${commonOrRootChanged}"
+}
+
 // dispatcher 빌드(SERVICE=auto) 가 자식 N건을 큐잉한 직후 1회 발송하는 요약 Slack 알림.
 // disableConcurrentBuilds 와 wait:false 로 인해 자식 결과 집계는 본 함수 책임 외 (#4811 후속 분리).
 // SLACK_NOTIFICATION_CHANNEL credential 미해결 시 fail-open (echo 후 return).
