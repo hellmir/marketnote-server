@@ -1,11 +1,11 @@
 package com.personal.marketnote.reward.exception;
 
-import java.time.LocalDate;
+import com.personal.marketnote.common.domain.exception.DomainAlreadyExistsException;
 
-public class DuplicateAttendanceException extends RuntimeException {
-    public DuplicateAttendanceException(Long userAttendanceId, LocalDate attendedDate) {
-        super(
-                "ERR_ATTENDANCE_01::이미 출석이 등록된 날짜입니다. userAttendanceId=" + userAttendanceId + ", attendedDate=" + attendedDate
-        );
+public class DuplicateAttendanceException extends DomainAlreadyExistsException {
+    private static final String MESSAGE = "ERR_ATTENDANCE_01::이미 출석이 등록된 날짜입니다.";
+
+    public DuplicateAttendanceException() {
+        super(MESSAGE);
     }
 }

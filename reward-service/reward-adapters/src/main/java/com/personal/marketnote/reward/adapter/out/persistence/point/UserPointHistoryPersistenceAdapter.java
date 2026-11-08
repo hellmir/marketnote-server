@@ -11,6 +11,7 @@ import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
 import com.personal.marketnote.reward.port.out.point.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 
@@ -22,6 +23,7 @@ import java.util.Objects;
 import static com.personal.marketnote.common.utility.AccrualPointAmountConstant.REFERRAL_BONUS_REASON_PREFIX;
 import static com.personal.marketnote.common.utility.AccrualPointAmountConstant.REFERRER_POINT_REASON;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryPort, FindUserPointHistoryPort, UpdateUserPointHistoryPort, CountReferralPort, CheckReferralBonusClaimedPort {
@@ -35,10 +37,12 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
             );
             return saved.toDomain();
         } catch (DataIntegrityViolationException e) {
-            throw new DuplicateUserPointHistoryException(
+            log.warn(
+                    "이미 처리된 포인트 변경입니다. userId={}, sourceType={}, sourceId={}, reason={}",
                     history.getUserId(), history.getSourceType(),
                     history.getSourceId(), history.getReason()
             );
+            throw new DuplicateUserPointHistoryException();
         }
     }
 

@@ -111,7 +111,7 @@ class ReviewRegisteredPointConsumerTest {
     void handleReviewRegisteredEvent_duplicateEvent_idempotentAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, 200L);
-        doThrow(new DuplicateUserPointHistoryException(100L, UserPointSourceType.REVIEW, 200L, "리뷰 등록 적립"))
+        doThrow(new DuplicateUserPointHistoryException())
                 .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // when

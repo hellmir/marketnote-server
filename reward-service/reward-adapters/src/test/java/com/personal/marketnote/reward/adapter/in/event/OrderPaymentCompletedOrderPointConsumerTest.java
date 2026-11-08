@@ -156,7 +156,7 @@ class OrderPaymentCompletedOrderPointConsumerTest {
     void handleOrderPaymentCompletedEvent_duplicateEvent_idempotentAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 5000L);
-        doThrow(new DuplicateUserPointHistoryException(100L, UserPointSourceType.ORDER, 1L, "주문 포인트 사용"))
+        doThrow(new DuplicateUserPointHistoryException())
                 .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // when

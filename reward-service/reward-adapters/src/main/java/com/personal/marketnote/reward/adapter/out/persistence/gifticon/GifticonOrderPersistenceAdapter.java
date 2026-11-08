@@ -38,7 +38,11 @@ public class GifticonOrderPersistenceAdapter
             GifticonOrderJpaEntity savedEntity = gifticonOrderJpaRepository.saveAndFlush(entity);
             return savedEntity.toDomain();
         } catch (DataIntegrityViolationException e) {
-            throw new DuplicateGifticonOrderException(order.getTrId());
+            log.warn(
+                    "기프티콘 주문이 중복되었습니다. trId={}",
+                    order.getTrId()
+            );
+            throw new DuplicateGifticonOrderException();
         }
     }
 

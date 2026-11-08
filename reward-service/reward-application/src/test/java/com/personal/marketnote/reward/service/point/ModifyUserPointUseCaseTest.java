@@ -338,8 +338,7 @@ class ModifyUserPointUseCaseTest {
             when(updateUserPointPort.update(any(UserPoint.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
             when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                    .thenThrow(new DuplicateUserPointHistoryException(
-                            USER_ID, UserPointSourceType.ORDER, 100L, "상품 구매 적립"));
+                    .thenThrow(new DuplicateUserPointHistoryException());
 
             // expect
             assertThatThrownBy(() -> modifyUserPointService.modify(command))

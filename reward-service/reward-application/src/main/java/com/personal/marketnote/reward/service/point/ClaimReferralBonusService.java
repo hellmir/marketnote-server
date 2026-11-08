@@ -13,6 +13,7 @@ import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCa
 import com.personal.marketnote.reward.port.out.point.CheckReferralBonusClaimedPort;
 import com.personal.marketnote.reward.port.out.point.CountReferralPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -45,7 +47,8 @@ public class ClaimReferralBonusService implements ClaimReferralBonusUseCase {
         }
 
         if (checkReferralBonusClaimedPort.isAlreadyClaimed(userId, tier)) {
-            throw new DuplicateReferralBonusClaimException(userId, tier);
+            log.warn("이미 수령한 추천인 보너스입니다. userId={}, tier={}", userId, tier);
+            throw new DuplicateReferralBonusClaimException();
         }
 
         ModifyUserPointCommand modifyCommand = ModifyUserPointCommand.forReferralBonus(userId, tier);
@@ -53,7 +56,8 @@ public class ClaimReferralBonusService implements ClaimReferralBonusUseCase {
         try {
             modifyUserPointUseCase.modify(modifyCommand);
         } catch (DuplicateUserPointHistoryException e) {
-            throw new DuplicateReferralBonusClaimException(userId, tier);
+            log.warn("이미 수령한 추천인 보너스입니다. userId={}, tier={}", userId, tier);
+            throw new DuplicateReferralBonusClaimException();
         }
 
         return ClaimReferralBonusResult.from(tier);

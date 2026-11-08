@@ -83,7 +83,7 @@ class ReviewDeletedPointConsumerTest {
     void handleReviewDeletedEvent_duplicateEvent_idempotentAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, 200L);
-        doThrow(new DuplicateUserPointHistoryException(100L, UserPointSourceType.REVIEW, 200L, "리뷰 삭제 차감"))
+        doThrow(new DuplicateUserPointHistoryException())
                 .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // when

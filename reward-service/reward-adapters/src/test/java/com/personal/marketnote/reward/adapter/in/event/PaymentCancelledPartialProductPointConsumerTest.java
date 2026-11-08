@@ -264,7 +264,7 @@ class PaymentCancelledPartialProductPointConsumerTest {
     void handlePaymentCancelledEvent_duplicateEvent_idempotentAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1500L, false);
-        doThrow(new DuplicateUserPointHistoryException(100L, UserPointSourceType.ORDER, 1L, "부분 결제 취소 상품 적립 예정 포인트 차감"))
+        doThrow(new DuplicateUserPointHistoryException())
                 .when(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
 
         // when

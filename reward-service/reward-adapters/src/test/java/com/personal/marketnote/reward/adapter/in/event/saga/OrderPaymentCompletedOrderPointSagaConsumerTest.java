@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.saga.SagaResponsePublisher;
 import com.personal.marketnote.common.saga.SagaStepMessage;
-import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
 import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
@@ -90,7 +89,7 @@ class OrderPaymentCompletedOrderPointSagaConsumerTest {
             SagaStepMessage stepMessage = new SagaStepMessage(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
 
-            doThrow(new DuplicateUserPointHistoryException(100L, UserPointSourceType.ORDER, 1L, "중복"))
+            doThrow(new DuplicateUserPointHistoryException())
                     .when(modifyUserPointUseCase).modify(any());
 
             consumer.handleOrderPointStep(createRecord(stepMessage), acknowledgment);

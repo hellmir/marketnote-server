@@ -53,7 +53,11 @@ public class NotificationTemplatePersistenceAdapter
             NotificationTemplateJpaEntity saved = notificationTemplateJpaRepository.save(entity);
             return saved.getId();
         } catch (DataIntegrityViolationException dive) {
-            throw new DuplicateNotificationTemplateException(notificationTemplate.getTemplateCode());
+            log.warn(
+                    "이미 존재하는 템플릿 코드입니다. templateCode={}",
+                    notificationTemplate.getTemplateCode()
+            );
+            throw new DuplicateNotificationTemplateException();
         }
     }
 
