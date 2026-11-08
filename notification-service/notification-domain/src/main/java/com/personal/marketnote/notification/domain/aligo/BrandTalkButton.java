@@ -31,6 +31,17 @@ public class BrandTalkButton {
                 .build();
     }
 
+    public static BrandTalkButton from(BrandTalkButtonSnapshotState state) {
+        return BrandTalkButton.builder()
+                .name(state.getName())
+                .linkType(state.getLinkType())
+                .linkM(state.getLinkM())
+                .linkP(state.getLinkP())
+                .linkI(state.getLinkI())
+                .linkA(state.getLinkA())
+                .build();
+    }
+
     private static void validate(
             String name, AligoTemplateButtonLinkType linkType,
             String linkM, String linkP, String linkI, String linkA

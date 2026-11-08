@@ -3,15 +3,15 @@ package com.personal.marketnote.notification.domain.aligo;
 import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
+@Builder
 public class AligoBrandTalkMessageRecipientSnapshotState {
 
-    private Long id;
-    private String receiver;
-    private String receiverMessage;
-    private String msgId;
-    private AligoMessageRecipientStatus recipientStatus;
-    private String rslt;
-    private String rsltMessage;
+    private final Long id;
+    private final String receiver;
+    private final String receiverMessage;
+    private final String msgId;
+    private final AligoMessageRecipientStatus recipientStatus;
+    private final String rslt;
+    private final String rsltMessage;
 }

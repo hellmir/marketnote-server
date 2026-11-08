@@ -1,24 +1,23 @@
 package com.personal.marketnote.notification.domain.aligo;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 @Getter
+@Builder
 public class AligoMessageRecipientSnapshotState {
 
-    private Long id;
-    private String receiver;
-    private String recvName;
-    private String msgId;
-    private String smid;
-    private AligoMessageRecipientStatus recipientStatus;
-    private String rslt;
-    private String rsltMessage;
-    private LocalDateTime sentAt;
-    private LocalDateTime resultAt;
-    private LocalDateTime reportAt;
+    private final Long id;
+    private final String receiver;
+    private final String recvName;
+    private final String msgId;
+    private final String smid;
+    private final AligoMessageRecipientStatus recipientStatus;
+    private final String rslt;
+    private final String rsltMessage;
+    private final LocalDateTime sentAt;
+    private final LocalDateTime resultAt;
+    private final LocalDateTime reportAt;
 }

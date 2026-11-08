@@ -1,22 +1,21 @@
 package com.personal.marketnote.notification.domain.device;
 
 import com.personal.marketnote.common.domain.EntityStatus;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 @Getter
+@Builder
 public class DeviceTokenSnapshotState {
-    private Long id;
-    private Long userId;
-    private String token;
-    private Platform platform;
-    private String deviceId;
-    private LocalDateTime lastUsedAt;
-    private EntityStatus status;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private final Long id;
+    private final Long userId;
+    private final String token;
+    private final Platform platform;
+    private final String deviceId;
+    private final LocalDateTime lastUsedAt;
+    private final EntityStatus status;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime modifiedAt;
 }

@@ -163,4 +163,91 @@ class AligoTemplateButtonTest {
                 .isInstanceOf(InvalidAligoTemplateButtonException.class)
                 .hasMessageContaining("AL 타입 버튼은 linkIos, linkAnd가 필수입니다.");
     }
+
+    @Test
+    @DisplayName("SnapshotState로부터 name이 null이어도 예외 없이 복원된다")
+    void shouldRestoreFromSnapshotWithNullName() {
+        // given
+        AligoTemplateButtonSnapshotState snapshot = AligoTemplateButtonSnapshotState.builder()
+                .ordering(1)
+                .name(null)
+                .linkType(AligoTemplateButtonLinkType.AC)
+                .build();
+
+        // when
+        AligoTemplateButton button = AligoTemplateButton.from(snapshot);
+
+        // then
+        assertThat(button.getName()).isNull();
+        assertThat(button.getLinkType()).isEqualTo(AligoTemplateButtonLinkType.AC);
+    }
+
+    @Test
+    @DisplayName("SnapshotState로부터 WL 타입인데 linkMo/linkPc가 null이어도 예외 없이 복원된다")
+    void shouldRestoreFromSnapshotWlWithNullLinks() {
+        // given
+        AligoTemplateButtonSnapshotState snapshot = AligoTemplateButtonSnapshotState.builder()
+                .ordering(1)
+                .name("웹링크")
+                .linkType(AligoTemplateButtonLinkType.WL)
+                .linkMo(null)
+                .linkPc(null)
+                .build();
+
+        // when
+        AligoTemplateButton button = AligoTemplateButton.from(snapshot);
+
+        // then
+        assertThat(button.getLinkType()).isEqualTo(AligoTemplateButtonLinkType.WL);
+        assertThat(button.getLinkMo()).isNull();
+        assertThat(button.getLinkPc()).isNull();
+    }
+
+    @Test
+    @DisplayName("SnapshotState로부터 AL 타입인데 linkIos/linkAnd가 null이어도 예외 없이 복원된다")
+    void shouldRestoreFromSnapshotAlWithNullLinks() {
+        // given
+        AligoTemplateButtonSnapshotState snapshot = AligoTemplateButtonSnapshotState.builder()
+                .ordering(1)
+                .name("앱링크")
+                .linkType(AligoTemplateButtonLinkType.AL)
+                .linkIos(null)
+                .linkAnd(null)
+                .build();
+
+        // when
+        AligoTemplateButton button = AligoTemplateButton.from(snapshot);
+
+        // then
+        assertThat(button.getLinkType()).isEqualTo(AligoTemplateButtonLinkType.AL);
+        assertThat(button.getLinkIos()).isNull();
+        assertThat(button.getLinkAnd()).isNull();
+    }
+
+    @Test
+    @DisplayName("SnapshotState로부터 모든 필드가 그대로 매핑된다")
+    void shouldRestoreAllFieldsFromSnapshot() {
+        // given
+        AligoTemplateButtonSnapshotState snapshot = AligoTemplateButtonSnapshotState.builder()
+                .ordering(3)
+                .name("혼합 버튼")
+                .linkType(AligoTemplateButtonLinkType.WL)
+                .linkMo("https://m.example.com")
+                .linkPc("https://www.example.com")
+                .linkIos("ios://app")
+                .linkAnd("android://app")
+                .build();
+
+        // when
+        AligoTemplateButton button = AligoTemplateButton.from(snapshot);
+
+        // then
+        assertThat(button.getOrdering()).isEqualTo(3);
+        assertThat(button.getName()).isEqualTo("혼합 버튼");
+        assertThat(button.getLinkType()).isEqualTo(AligoTemplateButtonLinkType.WL);
+        assertThat(button.getLinkMo()).isEqualTo("https://m.example.com");
+        assertThat(button.getLinkPc()).isEqualTo("https://www.example.com");
+        assertThat(button.getLinkIos()).isEqualTo("ios://app");
+        assertThat(button.getLinkAnd()).isEqualTo("android://app");
+    }
 }

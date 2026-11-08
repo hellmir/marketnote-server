@@ -7,33 +7,33 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Builder
 @Getter
+@Builder
 public class AligoBrandTalkTemplateSnapshotState {
 
-    private Long id;
-    private String senderKey;
-    private String templateCode;
-    private String templateName;
-    private BrandTalkTemplateType templateType;
-    private String templateContent;
-    private boolean adult;
-    private String imageUrl;
-    private String imageLink;
-    private List<BrandTalkButton> buttons;
-    private BrandTalkCoupon coupon;
-    private String templateHeader;
-    private BrandTalkWideItem mainWideItem;
-    private List<BrandTalkWideItem> subWideItems;
-    private String carouselHeader;
-    private List<BrandTalkCarouselItem> carouselItems;
-    private List<BrandTalkCarouselCommerce> carouselCommerces;
-    private BrandTalkCarouselTail carouselTail;
-    private String videoUrl;
-    private String videoThumbnailUrl;
-    private BrandTalkTemplateStatus templateStatus;
-    private BrandTalkCommerceInfo commerceInfo;
-    private EntityStatus status;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private final Long id;
+    private final String senderKey;
+    private final String templateCode;
+    private final String templateName;
+    private final BrandTalkTemplateType templateType;
+    private final String templateContent;
+    private final boolean adult;
+    private final String imageUrl;
+    private final String imageLink;
+    private final List<BrandTalkButton> buttons;
+    private final BrandTalkCoupon coupon;
+    private final String templateHeader;
+    private final BrandTalkWideItem mainWideItem;
+    private final List<BrandTalkWideItem> subWideItems;
+    private final String carouselHeader;
+    private final List<BrandTalkCarouselItem> carouselItems;
+    private final List<BrandTalkCarouselCommerce> carouselCommerces;
+    private final BrandTalkCarouselTail carouselTail;
+    private final String videoUrl;
+    private final String videoThumbnailUrl;
+    private final BrandTalkTemplateStatus templateStatus;
+    private final BrandTalkCommerceInfo commerceInfo;
+    private final EntityStatus status;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime modifiedAt;
 }
