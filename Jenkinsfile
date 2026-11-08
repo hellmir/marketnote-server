@@ -334,7 +334,7 @@ pipeline {
 						}
 					}
 
-                    def commonChanged = false
+					def commonChanged = changed.any { it.startsWith('common/') }
 
 					def candidates = commonChanged
 					? (targetAdapters.keySet() as List)
@@ -344,9 +344,50 @@ pipeline {
 
 					candidates = candidates.sort()
 
-					def targetService =
-					(params.SERVICE && params.SERVICE != 'auto') ? params.SERVICE :
-					(candidates ? candidates[0] : 'user-service')
+					// auto 실행은 dispatcher 역할: 감지된 서비스 각각을 SERVICE=<svc> 로 재트리거 후 종료.
+					// disableConcurrentBuilds() 가 동일 잡의 동시 실행을 막아 자식 빌드 N건이 큐에서 직렬 소비됨.
+					// 재트리거된 빌드는 params.SERVICE != 'auto' 분기로 진입하여 단일 서비스 배포 흐름을 그대로 수행.
+					// NOTE: dispatcher 빌드는 env.DISPATCHER_MODE='true' 가 설정된 채 이후 stage 를 모두 스킵한다.
+					//       Skip If Same Commit / Deploy Pipeline 외 top-level stage 를 추가하는 경우 반드시
+					//       when { not { environment name: 'DISPATCHER_MODE', value: 'true' } } 가드를 추가할 것.
+					if (params.SERVICE == 'auto') {
+						// 긴급 revert 우회(SKIP_FLYWAY_IMMUTABILITY_CHECK)는 단일 서비스 지정 전제 — auto 광역 우회 차단.
+						if (params.SKIP_FLYWAY_IMMUTABILITY_CHECK) {
+							error "SKIP_FLYWAY_IMMUTABILITY_CHECK=true 는 SERVICE 를 구체 서비스로 지정한 경우에만 허용된다. (긴급 revert PR 한정 정책)"
+						}
+
+						env.DISPATCHER_MODE = 'true'
+						env.CANDIDATE_SERVICES = candidates.join(',')
+
+						echo "[DISPATCHER] changed files       = ${changed.size()}"
+						echo "[DISPATCHER] common changed      = ${commonChanged}"
+						echo "[DISPATCHER] candidates          = ${candidates}"
+
+						if (!candidates) {
+							currentBuild.description = '[DISPATCHER] no deploy target'
+							echo '[DISPATCHER] no candidates detected; exiting without deploy'
+							return
+						}
+
+						candidates.each { svc ->
+							echo "[DISPATCHER] re-triggering ${env.JOB_NAME} with SERVICE=${svc}"
+							build(
+								job: env.JOB_NAME,
+								wait: false,
+								propagate: false,
+								parameters: [
+									string(name: 'SERVICE', value: svc),
+									booleanParam(name: 'SKIP_FLYWAY_IMMUTABILITY_CHECK', value: false),
+									string(name: 'SKIP_REASON', value: params.SKIP_REASON ?: '')
+								]
+							)
+						}
+
+						currentBuild.description = "[DISPATCHER] re-triggered: ${candidates.join(',')}"
+						return
+					}
+
+					def targetService = params.SERVICE
 
 					if (!targetAdapters.containsKey(targetService)) {
 						error "Unknown SERVICE '${targetService}'. Allowed: ${targetAdapters.keySet()}"
@@ -365,6 +406,7 @@ pipeline {
 		}
 
 		stage('Skip If Same Commit (Cron Only)') {
+			when { not { environment name: 'DISPATCHER_MODE', value: 'true' } }
 			steps {
 				script {
 					def helper = load 'jenkins/resolve-and-register.groovy'
@@ -374,7 +416,12 @@ pipeline {
 		}
 
 		stage('Deploy Pipeline') {
-			when { not { environment name: 'CRON_SKIP', value: 'true' } }
+			when {
+				allOf {
+					not { environment name: 'CRON_SKIP', value: 'true' }
+					not { environment name: 'DISPATCHER_MODE', value: 'true' }
+				}
+			}
 			stages {
 			stage('Environment Setup') {
 				steps {

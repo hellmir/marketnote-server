@@ -452,6 +452,10 @@ def sendStartNotification(parentScript) {
 
 // post.success 본문 — description 기록 + Slack 성공 알림.
 def handleBuildSuccess(parentScript) {
+    if (env.DISPATCHER_MODE == 'true') {
+        echo "[DISPATCHER] skipping success notification/description override"
+        return
+    }
     if (env.SERVICE_NAME?.trim() && env.GIT_COMMIT?.trim()) {
         parentScript.currentBuild.description = "SERVICE=${env.SERVICE_NAME} COMMIT=${env.GIT_COMMIT}"
     }
@@ -474,6 +478,10 @@ def handleBuildSuccess(parentScript) {
 
 // post.failure 본문 — Slack 실패 알림 ([QA-CRON] prefix 조건부).
 def handleBuildFailure(parentScript) {
+    if (env.DISPATCHER_MODE == 'true') {
+        echo "[DISPATCHER] skipping failure notification"
+        return
+    }
     def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
     if (!ch) {
         echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack failure notification"
