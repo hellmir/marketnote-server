@@ -133,7 +133,7 @@ import java.lang.annotation.*;
                                           "code": "NOT_FOUND",
                                           "timestamp": "2025-12-26T09:53:02.089234",
                                           "content": null,
-                                          "message": "존재하지 않는 회원입니다. 전송된 회원 이메일 주소: example@example.com"
+                                          "message": "회원을 찾을 수 없습니다."
                                         }
                                         """)
                         )
