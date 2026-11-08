@@ -146,11 +146,11 @@ pipeline {
 						env.SLACK_NOTIFICATION_CHANNEL = SLACK_NOTIFICATION_CHANNEL
 
 						def helper = load 'jenkins/resolve-and-register.groovy'
-						def branchLabel = helper.resolveBranchLabel(this)
+						def branchLabel = helper.sanitizeSlackLine(helper.resolveBranchLabel(this))
 						env.BRANCH_LABEL = branchLabel
 
-						def commitAuthor  = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
-						def commitMessage = sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim()
+						def commitAuthor  = helper.sanitizeSlackLine(sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim())
+						def commitMessage = helper.sanitizeCommitSubject(sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim())
 
 						slackSend(
 							channel: "${env.SLACK_NOTIFICATION_CHANNEL}",

@@ -376,12 +376,36 @@ def validateSkipReason(String reason) {
     }
 }
 
+// Slack mrkdwn 메시지 보간 입력에서 줄바꿈/탭/제어문자 제거 + 길이 상한.
+// 강조 문자(* _ < > | `)는 통과 (#4810 SKIP_REASON 검증과 일관, 라인 위장만 차단).
+// 핵심 위협: commit message body에 `\nAUTHOR: attacker` 같은 위장 라인 삽입 → AUTHOR/COMMIT 라인 조작.
+def sanitizeSlackLine(String value, int maxLen) {
+    if (value == null) return ''
+    def cleaned = value.replaceAll(/[\x00-\x1F\x7F]/, ' ').trim()
+    if (cleaned.length() > maxLen) {
+        cleaned = cleaned.substring(0, maxLen) + '...'
+    }
+    return cleaned
+}
+
+// CPS 직렬화 안전성 확보 — 기본 인자 대신 명시 오버로드.
+def sanitizeSlackLine(String value) {
+    return sanitizeSlackLine(value, 200)
+}
+
+// commit message 첫 줄(subject)만 추출 후 정화. body 라인 위장 벡터 원천 차단.
+def sanitizeCommitSubject(String commitMessage) {
+    if (commitMessage == null) return ''
+    def firstLine = commitMessage.split(/\r?\n/, 2)[0]
+    return sanitizeSlackLine(firstLine, 200)
+}
+
 def notifyFlywayImmutabilitySkip(parentScript) {
     def rawReason = parentScript.params.SKIP_REASON
     validateSkipReason(rawReason)
     def skipReason = rawReason.trim()
-    def skipCommitAuthor = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
-    def branchLabel = env.BRANCH_LABEL?.trim() ?: resolveBranchLabel(parentScript)
+    def skipCommitAuthor = sanitizeSlackLine(sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim())
+    def branchLabel = sanitizeSlackLine(env.BRANCH_LABEL?.trim() ?: resolveBranchLabel(parentScript))
     def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
     if (ch) {
         slackSend(
@@ -464,9 +488,9 @@ def sendDispatcherSummaryNotification(parentScript, candidates, boolean commonOr
             echo '[DISPATCHER] SLACK_NOTIFICATION_CHANNEL unresolved; skipping dispatcher summary notification'
             return
         }
-        def branchLabel = resolveBranchLabel(parentScript)
-        def commitAuthor  = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
-        def commitMessage = sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim()
+        def branchLabel = sanitizeSlackLine(resolveBranchLabel(parentScript))
+        def commitAuthor  = sanitizeSlackLine(sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim())
+        def commitMessage = sanitizeCommitSubject(sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim())
         def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
         def candidateList = candidates ?: []
         def servicesText = candidateList ? candidateList.join(', ') : '(none)'
@@ -493,10 +517,10 @@ def sendStartNotification(parentScript) {
         string(credentialsId: "${env.ENV_PREFIX}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
     ]) {
         env.SLACK_NOTIFICATION_CHANNEL = SLACK_NOTIFICATION_CHANNEL
-        def branchLabel = resolveBranchLabel(parentScript)
+        def branchLabel = sanitizeSlackLine(resolveBranchLabel(parentScript))
         env.BRANCH_LABEL = branchLabel
-        def commitAuthor  = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
-        def commitMessage = sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim()
+        def commitAuthor  = sanitizeSlackLine(sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim())
+        def commitMessage = sanitizeCommitSubject(sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim())
         def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
         slackSend(
             channel: "${env.SLACK_NOTIFICATION_CHANNEL}",
