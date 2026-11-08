@@ -16,6 +16,7 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -152,6 +153,79 @@ class AligoTemplateExternalAdapterTest {
     @Nested
     @DisplayName("getTemplateList")
     class GetTemplateList {
+
+        @Test
+        @DisplayName("응답의 templt_content가 비어 있으면 InvalidAligoTemplateException이 발생한다")
+        void shouldThrowWhenTemplateContentMissing() {
+            // given
+            String responseBody = """
+                    {
+                        "result_code": 0,
+                        "message": "성공",
+                        "list": [
+                            {
+                                "senderkey": "SK",
+                                "templt_code": "TPL001",
+                                "templt_name": "이름",
+                                "templt_content": null,
+                                "template_type": "BA",
+                                "inspStatus": "REG",
+                                "status": "R",
+                                "comments": null
+                            }
+                        ]
+                    }
+                    """;
+            mockServer.expect(requestTo("http://localhost/akv10/template/list/"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+            // when & then
+            assertThatThrownBy(() -> adapter.getTemplateList("SK"))
+                    .isInstanceOf(InvalidAligoTemplateException.class);
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("응답 필드가 정상이면 AligoTemplate으로 매핑되고 comments/inspStatus/status가 보존된다")
+        void shouldMapValidResponseToTemplate() {
+            // given
+            String responseBody = """
+                    {
+                        "result_code": 0,
+                        "message": "성공",
+                        "list": [
+                            {
+                                "senderkey": "SK",
+                                "templt_code": "TPL001",
+                                "templt_name": "이름",
+                                "templt_content": "본문",
+                                "template_type": "BA",
+                                "template_emphasize_type": "NONE",
+                                "inspStatus": "APR",
+                                "status": "A",
+                                "comments": "ok"
+                            }
+                        ]
+                    }
+                    """;
+            mockServer.expect(requestTo("http://localhost/akv10/template/list/"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+            // when
+            List<AligoTemplate> result = adapter.getTemplateList("SK");
+
+            // then
+            assertThat(result).hasSize(1);
+            AligoTemplate template = result.get(0);
+            assertThat(template.getTemplateCode()).isEqualTo("TPL001");
+            assertThat(template.getTemplateContent()).isEqualTo("본문");
+            assertThat(template.getInspStatus()).isEqualTo("APR");
+            assertThat(template.getTemplateStatus()).isEqualTo(AligoTemplateStatus.A);
+            assertThat(template.getComments()).isEqualTo("ok");
+            mockServer.verify();
+        }
 
         @Test
         @DisplayName("응답의 template_emphasize_type이 없으면 NONE으로 매핑된다")

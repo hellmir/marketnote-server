@@ -84,6 +84,24 @@ public class AligoTemplate extends BaseDomain {
         return template;
     }
 
+    public static AligoTemplate from(AligoTemplateExternalState state) {
+        validateExternal(state);
+        AligoTemplate template = AligoTemplate.builder()
+                .senderKey(state.getSenderKey())
+                .templateCode(state.getTemplateCode())
+                .templateName(state.getTemplateName())
+                .templateContent(state.getTemplateContent())
+                .templateType(state.getTemplateType())
+                .templateEmType(state.getTemplateEmType())
+                .inspStatus(state.getInspStatus())
+                .templateStatus(state.getTemplateStatus())
+                .comments(state.getComments())
+                .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
+                .build();
+        template.activate();
+        return template;
+    }
+
     public boolean hasTemplateTitle() {
         return FormatValidator.hasValue(templateTitle);
     }
@@ -171,6 +189,21 @@ public class AligoTemplate extends BaseDomain {
         if (!canDelete()) {
             log.warn("템플릿을 삭제할 수 없는 상태입니다. templateCode={}", templateCode);
             throw new InvalidAligoTemplateDeletionException();
+        }
+    }
+
+    private static void validateExternal(AligoTemplateExternalState state) {
+        if (FormatValidator.hasNoValue(state.getTemplateCode())) {
+            throw new InvalidAligoTemplateException("templateCode는 필수입니다.");
+        }
+        if (FormatValidator.hasNoValue(state.getTemplateName())) {
+            throw new InvalidAligoTemplateException("templateName은 필수입니다.");
+        }
+        if (FormatValidator.hasNoValue(state.getTemplateContent())) {
+            throw new InvalidAligoTemplateException("templateContent는 필수입니다.");
+        }
+        if (FormatValidator.hasNoValue(state.getTemplateType())) {
+            throw new InvalidAligoTemplateException("templateType은 필수입니다.");
         }
     }
 
