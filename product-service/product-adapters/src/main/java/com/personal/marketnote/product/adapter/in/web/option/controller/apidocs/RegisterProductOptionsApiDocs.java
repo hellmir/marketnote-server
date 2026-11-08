@@ -120,6 +120,21 @@ import java.lang.annotation.*;
                         )
                 ),
                 @ApiResponse(
+                        responseCode = "401",
+                        description = "토큰 인증 실패",
+                        content = @Content(
+                                examples = @ExampleObject("""
+                                        {
+                                          "statusCode": 401,
+                                          "code": "UNAUTHORIZED",
+                                          "timestamp": "2026-01-01T10:00:00.000",
+                                          "content": null,
+                                          "message": "Invalid token"
+                                        }
+                                        """)
+                        )
+                ),
+                @ApiResponse(
                         responseCode = "403",
                         description = "비활성화된 계정",
                         content = @Content(
