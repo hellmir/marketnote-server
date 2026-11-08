@@ -120,36 +120,6 @@ import java.lang.annotation.*;
                         )
                 ),
                 @ApiResponse(
-                        responseCode = "409",
-                        description = "중복된 회원 등록",
-                        content = @Content(
-                                examples = @ExampleObject("""
-                                        {
-                                          "statusCode": 409,
-                                          "code": "ERR01",
-                                          "timestamp": "2025-12-28T11:50:53.656526",
-                                          "content": null,
-                                          "message": "이미 가입된 회원입니다. 가입된 OIDC ID: 1234"
-                                        }
-                                        """)
-                        )
-                ),
-                @ApiResponse(
-                        responseCode = "401",
-                        description = "인증 코드 검증 실패",
-                        content = @Content(
-                                examples = @ExampleObject("""
-                                        {
-                                          "statusCode": 401,
-                                          "code": "ERR05",
-                                          "timestamp": "2025-12-282T09:23:22.091551",
-                                          "content": null,
-                                          "message": "이메일 인증 코드가 유효하지 않거나 만료되었습니다. 전송된 이메일 주소: example@example.com"
-                                        }
-                                        """)
-                        )
-                ),
-                @ApiResponse(
                         responseCode = "403",
                         description = "비활성화된 계정",
                         content = @Content(
