@@ -637,14 +637,15 @@ def sendDispatcherSummaryNotification(parentScript, candidates, boolean commonOr
 }
 
 // Notify Start stage 본문 — withCredentials / branchLabel / slackSend 전체.
+// #4825: description 설정은 credential 의존 없음. credential 미해결 케이스에서도 dispatcher 추적 prefix 보존하도록 withCredentials 외부로 이동.
 def sendStartNotification(parentScript) {
+    if (env.SERVICE_NAME?.trim()) {
+        parentScript.currentBuild.description = composeChildDescription(parentScript, "SERVICE=${env.SERVICE_NAME}")
+    }
     withCredentials([
         string(credentialsId: "${env.ENV_PREFIX}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
     ]) {
         env.SLACK_NOTIFICATION_CHANNEL = SLACK_NOTIFICATION_CHANNEL
-        if (env.SERVICE_NAME?.trim()) {
-            parentScript.currentBuild.description = composeChildDescription(parentScript, "SERVICE=${env.SERVICE_NAME}")
-        }
         def branchLabel = sanitizeSlackLine(resolveBranchLabel(parentScript))
         env.BRANCH_LABEL = branchLabel
         def commitAuthor  = sanitizeSlackLine(sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim())
