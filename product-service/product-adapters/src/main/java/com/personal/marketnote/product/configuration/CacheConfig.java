@@ -48,13 +48,15 @@ public class CacheConfig {
     private ObjectMapper redisObjectMapper() {
         ObjectMapper mapper = objectMapper.copy();
 
-        // EVERYTHING: record(final) 등 final 클래스 element 에도 @class type info 부여 필수.
-        // NON_FINAL 시 List<record> 역직렬화 시 element 가 LinkedHashMap 으로 떨어져 MismatchedInputException 발생 (#4844)
+        // NON_FINAL: 도메인 클래스의 의도된 비대칭 직렬화 보존 (Money 등 final VO 필드 + @JsonCreator(@JsonProperty Long) 패턴).
+        // EVERYTHING 으로 변경 시 final VO 에 type id 가 강제 부여되어 Long 매핑 실패(InvalidTypeIdException) 발생 (#4851).
+        // 캐시 value 타입에 record 사용 금지 — record(final) element 에 type info 미부여로 두 번째 조회 시 LinkedHashMap 으로 복원 (#4844).
+        // 캐시 value 는 final class + @JsonCreator/@JsonProperty 생성자로 불변성 유지.
         mapper.activateDefaultTyping(
                 BasicPolymorphicTypeValidator.builder()
                         .allowIfBaseType(Object.class)
                         .build(),
-                ObjectMapper.DefaultTyping.EVERYTHING,
+                ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY
         );
         mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
