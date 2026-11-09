@@ -669,6 +669,8 @@ def sendStartNotification(parentScript) {
 // 자식 빌드 description 에 dispatcher BUILD_NUMBER prefix 합성. 수동/cron 트리거 시 prefix 없이 suffix 그대로 반환.
 // #4816: build(wait: false) 가 자식 BUILD_NUMBER 미반환 → 자식이 자기 description 에 부모 역기록으로 양방향 추적.
 // findLastDeployedCommit 의 SERVICE=...COMMIT=... substring 매칭과 정합 — prefix 추가는 회귀 없음.
+// #4824: 동일 파일 findLastDeployedCommit/isCronTriggered 와 일관성. 순수 문자열 보간만 수행하므로 CPS 직렬화 우회 명시.
+@NonCPS
 def composeChildDescription(parentScript, String coreSuffix) {
     def num = parentScript.params.DISPATCHER_BUILD_NUMBER?.trim()
     if (num) {
