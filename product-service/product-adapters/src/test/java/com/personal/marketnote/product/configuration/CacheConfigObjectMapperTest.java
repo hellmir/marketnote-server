@@ -18,6 +18,9 @@ import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductTag;
 import com.personal.marketnote.product.domain.product.ProductTagSnapshotState;
+import com.personal.marketnote.product.port.in.result.product.ProductCatalogItemResult;
+import com.personal.marketnote.product.port.in.result.product.ProductCatalogOptionSnapshot;
+import com.personal.marketnote.product.port.in.result.product.ProductCatalogTagSnapshot;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -190,5 +193,113 @@ class CacheConfigObjectMapperTest {
         List<?> resultList = (List<?>) deserialized;
         assertThat(resultList).hasSize(1);
         assertThat(resultList.get(0)).isInstanceOf(Product.class);
+    }
+
+    private ProductCatalogItemResult createTestCatalogItemResult() {
+        return new ProductCatalogItemResult(
+                1L,
+                10L,
+                20L,
+                30L,
+                "테스트 상품",
+                "테스트 브랜드",
+                10000L,
+                8000L,
+                BigDecimal.valueOf(20.0),
+                100L,
+                BigDecimal.valueOf(1.3),
+                1L,
+                5L,
+                "https://example.com/image.jpg",
+                new ArrayList<>(List.of("https://example.com/r1.jpg", "https://example.com/r2.jpg")),
+                50,
+                10,
+                BigDecimal.valueOf(4.5),
+                100L,
+                new ArrayList<>(List.of(new ProductCatalogTagSnapshot(1L, "태그1", 1L))),
+                new ArrayList<>(List.of(new ProductCatalogOptionSnapshot(1L, "옵션내용"))),
+                "ACTIVE"
+        );
+    }
+
+    @Test
+    @DisplayName("List<ProductCatalogItemResult> 라운드트립 시 element 타입을 정확히 복원한다")
+    void listOfCatalogItemResult_shouldRoundTripPreservingElementType() throws JsonProcessingException {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        List<ProductCatalogItemResult> items = new ArrayList<>(List.of(createTestCatalogItemResult()));
+
+        // when
+        String json = mapper.writeValueAsString(items);
+        Object deserialized = mapper.readValue(json, Object.class);
+
+        // then
+        assertThat(deserialized).isInstanceOf(List.class);
+        List<?> resultList = (List<?>) deserialized;
+        assertThat(resultList).hasSize(1);
+        assertThat(resultList.get(0)).isInstanceOf(ProductCatalogItemResult.class);
+    }
+
+    @Test
+    @DisplayName("단일 ProductCatalogItemResult 라운드트립 시 필드 값을 그대로 복원한다")
+    void singleCatalogItemResult_shouldRoundTripPreservingFieldValues() throws JsonProcessingException {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        ProductCatalogItemResult original = createTestCatalogItemResult();
+
+        // when
+        String json = mapper.writeValueAsString(original);
+        Object deserialized = mapper.readValue(json, Object.class);
+
+        // then
+        assertThat(deserialized).isInstanceOf(ProductCatalogItemResult.class);
+        ProductCatalogItemResult result = (ProductCatalogItemResult) deserialized;
+        assertThat(result.pricePolicyId()).isEqualTo(1L);
+        assertThat(result.name()).isEqualTo("테스트 상품");
+        assertThat(result.brandName()).isEqualTo("테스트 브랜드");
+        assertThat(result.price()).isEqualTo(10000L);
+        assertThat(result.status()).isEqualTo("ACTIVE");
+    }
+
+    @Test
+    @DisplayName("빈 List<ProductCatalogItemResult> 라운드트립 시 빈 컬렉션을 반환한다")
+    void emptyListOfCatalogItemResult_shouldRoundTripPreservingEmpty() throws JsonProcessingException {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        List<ProductCatalogItemResult> empty = new ArrayList<>();
+
+        // when
+        String json = mapper.writeValueAsString(empty);
+        Object deserialized = mapper.readValue(json, Object.class);
+
+        // then
+        assertThat(deserialized).isInstanceOf(List.class);
+        assertThat((List<?>) deserialized).isEmpty();
+    }
+
+    @Test
+    @DisplayName("ProductCatalogItemResult 내부 BigDecimal/List<String>/List<Snapshot> 중첩 필드를 정확히 복원한다")
+    void nestedFields_shouldRoundTripPreservingValues() throws JsonProcessingException {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        ProductCatalogItemResult original = createTestCatalogItemResult();
+
+        // when
+        String json = mapper.writeValueAsString(original);
+        Object deserialized = mapper.readValue(json, Object.class);
+
+        // then
+        assertThat(deserialized).isInstanceOf(ProductCatalogItemResult.class);
+        ProductCatalogItemResult result = (ProductCatalogItemResult) deserialized;
+        assertThat(result.discountRate()).isEqualByComparingTo(BigDecimal.valueOf(20.0));
+        assertThat(result.reviewAverageRating()).isEqualByComparingTo(BigDecimal.valueOf(4.5));
+        assertThat(result.resizedImageUrls())
+                .containsExactly("https://example.com/r1.jpg", "https://example.com/r2.jpg");
+        assertThat(result.productTags()).hasSize(1);
+        assertThat(result.productTags().get(0)).isInstanceOf(ProductCatalogTagSnapshot.class);
+        assertThat(result.productTags().get(0).name()).isEqualTo("태그1");
+        assertThat(result.selectedOptions()).hasSize(1);
+        assertThat(result.selectedOptions().get(0)).isInstanceOf(ProductCatalogOptionSnapshot.class);
+        assertThat(result.selectedOptions().get(0).content()).isEqualTo("옵션내용");
     }
 }
