@@ -5,6 +5,10 @@
 // 폴링: Jenkins REST API '/job/.../api/json?tree=builds[...]' (curl + readJSON). 30초 간격, 60분 타임아웃 (이슈 #4815 명시값).
 // fail-open: monitor 트리거/폴링/Slack 실패는 echo 만 하고 진행 — 실 배포 흐름(자식 빌드)은 본 잡과 무관하게 독립 진행.
 
+// #4830: helper 글로벌 1회 load. 4개 stage 에서 매번 load 'jenkins/resolve-and-register.groovy' 하던 중복 제거.
+// script 스코프 변수로 선언 → 모든 stage 의 script 블록 + post.failure 에서 동일 인스턴스 참조.
+def helper
+
 pipeline {
     agent any
 
@@ -46,6 +50,8 @@ pipeline {
                         error '[MONITOR] ENV_PREFIX 필수'
                     }
                     currentBuild.description = "MONITOR for dispatcher: #${params.DISPATCHER_BUILD_NUMBER} SERVICES=${params.SERVICES}"
+                    // #4830: pipeline 진입 직후 1회 load 후 글로벌 helper 변수에 보관. 이후 stage / post.failure 모두 재사용.
+                    helper = load 'jenkins/resolve-and-register.groovy'
                 }
             }
         }
@@ -53,7 +59,6 @@ pipeline {
         stage('Reverse Link to Dispatcher') {
             steps {
                 script {
-                    def helper = load 'jenkins/resolve-and-register.groovy'
                     helper.appendDispatcherMonitorLink(this)
                 }
             }
@@ -62,7 +67,6 @@ pipeline {
         stage('Poll Children') {
             steps {
                 script {
-                    def helper = load 'jenkins/resolve-and-register.groovy'
                     helper.pollDispatcherChildren(this)
                 }
             }
@@ -71,7 +75,6 @@ pipeline {
         stage('Send Summary') {
             steps {
                 script {
-                    def helper = load 'jenkins/resolve-and-register.groovy'
                     helper.sendDispatcherChildrenSummary(this)
                 }
             }
@@ -81,8 +84,9 @@ pipeline {
     post {
         failure {
             script {
-                def helper = load 'jenkins/resolve-and-register.groovy'
-                helper.notifyMonitorFailure(this)
+                // #4830: Validate Inputs 실패 등 helper 미로드 케이스 대비 fallback. 정상 경로는 글로벌 helper 재사용.
+                def h = helper ?: load('jenkins/resolve-and-register.groovy')
+                h.notifyMonitorFailure(this)
             }
         }
     }
