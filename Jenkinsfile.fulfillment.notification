@@ -485,13 +485,18 @@ REMOTE
 			script {
 				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
 				if (ch) {
+					// #4822: Notify Start (#4817) sink 일관 — params.SERVICE 등에서 흘러 온 보간 변수 정화
+					def helper = load 'jenkins/resolve-and-register.groovy'
+					def serviceName   = helper.sanitizeSlackLine(env.SERVICE_NAME)
+					def serverOrigin  = helper.sanitizeSlackLine(env.SERVER_ORIGIN ?: 'N/A')
+					def imageUri      = helper.sanitizeSlackLine(env.IMAGE_URI ?: 'N/A')
 					slackSend(
 						channel: ch,
 						color:   "${env.SLACK_SUCCESS_COLOR}",
 						message: "Build Success!!\n"
-						+ "SERVICE: ${env.SERVICE_NAME}\n"
-						+ "SERVER_ORIGIN: ${env.SERVER_ORIGIN?:'N/A'}\n"
-						+ "IMAGE: ${env.IMAGE_URI?:'N/A'}\n"
+						+ "SERVICE: ${serviceName}\n"
+						+ "SERVER_ORIGIN: ${serverOrigin}\n"
+						+ "IMAGE: ${imageUri}\n"
 						+ "BUILD_NUMBER: ${env.BUILD_NUMBER}"
 					)
 				} else {
@@ -505,10 +510,13 @@ REMOTE
 			script {
 				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
 				if (ch) {
+					// #4822: BUILD_NUMBER 만 보간되어 위장 표면 작으나 sink 일관 위해 정화 적용
+					def helper = load 'jenkins/resolve-and-register.groovy'
+					def buildNumber = helper.sanitizeSlackLine(env.BUILD_NUMBER)
 					slackSend(
 						channel: ch,
 						color:   "${env.SLACK_FAIL_COLOR}",
-						message: "Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
+						message: "Build Failed...\nBUILD_NUMBER: ${buildNumber}"
 					)
 				} else {
 					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack failure notification"
