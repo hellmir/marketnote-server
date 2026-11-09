@@ -362,26 +362,28 @@ def resolveBranchLabel(parentScript) {
     ).trim()
 }
 
-// SKIP_REASON 파라미터 화이트리스트 검증. 형식: "#<PR번호> <설명>" (설명 1~200자, 줄바꿈/탭 금지).
+// SKIP_REASON 파라미터 화이트리스트 검증. 형식: "#<PR번호> <설명>" (설명 1~200자, 줄바꿈/탭/Unicode 줄바꿈/C1 제어 금지).
 // Slack mrkdwn 메시지 주입(줄바꿈 위장으로 AUTHOR/COMMIT 라인 조작) 차단 + 긴급 revert PR 추적성 강제.
 // SKIP=true 경로에서만 호출되며 (notifyFlywayImmutabilitySkip 진입 시점) SKIP=false 빌드에는 영향 없음.
 // 구분자는 리터럴 공백(`[ ]+`)로 한정 — `\s` 는 \n/\t 를 포함하므로 인젝션 차단 목적에 부적합.
+// #4823: C0(\x00-\x1F) + DEL(\x7F) + C1(\x80-\x9F: NEL U+0085 포함) + Unicode 줄바꿈(U+2028 LS, U+2029 PS) 차단.
 def validateSkipReason(String reason) {
     if (!reason?.trim()) {
         error "SKIP_REASON 파라미터가 비어있다. SKIP_FLYWAY_IMMUTABILITY_CHECK=true 사용 시 필수. 형식: '#<PR번호> <설명>' (예: '#4806 마이그레이션 V102 revert')"
     }
     def trimmed = reason.trim()
-    if (!(trimmed ==~ /^#\d+ +[^\r\n\t]{1,200}$/)) {
-        error "SKIP_REASON 형식 위반: '${reason}'. 허용 형식: '#<PR번호> <설명>' (설명 1~200자, 줄바꿈/탭 금지, 구분자는 공백만)"
+    if (!(trimmed ==~ /^#\d+ +[^\x00-\x1F\x7F-\x9F\u2028\u2029]{1,200}$/)) {
+        error "SKIP_REASON 형식 위반: '${reason}'. 허용 형식: '#<PR번호> <설명>' (설명 1~200자, 줄바꿈/탭/Unicode 줄바꿈/C1 제어 금지, 구분자는 공백만)"
     }
 }
 
 // Slack mrkdwn 메시지 보간 입력에서 줄바꿈/탭/제어문자 제거 + 길이 상한.
 // 강조 문자(* _ < > | `)는 통과 (#4810 SKIP_REASON 검증과 일관, 라인 위장만 차단).
 // 핵심 위협: commit message body에 `\nAUTHOR: attacker` 같은 위장 라인 삽입 → AUTHOR/COMMIT 라인 조작.
+// #4823: 기존 C0(\x00-\x1F)+DEL(\x7F) 차단에 C1(\x80-\x9F: NEL 포함) + Unicode 줄바꿈(U+2028 LS, U+2029 PS) 추가.
 def sanitizeSlackLine(String value, int maxLen) {
     if (value == null) return ''
-    def cleaned = value.replaceAll(/[\x00-\x1F\x7F]/, ' ').trim()
+    def cleaned = value.replaceAll(/[\x00-\x1F\x7F-\x9F\u2028\u2029]/, ' ').trim()
     if (cleaned.length() > maxLen) {
         cleaned = cleaned.substring(0, maxLen) + '...'
     }
