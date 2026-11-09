@@ -669,13 +669,27 @@ def sendStartNotification(parentScript) {
     }
 }
 
+// DISPATCHER_BUILD_NUMBER 화이트리스트 검증. 자동 dispatcher 경로(env.BUILD_NUMBER)는 정수만 전달되나,
+// 수동/REST 트리거에서 임의 문자열이 description prefix 에 보간되는 표면 차단.
+// #4810 SKIP_REASON 정규식 검증 선례와 일관. 1~9자리 숫자만 허용 (Jenkins 빌드 번호 상한 999_999_999).
+// 빈값/null 은 통과 (수동/cron 트리거 정상 경로).
+@NonCPS
+def validateDispatcherBuildNumber(String num) {
+    if (!num) return
+    if (!(num ==~ /^[0-9]{1,9}$/)) {
+        error "DISPATCHER_BUILD_NUMBER 형식 위반: '${num}'. 1~9자리 숫자만 허용 (자동 dispatcher 가 env.BUILD_NUMBER 를 전달)."
+    }
+}
+
 // 자식 빌드 description 에 dispatcher BUILD_NUMBER prefix 합성. 수동/cron 트리거 시 prefix 없이 suffix 그대로 반환.
 // #4816: build(wait: false) 가 자식 BUILD_NUMBER 미반환 → 자식이 자기 description 에 부모 역기록으로 양방향 추적.
 // findLastDeployedCommit 의 SERVICE=...COMMIT=... substring 매칭과 정합 — prefix 추가는 회귀 없음.
 // #4824: 동일 파일 findLastDeployedCommit/isCronTriggered 와 일관성. 순수 문자열 보간만 수행하므로 CPS 직렬화 우회 명시.
+// #4826: prefix 보간 직전 형식 검증으로 임의 문자열 표면 차단.
 @NonCPS
 def composeChildDescription(parentScript, String coreSuffix) {
     def num = parentScript.params.DISPATCHER_BUILD_NUMBER?.trim()
+    validateDispatcherBuildNumber(num)
     if (num) {
         return "dispatcher: #${num} ${coreSuffix}"
     }
