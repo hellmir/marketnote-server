@@ -825,9 +825,24 @@ def appendDispatcherMonitorLink(parentScript) {
             def descUrl = "${baseUrl}/${jobPath}/${dispatcherNum}/submitDescription"
             def getUrl = "${baseUrl}/${jobPath}/${dispatcherNum}/api/json?tree=description"
             // sh 보간 인젝션 방지 — URL/description 을 withEnv 로 위임 후 single-quote sh 본문에서 $VAR 참조.
+            // #4831: -u "$J_USER:$J_TOKEN" 은 ps -ef / /proc/<pid>/cmdline 로 동시 빌드 프로세스에서 관찰 가능.
+            //        --netrc-file 사용 시 인증 정보가 argv 가 아닌 파일에서 로드 → 프로세스 목록 노출 차단.
+            //        netrc 파일은 mktemp + chmod 600 으로 격리, trap 으로 sh 종료 시 즉시 삭제.
             String raw = ''
             parentScript.withEnv(["GET_URL=${getUrl}"]) {
-                raw = sh(script: 'curl -sf -u "$J_USER:$J_TOKEN" "$GET_URL"', returnStdout: true).trim()
+                raw = sh(
+                    script: '''
+                        NETRC="$(mktemp)"
+                        chmod 600 "$NETRC"
+                        trap 'rm -f "$NETRC"' EXIT
+                        HOST=$(printf '%s' "$GET_URL" | sed 's|^[a-z]*://||;s|/.*$||;s|:.*$||')
+                        {
+                            printf 'machine %s\\nlogin %s\\npassword %s\\n' "$HOST" "$J_USER" "$J_TOKEN"
+                        } > "$NETRC"
+                        curl -sf --netrc-file "$NETRC" "$GET_URL"
+                    ''',
+                    returnStdout: true
+                ).trim()
             }
             def parsed = parentScript.readJSON(text: raw)
             def existing = (parsed.description ?: '').toString()
@@ -838,7 +853,14 @@ def appendDispatcherMonitorLink(parentScript) {
             def newDesc = "${existing} MONITOR=${monitorUrl}".trim()
             parentScript.withEnv(["NEW_DESC=${newDesc}", "DESC_URL=${descUrl}"]) {
                 sh '''
-                    curl -sf -u "$J_USER:$J_TOKEN" -X POST \
+                    NETRC="$(mktemp)"
+                    chmod 600 "$NETRC"
+                    trap 'rm -f "$NETRC"' EXIT
+                    HOST=$(printf '%s' "$DESC_URL" | sed 's|^[a-z]*://||;s|/.*$||;s|:.*$||')
+                    {
+                        printf 'machine %s\\nlogin %s\\npassword %s\\n' "$HOST" "$J_USER" "$J_TOKEN"
+                    } > "$NETRC"
+                    curl -sf --netrc-file "$NETRC" -X POST \
                          --data-urlencode "description=$NEW_DESC" \
                          "$DESC_URL" -o /dev/null
                 '''
@@ -880,6 +902,7 @@ def pollDispatcherChildren(parentScript) {
 
             // sh 보간 인젝션 방지 — listUrl 을 withEnv 로 위임 후 single-quote sh 본문에서 $LIST_URL 참조.
             // withEnv 블록은 폴링 루프 전체를 감싸 매 반복마다 환경변수 재설정 비용을 회피.
+            // #4831: -u argv 노출 차단 — netrc 파일 사용 (appendDispatcherMonitorLink 와 동일 패턴).
             parentScript.withEnv(["LIST_URL=${listUrl}"]) {
                 for (int i = 0; i < maxIterations; i++) {
                     def remainingServices = services.findAll { results[it].result == null }
@@ -890,7 +913,16 @@ def pollDispatcherChildren(parentScript) {
                     echo "[MONITOR] poll ${i + 1}/${maxIterations}, pending=${remainingServices}"
                     try {
                         def raw = sh(
-                                script: 'curl -sf -u "$J_USER:$J_TOKEN" "$LIST_URL"',
+                                script: '''
+                                    NETRC="$(mktemp)"
+                                    chmod 600 "$NETRC"
+                                    trap 'rm -f "$NETRC"' EXIT
+                                    HOST=$(printf '%s' "$LIST_URL" | sed 's|^[a-z]*://||;s|/.*$||;s|:.*$||')
+                                    {
+                                        printf 'machine %s\\nlogin %s\\npassword %s\\n' "$HOST" "$J_USER" "$J_TOKEN"
+                                    } > "$NETRC"
+                                    curl -sf --netrc-file "$NETRC" "$LIST_URL"
+                                ''',
                                 returnStdout: true
                         ).trim()
                         def json = parentScript.readJSON(text: raw)
