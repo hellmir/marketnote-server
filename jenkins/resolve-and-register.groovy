@@ -596,6 +596,11 @@ def selectTargetService(parentScript) {
 
     sh "test -d '${env.SERVICE_DIRECTORY}'"
 
+    // #4828: 자식 description 기록을 Select Target Service stage 로 앞당김.
+    // Notify Start 시점은 Environment Setup 다음이라 30초 monitor 첫 폴링과 race 가능.
+    // 여기서 prefix 를 즉시 기록하여 첫 폴링 시점 매칭 확률을 높인다 (handleBuildSuccess/Failure 갱신 패턴은 유지).
+    parentScript.currentBuild.description = composeChildDescription(parentScript, "SERVICE=${targetService}")
+
     echo "Changed fileDomain count       = ${changed.size()}"
     echo "COMMON/ROOT changed?      = ${commonOrRootChanged}"
 }
@@ -638,10 +643,8 @@ def sendDispatcherSummaryNotification(parentScript, candidates, boolean commonOr
 
 // Notify Start stage 본문 — withCredentials / branchLabel / slackSend 전체.
 // #4825: description 설정은 credential 의존 없음. credential 미해결 케이스에서도 dispatcher 추적 prefix 보존하도록 withCredentials 외부로 이동.
+// #4828: description 기록은 selectTargetService 로 앞당김 (monitor race 완화). 본 함수에서는 중복 기록하지 않음.
 def sendStartNotification(parentScript) {
-    if (env.SERVICE_NAME?.trim()) {
-        parentScript.currentBuild.description = composeChildDescription(parentScript, "SERVICE=${env.SERVICE_NAME}")
-    }
     withCredentials([
         string(credentialsId: "${env.ENV_PREFIX}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
     ]) {
