@@ -48,11 +48,13 @@ public class CacheConfig {
     private ObjectMapper redisObjectMapper() {
         ObjectMapper mapper = objectMapper.copy();
 
+        // EVERYTHING: record(final) 등 final 클래스 element 에도 @class type info 부여 필수.
+        // NON_FINAL 시 List<record> 역직렬화 시 element 가 LinkedHashMap 으로 떨어져 MismatchedInputException 발생 (#4844)
         mapper.activateDefaultTyping(
                 BasicPolymorphicTypeValidator.builder()
                         .allowIfBaseType(Object.class)
                         .build(),
-                ObjectMapper.DefaultTyping.NON_FINAL,
+                ObjectMapper.DefaultTyping.EVERYTHING,
                 JsonTypeInfo.As.PROPERTY
         );
         mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
