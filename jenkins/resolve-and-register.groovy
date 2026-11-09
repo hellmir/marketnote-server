@@ -697,6 +697,8 @@ def composeChildDescription(parentScript, String coreSuffix) {
 }
 
 // post.success 본문 — description 기록 + Slack 성공 알림.
+// #4822: post.success Slack 보간 변수(SERVICE_NAME, ECS_SERVICE_NAME, IMAGE_URI)를 sanitizeSlackLine 으로 정화하여
+// Notify Start (#4817) 와 sink 일관성 확보. params.SERVICE 에서 흘러 온 값의 표면 잔존 차단.
 def handleBuildSuccess(parentScript) {
     if (env.DISPATCHER_MODE == 'true') {
         echo "[DISPATCHER] skipping success notification/description override"
@@ -711,18 +713,22 @@ def handleBuildSuccess(parentScript) {
         return
     }
     def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
+    def serviceName    = sanitizeSlackLine(env.SERVICE_NAME)
+    def ecsServiceName = sanitizeSlackLine(env.ECS_SERVICE_NAME)
+    def imageUri       = sanitizeSlackLine(env.IMAGE_URI ?: 'N/A')
     slackSend(
         channel: ch,
         color:   "${env.SLACK_SUCCESS_COLOR}",
         message: "${cronPrefix}Build Success!!\n"
-            + "SERVICE: ${env.SERVICE_NAME}\n"
-            + "ECS_SERVICE: ${env.ECS_SERVICE_NAME}\n"
-            + "IMAGE: ${env.IMAGE_URI ?: 'N/A'}\n"
+            + "SERVICE: ${serviceName}\n"
+            + "ECS_SERVICE: ${ecsServiceName}\n"
+            + "IMAGE: ${imageUri}\n"
             + "BUILD_NUMBER: ${env.BUILD_NUMBER}"
     )
 }
 
 // post.failure 본문 — Slack 실패 알림 ([QA-CRON] prefix 조건부).
+// #4822: post.failure 도 동일 정화 적용 (BUILD_NUMBER 만 보간되어 위장 표면 작으나 sink 일관성).
 def handleBuildFailure(parentScript) {
     if (env.DISPATCHER_MODE == 'true') {
         echo "[DISPATCHER] skipping failure notification"
@@ -738,10 +744,11 @@ def handleBuildFailure(parentScript) {
         return
     }
     def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
+    def buildNumber = sanitizeSlackLine(env.BUILD_NUMBER)
     slackSend(
         channel: ch,
         color:   "${env.SLACK_FAIL_COLOR}",
-        message: "${cronPrefix}Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
+        message: "${cronPrefix}Build Failed...\nBUILD_NUMBER: ${buildNumber}"
     )
 }
 
