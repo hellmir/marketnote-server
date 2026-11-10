@@ -187,6 +187,43 @@ class PiiMaskingConverterTest {
             String masked = PiiMaskingConverter.mask("Pickup phone=021234567 confirmed");
             assertThat(masked).isEqualTo("Pickup phone=02-****-4567 confirmed");
         }
+
+        @ParameterizedTest(name = "{0} → {1}")
+        @CsvSource({
+                "0212345678, 02-****-5678",
+                "0298765432, 02-****-5432"
+        })
+        @DisplayName("하이픈 없는 10자리 서울 유선(02 + 8자리)은 02-****-{뒷4자리}로 마스킹된다")
+        void masksTenDigitSeoulLandline(String raw, String expected) {
+            assertThat(PiiMaskingConverter.maskPhone(raw)).isEqualTo(expected);
+        }
+
+        @Test
+        @DisplayName("로그 메시지 내 하이픈 없는 10자리 서울 유선 phone= 토큰은 02-****-{뒷4자리}로 마스킹된다")
+        void masksTenDigitSeoulLandlinePhoneTokenInLogMessage() {
+            String masked = PiiMaskingConverter.mask("Office phone=0212345678 verified");
+            assertThat(masked).isEqualTo("Office phone=02-****-5678 verified");
+        }
+
+        @ParameterizedTest(name = "{0} → {1}")
+        @CsvSource({
+                "07012345678, 070-****-5678",
+                "07087654321, 070-****-4321"
+        })
+        @DisplayName("11자리 070 인터넷전화는 기존대로 070-****-{뒷4자리}로 마스킹된다 (회귀 보호)")
+        void masksElevenDigitInternetPhone(String raw, String expected) {
+            assertThat(PiiMaskingConverter.maskPhone(raw)).isEqualTo(expected);
+        }
+
+        @ParameterizedTest(name = "{0} → {1}")
+        @CsvSource({
+                "0701234567, 070-****-4567",
+                "0317654321, 031-****-4321"
+        })
+        @DisplayName("하이픈 없는 10자리 070/031 등 3자리 prefix 지역번호는 기존 매칭으로 정상 마스킹된다 (회귀 보호)")
+        void masksTenDigitNonSeoulRegionalPhone(String raw, String expected) {
+            assertThat(PiiMaskingConverter.maskPhone(raw)).isEqualTo(expected);
+        }
     }
 
     @Nested
