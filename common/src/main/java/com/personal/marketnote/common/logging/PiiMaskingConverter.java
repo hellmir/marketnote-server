@@ -39,6 +39,7 @@ public class PiiMaskingConverter extends ClassicConverter {
 
     private static final Pattern EMAIL_VALUE_PATTERN = Pattern.compile("^([^@]+)@([^@]+)$");
     private static final Pattern PHONE_VALUE_WITH_HYPHEN = Pattern.compile("^(\\d{2,4})-(\\d{3,4})-(\\d{4})$");
+    private static final Pattern PHONE_VALUE_NO_HYPHEN_9 = Pattern.compile("^(02)(\\d{3})(\\d{4})$");
     private static final Pattern PHONE_VALUE_NO_HYPHEN_10 = Pattern.compile("^(\\d{3})(\\d{3})(\\d{4})$");
     private static final Pattern PHONE_VALUE_NO_HYPHEN_11 = Pattern.compile("^(\\d{3})(\\d{4})(\\d{4})$");
     private static final Pattern TRAILING_PUNCT_PATTERN = Pattern.compile("[.,:;!?]+$");
@@ -115,6 +116,10 @@ public class PiiMaskingConverter extends ClassicConverter {
         Matcher ten = PHONE_VALUE_NO_HYPHEN_10.matcher(value);
         if (ten.matches()) {
             return ten;
+        }
+        Matcher nine = PHONE_VALUE_NO_HYPHEN_9.matcher(value);
+        if (nine.matches()) {
+            return nine;
         }
         return null;
     }

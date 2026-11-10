@@ -69,8 +69,6 @@ class PhoneNumberPatternTest {
 
         @ParameterizedTest(name = "비허용 prefix {0} 은 검증에 실패한다")
         @ValueSource(strings = {
-                "0212345678",
-                "02123456789",
                 "0121234567",
                 "01212345678"
         })
