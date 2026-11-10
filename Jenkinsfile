@@ -967,12 +967,6 @@ pipeline {
 	}
 
 	post {
-		always {
-			echo '====================================Clean workspace===================================='
-			cleanWs()
-			sh 'docker system prune -f'
-		}
-
 		success {
 			echo '====================================Build Success====================================='
 			script {
@@ -987,6 +981,12 @@ pipeline {
 				def helper = load 'jenkins/resolve-and-register.groovy'
 				helper.handleBuildFailure(this)
 			}
+		}
+
+		cleanup {
+			echo '====================================Clean workspace===================================='
+			cleanWs()
+			sh 'docker system prune -f'
 		}
 	}
 }
