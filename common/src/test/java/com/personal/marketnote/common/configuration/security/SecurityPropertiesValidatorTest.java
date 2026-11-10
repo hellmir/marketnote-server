@@ -124,6 +124,45 @@ class SecurityPropertiesValidatorTest {
                 .hasMessageContaining("spring.kafka.sasl.username");
     }
 
+    @Test
+    @DisplayName("운영 환경에서 spring.data.redis.password가 미설정이면 SecurityConfigurationValidationException 발생")
+    void shouldFailWhenRedisPasswordEmpty() {
+        ReflectionTestUtils.setField(validator, "redisPassword", "");
+
+        assertThatThrownBy(() -> validator.validateSecurityProperties())
+                .isInstanceOf(SecurityConfigurationValidationException.class)
+                .hasMessageContaining("spring.data.redis.password");
+    }
+
+    @Test
+    @DisplayName("운영 환경에서 spring.data.redis.password가 null이면 SecurityConfigurationValidationException 발생")
+    void shouldFailWhenRedisPasswordNull() {
+        ReflectionTestUtils.setField(validator, "redisPassword", null);
+
+        assertThatThrownBy(() -> validator.validateSecurityProperties())
+                .isInstanceOf(SecurityConfigurationValidationException.class)
+                .hasMessageContaining("spring.data.redis.password");
+    }
+
+    @Test
+    @DisplayName("운영 환경에서 spring.data.redis.password가 password 약한 기본값이면 SecurityConfigurationValidationException 발생")
+    void shouldFailWhenRedisPasswordIsWeakDefault() {
+        ReflectionTestUtils.setField(validator, "redisPassword", "password");
+
+        assertThatThrownBy(() -> validator.validateSecurityProperties())
+                .isInstanceOf(SecurityConfigurationValidationException.class)
+                .hasMessageContaining("spring.data.redis.password");
+    }
+
+    @Test
+    @DisplayName("운영 환경에서 spring.data.redis.password가 강한 값이면 검증 통과")
+    void shouldPassWhenRedisPasswordIsStrong() {
+        ReflectionTestUtils.setField(validator, "redisPassword", "strong-redis-password-value");
+
+        assertThatCode(() -> validator.validateSecurityProperties())
+                .doesNotThrowAnyException();
+    }
+
     private void setCommonRequiredFields(SecurityPropertiesValidator validator) {
         ReflectionTestUtils.setField(validator, "jwtSecret", "valid-jwt-secret");
         ReflectionTestUtils.setField(validator, "adminAccessToken", "valid-admin-token");
