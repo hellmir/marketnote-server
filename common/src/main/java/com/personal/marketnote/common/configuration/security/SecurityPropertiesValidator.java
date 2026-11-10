@@ -90,6 +90,7 @@ public class SecurityPropertiesValidator {
         validateRequired(violations, "spring.jwt.secret (JWT_SECRET_KEY)", jwtSecret);
         validateRequired(violations, "spring.jwt.admin-access-token (JWT_ADMIN_ACCESS_TOKEN)", adminAccessToken);
         validateRequired(violations, "spring.datasource.password (DB_PASSWORD)", dbPassword);
+        validateRequired(violations, "spring.data.redis.password (REDIS_PASSWORD)", redisPassword);
         validateRequired(violations, "spring.hmac.secret-key (HMAC_SECRET_KEY)", hmacSecretKey);
 
         validateKafkaSasl(violations);
