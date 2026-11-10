@@ -52,9 +52,16 @@ public class CacheConfig {
         // EVERYTHING 으로 변경 시 final VO 에 type id 가 강제 부여되어 Long 매핑 실패(InvalidTypeIdException) 발생 (#4851).
         // 캐시 value 타입에 record 사용 금지 — record(final) element 에 type info 미부여로 두 번째 조회 시 LinkedHashMap 으로 복원 (#4844).
         // 캐시 value 는 final class + @JsonCreator/@JsonProperty 생성자로 불변성 유지.
+        // 화이트리스트(#4856): allowIfBaseType(Object.class) → 패키지 prefix 화이트리스트로 좁힘.
+        // 폴리모픽 역직렬화로 인한 임의 클래스 인스턴스화(RCE 류) 위험을 차단한다.
+        // 도메인(com.personal.marketnote.) + 표준 라이브러리(java.util/time/math/lang)만 허용.
         mapper.activateDefaultTyping(
                 BasicPolymorphicTypeValidator.builder()
-                        .allowIfBaseType(Object.class)
+                        .allowIfSubType("com.personal.marketnote.")
+                        .allowIfSubType("java.util.")
+                        .allowIfSubType("java.time.")
+                        .allowIfSubType("java.math.")
+                        .allowIfSubType("java.lang.")
                         .build(),
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY

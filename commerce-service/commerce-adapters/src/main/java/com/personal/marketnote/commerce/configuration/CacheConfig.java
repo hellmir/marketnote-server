@@ -48,9 +48,16 @@ public class CacheConfig {
     private ObjectMapper redisObjectMapper() {
         ObjectMapper mapper = objectMapper.copy();
 
+        // 화이트리스트(#4856): allowIfBaseType(Object.class) → 패키지 prefix 화이트리스트로 좁힘.
+        // 폴리모픽 역직렬화로 인한 임의 클래스 인스턴스화(RCE 류) 위험을 차단한다.
+        // 도메인(com.personal.marketnote.) + 표준 라이브러리(java.util/time/math/lang)만 허용.
         mapper.activateDefaultTyping(
                 BasicPolymorphicTypeValidator.builder()
-                        .allowIfBaseType(Object.class)
+                        .allowIfSubType("com.personal.marketnote.")
+                        .allowIfSubType("java.util.")
+                        .allowIfSubType("java.time.")
+                        .allowIfSubType("java.math.")
+                        .allowIfSubType("java.lang.")
                         .build(),
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY
