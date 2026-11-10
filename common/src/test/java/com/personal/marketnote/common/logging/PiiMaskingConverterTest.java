@@ -170,6 +170,23 @@ class PiiMaskingConverterTest {
             String masked = PiiMaskingConverter.mask("User phone=01012345678 registered");
             assertThat(masked).isEqualTo("User phone=010-****-5678 registered");
         }
+
+        @ParameterizedTest(name = "{0} → {1}")
+        @CsvSource({
+                "021234567, 02-****-4567",
+                "027654321, 02-****-4321"
+        })
+        @DisplayName("하이픈 없는 9자리 서울 유선(02 + 7자리)은 02-****-{뒷4자리}로 마스킹된다")
+        void masksNineDigitSeoulLandline(String raw, String expected) {
+            assertThat(PiiMaskingConverter.maskPhone(raw)).isEqualTo(expected);
+        }
+
+        @Test
+        @DisplayName("로그 메시지 내 하이픈 없는 9자리 서울 유선 phone= 토큰은 정규화된 포맷으로 마스킹된다")
+        void masksNineDigitSeoulLandlinePhoneTokenInLogMessage() {
+            String masked = PiiMaskingConverter.mask("Pickup phone=021234567 confirmed");
+            assertThat(masked).isEqualTo("Pickup phone=02-****-4567 confirmed");
+        }
     }
 
     @Nested
