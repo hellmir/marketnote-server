@@ -19,8 +19,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -53,9 +55,11 @@ public class ProductCatalogReadModelPersistenceAdapter
         List<ProductCatalogReadModelJpaEntity> entities = repository.findCatalogItems(
                 categoryId, pricePolicyIds, cursor, pageSize, isAsc, sortProperty, searchTarget, searchKeyword
         );
+        // ArrayList 명시 변환: stream().toList() 는 ImmutableCollections$ListN(final) 반환.
+        // CacheConfig NON_FINAL 정책에서 final 컬렉션은 type info 미부여로 wrapper 없이 직렬화 → 역직렬화 시 type id 부재로 MismatchedInputException (#4886).
         return entities.stream()
                 .map(entity -> ProductCatalogReadModelJpaEntityToResultMapper.mapToResult(entity, objectMapper))
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
