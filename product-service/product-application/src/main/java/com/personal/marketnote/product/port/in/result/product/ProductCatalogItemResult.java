@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductCatalogItemResult {
@@ -69,13 +70,14 @@ public class ProductCatalogItemResult {
         this.orderNum = orderNum;
         this.popularity = popularity;
         this.representativeImageUrl = representativeImageUrl;
-        this.resizedImageUrls = resizedImageUrls;
+        // List 필드 ArrayList 명시 wrapping: ImmutableCollections(final) 잔존 시 NON_FINAL 정책에서 type info 누락으로 직렬화 wrapper 부재 → 역직렬화 실패 (#4886).
+        this.resizedImageUrls = resizedImageUrls == null ? new ArrayList<>() : new ArrayList<>(resizedImageUrls);
         this.stockQuantity = stockQuantity;
         this.reviewCount = reviewCount;
         this.reviewAverageRating = reviewAverageRating;
         this.sales = sales;
-        this.productTags = productTags;
-        this.selectedOptions = selectedOptions;
+        this.productTags = productTags == null ? new ArrayList<>() : new ArrayList<>(productTags);
+        this.selectedOptions = selectedOptions == null ? new ArrayList<>() : new ArrayList<>(selectedOptions);
         this.status = status;
     }
 

@@ -10,6 +10,7 @@ import com.personal.marketnote.product.port.in.result.product.ProductCatalogTagS
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -58,14 +59,14 @@ public class ProductCatalogReadModelJpaEntityToResultMapper {
 
     private static List<String> parseResizedImageUrls(Long pricePolicyId, String json, ObjectMapper objectMapper) {
         if (FormatValidator.hasNoValue(json)) {
-            return List.of();
+            return new ArrayList<>();
         }
         try {
             return objectMapper.readValue(json, STRING_LIST);
         } catch (IOException ioe) {
             log.warn("상품 카탈로그 Read Model resized 이미지 JSON 역직렬화 실패. pricePolicyId={}, json={}",
                     pricePolicyId, json, ioe);
-            return List.of();
+            return new ArrayList<>();
         }
     }
 
@@ -73,14 +74,14 @@ public class ProductCatalogReadModelJpaEntityToResultMapper {
             Long pricePolicyId, String json, ObjectMapper objectMapper
     ) {
         if (FormatValidator.hasNoValue(json)) {
-            return List.of();
+            return new ArrayList<>();
         }
         try {
             return objectMapper.readValue(json, TAG_LIST);
         } catch (IOException ioe) {
             log.warn("상품 카탈로그 Read Model productTags JSON 역직렬화 실패. pricePolicyId={}, json={}",
                     pricePolicyId, json, ioe);
-            return List.of();
+            return new ArrayList<>();
         }
     }
 
@@ -88,14 +89,14 @@ public class ProductCatalogReadModelJpaEntityToResultMapper {
             Long pricePolicyId, String json, ObjectMapper objectMapper
     ) {
         if (FormatValidator.hasNoValue(json)) {
-            return List.of();
+            return new ArrayList<>();
         }
         try {
             return objectMapper.readValue(json, OPTION_LIST);
         } catch (IOException ioe) {
             log.warn("상품 카탈로그 Read Model selectedOptions JSON 역직렬화 실패. pricePolicyId={}, json={}",
                     pricePolicyId, json, ioe);
-            return List.of();
+            return new ArrayList<>();
         }
     }
 }
