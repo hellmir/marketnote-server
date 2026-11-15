@@ -1,5 +1,7 @@
 package com.personal.marketnote.community.domain.review;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.personal.marketnote.community.domain.review.exception.InvalidRatingPointException;
 
 import java.util.Objects;
@@ -14,6 +16,7 @@ public final class Rating {
         this.value = value;
     }
 
+    @JsonCreator
     public static Rating of(float value) {
         validateInteger(value);
         int intValue = (int) value;
@@ -21,6 +24,7 @@ public final class Rating {
         return new Rating(intValue);
     }
 
+    @JsonValue
     public int getValue() {
         return value;
     }

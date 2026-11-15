@@ -11,6 +11,13 @@ import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.hibernate5.jakarta.Hibernate5JakartaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.common.domain.quantity.Quantity;
+import com.personal.marketnote.community.domain.review.Rating;
+import com.personal.marketnote.community.domain.review.Review;
+import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
+import com.personal.marketnote.community.domain.review.Reviews;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -135,6 +143,71 @@ class CacheConfigObjectMapperTest {
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
                 .isInstanceOf(InvalidTypeIdException.class);
+    }
+
+    @Test
+    @DisplayName("Reviews 폴리모픽 라운드트립이 Rating/Money/Quantity final VO 포함 시 동등하게 복원된다")
+    void reviewsWithFinalVOs_shouldRoundTrip() throws JsonProcessingException {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        Review review = Review.from(
+                ReviewSnapshotState.builder()
+                        .id(1L)
+                        .reviewKey(UUID.fromString("00000000-0000-0000-0000-000000000001"))
+                        .reviewerId(10L)
+                        .orderId(100L)
+                        .productId(1000L)
+                        .pricePolicyId(10000L)
+                        .productImageUrl("https://example.com/a.png")
+                        .selectedOptions("OPT-1")
+                        .quantity(2)
+                        .reviewerName("홍길동")
+                        .maskedReviewerName("홍*동")
+                        .rating(Rating.of(5f))
+                        .content("좋아요")
+                        .isPhoto(true)
+                        .isEdited(false)
+                        .likeCount(3)
+                        .status(EntityStatus.ACTIVE)
+                        .createdAt(LocalDateTime.of(2026, 4, 25, 10, 0))
+                        .modifiedAt(LocalDateTime.of(2026, 4, 25, 11, 0))
+                        .orderNum(7L)
+                        .unitAmount(12000L)
+                        .build()
+        );
+        Reviews reviews = Reviews.from(List.of(review));
+
+        // when
+        String json = mapper.writeValueAsString(reviews);
+        Object deserialized = mapper.readValue(json, Object.class);
+
+        // then
+        assertThat(deserialized).isInstanceOf(Reviews.class);
+        Reviews restored = (Reviews) deserialized;
+        assertThat(restored.size()).isEqualTo(1);
+        Review restoredReview = restored.subList(0, 1).get(0);
+        assertThat(restoredReview.getRating()).isEqualTo(Rating.of(5f));
+        assertThat(restoredReview.getQuantity()).isEqualTo(Quantity.of(2));
+        assertThat(restoredReview.getUnitAmount()).isEqualTo(Money.of(12000L));
+        assertThat(restoredReview.getReviewKey())
+                .isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        assertThat(restoredReview.getStatus()).isEqualTo(EntityStatus.ACTIVE);
+    }
+
+    @Test
+    @DisplayName("Rating 단독 라운드트립이 동등 인스턴스로 복원된다 (@JsonCreator + @JsonValue)")
+    void rating_shouldRoundTrip() throws JsonProcessingException {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        Rating rating = Rating.of(4f);
+
+        // when
+        String json = mapper.writeValueAsString(rating);
+        Rating restored = mapper.readValue(json, Rating.class);
+
+        // then
+        assertThat(restored).isEqualTo(rating);
+        assertThat(restored.getValue()).isEqualTo(4);
     }
 
     @Test
