@@ -4,10 +4,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.hibernate5.jakarta.Hibernate5JakartaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.personal.marketnote.common.configuration.ObjectMapperConfig;
+import com.personal.marketnote.common.configuration.cache.CachePolymorphicTypeValidatorFactory;
 import com.personal.marketnote.user.adapter.out.hibernate.HibernateCollectionMixIn;
 import com.personal.marketnote.user.domain.user.Nickname;
 import org.junit.jupiter.api.DisplayName;
@@ -31,15 +32,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class CacheConfigObjectMapperTest {
 
     private ObjectMapper createCacheObjectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapperConfig().objectMapper();
         mapper.activateDefaultTyping(
-                BasicPolymorphicTypeValidator.builder()
-                        .allowIfSubType("com.personal.marketnote.")
-                        .allowIfSubType("java.util.")
-                        .allowIfSubType("java.time.")
-                        .allowIfSubType("java.math.")
-                        .allowIfSubType("java.lang.")
-                        .build(),
+                CachePolymorphicTypeValidatorFactory.createDefault(),
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY
         );
