@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.hibernate5.jakarta.Hibernate5JakartaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.personal.marketnote.common.configuration.cache.CachePolymorphicTypeValidatorFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -48,17 +48,9 @@ public class CacheConfig {
     private ObjectMapper redisObjectMapper() {
         ObjectMapper mapper = objectMapper.copy();
 
-        // 화이트리스트(#4856): allowIfBaseType(Object.class) → 패키지 prefix 화이트리스트로 좁힘.
-        // 폴리모픽 역직렬화로 인한 임의 클래스 인스턴스화(RCE 류) 위험을 차단한다.
-        // 도메인(com.personal.marketnote.) + 표준 라이브러리(java.util/time/math/lang)만 허용.
+        // 폴리모픽 화이트리스트 정책(#4856) — CachePolymorphicTypeValidatorFactory javadoc 참조.
         mapper.activateDefaultTyping(
-                BasicPolymorphicTypeValidator.builder()
-                        .allowIfSubType("com.personal.marketnote.")
-                        .allowIfSubType("java.util.")
-                        .allowIfSubType("java.time.")
-                        .allowIfSubType("java.math.")
-                        .allowIfSubType("java.lang.")
-                        .build(),
+                CachePolymorphicTypeValidatorFactory.createDefault(),
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY
         );
