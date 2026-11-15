@@ -474,12 +474,6 @@ REMOTE
 	}
 
 	post {
-		always {
-			echo '====================================Clean workspace===================================='
-			cleanWs()
-			sh 'docker system prune -f'
-		}
-
 		success {
 			echo '====================================Build Success====================================='
 			script {
@@ -522,6 +516,12 @@ REMOTE
 					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack failure notification"
 				}
 			}
+		}
+
+		cleanup {
+			echo '====================================Clean workspace===================================='
+			cleanWs()
+			sh 'docker system prune -f'
 		}
 	}
 }
