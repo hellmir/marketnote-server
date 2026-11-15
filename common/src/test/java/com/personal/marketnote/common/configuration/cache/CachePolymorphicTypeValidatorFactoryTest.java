@@ -1,0 +1,173 @@
+package com.personal.marketnote.common.configuration.cache;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+/**
+ * CachePolymorphicTypeValidatorFactory 단위 테스트.
+ * <p>
+ * 보안 정책(#4856) 개입화: 5개 prefix 화이트리스트(com.personal.marketnote., java.util., java.time., java.math., java.lang.)
+ * 외 클래스 폴리모픽 역직렬화를 차단하는지 라운드트립으로 검증한다.
+ */
+class CachePolymorphicTypeValidatorFactoryTest {
+
+    private ObjectMapper buildMapperWithFactory() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.activateDefaultTyping(
+                CachePolymorphicTypeValidatorFactory.createDefault(),
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY
+        );
+        return mapper;
+    }
+
+    @Test
+    @DisplayName("createDefault는 com.personal.marketnote. prefix 클래스를 허용한다")
+    void createDefault_shouldAllowPersonalMarketnotePrefix() throws Exception {
+        // given
+        BasicPolymorphicTypeValidator validator = CachePolymorphicTypeValidatorFactory.createDefault();
+        ObjectMapper mapper = buildMapperWithFactory();
+        // com.personal.marketnote. prefix는 java/util 외 라운드트립이 어렵지만,
+        // validator 자체로 직접 검증한다.
+
+        // when
+        BasicPolymorphicTypeValidator.Validity validity = validator.validateSubClassName(
+                mapper.getDeserializationConfig(),
+                mapper.constructType(Object.class),
+                "com.personal.marketnote.common.configuration.cache.CachePolymorphicTypeValidatorFactory"
+        );
+
+        // then
+        assertThat(validity).isEqualTo(BasicPolymorphicTypeValidator.Validity.ALLOWED);
+    }
+
+    @Test
+    @DisplayName("createDefault는 java.util. prefix 클래스를 허용한다")
+    void createDefault_shouldAllowJavaUtilPrefix() throws JsonProcessingException {
+        // given
+        ObjectMapper mapper = buildMapperWithFactory();
+        List<String> list = new ArrayList<>(List.of("a", "b"));
+
+        // when
+        String json = mapper.writeValueAsString(list);
+        Object deserialized = mapper.readValue(json, Object.class);
+
+        // then
+        assertThat(deserialized).isInstanceOf(List.class);
+        assertThat((List<?>) deserialized).isEqualTo(List.of("a", "b"));
+    }
+
+    @Test
+    @DisplayName("createDefault는 java.time. prefix 클래스를 허용한다")
+    void createDefault_shouldAllowJavaTimePrefix() throws Exception {
+        // given
+        BasicPolymorphicTypeValidator validator = CachePolymorphicTypeValidatorFactory.createDefault();
+        ObjectMapper mapper = new ObjectMapper();
+
+        // when
+        BasicPolymorphicTypeValidator.Validity validity = validator.validateSubClassName(
+                mapper.getDeserializationConfig(),
+                mapper.constructType(Object.class),
+                LocalDateTime.class.getName()
+        );
+
+        // then
+        assertThat(validity).isEqualTo(BasicPolymorphicTypeValidator.Validity.ALLOWED);
+    }
+
+    @Test
+    @DisplayName("createDefault는 java.math. prefix 클래스를 허용한다")
+    void createDefault_shouldAllowJavaMathPrefix() throws Exception {
+        // given
+        BasicPolymorphicTypeValidator validator = CachePolymorphicTypeValidatorFactory.createDefault();
+        ObjectMapper mapper = new ObjectMapper();
+
+        // when
+        BasicPolymorphicTypeValidator.Validity validity = validator.validateSubClassName(
+                mapper.getDeserializationConfig(),
+                mapper.constructType(Object.class),
+                BigDecimal.class.getName()
+        );
+
+        // then
+        assertThat(validity).isEqualTo(BasicPolymorphicTypeValidator.Validity.ALLOWED);
+    }
+
+    @Test
+    @DisplayName("createDefault는 java.lang. prefix 클래스를 허용한다")
+    void createDefault_shouldAllowJavaLangPrefix() throws Exception {
+        // given
+        BasicPolymorphicTypeValidator validator = CachePolymorphicTypeValidatorFactory.createDefault();
+        ObjectMapper mapper = new ObjectMapper();
+
+        // when
+        BasicPolymorphicTypeValidator.Validity validity = validator.validateSubClassName(
+                mapper.getDeserializationConfig(),
+                mapper.constructType(Object.class),
+                String.class.getName()
+        );
+
+        // then
+        assertThat(validity).isEqualTo(BasicPolymorphicTypeValidator.Validity.ALLOWED);
+    }
+
+    @Test
+    @DisplayName("createDefault는 화이트리스트에 없는 임의 패키지 클래스를 거부한다")
+    void createDefault_shouldRejectUnwhitelistedPackage() {
+        // given
+        ObjectMapper mapper = buildMapperWithFactory();
+        String maliciousJson = "[\"java.io.File\",\"/etc/passwd\"]";
+
+        // when & then
+        assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
+                .isInstanceOf(InvalidTypeIdException.class);
+    }
+
+    @Test
+    @DisplayName("createDefault는 매 호출마다 동등한 정책을 반환한다")
+    void createDefault_shouldReturnEquivalentPolicyOnEachCall() throws JsonProcessingException {
+        // given
+        ObjectMapper mapper1 = new ObjectMapper();
+        mapper1.activateDefaultTyping(
+                CachePolymorphicTypeValidatorFactory.createDefault(),
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY
+        );
+        ObjectMapper mapper2 = new ObjectMapper();
+        mapper2.activateDefaultTyping(
+                CachePolymorphicTypeValidatorFactory.createDefault(),
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY
+        );
+
+        // when - 둘 다 동일 입력에 대해 동일 결과 (allow / deny)
+        List<String> allowed = new ArrayList<>(List.of("x"));
+        String allowedJson1 = mapper1.writeValueAsString(allowed);
+        String allowedJson2 = mapper2.writeValueAsString(allowed);
+
+        Object roundTrip1 = mapper1.readValue(allowedJson1, Object.class);
+        Object roundTrip2 = mapper2.readValue(allowedJson2, Object.class);
+
+        String maliciousJson = "[\"java.io.File\",\"/etc/passwd\"]";
+
+        // then
+        assertThat(roundTrip1).isEqualTo(roundTrip2);
+        assertThatThrownBy(() -> mapper1.readValue(maliciousJson, Object.class))
+                .isInstanceOf(InvalidTypeIdException.class);
+        assertThatThrownBy(() -> mapper2.readValue(maliciousJson, Object.class))
+                .isInstanceOf(InvalidTypeIdException.class);
+    }
+}
