@@ -1,0 +1,9 @@
+# qa profile 전용 공통 설정. 서비스 application.yml의 qa 섹션에서만 spring.config.import로 로드한다.
+# 비-qa (local/prod) 프로필에서 직접 import하지 말 것.
+# QA 환경 트러블슈팅 인프라 강화 (#4675) 일환으로 애플리케이션 코드 DEBUG 적용.
+# root는 INFO 유지 — framework(Spring Security/Kafka/JDBC/HTTP) 시크릿 평문 출력 차단.
+# com.personal 패키지만 DEBUG — 4개 핸들러 isDebugEnabled() 분기 등 후속 보강 작업 활성화.
+logging:
+  level:
+    root: INFO
+    com.personal: DEBUG
