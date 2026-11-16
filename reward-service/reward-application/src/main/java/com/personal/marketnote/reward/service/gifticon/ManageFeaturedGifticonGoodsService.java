@@ -7,7 +7,6 @@ import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageFeaturedGifticonGoodsCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageFeaturedGifticonGoodsCommand.FeaturedGoodsItem;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageFeaturedGifticonGoodsUseCase;
-import com.personal.marketnote.reward.port.out.gifticon.EvictGifticonGoodsCachePort;
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonGoodsPort;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,6 @@ public class ManageFeaturedGifticonGoodsService implements ManageFeaturedGiftico
 
     private final FindGifticonGoodsPort findGifticonGoodsPort;
     private final UpdateGifticonGoodsPort updateGifticonGoodsPort;
-    private final EvictGifticonGoodsCachePort evictGifticonGoodsCachePort;
 
     @Override
     public void manageFeatured(ManageFeaturedGifticonGoodsCommand command) {
@@ -38,7 +36,6 @@ public class ManageFeaturedGifticonGoodsService implements ManageFeaturedGiftico
             applyFeatured(goods, item);
             updateGifticonGoodsPort.update(goods);
         }
-        evictGifticonGoodsCachePort.evictFeaturedGoodsCache();
     }
 
     private void applyFeatured(GifticonGoods goods, FeaturedGoodsItem item) {
