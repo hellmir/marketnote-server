@@ -377,7 +377,7 @@ pipeline {
 							envLine('DB_USERNAME', env.DB_USERNAME),
 							envLine('DB_PASSWORD', dbPassword),
 							envLine('JWT_ADMIN_ACCESS_TOKEN', env.JWT_ADMIN_ACCESS_TOKEN),
-							envLine('JAVA_TOOL_OPTIONS', '-Duser.timezone=Asia/Seoul'),
+							envLine('JAVA_TOOL_OPTIONS', '-Duser.timezone=Asia/Seoul -XX:InitialRAMPercentage=50.0 -XX:MaxRAMPercentage=50.0 -XX:+ExitOnOutOfMemoryError'),
 							envLine('FASSTO_BASE_URL', env.FASSTO_BASE_URL),
 							envLine('FASSTO_API_CD', env.FASSTO_API_CD),
 							envLine('FASSTO_API_KEY', env.FASSTO_API_KEY),
