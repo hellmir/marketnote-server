@@ -165,3 +165,14 @@ groups:
         annotations:
           summary: "DLT 재처리 실패율 50% 초과: {{ $labels.original_topic }}"
           description: "토픽 {{ $labels.original_topic }}의 DLT 재처리 실패율이 {{ $value | humanizePercentage }}입니다."
+
+  - name: cache-deserialization
+    rules:
+      - alert: CacheDeserializationFailureSpike
+        expr: increase(cache_deserialization_failure_total[5m]) > 10
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "캐시 역직렬화 실패 5분간 10건 초과: {{ $labels.job }}"
+          description: "service={{ $labels.job }}, cache={{ $labels.cache }}, exception={{ $labels.exception }} — 5분간 {{ $value }}건 발생. fail-safe 핸들러가 polluted entry 를 evict + cache miss 처리하지만, 형식 잔존 데이터/직렬화 정책 회귀 가능성을 점검하세요."

@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.configuration;
 
 import com.personal.marketnote.common.configuration.cache.SerializationFailSafeCacheErrorHandler;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -111,7 +112,7 @@ class CacheFailSafeIntegrationTest {
         @Bean
         @Override
         public CacheErrorHandler errorHandler() {
-            return new SerializationFailSafeCacheErrorHandler();
+            return new SerializationFailSafeCacheErrorHandler(new SimpleMeterRegistry());
         }
 
         @Bean
