@@ -1,11 +1,13 @@
 package com.personal.marketnote.fulfillment.adapter.in.scheduler;
 
+import com.personal.marketnote.common.scheduler.ShedLockNames;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.SyncFulfillmentAllStockCommand;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.SyncFulfillmentAllStockUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +29,7 @@ public class FulfillmentStockSyncScheduler {
      * @Description 매일 00시, 07시에 파스토 전체 재고를 동기화합니다.
      */
     @Scheduled(cron = SYNC_CRON, zone = SYNC_ZONE)
+    @SchedulerLock(name = ShedLockNames.FULFILLMENT_STOCK_SYNC, lockAtMostFor = "PT1H", lockAtLeastFor = "PT1M")
     public void syncAllStocks() {
         String customerCode = fasstoAuthProperties.getCustomerCode();
         if (FormatValidator.hasNoValue(customerCode)) {

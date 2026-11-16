@@ -1,8 +1,10 @@
 package com.personal.marketnote.product.adapter.in.scheduler;
 
+import com.personal.marketnote.common.scheduler.ShedLockNames;
 import com.personal.marketnote.product.port.in.usecase.popularity.UpdatePopularityUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ public class PopularityScheduler {
     private final UpdatePopularityUseCase updatePopularityUseCase;
 
     @Scheduled(cron = "${popularity.scheduler.cron:0 0 * * * *}", zone = "Asia/Seoul")
+    @SchedulerLock(name = ShedLockNames.PRODUCT_POPULARITY, lockAtMostFor = "PT5H", lockAtLeastFor = "PT1M")
     public void updateWeeklyPopularity() {
         log.info("주간 인기도 갱신 스케줄러 실행 시작");
 

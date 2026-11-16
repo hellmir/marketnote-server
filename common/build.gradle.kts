@@ -2,6 +2,7 @@ val queryDslVersion = "5.1.0"
 
 plugins {
     java
+    `java-library`
     `java-test-fixtures`
     id("org.springframework.boot") version "3.5.6"
     id("io.spring.dependency-management") version "1.1.7"
@@ -72,6 +73,11 @@ dependencies {
 
     // micrometer (Kafka Consumer 메트릭 수집)
     implementation("io.micrometer:micrometer-core")
+
+    // ShedLock (분산 스케줄러 락 — desired ≥ 2 환경에서 @Scheduled 중복 실행 방지)
+    // 7개 서비스 어댑터에서 @SchedulerLock 어노테이션 직접 사용하므로 api scope로 전파
+    api("net.javacrumbs.shedlock:shedlock-spring:5.16.0")
+    api("net.javacrumbs.shedlock:shedlock-provider-redis-spring:5.16.0")
 
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test")

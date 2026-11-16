@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.outbox.OutboxEventStatus;
 import com.personal.marketnote.common.outbox.entity.OutboxEventJpaEntity;
 import com.personal.marketnote.common.outbox.repository.OutboxEventJpaRepository;
+import com.personal.marketnote.common.scheduler.ShedLockNames;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -33,6 +35,11 @@ public class OutboxEventPublisher {
     private long publishTimeoutMs;
 
     @Scheduled(fixedDelayString = "${outbox.polling-interval-ms:3000}")
+    @SchedulerLock(
+            name = "${spring.application.name}-" + ShedLockNames.OUTBOX_PUBLISH,
+            lockAtMostFor = "PT10M",
+            lockAtLeastFor = "PT1S"
+    )
     public void publishPendingEvents() {
         List<OutboxEventJpaEntity> pendingEvents =
                 outboxEventJpaRepository.findTop100ByStatusOrderByCreatedAtAsc(OutboxEventStatus.PENDING);

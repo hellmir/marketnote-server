@@ -2,8 +2,10 @@ package com.personal.marketnote.commerce.adapter.in.scheduler;
 
 import com.personal.marketnote.commerce.configuration.PaymentCancelIdempotencyCleanupProperties;
 import com.personal.marketnote.commerce.port.out.payment.idempotency.DeletePaymentCancelIdempotencyPort;
+import com.personal.marketnote.common.scheduler.ShedLockNames;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,7 @@ public class PaymentCancelIdempotencyCleanupScheduler {
     private final PaymentCancelIdempotencyCleanupProperties properties;
 
     @Scheduled(cron = "${commerce.payment.idempotency-cleanup.cron}", zone = "Asia/Seoul")
+    @SchedulerLock(name = ShedLockNames.COMMERCE_PAYMENT_CANCEL_IDEMPOTENCY_CLEANUP, lockAtMostFor = "PT30M", lockAtLeastFor = "PT1M")
     @Transactional(isolation = READ_COMMITTED)
     public void cleanupExpiredIdempotencyRecords() {
         LocalDateTime threshold = LocalDateTime.now(commerceClock).minusHours(properties.getTtlHours());

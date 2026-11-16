@@ -105,6 +105,9 @@ dependencies {
     // Spring Boot Actuator(Prometheus Monitoring Query)
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+    // ShedLock JDBC Provider — fulfillment는 애플리케이션 코드 차원 Redis 미사용 정책이므로 PostgreSQL 기반 락 사용
+    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.16.0")
+
     // Swagger API 문서 생성
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
 
