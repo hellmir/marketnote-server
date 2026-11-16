@@ -29,12 +29,12 @@ class ExceptionMessageTest {
     }
 
     @Test
-    @DisplayName("INVALID_EMAIL_EXCEPTION_MESSAGE 는 PiiMaskingConverter 통과 후 원문과 동일하다 (마스킹 대상 이메일 토큰 미포함)")
-    void invalidEmailMessageUnchangedAfterPiiMasking() {
-        // 현재 PiiMaskingConverter 는 "email=" prefix 토큰만 마스킹. 메시지 내 예시 이메일(abcd@abc.com)은 원문 보존.
+    @DisplayName("INVALID_EMAIL_EXCEPTION_MESSAGE 는 PiiMaskingConverter 통과 후 마스킹이 적용되어도 안내 텍스트는 보존된다")
+    void invalidEmailMessageMaskingPreservesGuidanceText() {
         String masked = PiiMaskingConverter.mask(INVALID_EMAIL_EXCEPTION_MESSAGE);
 
-        assertThat(masked).isEqualTo(INVALID_EMAIL_EXCEPTION_MESSAGE);
+        assertThat(masked).contains("이메일 주소 형식이 잘못되었습니다.");
+        assertThat(masked).doesNotContain("abcd@abc.com");
     }
 
     @Test
