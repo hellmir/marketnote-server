@@ -35,7 +35,7 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
     private final ProductOptionPricePolicyJpaRepository productOptionPricePolicyJpaRepository;
 
     @Override
-    @CacheEvict(value = {"product:detail", "product:price-policy"}, key = "#pricePolicy.product.id", beforeInvocation = false)
+    @CacheEvict(value = "product:detail", key = "#pricePolicy.product.id", beforeInvocation = false)
     public Long save(PricePolicy pricePolicy) {
         ProductJpaEntity productRef = productJpaRepository.getReferenceById(pricePolicy.getProduct().getId());
         PricePolicyJpaEntity savedPricePolicyJpaEntity
@@ -239,7 +239,7 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
         deleteByIdInternal(productId, pricePolicyId);
     }
 
-    @CacheEvict(value = {"product:detail", "product:price-policy"}, key = "#productId", beforeInvocation = false)
+    @CacheEvict(value = "product:detail", key = "#productId", beforeInvocation = false)
     public void deleteByIdInternal(Long productId, Long pricePolicyId) {
         productOptionPricePolicyJpaRepository.deleteByPricePolicyId(pricePolicyId);
         pricePolicyJpaRepository.findById(pricePolicyId).ifPresent(PricePolicyJpaEntity::deactivate);
