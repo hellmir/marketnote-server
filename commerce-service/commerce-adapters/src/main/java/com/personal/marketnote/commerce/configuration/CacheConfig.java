@@ -10,6 +10,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.personal.marketnote.common.configuration.cache.CachePolymorphicTypeValidatorFactory;
 import com.personal.marketnote.common.configuration.cache.SerializationFailSafeCacheErrorHandler;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -38,6 +39,7 @@ import static org.springframework.data.redis.cache.RedisCacheConfiguration.defau
 @RequiredArgsConstructor
 public class CacheConfig implements CachingConfigurer {
     private final ObjectMapper objectMapper;
+    private final MeterRegistry meterRegistry;
 
     /**
      * Redis 캐시 직렬화/역직렬화 결함 fail-safe 핸들러(#4882).
@@ -46,7 +48,7 @@ public class CacheConfig implements CachingConfigurer {
     @Bean
     @Override
     public CacheErrorHandler errorHandler() {
-        return new SerializationFailSafeCacheErrorHandler();
+        return new SerializationFailSafeCacheErrorHandler(meterRegistry);
     }
 
     @Value("${spring.data.redis.host}")

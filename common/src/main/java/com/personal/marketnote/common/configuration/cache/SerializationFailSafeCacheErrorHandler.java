@@ -1,6 +1,8 @@
 package com.personal.marketnote.common.configuration.cache;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.interceptor.CacheErrorHandler;
@@ -19,17 +21,36 @@ import org.springframework.data.redis.serializer.SerializationException;
  *         WARN 로그 후 swallow. 캐시 작성/제거 실패가 메서드 실행 결과를 막지 않도록 한다.
  * </ul>
  * <p>
+ * 메트릭(#4902):
+ * <ul>
+ *     <li>{@code cache.deserialization.failure} — 역직렬화 결함 발생 카운터.
+ *         태그: {@code cache} (캐시 이름), {@code exception} (outermost 예외 클래스 simple name).</li>
+ *     <li>Alertmanager 룰 {@code CacheDeserializationFailureSpike} (5분 10건) 와 연동.</li>
+ * </ul>
+ * <p>
  * 회귀 이력:
  * <ul>
  *     <li>#4855 — prod product-service /api/v1/products 무한 500. 캐시 형식 전환(record→class) 후
  *         이전 형식 잔존 데이터로 인한 SerializationException + MismatchedInputException 무한 루프.</li>
  *     <li>#4882 — 본 fail-safe 도입. polluted entry 자동 evict + DB 폴백 + 다음 호출에서 새 형식 재캐시.</li>
+ *     <li>#4902 — 메트릭/Alertmanager 알림 추가. fail-safe 가 결함을 swallow 하므로 발생률 가시화 필수.</li>
  * </ul>
  *
  * @see CacheErrorHandler
  */
 @Slf4j
 public class SerializationFailSafeCacheErrorHandler implements CacheErrorHandler {
+
+    private static final String METRIC_NAME = "cache.deserialization.failure";
+    private static final String METRIC_DESCRIPTION = "Redis 캐시 역직렬화 결함 발생 건수 (polluted entry evict + cache miss 처리)";
+    private static final String TAG_CACHE = "cache";
+    private static final String TAG_EXCEPTION = "exception";
+
+    private final MeterRegistry meterRegistry;
+
+    public SerializationFailSafeCacheErrorHandler(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
+    }
 
     @Override
     public void handleCacheGetError(RuntimeException exception, Cache cache, Object key) {
@@ -40,6 +61,7 @@ public class SerializationFailSafeCacheErrorHandler implements CacheErrorHandler
                 "[CacheFailSafe] GET 직렬화 결함 — polluted entry evict. cache={}, key={}, exception={}",
                 cache.getName(), key, exception.getClass().getName(), exception
         );
+        recordFailure(cache.getName(), exception);
         try {
             cache.evict(key);
         } catch (RuntimeException evictException) {
@@ -99,5 +121,24 @@ public class SerializationFailSafeCacheErrorHandler implements CacheErrorHandler
             current = cause;
         }
         return false;
+    }
+
+    /**
+     * 역직렬화 결함 발생 건수를 Micrometer Counter 로 기록한다(#4902).
+     * <p>
+     * 태그:
+     * <ul>
+     *     <li>{@code cache} — 캐시 이름 (예: {@code product:detail})</li>
+     *     <li>{@code exception} — outermost 예외 클래스의 simple name (cause chain 상위 식별)</li>
+     * </ul>
+     * outermost 예외 기준으로 태깅하여 fail-safe 진입점의 결함 유형을 가시화한다.
+     */
+    private void recordFailure(String cacheName, RuntimeException exception) {
+        Counter.builder(METRIC_NAME)
+                .description(METRIC_DESCRIPTION)
+                .tag(TAG_CACHE, cacheName)
+                .tag(TAG_EXCEPTION, exception.getClass().getSimpleName())
+                .register(meterRegistry)
+                .increment();
     }
 }

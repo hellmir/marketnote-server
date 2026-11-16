@@ -2,6 +2,9 @@ package com.personal.marketnote.common.configuration.cache;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cache.Cache;
 import org.springframework.data.redis.serializer.SerializationException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
@@ -32,14 +36,18 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class SerializationFailSafeCacheErrorHandlerTest {
 
+    private static final String FAILURE_METRIC = "cache.deserialization.failure";
+
     private SerializationFailSafeCacheErrorHandler handler;
+    private MeterRegistry meterRegistry;
 
     @Mock
     private Cache cache;
 
     @BeforeEach
     void setUp() {
-        handler = new SerializationFailSafeCacheErrorHandler();
+        meterRegistry = new SimpleMeterRegistry();
+        handler = new SerializationFailSafeCacheErrorHandler(meterRegistry);
         lenient().when(cache.getName()).thenReturn("test-cache");
     }
 
@@ -130,5 +138,61 @@ class SerializationFailSafeCacheErrorHandlerTest {
 
         assertThatCode(() -> handler.handleCacheClearError(exception, cache))
                 .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("역직렬화 실패 시 cache.deserialization.failure 카운터가 증가한다")
+    void handleCacheGetError_serializationFault_incrementsCounter() {
+        SerializationException exception = new SerializationException("형식 변경 잔존 데이터");
+
+        handler.handleCacheGetError(exception, cache, "k1");
+
+        Counter counter = meterRegistry.find(FAILURE_METRIC).counter();
+        assertThat(counter).isNotNull();
+        assertThat(counter.count()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("cache/exception 태그가 정확히 매칭된다")
+    void handleCacheGetError_serializationFault_taggedWithCacheAndException() {
+        SerializationException exception = new SerializationException("결함");
+
+        handler.handleCacheGetError(exception, cache, "k2");
+
+        Counter counter = meterRegistry.find(FAILURE_METRIC)
+                .tag("cache", "test-cache")
+                .tag("exception", "SerializationException")
+                .counter();
+        assertThat(counter).isNotNull();
+        assertThat(counter.count()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("역직렬화가 아닌 일반 예외는 카운터를 증가시키지 않는다")
+    void handleCacheGetError_nonSerializationFault_doesNotIncrementCounter() {
+        IllegalStateException exception = new IllegalStateException("커넥션 단절");
+
+        assertThatThrownBy(() -> handler.handleCacheGetError(exception, cache, "k3"))
+                .isSameAs(exception);
+
+        Counter counter = meterRegistry.find(FAILURE_METRIC).counter();
+        assertThat(counter).isNull();
+    }
+
+    @Test
+    @DisplayName("cause 체인의 MismatchedInputException 도 outermost 예외 클래스명으로 태깅된다")
+    void handleCacheGetError_nestedMismatchedInput_taggedByOutermostException() {
+        MismatchedInputException mismatched = MismatchedInputException.from(
+                (com.fasterxml.jackson.core.JsonParser) null, "type id 미발견"
+        );
+        SerializationException exception = new SerializationException("redis 역직렬화 실패", mismatched);
+
+        handler.handleCacheGetError(exception, cache, "k4");
+
+        Counter counter = meterRegistry.find(FAILURE_METRIC)
+                .tag("exception", "SerializationException")
+                .counter();
+        assertThat(counter).isNotNull();
+        assertThat(counter.count()).isEqualTo(1.0);
     }
 }
