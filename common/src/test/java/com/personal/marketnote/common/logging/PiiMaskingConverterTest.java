@@ -284,4 +284,93 @@ class PiiMaskingConverterTest {
             assertThat(PiiMaskingConverter.mask(message)).isEqualTo(message);
         }
     }
+
+    @Nested
+    @DisplayName("자유 형식 raw value 마스킹 (cause.detailMessage 등)")
+    class FreeFormMasking {
+
+        @Test
+        @DisplayName("자유 형식 이메일은 토큰 prefix 없이도 local-part 첫 글자 + ***@domain으로 마스킹된다")
+        void masksFreeFormEmail() {
+            String masked = PiiMaskingConverter.mask("Cannot deserialize 'foo@bar.com'");
+            assertThat(masked).isEqualTo("Cannot deserialize 'f***@bar.com'");
+        }
+
+        @Test
+        @DisplayName("자유 형식 하이픈 휴대폰 번호는 010-****-5678로 마스킹된다")
+        void masksFreeFormHyphenatedMobile() {
+            String masked = PiiMaskingConverter.mask("Invalid phone 010-1234-5678 detected");
+            assertThat(masked).isEqualTo("Invalid phone 010-****-5678 detected");
+        }
+
+        @Test
+        @DisplayName("자유 형식 하이픈 없는 11자리 휴대폰 번호는 010-****-5678로 정규화된다")
+        void masksFreeFormUnhyphenatedMobile() {
+            String masked = PiiMaskingConverter.mask("Got 01012345678");
+            assertThat(masked).isEqualTo("Got 010-****-5678");
+        }
+
+        @Test
+        @DisplayName("자유 형식 서울 유선 9자리(02-123-4567)는 02-****-4567로 마스킹된다")
+        void masksFreeFormSeoulNineDigit() {
+            String masked = PiiMaskingConverter.mask("Office 02-123-4567");
+            assertThat(masked).isEqualTo("Office 02-****-4567");
+        }
+
+        @Test
+        @DisplayName("자유 형식 서울 유선 10자리(02-1234-5678)도 02-****-5678로 마스킹된다")
+        void masksFreeFormSeoulTenDigit() {
+            String masked = PiiMaskingConverter.mask("Office 02-1234-5678");
+            assertThat(masked).isEqualTo("Office 02-****-5678");
+        }
+
+        @Test
+        @DisplayName("자유 형식 3자리 지역번호 유선(031-123-4567)은 031-****-4567로 마스킹된다")
+        void masksFreeFormRegionalLandline() {
+            String masked = PiiMaskingConverter.mask("Branch 031-123-4567 closed");
+            assertThat(masked).isEqualTo("Branch 031-****-4567 closed");
+        }
+
+        @Test
+        @DisplayName("토큰 prefix(email=)이 있으면 자유 형식이 같은 값을 다시 마스킹하지 않는다 (이중 마스킹 방지)")
+        void doesNotDoubleMaskTokenPrefixedEmail() {
+            String masked = PiiMaskingConverter.mask("version=1.0.0 email=foo@bar.com");
+            assertThat(masked).isEqualTo("version=1.0.0 email=f***@bar.com");
+        }
+
+        @Test
+        @DisplayName("토큰 prefix(phone=)이 있으면 자유 형식이 같은 번호를 다시 처리하지 않는다 (이중 마스킹 방지)")
+        void doesNotDoubleMaskTokenPrefixedPhone() {
+            String masked = PiiMaskingConverter.mask("phone=010-1234-5678");
+            assertThat(masked).isEqualTo("phone=010-****-5678");
+        }
+
+        @Test
+        @DisplayName("자유 형식 패턴이 없는 일반 메시지는 원본을 유지한다")
+        void keepsOriginalWhenNoFreeFormPii() {
+            String message = "order created orderId=123 version=1.0.0";
+            assertThat(PiiMaskingConverter.mask(message)).isEqualTo(message);
+        }
+
+        @Test
+        @DisplayName("영문 prefix가 붙은 식별자(order-1234-5678)는 phone으로 오마스킹되지 않는다")
+        void doesNotMaskCorrelationIdLikeIdentifier() {
+            String message = "correlationId=order-1234-5678";
+            assertThat(PiiMaskingConverter.mask(message)).isEqualTo(message);
+        }
+
+        @Test
+        @DisplayName("영문 prefix가 붙은 빌드 식별자(build-1234-5678)는 phone으로 오마스킹되지 않는다")
+        void doesNotMaskBuildIdentifier() {
+            String message = "build-1234-5678 deployed";
+            assertThat(PiiMaskingConverter.mask(message)).isEqualTo(message);
+        }
+
+        @Test
+        @DisplayName("영문 prefix가 붙은 티켓 식별자(ticket-123-4567)는 phone으로 오마스킹되지 않는다")
+        void doesNotMaskTicketIdentifier() {
+            String message = "ticket-123-4567 created";
+            assertThat(PiiMaskingConverter.mask(message)).isEqualTo(message);
+        }
+    }
 }

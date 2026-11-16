@@ -45,6 +45,24 @@ public class PiiMaskingConverter extends ClassicConverter {
     private static final Pattern PHONE_VALUE_NO_HYPHEN_11 = Pattern.compile("^(\\d{3})(\\d{4})(\\d{4})$");
     private static final Pattern TRAILING_PUNCT_PATTERN = Pattern.compile("[.,:;!?]+$");
 
+    // Free-form patterns — applied AFTER token-prefix masking so masked outputs
+    // (e.g. "f***@bar.com", "010-****-5678") are NOT re-matched (they contain '*').
+    // (?<![@A-Za-z0-9._%+-]) prevents matching a sub-email of an already-malformed
+    // multi-@ value (e.g. "a@b@c.com" should stay as-is, not become "a@b***@c.com").
+    private static final Pattern FREE_FORM_EMAIL_PATTERN = Pattern.compile(
+            "(?<![@A-Za-z0-9._%+-])[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+    );
+    // Hyphenated phone — Korean phone prefix whitelist to avoid false positives on
+    // common identifier patterns (e.g. "order-1234-5678", "build-123-4567", "ticket-1234-5678").
+    // Whitelist: 02 (Seoul), 0[3-6]\d (other regions: 031~064), 01[016789] (mobile carriers).
+    private static final Pattern FREE_FORM_PHONE_HYPHENATED_PATTERN = Pattern.compile(
+            "(?<!\\d)(02|0[3-6]\\d|01[016789])-(\\d{3,4})-(\\d{4})(?!\\d)"
+    );
+    // Unhyphenated 11-digit mobile (010/011/016/017/018/019).
+    private static final Pattern FREE_FORM_PHONE_MOBILE_11_PATTERN = Pattern.compile(
+            "(?<!\\d)(01[016789])(\\d{4})(\\d{4})(?!\\d)"
+    );
+
     @Override
     public String convert(ILoggingEvent event) {
         String message = event.getFormattedMessage();
@@ -55,11 +73,56 @@ public class PiiMaskingConverter extends ClassicConverter {
         if (message == null || message.isEmpty()) {
             return message;
         }
+        // 1. Token prefix matching first (prevents free-form from re-processing the same value).
         String masked = maskToken(message, EMAIL_PATTERN, PiiMaskingConverter::maskEmail);
         masked = maskToken(masked, NICKNAME_PATTERN, PiiMaskingConverter::maskNickname);
         masked = maskToken(masked, PHONE_PATTERN, PiiMaskingConverter::maskPhone);
         masked = maskToken(masked, NAME_PATTERN, PiiMaskingConverter::maskName);
+        // 2. Free-form raw value matching (covers cause.detailMessage style PII leakage).
+        masked = maskFreeFormEmail(masked);
+        masked = maskFreeFormPhone(masked);
         return masked;
+    }
+
+    private static String maskFreeFormEmail(String input) {
+        Matcher matcher = FREE_FORM_EMAIL_PATTERN.matcher(input);
+        StringBuilder builder = null;
+        while (matcher.find()) {
+            if (builder == null) {
+                builder = new StringBuilder();
+            }
+            String raw = matcher.group();
+            String replacement = maskEmail(raw);
+            matcher.appendReplacement(builder, Matcher.quoteReplacement(replacement));
+        }
+        if (builder == null) {
+            return input;
+        }
+        matcher.appendTail(builder);
+        return builder.toString();
+    }
+
+    private static String maskFreeFormPhone(String input) {
+        String afterHyphen = replaceFreeFormPhone(input, FREE_FORM_PHONE_HYPHENATED_PATTERN);
+        return replaceFreeFormPhone(afterHyphen, FREE_FORM_PHONE_MOBILE_11_PATTERN);
+    }
+
+    private static String replaceFreeFormPhone(String input, Pattern pattern) {
+        Matcher matcher = pattern.matcher(input);
+        StringBuilder builder = null;
+        while (matcher.find()) {
+            if (builder == null) {
+                builder = new StringBuilder();
+            }
+            String raw = matcher.group();
+            String replacement = maskPhone(raw);
+            matcher.appendReplacement(builder, Matcher.quoteReplacement(replacement));
+        }
+        if (builder == null) {
+            return input;
+        }
+        matcher.appendTail(builder);
+        return builder.toString();
     }
 
     public static String maskEmail(String value) {
