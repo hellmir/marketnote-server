@@ -17,7 +17,7 @@ def buildMarketnoteTaskDefinition(env, dbUrl, dbPassword) {
             essential: true,
             environment: [
                 [name: "SERVICE_NAME",                              value: env.ECS_SERVICE_NAME],
-                [name: "JAVA_TOOL_OPTIONS",                         value: "-Duser.timezone=Asia/Seoul"],
+                [name: "JAVA_TOOL_OPTIONS",                         value: "-Duser.timezone=Asia/Seoul -XX:InitialRAMPercentage=50.0 -XX:MaxRAMPercentage=50.0 -XX:+ExitOnOutOfMemoryError"],
                 [name: "DB_URL",                                    value: dbUrl],
                 [name: "DB_USERNAME",                               value: env.DB_USERNAME],
                 [name: "DB_PASSWORD",                               value: dbPassword],
