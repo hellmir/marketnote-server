@@ -206,3 +206,10 @@ spring:
     activate:
       on-profile: prod
     import: classpath:config/common-prod.yml
+
+---
+spring:
+  config:
+    activate:
+      on-profile: qa
+    import: classpath:config/common-qa.yml
