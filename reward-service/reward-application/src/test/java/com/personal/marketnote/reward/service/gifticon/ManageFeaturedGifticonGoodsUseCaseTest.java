@@ -7,7 +7,6 @@ import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState
 import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageFeaturedGifticonGoodsCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageFeaturedGifticonGoodsCommand.FeaturedGoodsItem;
-import com.personal.marketnote.reward.port.out.gifticon.EvictGifticonGoodsCachePort;
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonGoodsPort;
 import org.junit.jupiter.api.DisplayName;
@@ -36,9 +35,6 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
     @Mock
     private UpdateGifticonGoodsPort updateGifticonGoodsPort;
 
-    @Mock
-    private EvictGifticonGoodsCachePort evictGifticonGoodsCachePort;
-
     @Test
     @DisplayName("노출된 상품의 인기상품 여부를 설정한다")
     void shouldSetPopularForExposedGoods() {
@@ -58,7 +54,6 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
         assertThat(goods.isPopular()).isTrue();
         assertThat(goods.getOrderNum()).isEqualTo(1);
         verify(updateGifticonGoodsPort).update(goods);
-        verify(evictGifticonGoodsCachePort).evictFeaturedGoodsCache();
     }
 
     @Test
@@ -80,7 +75,6 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
         assertThat(goods.isPopular()).isFalse();
         assertThat(goods.getOrderNum()).isNull();
         verify(updateGifticonGoodsPort).update(goods);
-        verify(evictGifticonGoodsCachePort).evictFeaturedGoodsCache();
     }
 
     @Test
@@ -98,7 +92,6 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
         assertThatThrownBy(() -> manageFeaturedGifticonGoodsService.manageFeatured(command))
                 .isInstanceOf(GifticonGoodsNotFoundException.class);
         verifyNoInteractions(updateGifticonGoodsPort);
-        verifyNoInteractions(evictGifticonGoodsCachePort);
     }
 
     @Test
@@ -117,7 +110,6 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
         assertThatThrownBy(() -> manageFeaturedGifticonGoodsService.manageFeatured(command))
                 .isInstanceOf(GifticonGoodsNotExposedException.class);
         verifyNoInteractions(updateGifticonGoodsPort);
-        verifyNoInteractions(evictGifticonGoodsCachePort);
     }
 
     private GifticonGoods createExposedGoods(String goodsCode) {

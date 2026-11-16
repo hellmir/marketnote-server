@@ -7,13 +7,11 @@ import com.personal.marketnote.reward.adapter.out.persistence.gifticon.repositor
 import com.personal.marketnote.reward.domain.exception.GifticonGoodsNotFoundException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
-import com.personal.marketnote.reward.port.out.gifticon.EvictGifticonGoodsCachePort;
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort;
 import com.personal.marketnote.reward.port.out.gifticon.SaveGifticonGoodsPort;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonGoodsPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +24,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.FIRST_PAGE_CURS
 @Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, SaveGifticonGoodsPort, UpdateGifticonGoodsPort, EvictGifticonGoodsCachePort {
+public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, SaveGifticonGoodsPort, UpdateGifticonGoodsPort {
 
     private final GifticonGoodsJpaRepository repository;
 
@@ -138,11 +136,5 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
         return repository.findAllPopularAndExposed(GoodsStatus.SALE, pageable).stream()
                 .map(GifticonGoodsJpaEntity::toDomain)
                 .toList();
-    }
-
-    @Override
-    @CacheEvict(value = "gifticon:goods:featured", allEntries = true)
-    public void evictFeaturedGoodsCache() {
-        // 캐시 evict만 수행
     }
 }
