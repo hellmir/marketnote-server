@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -202,6 +204,26 @@ class CachePolymorphicTypeValidatorFactoryTest {
         // given - 화이트리스트 외 패키지(javax.naming.) 거부 검증
         ObjectMapper mapper = buildMapperWithFactory();
         String maliciousJson = "[\"javax.naming.InitialContext\",{}]";
+
+        // when & then
+        assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
+                .isInstanceOf(InvalidTypeIdException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "org.apache.commons.collections.functors.InvokerTransformer",
+            "javax.script.ScriptEngineManager",
+            "com.sun.rowset.JdbcRowSetImpl",
+            "com.sun.org.apache.bcel.internal.util.ClassLoader",
+            "org.apache.xalan.xsltc.trax.TemplatesImpl",
+            "com.fasterxml.jackson.databind.node.POJONode"
+    })
+    @DisplayName("createDefault는 알려진 RCE 가젯 카테고리 클래스 폴리모픽 역직렬화를 거부한다")
+    void createDefault_shouldRejectKnownRceGadgetClasses(String className) {
+        // given - 화이트리스트 prefix 미매칭 시 type id 단계에서 즉시 거부되는지 검증
+        ObjectMapper mapper = buildMapperWithFactory();
+        String maliciousJson = "[\"" + className + "\",{}]";
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
