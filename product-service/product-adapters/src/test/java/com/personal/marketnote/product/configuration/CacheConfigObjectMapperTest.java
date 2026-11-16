@@ -13,6 +13,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.personal.marketnote.common.configuration.ObjectMapperConfig;
 import com.personal.marketnote.common.configuration.cache.CachePolymorphicTypeValidatorFactory;
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.product.adapter.out.persistence.productcatalog.entity.ProductCatalogReadModelJpaEntity;
+import com.personal.marketnote.product.adapter.out.persistence.productcatalog.mapper.ProductCatalogReadModelJpaEntityToResultMapper;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
@@ -28,6 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -313,6 +316,225 @@ class CacheConfigObjectMapperTest {
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
                 .isInstanceOf(InvalidTypeIdException.class);
+    }
+
+    @Test
+    @DisplayName("List.of() 빈 immutable list가 resizedImageUrls 필드로 들어가도 라운드트립 시 ArrayList로 정상 복원된다")
+    void listOf_emptyImmutableResizedImageUrls_shouldRoundTripAsArrayList() throws JsonProcessingException {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        ProductCatalogItemResult original = new ProductCatalogItemResult(
+                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
+                BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
+                "https://example.com/image.jpg",
+                List.of(),
+                50, 10, BigDecimal.valueOf(4.5), 100L,
+                new ArrayList<>(), new ArrayList<>(), "ACTIVE"
+        );
+
+        // when
+        String json = mapper.writeValueAsString(original);
+        Object deserialized = mapper.readValue(json, Object.class);
+
+        // then
+        assertThat(deserialized).isInstanceOf(ProductCatalogItemResult.class);
+        ProductCatalogItemResult result = (ProductCatalogItemResult) deserialized;
+        assertThat(result.resizedImageUrls()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Collections.emptyList()가 productTags 필드로 들어가도 라운드트립 시 ArrayList로 정상 복원된다")
+    void collectionsEmptyList_productTags_shouldRoundTripAsArrayList() throws JsonProcessingException {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        ProductCatalogItemResult original = new ProductCatalogItemResult(
+                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
+                BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
+                "https://example.com/image.jpg",
+                new ArrayList<>(),
+                50, 10, BigDecimal.valueOf(4.5), 100L,
+                Collections.emptyList(),
+                new ArrayList<>(), "ACTIVE"
+        );
+
+        // when
+        String json = mapper.writeValueAsString(original);
+        Object deserialized = mapper.readValue(json, Object.class);
+
+        // then
+        assertThat(deserialized).isInstanceOf(ProductCatalogItemResult.class);
+        ProductCatalogItemResult result = (ProductCatalogItemResult) deserialized;
+        assertThat(result.productTags()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("stream().toList()가 selectedOptions 필드로 들어가도 라운드트립 시 ArrayList로 정상 복원된다")
+    void streamToList_selectedOptions_shouldRoundTripAsArrayList() throws JsonProcessingException {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        List<ProductCatalogOptionSnapshot> immutableOptions = Stream.of(
+                new ProductCatalogOptionSnapshot(1L, "옵션내용")
+        ).toList();
+        ProductCatalogItemResult original = new ProductCatalogItemResult(
+                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
+                BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
+                "https://example.com/image.jpg",
+                new ArrayList<>(),
+                50, 10, BigDecimal.valueOf(4.5), 100L,
+                new ArrayList<>(),
+                immutableOptions,
+                "ACTIVE"
+        );
+
+        // when
+        String json = mapper.writeValueAsString(original);
+        Object deserialized = mapper.readValue(json, Object.class);
+
+        // then
+        assertThat(deserialized).isInstanceOf(ProductCatalogItemResult.class);
+        ProductCatalogItemResult result = (ProductCatalogItemResult) deserialized;
+        assertThat(result.selectedOptions()).hasSize(1);
+        assertThat(result.selectedOptions().get(0).content()).isEqualTo("옵션내용");
+    }
+
+    @Test
+    @DisplayName("mapper의 null 입력 분기 결과(빈 List 필드)를 라운드트립하면 정상 복원된다")
+    void mapperEmptyBranch_shouldRoundTripSuccessfully() throws JsonProcessingException {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        ProductCatalogReadModelJpaEntity entity = ProductCatalogReadModelJpaEntity.of(
+                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드",
+                10000L, 8000L, BigDecimal.valueOf(20.0),
+                100L, BigDecimal.valueOf(1.3), 1L, 5L, 100L,
+                null, null
+        );
+        ProductCatalogItemResult mapped = ProductCatalogReadModelJpaEntityToResultMapper.mapToResult(entity, mapper);
+
+        // when
+        String json = mapper.writeValueAsString(mapped);
+        Object deserialized = mapper.readValue(json, Object.class);
+
+        // then
+        assertThat(deserialized).isInstanceOf(ProductCatalogItemResult.class);
+        ProductCatalogItemResult result = (ProductCatalogItemResult) deserialized;
+        assertThat(result.resizedImageUrls()).isEmpty();
+        assertThat(result.productTags()).isEmpty();
+        assertThat(result.selectedOptions()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("[디버그] List.of() 직렬화 결과의 type id를 출력한다")
+    void debug_listOfSerializationTypeId() throws JsonProcessingException {
+        ObjectMapper mapper = createCacheObjectMapper();
+        System.out.println("=== List.of() (size 0) ===");
+        System.out.println(mapper.writeValueAsString(List.of()));
+        System.out.println("=== List.of(\"a\") (size 1) ===");
+        System.out.println(mapper.writeValueAsString(List.of("a")));
+        System.out.println("=== List.of(\"a\",\"b\",\"c\") (size 3) ===");
+        System.out.println(mapper.writeValueAsString(List.of("a", "b", "c")));
+        System.out.println("=== Stream.of().toList() (size 0) ===");
+        System.out.println(mapper.writeValueAsString(Stream.<String>of().toList()));
+        System.out.println("=== Stream.of(\"a\").toList() (size 1) ===");
+        System.out.println(mapper.writeValueAsString(Stream.of("a").toList()));
+        System.out.println("=== Collections.emptyList() ===");
+        System.out.println(mapper.writeValueAsString(Collections.emptyList()));
+
+        ProductCatalogItemResult original = new ProductCatalogItemResult(
+                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
+                BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
+                "https://example.com/image.jpg",
+                List.of(), 50, 10, BigDecimal.valueOf(4.5), 100L,
+                List.of(), List.of(), "ACTIVE"
+        );
+        System.out.println("=== ProductCatalogItemResult with List.of() in fields ===");
+        System.out.println(mapper.writeValueAsString(original));
+    }
+
+    @Test
+    @DisplayName("qa.test 적재 패턴(JSONArray top-level, 외부 wrapper 부재)을 readValue 시 type id 부재로 MismatchedInputException 발생한다")
+    void qaTestPattern_topLevelArrayWithoutWrapper_shouldFailOnDeserialization() {
+        // given - qa.test redis 에 적재된 실제 JSON 패턴: top-level 이 JSONArray 이고 외부 wrapper 가 없음.
+        // 결함 원인: ProductCatalogReadModelPersistenceAdapter.findCatalogItems 가 stream().toList()(ImmutableCollections$ListN, final) 반환.
+        // NON_FINAL 정책에서 final 컬렉션은 type info 부여 안 됨 → 직렬화 시 wrapper 없이 JSONArray → 역직렬화 시 type id 부재.
+        // 본 PR(#4886) 픽스 후에도 이 패턴 자체는 readValue(json, Object.class) 시 동일하게 실패한다 (Object.class 컨텍스트의 한계).
+        // Adapter 에서 ArrayList 명시 변환으로 직렬화 자체에 wrapper 가 부여되도록 차단함.
+        ObjectMapper mapper = createCacheObjectMapper();
+        String qaPatternJson = "[{\"@class\":\"com.personal.marketnote.product.port.in.result.product.ProductCatalogItemResult\","
+                + "\"pricePolicyId\":1,\"productId\":10,\"sellerId\":20,\"primaryCategoryId\":30,"
+                + "\"name\":\"테스트\",\"brandName\":\"브랜드\",\"price\":10000,\"discountPrice\":8000,"
+                + "\"discountRate\":[\"java.math.BigDecimal\",20.0],"
+                + "\"accumulatedPoint\":100,"
+                + "\"accumulatedPointRate\":[\"java.math.BigDecimal\",1.3],"
+                + "\"orderNum\":1,\"popularity\":5,\"representativeImageUrl\":null,"
+                + "\"resizedImageUrls\":[\"java.util.ImmutableCollections$ListN\",[]],"
+                + "\"stockQuantity\":0,\"reviewCount\":0,"
+                + "\"reviewAverageRating\":[\"java.math.BigDecimal\",0.0],"
+                + "\"sales\":0,"
+                + "\"productTags\":[\"java.util.ArrayList\",[]],"
+                + "\"selectedOptions\":[\"java.util.ArrayList\",[]],"
+                + "\"status\":\"ACTIVE\"}]";
+
+        // when & then
+        assertThatThrownBy(() -> mapper.readValue(qaPatternJson, Object.class))
+                .isInstanceOf(com.fasterxml.jackson.databind.exc.MismatchedInputException.class);
+    }
+
+    @Test
+    @DisplayName("Adapter 픽스 후: ArrayList 로 wrapping 된 직렬화 결과는 라운드트립이 정상 통과한다")
+    void arrayListWrapped_topLevelSerialization_shouldRoundTripSuccessfully() throws JsonProcessingException {
+        // given - 본 PR 픽스로 Adapter.findCatalogItems 가 Collectors.toCollection(ArrayList::new) 반환.
+        // ArrayList 는 non-final → NON_FINAL 정책에서 type info 부여 → 직렬화 결과 ["java.util.ArrayList", [...]] wrapper 보존.
+        ObjectMapper mapper = createCacheObjectMapper();
+        ProductCatalogItemResult item = new ProductCatalogItemResult(
+                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
+                BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
+                "https://example.com/image.jpg",
+                new ArrayList<>(List.of("a")),
+                50, 10, BigDecimal.valueOf(4.5), 100L,
+                new ArrayList<>(), new ArrayList<>(), "ACTIVE"
+        );
+        List<ProductCatalogItemResult> arrayListWrapped = new ArrayList<>(List.of(item));
+
+        // when
+        String json = mapper.writeValueAsString(arrayListWrapped);
+        Object deserialized = mapper.readValue(json, Object.class);
+
+        // then
+        assertThat(json).startsWith("[\"java.util.ArrayList\",");
+        assertThat(deserialized).isInstanceOf(List.class);
+        assertThat((List<?>) deserialized).hasSize(1);
+        assertThat(((List<?>) deserialized).get(0)).isInstanceOf(ProductCatalogItemResult.class);
+    }
+
+    @Test
+    @DisplayName("ProductCatalogItemResult 모든 List 필드를 immutable list로 채워도 라운드트립이 통과한다")
+    void allImmutableListFields_shouldRoundTripSuccessfully() throws JsonProcessingException {
+        // given
+        ObjectMapper mapper = createCacheObjectMapper();
+        ProductCatalogItemResult original = new ProductCatalogItemResult(
+                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
+                BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
+                "https://example.com/image.jpg",
+                List.of("https://example.com/r1.jpg", "https://example.com/r2.jpg"),
+                50, 10, BigDecimal.valueOf(4.5), 100L,
+                List.of(new ProductCatalogTagSnapshot(1L, "태그1", 1L)),
+                List.of(new ProductCatalogOptionSnapshot(1L, "옵션내용")),
+                "ACTIVE"
+        );
+
+        // when
+        String json = mapper.writeValueAsString(original);
+        Object deserialized = mapper.readValue(json, Object.class);
+
+        // then
+        assertThat(deserialized).isInstanceOf(ProductCatalogItemResult.class);
+        ProductCatalogItemResult result = (ProductCatalogItemResult) deserialized;
+        assertThat(result.resizedImageUrls())
+                .containsExactly("https://example.com/r1.jpg", "https://example.com/r2.jpg");
+        assertThat(result.productTags()).hasSize(1);
+        assertThat(result.productTags().get(0).name()).isEqualTo("태그1");
+        assertThat(result.selectedOptions()).hasSize(1);
+        assertThat(result.selectedOptions().get(0).content()).isEqualTo("옵션내용");
     }
 
     @Test
