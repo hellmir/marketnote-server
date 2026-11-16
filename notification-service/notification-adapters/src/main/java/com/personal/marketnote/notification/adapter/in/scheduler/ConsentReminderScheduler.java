@@ -1,8 +1,10 @@
 package com.personal.marketnote.notification.adapter.in.scheduler;
 
+import com.personal.marketnote.common.scheduler.ShedLockNames;
 import com.personal.marketnote.notification.port.in.usecase.preference.SendConsentReminderUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -18,6 +20,7 @@ public class ConsentReminderScheduler {
     private final SendConsentReminderUseCase sendConsentReminderUseCase;
 
     @Scheduled(cron = "${notification.consent-reminder.cron:0 0 9 * * *}")
+    @SchedulerLock(name = ShedLockNames.NOTIFICATION_CONSENT_REMINDER, lockAtMostFor = "PT1H", lockAtLeastFor = "PT1M")
     public void sendConsentReminders() {
         log.debug("수신 동의 재고지 스케줄러 실행");
         int sentCount = sendConsentReminderUseCase.sendConsentReminders();

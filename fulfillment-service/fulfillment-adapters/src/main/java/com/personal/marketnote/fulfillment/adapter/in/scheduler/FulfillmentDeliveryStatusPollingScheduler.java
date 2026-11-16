@@ -1,11 +1,13 @@
 package com.personal.marketnote.fulfillment.adapter.in.scheduler;
 
+import com.personal.marketnote.common.scheduler.ShedLockNames;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.port.in.command.PollShippingStatusCommand;
 import com.personal.marketnote.fulfillment.port.in.usecase.PollShippingStatusUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -29,6 +31,7 @@ public class FulfillmentDeliveryStatusPollingScheduler {
     private final Clock clock;
 
     @Scheduled(fixedDelayString = "${fulfillment.delivery-polling.interval-ms:1800000}")
+    @SchedulerLock(name = ShedLockNames.FULFILLMENT_DELIVERY_STATUS_POLLING, lockAtMostFor = "PT2H30M", lockAtLeastFor = "PT1M")
     public void pollDeliveryStatuses() {
         if (!isWithinPollingWindow()) {
             log.debug("폴링 시간대(08~21시)가 아닙니다. 스킵합니다.");

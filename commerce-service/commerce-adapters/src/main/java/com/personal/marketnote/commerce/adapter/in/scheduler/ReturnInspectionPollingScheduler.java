@@ -1,8 +1,10 @@
 package com.personal.marketnote.commerce.adapter.in.scheduler;
 
 import com.personal.marketnote.commerce.port.in.usecase.returntracker.PollReturnInspectionUseCase;
+import com.personal.marketnote.common.scheduler.ShedLockNames;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ public class ReturnInspectionPollingScheduler {
     private final PollReturnInspectionUseCase pollReturnInspectionUseCase;
 
     @Scheduled(fixedDelayString = "${return-inspection.scheduler.fixed-delay-ms:1800000}")
+    @SchedulerLock(name = ShedLockNames.COMMERCE_RETURN_INSPECTION_POLLING, lockAtMostFor = "PT2H30M", lockAtLeastFor = "PT1M")
     public void pollReturnInspections() {
         log.info("반품 검수 폴링 시작");
         try {

@@ -1,9 +1,11 @@
 package com.personal.marketnote.user.adapter.in.scheduler;
 
+import com.personal.marketnote.common.scheduler.ShedLockNames;
 import com.personal.marketnote.user.port.in.result.ActivateExpiredDeactivationResult;
 import com.personal.marketnote.user.port.in.usecase.user.ActivateExpiredDeactivationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,7 @@ public class ActivateExpiredDeactivationScheduler {
     private final ActivateExpiredDeactivationUseCase activateExpiredDeactivationUseCase;
 
     @Scheduled(cron = "${user.activate-expired-deactivation.scheduler.cron}", zone = "Asia/Seoul")
+    @SchedulerLock(name = ShedLockNames.USER_ACTIVATE_EXPIRED_DEACTIVATION, lockAtMostFor = "PT30M", lockAtLeastFor = "PT1M")
     public void activateExpiredDeactivations() {
         log.info("비활성화 기간 만료 자동 활성화 스케줄러 실행 시작");
         try {

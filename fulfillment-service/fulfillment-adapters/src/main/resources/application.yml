@@ -173,6 +173,11 @@ springdoc:
   paths-to-exclude:
     - /api/v1/internal/**
 
+# fulfillment-service는 애플리케이션 코드 차원 Redis 미사용 정책으로 ShedLock도 JDBC LockProvider 사용
+# common SchedulerLockConfig의 RedisLockProvider 빈은 shedlock.provider=jdbc 시 등록되지 않음
+shedlock:
+  provider: jdbc
+
 ---
 spring:
   config:

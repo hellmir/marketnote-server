@@ -3,8 +3,10 @@ package com.personal.marketnote.common.outbox.adapter;
 import com.personal.marketnote.common.outbox.OutboxEventStatus;
 import com.personal.marketnote.common.outbox.OutboxProperties;
 import com.personal.marketnote.common.outbox.repository.OutboxEventJpaRepository;
+import com.personal.marketnote.common.scheduler.ShedLockNames;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,11 @@ public class OutboxEventCleaner {
     private final Clock clock;
 
     @Scheduled(cron = "${outbox.cleanup-cron:0 0 3 * * ?}")
+    @SchedulerLock(
+            name = "${spring.application.name}-" + ShedLockNames.OUTBOX_CLEANUP_PUBLISHED,
+            lockAtMostFor = "PT10M",
+            lockAtLeastFor = "PT1M"
+    )
     @Transactional(isolation = READ_COMMITTED)
     public void cleanupPublishedEvents() {
         LocalDateTime cutoff = LocalDateTime.now(clock).minusDays(outboxProperties.getRetentionDays());
@@ -33,6 +40,11 @@ public class OutboxEventCleaner {
     }
 
     @Scheduled(cron = "${outbox.discard-cleanup-cron:0 30 3 * * ?}")
+    @SchedulerLock(
+            name = "${spring.application.name}-" + ShedLockNames.OUTBOX_CLEANUP_DISCARDED,
+            lockAtMostFor = "PT10M",
+            lockAtLeastFor = "PT1M"
+    )
     @Transactional(isolation = READ_COMMITTED)
     public void cleanupDiscardedEvents() {
         LocalDateTime cutoff = LocalDateTime.now(clock).minusDays(outboxProperties.getRetentionDays());

@@ -3,8 +3,10 @@ package com.personal.marketnote.commerce.adapter.in.scheduler;
 import com.personal.marketnote.commerce.exception.NoUnsettledAllocationException;
 import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettlementCommand;
 import com.personal.marketnote.commerce.port.in.usecase.settlement.ExecuteSettlementUseCase;
+import com.personal.marketnote.common.scheduler.ShedLockNames;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -21,6 +23,7 @@ public class SettlementScheduler {
     private final Clock commerceClock;
 
     @Scheduled(cron = "${settlement.scheduler.cron}", zone = "Asia/Seoul")
+    @SchedulerLock(name = ShedLockNames.COMMERCE_SETTLEMENT, lockAtMostFor = "PT2H", lockAtLeastFor = "PT1M")
     public void executeMonthlySettlement() {
         YearMonth previousMonth = YearMonth.now(commerceClock).minusMonths(1);
         int year = previousMonth.getYear();

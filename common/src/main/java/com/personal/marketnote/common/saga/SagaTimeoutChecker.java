@@ -1,8 +1,10 @@
 package com.personal.marketnote.common.saga;
 
 import com.personal.marketnote.common.saga.port.FindSagaPort;
+import com.personal.marketnote.common.scheduler.ShedLockNames;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,11 @@ public class SagaTimeoutChecker {
     private final Clock clock;
 
     @Scheduled(fixedDelayString = "${saga.check-interval-ms:30000}")
+    @SchedulerLock(
+            name = "${spring.application.name}-" + ShedLockNames.SAGA_TIMEOUT_CHECK,
+            lockAtMostFor = "PT2M30S",
+            lockAtLeastFor = "PT5S"
+    )
     public void checkTimeouts() {
         checkProcessingTimeouts();
         checkCompensatingTimeouts();
