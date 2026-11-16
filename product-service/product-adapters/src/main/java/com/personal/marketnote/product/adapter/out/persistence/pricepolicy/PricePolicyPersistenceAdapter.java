@@ -246,7 +246,6 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
     }
 
     @Override
-    @CacheEvict(value = "pricePolicy:list:first", allEntries = true)
     public void updateWeeklyPopularity(LocalDateTime since) {
         pricePolicyJpaRepository.updateWeeklyPopularity(since);
     }
