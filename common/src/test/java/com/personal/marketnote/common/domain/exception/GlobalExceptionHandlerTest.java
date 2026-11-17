@@ -1456,7 +1456,7 @@ class GlobalExceptionHandlerTest {
 
         @ParameterizedTest(name = "[{index}] {0} - DEBUG 활성화 시 stack trace 기록")
         @MethodSource("group_a_handlers")
-        @DisplayName("DEBUG 활성화 시 Group A 핸들러는 sanitized + DEBUG stack trace 2건을 기록한다")
+        @DisplayName("DEBUG 활성화 시 Group A 핸들러는 sanitized + DEBUG stack trace를 마지막에 기록한다")
         void shouldLogStackTraceWhenDebugEnabled(
                 String displayName, Consumer<GlobalExceptionHandler> invoker, String expectedSimpleName
         ) {
@@ -1464,20 +1464,160 @@ class GlobalExceptionHandlerTest {
 
             invoker.accept(handler);
 
+            // MethodArgumentNotValid / ConstraintViolation 핸들러는 #4936으로 input 컨텍스트 DEBUG 로그가 추가되어
+            // sanitized + input + stack trace 총 3건. 그 외는 sanitized + stack trace 2건.
             assertThat(appender.list)
-                    .as("[%s] DEBUG 활성 시 sanitized 로그 + DEBUG stack trace 2건이 캡처되어야 한다", displayName)
-                    .hasSize(2);
-            ILoggingEvent debugEvent = appender.list.get(1);
-            assertThat(debugEvent.getLevel())
-                    .as("[%s] 두 번째 이벤트는 DEBUG 레벨이어야 한다", displayName)
+                    .as("[%s] DEBUG 활성 시 sanitized + (선택적 input) + DEBUG stack trace 가 캡처되어야 한다", displayName)
+                    .hasSizeGreaterThanOrEqualTo(2);
+            ILoggingEvent stackTraceEvent = appender.list.get(appender.list.size() - 1);
+            assertThat(stackTraceEvent.getLevel())
+                    .as("[%s] 마지막 이벤트는 DEBUG 레벨이어야 한다", displayName)
                     .isEqualTo(Level.DEBUG);
-            assertThat(debugEvent.getThrowableProxy())
-                    .as("[%s] DEBUG 이벤트는 stack trace(throwable)를 포함해야 한다", displayName)
+            assertThat(stackTraceEvent.getThrowableProxy())
+                    .as("[%s] 마지막 DEBUG 이벤트는 stack trace(throwable)를 포함해야 한다", displayName)
                     .isNotNull();
-            assertThat(debugEvent.getFormattedMessage())
-                    .as("[%s] DEBUG 메시지는 '<SimpleName> stack trace' 형식이어야 한다", displayName)
+            assertThat(stackTraceEvent.getFormattedMessage())
+                    .as("[%s] 마지막 DEBUG 메시지는 '<SimpleName> stack trace' 형식이어야 한다", displayName)
                     .endsWith(" stack trace")
                     .contains(expectedSimpleName);
+        }
+    }
+
+    @Nested
+    @DisplayName("Bean Validation 실패 input 컨텍스트 DEBUG 로그 (#4936)")
+    class ValidationInputDebugTest {
+
+        private Logger logger;
+        private ListAppender<ILoggingEvent> appender;
+        private boolean previousAdditive;
+        private Level previousLevel;
+
+        @org.junit.jupiter.api.BeforeEach
+        void attachAppender() {
+            logger = (Logger) LoggerFactory.getLogger(GlobalExceptionHandler.class);
+            previousAdditive = logger.isAdditive();
+            previousLevel = logger.getLevel();
+            logger.setAdditive(false);
+            appender = new ListAppender<>();
+            appender.start();
+            logger.addAppender(appender);
+        }
+
+        @org.junit.jupiter.api.AfterEach
+        void detachAppender() {
+            logger.detachAppender(appender);
+            appender.stop();
+            logger.setAdditive(previousAdditive);
+            logger.setLevel(previousLevel);
+        }
+
+        @SuppressWarnings("unchecked")
+        private ConstraintViolation<Object> mockViolation(String propertyPath, Object invalidValue, String message) {
+            ConstraintViolation<Object> violation = mock(ConstraintViolation.class);
+            Path path = mock(Path.class);
+            when(path.toString()).thenReturn(propertyPath);
+            when(violation.getPropertyPath()).thenReturn(path);
+            when(violation.getInvalidValue()).thenReturn(invalidValue);
+            when(violation.getMessage()).thenReturn(message);
+            return violation;
+        }
+
+        @Test
+        @DisplayName("DEBUG 활성 시 MethodArgumentNotValidException 처리하면 rejectedValue를 포함한 DEBUG input 로그가 추가된다")
+        void shouldLogInputWithRejectedValueWhenDebugEnabled() {
+            logger.setLevel(Level.DEBUG);
+            BindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "target");
+            bindingResult.addError(new FieldError(
+                    "target", "phoneNumber", "010-1234-abcd", false, null, null,
+                    "전화번호 형식이 올바르지 않습니다."
+            ));
+            MethodArgumentNotValidException exception = new MethodArgumentNotValidExceptionStub(bindingResult);
+
+            handler.handleMethodArgumentNotValidException(exception);
+
+            // sanitized INFO + DEBUG input + DEBUG stack trace = 3건
+            assertThat(appender.list).hasSize(3);
+            ILoggingEvent inputEvent = appender.list.get(1);
+            assertThat(inputEvent.getLevel()).isEqualTo(Level.DEBUG);
+            assertThat(inputEvent.getFormattedMessage())
+                    .startsWith("MethodArgumentNotValidException input:")
+                    .contains("rejectedValue=010-1234-abcd")
+                    .contains("field=phoneNumber")
+                    .contains("constraint=전화번호 형식이 올바르지 않습니다.");
+            assertThat(inputEvent.getThrowableProxy()).isNull();
+
+            ILoggingEvent stackTraceEvent = appender.list.get(2);
+            assertThat(stackTraceEvent.getLevel()).isEqualTo(Level.DEBUG);
+            assertThat(stackTraceEvent.getFormattedMessage()).endsWith(" stack trace");
+            assertThat(stackTraceEvent.getThrowableProxy()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("DEBUG 비활성 시 MethodArgumentNotValidException 처리하면 input/stack trace DEBUG 로그가 0건이다")
+        void shouldNotLogInputWhenDebugDisabledForMethodArgumentNotValid() {
+            logger.setLevel(Level.INFO);
+            BindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "target");
+            bindingResult.addError(new FieldError(
+                    "target", "phoneNumber", "010-1234-abcd", false, null, null,
+                    "전화번호 형식이 올바르지 않습니다."
+            ));
+            MethodArgumentNotValidException exception = new MethodArgumentNotValidExceptionStub(bindingResult);
+
+            handler.handleMethodArgumentNotValidException(exception);
+
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> {
+                        assertThat(event.getLevel()).isNotEqualTo(Level.DEBUG);
+                        assertThat(event.getFormattedMessage()).doesNotContain("rejectedValue");
+                        assertThat(event.getFormattedMessage()).doesNotContain("010-1234-abcd");
+                    });
+        }
+
+        @Test
+        @DisplayName("DEBUG 활성 시 ConstraintViolationException 처리하면 invalidValue를 포함한 DEBUG input 로그가 추가된다")
+        void shouldLogInputWithInvalidValueWhenDebugEnabled() {
+            logger.setLevel(Level.DEBUG);
+            Set<ConstraintViolation<?>> violations = new HashSet<>();
+            violations.add(mockViolation("phoneNumber", "010-1234-abcd", "전화번호 형식이 올바르지 않습니다."));
+            ConstraintViolationException exception = new ConstraintViolationException(violations);
+
+            handler.handleConstraintViolationException(exception);
+
+            // sanitized INFO + DEBUG input + DEBUG stack trace = 3건
+            assertThat(appender.list).hasSize(3);
+            ILoggingEvent inputEvent = appender.list.get(1);
+            assertThat(inputEvent.getLevel()).isEqualTo(Level.DEBUG);
+            assertThat(inputEvent.getFormattedMessage())
+                    .startsWith("ConstraintViolationException input:")
+                    .contains("invalidValue=010-1234-abcd")
+                    .contains("field=phoneNumber")
+                    .contains("constraint=전화번호 형식이 올바르지 않습니다.");
+            assertThat(inputEvent.getThrowableProxy()).isNull();
+
+            ILoggingEvent stackTraceEvent = appender.list.get(2);
+            assertThat(stackTraceEvent.getLevel()).isEqualTo(Level.DEBUG);
+            assertThat(stackTraceEvent.getFormattedMessage()).endsWith(" stack trace");
+            assertThat(stackTraceEvent.getThrowableProxy()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("DEBUG 비활성 시 ConstraintViolationException 처리하면 input/stack trace DEBUG 로그가 0건이다")
+        void shouldNotLogInputWhenDebugDisabledForConstraintViolation() {
+            logger.setLevel(Level.INFO);
+            Set<ConstraintViolation<?>> violations = new HashSet<>();
+            violations.add(mockViolation("phoneNumber", "010-1234-abcd", "전화번호 형식이 올바르지 않습니다."));
+            ConstraintViolationException exception = new ConstraintViolationException(violations);
+
+            handler.handleConstraintViolationException(exception);
+
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> {
+                        assertThat(event.getLevel()).isNotEqualTo(Level.DEBUG);
+                        assertThat(event.getFormattedMessage()).doesNotContain("invalidValue");
+                        assertThat(event.getFormattedMessage()).doesNotContain("010-1234-abcd");
+                    });
         }
     }
 }
