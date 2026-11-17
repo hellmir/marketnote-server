@@ -141,6 +141,13 @@ public class GlobalExceptionHandler {
                 + (FormatValidator.hasNoValue(cause) ? "" : ", cause=" + cause.getClass().getSimpleName());
     }
 
+    // QA(DEBUG) 환경에서만 stack trace 추가 기록. prod(INFO) 동작 변화 0건.
+    private void debugStackTrace(Throwable e) {
+        if (log.isDebugEnabled()) {
+            log.debug("{} stack trace", e.getClass().getSimpleName(), e);
+        }
+    }
+
     @ExceptionHandler(IOException.class)
     ResponseEntity<ErrorResponse> handleIOException(IOException e) {
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -166,6 +173,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleDomainNotFoundException(DomainNotFoundException e) {
         HttpStatus httpStatus = HttpStatus.NOT_FOUND;
         log.warn(LOG_WARN_MESSAGE, formatGenericLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, e.getMessage());
     }
 
@@ -182,6 +190,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleNoHandlerFoundException(NoHandlerFoundException e) {
         HttpStatus httpStatus = HttpStatus.NOT_FOUND;
         log.info(LOG_INFO_MESSAGE, formatGenericLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "요청한 경로를 찾을 수 없습니다.");
     }
 
@@ -189,6 +198,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException e) {
         HttpStatus httpStatus = HttpStatus.NOT_FOUND;
         log.info(LOG_INFO_MESSAGE, formatGenericLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "요청한 리소스를 찾을 수 없습니다.");
     }
 
@@ -196,6 +206,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e) {
         HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
         log.warn(LOG_WARN_MESSAGE, formatGenericLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "인증에 실패했습니다.");
     }
 
@@ -203,6 +214,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
         HttpStatus httpStatus = HttpStatus.FORBIDDEN;
         log.warn(LOG_WARN_MESSAGE, formatGenericLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "접근이 거부되었습니다.");
     }
 
@@ -210,6 +222,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleBusinessSecurityException(BusinessSecurityException e) {
         HttpStatus httpStatus = HttpStatus.FORBIDDEN;
         log.warn(LOG_WARN_MESSAGE, formatGenericLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, e.getMessage());
     }
 
@@ -226,6 +239,7 @@ public class GlobalExceptionHandler {
         }
 
         log.info(LOG_INFO_MESSAGE, formatValidationLogMessage(e.getBindingResult()));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, fieldErrorMessage);
     }
 
@@ -233,6 +247,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         log.info(LOG_INFO_MESSAGE, formatGenericLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, e.getMessage());
     }
 
@@ -246,6 +261,7 @@ public class GlobalExceptionHandler {
             message = "요청 파라미터가 올바르지 않습니다.";
         }
         log.info(LOG_INFO_MESSAGE, formatConstraintViolationLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, message);
     }
 
@@ -253,6 +269,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         log.info(LOG_INFO_MESSAGE, formatHttpMessageNotReadableLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "요청 본문을 읽을 수 없습니다.");
     }
 
@@ -267,6 +284,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleMalformedJwtException(MalformedJwtException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         log.warn(LOG_WARN_MESSAGE, formatJwtExceptionLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "유효하지 않은 토큰입니다.");
     }
 
@@ -274,6 +292,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleUnsupportedJwtException(UnsupportedJwtException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         log.warn(LOG_WARN_MESSAGE, formatJwtExceptionLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "지원하지 않는 토큰입니다.");
     }
 
@@ -281,6 +300,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleDomainAlreadyExistsException(DomainAlreadyExistsException e) {
         HttpStatus httpStatus = HttpStatus.CONFLICT;
         log.info(LOG_INFO_MESSAGE, formatGenericLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "이미 존재하는 데이터입니다.");
     }
 
@@ -288,6 +308,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException e) {
         HttpStatus httpStatus = HttpStatus.CONFLICT;
         log.info(LOG_INFO_MESSAGE, formatGenericLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, e.getMessage());
     }
 
@@ -320,6 +341,7 @@ public class GlobalExceptionHandler {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         String message = "요청 파라미터 '" + e.getName() + "'의 타입이 올바르지 않습니다.";
         log.info(LOG_INFO_MESSAGE, formatMethodArgumentTypeMismatchLogMessage(e));
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, httpStatus.name(), message);
     }
 
@@ -327,6 +349,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleRateLimitExceededException(RateLimitExceededException e) {
         HttpStatus httpStatus = HttpStatus.TOO_MANY_REQUESTS;
         log.warn(LOG_WARN_MESSAGE, e.getMessage());
+        debugStackTrace(e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "요청 횟수가 초과되었습니다. 잠시 후 다시 시도해주세요.");
     }
 
