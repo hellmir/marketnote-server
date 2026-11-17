@@ -148,54 +148,62 @@ def buildRedisTaskDefinition(env, taskSize, redisServerCommand) {
 }
 
 @NonCPS
-def buildPrometheusTaskDefinition(env) {
-    [
+def buildPrometheusTaskDefinition(env, taskSize, retentionTime, retentionSize, taskVolumes, mountPoints) {
+    def containerDef = [
+        name: "prometheus",
+        image: "${env.PROMETHEUS_IMAGE_URI}",
+        portMappings: [[containerPort: 9090, protocol: "tcp"]],
+        essential: true,
+        command: [
+            "--config.file=/tmp/prometheus.yml",
+            "--storage.tsdb.path=/prometheus",
+            "--storage.tsdb.retention.time=${retentionTime}".toString(),
+            "--storage.tsdb.retention.size=${retentionSize}".toString(),
+            "--web.console.libraries=/usr/share/prometheus/console_libraries",
+            "--web.console.templates=/usr/share/prometheus/consoles"
+        ],
+        environment: [
+            [name: "ENVIRONMENT",               value: "${env.ENVIRONMENT_UPPER.toLowerCase()}"],
+            [name: "MARKETNOTE_SERVER_DOMAIN",        value: "${env.MARKETNOTE_SERVER_DOMAIN}"],
+            [name: "FULFILLMENT_PRIVATE_IP",    value: "${env.FULFILLMENT_PRIVATE_IP}"],
+            [name: "KAFKA_BROKER_1_PRIVATE_IP", value: "${env.KAFKA_BROKER_1_PRIVATE_IP}"],
+            [name: "KAFKA_BROKER_2_PRIVATE_IP", value: "${env.KAFKA_BROKER_2_PRIVATE_IP}"],
+            [name: "KAFKA_BROKER_3_PRIVATE_IP", value: "${env.KAFKA_BROKER_3_PRIVATE_IP}"]
+        ],
+        logConfiguration: [
+            logDriver: "awslogs",
+            options: [
+                "awslogs-group": "${env.CLOUDWATCH_LOG_GROUP_PROMETHEUS}",
+                "awslogs-region": "${env.AWS_DEFAULT_REGION}",
+                "awslogs-stream-prefix": "prometheus"
+            ]
+        ],
+        healthCheck: [
+            command: ["CMD-SHELL",
+                "wget -qO- http://localhost:9090/-/healthy || exit 1"],
+            interval: 15,
+            timeout: 5,
+            retries: 3,
+            startPeriod: 60
+        ]
+    ]
+    if (mountPoints && !mountPoints.isEmpty()) {
+        containerDef.mountPoints = mountPoints
+    }
+    def taskDef = [
         family: "prometheus",
         networkMode: "awsvpc",
         requiresCompatibilities: ["FARGATE"],
-        cpu: "256",
-        memory: "512",
+        cpu: taskSize.cpu,
+        memory: taskSize.memory,
         executionRoleArn: "${env.ECS_TASK_EXECUTION_ROLE_ARN}",
         taskRoleArn: "${env.ECS_TASK_ROLE_ARN}",
-        containerDefinitions: [[
-            name: "prometheus",
-            image: "${env.PROMETHEUS_IMAGE_URI}",
-            portMappings: [[containerPort: 9090, protocol: "tcp"]],
-            essential: true,
-            command: [
-                "--config.file=/tmp/prometheus.yml",
-                "--storage.tsdb.path=/prometheus",
-                "--storage.tsdb.retention.time=1d",
-                "--storage.tsdb.retention.size=512MB",
-                "--web.console.libraries=/usr/share/prometheus/console_libraries",
-                "--web.console.templates=/usr/share/prometheus/consoles"
-            ],
-            environment: [
-                [name: "ENVIRONMENT",               value: "${env.ENVIRONMENT_UPPER.toLowerCase()}"],
-                [name: "MARKETNOTE_SERVER_DOMAIN",        value: "${env.MARKETNOTE_SERVER_DOMAIN}"],
-                [name: "FULFILLMENT_PRIVATE_IP",    value: "${env.FULFILLMENT_PRIVATE_IP}"],
-                [name: "KAFKA_BROKER_1_PRIVATE_IP", value: "${env.KAFKA_BROKER_1_PRIVATE_IP}"],
-                [name: "KAFKA_BROKER_2_PRIVATE_IP", value: "${env.KAFKA_BROKER_2_PRIVATE_IP}"],
-                [name: "KAFKA_BROKER_3_PRIVATE_IP", value: "${env.KAFKA_BROKER_3_PRIVATE_IP}"]
-            ],
-            logConfiguration: [
-                logDriver: "awslogs",
-                options: [
-                    "awslogs-group": "${env.CLOUDWATCH_LOG_GROUP_PROMETHEUS}",
-                    "awslogs-region": "${env.AWS_DEFAULT_REGION}",
-                    "awslogs-stream-prefix": "prometheus"
-                ]
-            ],
-            healthCheck: [
-                command: ["CMD-SHELL",
-                    "wget -qO- http://localhost:9090/-/healthy || exit 1"],
-                interval: 15,
-                timeout: 5,
-                retries: 3,
-                startPeriod: 60
-            ]
-        ]]
+        containerDefinitions: [containerDef]
     ]
+    if (taskVolumes && !taskVolumes.isEmpty()) {
+        taskDef.volumes = taskVolumes
+    }
+    return taskDef
 }
 
 @NonCPS
@@ -817,6 +825,7 @@ pipeline {
 						if (!changed) {
 							sleep time: 1, unit: 'SECONDS'; return
 						}
+						def helper = load 'jenkins/resolve-and-register.groovy'
 						withCredentials([
 							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",               variable: 'AWS_ACCESS_KEY_ID'),
 							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",           variable: 'AWS_SECRET_ACCESS_KEY'),
@@ -833,7 +842,16 @@ pipeline {
 							sh '''
 	                        aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_PROMETHEUS" --region "$AWS_DEFAULT_REGION" || true
 	                        '''
-							def promTask = buildPrometheusTaskDefinition(env)
+							// prod 분기: cpu 512/memory 2048 + retention 15d/80GB + EBS managed volume(prometheus-data).
+							// qa/stage는 현재값(256/512 + retention 1d/512MB + ephemeral) 유지.
+							def promTaskSize = helper.resolvePromTaskSize(env.ENVIRONMENT_UPPER)
+							def promRetentionTime = helper.resolvePromRetentionTime(env.ENVIRONMENT_UPPER)
+							def promRetentionSize = helper.resolvePromRetentionSize(env.ENVIRONMENT_UPPER)
+							def promTaskVolumes = helper.resolvePromTaskVolumes(env.ENVIRONMENT_UPPER)
+							def promMountPoints = helper.resolvePromMountPoints(env.ENVIRONMENT_UPPER)
+							def promTask = buildPrometheusTaskDefinition(
+									env, promTaskSize, promRetentionTime, promRetentionSize, promTaskVolumes, promMountPoints
+							)
 							def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(promTask))
 							writeFile file: 'prom-taskdef.json', text: json
 							sh 'aws ecs register-task-definition --cli-input-json file://prom-taskdef.json'
@@ -849,7 +867,10 @@ pipeline {
 						if (!changed) {
 							sleep time: 1, unit: 'SECONDS'; return
 						}
-						withCredentials([
+						def helper = load 'jenkins/resolve-and-register.groovy'
+						// prod에서는 EBS managed volume 부착을 위해 ECS infrastructure role 자격증명 추가.
+						// qa/stage는 자격증명 미참조로 빈 문자열로 결과적으로 --volume-configurations 미주입.
+						def deployCreds = [
 							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",       variable: 'AWS_ACCESS_KEY_ID'),
 							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",   variable: 'AWS_SECRET_ACCESS_KEY'),
 							string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",      variable: 'AWS_DEFAULT_REGION'),
@@ -857,7 +878,11 @@ pipeline {
 							string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_SERVICE_NAME", variable: 'PROMETHEUS_SERVICE_NAME'),
 							string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",              variable: 'SUBNET_IDS'),
 							string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",      variable: 'SECURITY_GROUP_IDS')
-						]) {
+						]
+						if (env.ENVIRONMENT_UPPER == 'PROD') {
+							deployCreds.add(string(credentialsId: "${env.ENV_PREFIX}_ECS_INFRASTRUCTURE_ROLE_ARN", variable: 'ECS_INFRASTRUCTURE_ROLE_ARN'))
+						}
+						withCredentials(deployCreds) {
 							def latestTask = sh(script: 'aws ecs list-task-definitions --family-prefix prometheus --sort DESC --region $AWS_DEFAULT_REGION --query \'taskDefinitionArns[0]\' --output text', returnStdout: true).trim()
 							if (!latestTask || latestTask == 'None') {
 								error 'No Prometheus TaskDefinition found to deploy'
@@ -866,14 +891,19 @@ pipeline {
 							def subnets = sh(script: 'printf "%s" "$SUBNET_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
 							def sgs = sh(script: 'printf "%s" "$SECURITY_GROUP_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
 
+							// prod 분기: ON_DEMAND only + EBS managed volume. qa/stage는 SPOT 100% + 미부착.
+							def cpStrategy = helper.resolvePromCapacityProviderStrategy(env.ENVIRONMENT_UPPER)
+							def volumeConfig = helper.resolvePromVolumeConfiguration(env.ENVIRONMENT_UPPER, env.ECS_INFRASTRUCTURE_ROLE_ARN ?: '')
+
 							if (exists == "ACTIVE" || exists == "DRAINING") {
 								sh """
 	                            aws ecs update-service \
 	                              --cluster \$ECS_CLUSTER_NAME \
 	                              --service \$PROMETHEUS_SERVICE_NAME \
 	                              --task-definition ${latestTask} \
-	                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	                              --capacity-provider-strategy ${cpStrategy} \
 	                              --desired-count 1 \
+	                              ${volumeConfig} \
 	                              --region \$AWS_DEFAULT_REGION \
 	                              --force-new-deployment
 	                            """
@@ -884,8 +914,9 @@ pipeline {
 	                              --service-name \$PROMETHEUS_SERVICE_NAME \
 	                              --task-definition ${latestTask} \
 	                              --desired-count 1 \
-	                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	                              --capacity-provider-strategy ${cpStrategy} \
 	                              --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${sgs}],assignPublicIp=ENABLED}" \
+	                              ${volumeConfig} \
 	                              --region \$AWS_DEFAULT_REGION
 	                            """
 							}
