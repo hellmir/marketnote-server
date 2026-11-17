@@ -5,6 +5,8 @@
 # com.personal 패키지만 DEBUG — 4개 핸들러 isDebugEnabled() 분기 등 후속 보강 작업 활성화.
 # DB 트러블슈팅을 위해 Hibernate SQL/binding/Spring Transaction DEBUG 추가 (#4932).
 # Redis cache hit/miss 및 Redisson 분산락 획득/해제/timeout DEBUG 추가 (#4934).
+# Spring Kafka adapter producer record send / consumer record receive / listener 호출 DEBUG 추가 (#4933).
+# 주의: org.apache.kafka는 INFO 유지 — startup 시 bootstrap config의 SASL credential 평문 노출 차단.
 logging:
   level:
     root: INFO
@@ -14,3 +16,4 @@ logging:
     org.springframework.transaction: DEBUG
     org.springframework.cache: DEBUG
     org.redisson: DEBUG
+    org.springframework.kafka: DEBUG
