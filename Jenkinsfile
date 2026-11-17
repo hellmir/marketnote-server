@@ -207,13 +207,13 @@ def buildPrometheusTaskDefinition(env, taskSize, retentionTime, retentionSize, t
 }
 
 @NonCPS
-def buildGrafanaTaskDefinition(env) {
+def buildGrafanaTaskDefinition(env, taskSize) {
     [
         family: "grafana",
         networkMode: "awsvpc",
         requiresCompatibilities: ["FARGATE"],
-        cpu: "256",
-        memory: "512",
+        cpu: taskSize.cpu,
+        memory: taskSize.memory,
         executionRoleArn: "${env.ECS_TASK_EXECUTION_ROLE_ARN}",
         taskRoleArn: "${env.ECS_TASK_ROLE_ARN}",
         containerDefinitions: [[
@@ -933,6 +933,7 @@ pipeline {
 						if (!changed) {
 							sleep time: 1, unit: 'SECONDS'; return
 						}
+						def helper = load 'jenkins/resolve-and-register.groovy'
 						withCredentials([
 							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",              variable: 'AWS_ACCESS_KEY_ID'),
 							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",          variable: 'AWS_SECRET_ACCESS_KEY'),
@@ -949,7 +950,9 @@ pipeline {
 							sh '''
 	                        aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_GRAFANA" --region "$AWS_DEFAULT_REGION" || true
 	                        '''
-							def grafanaTask = buildGrafanaTaskDefinition(env)
+							// prod 분기: cpu 256/memory 1024 (사용자 동시 접속 마진). qa/stage는 256/512 유지.
+							def grafanaTaskSize = helper.resolveGrafanaTaskSize(env.ENVIRONMENT_UPPER)
+							def grafanaTask = buildGrafanaTaskDefinition(env, grafanaTaskSize)
 							def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(grafanaTask))
 							writeFile file: 'grafana-taskdef.json', text: json
 							sh 'aws ecs register-task-definition --cli-input-json file://grafana-taskdef.json'
@@ -965,6 +968,7 @@ pipeline {
 						if (!changed) {
 							sleep time: 1, unit: 'SECONDS'; return
 						}
+						def helper = load 'jenkins/resolve-and-register.groovy'
 						withCredentials([
 							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
 							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
@@ -982,13 +986,16 @@ pipeline {
 							def subnets = sh(script: 'printf "%s" "$SUBNET_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
 							def sgs = sh(script: 'printf "%s" "$SECURITY_GROUP_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
 
+							// prod 분기: ON_DEMAND only (SPOT 제거). qa/stage는 SPOT 100% 유지.
+							def cpStrategy = helper.resolveGrafanaCapacityProviderStrategy(env.ENVIRONMENT_UPPER)
+
 							if (exists == "ACTIVE" || exists == "DRAINING") {
 								sh """
 	                            aws ecs update-service \
 	                              --cluster \$ECS_CLUSTER_NAME \
 	                              --service \$GRAFANA_SERVICE_NAME \
 	                              --task-definition ${latestTask} \
-	                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	                              --capacity-provider-strategy ${cpStrategy} \
 	                              --desired-count 1 \
 	                              --region \$AWS_DEFAULT_REGION \
 	                              --force-new-deployment
@@ -1000,7 +1007,7 @@ pipeline {
 	                              --service-name \$GRAFANA_SERVICE_NAME \
 	                              --task-definition ${latestTask} \
 	                              --desired-count 1 \
-	                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	                              --capacity-provider-strategy ${cpStrategy} \
 	                              --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${sgs}],assignPublicIp=ENABLED}" \
 	                              --region \$AWS_DEFAULT_REGION
 	                            """

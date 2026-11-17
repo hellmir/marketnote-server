@@ -352,6 +352,26 @@ def resolvePromVolumeConfiguration(String envUpper, String infraRoleArn) {
     return "--volume-configurations 'name=prometheus-data,managedEBSVolume={encrypted=true,sizeInGiB=100,volumeType=gp3,roleArn=${infraRoleArn},filesystemType=ext4}'"
 }
 
+// prod 환경 self-host Grafana 운영 사양/배치 결정 (#4916).
+// qa/stage는 현재값(0.25 vCPU / 512 MB / SPOT 100%) 유지.
+// prod: cpu 256 / memory 1024 (사용자 동시 접속 + 패널 렌더링 마진), ON_DEMAND only(SPOT 제거).
+// 영속화 미적용 — 대시보드/데이터소스는 monitoring/grafana/{dashboards,provisioning} 코드 관리.
+@NonCPS
+def resolveGrafanaTaskSize(String envUpper) {
+    if (envUpper != 'PROD') {
+        return [cpu: '256', memory: '512']
+    }
+    return [cpu: '256', memory: '1024']
+}
+
+@NonCPS
+def resolveGrafanaCapacityProviderStrategy(String envUpper) {
+    if (envUpper != 'PROD') {
+        return 'capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1'
+    }
+    return 'capacityProvider=FARGATE,base=1,weight=1'
+}
+
 def registerTaskDefinition(parentScript, String envPrefix) {
     withCredentials([
         string(credentialsId: "${envPrefix}_DB_USERNAME",                           variable: 'DB_USERNAME'),
