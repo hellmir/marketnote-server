@@ -18,6 +18,9 @@ import jakarta.validation.Path;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -50,6 +53,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -642,12 +647,16 @@ class GlobalExceptionHandlerTest {
         private Logger logger;
         private ListAppender<ILoggingEvent> appender;
         private boolean previousAdditive;
+        private Level previousLevel;
 
         @org.junit.jupiter.api.BeforeEach
         void attachAppender() {
             logger = (Logger) LoggerFactory.getLogger(GlobalExceptionHandler.class);
             previousAdditive = logger.isAdditive();
+            previousLevel = logger.getLevel();
             logger.setAdditive(false);
+            // DEBUG 분기(stack trace 추가 로그)를 제외하고 기존 sanitized 메시지 1개만 캡처하도록 INFO 고정.
+            logger.setLevel(Level.INFO);
             appender = new ListAppender<>();
             appender.start();
             logger.addAppender(appender);
@@ -658,6 +667,7 @@ class GlobalExceptionHandlerTest {
             logger.detachAppender(appender);
             appender.stop();
             logger.setAdditive(previousAdditive);
+            logger.setLevel(previousLevel);
         }
 
         private String joinMessages() {
@@ -854,12 +864,16 @@ class GlobalExceptionHandlerTest {
         private Logger logger;
         private ListAppender<ILoggingEvent> appender;
         private boolean previousAdditive;
+        private Level previousLevel;
 
         @org.junit.jupiter.api.BeforeEach
         void attachAppender() {
             logger = (Logger) LoggerFactory.getLogger(GlobalExceptionHandler.class);
             previousAdditive = logger.isAdditive();
+            previousLevel = logger.getLevel();
             logger.setAdditive(false);
+            // DEBUG 분기(stack trace 추가 로그)를 제외하고 기존 sanitized 메시지 1개만 캡처하도록 INFO 고정.
+            logger.setLevel(Level.INFO);
             appender = new ListAppender<>();
             appender.start();
             logger.addAppender(appender);
@@ -870,6 +884,7 @@ class GlobalExceptionHandlerTest {
             logger.detachAppender(appender);
             appender.stop();
             logger.setAdditive(previousAdditive);
+            logger.setLevel(previousLevel);
         }
 
         private String joinMessages() {
@@ -1239,6 +1254,230 @@ class GlobalExceptionHandlerTest {
             assertThat(appender.list)
                     .hasSize(1)
                     .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+    }
+
+    // Group A 검증용 named subclass: anonymous는 SimpleName이 빈 문자라 contains 검증 불가.
+    static class FakeBusinessSecurityException extends BusinessSecurityException {
+        FakeBusinessSecurityException(String message) {
+            super(message);
+        }
+    }
+
+    // MethodArgumentNotValidException 실제 생성자는 MethodParameter null 시 getMessage()에서 NPE.
+    // BindingResult는 부모에 위임하고 getMessage만 안전하게 오버라이드.
+    static class MethodArgumentNotValidExceptionStub extends MethodArgumentNotValidException {
+        MethodArgumentNotValidExceptionStub(BindingResult bindingResult) {
+            super((MethodParameter) null, bindingResult);
+        }
+
+        @Override
+        public String getMessage() {
+            return "MethodArgumentNotValidException stub";
+        }
+    }
+
+    @Nested
+    @DisplayName("DEBUG stack trace 보존 정책 (Group A)")
+    class DebugStackTracePolicyTest {
+
+        private Logger logger;
+        private ListAppender<ILoggingEvent> appender;
+        private boolean previousAdditive;
+        private Level previousLevel;
+
+        @org.junit.jupiter.api.BeforeEach
+        void attachAppender() {
+            logger = (Logger) LoggerFactory.getLogger(GlobalExceptionHandler.class);
+            previousAdditive = logger.isAdditive();
+            previousLevel = logger.getLevel();
+            logger.setAdditive(false);
+            appender = new ListAppender<>();
+            appender.start();
+            logger.addAppender(appender);
+        }
+
+        @org.junit.jupiter.api.AfterEach
+        void detachAppender() {
+            logger.detachAppender(appender);
+            appender.stop();
+            logger.setAdditive(previousAdditive);
+            logger.setLevel(previousLevel);
+        }
+
+        // 16개 Group A 핸들러를 표준화된 케이스로 일괄 검증한다.
+        // 각 케이스 = (DisplayName, 핸들러 호출 람다(Consumer<GlobalExceptionHandler>), 기대 예외 SimpleName)
+        static Stream<Arguments> group_a_handlers() {
+            HttpInputMessage httpInputMessage = mock(HttpInputMessage.class);
+            return Stream.of(
+                    Arguments.of(
+                            "DomainNotFoundException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleDomainNotFoundException(
+                                    new DomainNotFoundException("ERR_E::not found")
+                            ),
+                            "DomainNotFoundException"
+                    ),
+                    Arguments.of(
+                            "NoHandlerFoundException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleNoHandlerFoundException(
+                                    new NoHandlerFoundException("GET", "/x", null)
+                            ),
+                            "NoHandlerFoundException"
+                    ),
+                    Arguments.of(
+                            "NoResourceFoundException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleNoResourceFoundException(
+                                    new NoResourceFoundException(HttpMethod.GET, "/x")
+                            ),
+                            "NoResourceFoundException"
+                    ),
+                    Arguments.of(
+                            "AuthenticationException(BadCredentialsException)",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleAuthenticationException(
+                                    new BadCredentialsException("auth fail")
+                            ),
+                            "BadCredentialsException"
+                    ),
+                    Arguments.of(
+                            "AccessDeniedException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleAccessDeniedException(
+                                    new AccessDeniedException("denied")
+                            ),
+                            "AccessDeniedException"
+                    ),
+                    Arguments.of(
+                            "BusinessSecurityException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleBusinessSecurityException(
+                                    new FakeBusinessSecurityException("ERR::biz")
+                            ),
+                            "BusinessSecurityException"
+                    ),
+                    Arguments.of(
+                            "MethodArgumentNotValidException",
+                            (Consumer<GlobalExceptionHandler>) h -> {
+                                BindingResult br = new BeanPropertyBindingResult(new Object(), "target");
+                                br.addError(new FieldError(
+                                        "target", "name", null, false, null, null, "필수"
+                                ));
+                                // 실제 인스턴스 사용 시 MethodParameter null이면 생성자에서 NPE 발생.
+                                // SimpleName이 'MethodArgumentNotValidException'을 포함하는 익명 서브클래스로 우회.
+                                MethodArgumentNotValidException ex = new MethodArgumentNotValidExceptionStub(br);
+                                h.handleMethodArgumentNotValidException(ex);
+                            },
+                            "MethodArgumentNotValidExceptionStub"
+                    ),
+                    Arguments.of(
+                            "IllegalArgumentException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleIllegalArgumentException(
+                                    new IllegalArgumentException("ERR::bad arg")
+                            ),
+                            "IllegalArgumentException"
+                    ),
+                    Arguments.of(
+                            "ConstraintViolationException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleConstraintViolationException(
+                                    new ConstraintViolationException(new HashSet<>())
+                            ),
+                            "ConstraintViolationException"
+                    ),
+                    Arguments.of(
+                            "HttpMessageNotReadableException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleHttpMessageNotReadableException(
+                                    new HttpMessageNotReadableException("JSON parse error", httpInputMessage)
+                            ),
+                            "HttpMessageNotReadableException"
+                    ),
+                    Arguments.of(
+                            "MalformedJwtException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleMalformedJwtException(
+                                    new MalformedJwtException("malformed")
+                            ),
+                            "MalformedJwtException"
+                    ),
+                    Arguments.of(
+                            "UnsupportedJwtException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleUnsupportedJwtException(
+                                    new UnsupportedJwtException("unsupported")
+                            ),
+                            "UnsupportedJwtException"
+                    ),
+                    Arguments.of(
+                            "DomainAlreadyExistsException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleDomainAlreadyExistsException(
+                                    new DomainAlreadyExistsException("dup")
+                            ),
+                            "DomainAlreadyExistsException"
+                    ),
+                    Arguments.of(
+                            "IllegalStateException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleIllegalStateException(
+                                    new IllegalStateException("ERR::state")
+                            ),
+                            "IllegalStateException"
+                    ),
+                    Arguments.of(
+                            "MethodArgumentTypeMismatchException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleMethodArgumentTypeMismatchException(
+                                    new MethodArgumentTypeMismatchException(
+                                            "v", Integer.class, "id", (MethodParameter) null,
+                                            new NumberFormatException("nfe")
+                                    )
+                            ),
+                            "MethodArgumentTypeMismatchException"
+                    ),
+                    Arguments.of(
+                            "RateLimitExceededException",
+                            (Consumer<GlobalExceptionHandler>) h -> h.handleRateLimitExceededException(
+                                    new RateLimitExceededException("rate limited", 60L)
+                            ),
+                            "RateLimitExceededException"
+                    )
+            );
+        }
+
+        @ParameterizedTest(name = "[{index}] {0} - DEBUG 비활성화 시 stack trace 미기록")
+        @MethodSource("group_a_handlers")
+        @DisplayName("DEBUG 비활성화 시 Group A 핸들러는 sanitized 로그만 남기고 stack trace를 기록하지 않는다")
+        void shouldNotLogStackTraceWhenDebugDisabled(
+                String displayName, Consumer<GlobalExceptionHandler> invoker, String expectedSimpleName
+        ) {
+            logger.setLevel(Level.INFO);
+
+            invoker.accept(handler);
+
+            assertThat(appender.list)
+                    .as("[%s] DEBUG 비활성 시 sanitized 로그 1건만 캡처되어야 한다", displayName)
+                    .hasSize(1)
+                    .allSatisfy(event -> {
+                        assertThat(event.getLevel()).isNotEqualTo(Level.DEBUG);
+                        assertThat(event.getThrowableProxy()).isNull();
+                    });
+        }
+
+        @ParameterizedTest(name = "[{index}] {0} - DEBUG 활성화 시 stack trace 기록")
+        @MethodSource("group_a_handlers")
+        @DisplayName("DEBUG 활성화 시 Group A 핸들러는 sanitized + DEBUG stack trace 2건을 기록한다")
+        void shouldLogStackTraceWhenDebugEnabled(
+                String displayName, Consumer<GlobalExceptionHandler> invoker, String expectedSimpleName
+        ) {
+            logger.setLevel(Level.DEBUG);
+
+            invoker.accept(handler);
+
+            assertThat(appender.list)
+                    .as("[%s] DEBUG 활성 시 sanitized 로그 + DEBUG stack trace 2건이 캡처되어야 한다", displayName)
+                    .hasSize(2);
+            ILoggingEvent debugEvent = appender.list.get(1);
+            assertThat(debugEvent.getLevel())
+                    .as("[%s] 두 번째 이벤트는 DEBUG 레벨이어야 한다", displayName)
+                    .isEqualTo(Level.DEBUG);
+            assertThat(debugEvent.getThrowableProxy())
+                    .as("[%s] DEBUG 이벤트는 stack trace(throwable)를 포함해야 한다", displayName)
+                    .isNotNull();
+            assertThat(debugEvent.getFormattedMessage())
+                    .as("[%s] DEBUG 메시지는 '<SimpleName> stack trace' 형식이어야 한다", displayName)
+                    .endsWith(" stack trace")
+                    .contains(expectedSimpleName);
         }
     }
 }
