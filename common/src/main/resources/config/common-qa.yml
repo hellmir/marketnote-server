@@ -4,6 +4,7 @@
 # root는 INFO 유지 — framework(Spring Security/Kafka/JDBC/HTTP) 시크릿 평문 출력 차단.
 # com.personal 패키지만 DEBUG — 4개 핸들러 isDebugEnabled() 분기 등 후속 보강 작업 활성화.
 # DB 트러블슈팅을 위해 Hibernate SQL/binding/Spring Transaction DEBUG 추가 (#4932).
+# Redis cache hit/miss 및 Redisson 분산락 획득/해제/timeout DEBUG 추가 (#4934).
 logging:
   level:
     root: INFO
@@ -11,3 +12,5 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
     org.springframework.transaction: DEBUG
+    org.springframework.cache: DEBUG
+    org.redisson: DEBUG
