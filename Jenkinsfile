@@ -104,13 +104,13 @@ def buildMarketnoteTaskDefinition(env, dbUrl, dbPassword, taskSize) {
 }
 
 @NonCPS
-def buildRedisTaskDefinition(env) {
+def buildRedisTaskDefinition(env, taskSize, redisServerCommand) {
     [
         family: "redis",
         networkMode: "awsvpc",
         requiresCompatibilities: ["FARGATE"],
-        cpu: "256",
-        memory: "512",
+        cpu: taskSize.cpu,
+        memory: taskSize.memory,
         executionRoleArn: "${env.ECS_TASK_EXECUTION_ROLE_ARN}",
         taskRoleArn: "${env.ECS_TASK_ROLE_ARN}",
         containerDefinitions: [[
@@ -121,7 +121,7 @@ def buildRedisTaskDefinition(env) {
             command: [
                 "sh",
                 "-c",
-                "exec redis-server --appendonly yes --requirepass \"\$REDIS_PASSWORD\""
+                redisServerCommand
             ],
             environment: [
                 [name: "REDIS_SERVICE_NAME", value: "${env.REDIS_SERVICE_NAME}"],
@@ -446,6 +446,7 @@ pipeline {
 						if (env.REDIS_CHANGED != "true") {
 							sleep time: 1, unit: 'SECONDS'; return
 						}
+						def helper = load 'jenkins/resolve-and-register.groovy'
 						withCredentials([
 							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",           variable: 'AWS_ACCESS_KEY_ID'),
 							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",       variable: 'AWS_SECRET_ACCESS_KEY'),
@@ -464,7 +465,10 @@ pipeline {
 					          fi
 					        '''
 
-							def redisTask = buildRedisTaskDefinition(env)
+							// prod 분기: cpu 256/memory 1024 + AOF 제거. qa/stage는 현재값(256/512 + AOF) 유지.
+							def redisTaskSize = helper.resolveRedisTaskSize(env.ENVIRONMENT_UPPER)
+							def redisServerCommand = helper.resolveRedisServerCommand(env.ENVIRONMENT_UPPER)
+							def redisTask = buildRedisTaskDefinition(env, redisTaskSize, redisServerCommand)
 
 							def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(redisTask))
 							writeFile file: 'redis-taskdef.json', text: json
@@ -490,6 +494,7 @@ pipeline {
 						if (env.REDIS_CHANGED != "true") {
 							sleep time: 1, unit: 'SECONDS'; return
 						}
+						def helper = load 'jenkins/resolve-and-register.groovy'
 						withCredentials([
 							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",            variable: 'AWS_ACCESS_KEY_ID'),
 							string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",        variable: 'AWS_SECRET_ACCESS_KEY'),
@@ -512,13 +517,16 @@ pipeline {
 							def subnets = sh(script: 'printf "%s" "$SUBNET_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
 							def sgs = sh(script: 'printf "%s" "$SECURITY_GROUP_IDS" | awk -F, \'{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}\'', returnStdout: true).trim()
 
+							// prod 분기: ON_DEMAND only (SPOT 제거). qa/stage는 현재값(SPOT 100%) 유지.
+							def cpStrategy = helper.resolveRedisCapacityProviderStrategy(env.ENVIRONMENT_UPPER)
+
 							if (exists == "ACTIVE" || exists == "DRAINING") {
 								sh """
 	          					  aws ecs update-service \
 	          					    --cluster \$ECS_CLUSTER_NAME \
 	          					    --service \$REDIS_SERVICE_NAME \
 	          					    --task-definition ${latestTask} \
-	          					    --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	          					    --capacity-provider-strategy ${cpStrategy} \
 	          					    --desired-count 1 \
 	          					    --region \$AWS_DEFAULT_REGION \
 	          					    --force-new-deployment
@@ -530,7 +538,7 @@ pipeline {
 	          					    --service-name \$REDIS_SERVICE_NAME \
 	          					    --task-definition ${latestTask} \
 	          					    --desired-count 1 \
-	          					    --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
+	          					    --capacity-provider-strategy ${cpStrategy} \
 	          					    --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${sgs}],assignPublicIp=ENABLED}" \
 	          					    --service-registries registryArn=\$REDIS_SERVICE_DISCOVERY_ARN \
 	          					    --region \$AWS_DEFAULT_REGION

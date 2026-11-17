@@ -261,6 +261,34 @@ def resolveShopDeploymentConfiguration(String envUpper) {
     return '--deployment-configuration minimumHealthyPercent=100,maximumPercent=200'
 }
 
+// prod 환경 self-host Redis 운영 사양/배치 결정 (#4914).
+// qa/stage는 현재값(0.25 vCPU / 512 MB / SPOT 100% / AOF appendonly) 유지.
+// prod: cpu 256 / memory 1024 (캐시/락/Pub/Sub 마진), ON_DEMAND only(SPOT 제거), AOF 제거(Fargate ephemeral 휘발성 명시).
+@NonCPS
+def resolveRedisTaskSize(String envUpper) {
+    if (envUpper != 'PROD') {
+        return [cpu: '256', memory: '512']
+    }
+    return [cpu: '256', memory: '1024']
+}
+
+@NonCPS
+def resolveRedisCapacityProviderStrategy(String envUpper) {
+    if (envUpper != 'PROD') {
+        return 'capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1'
+    }
+    return 'capacityProvider=FARGATE,base=1,weight=1'
+}
+
+// prod는 AOF 제거(휘발성 명시) + AUTH 유지, qa/stage는 현재 동작(--appendonly yes --requirepass) 유지.
+@NonCPS
+def resolveRedisServerCommand(String envUpper) {
+    if (envUpper != 'PROD') {
+        return 'exec redis-server --appendonly yes --requirepass "$REDIS_PASSWORD"'
+    }
+    return 'exec redis-server --requirepass "$REDIS_PASSWORD"'
+}
+
 def registerTaskDefinition(parentScript, String envPrefix) {
     withCredentials([
         string(credentialsId: "${envPrefix}_DB_USERNAME",                           variable: 'DB_USERNAME'),
