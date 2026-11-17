@@ -90,10 +90,28 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
     }
 
+    // DEBUG 전용: rejectedValue 포함. logback appender %pii로 PII 마스킹 후 출력된다 (#4927).
+    private String formatValidationDebugLogMessage(BindingResult bindingResult) {
+        return bindingResult.getFieldErrors().stream()
+                .map(fieldError -> "field=" + fieldError.getField()
+                        + ", rejectedValue=" + fieldError.getRejectedValue()
+                        + ", constraint=" + safeConstraintText(fieldError.getDefaultMessage()))
+                .collect(Collectors.joining(", "));
+    }
+
     // 로그 유출 방지: invalidValue를 제외하고 propertyPath + message만 포맷한다.
     private String formatConstraintViolationLogMessage(ConstraintViolationException e) {
         return e.getConstraintViolations().stream()
                 .map(violation -> "field=" + violation.getPropertyPath()
+                        + ", constraint=" + safeConstraintText(violation.getMessage()))
+                .collect(Collectors.joining(", "));
+    }
+
+    // DEBUG 전용: invalidValue 포함. logback appender %pii로 PII 마스킹 후 출력된다 (#4927).
+    private String formatConstraintViolationDebugLogMessage(ConstraintViolationException e) {
+        return e.getConstraintViolations().stream()
+                .map(violation -> "field=" + violation.getPropertyPath()
+                        + ", invalidValue=" + violation.getInvalidValue()
                         + ", constraint=" + safeConstraintText(violation.getMessage()))
                 .collect(Collectors.joining(", "));
     }
@@ -239,6 +257,12 @@ public class GlobalExceptionHandler {
         }
 
         log.info(LOG_INFO_MESSAGE, formatValidationLogMessage(e.getBindingResult()));
+        if (log.isDebugEnabled()) {
+            log.debug(
+                    "MethodArgumentNotValidException input: {}",
+                    formatValidationDebugLogMessage(e.getBindingResult())
+            );
+        }
         debugStackTrace(e);
         return buildErrorResponse(httpStatus, fieldErrorMessage);
     }
@@ -261,6 +285,12 @@ public class GlobalExceptionHandler {
             message = "요청 파라미터가 올바르지 않습니다.";
         }
         log.info(LOG_INFO_MESSAGE, formatConstraintViolationLogMessage(e));
+        if (log.isDebugEnabled()) {
+            log.debug(
+                    "ConstraintViolationException input: {}",
+                    formatConstraintViolationDebugLogMessage(e)
+            );
+        }
         debugStackTrace(e);
         return buildErrorResponse(httpStatus, message);
     }
