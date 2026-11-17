@@ -208,6 +208,59 @@ def runConcurrentIndexes(parentScript, String envPrefix) {
     }
 }
 
+// prod 환경 ECS Task 사양/배치 전략 결정 (#4910/#4909/#4908).
+// qa/stage는 현재값(0.5 vCPU / 1024 MB / desired 1 / SPOT 100%) 유지.
+// prod 분류: Heavy(commerce/notification/product) 1 vCPU/2048 MB/desired 2,
+//           Medium(reward/fulfillment/user) 0.5 vCPU/2048 MB/desired 2,
+//           Light(community/file) 0.5 vCPU/1024 MB/desired 1.
+@NonCPS
+def resolveShopTaskSize(String envUpper, String serviceName) {
+    if (envUpper != 'PROD') {
+        return [cpu: '512', memory: '1024']
+    }
+    def heavy = ['commerce-service', 'notification-service', 'product-service']
+    def medium = ['reward-service', 'fulfillment-service', 'user-service']
+    if (heavy.contains(serviceName)) {
+        return [cpu: '1024', memory: '2048']
+    }
+    if (medium.contains(serviceName)) {
+        return [cpu: '512', memory: '2048']
+    }
+    return [cpu: '512', memory: '1024']
+}
+
+@NonCPS
+def resolveShopDesiredCount(String envUpper, String serviceName) {
+    if (envUpper != 'PROD') {
+        return 1
+    }
+    def light = ['community-service', 'file-service']
+    if (light.contains(serviceName)) {
+        return 1
+    }
+    return 2
+}
+
+@NonCPS
+def resolveShopCapacityProviderStrategy(String envUpper, String serviceName) {
+    if (envUpper != 'PROD') {
+        return 'capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1'
+    }
+    def light = ['community-service', 'file-service']
+    if (light.contains(serviceName)) {
+        return 'capacityProvider=FARGATE,base=1,weight=1'
+    }
+    return 'capacityProvider=FARGATE,base=1,weight=1 capacityProvider=FARGATE_SPOT,weight=1'
+}
+
+@NonCPS
+def resolveShopDeploymentConfiguration(String envUpper) {
+    if (envUpper != 'PROD') {
+        return ''
+    }
+    return '--deployment-configuration minimumHealthyPercent=100,maximumPercent=200'
+}
+
 def registerTaskDefinition(parentScript, String envPrefix) {
     withCredentials([
         string(credentialsId: "${envPrefix}_DB_USERNAME",                           variable: 'DB_USERNAME'),
@@ -302,7 +355,8 @@ def registerTaskDefinition(parentScript, String envPrefix) {
         if (!dbUrl?.trim())      error "${svcUpper}_DB_URL credential not resolved for ${env.SERVICE_NAME}"
         if (!dbPassword?.trim()) error "${svcUpper}_DB_PASSWORD credential not resolved for ${env.SERVICE_NAME}"
 
-        def td = parentScript.buildMarketnoteTaskDefinition(env, dbUrl, dbPassword)
+        def taskSize = resolveShopTaskSize(env.ENVIRONMENT_UPPER, env.SERVICE_NAME)
+        def td = parentScript.buildMarketnoteTaskDefinition(env, dbUrl, dbPassword, taskSize)
 
         def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(td))
         writeFile file: 'taskdef.json', text: json

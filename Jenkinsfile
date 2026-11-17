@@ -1,13 +1,13 @@
 import com.cloudbees.groovy.cps.NonCPS
 
 @NonCPS
-def buildMarketnoteTaskDefinition(env, dbUrl, dbPassword) {
+def buildMarketnoteTaskDefinition(env, dbUrl, dbPassword, taskSize) {
     [
         family: env.PROJECT_NAME,
         networkMode: "awsvpc",
         requiresCompatibilities: ["FARGATE"],
-        cpu: "512",
-        memory: "1024",
+        cpu: taskSize.cpu,
+        memory: taskSize.memory,
         executionRoleArn: env.ECS_TASK_EXECUTION_ROLE_ARN,
         taskRoleArn:      env.ECS_TASK_ROLE_ARN,
         containerDefinitions: [[
@@ -631,6 +631,7 @@ pipeline {
 			stage('Deploy Marketnote Service') {
 	            steps {
 	                script {
+	                    def helper = load 'jenkins/resolve-and-register.groovy'
 	                    withCredentials([
 	                        string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",        variable: 'AWS_ACCOUNT_ID'),
 	                        string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
@@ -644,50 +645,64 @@ pipeline {
 	                            error 'No application TaskDefinition ARN (APP_TASK_DEF_ARN) found to deploy'
 	                        }
 
-	                        sh '''
-	                          EXISTS=$(aws ecs describe-services --cluster "$ECS_CLUSTER_NAME" --services "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION" --query 'services[0].status' --output text 2>/dev/null || true)
-	                          SUBNETS=$(printf "%s" "$SUBNET_IDS" | awk -F, '{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}')
-	                          SGS=$(printf "%s" "$SECURITY_GROUP_IDS" | awk -F, '{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}')
+	                        // prod 분기 결정값(#4910/#4909/#4908) 환경변수로 sh 블록에 전달.
+	                        // qa/stage는 helper가 현재값(desired 1, SPOT 100%, 배포 정책 미설정) 그대로 반환하여 회귀 없음.
+	                        def desiredCount = helper.resolveShopDesiredCount(env.ENVIRONMENT_UPPER, env.SERVICE_NAME)
+	                        def cpStrategy = helper.resolveShopCapacityProviderStrategy(env.ENVIRONMENT_UPPER, env.SERVICE_NAME)
+	                        def deploymentConfig = helper.resolveShopDeploymentConfiguration(env.ENVIRONMENT_UPPER)
 
-	                          if [ "$EXISTS" = "ACTIVE" ] || [ "$EXISTS" = "DRAINING" ]; then
-	                            aws ecs update-service \
-	                              --cluster "$ECS_CLUSTER_NAME" \
-	                              --service "$ECS_SERVICE_NAME" \
-	                              --task-definition "$APP_TASK_DEF_ARN" \
-	                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
-	                              --desired-count 1 \
-	                              --health-check-grace-period-seconds 240 \
-	                              --region "$AWS_DEFAULT_REGION" \
-	                              --force-new-deployment
-	                          else
-	                            aws ecs create-service \
-	                              --cluster "$ECS_CLUSTER_NAME" \
-	                              --service-name "$ECS_SERVICE_NAME" \
-	                              --task-definition "$APP_TASK_DEF_ARN" \
-	                              --desired-count 1 \
-	                              --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
-	                              --load-balancers targetGroupArn="$TARGET_GROUP_ARN",containerName="$PROJECT_NAME",containerPort=8080 \
-	                              --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SGS],assignPublicIp=ENABLED}" \
-	                              --region "$AWS_DEFAULT_REGION"
-	                          fi
+	                        withEnv([
+	                            "MARKETNOTE_DESIRED_COUNT=${desiredCount}",
+	                            "MARKETNOTE_CAPACITY_PROVIDER_STRATEGY=${cpStrategy}",
+	                            "MARKETNOTE_DEPLOYMENT_CONFIG=${deploymentConfig}"
+	                        ]) {
+	                            sh '''
+	                              EXISTS=$(aws ecs describe-services --cluster "$ECS_CLUSTER_NAME" --services "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION" --query 'services[0].status' --output text 2>/dev/null || true)
+	                              SUBNETS=$(printf "%s" "$SUBNET_IDS" | awk -F, '{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}')
+	                              SGS=$(printf "%s" "$SECURITY_GROUP_IDS" | awk -F, '{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i);printf "%s%s",$i,(i<NF?",":"")}}')
 
-	                          aws ecs update-service --cluster "$ECS_CLUSTER_NAME" --service "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION" --health-check-grace-period-seconds 240 || true
+	                              if [ "$EXISTS" = "ACTIVE" ] || [ "$EXISTS" = "DRAINING" ]; then
+	                                aws ecs update-service \
+	                                  --cluster "$ECS_CLUSTER_NAME" \
+	                                  --service "$ECS_SERVICE_NAME" \
+	                                  --task-definition "$APP_TASK_DEF_ARN" \
+	                                  --capacity-provider-strategy $MARKETNOTE_CAPACITY_PROVIDER_STRATEGY \
+	                                  --desired-count "$MARKETNOTE_DESIRED_COUNT" \
+	                                  --health-check-grace-period-seconds 240 \
+	                                  $MARKETNOTE_DEPLOYMENT_CONFIG \
+	                                  --region "$AWS_DEFAULT_REGION" \
+	                                  --force-new-deployment
+	                              else
+	                                aws ecs create-service \
+	                                  --cluster "$ECS_CLUSTER_NAME" \
+	                                  --service-name "$ECS_SERVICE_NAME" \
+	                                  --task-definition "$APP_TASK_DEF_ARN" \
+	                                  --desired-count "$MARKETNOTE_DESIRED_COUNT" \
+	                                  --capacity-provider-strategy $MARKETNOTE_CAPACITY_PROVIDER_STRATEGY \
+	                                  --load-balancers targetGroupArn="$TARGET_GROUP_ARN",containerName="$PROJECT_NAME",containerPort=8080 \
+	                                  --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SGS],assignPublicIp=ENABLED}" \
+	                                  $MARKETNOTE_DEPLOYMENT_CONFIG \
+	                                  --region "$AWS_DEFAULT_REGION"
+	                              fi
 
-	                          MAX_WAIT_RETRIES=20
-	                          i=1
-	                          while [ $i -le $MAX_WAIT_RETRIES ]; do
-	                            if aws ecs wait services-stable --cluster "$ECS_CLUSTER_NAME" --services "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION"; then
-	                              echo "ECS services-stable 성공 (attempt $i)"
-	                              break
-	                            fi
-	                            echo "ECS services-stable 타임아웃 (attempt $i) → 재시도"
-	                            sleep 20
-	                            if [ $i -eq $MAX_WAIT_RETRIES ]; then
-	                              exit 1
-	                            fi
-	                            i=$((i+1))
-	                          done
-	                        '''
+	                              aws ecs update-service --cluster "$ECS_CLUSTER_NAME" --service "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION" --health-check-grace-period-seconds 240 || true
+
+	                              MAX_WAIT_RETRIES=20
+	                              i=1
+	                              while [ $i -le $MAX_WAIT_RETRIES ]; do
+	                                if aws ecs wait services-stable --cluster "$ECS_CLUSTER_NAME" --services "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION"; then
+	                                  echo "ECS services-stable 성공 (attempt $i)"
+	                                  break
+	                                fi
+	                                echo "ECS services-stable 타임아웃 (attempt $i) → 재시도"
+	                                sleep 20
+	                                if [ $i -eq $MAX_WAIT_RETRIES ]; then
+	                                  exit 1
+	                                fi
+	                                i=$((i+1))
+	                              done
+	                            '''
+	                        }
 	                    }
 	                }
 	            }
