@@ -289,6 +289,69 @@ def resolveRedisServerCommand(String envUpper) {
     return 'exec redis-server --requirepass "$REDIS_PASSWORD"'
 }
 
+// prod 환경 self-host Prometheus 운영 사양/배치/영속화 결정 (#4915).
+// qa/stage는 현재값(0.25 vCPU / 512 MB / SPOT 100% / retention 1d / ephemeral) 유지.
+// prod: cpu 512 / memory 2048 (TSDB head block + query 메모리), retention 15d / size 80GB,
+//       ON_DEMAND only(SPOT 제거), EBS gp3 100GB managed volume(영속화).
+@NonCPS
+def resolvePromTaskSize(String envUpper) {
+    if (envUpper != 'PROD') {
+        return [cpu: '256', memory: '512']
+    }
+    return [cpu: '512', memory: '2048']
+}
+
+@NonCPS
+def resolvePromCapacityProviderStrategy(String envUpper) {
+    if (envUpper != 'PROD') {
+        return 'capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1'
+    }
+    return 'capacityProvider=FARGATE,base=1,weight=1'
+}
+
+@NonCPS
+def resolvePromRetentionTime(String envUpper) {
+    if (envUpper != 'PROD') {
+        return '1d'
+    }
+    return '15d'
+}
+
+@NonCPS
+def resolvePromRetentionSize(String envUpper) {
+    if (envUpper != 'PROD') {
+        return '512MB'
+    }
+    return '80GB'
+}
+
+// prod EBS managed volume 부착 시 task def에 volume entry 추가, qa/stage는 빈 리스트(ephemeral).
+@NonCPS
+def resolvePromTaskVolumes(String envUpper) {
+    if (envUpper != 'PROD') {
+        return []
+    }
+    return [[name: 'prometheus-data', configuredAtLaunch: true]]
+}
+
+@NonCPS
+def resolvePromMountPoints(String envUpper) {
+    if (envUpper != 'PROD') {
+        return []
+    }
+    return [[sourceVolume: 'prometheus-data', containerPath: '/prometheus']]
+}
+
+// prod ECS service에 --volume-configurations 인자 주입, qa/stage는 빈 문자열.
+// roleArn은 ECS infrastructure role (자격증명에서 별도 주입). EBS gp3 100GB encrypted.
+@NonCPS
+def resolvePromVolumeConfiguration(String envUpper, String infraRoleArn) {
+    if (envUpper != 'PROD') {
+        return ''
+    }
+    return "--volume-configurations 'name=prometheus-data,managedEBSVolume={encrypted=true,sizeInGiB=100,volumeType=gp3,roleArn=${infraRoleArn},filesystemType=ext4}'"
+}
+
 def registerTaskDefinition(parentScript, String envPrefix) {
     withCredentials([
         string(credentialsId: "${envPrefix}_DB_USERNAME",                           variable: 'DB_USERNAME'),
