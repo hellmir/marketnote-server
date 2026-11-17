@@ -34,6 +34,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
+    // AOP — @Async/@Scheduled 메서드 entry/exit/exception DEBUG 로깅 aspect 활성화
+    // 컨슈머 모듈은 런타임 AOP 프록시만 활용하고 aspectjweaver/spring-aop 타입을 컴파일타임 직접 참조하지 않으므로 implementation scope
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+
     //querydsl 설정
     implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
     annotationProcessor("jakarta.persistence:jakarta.persistence-api:3.1.0")
