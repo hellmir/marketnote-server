@@ -1,0 +1,20 @@
+package com.personal.marketnote.fulfillment.archunit;
+
+import com.personal.marketnote.common.archunit.SchedulerLockArchRules;
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
+
+import java.util.Set;
+
+@AnalyzeClasses(
+        packages = "com.personal.marketnote.fulfillment",
+        importOptions = {ImportOption.DoNotIncludeTests.class}
+)
+class SchedulerLockArchUnitTest {
+
+    @ArchTest
+    static final ArchRule scheduledMethodsShouldHaveSchedulerLock =
+            SchedulerLockArchRules.scheduledMethodsShouldHaveSchedulerLock(Set.of());
+}
