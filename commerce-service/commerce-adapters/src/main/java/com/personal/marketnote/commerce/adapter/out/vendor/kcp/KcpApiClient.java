@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.*;
 import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpCommunicationException;
 import com.personal.marketnote.commerce.configuration.KcpProperties;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -12,21 +14,41 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 @Slf4j
 public class KcpApiClient {
+
+    private static final String OP_TRADE_REGISTER = "trade.register";
+    private static final String OP_PAYMENT_APPROVE = "payment.approve";
+    private static final String OP_PAYMENT_CANCEL = "payment.cancel";
+    private static final String OP_BATCH_KEY_ISSUE = "batch.key.issue";
+    private static final String OP_BATCH_PAYMENT_APPROVE = "batch.payment.approve";
+    private static final String OP_BATCH_KEY_DELETE = "batch.key.delete";
+
+    private static final String TAG_SITE_CD = "siteCd";
+    private static final String TAG_ORDR_IDXX = "ordrIdxx";
+    private static final String TAG_ORDR_NO = "ordrNo";
+    private static final String TAG_TNO = "tno";
+    private static final String TAG_RESPONSE_CODE = "responseCode";
+
     private final KcpProperties kcpProperties;
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
+    private final ExternalCallLogger externalCallLogger;
 
     public KcpApiClient(
             KcpProperties kcpProperties,
             RestClient.Builder restClientBuilder,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            ExternalCallLogger externalCallLogger
     ) {
         this.kcpProperties = kcpProperties;
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
+        this.externalCallLogger = externalCallLogger;
     }
 
     public KcpTradeRegisterResponse registerTrade(KcpTradeRegisterRequest request) {
@@ -37,28 +59,20 @@ public class KcpApiClient {
                 request.payMethod(), request.goodName(), request.retUrl()
         );
 
-        ResponseEntity<String> rawResponse = restClient.post()
-                .uri(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(request)
-                .retrieve()
-                .toEntity(String.class);
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_SITE_CD, request.siteCd());
+        putIfPresent(tags, TAG_ORDR_IDXX, request.ordrIdxx());
 
-        String responseBody = rawResponse.getBody();
-        log.debug("KCP 거래등록 응답 Content-Type={}, body={}",
-                rawResponse.getHeaders().getContentType(), responseBody
+        return externalCallLogger.record(
+                ExternalSystem.KCP, OP_TRADE_REGISTER, tags,
+                () -> {
+                    KcpTradeRegisterResponse response = postAndParse(
+                            url, request, KcpTradeRegisterResponse.class, "KCP 거래등록"
+                    );
+                    putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
+                    return response;
+                }
         );
-
-        if (FormatValidator.hasNoValue(responseBody)) {
-            throw new KcpCommunicationException("KCP 거래등록 응답 본문이 비어 있습니다.");
-        }
-
-        try {
-            return objectMapper.readValue(responseBody, KcpTradeRegisterResponse.class);
-        } catch (Exception e) {
-            log.error("KCP 거래등록 응답 파싱 실패: {}", e.getMessage());
-            throw new KcpCommunicationException("KCP 거래등록 응답 파싱 실패", e);
-        }
     }
 
     public KcpPaymentApprovalResponse approvePayment(KcpPaymentApprovalRequest request) {
@@ -66,28 +80,20 @@ public class KcpApiClient {
 
         log.info("KCP 결제승인 요청: url={}, ordrNo={}", url, request.ordrNo());
 
-        ResponseEntity<String> rawResponse = restClient.post()
-                .uri(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(request)
-                .retrieve()
-                .toEntity(String.class);
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_SITE_CD, request.siteCd());
+        putIfPresent(tags, TAG_ORDR_NO, request.ordrNo());
 
-        String responseBody = rawResponse.getBody();
-        log.debug("KCP 결제승인 응답 Content-Type={}, body={}",
-                rawResponse.getHeaders().getContentType(), responseBody
+        return externalCallLogger.record(
+                ExternalSystem.KCP, OP_PAYMENT_APPROVE, tags,
+                () -> {
+                    KcpPaymentApprovalResponse response = postAndParse(
+                            url, request, KcpPaymentApprovalResponse.class, "KCP 결제승인"
+                    );
+                    putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
+                    return response;
+                }
         );
-
-        if (FormatValidator.hasNoValue(responseBody)) {
-            throw new KcpCommunicationException("KCP 결제승인 응답 본문이 비어 있습니다.");
-        }
-
-        try {
-            return objectMapper.readValue(responseBody, KcpPaymentApprovalResponse.class);
-        } catch (Exception e) {
-            log.error("KCP 결제승인 응답 파싱 실패: {}", e.getMessage());
-            throw new KcpCommunicationException("KCP 결제승인 응답 파싱 실패", e);
-        }
     }
 
     public KcpPaymentCancelResponse cancelPayment(KcpPaymentCancelRequest request) {
@@ -95,28 +101,20 @@ public class KcpApiClient {
 
         log.info("KCP 결제취소 요청: url={}, tno={}", url, request.tno());
 
-        ResponseEntity<String> rawResponse = restClient.post()
-                .uri(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(request)
-                .retrieve()
-                .toEntity(String.class);
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_SITE_CD, request.siteCd());
+        putIfPresent(tags, TAG_TNO, request.tno());
 
-        String responseBody = rawResponse.getBody();
-        log.debug("KCP 결제취소 응답 Content-Type={}, body={}",
-                rawResponse.getHeaders().getContentType(), responseBody
+        return externalCallLogger.record(
+                ExternalSystem.KCP, OP_PAYMENT_CANCEL, tags,
+                () -> {
+                    KcpPaymentCancelResponse response = postAndParse(
+                            url, request, KcpPaymentCancelResponse.class, "KCP 결제취소"
+                    );
+                    putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
+                    return response;
+                }
         );
-
-        if (FormatValidator.hasNoValue(responseBody)) {
-            throw new KcpCommunicationException("KCP 결제취소 응답 본문이 비어 있습니다.");
-        }
-
-        try {
-            return objectMapper.readValue(responseBody, KcpPaymentCancelResponse.class);
-        } catch (Exception e) {
-            log.error("KCP 결제취소 응답 파싱 실패: {}", e.getMessage());
-            throw new KcpCommunicationException("KCP 결제취소 응답 파싱 실패", e);
-        }
     }
 
     public KcpBatchKeyIssuanceResponse issueBatchKey(KcpBatchKeyIssuanceRequest request) {
@@ -124,28 +122,19 @@ public class KcpApiClient {
 
         log.info("KCP 배치키 발급 요청: url={}, site_cd={}", url, request.siteCd());
 
-        ResponseEntity<String> rawResponse = restClient.post()
-                .uri(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(request)
-                .retrieve()
-                .toEntity(String.class);
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_SITE_CD, request.siteCd());
 
-        String responseBody = rawResponse.getBody();
-        log.debug("KCP 배치키 발급 응답 Content-Type={}, body={}",
-                rawResponse.getHeaders().getContentType(), responseBody
+        return externalCallLogger.record(
+                ExternalSystem.KCP, OP_BATCH_KEY_ISSUE, tags,
+                () -> {
+                    KcpBatchKeyIssuanceResponse response = postAndParse(
+                            url, request, KcpBatchKeyIssuanceResponse.class, "KCP 배치키 발급"
+                    );
+                    putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
+                    return response;
+                }
         );
-
-        if (FormatValidator.hasNoValue(responseBody)) {
-            throw new KcpCommunicationException("KCP 배치키 발급 응답 본문이 비어 있습니다.");
-        }
-
-        try {
-            return objectMapper.readValue(responseBody, KcpBatchKeyIssuanceResponse.class);
-        } catch (Exception e) {
-            log.error("KCP 배치키 발급 응답 파싱 실패: {}", e.getMessage());
-            throw new KcpCommunicationException("KCP 배치키 발급 응답 파싱 실패", e);
-        }
     }
 
     public KcpBatchPaymentApprovalResponse approveBatchPayment(KcpBatchPaymentApprovalRequest request) {
@@ -155,28 +144,20 @@ public class KcpApiClient {
                 url, request.siteCd(), request.ordrIdxx()
         );
 
-        ResponseEntity<String> rawResponse = restClient.post()
-                .uri(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(request)
-                .retrieve()
-                .toEntity(String.class);
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_SITE_CD, request.siteCd());
+        putIfPresent(tags, TAG_ORDR_IDXX, request.ordrIdxx());
 
-        String responseBody = rawResponse.getBody();
-        log.debug("KCP 배치 결제승인 응답 Content-Type={}, body={}",
-                rawResponse.getHeaders().getContentType(), responseBody
+        return externalCallLogger.record(
+                ExternalSystem.KCP, OP_BATCH_PAYMENT_APPROVE, tags,
+                () -> {
+                    KcpBatchPaymentApprovalResponse response = postAndParse(
+                            url, request, KcpBatchPaymentApprovalResponse.class, "KCP 배치 결제승인"
+                    );
+                    putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
+                    return response;
+                }
         );
-
-        if (FormatValidator.hasNoValue(responseBody)) {
-            throw new KcpCommunicationException("KCP 배치 결제승인 응답 본문이 비어 있습니다.");
-        }
-
-        try {
-            return objectMapper.readValue(responseBody, KcpBatchPaymentApprovalResponse.class);
-        } catch (Exception e) {
-            log.error("KCP 배치 결제승인 응답 파싱 실패: {}", e.getMessage());
-            throw new KcpCommunicationException("KCP 배치 결제승인 응답 파싱 실패", e);
-        }
     }
 
     public KcpBatchKeyDeletionResponse deleteBatchKey(KcpBatchKeyDeletionRequest request) {
@@ -184,6 +165,26 @@ public class KcpApiClient {
 
         log.info("KCP 배치키 삭제 요청: url={}, site_cd={}", url, request.siteCd());
 
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_SITE_CD, request.siteCd());
+
+        return externalCallLogger.record(
+                ExternalSystem.KCP, OP_BATCH_KEY_DELETE, tags,
+                () -> {
+                    KcpBatchKeyDeletionResponse response = postAndParse(
+                            url, request, KcpBatchKeyDeletionResponse.class, "KCP 배치키 삭제"
+                    );
+                    putIfPresent(tags, TAG_RESPONSE_CODE, response.resCd());
+                    return response;
+                }
+        );
+    }
+
+    public JsonNode toJsonNode(Object object) {
+        return objectMapper.valueToTree(object);
+    }
+
+    private <T> T postAndParse(String url, Object request, Class<T> responseType, String operationLabel) {
         ResponseEntity<String> rawResponse = restClient.post()
                 .uri(url)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -192,23 +193,30 @@ public class KcpApiClient {
                 .toEntity(String.class);
 
         String responseBody = rawResponse.getBody();
-        log.debug("KCP 배치키 삭제 응답 Content-Type={}, body={}",
-                rawResponse.getHeaders().getContentType(), responseBody
+        log.debug("{} 응답 Content-Type={}, body={}",
+                operationLabel, rawResponse.getHeaders().getContentType(), responseBody
         );
 
         if (FormatValidator.hasNoValue(responseBody)) {
-            throw new KcpCommunicationException("KCP 배치키 삭제 응답 본문이 비어 있습니다.");
+            throw new KcpCommunicationException(operationLabel + " 응답 본문이 비어 있습니다.");
         }
 
         try {
-            return objectMapper.readValue(responseBody, KcpBatchKeyDeletionResponse.class);
+            return objectMapper.readValue(responseBody, responseType);
         } catch (Exception e) {
-            log.error("KCP 배치키 삭제 응답 파싱 실패: {}", e.getMessage());
-            throw new KcpCommunicationException("KCP 배치키 삭제 응답 파싱 실패", e);
+            log.error("{} 응답 파싱 실패: {}", operationLabel, e.getMessage());
+            throw new KcpCommunicationException(operationLabel + " 응답 파싱 실패", e);
         }
     }
 
-    public JsonNode toJsonNode(Object object) {
-        return objectMapper.valueToTree(object);
+    private Map<String, String> mutableTags() {
+        return new HashMap<>();
+    }
+
+    private void putIfPresent(Map<String, String> tags, String key, String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return;
+        }
+        tags.put(key, value);
     }
 }
