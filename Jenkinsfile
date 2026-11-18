@@ -148,7 +148,13 @@ def buildRedisTaskDefinition(env, taskSize, redisServerCommand) {
 }
 
 @NonCPS
-def buildPrometheusTaskDefinition(env, taskSize, retentionTime, retentionSize, taskVolumes, mountPoints) {
+def buildPrometheusTaskDefinition(Map config) {
+    def env = config.env
+    def taskSize = config.taskSize
+    def retentionTime = config.retentionTime
+    def retentionSize = config.retentionSize
+    def taskVolumes = config.taskVolumes
+    def mountPoints = config.mountPoints
     def containerDef = [
         name: "prometheus",
         image: "${env.PROMETHEUS_IMAGE_URI}",
@@ -857,7 +863,12 @@ pipeline {
 							def promTaskVolumes = helper.resolvePromTaskVolumes(env.ENVIRONMENT_UPPER)
 							def promMountPoints = helper.resolvePromMountPoints(env.ENVIRONMENT_UPPER)
 							def promTask = buildPrometheusTaskDefinition(
-									env, promTaskSize, promRetentionTime, promRetentionSize, promTaskVolumes, promMountPoints
+									env: env,
+									taskSize: promTaskSize,
+									retentionTime: promRetentionTime,
+									retentionSize: promRetentionSize,
+									taskVolumes: promTaskVolumes,
+									mountPoints: promMountPoints
 							)
 							def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(promTask))
 							writeFile file: 'prom-taskdef.json', text: json
@@ -900,34 +911,51 @@ pipeline {
 
 							// prod 분기: ON_DEMAND only + EBS managed volume. qa/stage는 SPOT 100% + 미부착.
 							def cpStrategy = helper.resolvePromCapacityProviderStrategy(env.ENVIRONMENT_UPPER)
-							def volumeConfig = helper.resolvePromVolumeConfiguration(env.ENVIRONMENT_UPPER, env.ECS_INFRASTRUCTURE_ROLE_ARN ?: '')
+							def volumeConfigList = helper.resolvePromVolumeConfiguration(env.ENVIRONMENT_UPPER, env.ECS_INFRASTRUCTURE_ROLE_ARN ?: '')
 
-							if (exists == "ACTIVE" || exists == "DRAINING") {
-								sh """
-	                            aws ecs update-service \
-	                              --cluster \$ECS_CLUSTER_NAME \
-	                              --service \$PROMETHEUS_SERVICE_NAME \
-	                              --task-definition ${latestTask} \
-	                              --capacity-provider-strategy ${cpStrategy} \
-	                              --desired-count 1 \
-	                              ${volumeConfig} \
-	                              --region \$AWS_DEFAULT_REGION \
-	                              --force-new-deployment
-	                            """
-							} else {
-								sh """
-	                            aws ecs create-service \
-	                              --cluster \$ECS_CLUSTER_NAME \
-	                              --service-name \$PROMETHEUS_SERVICE_NAME \
-	                              --task-definition ${latestTask} \
-	                              --desired-count 1 \
-	                              --capacity-provider-strategy ${cpStrategy} \
-	                              --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${sgs}],assignPublicIp=ENABLED}" \
-	                              ${volumeConfig} \
-	                              --region \$AWS_DEFAULT_REGION
-	                            """
+							// prod 분기: writeFile로 volume-configurations JSON 생성, qa/stage는 미생성 + 옵션 미주입.
+							// roleArn은 workspace 파일에만 직렬화되며 sh 명령 문자열에 노출되지 않음.
+							def volumeConfigOption = ''
+							if (volumeConfigList) {
+								def volumeJson = groovy.json.JsonOutput.toJson(volumeConfigList)
+								writeFile file: 'prom-volume-config.json', text: volumeJson
+								volumeConfigOption = '--volume-configurations file://prom-volume-config.json'
 							}
-							sh 'aws ecs wait services-stable --cluster $ECS_CLUSTER_NAME --services $PROMETHEUS_SERVICE_NAME --region $AWS_DEFAULT_REGION'
+
+							withEnv([
+								"PROM_TASK_DEF_ARN_LATEST=${latestTask}",
+								"PROM_CAPACITY_PROVIDER_STRATEGY=${cpStrategy}",
+								"PROM_SUBNETS=${subnets}",
+								"PROM_SECURITY_GROUPS=${sgs}",
+								"PROM_VOLUME_CONFIG_OPTION=${volumeConfigOption}"
+							]) {
+								if (exists == "ACTIVE" || exists == "DRAINING") {
+									sh '''
+									aws ecs update-service \
+									  --cluster "$ECS_CLUSTER_NAME" \
+									  --service "$PROMETHEUS_SERVICE_NAME" \
+									  --task-definition "$PROM_TASK_DEF_ARN_LATEST" \
+									  --capacity-provider-strategy $PROM_CAPACITY_PROVIDER_STRATEGY \
+									  --desired-count 1 \
+									  $PROM_VOLUME_CONFIG_OPTION \
+									  --region "$AWS_DEFAULT_REGION" \
+									  --force-new-deployment
+									'''
+								} else {
+									sh '''
+									aws ecs create-service \
+									  --cluster "$ECS_CLUSTER_NAME" \
+									  --service-name "$PROMETHEUS_SERVICE_NAME" \
+									  --task-definition "$PROM_TASK_DEF_ARN_LATEST" \
+									  --desired-count 1 \
+									  --capacity-provider-strategy $PROM_CAPACITY_PROVIDER_STRATEGY \
+									  --network-configuration "awsvpcConfiguration={subnets=[$PROM_SUBNETS],securityGroups=[$PROM_SECURITY_GROUPS],assignPublicIp=ENABLED}" \
+									  $PROM_VOLUME_CONFIG_OPTION \
+									  --region "$AWS_DEFAULT_REGION"
+									'''
+								}
+								sh 'aws ecs wait services-stable --cluster "$ECS_CLUSTER_NAME" --services "$PROMETHEUS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION"'
+							}
 						}
 					}
 				}
