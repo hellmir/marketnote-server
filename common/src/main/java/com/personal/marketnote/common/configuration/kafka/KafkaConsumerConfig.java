@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.configuration.kafka;
 
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.logging.KafkaMdcRecordInterceptor;
 import com.personal.marketnote.common.utility.FormatValidator;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,7 @@ public class KafkaConsumerConfig {
 
     private final KafkaSaslProperties kafkaSaslProperties;
     private final ObjectProvider<MeterRegistry> meterRegistryProvider;
+    private final KafkaMdcRecordInterceptor recordInterceptor;
 
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
@@ -77,10 +79,12 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setCommonErrorHandler(commonErrorHandler);
+        factory.setRecordInterceptor(recordInterceptor);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         return factory;
     }
 
+    // DLT 재처리에서도 원본 traceId를 유지해 cross-attempt 추적 가능하도록 동일 RecordInterceptor를 적용한다.
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> dltKafkaListenerContainerFactory(
             CommonErrorHandler dltErrorHandler
@@ -88,6 +92,7 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setCommonErrorHandler(dltErrorHandler);
+        factory.setRecordInterceptor(recordInterceptor);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         return factory;
     }

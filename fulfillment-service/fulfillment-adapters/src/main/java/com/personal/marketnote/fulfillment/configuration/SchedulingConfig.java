@@ -1,5 +1,7 @@
 package com.personal.marketnote.fulfillment.configuration;
 
+import com.personal.marketnote.common.logging.MdcTaskDecorator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -10,7 +12,11 @@ import java.time.ZoneId;
 
 @Configuration
 @EnableScheduling
+@RequiredArgsConstructor
 public class SchedulingConfig {
+
+    private final MdcTaskDecorator mdcTaskDecorator;
+
     @Bean
     public ThreadPoolTaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
@@ -18,6 +24,7 @@ public class SchedulingConfig {
         scheduler.setThreadNamePrefix("fulfillment-scheduler-");
         scheduler.setWaitForTasksToCompleteOnShutdown(true);
         scheduler.setAwaitTerminationSeconds(30);
+        scheduler.setTaskDecorator(mdcTaskDecorator);
         return scheduler;
     }
 
