@@ -15,6 +15,18 @@ def validateShopEnvUpper(String envUpper) {
     }
 }
 
+// ECS infrastructure role ARN 형식 검증.
+// AWS IAM role ARN: arn:aws:iam::<12자리계정>:role/<역할이름>
+// 자격증명 주입 누락/오기재 시 잘못된 값이 EBS managed volume roleArn으로 전파되는 것을 사전 차단.
+@NonCPS
+def validateInfraRoleArn(String arn) {
+    if (!arn || !(arn ==~ /^arn:aws:iam::\d{12}:role\/.+$/)) {
+        throw new IllegalArgumentException(
+            "ECS_INFRASTRUCTURE_ROLE_ARN 형식 위반: '${arn}'. 허용 형식: arn:aws:iam::<12자리계정>:role/<역할이름>"
+        )
+    }
+}
+
 @NonCPS
 def resolveServiceMapping(svc, credentials) {
     def mappings = [
@@ -357,14 +369,26 @@ def resolvePromMountPoints(String envUpper) {
     return [[sourceVolume: 'prometheus-data', containerPath: '/prometheus']]
 }
 
-// prod ECS service에 --volume-configurations 인자 주입, qa/stage는 빈 문자열.
+// prod ECS service에 부착할 EBS managed volume 설정 데이터 (Map List 반환).
+// 호출부에서 writeFile JSON으로 변환 후 `--volume-configurations file://...`로 주입.
 // roleArn은 ECS infrastructure role (자격증명에서 별도 주입). EBS gp3 100GB encrypted.
+// qa/stage는 빈 List 반환 → 호출부에서 옵션 미주입.
 @NonCPS
 def resolvePromVolumeConfiguration(String envUpper, String infraRoleArn) {
     if (envUpper != 'PROD') {
-        return ''
+        return []
     }
-    return "--volume-configurations 'name=prometheus-data,managedEBSVolume={encrypted=true,sizeInGiB=100,volumeType=gp3,roleArn=${infraRoleArn},filesystemType=ext4}'"
+    validateInfraRoleArn(infraRoleArn)
+    return [[
+        name: 'prometheus-data',
+        managedEBSVolume: [
+            encrypted: true,
+            sizeInGiB: 100,
+            volumeType: 'gp3',
+            roleArn: infraRoleArn,
+            filesystemType: 'ext4'
+        ]
+    ]]
 }
 
 // prod 환경 self-host Grafana 운영 사양/배치 결정 (#4916).
