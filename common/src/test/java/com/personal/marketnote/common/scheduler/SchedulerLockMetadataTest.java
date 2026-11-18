@@ -19,4 +19,8 @@ class SchedulerLockMetadataTest {
     @ArchTest
     static final ArchRule scheduledMethodsShouldHaveSchedulerLock =
             SchedulerLockArchRules.scheduledMethodsShouldHaveSchedulerLock(Set.of());
+
+    @ArchTest
+    static final ArchRule schedulerLockMethodsMustDeclareLockAtMostFor =
+            SchedulerLockArchRules.schedulerLockMethodsMustDeclareLockAtMostFor(Set.of());
 }
