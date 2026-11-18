@@ -17,6 +17,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import software.amazon.awssdk.services.s3.S3Client;
 
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+
 @SpringBootTest(classes = FileApplicationContextTest.TestConfig.class)
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
@@ -55,6 +59,16 @@ class FileApplicationContextTest {
         @Bean
         public S3Client s3Client() {
             return Mockito.mock(S3Client.class);
+        }
+
+        @Bean
+        public MeterRegistry meterRegistry() {
+            return new SimpleMeterRegistry();
+        }
+
+        @Bean
+        public ExternalCallLogger externalCallLogger(MeterRegistry meterRegistry) {
+            return new ExternalCallLogger(meterRegistry);
         }
     }
 
