@@ -1,5 +1,6 @@
 package com.personal.marketnote.common.configuration.kafka;
 
+import com.personal.marketnote.common.logging.KafkaMdcProducerInterceptor;
 import com.personal.marketnote.common.utility.FormatValidator;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ public class KafkaProducerConfig {
         props.put(ProducerConfig.ACKS_CONFIG, "all");
         props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         props.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
+        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, KafkaMdcProducerInterceptor.class.getName());
         kafkaSaslProperties.applyTo(props);
 
         DefaultKafkaProducerFactory<String, Object> factory = new DefaultKafkaProducerFactory<>(props);
