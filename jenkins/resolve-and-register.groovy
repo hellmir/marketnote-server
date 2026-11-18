@@ -1,4 +1,19 @@
 import com.cloudbees.groovy.cps.NonCPS
+import groovy.transform.Field
+
+@Field static final Set<String> ALLOWED_MARKETNOTE_ENV_UPPERS = ['PROD', 'QA', 'STAGE'].toSet().asImmutable()
+@Field static final List<String> MARKETNOTE_LIGHT_SERVICES = ['community-service', 'file-service'].asImmutable()
+@Field static final List<String> MARKETNOTE_MEDIUM_SERVICES = ['reward-service', 'fulfillment-service', 'user-service'].asImmutable()
+@Field static final List<String> MARKETNOTE_HEAVY_SERVICES = ['commerce-service', 'notification-service', 'product-service'].asImmutable()
+
+@NonCPS
+def validateShopEnvUpper(String envUpper) {
+    if (!ALLOWED_MARKETNOTE_ENV_UPPERS.contains(envUpper)) {
+        throw new IllegalArgumentException(
+            "envUpper 화이트리스트 위반: '${envUpper}'. 허용값: ${ALLOWED_MARKETNOTE_ENV_UPPERS.join(', ')}"
+        )
+    }
+}
 
 @NonCPS
 def resolveServiceMapping(svc, credentials) {
@@ -215,15 +230,14 @@ def runConcurrentIndexes(parentScript, String envPrefix) {
 //           Light(community/file) 0.5 vCPU/1024 MB/desired 1.
 @NonCPS
 def resolveShopTaskSize(String envUpper, String serviceName) {
+    validateShopEnvUpper(envUpper)
     if (envUpper != 'PROD') {
         return [cpu: '512', memory: '1024']
     }
-    def heavy = ['commerce-service', 'notification-service', 'product-service']
-    def medium = ['reward-service', 'fulfillment-service', 'user-service']
-    if (heavy.contains(serviceName)) {
+    if (MARKETNOTE_HEAVY_SERVICES.contains(serviceName)) {
         return [cpu: '1024', memory: '2048']
     }
-    if (medium.contains(serviceName)) {
+    if (MARKETNOTE_MEDIUM_SERVICES.contains(serviceName)) {
         return [cpu: '512', memory: '2048']
     }
     return [cpu: '512', memory: '1024']
@@ -231,11 +245,11 @@ def resolveShopTaskSize(String envUpper, String serviceName) {
 
 @NonCPS
 def resolveShopDesiredCount(String envUpper, String serviceName) {
+    validateShopEnvUpper(envUpper)
     if (envUpper != 'PROD') {
         return 1
     }
-    def light = ['community-service', 'file-service']
-    if (light.contains(serviceName)) {
+    if (MARKETNOTE_LIGHT_SERVICES.contains(serviceName)) {
         return 1
     }
     return 2
@@ -243,11 +257,11 @@ def resolveShopDesiredCount(String envUpper, String serviceName) {
 
 @NonCPS
 def resolveShopCapacityProviderStrategy(String envUpper, String serviceName) {
+    validateShopEnvUpper(envUpper)
     if (envUpper != 'PROD') {
         return 'capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1'
     }
-    def light = ['community-service', 'file-service']
-    if (light.contains(serviceName)) {
+    if (MARKETNOTE_LIGHT_SERVICES.contains(serviceName)) {
         return 'capacityProvider=FARGATE,base=1,weight=1'
     }
     return 'capacityProvider=FARGATE,base=1,weight=1 capacityProvider=FARGATE_SPOT,weight=1'
@@ -255,6 +269,7 @@ def resolveShopCapacityProviderStrategy(String envUpper, String serviceName) {
 
 @NonCPS
 def resolveShopDeploymentConfiguration(String envUpper) {
+    validateShopEnvUpper(envUpper)
     if (envUpper != 'PROD') {
         return ''
     }
