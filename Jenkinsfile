@@ -528,31 +528,38 @@ pipeline {
 							// prod 분기: ON_DEMAND only (SPOT 제거). qa/stage는 현재값(SPOT 100%) 유지.
 							def cpStrategy = helper.resolveRedisCapacityProviderStrategy(env.ENVIRONMENT_UPPER)
 
-							if (exists == "ACTIVE" || exists == "DRAINING") {
-								sh """
-	          					  aws ecs update-service \
-	          					    --cluster \$ECS_CLUSTER_NAME \
-	          					    --service \$REDIS_SERVICE_NAME \
-	          					    --task-definition ${latestTask} \
-	          					    --capacity-provider-strategy ${cpStrategy} \
-	          					    --desired-count 1 \
-	          					    --region \$AWS_DEFAULT_REGION \
-	          					    --force-new-deployment
-	          					"""
-							} else {
-								sh """
-	          					  aws ecs create-service \
-	          					    --cluster \$ECS_CLUSTER_NAME \
-	          					    --service-name \$REDIS_SERVICE_NAME \
-	          					    --task-definition ${latestTask} \
-	          					    --desired-count 1 \
-	          					    --capacity-provider-strategy ${cpStrategy} \
-	          					    --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${sgs}],assignPublicIp=ENABLED}" \
-	          					    --service-registries registryArn=\$REDIS_SERVICE_DISCOVERY_ARN \
-	          					    --region \$AWS_DEFAULT_REGION
-	          					"""
+							withEnv([
+								"REDIS_TASK_DEF_ARN_LATEST=${latestTask}",
+								"REDIS_CAPACITY_PROVIDER_STRATEGY=${cpStrategy}",
+								"REDIS_SUBNETS=${subnets}",
+								"REDIS_SECURITY_GROUPS=${sgs}"
+							]) {
+								if (exists == "ACTIVE" || exists == "DRAINING") {
+									sh '''
+									  aws ecs update-service \
+									    --cluster "$ECS_CLUSTER_NAME" \
+									    --service "$REDIS_SERVICE_NAME" \
+									    --task-definition "$REDIS_TASK_DEF_ARN_LATEST" \
+									    --capacity-provider-strategy $REDIS_CAPACITY_PROVIDER_STRATEGY \
+									    --desired-count 1 \
+									    --region "$AWS_DEFAULT_REGION" \
+									    --force-new-deployment
+									'''
+								} else {
+									sh '''
+									  aws ecs create-service \
+									    --cluster "$ECS_CLUSTER_NAME" \
+									    --service-name "$REDIS_SERVICE_NAME" \
+									    --task-definition "$REDIS_TASK_DEF_ARN_LATEST" \
+									    --desired-count 1 \
+									    --capacity-provider-strategy $REDIS_CAPACITY_PROVIDER_STRATEGY \
+									    --network-configuration "awsvpcConfiguration={subnets=[$REDIS_SUBNETS],securityGroups=[$REDIS_SECURITY_GROUPS],assignPublicIp=ENABLED}" \
+									    --service-registries registryArn="$REDIS_SERVICE_DISCOVERY_ARN" \
+									    --region "$AWS_DEFAULT_REGION"
+									'''
+								}
+								sh 'aws ecs wait services-stable --cluster "$ECS_CLUSTER_NAME" --services "$REDIS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION"'
 							}
-							sh 'aws ecs wait services-stable --cluster $ECS_CLUSTER_NAME --services $REDIS_SERVICE_NAME --region $AWS_DEFAULT_REGION'
 						}
 					}
 				}
