@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.*;
 import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpCommunicationException;
 import com.personal.marketnote.commerce.configuration.KcpProperties;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -54,7 +56,8 @@ class KcpApiClientTest {
         });
 
         objectMapper = new ObjectMapper();
-        client = new KcpApiClient(kcpProperties, builder, objectMapper);
+        ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
+        client = new KcpApiClient(kcpProperties, builder, objectMapper, externalCallLogger);
     }
 
     @Nested
