@@ -11,6 +11,8 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.saga.SagaResponsePublisher;
 import com.personal.marketnote.common.saga.SagaStepMessage;
+import com.personal.marketnote.common.saga.log.SagaContext;
+import com.personal.marketnote.common.saga.log.SagaStepLogger;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,27 +41,35 @@ public class OrderCancelRefundSagaConsumer {
             ConsumerRecord<String, EventEnvelope<?>> record,
             Acknowledgment acknowledgment
     ) {
-        EventEnvelope<?> envelope = record.value();
+        try {
+            EventEnvelope<?> envelope = record.value();
 
-        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+                acknowledgment.acknowledge();
+                return;
+            }
+
+            SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
+
+            SagaStepLogger.start(SagaContext.restore(
+                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName()
+            ));
+
+            log.info("SAGA PG 환불 스텝 수신. sagaId={}, messageType={}", stepMessage.sagaId(), stepMessage.messageType());
+
+            if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
+                handleAction(stepMessage);
+                acknowledgment.acknowledge();
+                return;
+            }
+
+            log.warn("PG 환불 스텝은 보상이 없음. 알 수 없는 messageType. sagaId={}, messageType={}",
+                    stepMessage.sagaId(), stepMessage.messageType()
+            );
             acknowledgment.acknowledge();
-            return;
+        } finally {
+            SagaStepLogger.clear();
         }
-
-        SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
-
-        log.info("SAGA PG 환불 스텝 수신. sagaId={}, messageType={}", stepMessage.sagaId(), stepMessage.messageType());
-
-        if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
-            handleAction(stepMessage);
-            acknowledgment.acknowledge();
-            return;
-        }
-
-        log.warn("PG 환불 스텝은 보상이 없음. 알 수 없는 messageType. sagaId={}, messageType={}",
-                stepMessage.sagaId(), stepMessage.messageType()
-        );
-        acknowledgment.acknowledge();
     }
 
     private void handleAction(SagaStepMessage stepMessage) {
