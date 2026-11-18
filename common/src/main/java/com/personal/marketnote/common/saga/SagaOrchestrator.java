@@ -9,6 +9,8 @@ import com.personal.marketnote.common.saga.exception.SagaDefinitionNotFoundExcep
 import com.personal.marketnote.common.saga.exception.SagaInstanceNotFoundException;
 import com.personal.marketnote.common.saga.exception.SagaSerializationException;
 import com.personal.marketnote.common.saga.exception.SagaStepNotFoundException;
+import com.personal.marketnote.common.saga.log.SagaContext;
+import com.personal.marketnote.common.saga.log.SagaStepLogger;
 import com.personal.marketnote.common.saga.port.FindSagaPort;
 import com.personal.marketnote.common.saga.port.SaveSagaPort;
 import com.personal.marketnote.common.saga.port.SendSagaFailureAlertPort;
@@ -193,57 +195,101 @@ public class SagaOrchestrator {
     }
 
     private void handleStepSuccess(SagaInstance instance, SagaStep currentStep, String response) {
-        currentStep.succeed(response);
-        updateSagaPort.updateStep(currentStep);
+        SagaContext sagaContext = SagaContext.restore(
+                instance.getSagaId(), instance.getSagaType(), currentStep.getStepName()
+        );
+        try {
+            SagaStepLogger.complete(sagaContext);
 
-        processNextStepOrComplete(instance, currentStep.getStepIndex());
+            currentStep.succeed(response);
+            updateSagaPort.updateStep(currentStep);
+
+            processNextStepOrComplete(instance, currentStep.getStepIndex());
+        } finally {
+            SagaStepLogger.clear();
+        }
     }
 
     private void handleStepFailure(SagaInstance instance, List<SagaStep> steps, SagaStep currentStep, String response) {
-        currentStep.fail(response);
-        updateSagaPort.updateStep(currentStep);
+        SagaContext sagaContext = SagaContext.restore(
+                instance.getSagaId(), instance.getSagaType(), currentStep.getStepName()
+        );
+        try {
+            SagaStepLogger.fail(sagaContext, response);
 
-        sendFailureAlertAfterCommit(instance.getSagaId(), instance.getSagaType(), currentStep.getStepName(), response);
+            currentStep.fail(response);
+            updateSagaPort.updateStep(currentStep);
 
-        startCompensation(instance, steps);
+            sendFailureAlertAfterCommit(instance.getSagaId(), instance.getSagaType(), currentStep.getStepName(), response);
+
+            startCompensation(instance, steps);
+        } finally {
+            SagaStepLogger.clear();
+        }
     }
 
     private void handleCompensationSuccess(
             SagaInstance instance, List<SagaStep> steps,
             SagaStep step, String response
     ) {
-        step.completeCompensation(response);
-        updateSagaPort.updateStep(step);
+        SagaContext sagaContext = SagaContext.restore(
+                instance.getSagaId(), instance.getSagaType(), step.getStepName()
+        );
+        try {
+            SagaStepLogger.complete(sagaContext);
 
-        boolean allCompensated = steps.stream().noneMatch(SagaStep::isCompensating);
-        if (allCompensated) {
-            instance.compensate(clock);
-            updateSagaPort.update(instance);
+            step.completeCompensation(response);
+            updateSagaPort.updateStep(step);
+
+            boolean allCompensated = steps.stream().noneMatch(SagaStep::isCompensating);
+            if (allCompensated) {
+                instance.compensate(clock);
+                updateSagaPort.update(instance);
+            }
+        } finally {
+            SagaStepLogger.clear();
         }
     }
 
     private void handleCompensationFailure(SagaInstance instance, SagaStep step, String response) {
-        step.failCompensation(response);
-        updateSagaPort.updateStep(step);
+        SagaContext sagaContext = SagaContext.restore(
+                instance.getSagaId(), instance.getSagaType(), step.getStepName()
+        );
+        try {
+            SagaStepLogger.compensateFailed(sagaContext, response);
 
-        instance.failCompensation();
-        updateSagaPort.update(instance);
+            step.failCompensation(response);
+            updateSagaPort.updateStep(step);
 
-        sendFailureAlertAfterCommit(instance.getSagaId(), instance.getSagaType(), step.getStepName(), response);
+            instance.failCompensation();
+            updateSagaPort.update(instance);
+
+            sendFailureAlertAfterCommit(instance.getSagaId(), instance.getSagaType(), step.getStepName(), response);
+        } finally {
+            SagaStepLogger.clear();
+        }
     }
 
     private <T> void processStep(SagaDefinition<T> definition, SagaInstance instance, T context, int stepIndex) {
         SagaStepDefinition<T> stepDef = definition.getSteps().get(stepIndex);
-        String actionRequest = stepDef.action().apply(context);
-
-        SagaStep step = SagaStep.from(
-                new SagaStepCreateState(instance.getId(), stepDef.stepName(), stepIndex, actionRequest),
-                clock
+        SagaContext sagaContext = SagaContext.restore(
+                instance.getSagaId(), instance.getSagaType(), stepDef.stepName()
         );
-        step.process();
-        saveSagaPort.saveStep(step);
+        SagaStepLogger.start(sagaContext);
+        try {
+            String actionRequest = stepDef.action().apply(context);
 
-        publishActionMessage(instance, stepDef, actionRequest);
+            SagaStep step = SagaStep.from(
+                    new SagaStepCreateState(instance.getId(), stepDef.stepName(), stepIndex, actionRequest),
+                    clock
+            );
+            step.process();
+            saveSagaPort.saveStep(step);
+
+            publishActionMessage(instance, stepDef, actionRequest);
+        } finally {
+            SagaStepLogger.clear();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -285,16 +331,24 @@ public class SagaOrchestrator {
 
         for (SagaStep step : compensatableSteps) {
             SagaStepDefinition<T> stepDef = findStepDefinition(definition, step.getStepName());
-            if (stepDef.hasCompensation()) {
-                String compensationRequest = stepDef.compensation().apply(context);
-                step.compensate(compensationRequest);
+            SagaStepLogger.compensate(SagaContext.restore(
+                    instance.getSagaId(), instance.getSagaType(), step.getStepName()
+            ));
+
+            try {
+                if (stepDef.hasCompensation()) {
+                    String compensationRequest = stepDef.compensation().apply(context);
+                    step.compensate(compensationRequest);
+                    updateSagaPort.updateStep(step);
+                    publishCompensationMessage(instance, stepDef, compensationRequest);
+                    continue;
+                }
+                step.compensate("NO_COMPENSATION_REQUIRED");
+                step.completeCompensation("NO_COMPENSATION_REQUIRED");
                 updateSagaPort.updateStep(step);
-                publishCompensationMessage(instance, stepDef, compensationRequest);
-                continue;
+            } finally {
+                SagaStepLogger.clear();
             }
-            step.compensate("NO_COMPENSATION_REQUIRED");
-            step.completeCompensation("NO_COMPENSATION_REQUIRED");
-            updateSagaPort.updateStep(step);
         }
     }
 

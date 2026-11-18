@@ -7,6 +7,8 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.saga.SagaResponsePublisher;
 import com.personal.marketnote.common.saga.SagaStepMessage;
+import com.personal.marketnote.common.saga.log.SagaContext;
+import com.personal.marketnote.common.saga.log.SagaStepLogger;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.adapter.in.event.saga.payload.OrderCancelFulfillmentSagaPayload;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryCancellationNotAllowedException;
@@ -66,6 +68,10 @@ public class OrderCancelFulfillmentSagaConsumer {
 
             SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
 
+            SagaStepLogger.start(SagaContext.restore(
+                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName()
+            ));
+
             log.info("SAGA 주문 취소 풀필먼트 스텝 수신. sagaId={}, messageType={}",
                     stepMessage.sagaId(), stepMessage.messageType()
             );
@@ -88,6 +94,7 @@ public class OrderCancelFulfillmentSagaConsumer {
                     record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
         } finally {
+            SagaStepLogger.clear();
             acknowledgment.acknowledge();
         }
     }
