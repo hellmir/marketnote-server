@@ -176,3 +176,63 @@ groups:
         annotations:
           summary: "캐시 역직렬화 실패 5분간 10건 초과: {{ $labels.job }}"
           description: "service={{ $labels.job }}, cache={{ $labels.cache }}, exception={{ $labels.exception }} — 5분간 {{ $value }}건 발생. fail-safe 핸들러가 polluted entry 를 evict + cache miss 처리하지만, 형식 잔존 데이터/직렬화 정책 회귀 가능성을 점검하세요."
+
+  - name: redis-volatility-monitoring
+    rules:
+      # prod self-host Redis는 #4914 결정으로 AOF 미적용 + Fargate ephemeral 운영.
+      # 컨테이너 재시작 시 cache/락/Pub-Sub 휘발 → cold start 발생.
+      # Prometheus는 Redis를 직접 scrape 하지 않으므로 (#4963 D4=A 결정),
+      # 7개 Spring Boot 서비스(commerce/community/file/fulfillment/product/reward/user) actuator 캐시 메트릭으로 영향을 간접 추정.
+      - alert: RedisCacheMissRatioSpike
+        expr: |
+          (
+            sum by (service) (rate(cache_gets_total{result="miss"}[5m]))
+            /
+            (sum by (service) (rate(cache_gets_total[5m])) > 0)
+          ) > 0.8
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis cache miss 비율 80% 초과: {{ $labels.service }}"
+          description: "service={{ $labels.service }} cache miss 비율이 5분간 80% 초과 ({{ $value | humanizePercentage }}). prod Redis는 #4914 결정으로 AOF 미적용 + Fargate ephemeral 이므로 컨테이너 재시작 시 cold start 발생합니다. 단일 서비스 발생 시 해당 서비스 캐시 키 패턴 회귀 가능성을 점검하세요."
+
+      - alert: RedisAllServicesCacheMissSpike
+        expr: |
+          count(
+            (
+              sum by (service) (rate(cache_gets_total{result="miss"}[5m]))
+              /
+              (sum by (service) (rate(cache_gets_total[5m])) > 0)
+            ) > 0.8
+          ) >= 3
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "다수 서비스 동시 cache miss spike — Redis 컨테이너 재시작/장애 의심 (CRITICAL)"
+          description: "현재 모니터링 대상 7개 서비스 중 {{ $value }}개에서 동시에 cache miss 비율 80% 초과 발생. prod self-host Redis 컨테이너 재시작(#4914 ephemeral) 또는 인프라 장애 가능성. 즉시 ECS Fargate Redis task 상태 + Spring Boot lettuce 재연결 로그를 확인하세요."
+
+      - alert: RedisCacheHitRatioDropAfterRestart
+        expr: |
+          (
+            sum by (service) (rate(cache_gets_total{result="hit"}[5m]))
+            /
+            (sum by (service) (rate(cache_gets_total[5m])) > 0)
+          ) < 0.3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis cache hit 비율 30% 미만 (cold start 의심): {{ $labels.service }}"
+          description: "service={{ $labels.service }} cache hit 비율이 5분간 30% 미만 ({{ $value | humanizePercentage }}). prod Redis 컨테이너 재시작 후 cold start 회복 중이거나 키 워밍업 미흡 가능성. 회복 시간이 10분을 초과하면 캐시 사이즈/TTL 정책 점검 필요."
+
+      - alert: RedisCacheMetricsAbsent
+        expr: |
+          absent(cache_gets_total) == 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Spring Cache Micrometer 메트릭(cache_gets_total) 부재 — 본 알람 그룹(#4963) 무력화"
+          description: "10분간 cache_gets_total 메트릭이 노출되지 않습니다. RedisCacheManager 의 enableStatistics() 활성화 또는 management.metrics 노출 설정을 점검하세요. 이 상태에서는 #4963 redis-volatility-monitoring 알람 그룹이 동작하지 않습니다."
