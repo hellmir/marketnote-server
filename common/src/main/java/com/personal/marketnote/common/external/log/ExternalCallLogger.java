@@ -5,7 +5,6 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -36,7 +35,6 @@ import java.util.function.Supplier;
  * </ul>
  */
 @Component
-@ConditionalOnBean(MeterRegistry.class)
 public class ExternalCallLogger {
 
     private static final String METRIC_NAME = "external.call";

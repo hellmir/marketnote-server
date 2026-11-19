@@ -1,17 +1,26 @@
 package com.personal.marketnote.user.adapter.out.oauth;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.personal.marketnote.common.domain.exception.token.InvalidAccessTokenException;
 import com.personal.marketnote.common.domain.exception.token.InvalidRefreshTokenException;
 import com.personal.marketnote.common.domain.exception.token.UnsupportedCodeException;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.http.client.restclient.RestClientErrorHandler;
 import com.personal.marketnote.user.security.token.dto.GrantedTokenInfo;
 import com.personal.marketnote.user.security.token.dto.OAuth2AuthenticationInfo;
 import com.personal.marketnote.user.security.token.dto.OAuth2UserInfo;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -34,13 +43,35 @@ class RestClientKakaoTokenProcessorTest {
 
     private MockRestServiceServer mockServer;
     private RestClientKakaoTokenProcessor processor;
+    private Logger externalLogger;
+    private ListAppender<ILoggingEvent> appender;
+    private boolean previousAdditive;
+    private Level previousLevel;
 
     @BeforeEach
     void setUp() {
         RestClient.Builder builder = RestClient.builder()
                 .defaultStatusHandler(RestClientErrorHandler::isError, RestClientErrorHandler.noOpErrorHandler());
         mockServer = MockRestServiceServer.bindTo(builder).build();
-        processor = new RestClientKakaoTokenProcessor(builder, CLIENT_ID, CLIENT_SECRET);
+        ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
+        processor = new RestClientKakaoTokenProcessor(builder, CLIENT_ID, CLIENT_SECRET, externalCallLogger);
+
+        externalLogger = (Logger) LoggerFactory.getLogger(ExternalSystem.KAKAO_OAUTH.loggerName());
+        previousAdditive = externalLogger.isAdditive();
+        previousLevel = externalLogger.getLevel();
+        externalLogger.setAdditive(false);
+        externalLogger.setLevel(Level.DEBUG);
+        appender = new ListAppender<>();
+        appender.start();
+        externalLogger.addAppender(appender);
+    }
+
+    @AfterEach
+    void tearDown() {
+        externalLogger.detachAppender(appender);
+        appender.stop();
+        externalLogger.setAdditive(previousAdditive);
+        externalLogger.setLevel(previousLevel);
     }
 
     @Nested
@@ -114,7 +145,8 @@ class RestClientKakaoTokenProcessorTest {
             RestClient.Builder builder = RestClient.builder()
                     .defaultStatusHandler(RestClientErrorHandler::isError, RestClientErrorHandler.noOpErrorHandler());
             noSecretMockServer = MockRestServiceServer.bindTo(builder).build();
-            noSecretProcessor = new RestClientKakaoTokenProcessor(builder, CLIENT_ID, "empty");
+            ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
+            noSecretProcessor = new RestClientKakaoTokenProcessor(builder, CLIENT_ID, "empty", externalCallLogger);
         }
 
         @Test
@@ -278,5 +310,98 @@ class RestClientKakaoTokenProcessorTest {
     @DisplayName("getAuthVendor는 KAKAO를 반환한다")
     void shouldReturnKakaoAuthVendor() {
         assertThat(processor.getAuthVendor()).isEqualTo(AuthVendor.KAKAO);
+    }
+
+    @Nested
+    @DisplayName("ExternalCallLogger 통합")
+    class ExternalCallLoggerIntegration {
+
+        @Test
+        @DisplayName("authenticate 호출 시 DEBUG 로그에 operation과 provider 태그가 기록된다")
+        void shouldLogOperationAndProviderTagOnAuthenticate() {
+            mockServer.expect(requestTo(KAKAO_OIDC_USER_INFO_URL))
+                    .andExpect(method(HttpMethod.GET))
+                    .andRespond(withSuccess("""
+                            {"sub":"kakao-user-123"}
+                            """, MediaType.APPLICATION_JSON));
+
+            processor.authenticate("test-access-token-secret");
+
+            boolean hasOperation = appender.list.stream()
+                    .anyMatch(event -> event.getFormattedMessage().contains("authenticate"));
+            boolean hasProvider = appender.list.stream()
+                    .anyMatch(event -> event.getFormattedMessage().contains("kakao"));
+            assertThat(hasOperation).isTrue();
+            assertThat(hasProvider).isTrue();
+        }
+
+        @Test
+        @DisplayName("authenticate 로그에 평문 액세스 토큰이 노출되지 않는다 (보안 회귀 검증)")
+        void shouldNotLeakPlaintextAccessTokenInLog() {
+            String secretToken = "super-secret-kakao-access-token-do-not-leak";
+
+            mockServer.expect(requestTo(KAKAO_OIDC_USER_INFO_URL))
+                    .andExpect(method(HttpMethod.GET))
+                    .andRespond(withSuccess("""
+                            {"sub":"kakao-user-123"}
+                            """, MediaType.APPLICATION_JSON));
+
+            processor.authenticate(secretToken);
+
+            boolean leaked = appender.list.stream()
+                    .anyMatch(event -> event.getFormattedMessage().contains(secretToken));
+            assertThat(leaked).isFalse();
+        }
+
+        @Test
+        @DisplayName("authenticate 실패 시 ERROR 로그에 cause 예외 클래스명이 기록되고 동일 예외가 rethrow된다")
+        void shouldLogErrorWithCauseAndRethrowOnAuthenticateFailure() {
+            mockServer.expect(requestTo(KAKAO_OIDC_USER_INFO_URL))
+                    .andExpect(method(HttpMethod.GET))
+                    .andRespond(withBadRequest());
+
+            assertThatThrownBy(() -> processor.authenticate("invalid-token"))
+                    .isInstanceOf(InvalidAccessTokenException.class);
+
+            boolean hasErrorLog = appender.list.stream()
+                    .anyMatch(event -> event.getLevel() == Level.ERROR
+                            && event.getFormattedMessage().contains("InvalidAccessTokenException"));
+            assertThat(hasErrorLog).isTrue();
+        }
+
+        @Test
+        @DisplayName("retrieveUserInfo 로그에 평문 액세스 토큰이 노출되지 않는다 (보안 회귀 검증)")
+        void shouldNotLeakPlaintextAccessTokenInRetrieveUserInfoLog() {
+            String secretToken = "another-secret-kakao-token-must-not-leak";
+
+            mockServer.expect(requestTo(KAKAO_ME_URL))
+                    .andExpect(method(HttpMethod.GET))
+                    .andRespond(withSuccess("""
+                            {"id":12345,"kakao_account":{"name":"Test User"}}
+                            """, MediaType.APPLICATION_JSON));
+
+            processor.retrieveUserInfo(secretToken);
+
+            boolean leaked = appender.list.stream()
+                    .anyMatch(event -> event.getFormattedMessage().contains(secretToken));
+            assertThat(leaked).isFalse();
+        }
+
+        @Test
+        @DisplayName("refreshToken 로그에 평문 갱신 토큰이 노출되지 않는다 (보안 회귀 검증)")
+        void shouldNotLeakPlaintextRefreshTokenInLog() {
+            String secretRefresh = "super-secret-kakao-refresh-token-do-not-leak";
+
+            mockServer.expect(requestTo(KAKAO_TOKEN_URL))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withBadRequest());
+
+            assertThatThrownBy(() -> processor.refreshToken(secretRefresh))
+                    .isInstanceOf(InvalidRefreshTokenException.class);
+
+            boolean leaked = appender.list.stream()
+                    .anyMatch(event -> event.getFormattedMessage().contains(secretRefresh));
+            assertThat(leaked).isFalse();
+        }
     }
 }
