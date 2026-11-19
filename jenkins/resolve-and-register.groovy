@@ -1,10 +1,10 @@
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.transform.Field
 
-@Field static final Set<String> ALLOWED_MARKETNOTE_ENV_UPPERS = ['PROD', 'QA', 'STAGE'].toSet().asImmutable()
-@Field static final List<String> MARKETNOTE_LIGHT_SERVICES = ['community-service', 'file-service'].asImmutable()
-@Field static final List<String> MARKETNOTE_MEDIUM_SERVICES = ['reward-service', 'fulfillment-service', 'user-service'].asImmutable()
-@Field static final List<String> MARKETNOTE_HEAVY_SERVICES = ['commerce-service', 'notification-service', 'product-service'].asImmutable()
+@Field static final Set<String> ALLOWED_MARKETNOTE_ENV_UPPERS = Set.of('PROD', 'QA', 'STAGE')
+@Field static final List<String> MARKETNOTE_LIGHT_SERVICES = List.of('community-service', 'file-service')
+@Field static final List<String> MARKETNOTE_MEDIUM_SERVICES = List.of('reward-service', 'fulfillment-service', 'user-service')
+@Field static final List<String> MARKETNOTE_HEAVY_SERVICES = List.of('commerce-service', 'notification-service', 'product-service')
 
 @NonCPS
 def validateShopEnvUpper(String envUpper) {
