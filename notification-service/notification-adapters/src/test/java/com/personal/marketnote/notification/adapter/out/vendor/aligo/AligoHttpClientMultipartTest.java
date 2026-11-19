@@ -1,7 +1,9 @@
 package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.notification.configuration.AligoProperties;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,7 +45,8 @@ class AligoHttpClientMultipartTest {
         RestClient restClient = builder.baseUrl("http://localhost").build();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        aligoHttpClient = new AligoHttpClient(restClient, objectMapper, properties);
+        ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
+        aligoHttpClient = new AligoHttpClient(restClient, objectMapper, properties, externalCallLogger);
     }
 
     @Test
@@ -68,7 +71,7 @@ class AligoHttpClientMultipartTest {
 
         // when
         AligoApiResponse response = aligoHttpClient.postMultipart(
-                "/brandtalk/template/", params, AligoApiResponse.class
+                "testMultipart", "/brandtalk/template/", params, AligoApiResponse.class
         );
 
         // then
@@ -92,7 +95,7 @@ class AligoHttpClientMultipartTest {
 
         // when
         AligoApiResponse response = aligoHttpClient.postMultipart(
-                "/brandtalk/template/", params, AligoApiResponse.class
+                "testMultipart", "/brandtalk/template/", params, AligoApiResponse.class
         );
 
         // then
@@ -118,7 +121,7 @@ class AligoHttpClientMultipartTest {
 
         // when
         AligoApiResponse response = aligoHttpClient.postMultipart(
-                "/brandtalk/template/", params, AligoApiResponse.class
+                "testMultipart", "/brandtalk/template/", params, AligoApiResponse.class
         );
 
         // then

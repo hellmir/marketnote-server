@@ -17,6 +17,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AligoCategoryExternalAdapter implements GetAligoCategoryExternalPort {
 
+    private static final String CATEGORY_PATH = "/akv10/category/";
+    private static final String GET_CATEGORY_TREE_OPERATION = "getCategoryTree";
+
     private final AligoHttpClient aligoHttpClient;
 
     @Override
@@ -24,7 +27,7 @@ public class AligoCategoryExternalAdapter implements GetAligoCategoryExternalPor
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         AligoCategoryApiResponse response = aligoHttpClient.post(
-                "/akv10/category/", params, AligoCategoryApiResponse.class
+                GET_CATEGORY_TREE_OPERATION, CATEGORY_PATH, params, AligoCategoryApiResponse.class
         );
 
         List<GetAligoCategoryTreeResult.CategoryResult> categories = buildCategoryTree(response.data());

@@ -16,6 +16,7 @@ import java.util.List;
 public class AligoMessageDetailExternalAdapter implements GetAligoMessageDetailExternalPort {
 
     private static final String HISTORY_DETAIL_PATH = "/akv10/history/detail/";
+    private static final String GET_MESSAGE_DETAIL_OPERATION = "getMessageDetail";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final AligoHttpClient aligoHttpClient;
@@ -28,7 +29,7 @@ public class AligoMessageDetailExternalAdapter implements GetAligoMessageDetailE
         params.add("limit", "500");
 
         AligoMessageDetailApiResponse response = aligoHttpClient.post(
-                HISTORY_DETAIL_PATH, params, AligoMessageDetailApiResponse.class
+                GET_MESSAGE_DETAIL_OPERATION, HISTORY_DETAIL_PATH, params, AligoMessageDetailApiResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.list())) {

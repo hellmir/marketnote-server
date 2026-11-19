@@ -23,6 +23,11 @@ import java.util.Map;
 public class AligoBrandTalkTemplateExternalAdapter
         implements RegisterBrandTalkTemplateExternalPort, GetBrandTalkTemplateListExternalPort {
 
+    private static final String BRAND_TALK_TEMPLATE_CREATE_PATH = "/brandtalk/template/create/";
+    private static final String BRAND_TALK_TEMPLATE_LIST_PATH = "/brandtalk/template/list/";
+    private static final String CREATE_BRAND_TALK_TEMPLATE_OPERATION = "createBrandTalkTemplate";
+    private static final String GET_BRAND_TALK_TEMPLATE_LIST_OPERATION = "getBrandTalkTemplateList";
+
     private final AligoHttpClient aligoHttpClient;
     private final ObjectMapper objectMapper;
 
@@ -54,7 +59,9 @@ public class AligoBrandTalkTemplateExternalAdapter
             params.add("image", resource);
         }
 
-        aligoHttpClient.postMultipart("/brandtalk/template/create/", params, AligoApiResponse.class);
+        aligoHttpClient.postMultipart(
+                CREATE_BRAND_TALK_TEMPLATE_OPERATION, BRAND_TALK_TEMPLATE_CREATE_PATH, params, AligoApiResponse.class
+        );
     }
 
     @Override
@@ -66,8 +73,10 @@ public class AligoBrandTalkTemplateExternalAdapter
         params.add("page", String.valueOf(page));
         params.add("pagesize", String.valueOf(pageSize));
 
-        AligoBrandTalkTemplateListApiResponse response =
-                aligoHttpClient.post("/brandtalk/template/list/", params, AligoBrandTalkTemplateListApiResponse.class);
+        AligoBrandTalkTemplateListApiResponse response = aligoHttpClient.post(
+                GET_BRAND_TALK_TEMPLATE_LIST_OPERATION, BRAND_TALK_TEMPLATE_LIST_PATH, params,
+                AligoBrandTalkTemplateListApiResponse.class
+        );
 
         GetBrandTalkTemplateListResult.PageInfo pageInfo = new GetBrandTalkTemplateListResult.PageInfo(
                 response.info().currentPage(), response.info().pageSize(), response.info().total()

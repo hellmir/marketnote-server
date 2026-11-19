@@ -21,19 +21,30 @@ public class AligoTemplateExternalAdapter
         DeleteAligoTemplateExternalPort, GetAligoTemplateListExternalPort,
         RequestAligoTemplateInspectionExternalPort {
 
+    private static final String TEMPLATE_ADD_PATH = "/akv10/template/add/";
+    private static final String TEMPLATE_MODIFY_PATH = "/akv10/template/modify/";
+    private static final String TEMPLATE_LIST_PATH = "/akv10/template/list/";
+    private static final String TEMPLATE_REQUEST_PATH = "/akv10/template/request/";
+    private static final String TEMPLATE_DEL_PATH = "/akv10/template/del/";
+    private static final String REGISTER_TEMPLATE_OPERATION = "registerTemplate";
+    private static final String UPDATE_TEMPLATE_OPERATION = "updateTemplate";
+    private static final String GET_TEMPLATE_LIST_OPERATION = "getTemplateList";
+    private static final String REQUEST_TEMPLATE_INSPECTION_OPERATION = "requestTemplateInspection";
+    private static final String DELETE_TEMPLATE_OPERATION = "deleteTemplate";
+
     private final AligoHttpClient aligoHttpClient;
     private final ObjectMapper objectMapper;
 
     @Override
     public void registerTemplate(AligoTemplate template) {
         MultiValueMap<String, String> params = buildTemplateParams(template);
-        aligoHttpClient.post("/akv10/template/add/", params, AligoApiResponse.class);
+        aligoHttpClient.post(REGISTER_TEMPLATE_OPERATION, TEMPLATE_ADD_PATH, params, AligoApiResponse.class);
     }
 
     @Override
     public void updateTemplate(AligoTemplate template) {
         MultiValueMap<String, String> params = buildTemplateParams(template);
-        aligoHttpClient.post("/akv10/template/modify/", params, AligoApiResponse.class);
+        aligoHttpClient.post(UPDATE_TEMPLATE_OPERATION, TEMPLATE_MODIFY_PATH, params, AligoApiResponse.class);
     }
 
     @Override
@@ -42,7 +53,7 @@ public class AligoTemplateExternalAdapter
         params.add("senderkey", senderKey);
 
         AligoTemplateListApiResponse response = aligoHttpClient.post(
-                "/akv10/template/list/", params, AligoTemplateListApiResponse.class
+                GET_TEMPLATE_LIST_OPERATION, TEMPLATE_LIST_PATH, params, AligoTemplateListApiResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.list())) {
@@ -59,7 +70,9 @@ public class AligoTemplateExternalAdapter
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("senderkey", senderKey);
         params.add("tpl_code", templateCode);
-        aligoHttpClient.post("/akv10/template/request/", params, AligoApiResponse.class);
+        aligoHttpClient.post(
+                REQUEST_TEMPLATE_INSPECTION_OPERATION, TEMPLATE_REQUEST_PATH, params, AligoApiResponse.class
+        );
     }
 
     @Override
@@ -67,7 +80,7 @@ public class AligoTemplateExternalAdapter
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("senderkey", senderKey);
         params.add("tpl_code", templateCode);
-        aligoHttpClient.post("/akv10/template/del/", params, AligoApiResponse.class);
+        aligoHttpClient.post(DELETE_TEMPLATE_OPERATION, TEMPLATE_DEL_PATH, params, AligoApiResponse.class);
     }
 
     private MultiValueMap<String, String> buildTemplateParams(AligoTemplate template) {

@@ -11,6 +11,7 @@ import org.springframework.util.MultiValueMap;
 public class AligoHeartInfoExternalAdapter implements GetAligoHeartInfoExternalPort {
 
     private static final String HEART_INFO_PATH = "/akv10/heartinfo/";
+    private static final String GET_HEART_INFO_OPERATION = "getHeartInfo";
 
     private final AligoHttpClient aligoHttpClient;
 
@@ -19,7 +20,7 @@ public class AligoHeartInfoExternalAdapter implements GetAligoHeartInfoExternalP
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         AligoHeartInfoApiResponse response = aligoHttpClient.post(
-                HEART_INFO_PATH, params, AligoHeartInfoApiResponse.class
+                GET_HEART_INFO_OPERATION, HEART_INFO_PATH, params, AligoHeartInfoApiResponse.class
         );
 
         return new AligoHeartInfoResult(
