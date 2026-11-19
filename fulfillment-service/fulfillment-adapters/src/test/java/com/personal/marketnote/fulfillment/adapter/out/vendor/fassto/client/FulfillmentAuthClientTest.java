@@ -1,6 +1,11 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentAuthDataResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentAuthResponse;
@@ -13,6 +18,9 @@ import com.personal.marketnote.fulfillment.exception.FulfillmentClientInvalidReq
 import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
@@ -67,10 +76,29 @@ class FulfillmentAuthClientTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private MeterRegistry meterRegistry;
+    private ExternalCallLogger externalCallLogger;
+    private ch.qos.logback.classic.Logger fasstoLogger;
+    private ListAppender<ILoggingEvent> appender;
+    private boolean previousAdditive;
+    private Level previousLevel;
+
     @BeforeEach
     void setUp() {
         RestClient.Builder builder = mock(RestClient.Builder.class);
         when(builder.build()).thenReturn(restClient);
+
+        meterRegistry = new SimpleMeterRegistry();
+        externalCallLogger = new ExternalCallLogger(meterRegistry);
+
+        fasstoLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ExternalSystem.FASSTO.loggerName());
+        previousAdditive = fasstoLogger.isAdditive();
+        previousLevel = fasstoLogger.getLevel();
+        fasstoLogger.setAdditive(false);
+        fasstoLogger.setLevel(Level.DEBUG);
+        appender = new ListAppender<>();
+        appender.start();
+        fasstoLogger.addAppender(appender);
 
         client = new FulfillmentAuthClient(
                 builder,
@@ -78,8 +106,17 @@ class FulfillmentAuthClientTest {
                 properties,
                 vendorCommunicationRecorder,
                 vendorCommunicationPayloadGenerator,
-                vendorCommunicationFailureHandler
+                vendorCommunicationFailureHandler,
+                externalCallLogger
         );
+    }
+
+    @AfterEach
+    void tearDown() {
+        fasstoLogger.detachAppender(appender);
+        appender.stop();
+        fasstoLogger.setAdditive(previousAdditive);
+        fasstoLogger.setLevel(previousLevel);
     }
 
     private void stubPayloadGenerator() {
@@ -250,6 +287,85 @@ class FulfillmentAuthClientTest {
             // when & then
             assertThatThrownBy(() -> client.disconnectAccessToken("test-token"))
                     .isInstanceOf(FulfillmentAuthDisconnectFailedException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("ExternalCallLogger 통합")
+    class ExternalCallLoggerIntegration {
+
+        @Test
+        @DisplayName("정상 호출 시 requestAccessToken operation으로 DEBUG 로그를 남긴다")
+        void shouldLogDebugWithOperationOnSuccess() {
+            // given
+            stubAuthProperties();
+            stubPayloadGenerator();
+            FulfillmentAuthResponse authResponse = new FulfillmentAuthResponse(
+                    new FulfillmentResponseHeader("200", "Success", 1),
+                    new FulfillmentAuthDataResponse("super-secret-token", "20261231235959"),
+                    null
+            );
+            stubPostChain(ResponseEntity.ok(authResponse));
+
+            // when
+            client.requestAccessToken();
+
+            // then
+            assertThat(appender.list)
+                    .extracting(ILoggingEvent::getFormattedMessage)
+                    .anyMatch(message -> message.contains("operation=requestAccessToken"));
+            assertThat(appender.list)
+                    .extracting(ILoggingEvent::getFormattedMessage)
+                    .noneMatch(message -> message.contains("super-secret-token"));
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("정상 호출 시 disconnectAccessToken operation으로 DEBUG 로그를 남기고 평문 토큰을 노출하지 않는다")
+        void shouldLogDebugAndMaskTokenOnDisconnect() {
+            // given
+            stubDisconnectProperties();
+            stubPayloadGenerator();
+            RestClient.RequestHeadersUriSpec rawSpec = mock(RestClient.RequestHeadersUriSpec.class);
+            RestClient.RequestHeadersSpec headerSpec = mock(RestClient.RequestHeadersSpec.class);
+            RestClient.ResponseSpec respSpec = mock(RestClient.ResponseSpec.class);
+
+            when(restClient.get()).thenReturn(rawSpec);
+            when(rawSpec.uri(any(java.net.URI.class))).thenReturn(headerSpec);
+            when(headerSpec.headers(any())).thenReturn(headerSpec);
+            when(headerSpec.retrieve()).thenReturn(respSpec);
+            when(respSpec.toEntity(String.class)).thenReturn(ResponseEntity.ok("OK"));
+
+            // when
+            client.disconnectAccessToken("plain-secret-token");
+
+            // then
+            assertThat(appender.list)
+                    .extracting(ILoggingEvent::getFormattedMessage)
+                    .anyMatch(message -> message.contains("operation=disconnectAccessToken"));
+            assertThat(appender.list)
+                    .extracting(ILoggingEvent::getFormattedMessage)
+                    .noneMatch(message -> message.contains("plain-secret-token"));
+        }
+
+        @Test
+        @DisplayName("HTTP 호출 실패 후 도메인 예외가 그대로 전파되며 ERROR 로그를 남긴다")
+        void shouldPropagateExceptionAndLogError() {
+            // given
+            stubAuthProperties();
+            stubPayloadGenerator();
+            stubPostChainThrows(new RuntimeException("Connection refused"));
+
+            // when & then
+            assertThatThrownBy(() -> client.requestAccessToken())
+                    .isInstanceOf(FulfillmentAuthRequestFailedException.class);
+
+            assertThat(appender.list)
+                    .extracting(ILoggingEvent::getLevel)
+                    .contains(Level.ERROR);
+            assertThat(appender.list)
+                    .extracting(ILoggingEvent::getFormattedMessage)
+                    .anyMatch(message -> message.contains("operation=requestAccessToken"));
         }
     }
 }

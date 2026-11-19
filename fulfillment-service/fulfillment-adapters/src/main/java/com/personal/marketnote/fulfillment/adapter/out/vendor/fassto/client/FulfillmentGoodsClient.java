@@ -3,6 +3,8 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
@@ -53,6 +55,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
+    private final ExternalCallLogger externalCallLogger;
 
     public FulfillmentGoodsClient(
             RestClient.Builder restClientBuilder,
@@ -60,7 +63,8 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             FulfillmentAuthProperties properties,
             VendorCommunicationRecorder vendorCommunicationRecorder,
             VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler
+            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+            ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -68,16 +72,31 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
         this.vendorCommunicationRecorder = vendorCommunicationRecorder;
         this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
         this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
+        this.externalCallLogger = externalCallLogger;
     }
 
     @Override
     public RegisterFulfillmentGoodsResult registerGoods(RegisterFulfillmentGoodsCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "registerGoods", Map.of(),
+                () -> doRegisterGoods(command)
+        );
+    }
+
+    private RegisterFulfillmentGoodsResult doRegisterGoods(RegisterFulfillmentGoodsCommand command) {
         FulfillmentGoodsMapper request = FasstoGoodsCommandToRequestMapper.mapToRegisterRequest(command);
         return executeGoodsRegistration(request, "REGISTER");
     }
 
     @Override
     public GetFulfillmentGoodsResult getGoods(GetFulfillmentGoodsCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getGoods", Map.of(),
+                () -> doGetGoods(command)
+        );
+    }
+
+    private GetFulfillmentGoodsResult doGetGoods(GetFulfillmentGoodsCommand command) {
         FulfillmentGoodsQuery query = FasstoGoodsCommandToRequestMapper.mapToGoodsQuery(command);
 
         if (FormatValidator.hasNoValue(query)) {
@@ -90,6 +109,13 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
 
     @Override
     public GetFulfillmentGoodsResult getGoodsDetail(GetFulfillmentGoodsDetailCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getGoodsDetail", Map.of(),
+                () -> doGetGoodsDetail(command)
+        );
+    }
+
+    private GetFulfillmentGoodsResult doGetGoodsDetail(GetFulfillmentGoodsDetailCommand command) {
         FulfillmentGoodsDetailQuery query = FasstoGoodsCommandToRequestMapper.mapToGoodsDetailQuery(command);
 
         if (FormatValidator.hasNoValue(query)) {
@@ -102,6 +128,13 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
 
     @Override
     public GetFulfillmentGoodsElementsResult getGoodsElements(GetFulfillmentGoodsElementsCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getGoodsElements", Map.of(),
+                () -> doGetGoodsElements(command)
+        );
+    }
+
+    private GetFulfillmentGoodsElementsResult doGetGoodsElements(GetFulfillmentGoodsElementsCommand command) {
         FulfillmentGoodsElementQuery query = FasstoGoodsCommandToRequestMapper.mapToGoodsElementsQuery(command);
 
         if (FormatValidator.hasNoValue(query)) {
@@ -341,6 +374,13 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
 
     @Override
     public UpdateFulfillmentGoodsResult updateGoods(UpdateFulfillmentGoodsCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "updateGoods", Map.of(),
+                () -> doUpdateGoods(command)
+        );
+    }
+
+    private UpdateFulfillmentGoodsResult doUpdateGoods(UpdateFulfillmentGoodsCommand command) {
         FulfillmentGoodsMapper request = FasstoGoodsCommandToRequestMapper.mapToUpdateRequest(command);
         return executeGoodsUpdate(request, "UPDATE");
     }

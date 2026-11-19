@@ -3,6 +3,8 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
@@ -61,6 +63,7 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
+    private final ExternalCallLogger externalCallLogger;
 
     public FulfillmentShopClient(
             RestClient.Builder restClientBuilder,
@@ -68,7 +71,8 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
             FulfillmentAuthProperties properties,
             VendorCommunicationRecorder vendorCommunicationRecorder,
             VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler
+            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+            ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -76,16 +80,31 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
         this.vendorCommunicationRecorder = vendorCommunicationRecorder;
         this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
         this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
+        this.externalCallLogger = externalCallLogger;
     }
 
     @Override
     public RegisterFulfillmentShopResult registerShop(RegisterFulfillmentShopCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "registerShop", Map.of(),
+                () -> doRegisterShop(command)
+        );
+    }
+
+    private RegisterFulfillmentShopResult doRegisterShop(RegisterFulfillmentShopCommand command) {
         FulfillmentShopMapper request = FasstoShopCommandToRequestMapper.mapToRegisterRequest(command);
         return executeShopMutation(request, "REGISTER", false);
     }
 
     @Override
     public UpdateFulfillmentShopResult updateShop(UpdateFulfillmentShopCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "updateShop", Map.of(),
+                () -> doUpdateShop(command)
+        );
+    }
+
+    private UpdateFulfillmentShopResult doUpdateShop(UpdateFulfillmentShopCommand command) {
         FulfillmentShopMapper request = FasstoShopCommandToRequestMapper.mapToUpdateRequest(command);
         RegisterFulfillmentShopResult result = executeShopMutation(request, "UPDATE", true);
         return UpdateFulfillmentShopResult.of(result.message(), result.code(), result.shopCode());
@@ -93,6 +112,13 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
 
     @Override
     public GetFulfillmentShopsResult getShops(GetFulfillmentShopsCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getShops", Map.of(),
+                () -> doGetShops(command)
+        );
+    }
+
+    private GetFulfillmentShopsResult doGetShops(GetFulfillmentShopsCommand command) {
         if (FormatValidator.hasNoValue(command)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment shop command is required.");
         }

@@ -3,6 +3,8 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
@@ -54,6 +56,7 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
+    private final ExternalCallLogger externalCallLogger;
 
     public FulfillmentAuthClient(
             RestClient.Builder restClientBuilder,
@@ -61,7 +64,8 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             FulfillmentAuthProperties properties,
             VendorCommunicationRecorder vendorCommunicationRecorder,
             VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler
+            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+            ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -69,10 +73,18 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
         this.vendorCommunicationRecorder = vendorCommunicationRecorder;
         this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
         this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
+        this.externalCallLogger = externalCallLogger;
     }
 
     @Override
     public FulfillmentAccessToken requestAccessToken() {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "requestAccessToken", Map.of(),
+                this::doRequestAccessToken
+        );
+    }
+
+    private FulfillmentAccessToken doRequestAccessToken() {
         URI uri = buildAuthUri();
 
         Exception error = new Exception();
@@ -179,6 +191,13 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             throw new FulfillmentClientInvalidRequestException("Fulfillment access token is required.");
         }
 
+        externalCallLogger.recordVoid(
+                ExternalSystem.FASSTO, "disconnectAccessToken", Map.of(),
+                () -> doDisconnectAccessToken(accessToken)
+        );
+    }
+
+    private void doDisconnectAccessToken(String accessToken) {
         URI uri = buildDisconnectUri();
 
         Exception error = new Exception();

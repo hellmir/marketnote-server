@@ -3,6 +3,8 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
@@ -61,6 +63,7 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
+    private final ExternalCallLogger externalCallLogger;
 
     public FulfillmentSupplierClient(
             RestClient.Builder restClientBuilder,
@@ -68,7 +71,8 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
             FulfillmentAuthProperties properties,
             VendorCommunicationRecorder vendorCommunicationRecorder,
             VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler
+            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+            ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -76,16 +80,31 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
         this.vendorCommunicationRecorder = vendorCommunicationRecorder;
         this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
         this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
+        this.externalCallLogger = externalCallLogger;
     }
 
     @Override
     public RegisterFulfillmentSupplierResult registerSupplier(RegisterFulfillmentSupplierCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "registerSupplier", Map.of(),
+                () -> doRegisterSupplier(command)
+        );
+    }
+
+    private RegisterFulfillmentSupplierResult doRegisterSupplier(RegisterFulfillmentSupplierCommand command) {
         FulfillmentSupplierMapper request = FasstoSupplierCommandToRequestMapper.mapToRegisterRequest(command);
         return executeSupplierMutation(request, "REGISTER", false);
     }
 
     @Override
     public UpdateFulfillmentSupplierResult updateSupplier(UpdateFulfillmentSupplierCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "updateSupplier", Map.of(),
+                () -> doUpdateSupplier(command)
+        );
+    }
+
+    private UpdateFulfillmentSupplierResult doUpdateSupplier(UpdateFulfillmentSupplierCommand command) {
         FulfillmentSupplierMapper request = FasstoSupplierCommandToRequestMapper.mapToUpdateRequest(command);
         RegisterFulfillmentSupplierResult result = executeSupplierMutation(request, "UPDATE", true);
         return UpdateFulfillmentSupplierResult.of(result.message(), result.code(), result.supplierCode());
@@ -93,6 +112,13 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
 
     @Override
     public GetFulfillmentSuppliersResult getSuppliers(GetFulfillmentSuppliersCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getSuppliers", Map.of(),
+                () -> doGetSuppliers(command)
+        );
+    }
+
+    private GetFulfillmentSuppliersResult doGetSuppliers(GetFulfillmentSuppliersCommand command) {
         if (FormatValidator.hasNoValue(command)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment supplier command is required.");
         }
