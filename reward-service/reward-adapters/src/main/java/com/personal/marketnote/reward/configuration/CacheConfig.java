@@ -90,6 +90,7 @@ public class CacheConfig implements CachingConfigurer {
 
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(redisCacheConfiguration)
+                .enableStatistics()
                 .build();
     }
 
