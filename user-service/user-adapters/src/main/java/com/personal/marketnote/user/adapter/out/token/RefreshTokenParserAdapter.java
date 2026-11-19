@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.exception.token.InvalidRefreshToken
 import com.personal.marketnote.user.port.out.authentication.ParseRefreshTokenPort;
 import com.personal.marketnote.user.utility.jwt.JwtUtil;
 import com.personal.marketnote.user.utility.jwt.claims.TokenClaims;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -17,8 +18,8 @@ public class RefreshTokenParserAdapter implements ParseRefreshTokenPort {
         try {
             TokenClaims claims = jwtUtil.parseRefreshToken(refreshToken);
             return claims.getUserId();
-        } catch (Exception e) {
-            throw new InvalidRefreshTokenException(e.getMessage());
+        } catch (JwtException | IllegalArgumentException | ClassCastException e) {
+            throw new InvalidRefreshTokenException(e.getMessage(), e);
         }
     }
 }

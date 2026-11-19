@@ -33,9 +33,10 @@ public class RemoteAreaPersistenceAdapter implements SaveRemoteAreaPort, FindRem
         } catch (DataIntegrityViolationException dive) {
             log.warn(
                     "이미 등록된 도서산간 지역입니다. province={}, district={}, village={}, subarea={}",
-                    remoteArea.getProvince(), remoteArea.getDistrict(), remoteArea.getVillage(), remoteArea.getSubarea()
+                    remoteArea.getProvince(), remoteArea.getDistrict(), remoteArea.getVillage(), remoteArea.getSubarea(),
+                    dive
             );
-            throw new RemoteAreaAlreadyExistsException();
+            throw new RemoteAreaAlreadyExistsException(dive);
         }
     }
 

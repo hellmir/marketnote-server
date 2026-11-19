@@ -6,4 +6,8 @@ public class UnlinkOauth2AccountFailedException extends IOException {
     public UnlinkOauth2AccountFailedException(String message) {
         super(message);
     }
+
+    public UnlinkOauth2AccountFailedException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

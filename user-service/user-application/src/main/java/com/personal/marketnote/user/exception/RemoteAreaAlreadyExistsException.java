@@ -8,4 +8,8 @@ public class RemoteAreaAlreadyExistsException extends DomainAlreadyExistsExcepti
     public RemoteAreaAlreadyExistsException() {
         super(MESSAGE);
     }
+
+    public RemoteAreaAlreadyExistsException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

@@ -84,7 +84,8 @@ public class JwtDelegatingTokenSupportProxy extends DelegatingTokenSupport {
                     .authVendor(claims.getAuthVendor())
                     .userId(claims.getUserId())
                     .build();
-        } catch (JwtException | IllegalArgumentException | ClassCastException e) {
+        } catch (JwtException | IllegalArgumentException | ClassCastException ignored) {
+            // 자체 발급 JWT 가 아닌 경우 (외부 OAuth2 토큰 등) — 상위 DelegatingTokenSupport 에 fallback
             return super.authenticate(accessToken);
         }
     }
