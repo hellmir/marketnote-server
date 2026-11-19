@@ -189,10 +189,10 @@ public class UpdateFilesService implements UpdateFileUseCase {
                 );
                 resizedToUpload.add(resizedFile);
                 resizedToSave.add(ResizedFile.of(savedFile.getId(), size + "x" + size));
-            } catch (IOException e) {
+            } catch (IOException ioe) {
                 log.warn(
-                        "카탈로그 이미지 리사이즈 실패: fileId={}, originalFilename={}, fileSort={}, message={}",
-                        savedFile.getId(), originalFile.getOriginalFilename(), sort, e.getMessage()
+                        "fallback applied: 카탈로그 이미지 리사이즈 실패 — 원본만 저장. fileId={}, originalFilename={}, fileSort={}",
+                        savedFile.getId(), originalFile.getOriginalFilename(), sort, ioe
                 );
             }
 
@@ -209,10 +209,10 @@ public class UpdateFilesService implements UpdateFileUseCase {
                     );
                     resizedToUpload.add(resized);
                     resizedToSave.add(ResizedFile.of(savedFile.getId(), String.valueOf(width)));
-                } catch (IOException e) {
+                } catch (IOException ioe) {
                     log.warn(
-                            "대표 이미지 리사이즈 실패: fileId={}, originalFilename={}, width={}, message={}",
-                            savedFile.getId(), originalFile.getOriginalFilename(), width, e.getMessage()
+                            "fallback applied: 대표 이미지 리사이즈 실패 — 원본만 저장. fileId={}, originalFilename={}, width={}",
+                            savedFile.getId(), originalFile.getOriginalFilename(), width, ioe
                     );
                 }
             }
@@ -357,8 +357,8 @@ public class UpdateFilesService implements UpdateFileUseCase {
                 }
             });
         } catch (SAXException | IOException | ParserConfigurationException e) {
-            log.warn("SVG 보안 검증 실패 - 공격 시도 가능성 (DOCTYPE/외부 엔티티 등): {}", e.getMessage(), e);
-            throw new InvalidSvgFileException();
+            log.warn("SVG 보안 검증 실패 - 공격 시도 가능성 (DOCTYPE/외부 엔티티 등)", e);
+            throw new InvalidSvgFileException(e);
         }
     }
 

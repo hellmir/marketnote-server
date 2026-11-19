@@ -98,6 +98,7 @@ public class S3FileStorageAdapter implements UploadFilesPort {
         try {
             return Files.size(tempFile);
         } catch (IOException ignored) {
+            // 파일 크기 조회 실패는 업로드 흐름과 무관한 부가 메트릭(태그 size) 값이므로 -1 로 폴백한다.
             return -1L;
         }
     }
@@ -138,6 +139,7 @@ public class S3FileStorageAdapter implements UploadFilesPort {
         try {
             Files.deleteIfExists(tempFile);
         } catch (IOException ignored) {
+            // OS 임시 디렉토리 자동 청소 정책에 의해 결국 정리되므로, 업로드 흐름 후 cleanup 실패는 무시한다.
         }
     }
 }
