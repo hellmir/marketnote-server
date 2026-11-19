@@ -97,8 +97,8 @@ public class RateLimitAspect {
         } catch (RateLimitExceededException rlExceededException) {
             throw rlExceededException;
         } catch (Exception e) {
-            log.warn("Rate limiting 확인 중 오류 발생, 요청을 허용합니다. key={}, userId={}, error={}",
-                    rateLimited.key(), userId, e.getMessage()
+            log.warn("fallback applied: rate limiting check failed, request allowed. key={}, userId={}",
+                    rateLimited.key(), userId, e
             );
         }
 

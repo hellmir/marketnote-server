@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import static org.apache.commons.lang3.BooleanUtils.FALSE;
 import static org.apache.commons.lang3.BooleanUtils.TRUE;
@@ -142,17 +143,20 @@ public class FormatConverter {
         try {
             long epochSeconds = Long.parseLong(time);
             return LocalDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), DEFAULT_ZONE_ID);
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException ignored) {
+            // epoch seconds 형식이 아니면 다음 ISO_DATE_TIME 포맷으로 폴백 — 의도된 무시
         }
 
         try {
             return LocalDateTime.parse(time, DateTimeFormatter.ISO_DATE_TIME);
-        } catch (Exception e) {
+        } catch (DateTimeParseException ignored) {
+            // ISO_DATE_TIME 포맷이 아니면 다음 yyyy-MM-dd HH:mm:ss 포맷으로 폴백 — 의도된 무시
         }
 
         try {
             return LocalDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        } catch (Exception e) {
+        } catch (DateTimeParseException ignored) {
+            // 모든 지원 포맷이 매칭되지 않으면 null 반환 — 의도된 무시
         }
 
         return null;

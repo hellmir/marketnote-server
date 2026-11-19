@@ -133,7 +133,7 @@ public class DltReprocessService {
             throw e;
         } catch (Exception e) {
             dltAuditLogger.logReprocessError(originalTopic, operatorInfo, e);
-            throw new DltReprocessFailedException(originalTopic);
+            throw new DltReprocessFailedException(originalTopic, e);
         }
     }
 

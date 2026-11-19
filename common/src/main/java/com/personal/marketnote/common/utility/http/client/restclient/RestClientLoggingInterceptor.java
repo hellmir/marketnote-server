@@ -18,7 +18,7 @@ public class RestClientLoggingInterceptor implements ClientHttpRequestIntercepto
 
     private static final String OUTBOUND_REQUEST = "Outbound request: {} {}";
     private static final String OUTBOUND_RESPONSE = "Outbound response: {} {} -> status={}, elapsed={}ms";
-    private static final String OUTBOUND_ERROR = "Outbound request failed: {} {} -> error={}, elapsed={}ms";
+    private static final String OUTBOUND_ERROR = "Outbound request failed: {} {} -> elapsed={}ms";
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
@@ -40,7 +40,7 @@ public class RestClientLoggingInterceptor implements ClientHttpRequestIntercepto
         } catch (IOException exception) {
             long elapsedTime = PerformanceMeasurer.computeElapsedTime(startedAt);
 
-            log.error(OUTBOUND_ERROR, method, uri, exception.getMessage(), elapsedTime);
+            log.error(OUTBOUND_ERROR, method, uri, elapsedTime, exception);
 
             throw exception;
         }

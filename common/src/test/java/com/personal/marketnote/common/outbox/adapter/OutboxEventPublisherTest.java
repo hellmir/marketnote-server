@@ -154,7 +154,7 @@ class OutboxEventPublisherTest {
         verify(outboxEventJpaRepository).save(entity);
         verify(outboxMetricsCollector).incrementFailedCount("commerce.payment.approved");
         verify(outboxAuditLogger).logFailed(
-                eq("commerce.payment.approved"), eq("event-1"), eq(5), any(String.class));
+                eq("commerce.payment.approved"), eq("event-1"), eq(5), any(Throwable.class));
     }
 
     @Test

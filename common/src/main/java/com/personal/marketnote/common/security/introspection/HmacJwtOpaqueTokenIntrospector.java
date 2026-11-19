@@ -95,7 +95,7 @@ public class HmacJwtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
             return objectMapper.readValue(jsonBytes, new TypeReference<>() {
             });
         } catch (Exception e) {
-            throw new BadOpaqueTokenException("Invalid token part");
+            throw new BadOpaqueTokenException("Invalid token part", e);
         }
     }
 
@@ -112,7 +112,7 @@ public class HmacJwtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
         } catch (BadOpaqueTokenException e) {
             throw e;
         } catch (Exception e) {
-            throw new BadOpaqueTokenException("Signature verification failed");
+            throw new BadOpaqueTokenException("Signature verification failed", e);
         }
     }
 

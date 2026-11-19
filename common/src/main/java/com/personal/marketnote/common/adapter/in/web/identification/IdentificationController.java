@@ -85,6 +85,7 @@ public class IdentificationController {
 
             return body.trim();
         } catch (Exception e) {
+            log.warn("fallback applied: public IP fetch failed, returning UNKNOWN", e);
             return "UNKNOWN";
         }
     }
