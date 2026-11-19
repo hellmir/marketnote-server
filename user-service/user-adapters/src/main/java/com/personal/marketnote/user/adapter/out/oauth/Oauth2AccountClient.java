@@ -91,7 +91,7 @@ public class Oauth2AccountClient implements Oauth2AccountUnlinkPort {
                     }
             );
         } catch (UnlinkOauth2AccountFailedRuntimeException e) {
-            throw new UnlinkOauth2AccountFailedException(e.getMessage());
+            throw new UnlinkOauth2AccountFailedException(e.getMessage(), e);
         }
     }
 
@@ -123,7 +123,7 @@ public class Oauth2AccountClient implements Oauth2AccountUnlinkPort {
                     }
             );
         } catch (UnlinkOauth2AccountFailedRuntimeException e) {
-            throw new UnlinkOauth2AccountFailedException(e.getMessage());
+            throw new UnlinkOauth2AccountFailedException(e.getMessage(), e);
         }
     }
 

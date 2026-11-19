@@ -45,7 +45,8 @@ public class DelegatingTokenSupport implements TokenSupport {
                 OAuth2AuthenticationInfo authentication = processor.authenticate(accessToken);
                 log.info("Authenticated by: {}", processor.getAuthVendor());
                 return authentication;
-            } catch (InvalidAccessTokenException e) {
+            } catch (InvalidAccessTokenException ignored) {
+                // 다음 vendor processor 로 fallback — 모든 processor 가 실패하면 루프 종료 후 예외 throw
                 log.info("Access token not supported by: {}", processor.getAuthVendor());
             }
         }
@@ -59,7 +60,8 @@ public class DelegatingTokenSupport implements TokenSupport {
                 OAuth2UserInfo user = processor.retrieveUserInfo(accessToken);
                 log.info("Signed in with: {}", processor.getAuthVendor());
                 return user;
-            } catch (InvalidAccessTokenException e) {
+            } catch (InvalidAccessTokenException ignored) {
+                // 다음 vendor processor 로 fallback — 모든 processor 가 실패하면 루프 종료 후 예외 throw
                 log.info("Access token not supported by: {}", processor.getAuthVendor());
             }
         }
@@ -71,7 +73,8 @@ public class DelegatingTokenSupport implements TokenSupport {
         for (TokenProcessor processor : processors) {
             try {
                 return processor.refreshToken(refreshToken);
-            } catch (InvalidRefreshTokenException e) {
+            } catch (InvalidRefreshTokenException ignored) {
+                // 다음 vendor processor 로 fallback — 모든 processor 가 실패하면 루프 종료 후 예외 throw
                 log.info("Refresh token not supported by: {}", processor.getAuthVendor());
             }
         }

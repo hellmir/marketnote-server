@@ -51,7 +51,8 @@ public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
                     .orElseGet(() -> findUserPort.findAllStatusUserById(userInfo.userId()).orElse(null));
 
             return resolvePrincipal(user, oidcId, issuer);
-        } catch (InvalidAccessTokenException e) {
+        } catch (InvalidAccessTokenException ignored) {
+            // 토큰 검증 실패 시 익명 principal 로 fallback — Spring Security 인가 단계에서 401/403 처리 위임
             return buildAnonymousPrincipal("", AuthVendor.NATIVE.name());
         }
     }
@@ -93,7 +94,7 @@ public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
 
             return null;
         } catch (IllegalArgumentException e) {
-            log.debug("Failed to Base64URL decode token header/payload: {}", e.getMessage());
+            log.debug("Failed to Base64URL decode token header/payload", e);
             return null;
         }
     }
@@ -105,7 +106,7 @@ public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
             User user = findUserPort.findAllStatusUserByAuthVendorAndOidcId(vendor, oidcId).orElse(null);
             return resolvePrincipal(user, oidcId, issuer);
         } catch (JwtException e) {
-            log.warn("벤더 ID 토큰 검증 실패: vendor={}, error={}", vendor, e.getMessage());
+            log.warn("벤더 ID 토큰 검증 실패. vendor={}", vendor, e);
             return buildAnonymousPrincipal("", vendor.name());
         }
     }

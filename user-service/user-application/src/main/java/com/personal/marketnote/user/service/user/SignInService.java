@@ -85,8 +85,8 @@ public class SignInService implements SignInUseCase {
 
             try {
                 signedUpUser = getUserUseCase.getAllStatusUser(email);
-            } catch (UserNotFoundException e) {
-                throw new LoginFailedException(String.format(LOGIN_FAILED_EXCEPTION_MESSAGE, FIRST_ERROR_CODE));
+            } catch (UserNotFoundException unfe) {
+                throw new LoginFailedException(String.format(LOGIN_FAILED_EXCEPTION_MESSAGE, FIRST_ERROR_CODE), unfe);
             }
 
             validatePassword(signedUpUser, signInCommand.getPassword());
