@@ -17,6 +17,7 @@ import java.util.List;
 public class AligoAlimTalkExternalAdapter implements SendAligoAlimTalkExternalPort {
 
     private static final String ALIMTALK_SEND_PATH = "/akv10/alimtalk/send/";
+    private static final String SEND_ALIM_TALK_OPERATION = "sendAlimTalk";
 
     private final AligoHttpClient aligoHttpClient;
 
@@ -25,7 +26,7 @@ public class AligoAlimTalkExternalAdapter implements SendAligoAlimTalkExternalPo
         MultiValueMap<String, String> params = buildSendParams(message);
 
         AligoAlimTalkApiResponse response = aligoHttpClient.post(
-                ALIMTALK_SEND_PATH, params, AligoAlimTalkApiResponse.class
+                SEND_ALIM_TALK_OPERATION, ALIMTALK_SEND_PATH, params, AligoAlimTalkApiResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.info())) {

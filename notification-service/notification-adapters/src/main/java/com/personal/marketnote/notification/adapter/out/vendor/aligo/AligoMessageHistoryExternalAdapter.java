@@ -14,6 +14,7 @@ import java.util.List;
 public class AligoMessageHistoryExternalAdapter implements GetAligoMessageHistoryExternalPort {
 
     private static final String HISTORY_LIST_PATH = "/akv10/history/list/";
+    private static final String GET_MESSAGE_HISTORY_OPERATION = "getMessageHistory";
 
     private final AligoHttpClient aligoHttpClient;
 
@@ -30,7 +31,7 @@ public class AligoMessageHistoryExternalAdapter implements GetAligoMessageHistor
         }
 
         AligoMessageHistoryApiResponse response = aligoHttpClient.post(
-                HISTORY_LIST_PATH, params, AligoMessageHistoryApiResponse.class
+                GET_MESSAGE_HISTORY_OPERATION, HISTORY_LIST_PATH, params, AligoMessageHistoryApiResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.list())) {

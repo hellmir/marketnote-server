@@ -1,12 +1,21 @@
 package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.domain.aligo.AligoApiRequestFailedException;
 import com.personal.marketnote.notification.domain.aligo.AligoAuthenticationException;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -16,13 +25,23 @@ import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class AligoHttpClientTest {
 
+    private static final String OPERATION = "sendTest";
+    private static final String PATH = "/send/";
+    private static final String RECIPIENT_PHONE = "01012345678";
+
     private AligoHttpClient aligoHttpClient;
     private MockRestServiceServer mockServer;
+    private Logger aligoLogger;
+    private ListAppender<ILoggingEvent> appender;
+    private boolean previousAdditive;
+    private Level previousLevel;
 
     @BeforeEach
     void setUp() {
@@ -42,7 +61,25 @@ class AligoHttpClientTest {
         RestClient restClient = builder.baseUrl("http://localhost").build();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        aligoHttpClient = new AligoHttpClient(restClient, objectMapper, properties);
+        ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
+        aligoHttpClient = new AligoHttpClient(restClient, objectMapper, properties, externalCallLogger);
+
+        aligoLogger = (Logger) LoggerFactory.getLogger(ExternalSystem.ALIGO.loggerName());
+        previousAdditive = aligoLogger.isAdditive();
+        previousLevel = aligoLogger.getLevel();
+        aligoLogger.setAdditive(false);
+        aligoLogger.setLevel(Level.DEBUG);
+        appender = new ListAppender<>();
+        appender.start();
+        aligoLogger.addAppender(appender);
+    }
+
+    @AfterEach
+    void tearDown() {
+        aligoLogger.detachAppender(appender);
+        appender.stop();
+        aligoLogger.setAdditive(previousAdditive);
+        aligoLogger.setLevel(previousLevel);
     }
 
     @Test
@@ -55,9 +92,9 @@ class AligoHttpClientTest {
                 .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("receiver", "01012345678");
+        params.add("receiver", RECIPIENT_PHONE);
 
-        AligoApiResponse response = aligoHttpClient.post("/send/", params, AligoApiResponse.class);
+        AligoApiResponse response = aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class);
 
         assertThat(response.resultCode()).isZero();
         assertThat(response.message()).isEqualTo("성공");
@@ -74,10 +111,10 @@ class AligoHttpClientTest {
                 .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("receiver", "01012345678");
+        params.add("receiver", RECIPIENT_PHONE);
         params.add("msg", "테스트 메시지");
 
-        AligoApiResponse response = aligoHttpClient.post("/send/", params, AligoApiResponse.class);
+        AligoApiResponse response = aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class);
 
         assertThat(response.resultCode()).isZero();
         mockServer.verify();
@@ -93,7 +130,7 @@ class AligoHttpClientTest {
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
-        assertThatThrownBy(() -> aligoHttpClient.post("/send/", params, AligoApiResponse.class))
+        assertThatThrownBy(() -> aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class))
                 .isInstanceOf(AligoAuthenticationException.class);
         mockServer.verify();
     }
@@ -108,8 +145,63 @@ class AligoHttpClientTest {
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
-        assertThatThrownBy(() -> aligoHttpClient.post("/send/", params, AligoApiResponse.class))
+        assertThatThrownBy(() -> aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class))
                 .isInstanceOf(AligoApiRequestFailedException.class);
         mockServer.verify();
+    }
+
+    @Test
+    @DisplayName("정상 호출 시 external.aligo 로거에 operation/path가 포함된 DEBUG 로그를 emit한다")
+    void shouldEmitDebugLogWithOperationAndPathOnSuccess() {
+        String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
+        mockServer.expect(requestTo("http://localhost/send/"))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("receiver", RECIPIENT_PHONE);
+
+        aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class);
+
+        boolean hasDebugWithOperationAndPath = appender.list.stream()
+                .anyMatch(event -> event.getLevel() == Level.DEBUG
+                        && event.getFormattedMessage().contains(OPERATION)
+                        && event.getFormattedMessage().contains(PATH));
+        assertThat(hasDebugWithOperationAndPath).isTrue();
+    }
+
+    @Test
+    @DisplayName("정상 호출 시 external.aligo 로거 메시지에 평문 수신자 전화번호가 포함되지 않는다")
+    void shouldNotLeakRecipientPhoneInAligoLog() {
+        String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
+        mockServer.expect(requestTo("http://localhost/send/"))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("receiver", RECIPIENT_PHONE);
+
+        aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class);
+
+        boolean leaksPhone = appender.list.stream()
+                .anyMatch(event -> event.getFormattedMessage().contains(RECIPIENT_PHONE));
+        assertThat(leaksPhone).isFalse();
+    }
+
+    @Test
+    @DisplayName("API 에러 시 external.aligo 로거에 ERROR 로그 + resultCode가 포함된다")
+    void shouldEmitErrorLogWithResultCodeOnApiError() {
+        String responseBody = "{\"result_code\":-101,\"message\":\"인증 오류\"}";
+        mockServer.expect(requestTo("http://localhost/send/"))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        assertThatThrownBy(() -> aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class))
+                .isInstanceOf(AligoAuthenticationException.class);
+
+        boolean hasErrorWithResultCode = appender.list.stream()
+                .anyMatch(event -> event.getLevel() == Level.ERROR
+                        && event.getFormattedMessage().contains(OPERATION)
+                        && event.getFormattedMessage().contains("-101"));
+        assertThat(hasErrorWithResultCode).isTrue();
     }
 }

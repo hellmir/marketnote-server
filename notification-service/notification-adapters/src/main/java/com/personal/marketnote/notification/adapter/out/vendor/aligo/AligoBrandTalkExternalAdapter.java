@@ -18,6 +18,7 @@ import java.util.List;
 public class AligoBrandTalkExternalAdapter implements SendBrandTalkExternalPort {
 
     private static final String BRANDTALK_SEND_PATH = "/brandtalk/template/send/";
+    private static final String SEND_BRAND_TALK_OPERATION = "sendBrandTalk";
     private static final int MAX_MMS_IMAGES = 3;
 
     private final AligoHttpClient aligoHttpClient;
@@ -32,8 +33,9 @@ public class AligoBrandTalkExternalAdapter implements SendBrandTalkExternalPort 
             addFailoverParams(params, message, failoverImages, failoverImageFileNames);
         }
 
-        AligoBrandTalkSendApiResponse response =
-                aligoHttpClient.postMultipart(BRANDTALK_SEND_PATH, params, AligoBrandTalkSendApiResponse.class);
+        AligoBrandTalkSendApiResponse response = aligoHttpClient.postMultipart(
+                SEND_BRAND_TALK_OPERATION, BRANDTALK_SEND_PATH, params, AligoBrandTalkSendApiResponse.class
+        );
 
         return new BrandTalkSendResponse(
                 response.info().mid(),

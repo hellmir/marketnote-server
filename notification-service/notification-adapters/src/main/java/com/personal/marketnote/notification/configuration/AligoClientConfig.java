@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.notification.adapter.out.vendor.aligo.AligoHttpClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +17,8 @@ public class AligoClientConfig {
 
     @Bean
     public AligoHttpClient aligoHttpClient(
-            RestClient.Builder builder, ObjectMapper objectMapper, AligoProperties properties
+            RestClient.Builder builder, ObjectMapper objectMapper, AligoProperties properties,
+            ExternalCallLogger externalCallLogger
     ) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(Duration.ofMillis(properties.getTimeout()));
@@ -27,6 +29,6 @@ public class AligoClientConfig {
                 .requestFactory(requestFactory)
                 .build();
 
-        return new AligoHttpClient(restClient, objectMapper, properties);
+        return new AligoHttpClient(restClient, objectMapper, properties, externalCallLogger);
     }
 }

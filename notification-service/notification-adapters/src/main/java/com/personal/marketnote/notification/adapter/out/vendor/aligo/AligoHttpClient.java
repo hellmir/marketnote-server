@@ -1,6 +1,8 @@
 package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.domain.aligo.AligoApiException;
 import com.personal.marketnote.notification.domain.aligo.AligoApiRequestFailedException;
@@ -11,31 +13,55 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
 public class AligoHttpClient {
 
     private static final Logger log = LoggerFactory.getLogger(AligoHttpClient.class);
+    private static final Logger aligoCallLog = LoggerFactory.getLogger(ExternalSystem.ALIGO.loggerName());
+    private static final String TAG_PATH = "path";
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
     private final AligoProperties properties;
+    private final ExternalCallLogger externalCallLogger;
 
-    public AligoHttpClient(RestClient restClient, ObjectMapper objectMapper, AligoProperties properties) {
+    public AligoHttpClient(
+            RestClient restClient, ObjectMapper objectMapper, AligoProperties properties,
+            ExternalCallLogger externalCallLogger
+    ) {
         this.restClient = restClient;
         this.objectMapper = objectMapper;
         this.properties = properties;
+        this.externalCallLogger = externalCallLogger;
     }
 
-    public <T> T post(String path, MultiValueMap<String, String> params, Class<T> responseType) {
+    public <T> T post(String operation, String path, MultiValueMap<String, String> params, Class<T> responseType) {
         MultiValueMap<String, String> mergedParams = mergeCommonParams(params);
-        return executeWithRetry(() -> executeRequest(path, mergedParams, responseType, MediaType.APPLICATION_FORM_URLENCODED));
+        return externalCallLogger.record(
+                ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
+                () -> executeWithRetry(
+                        () -> executeRequest(
+                                operation, path, mergedParams, responseType, MediaType.APPLICATION_FORM_URLENCODED
+                        )
+                )
+        );
     }
 
-    public <T> T postMultipart(String path, MultiValueMap<String, Object> params, Class<T> responseType) {
+    public <T> T postMultipart(
+            String operation, String path, MultiValueMap<String, Object> params, Class<T> responseType
+    ) {
         MultiValueMap<String, Object> mergedParams = mergeCommonParams(params);
-        return executeWithRetry(() -> executeRequest(path, mergedParams, responseType, MediaType.MULTIPART_FORM_DATA));
+        return externalCallLogger.record(
+                ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
+                () -> executeWithRetry(
+                        () -> executeRequest(
+                                operation, path, mergedParams, responseType, MediaType.MULTIPART_FORM_DATA
+                        )
+                )
+        );
     }
 
     private <T> T executeWithRetry(Supplier<T> action) {
@@ -58,7 +84,9 @@ public class AligoHttpClient {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T executeRequest(String path, Object body, Class<T> responseType, MediaType contentType) {
+    private <T> T executeRequest(
+            String operation, String path, Object body, Class<T> responseType, MediaType contentType
+    ) {
         try {
             String responseBody = restClient.post()
                     .uri(path)
@@ -68,6 +96,7 @@ public class AligoHttpClient {
                     .body(String.class);
 
             AligoApiResponse baseResponse = objectMapper.readValue(responseBody, AligoApiResponse.class);
+            logResultCode(operation, path, baseResponse.resultCode(), baseResponse.message());
             AligoApiErrorMapper.throwIfError(baseResponse.resultCode(), baseResponse.message());
 
             if (responseType == AligoApiResponse.class) {
@@ -79,6 +108,22 @@ public class AligoHttpClient {
         } catch (Exception e) {
             throw new AligoApiRequestFailedException("알리고 API 요청 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
+    }
+
+    private void logResultCode(String operation, String path, int resultCode, String message) {
+        if (resultCode == 0) {
+            if (aligoCallLog.isDebugEnabled()) {
+                aligoCallLog.debug(
+                        "Aligo response: operation={}, path={}, resultCode={}, message={}",
+                        operation, path, resultCode, message
+                );
+            }
+            return;
+        }
+        aligoCallLog.error(
+                "Aligo response error: operation={}, path={}, resultCode={}, message={}",
+                operation, path, resultCode, message
+        );
     }
 
     private <V> MultiValueMap<String, V> mergeCommonParams(MultiValueMap<String, V> params) {

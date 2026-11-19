@@ -11,6 +11,7 @@ import org.springframework.util.MultiValueMap;
 public class AligoCancelExternalAdapter implements CancelAligoMessageExternalPort {
 
     private static final String CANCEL_PATH = "/akv10/cancel/";
+    private static final String CANCEL_MESSAGE_OPERATION = "cancelMessage";
 
     private final AligoHttpClient aligoHttpClient;
 
@@ -19,6 +20,6 @@ public class AligoCancelExternalAdapter implements CancelAligoMessageExternalPor
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("mid", mid);
 
-        aligoHttpClient.post(CANCEL_PATH, params, AligoApiResponse.class);
+        aligoHttpClient.post(CANCEL_MESSAGE_OPERATION, CANCEL_PATH, params, AligoApiResponse.class);
     }
 }

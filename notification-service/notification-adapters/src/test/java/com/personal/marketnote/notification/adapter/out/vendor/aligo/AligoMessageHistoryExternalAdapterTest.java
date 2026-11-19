@@ -2,6 +2,8 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.port.out.aligo.GetAligoMessageHistoryExternalPort.AligoMessageHistoryResult;
 import org.hamcrest.Matchers;
@@ -42,7 +44,10 @@ class AligoMessageHistoryExternalAdapterTest {
         mockServer = MockRestServiceServer.bindTo(builder).build();
         RestClient restClient = builder.baseUrl("http://localhost").build();
 
-        AligoHttpClient aligoHttpClient = new AligoHttpClient(restClient, objectMapper, properties);
+        AligoHttpClient aligoHttpClient = new AligoHttpClient(
+                restClient, objectMapper, properties,
+                new ExternalCallLogger(new SimpleMeterRegistry())
+        );
         adapter = new AligoMessageHistoryExternalAdapter(aligoHttpClient);
     }
 
