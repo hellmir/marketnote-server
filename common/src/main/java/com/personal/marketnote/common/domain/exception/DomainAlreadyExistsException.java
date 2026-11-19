@@ -8,4 +8,8 @@ public class DomainAlreadyExistsException extends RuntimeException {
     public DomainAlreadyExistsException(String message) {
         super(message);
     }
+
+    public DomainAlreadyExistsException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

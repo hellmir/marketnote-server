@@ -13,4 +13,8 @@ public abstract class BusinessSecurityException extends RuntimeException {
     protected BusinessSecurityException(String message) {
         super(message);
     }
+
+    protected BusinessSecurityException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
