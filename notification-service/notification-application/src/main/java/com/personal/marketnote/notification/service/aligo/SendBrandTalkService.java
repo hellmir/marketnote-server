@@ -79,7 +79,7 @@ public class SendBrandTalkService implements SendBrandTalkUseCase {
         try {
             return objectMapper.writeValueAsString(variables);
         } catch (JsonProcessingException e) {
-            throw new InvalidBrandTalkMessageException("수신자 변수 직렬화 실패: " + e.getMessage());
+            throw new InvalidBrandTalkMessageException("수신자 변수 직렬화 실패: " + e.getMessage(), e);
         }
     }
 

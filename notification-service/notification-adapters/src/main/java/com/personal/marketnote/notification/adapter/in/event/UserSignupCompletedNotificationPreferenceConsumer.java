@@ -61,7 +61,8 @@ public class UserSignupCompletedNotificationPreferenceConsumer {
             initializeNotificationPreferenceUseCase.initializeNotificationPreference(command);
 
             log.info("Kafka 이벤트로 알림 수신 설정 초기화 완료. userId={}", payload.userId());
-        } catch (DuplicateNotificationPreferenceException e) {
+        } catch (DuplicateNotificationPreferenceException ignored) {
+            // 회원가입 이벤트 재처리(at-least-once) 시 이미 초기화된 알림 수신 설정에 대한 멱등 처리
             log.info("알림 수신 설정이 이미 존재합니다 (멱등 처리). eventId={}, key={}",
                     envelope.eventId(), record.key());
         }

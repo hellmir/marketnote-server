@@ -35,8 +35,8 @@ public class NotificationPreferencePersistenceAdapter implements SaveNotificatio
             notificationPreferenceJpaRepository.saveAll(entities);
         } catch (DataIntegrityViolationException dive) {
             Long userId = preferences.isEmpty() ? null : preferences.get(0).getUserId();
-            log.warn("이미 초기화된 알림 수신 설정입니다. userId={}", userId);
-            throw new DuplicateNotificationPreferenceException();
+            log.warn("이미 초기화된 알림 수신 설정입니다. userId={}", userId, dive);
+            throw new DuplicateNotificationPreferenceException(dive);
         }
     }
 

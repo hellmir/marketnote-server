@@ -12,12 +12,14 @@ import com.personal.marketnote.notification.port.out.aligo.FindBrandTalkTemplate
 import com.personal.marketnote.notification.port.out.aligo.SaveBrandTalkTemplatePort;
 import com.personal.marketnote.notification.port.out.aligo.UpdateBrandTalkTemplatePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class AligoBrandTalkTemplatePersistenceAdapter
@@ -83,6 +85,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
         try {
             return objectMapper.writeValueAsString(buttonList);
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 버튼 직렬화 실패, null 반환", e);
             return null;
         }
     }
@@ -101,6 +104,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
         try {
             return objectMapper.writeValueAsString(couponMap);
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 쿠폰 직렬화 실패, null 반환", e);
             return null;
         }
     }
@@ -124,6 +128,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
         try {
             return objectMapper.writeValueAsString(map);
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 와이드 아이템 직렬화 실패, null 반환", e);
             return null;
         }
     }
@@ -136,6 +141,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
         try {
             return objectMapper.writeValueAsString(list);
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 와이드 아이템 리스트 직렬화 실패, null 반환", e);
             return null;
         }
     }
@@ -159,6 +165,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
         try {
             return objectMapper.writeValueAsString(list);
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 캐러셀 아이템 직렬화 실패, null 반환", e);
             return null;
         }
     }
@@ -188,6 +195,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
         try {
             return objectMapper.writeValueAsString(list);
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 캐러셀 커머스 직렬화 실패, null 반환", e);
             return null;
         }
     }
@@ -211,6 +219,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
         try {
             return objectMapper.writeValueAsString(map);
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 캐러셀 tail 직렬화 실패, null 반환", e);
             return null;
         }
     }
@@ -228,6 +237,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
         try {
             return objectMapper.writeValueAsString(map);
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 커머스 정보 직렬화 실패, null 반환", e);
             return null;
         }
     }

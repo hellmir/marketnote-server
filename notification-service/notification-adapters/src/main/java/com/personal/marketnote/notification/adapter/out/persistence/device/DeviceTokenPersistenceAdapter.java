@@ -57,9 +57,9 @@ public class DeviceTokenPersistenceAdapter
         } catch (DataIntegrityViolationException dive) {
             log.warn(
                     "이미 등록된 디바이스 ID입니다. deviceId={}",
-                    deviceToken.getDeviceId()
+                    deviceToken.getDeviceId(), dive
             );
-            throw new DuplicateDeviceTokenException();
+            throw new DuplicateDeviceTokenException(dive);
         }
     }
 

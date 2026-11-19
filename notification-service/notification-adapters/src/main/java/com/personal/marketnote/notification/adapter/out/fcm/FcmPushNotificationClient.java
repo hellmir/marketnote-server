@@ -35,8 +35,8 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
         } catch (FirebaseMessagingException fme) {
             return handleFirebaseMessagingException(fme);
         } catch (Exception e) {
-            log.error("FCM 발송 중 예상치 못한 오류: {}", e.getMessage());
-            throw new FcmSendFailedException("FCM 발송 중 예상치 못한 오류 발생");
+            log.error("FCM 발송 중 예상치 못한 오류", e);
+            throw new FcmSendFailedException("FCM 발송 중 예상치 못한 오류 발생", e);
         }
     }
 
@@ -79,11 +79,11 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
         String errorCodeName = FormatValidator.hasValue(errorCode) ? errorCode.name() : "UNKNOWN";
 
         if (isTokenInvalid(errorCode)) {
-            log.warn("FCM 토큰 무효: errorCode={}", errorCodeName);
+            log.warn("fallback applied: FCM 토큰 무효, 발송 결과 tokenInvalid 반환: errorCode={}", errorCodeName, fme);
             return SendPushNotificationResult.tokenInvalid(errorCodeName);
         }
 
-        log.error("FCM 발송 실패: errorCode={}", errorCodeName);
+        log.error("FCM 발송 실패: errorCode={}", errorCodeName, fme);
         return SendPushNotificationResult.failure(errorCodeName);
     }
 
@@ -148,14 +148,14 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
                 return firebaseMessaging.sendEach(messages);
             } catch (FirebaseMessagingException fme) {
                 if (!isQuotaExceeded(fme)) {
-                    log.error("FCM 대량 발송 실패 (재시도 불가): errorCode={}", fme.getMessagingErrorCode());
+                    log.error("FCM 대량 발송 실패 (재시도 불가): errorCode={}", fme.getMessagingErrorCode(), fme);
                     return null;
                 }
                 if (attempt == MAX_RETRY_ATTEMPTS) {
-                    log.error("FCM 대량 발송 재시도 횟수 초과: attempts={}", MAX_RETRY_ATTEMPTS);
+                    log.error("FCM 대량 발송 재시도 횟수 초과: attempts={}", MAX_RETRY_ATTEMPTS, fme);
                     return null;
                 }
-                log.warn("FCM 429 QUOTA_EXCEEDED, {}ms 후 재시도 (attempt={})", backoffMs, attempt + 1);
+                log.warn("FCM 429 QUOTA_EXCEEDED, {}ms 후 재시도 (attempt={})", backoffMs, attempt + 1, fme);
                 sleep(backoffMs);
                 backoffMs *= 2;
             }
@@ -168,7 +168,7 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
             Thread.sleep(millis);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
-            throw new FcmSendFailedException("FCM 재시도 중 인터럽트 발생");
+            throw new FcmSendFailedException("FCM 재시도 중 인터럽트 발생", ie);
         }
     }
 

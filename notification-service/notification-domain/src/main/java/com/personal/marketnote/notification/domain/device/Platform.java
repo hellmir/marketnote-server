@@ -21,7 +21,7 @@ public enum Platform {
         try {
             return Platform.valueOf(value.trim().toUpperCase());
         } catch (IllegalArgumentException iae) {
-            throw new InvalidPlatformException("지원하지 않는 플랫폼입니다.");
+            throw new InvalidPlatformException("지원하지 않는 플랫폼입니다.", iae);
         }
     }
 }
