@@ -8,4 +8,8 @@ public class InvalidSvgFileException extends BusinessSecurityException {
     public InvalidSvgFileException() {
         super(MESSAGE);
     }
+
+    public InvalidSvgFileException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }
