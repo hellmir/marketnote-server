@@ -3,6 +3,8 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
@@ -59,6 +61,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
+    private final ExternalCallLogger externalCallLogger;
 
     public FulfillmentStockClient(
             RestClient.Builder restClientBuilder,
@@ -66,7 +69,8 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
             FulfillmentAuthProperties properties,
             VendorCommunicationRecorder vendorCommunicationRecorder,
             VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler
+            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+            ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -74,10 +78,18 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
         this.vendorCommunicationRecorder = vendorCommunicationRecorder;
         this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
         this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
+        this.externalCallLogger = externalCallLogger;
     }
 
     @Override
     public GetFulfillmentStocksResult getStocks(GetFulfillmentStocksCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getStocks", Map.of(),
+                () -> doGetStocks(command)
+        );
+    }
+
+    private GetFulfillmentStocksResult doGetStocks(GetFulfillmentStocksCommand command) {
         if (FormatValidator.hasNoValue(command)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment stock command is required.");
         }
@@ -97,6 +109,13 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
 
     @Override
     public GetFulfillmentStocksResult getStockDetail(GetFulfillmentStockDetailCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getStockDetail", Map.of(),
+                () -> doGetStockDetail(command)
+        );
+    }
+
+    private GetFulfillmentStocksResult doGetStockDetail(GetFulfillmentStockDetailCommand command) {
         if (FormatValidator.hasNoValue(command)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment stock detail command is required.");
         }

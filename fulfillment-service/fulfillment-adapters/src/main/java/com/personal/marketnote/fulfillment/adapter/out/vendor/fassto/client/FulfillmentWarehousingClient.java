@@ -3,6 +3,8 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
@@ -50,6 +52,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
+    private final ExternalCallLogger externalCallLogger;
 
     public FulfillmentWarehousingClient(
             RestClient.Builder restClientBuilder,
@@ -57,7 +60,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             FulfillmentAuthProperties properties,
             VendorCommunicationRecorder vendorCommunicationRecorder,
             VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler
+            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+            ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -65,10 +69,18 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
         this.vendorCommunicationRecorder = vendorCommunicationRecorder;
         this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
         this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
+        this.externalCallLogger = externalCallLogger;
     }
 
     @Override
     public RegisterFulfillmentWarehousingResult registerWarehousing(RegisterFulfillmentWarehousingCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "registerWarehousing", Map.of(),
+                () -> doRegisterWarehousing(command)
+        );
+    }
+
+    private RegisterFulfillmentWarehousingResult doRegisterWarehousing(RegisterFulfillmentWarehousingCommand command) {
         FulfillmentWarehousingMapper request = FasstoWarehousingCommandToRequestMapper.mapToRegisterRequest(command);
         RegisterFulfillmentWarehousingResponse response = executeWarehousingMutation(
                 request,
@@ -81,6 +93,13 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     @Override
     public UpdateFulfillmentWarehousingResult updateWarehousing(UpdateFulfillmentWarehousingCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "updateWarehousing", Map.of(),
+                () -> doUpdateWarehousing(command)
+        );
+    }
+
+    private UpdateFulfillmentWarehousingResult doUpdateWarehousing(UpdateFulfillmentWarehousingCommand command) {
         FulfillmentWarehousingMapper request = FasstoWarehousingCommandToRequestMapper.mapToUpdateRequest(command);
         RegisterFulfillmentWarehousingResponse response = executeWarehousingMutation(
                 request,
@@ -93,6 +112,13 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     @Override
     public GetFulfillmentWarehousingResult getWarehousing(GetFulfillmentWarehousingCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getWarehousing", Map.of(),
+                () -> doGetWarehousing(command)
+        );
+    }
+
+    private GetFulfillmentWarehousingResult doGetWarehousing(GetFulfillmentWarehousingCommand command) {
         FulfillmentWarehousingQuery query = FasstoWarehousingCommandToRequestMapper.mapToQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment warehousing query is required.");
@@ -218,6 +244,13 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     @Override
     public GetFulfillmentWarehousingDetailResult getWarehousingDetail(GetFulfillmentWarehousingDetailCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getWarehousingDetail", Map.of(),
+                () -> doGetWarehousingDetail(command)
+        );
+    }
+
+    private GetFulfillmentWarehousingDetailResult doGetWarehousingDetail(GetFulfillmentWarehousingDetailCommand command) {
         FulfillmentWarehousingDetailQuery query = FasstoWarehousingCommandToRequestMapper.mapToDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment warehousing detail query is required.");
@@ -337,6 +370,13 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     @Override
     public GetFulfillmentWarehousingInspecDetailResult getWarehousingInspecDetail(GetFulfillmentWarehousingInspecDetailCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getWarehousingInspecDetail", Map.of(),
+                () -> doGetWarehousingInspecDetail(command)
+        );
+    }
+
+    private GetFulfillmentWarehousingInspecDetailResult doGetWarehousingInspecDetail(GetFulfillmentWarehousingInspecDetailCommand command) {
         FulfillmentWarehousingInspecDetailQuery query = FasstoWarehousingCommandToRequestMapper.mapToInspecDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment warehousing inspection detail query is required.");
@@ -450,6 +490,13 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     @Override
     public GetFulfillmentWarehousingAbnormalResult getWarehousingAbnormal(GetFulfillmentWarehousingAbnormalCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getWarehousingAbnormal", Map.of(),
+                () -> doGetWarehousingAbnormal(command)
+        );
+    }
+
+    private GetFulfillmentWarehousingAbnormalResult doGetWarehousingAbnormal(GetFulfillmentWarehousingAbnormalCommand command) {
         FulfillmentWarehousingAbnormalQuery query = FasstoWarehousingCommandToRequestMapper.mapToAbnormalQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment warehousing abnormal query is required.");
@@ -564,6 +611,13 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     @Override
     public GetFulfillmentWarehousingAbnormalImageResult getWarehousingAbnormalImage(GetFulfillmentWarehousingAbnormalImageCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getWarehousingAbnormalImage", Map.of(),
+                () -> doGetWarehousingAbnormalImage(command)
+        );
+    }
+
+    private GetFulfillmentWarehousingAbnormalImageResult doGetWarehousingAbnormalImage(GetFulfillmentWarehousingAbnormalImageCommand command) {
         FulfillmentWarehousingAbnormalImageQuery query = FasstoWarehousingCommandToRequestMapper.mapToAbnormalImageQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment warehousing abnormal image query is required.");

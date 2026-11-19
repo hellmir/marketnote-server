@@ -3,6 +3,8 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
@@ -57,6 +59,7 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
+    private final ExternalCallLogger externalCallLogger;
 
     public FulfillmentSettlementClient(
             RestClient.Builder restClientBuilder,
@@ -64,7 +67,8 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
             FulfillmentAuthProperties properties,
             VendorCommunicationRecorder vendorCommunicationRecorder,
             VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler
+            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+            ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -72,10 +76,18 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
         this.vendorCommunicationRecorder = vendorCommunicationRecorder;
         this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
         this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
+        this.externalCallLogger = externalCallLogger;
     }
 
     @Override
     public GetFulfillmentSettlementDailyCostsResult getDailyCosts(GetFulfillmentSettlementDailyCostsCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getDailyCosts", Map.of(),
+                () -> doGetDailyCosts(command)
+        );
+    }
+
+    private GetFulfillmentSettlementDailyCostsResult doGetDailyCosts(GetFulfillmentSettlementDailyCostsCommand command) {
         if (FormatValidator.hasNoValue(command)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment settlement daily cost command is required.");
         }

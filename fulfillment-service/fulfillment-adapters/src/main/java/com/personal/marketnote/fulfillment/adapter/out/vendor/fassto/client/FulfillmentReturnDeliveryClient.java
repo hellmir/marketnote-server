@@ -3,6 +3,8 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
@@ -56,6 +58,7 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
+    private final ExternalCallLogger externalCallLogger;
 
     public FulfillmentReturnDeliveryClient(
             RestClient.Builder restClientBuilder,
@@ -63,7 +66,8 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             FulfillmentAuthProperties properties,
             VendorCommunicationRecorder vendorCommunicationRecorder,
             VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler
+            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+            ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -71,10 +75,18 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
         this.vendorCommunicationRecorder = vendorCommunicationRecorder;
         this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
         this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
+        this.externalCallLogger = externalCallLogger;
     }
 
     @Override
     public RegisterFulfillmentDeliveryResult registerReturnDelivery(RegisterFulfillmentReturnDeliveryCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "registerReturnDelivery", Map.of(),
+                () -> doRegisterReturnDelivery(command)
+        );
+    }
+
+    private RegisterFulfillmentDeliveryResult doRegisterReturnDelivery(RegisterFulfillmentReturnDeliveryCommand command) {
         FulfillmentReturnDeliveryMapper request = FasstoReturnDeliveryCommandToRequestMapper.mapToRegisterRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeReturnDeliveryMutation(request, "REGISTER_RETURN");
         return mapDeliveryResult(response);
@@ -82,6 +94,13 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
 
     @Override
     public GetFulfillmentReturnGodDetailResult getReturnGodDetail(GetFulfillmentReturnGodDetailCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getReturnGodDetail", Map.of(),
+                () -> doGetReturnGodDetail(command)
+        );
+    }
+
+    private GetFulfillmentReturnGodDetailResult doGetReturnGodDetail(GetFulfillmentReturnGodDetailCommand command) {
         FulfillmentReturnGodDetailQuery query = FasstoReturnDeliveryCommandToRequestMapper.mapToReturnGodDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment return god detail query is required.");

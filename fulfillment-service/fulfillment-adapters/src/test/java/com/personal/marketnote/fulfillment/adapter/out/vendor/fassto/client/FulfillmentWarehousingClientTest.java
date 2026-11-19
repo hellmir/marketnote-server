@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingAbnormalQuery;
@@ -14,6 +15,7 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.*;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -64,6 +66,7 @@ class FulfillmentWarehousingClientTest {
     private VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
 
     @BeforeEach
     void setUp() {
@@ -76,7 +79,8 @@ class FulfillmentWarehousingClientTest {
                 properties,
                 vendorCommunicationRecorder,
                 vendorCommunicationPayloadGenerator,
-                vendorCommunicationFailureHandler
+                vendorCommunicationFailureHandler,
+                externalCallLogger
         );
     }
 

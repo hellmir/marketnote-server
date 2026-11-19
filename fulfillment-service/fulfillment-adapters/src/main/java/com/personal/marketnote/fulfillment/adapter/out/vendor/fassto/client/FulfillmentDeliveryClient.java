@@ -3,6 +3,8 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
@@ -50,6 +52,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
+    private final ExternalCallLogger externalCallLogger;
 
     public FulfillmentDeliveryClient(
             RestClient.Builder restClientBuilder,
@@ -57,7 +60,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             FulfillmentAuthProperties properties,
             VendorCommunicationRecorder vendorCommunicationRecorder,
             VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler
+            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+            ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -65,10 +69,18 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         this.vendorCommunicationRecorder = vendorCommunicationRecorder;
         this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
         this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
+        this.externalCallLogger = externalCallLogger;
     }
 
     @Override
     public RegisterFulfillmentDeliveryResult registerDelivery(RegisterFulfillmentDeliveryCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "registerDelivery", Map.of(),
+                () -> doRegisterDelivery(command)
+        );
+    }
+
+    private RegisterFulfillmentDeliveryResult doRegisterDelivery(RegisterFulfillmentDeliveryCommand command) {
         FulfillmentDeliveryMapper request = FasstoDeliveryCommandToRequestMapper.mapToRegisterRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeDeliveryMutation(request, "REGISTER", HttpMethod.POST, false);
         return mapDeliveryResult(response);
@@ -76,6 +88,13 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public RegisterFulfillmentDeliveryResult updateDelivery(UpdateFulfillmentDeliveryCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "updateDelivery", Map.of(),
+                () -> doUpdateDelivery(command)
+        );
+    }
+
+    private RegisterFulfillmentDeliveryResult doUpdateDelivery(UpdateFulfillmentDeliveryCommand command) {
         FulfillmentDeliveryMapper request = FasstoDeliveryCommandToRequestMapper.mapToUpdateRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeDeliveryMutation(request, "UPDATE", HttpMethod.PATCH, true);
         return mapDeliveryResult(response);
@@ -83,6 +102,13 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public RegisterFulfillmentDeliveryResult registerDeliveryCar(RegisterFulfillmentDeliveryCarCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "registerDeliveryCar", Map.of(),
+                () -> doRegisterDeliveryCar(command)
+        );
+    }
+
+    private RegisterFulfillmentDeliveryResult doRegisterDeliveryCar(RegisterFulfillmentDeliveryCarCommand command) {
         FulfillmentDeliveryCarMapper request = FasstoDeliveryCommandToRequestMapper.mapToRegisterCarRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeDeliveryCarMutation(request, "REGISTER_CAR", HttpMethod.POST, false);
         return mapDeliveryResult(response);
@@ -90,6 +116,13 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public RegisterFulfillmentDeliveryResult registerDeliveryIcs(RegisterFulfillmentDeliveryIcsCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "registerDeliveryIcs", Map.of(),
+                () -> doRegisterDeliveryIcs(command)
+        );
+    }
+
+    private RegisterFulfillmentDeliveryResult doRegisterDeliveryIcs(RegisterFulfillmentDeliveryIcsCommand command) {
         FulfillmentDeliveryIcsMapper request = FasstoDeliveryCommandToRequestMapper.mapToRegisterIcsRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeDeliveryIcsMutation(request, "REGISTER_ICS", HttpMethod.POST);
         return mapDeliveryResult(response);
@@ -97,6 +130,13 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public CompleteFulfillmentDeliveryIcsResult completeDeliveryIcs(CompleteFulfillmentDeliveryIcsCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "completeDeliveryIcs", Map.of(),
+                () -> doCompleteDeliveryIcs(command)
+        );
+    }
+
+    private CompleteFulfillmentDeliveryIcsResult doCompleteDeliveryIcs(CompleteFulfillmentDeliveryIcsCommand command) {
         FulfillmentDeliveryIcsCompletionMapper request = FasstoDeliveryCommandToRequestMapper.mapToIcsCompletionRequest(command);
         FulfillmentDeliveryIcsCompletionListResponse response = executeDeliveryIcsCompletionMutation(request, "COMPLETE_ICS");
         return mapDeliveryIcsCompletionResult(response);
@@ -104,6 +144,13 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public RegisterFulfillmentDeliveryResult updateDeliveryCar(UpdateFulfillmentDeliveryCarCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "updateDeliveryCar", Map.of(),
+                () -> doUpdateDeliveryCar(command)
+        );
+    }
+
+    private RegisterFulfillmentDeliveryResult doUpdateDeliveryCar(UpdateFulfillmentDeliveryCarCommand command) {
         FulfillmentDeliveryCarMapper request = FasstoDeliveryCommandToRequestMapper.mapToUpdateCarRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeDeliveryCarMutation(request, "UPDATE_CAR", HttpMethod.PATCH, true);
         return mapDeliveryResult(response);
@@ -111,6 +158,13 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public CancelFulfillmentDeliveryResult cancelDelivery(CancelFulfillmentDeliveryCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "cancelDelivery", Map.of(),
+                () -> doCancelDelivery(command)
+        );
+    }
+
+    private CancelFulfillmentDeliveryResult doCancelDelivery(CancelFulfillmentDeliveryCommand command) {
         FulfillmentDeliveryCancelMapper request = FasstoDeliveryCommandToRequestMapper.mapToCancelRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeDeliveryCancellation(request, "CANCEL");
         return mapCancelDeliveryResult(response);
@@ -118,6 +172,13 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public GetFulfillmentDeliveriesResult getDeliveries(GetFulfillmentDeliveriesCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getDeliveries", Map.of(),
+                () -> doGetDeliveries(command)
+        );
+    }
+
+    private GetFulfillmentDeliveriesResult doGetDeliveries(GetFulfillmentDeliveriesCommand command) {
         FulfillmentDeliveryQuery query = FasstoDeliveryCommandToRequestMapper.mapToQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment delivery query is required.");
@@ -238,6 +299,13 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public GetFulfillmentDeliveryStatusesResult getDeliveryStatuses(GetFulfillmentDeliveryStatusesCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getDeliveryStatuses", Map.of(),
+                () -> doGetDeliveryStatuses(command)
+        );
+    }
+
+    private GetFulfillmentDeliveryStatusesResult doGetDeliveryStatuses(GetFulfillmentDeliveryStatusesCommand command) {
         FulfillmentDeliveryStatusQuery query = FasstoDeliveryCommandToRequestMapper.mapToDeliveryStatusQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment delivery status query is required.");
@@ -356,6 +424,13 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public GetFulfillmentDeliveryOutOrdGoodsDetailResult getOutOrdGoodsDetail(GetFulfillmentDeliveryOutOrdGoodsDetailCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getOutOrdGoodsDetail", Map.of(),
+                () -> doGetOutOrdGoodsDetail(command)
+        );
+    }
+
+    private GetFulfillmentDeliveryOutOrdGoodsDetailResult doGetOutOrdGoodsDetail(GetFulfillmentDeliveryOutOrdGoodsDetailCommand command) {
         FulfillmentDeliveryOutOrdGoodsDetailQuery query = FasstoDeliveryCommandToRequestMapper.mapToOutOrdGoodsDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment out-ord goods detail query is required.");
@@ -474,6 +549,13 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult getOutOrdGoodsByOrdNo(GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getOutOrdGoodsByOrdNo", Map.of(),
+                () -> doGetOutOrdGoodsByOrdNo(command)
+        );
+    }
+
+    private GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult doGetOutOrdGoodsByOrdNo(GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command) {
         FulfillmentDeliveryOutOrdGoodsByOrdNoQuery query = FasstoDeliveryCommandToRequestMapper.mapToOutOrdGoodsByOrdNoQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment out-ord goods by ordNo query is required.");
@@ -592,6 +674,13 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public GetFulfillmentDeliveryGoodDetailResult getDeliveryGoodDetail(GetFulfillmentDeliveryGoodDetailCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getDeliveryGoodDetail", Map.of(),
+                () -> doGetDeliveryGoodDetail(command)
+        );
+    }
+
+    private GetFulfillmentDeliveryGoodDetailResult doGetDeliveryGoodDetail(GetFulfillmentDeliveryGoodDetailCommand command) {
         FulfillmentDeliveryGoodDetailQuery query = FasstoDeliveryCommandToRequestMapper.mapToDeliveryGoodDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment delivery good detail query is required.");
@@ -710,6 +799,13 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public GetFulfillmentDeliveryDetailResult getDeliveryDetail(GetFulfillmentDeliveryDetailCommand command) {
+        return externalCallLogger.record(
+                ExternalSystem.FASSTO, "getDeliveryDetail", Map.of(),
+                () -> doGetDeliveryDetail(command)
+        );
+    }
+
+    private GetFulfillmentDeliveryDetailResult doGetDeliveryDetail(GetFulfillmentDeliveryDetailCommand command) {
         FulfillmentDeliveryDetailQuery query = FasstoDeliveryCommandToRequestMapper.mapToDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment delivery detail query is required.");
