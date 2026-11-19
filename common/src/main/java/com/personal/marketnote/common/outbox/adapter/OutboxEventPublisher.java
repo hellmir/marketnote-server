@@ -67,15 +67,15 @@ public class OutboxEventPublisher {
 
             if (event.getStatus().isFailed()) {
                 outboxMetricsCollector.incrementFailedCount(event.getTopic());
-                outboxAuditLogger.logFailed(event.getTopic(), event.getEventId(), event.getRetryCount(), e.getMessage());
+                outboxAuditLogger.logFailed(event.getTopic(), event.getEventId(), event.getRetryCount(), e);
                 log.error("Outbox 이벤트 최대 재시도 초과. topic={}, eventId={}, retryCount={}",
                         event.getTopic(), event.getEventId(), event.getRetryCount(), e
                 );
                 return;
             }
 
-            log.warn("Outbox 이벤트 발행 실패 (재시도 예정). topic={}, eventId={}, retryCount={}, error={}",
-                    event.getTopic(), event.getEventId(), event.getRetryCount(), e.getMessage()
+            log.warn("Outbox 이벤트 발행 실패 (재시도 예정). topic={}, eventId={}, retryCount={}",
+                    event.getTopic(), event.getEventId(), event.getRetryCount(), e
             );
         }
     }

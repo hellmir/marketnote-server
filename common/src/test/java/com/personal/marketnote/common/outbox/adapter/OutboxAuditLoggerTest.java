@@ -11,11 +11,12 @@ class OutboxAuditLoggerTest {
     private final OutboxAuditLogger outboxAuditLogger = new OutboxAuditLogger();
 
     @Test
-    @DisplayName("FAILED 전환 감사 로그를 기록한다")
+    @DisplayName("FAILED 전환 감사 로그를 cause stack trace 와 함께 기록한다")
     void logFailed_logsWithoutException() {
         // when & then
         assertThatCode(() -> outboxAuditLogger.logFailed(
-                "commerce.payment.approved", "event-1", 5, "Kafka 전송 실패"
+                "commerce.payment.approved", "event-1", 5,
+                new RuntimeException("Kafka 전송 실패")
         )).doesNotThrowAnyException();
     }
 

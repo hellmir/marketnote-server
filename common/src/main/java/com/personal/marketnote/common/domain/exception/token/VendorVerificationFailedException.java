@@ -6,4 +6,8 @@ public class VendorVerificationFailedException extends BadCredentialsException {
     public VendorVerificationFailedException(String message) {
         super(message);
     }
+
+    public VendorVerificationFailedException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

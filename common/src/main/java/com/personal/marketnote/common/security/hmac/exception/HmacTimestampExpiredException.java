@@ -6,4 +6,8 @@ public class HmacTimestampExpiredException extends BadCredentialsException {
     public HmacTimestampExpiredException(String timestamp) {
         super("HMAC 인증 실패: Timestamp가 허용 범위를 초과했습니다. timestamp=" + timestamp);
     }
+
+    public HmacTimestampExpiredException(String timestamp, Throwable cause) {
+        super("HMAC 인증 실패: Timestamp가 허용 범위를 초과했습니다. timestamp=" + timestamp, cause);
+    }
 }

@@ -44,7 +44,7 @@ public record SwaggerOrigin(String scheme, String baseHost) {
         try {
             return URI.create(origin);
         } catch (IllegalArgumentException iae) {
-            throw new InvalidSwaggerOriginException(origin);
+            throw new InvalidSwaggerOriginException(origin, iae);
         }
     }
 }

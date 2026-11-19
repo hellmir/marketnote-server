@@ -83,7 +83,9 @@ public class DltResolveService {
             dltAuditLogger.logResolveError(command.originalTopic(), command.partition(), command.offset(),
                     command.action().name(), operatorInfo, e
             );
-            throw new DltResolveFailedException(command.originalTopic(), command.partition(), command.offset());
+            throw new DltResolveFailedException(
+                    command.originalTopic(), command.partition(), command.offset(), e
+            );
         }
     }
 

@@ -31,7 +31,7 @@ public final class HmacSignatureValidator {
         try {
             requestTimeMillis = Long.parseLong(timestamp);
         } catch (NumberFormatException e) {
-            throw new HmacTimestampExpiredException(timestamp);
+            throw new HmacTimestampExpiredException(timestamp, e);
         }
         long currentTimeMillis = Instant.now(clock).toEpochMilli();
         long differenceSeconds = Math.abs(currentTimeMillis - requestTimeMillis) / 1000;

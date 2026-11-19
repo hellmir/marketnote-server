@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = "outbox", name = "enabled", havingValue = "true")
 public class OutboxAuditLogger {
 
-    public void logFailed(String topic, String eventId, int retryCount, String errorMessage) {
+    public void logFailed(String topic, String eventId, int retryCount, Throwable cause) {
         log.error("[OUTBOX-AUDIT] action=FAILED, topic={}, eventId={}, retryCount={}, error={}",
-                topic, eventId, retryCount, errorMessage
+                topic, eventId, retryCount, cause.getMessage(), cause
         );
     }
 
