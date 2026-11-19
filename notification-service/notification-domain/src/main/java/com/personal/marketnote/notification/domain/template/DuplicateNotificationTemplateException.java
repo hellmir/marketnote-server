@@ -8,4 +8,8 @@ public class DuplicateNotificationTemplateException extends DomainAlreadyExistsE
     public DuplicateNotificationTemplateException() {
         super(MESSAGE);
     }
+
+    public DuplicateNotificationTemplateException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

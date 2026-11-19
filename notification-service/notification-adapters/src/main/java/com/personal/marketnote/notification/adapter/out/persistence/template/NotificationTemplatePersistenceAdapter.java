@@ -55,9 +55,9 @@ public class NotificationTemplatePersistenceAdapter
         } catch (DataIntegrityViolationException dive) {
             log.warn(
                     "이미 존재하는 템플릿 코드입니다. templateCode={}",
-                    notificationTemplate.getTemplateCode()
+                    notificationTemplate.getTemplateCode(), dive
             );
-            throw new DuplicateNotificationTemplateException();
+            throw new DuplicateNotificationTemplateException(dive);
         }
     }
 

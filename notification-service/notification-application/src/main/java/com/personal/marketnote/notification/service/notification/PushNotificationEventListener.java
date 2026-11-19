@@ -95,7 +95,7 @@ public class PushNotificationEventListener {
                     deleteDeviceTokenPort.deleteById(deviceToken.getId());
                 }
             } catch (FcmSendFailedException fsfe) {
-                log.error("FCM 발송 중 예외 발생: userId={}, deviceId={}", event.userId(), deviceToken.getDeviceId());
+                log.error("FCM 발송 중 예외 발생: userId={}, deviceId={}", event.userId(), deviceToken.getDeviceId(), fsfe);
                 vendorCommunicationRecorder.recordFcmSendException(
                         notification, deviceToken, event.title(), event.body(), event.landingUrl(), fsfe
                 );

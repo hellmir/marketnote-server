@@ -8,4 +8,8 @@ public class DuplicateNotificationPreferenceException extends DomainAlreadyExist
     public DuplicateNotificationPreferenceException() {
         super(MESSAGE);
     }
+
+    public DuplicateNotificationPreferenceException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

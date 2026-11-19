@@ -119,7 +119,7 @@ public class PublishScheduledNotificationsService implements PublishScheduledNot
                 }
             } catch (FcmSendFailedException fsfe) {
                 log.error("FCM 발송 중 예외 발생: notificationId={}, deviceId={}",
-                        notification.getId(), deviceToken.getDeviceId());
+                        notification.getId(), deviceToken.getDeviceId(), fsfe);
                 vendorCommunicationRecorder.recordFcmSendException(
                         notification, deviceToken,
                         notification.getTitle(), notification.getBody(), notification.getLandingUrl(),

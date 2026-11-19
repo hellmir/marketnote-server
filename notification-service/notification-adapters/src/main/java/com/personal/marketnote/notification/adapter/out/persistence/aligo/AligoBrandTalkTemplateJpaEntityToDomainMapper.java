@@ -6,10 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.entity.AligoBrandTalkTemplateJpaEntity;
 import com.personal.marketnote.notification.domain.aligo.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
+
+    private static final Logger log = LoggerFactory.getLogger(AligoBrandTalkTemplateJpaEntityToDomainMapper.class);
 
     private AligoBrandTalkTemplateJpaEntityToDomainMapper() {
     }
@@ -60,6 +64,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                     .map(dto -> BrandTalkButton.from(mapToButtonSnapshotState(dto)))
                     .toList();
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 버튼 역직렬화 실패, 빈 리스트 반환", e);
             return List.of();
         }
     }
@@ -72,6 +77,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             CouponDto dto = objectMapper.readValue(couponJson, CouponDto.class);
             return BrandTalkCoupon.from(mapToCouponSnapshotState(dto));
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 쿠폰 역직렬화 실패, null 반환", e);
             return null;
         }
     }
@@ -106,6 +112,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             WideItemDto dto = objectMapper.readValue(json, WideItemDto.class);
             return mapToWideItem(dto);
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 와이드 아이템 역직렬화 실패, null 반환", e);
             return null;
         }
     }
@@ -121,6 +128,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                     .map(AligoBrandTalkTemplateJpaEntityToDomainMapper::mapToWideItem)
                     .toList();
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 와이드 아이템 리스트 역직렬화 실패, 빈 리스트 반환", e);
             return List.of();
         }
     }
@@ -149,6 +157,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                     .map(AligoBrandTalkTemplateJpaEntityToDomainMapper::mapToCarouselItem)
                     .toList();
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 캐러셀 아이템 역직렬화 실패, 빈 리스트 반환", e);
             return List.of();
         }
     }
@@ -184,6 +193,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                     .map(AligoBrandTalkTemplateJpaEntityToDomainMapper::mapToCarouselCommerce)
                     .toList();
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 캐러셀 커머스 역직렬화 실패, 빈 리스트 반환", e);
             return List.of();
         }
     }
@@ -208,6 +218,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             CarouselTailDto dto = objectMapper.readValue(json, CarouselTailDto.class);
             return BrandTalkCarouselTail.of(dto.linkM());
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 캐러셀 tail 역직렬화 실패, null 반환", e);
             return null;
         }
     }
@@ -258,6 +269,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                             .build()
             );
         } catch (JsonProcessingException e) {
+            log.warn("fallback applied: 브랜드메시지 커머스 정보 역직렬화 실패, null 반환", e);
             return null;
         }
     }

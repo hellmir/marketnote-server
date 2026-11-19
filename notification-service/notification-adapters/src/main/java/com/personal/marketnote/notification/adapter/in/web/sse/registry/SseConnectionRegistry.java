@@ -77,10 +77,10 @@ public class SseConnectionRegistry {
         } catch (IOException exception) {
             connections.remove(userId, emitter);
             emitter.completeWithError(exception);
-            log.warn("SSE 이벤트 전송 실패 (IO), 커넥션 제거: userId={}", userId);
+            log.warn("fallback applied: SSE 이벤트 전송 실패 (IO), 커넥션 제거: userId={}", userId, exception);
         } catch (IllegalStateException exception) {
             connections.remove(userId, emitter);
-            log.warn("SSE 이벤트 전송 실패 (emitter 비활성), 커넥션 제거: userId={}", userId);
+            log.warn("fallback applied: SSE 이벤트 전송 실패 (emitter 비활성), 커넥션 제거: userId={}", userId, exception);
         }
     }
 
@@ -98,7 +98,7 @@ public class SseConnectionRegistry {
         } catch (IOException exception) {
             connections.remove(userId, emitter);
             emitter.completeWithError(exception);
-            log.warn("SSE 초기 연결 이벤트 전송 실패: userId={}", userId);
+            log.warn("fallback applied: SSE 초기 연결 이벤트 전송 실패: userId={}", userId, exception);
         }
     }
 }

@@ -8,4 +8,8 @@ public class DuplicateDeviceTokenException extends DomainAlreadyExistsException 
     public DuplicateDeviceTokenException() {
         super(MESSAGE);
     }
+
+    public DuplicateDeviceTokenException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

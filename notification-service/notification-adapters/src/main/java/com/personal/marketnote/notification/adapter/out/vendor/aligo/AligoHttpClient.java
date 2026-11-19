@@ -75,7 +75,7 @@ public class AligoHttpClient {
                 if (attempt == maxAttempts) {
                     throw e;
                 }
-                log.warn("알리고 API 호출 실패 (attempt {}/{}): {}", attempt, maxAttempts, e.getMessage());
+                log.warn("알리고 API 호출 실패 (attempt {}/{}), 재시도 예정", attempt, maxAttempts, e);
                 sleep(backoffMs);
                 backoffMs = backoffMs * 2;
             }
@@ -146,7 +146,8 @@ public class AligoHttpClient {
         try {
             long jitteredSleepMs = ThreadLocalRandom.current().nextLong(Math.max(1L, millis) + 1);
             Thread.sleep(jitteredSleepMs);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
+            // 인터럽트는 호출자 흐름에서 다시 감지하도록 interrupt 플래그만 복원
             Thread.currentThread().interrupt();
         }
     }
