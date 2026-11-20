@@ -105,6 +105,7 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
                 }
             }
         } catch (Exception e) {
+            // boundary swallow: 폴링 워커 boundary — 단건 실패가 다음 폴링/타 ordNo 처리를 막지 않도록 광역 catch
             log.warn("Failed to poll Fulfillment warehousing: ordNo={}", context.ordNo(), e);
         }
 

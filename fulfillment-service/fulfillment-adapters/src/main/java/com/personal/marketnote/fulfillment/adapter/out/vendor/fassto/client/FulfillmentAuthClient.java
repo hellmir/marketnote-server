@@ -1,5 +1,6 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
@@ -32,6 +33,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -108,7 +110,7 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
                         .headers(h -> h.addAll(buildHeaders()))
                         .retrieve()
                         .toEntity(FulfillmentAuthResponse.class);
-            } catch (Exception e) {
+            } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
                 errorPayload.put("message", e.getMessage());
@@ -224,7 +226,7 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
                         })
                         .retrieve()
                         .toEntity(String.class);
-            } catch (Exception e) {
+            } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
                 errorPayload.put("message", e.getMessage());
@@ -527,8 +529,8 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
         try {
             FulfillmentErrorResponse parsedResponse = objectMapper.readValue(body, FulfillmentErrorResponse.class);
             return parsedResponse.resolveErrorMessage();
-        } catch (Exception e) {
-            log.warn("Failed to parse Fulfillment disconnect error response: {}", e.getMessage(), e);
+        } catch (JsonProcessingException e) {
+            log.warn("fallback applied: Fulfillment disconnect 에러 응답 파싱 실패, null 반환", e);
             return null;
         }
     }
@@ -546,8 +548,8 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
         try {
             FulfillmentErrorResponse parsedResponse = objectMapper.readValue(body, FulfillmentErrorResponse.class);
             return parsedResponse.resolveErrorMessage();
-        } catch (Exception parseException) {
-            log.warn("Failed to parse Fulfillment error response from exception: {}", parseException.getMessage(), parseException);
+        } catch (JsonProcessingException parseException) {
+            log.warn("fallback applied: Fulfillment 에러 응답 파싱 실패 (예외 본문 기반), null 반환", parseException);
             return null;
         }
     }

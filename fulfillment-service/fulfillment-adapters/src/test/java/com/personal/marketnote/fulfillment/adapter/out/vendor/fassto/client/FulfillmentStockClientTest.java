@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -100,7 +101,7 @@ class FulfillmentStockClientTest {
             // given
             stubStockProperties();
             stubPayloadGenerator();
-            stubGetChainThrows(new RuntimeException("Connection refused"));
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentStocksCommand command = GetFulfillmentStocksCommand.of("CUST001", "valid-token");
 
@@ -120,7 +121,7 @@ class FulfillmentStockClientTest {
             // given
             stubStockProperties();
             stubPayloadGenerator();
-            stubGetChainThrows(new RuntimeException("Connection refused"));
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentStockDetailCommand command = GetFulfillmentStockDetailCommand.of(
                     "CUST001", "valid-token", "GOD001", null

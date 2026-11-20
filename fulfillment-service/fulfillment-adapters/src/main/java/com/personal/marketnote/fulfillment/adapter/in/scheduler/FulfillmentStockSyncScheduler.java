@@ -40,6 +40,7 @@ public class FulfillmentStockSyncScheduler {
         try {
             syncFulfillmentAllStockUseCase.syncAll(SyncFulfillmentAllStockCommand.of(customerCode));
         } catch (Exception e) {
+            // boundary swallow: @Scheduled 진입점 — 재고 싱크 실패가 다음 실행을 막지 않도록 ERROR 로그로 보존
             log.error("Failed to sync Fulfillment stocks: customerCode={}", customerCode, e);
         }
     }

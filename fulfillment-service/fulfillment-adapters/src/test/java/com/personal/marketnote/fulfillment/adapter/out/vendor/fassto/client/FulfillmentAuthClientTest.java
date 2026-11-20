@@ -32,6 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -191,7 +192,7 @@ class FulfillmentAuthClientTest {
             // given
             stubAuthProperties();
             stubPayloadGenerator();
-            stubPostChainThrows(new RuntimeException("Connection refused"));
+            stubPostChainThrows(new ResourceAccessException("Connection refused"));
 
             // when & then
             assertThatThrownBy(() -> client.requestAccessToken())
@@ -284,7 +285,7 @@ class FulfillmentAuthClientTest {
             when(rawSpec.uri(any(java.net.URI.class))).thenReturn(headerSpec);
             when(headerSpec.headers(any())).thenReturn(headerSpec);
             when(headerSpec.retrieve()).thenReturn(respSpec);
-            when(respSpec.toEntity(String.class)).thenThrow(new RuntimeException("Connection refused"));
+            when(respSpec.toEntity(String.class)).thenThrow(new ResourceAccessException("Connection refused"));
 
             // when & then
             assertThatThrownBy(() -> client.disconnectAccessToken("test-token"))
@@ -356,7 +357,7 @@ class FulfillmentAuthClientTest {
             // given
             stubAuthProperties();
             stubPayloadGenerator();
-            stubPostChainThrows(new RuntimeException("Connection refused"));
+            stubPostChainThrows(new ResourceAccessException("Connection refused"));
 
             // when & then
             assertThatThrownBy(() -> client.requestAccessToken())

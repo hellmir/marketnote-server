@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.nio.charset.StandardCharsets;
@@ -162,7 +163,7 @@ class FulfillmentWarehousingClientTest {
         when(restClient.method(any())).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(any(java.net.URI.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
-        when(requestBodySpec.body(any())).thenReturn(requestBodySpec);
+        when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.toEntity(any(Class.class))).thenThrow(exception);
     }
@@ -413,7 +414,7 @@ class FulfillmentWarehousingClientTest {
             // given
             stubWarehousingMutationProperties();
             stubPayloadGenerator();
-            stubMethodChainThrows(new RuntimeException("Connection refused"));
+            stubMethodChainThrows(new ResourceAccessException("Connection refused"));
 
             RegisterFulfillmentWarehousingCommand command = buildValidRegisterCommand();
 
@@ -478,7 +479,7 @@ class FulfillmentWarehousingClientTest {
             // given
             stubWarehousingListProperties();
             stubPayloadGenerator();
-            stubGetChainThrows(new RuntimeException("Connection refused"));
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
                     "CUST001", "valid-token", "20260101", "20260131"
@@ -554,7 +555,7 @@ class FulfillmentWarehousingClientTest {
             // given
             stubWarehousingAbnormalProperties();
             stubPayloadGenerator();
-            stubGetChainThrows(new RuntimeException("Connection refused"));
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentWarehousingAbnormalCommand command = GetFulfillmentWarehousingAbnormalCommand.of(
                     "CUST001", "valid-token", "WH01", "SLIP001"

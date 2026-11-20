@@ -34,6 +34,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -124,7 +125,7 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
                         .body(request.toPayload())
                         .retrieve()
                         .toEntity(String.class);
-            } catch (Exception e) {
+            } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
                 errorPayload.put("message", e.getMessage());
@@ -265,8 +266,8 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
 
         try {
             return objectMapper.readValue(body, RegisterFulfillmentDeliveryResponse.class);
-        } catch (Exception e) {
-            log.warn("Failed to parse Fulfillment direct return delivery response: {}", e.getMessage(), e);
+        } catch (JsonProcessingException e) {
+            log.warn("fallback applied: Fulfillment direct return delivery 응답 파싱 실패, null 반환", e);
             return null;
         }
     }

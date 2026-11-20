@@ -30,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.nio.charset.StandardCharsets;
@@ -141,7 +142,7 @@ class FulfillmentGoodsClientTest {
         when(restClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(any(java.net.URI.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
-        when(requestBodySpec.body(any())).thenReturn(requestBodySpec);
+        when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.toEntity(any(Class.class))).thenThrow(exception);
     }
@@ -161,7 +162,7 @@ class FulfillmentGoodsClientTest {
         when(restClient.method(HttpMethod.PATCH)).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(any(java.net.URI.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
-        when(requestBodySpec.body(any())).thenReturn(requestBodySpec);
+        when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.toEntity(any(Class.class))).thenThrow(exception);
     }
@@ -375,7 +376,7 @@ class FulfillmentGoodsClientTest {
             // given
             stubGoodsProperties();
             stubPayloadGenerator();
-            stubPostChainThrows(new RuntimeException("Connection refused"));
+            stubPostChainThrows(new ResourceAccessException("Connection refused"));
 
             RegisterFulfillmentGoodsCommand command = buildValidRegisterCommand();
 
@@ -440,7 +441,7 @@ class FulfillmentGoodsClientTest {
             // given
             stubGoodsProperties();
             stubPayloadGenerator();
-            stubGetChainThrows(new RuntimeException("Connection refused"));
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentGoodsCommand command = GetFulfillmentGoodsCommand.of("CUST001", "valid-token");
 

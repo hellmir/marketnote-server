@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -90,7 +91,7 @@ class FulfillmentSupplierClientTest {
         when(restClient.method(HttpMethod.PATCH)).thenReturn(methodSpec);
         when(methodSpec.uri(any(java.net.URI.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
-        when(requestBodySpec.body(any())).thenReturn(requestBodySpec);
+        when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.toEntity(any(Class.class))).thenThrow(exception);
     }
@@ -118,7 +119,7 @@ class FulfillmentSupplierClientTest {
             // given
             stubSupplierProperties();
             stubPayloadGenerator();
-            stubPatchChainThrows(new RuntimeException("Connection refused"));
+            stubPatchChainThrows(new ResourceAccessException("Connection refused"));
 
             RegisterFulfillmentSupplierCommand command = RegisterFulfillmentSupplierCommand.builder()
                     .customerCode("CUST001")
@@ -159,7 +160,7 @@ class FulfillmentSupplierClientTest {
             // given
             stubSupplierProperties();
             stubPayloadGenerator();
-            stubGetChainThrows(new RuntimeException("Connection refused"));
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentSuppliersCommand command = GetFulfillmentSuppliersCommand.of("CUST001", "valid-token");
 

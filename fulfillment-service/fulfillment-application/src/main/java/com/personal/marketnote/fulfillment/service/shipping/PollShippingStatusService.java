@@ -138,6 +138,7 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
             try {
                 transactionTemplate.executeWithoutResult(status -> processTracker(tracker, statusMap, now));
             } catch (Exception e) {
+                // boundary swallow: 청크 단건 실패가 다른 트래커 처리를 막지 않도록 광역 catch + ERROR 로그로 cause 보존
                 log.error("배송 상태 폴링 처리 실패: orderId={}", tracker.getOrderId(), e);
             }
         }

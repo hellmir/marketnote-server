@@ -1,5 +1,6 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
@@ -29,6 +30,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -153,7 +155,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                         .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
                         .retrieve()
                         .toEntity(String.class);
-            } catch (Exception e) {
+            } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
                 errorPayload.put("message", e.getMessage());
@@ -279,7 +281,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                         .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
                         .retrieve()
                         .toEntity(String.class);
-            } catch (Exception e) {
+            } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
                 errorPayload.put("message", e.getMessage());
@@ -404,7 +406,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                         .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
                         .retrieve()
                         .toEntity(String.class);
-            } catch (Exception e) {
+            } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
                 errorPayload.put("message", e.getMessage());
@@ -525,7 +527,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                         .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
                         .retrieve()
                         .toEntity(String.class);
-            } catch (Exception e) {
+            } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
                 errorPayload.put("message", e.getMessage());
@@ -651,7 +653,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                         .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
                         .retrieve()
                         .toEntity(String.class);
-            } catch (Exception e) {
+            } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
                 errorPayload.put("message", e.getMessage());
@@ -769,7 +771,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                         .body(request.toPayload())
                         .retrieve()
                         .toEntity(String.class);
-            } catch (Exception e) {
+            } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
                 errorPayload.put("message", e.getMessage());
@@ -1093,8 +1095,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
         try {
             return objectMapper.readValue(body, RegisterFulfillmentWarehousingResponse.class);
-        } catch (Exception e) {
-            log.warn("Failed to parse Fulfillment warehousing response: {}", e.getMessage(), e);
+        } catch (JsonProcessingException e) {
+            log.warn("fallback applied: Fulfillment warehousing 응답 파싱 실패, null 반환", e);
             return null;
         }
     }
@@ -1111,8 +1113,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
         try {
             return objectMapper.readValue(body, FulfillmentWarehousingListResponse.class);
-        } catch (Exception e) {
-            log.warn("Failed to parse Fulfillment warehousing list response: {}", e.getMessage(), e);
+        } catch (JsonProcessingException e) {
+            log.warn("fallback applied: Fulfillment warehousing list 응답 파싱 실패, null 반환", e);
             return null;
         }
     }
@@ -1129,8 +1131,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
         try {
             return objectMapper.readValue(body, FulfillmentWarehousingDetailListResponse.class);
-        } catch (Exception e) {
-            log.warn("Failed to parse Fulfillment warehousing detail response: {}", e.getMessage(), e);
+        } catch (JsonProcessingException e) {
+            log.warn("fallback applied: Fulfillment warehousing detail 응답 파싱 실패, null 반환", e);
             return null;
         }
     }
@@ -1147,8 +1149,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
         try {
             return objectMapper.readValue(body, FulfillmentWarehousingInspecDetailListResponse.class);
-        } catch (Exception e) {
-            log.warn("Failed to parse Fulfillment warehousing inspection detail response: {}", e.getMessage(), e);
+        } catch (JsonProcessingException e) {
+            log.warn("fallback applied: Fulfillment warehousing inspection detail 응답 파싱 실패, null 반환", e);
             return null;
         }
     }
@@ -1165,8 +1167,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
         try {
             return objectMapper.readValue(body, FulfillmentWarehousingAbnormalListResponse.class);
-        } catch (Exception e) {
-            log.warn("Failed to parse Fulfillment warehousing abnormal response: {}", e.getMessage(), e);
+        } catch (JsonProcessingException e) {
+            log.warn("fallback applied: Fulfillment warehousing abnormal 응답 파싱 실패, null 반환", e);
             return null;
         }
     }
@@ -1183,8 +1185,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
         try {
             return objectMapper.readValue(body, FulfillmentWarehousingAbnormalImageResponse.class);
-        } catch (Exception e) {
-            log.warn("Failed to parse Fulfillment warehousing abnormal image response: {}", e.getMessage(), e);
+        } catch (JsonProcessingException e) {
+            log.warn("fallback applied: Fulfillment warehousing abnormal image 응답 파싱 실패, null 반환", e);
             return null;
         }
     }
@@ -1771,8 +1773,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
         try {
             FulfillmentErrorResponse response = objectMapper.readValue(rawBody, FulfillmentErrorResponse.class);
             return response.resolveErrorMessage();
-        } catch (Exception e) {
-            log.warn("Failed to parse Fulfillment error response: {}", e.getMessage(), e);
+        } catch (JsonProcessingException e) {
+            log.warn("fallback applied: Fulfillment 에러 응답 파싱 실패, null 반환", e);
             return null;
         }
     }
