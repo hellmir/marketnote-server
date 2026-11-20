@@ -163,8 +163,8 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
                 });
             } catch (RuntimeException e) {
                 invalidItemCounter.increment();
-                log.warn("Giftishow 동기화 이상치 스킵 - goodsCode: {}, cause: {}, message: {}",
-                        item.goodsCode(), e.getClass().getSimpleName(), e.getMessage());
+                log.warn("fallback applied: Giftishow 동기화 이상치 스킵 - goodsCode: {}, cause: {}",
+                        item.goodsCode(), e.getClass().getSimpleName(), e);
             }
         }
 

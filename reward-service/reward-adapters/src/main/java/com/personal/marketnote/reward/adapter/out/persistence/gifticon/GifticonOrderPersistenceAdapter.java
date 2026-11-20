@@ -42,7 +42,7 @@ public class GifticonOrderPersistenceAdapter
                     "기프티콘 주문이 중복되었습니다. trId={}",
                     order.getTrId()
             );
-            throw new DuplicateGifticonOrderException();
+            throw new DuplicateGifticonOrderException(e);
         }
     }
 

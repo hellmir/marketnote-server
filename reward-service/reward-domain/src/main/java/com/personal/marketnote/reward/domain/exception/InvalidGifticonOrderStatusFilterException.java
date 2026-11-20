@@ -6,4 +6,8 @@ public class InvalidGifticonOrderStatusFilterException extends IllegalArgumentEx
     public InvalidGifticonOrderStatusFilterException(String value) {
         super(String.format(MESSAGE, value));
     }
+
+    public InvalidGifticonOrderStatusFilterException(String value, Throwable cause) {
+        super(String.format(MESSAGE, value), cause);
+    }
 }

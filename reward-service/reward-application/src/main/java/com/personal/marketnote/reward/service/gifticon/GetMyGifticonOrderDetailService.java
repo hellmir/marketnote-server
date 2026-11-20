@@ -80,7 +80,7 @@ public class GetMyGifticonOrderDetailService implements GetMyGifticonOrderDetail
             }
             return statusResult;
         } catch (Exception e) {
-            log.warn("기프티쇼 쿠폰 상태 동기화 실패 (fail-open): trId={}, error={}", trId, e.getMessage());
+            log.warn("fallback applied: 기프티쇼 쿠폰 상태 동기화 실패. trId={}", trId, e);
             return null;
         }
     }

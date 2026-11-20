@@ -8,4 +8,8 @@ public class DuplicateOfferwallRewardException extends DomainAlreadyExistsExcept
     public DuplicateOfferwallRewardException() {
         super(MESSAGE);
     }
+
+    public DuplicateOfferwallRewardException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

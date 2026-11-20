@@ -6,4 +6,8 @@ public class InvalidGifticonOrderSortTypeException extends IllegalArgumentExcept
     public InvalidGifticonOrderSortTypeException(String value) {
         super(String.format(MESSAGE, value));
     }
+
+    public InvalidGifticonOrderSortTypeException(String value, Throwable cause) {
+        super(String.format(MESSAGE, value), cause);
+    }
 }
