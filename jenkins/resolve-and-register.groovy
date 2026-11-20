@@ -754,16 +754,29 @@ def selectTargetService(parentScript) {
         }
 
         env.DISPATCHER_MODE = 'true'
-        env.CANDIDATE_SERVICES = candidates.join(',')
 
         echo "[DISPATCHER] changed files       = ${changed.size()}"
         echo "[DISPATCHER] common/root changed = ${commonOrRootChanged}"
         echo "[DISPATCHER] candidates          = ${candidates}"
 
+        // #5015: 동일 잡의 진행 중 + 큐 대기 자식 중 동일 SERVICE 를 가진 빌드를 candidate 에서 차감.
+        // 큐 대기 자식은 실행 시점 latest HEAD 를 자동 checkout 하므로 신규 push 변경을 자동 반영 — 추가 트리거는 동일 commit 중복 빌드.
+        // race window: 검사 ↔ build() 호출 사이 다른 dispatcher 가 동일 SERVICE 를 큐 적재 가능. 발생 시 결과는
+        //              본 변경 도입 전 동작과 동등 (큐 2건). 악화 없음, 완전 제거는 분산 락 필요 — 본 PR 범위 외.
+        def inflightServices = resolveInflightChildServices(env.JOB_NAME, env.BUILD_ID)
+        def skipped = candidates.findAll { inflightServices.contains(it) }
+        candidates = candidates - skipped
+        env.CANDIDATE_SERVICES = candidates.join(',')
+
+        echo "[DISPATCHER] inflight services    = ${inflightServices}"
+        echo "[DISPATCHER] skipped (in-flight)  = ${skipped}"
+        echo "[DISPATCHER] candidates after dedup = ${candidates}"
+
         if (!candidates) {
-            parentScript.currentBuild.description = '[DISPATCHER] no deploy target'
-            echo '[DISPATCHER] no candidates detected; exiting without deploy'
-            sendDispatcherSummaryNotification(parentScript, [], commonOrRootChanged)
+            def reason = skipped ? "all candidates skipped (in-flight): ${skipped.join(',')}" : 'no deploy target'
+            parentScript.currentBuild.description = "[DISPATCHER] ${reason}"
+            echo "[DISPATCHER] ${reason}; exiting without deploy"
+            sendDispatcherSummaryNotification(parentScript, [], skipped, commonOrRootChanged)
             return
         }
 
@@ -782,8 +795,12 @@ def selectTargetService(parentScript) {
             )
         }
 
-        parentScript.currentBuild.description = "[DISPATCHER] re-triggered ${candidates.size()}: ${candidates.join(',')}"
-        sendDispatcherSummaryNotification(parentScript, candidates, commonOrRootChanged)
+        def desc = "[DISPATCHER] re-triggered ${candidates.size()}: ${candidates.join(',')}"
+        if (skipped) {
+            desc += " (skipped ${skipped.size()}: ${skipped.join(',')})"
+        }
+        parentScript.currentBuild.description = desc
+        sendDispatcherSummaryNotification(parentScript, candidates, skipped, commonOrRootChanged)
         triggerDispatcherMonitor(parentScript, candidates)
         return
     }
@@ -812,7 +829,8 @@ def selectTargetService(parentScript) {
 // dispatcher 빌드(SERVICE=auto) 가 자식 N건을 큐잉한 직후 1회 발송하는 요약 Slack 알림.
 // disableConcurrentBuilds 와 wait:false 로 인해 자식 결과 집계는 본 함수 책임 외 (#4811 후속 분리).
 // SLACK_NOTIFICATION_CHANNEL credential 미해결 시 fail-open (echo 후 return).
-def sendDispatcherSummaryNotification(parentScript, candidates, boolean commonOrRootChanged) {
+// #5015: triggered (실제 build() 호출된 SERVICE) / skipped (in-flight 차감으로 트리거 안 된 SERVICE) 분리 표시.
+def sendDispatcherSummaryNotification(parentScript, triggered, skipped, boolean commonOrRootChanged) {
     def envInfo = resolveEnvPrefixFromJobName(parentScript)
     withCredentials([
         string(credentialsId: "${envInfo.envPrefix}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
@@ -826,13 +844,16 @@ def sendDispatcherSummaryNotification(parentScript, candidates, boolean commonOr
         def commitAuthor  = sanitizeSlackLine(sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim())
         def commitMessage = sanitizeCommitSubject(sh(script: 'git log -1 --pretty=%B',  returnStdout: true).trim())
         def cronPrefix = env.CRON_TRIGGERED == 'true' ? '[QA-CRON] ' : ''
-        def candidateList = candidates ?: []
-        def servicesText = candidateList ? candidateList.join(', ') : '(none)'
+        def triggeredList = triggered ?: []
+        def skippedList = skipped ?: []
+        def servicesText = triggeredList ? triggeredList.join(', ') : '(none)'
+        def skippedText = skippedList ? skippedList.join(', ') : '(none)'
         slackSend(
             channel: ch,
             color:   "${env.SLACK_GENERAL_COLOR}",
-            message: "${cronPrefix}[DISPATCHER][${envInfo.envUpper}] re-triggered ${candidateList.size()} services\n"
+            message: "${cronPrefix}[DISPATCHER][${envInfo.envUpper}] re-triggered ${triggeredList.size()} services\n"
                 + "SERVICES: ${servicesText}\n"
+                + "SKIPPED (in-flight): ${skippedText}\n"
                 + "COMMON_OR_ROOT_CHANGED: ${commonOrRootChanged}\n"
                 + "JOB_NAME: ${env.JOB_NAME}\n"
                 + "BUILD_NUMBER: ${env.BUILD_NUMBER}\n"
@@ -901,6 +922,51 @@ def composeChildDescription(parentScript, String coreSuffix) {
         return "dispatcher: #${num} ${coreSuffix}"
     }
     return coreSuffix
+}
+
+// #5015: SERVICE=auto dispatcher 가 자식 build() 호출 직전, 동일 잡(jobFullName) 의 진행 중 + 큐 대기 자식 중
+// 동일 SERVICE 를 가진 빌드 SERVICE 목록을 반환. candidate 차감의 근거 데이터 단일 책임.
+// 자식 빌드는 commit pin 없이 실행 시점 latest HEAD 를 자동 checkout 하므로 큐 대기 자식이 신규 push 변경을 자동 반영 →
+// 동일 SERVICE 의 추가 트리거는 동일 commit 중복 빌드. 본 헬퍼로 차감 후 build() 호출에서 제외한다.
+// 자기 자신(현재 dispatcher 빌드)은 currentBuildId 로 제외 — fail-safe (dispatcher 자체는 SERVICE=auto 라
+// candidate 와 매칭되지 않으므로 실효 차감 0건이나, getActions 응답 정합성 보장 목적의 방어적 가드).
+// b94fff161 정합: Set.of/List.of 사용 금지, 일반 [] 리스트 + .unique() 로 합집합 처리.
+@NonCPS
+def resolveInflightChildServices(String jobFullName, String currentBuildId) {
+    def services = []
+    def job = jenkins.model.Jenkins.instance.getItemByFullName(jobFullName)
+    if (job == null) {
+        return services
+    }
+    job.builds.each { build ->
+        if (!build.isBuilding()) {
+            return
+        }
+        if (build.id == currentBuildId) {
+            return
+        }
+        def actions = build.getActions(hudson.model.ParametersAction)
+        actions.each { action ->
+            def p = action.getParameter('SERVICE')
+            if (p != null && p.value) {
+                services << p.value.toString()
+            }
+        }
+    }
+    jenkins.model.Jenkins.instance.queue.items.each { item ->
+        if (item.task?.fullName != jobFullName) {
+            return
+        }
+        def paramsAction = item.getAction(hudson.model.ParametersAction)
+        if (paramsAction == null) {
+            return
+        }
+        def p = paramsAction.getParameter('SERVICE')
+        if (p != null && p.value) {
+            services << p.value.toString()
+        }
+    }
+    return services.unique()
 }
 
 // post.success 본문 — description 기록 + Slack 성공 알림.
