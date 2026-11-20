@@ -8,4 +8,8 @@ public class DuplicateUserPointHistoryException extends DomainAlreadyExistsExcep
     public DuplicateUserPointHistoryException() {
         super(MESSAGE);
     }
+
+    public DuplicateUserPointHistoryException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

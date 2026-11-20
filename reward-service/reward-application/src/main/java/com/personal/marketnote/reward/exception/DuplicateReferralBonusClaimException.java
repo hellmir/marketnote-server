@@ -8,4 +8,8 @@ public class DuplicateReferralBonusClaimException extends DomainAlreadyExistsExc
     public DuplicateReferralBonusClaimException() {
         super(MESSAGE);
     }
+
+    public DuplicateReferralBonusClaimException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

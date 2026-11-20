@@ -26,7 +26,8 @@ public class VendorCommunicationFailureHandler {
             int resultCode,
             String resultMessage
     ) {
-        log.error("Exception occured while handling adpopcorn reward: {}", e.getMessage());
+        log.error("Exception occurred while handling reward callback. vendor={}, target={}",
+                vendorName, targetType, e);
         String exceptionName = e.getClass().getSimpleName();
         vendorCommunicationRecorder.record(
                 targetType,

@@ -57,7 +57,7 @@ public class ClaimReferralBonusService implements ClaimReferralBonusUseCase {
             modifyUserPointUseCase.modify(modifyCommand);
         } catch (DuplicateUserPointHistoryException e) {
             log.warn("이미 수령한 추천인 보너스입니다. userId={}, tier={}", userId, tier);
-            throw new DuplicateReferralBonusClaimException();
+            throw new DuplicateReferralBonusClaimException(e);
         }
 
         return ClaimReferralBonusResult.from(tier);

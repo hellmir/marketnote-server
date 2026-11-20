@@ -8,4 +8,8 @@ public class DuplicateAttendanceException extends DomainAlreadyExistsException {
     public DuplicateAttendanceException() {
         super(MESSAGE);
     }
+
+    public DuplicateAttendanceException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

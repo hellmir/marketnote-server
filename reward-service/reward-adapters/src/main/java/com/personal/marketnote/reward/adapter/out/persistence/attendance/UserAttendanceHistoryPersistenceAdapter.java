@@ -31,7 +31,7 @@ public class UserAttendanceHistoryPersistenceAdapter implements SaveUserAttendan
                     "이미 출석이 등록된 날짜입니다. userAttendanceId={}, attendedDate={}",
                     history.getUserAttendanceId(), history.getAttendedDate()
             );
-            throw new DuplicateAttendanceException();
+            throw new DuplicateAttendanceException(dive);
         }
     }
 }

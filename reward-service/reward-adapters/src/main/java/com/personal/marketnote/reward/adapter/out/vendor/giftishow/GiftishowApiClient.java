@@ -277,7 +277,7 @@ public class GiftishowApiClient {
         try {
             return objectMapper.readValue(responseBody, typeReference);
         } catch (Exception e) {
-            log.error("기프티쇼 API 응답 파싱 실패: path={}, error={}", path, e.getMessage());
+            log.error("기프티쇼 API 응답 파싱 실패: path={}", path, e);
             throw new GiftishowCommunicationException(
                     "기프티쇼 API 응답 파싱 실패. path=" + path, e
             );

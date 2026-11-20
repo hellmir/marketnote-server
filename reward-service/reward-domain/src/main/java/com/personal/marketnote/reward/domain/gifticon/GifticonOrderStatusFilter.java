@@ -19,7 +19,7 @@ public enum GifticonOrderStatusFilter {
         try {
             return valueOf(value);
         } catch (IllegalArgumentException e) {
-            throw new InvalidGifticonOrderStatusFilterException(value);
+            throw new InvalidGifticonOrderStatusFilterException(value, e);
         }
     }
 }

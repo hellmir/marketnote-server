@@ -18,7 +18,7 @@ public enum GifticonOrderSortType {
         try {
             return valueOf(value);
         } catch (IllegalArgumentException e) {
-            throw new InvalidGifticonOrderSortTypeException(value);
+            throw new InvalidGifticonOrderSortTypeException(value, e);
         }
     }
 }

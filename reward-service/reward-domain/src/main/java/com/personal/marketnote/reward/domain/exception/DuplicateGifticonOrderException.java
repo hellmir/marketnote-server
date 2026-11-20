@@ -8,4 +8,8 @@ public class DuplicateGifticonOrderException extends DomainAlreadyExistsExceptio
     public DuplicateGifticonOrderException() {
         super(MESSAGE);
     }
+
+    public DuplicateGifticonOrderException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

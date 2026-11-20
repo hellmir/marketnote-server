@@ -42,7 +42,7 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
                     history.getUserId(), history.getSourceType(),
                     history.getSourceId(), history.getReason()
             );
-            throw new DuplicateUserPointHistoryException();
+            throw new DuplicateUserPointHistoryException(e);
         }
     }
 
