@@ -14,6 +14,7 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentG
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentGoodsResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentGoodsResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.UpdateFulfillmentGoodsResult;
+import com.personal.marketnote.fulfillment.utility.NoOpSleeper;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -84,7 +85,8 @@ class FulfillmentGoodsClientTest {
                 vendorCommunicationRecorder,
                 vendorCommunicationPayloadGenerator,
                 vendorCommunicationFailureHandler,
-                externalCallLogger
+                externalCallLogger,
+                new NoOpSleeper()
         );
     }
 

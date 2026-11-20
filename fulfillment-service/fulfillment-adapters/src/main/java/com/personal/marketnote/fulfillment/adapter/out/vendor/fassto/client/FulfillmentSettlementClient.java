@@ -25,6 +25,7 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillment
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentSettlementDailyCostInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentSettlementDailyCostsResult;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentSettlementDailyCostsPort;
+import com.personal.marketnote.fulfillment.utility.Sleeper;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,6 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -60,6 +60,7 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
     private final ExternalCallLogger externalCallLogger;
+    private final Sleeper sleeper;
 
     public FulfillmentSettlementClient(
             RestClient.Builder restClientBuilder,
@@ -68,7 +69,8 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
             VendorCommunicationRecorder vendorCommunicationRecorder,
             VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
             VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            ExternalCallLogger externalCallLogger
+            ExternalCallLogger externalCallLogger,
+            Sleeper sleeper
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -77,6 +79,7 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
         this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
         this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
         this.externalCallLogger = externalCallLogger;
+        this.sleeper = sleeper;
     }
 
     @Override
@@ -139,7 +142,7 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithJitter(sleepMillis);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
 
                 continue;
@@ -193,7 +196,7 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithJitter(sleepMillis);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
@@ -352,16 +355,6 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
         }
 
         return "*".repeat(maskedLength) + value.substring(value.length() - visible);
-    }
-
-    private void sleep(long millis) {
-        try {
-            long jitteredSleepMillis = ThreadLocalRandom.current()
-                    .nextLong(Math.max(1L, millis) + 1);
-            Thread.sleep(jitteredSleepMillis);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 
     private String resolveVendorMessage(FulfillmentSettlementDailyCostListResponse response, String rawBody) {

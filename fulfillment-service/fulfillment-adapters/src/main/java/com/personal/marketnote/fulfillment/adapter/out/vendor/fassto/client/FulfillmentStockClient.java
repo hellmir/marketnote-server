@@ -29,6 +29,7 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentStoc
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentStocksResult;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentStockDetailPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentStocksPort;
+import com.personal.marketnote.fulfillment.utility.Sleeper;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +46,6 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -62,6 +62,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
     private final ExternalCallLogger externalCallLogger;
+    private final Sleeper sleeper;
 
     public FulfillmentStockClient(
             RestClient.Builder restClientBuilder,
@@ -70,7 +71,8 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
             VendorCommunicationRecorder vendorCommunicationRecorder,
             VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
             VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            ExternalCallLogger externalCallLogger
+            ExternalCallLogger externalCallLogger,
+            Sleeper sleeper
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -79,6 +81,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
         this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
         this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
         this.externalCallLogger = externalCallLogger;
+        this.sleeper = sleeper;
     }
 
     @Override
@@ -195,7 +198,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithJitter(sleepMillis);
 
                 // exponential backoff 적용
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
@@ -252,7 +255,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithJitter(sleepMillis);
 
             // exponential backoff 적용
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
@@ -456,16 +459,6 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
         }
 
         return "*".repeat(maskedLength) + value.substring(value.length() - visible);
-    }
-
-    private void sleep(long millis) {
-        try {
-            long jitteredSleepMillis = ThreadLocalRandom.current()
-                    .nextLong(Math.max(1L, millis) + 1);
-            Thread.sleep(jitteredSleepMillis);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 
     private String resolveVendorMessage(FulfillmentStockListResponse response, String rawBody) {

@@ -7,6 +7,7 @@ import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperti
 import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentSettlementDailyCostsFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentSettlementDailyCostsCommand;
+import com.personal.marketnote.fulfillment.utility.NoOpSleeper;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -59,7 +60,8 @@ class FulfillmentSettlementClientTest {
                 vendorCommunicationRecorder,
                 vendorCommunicationPayloadGenerator,
                 vendorCommunicationFailureHandler,
-                externalCallLogger
+                externalCallLogger,
+                new NoOpSleeper()
         );
     }
 
