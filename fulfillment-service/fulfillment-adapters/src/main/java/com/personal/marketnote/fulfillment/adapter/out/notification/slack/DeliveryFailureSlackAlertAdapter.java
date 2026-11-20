@@ -56,6 +56,7 @@ public class DeliveryFailureSlackAlertAdapter implements SendDeliveryFailureSlac
             HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.discarding());
             log.info("배송불가 Slack 알림 전송 성공. orderId={}", orderId);
         } catch (Exception e) {
+            // boundary swallow: 외부 알림 발송 boundary — Slack 장애가 비즈니스 흐름(배송불가 처리)을 막지 않도록 광역 catch
             log.error("배송불가 Slack 알림 전송 실패. orderId={}", orderId, e);
         }
     }

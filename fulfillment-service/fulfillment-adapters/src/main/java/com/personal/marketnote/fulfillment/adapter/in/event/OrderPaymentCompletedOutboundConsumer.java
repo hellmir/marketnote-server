@@ -94,6 +94,7 @@ public class OrderPaymentCompletedOutboundConsumer {
             log.warn("이미 배송 추적이 등록된 주문 (멱등 처리). eventId={}, orderId={}",
                     envelope.eventId(), e.getMessage());
         } catch (Exception e) {
+            // boundary swallow: Kafka @KafkaListener boundary — ERROR 로그 + cause 보존 후 rethrow 로 컨슈머 retry/DLQ 위임
             log.error("Fulfillment 출고 요청 이벤트 처리 실패. eventId={}, key={}, error={}",
                     envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;

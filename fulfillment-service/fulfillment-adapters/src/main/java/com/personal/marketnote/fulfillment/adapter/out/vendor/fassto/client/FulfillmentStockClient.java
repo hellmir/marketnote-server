@@ -1,5 +1,6 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
@@ -38,6 +39,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -172,7 +174,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
                         .headers(h -> h.addAll(buildHeaders(accessToken, false)))
                         .retrieve()
                         .toEntity(String.class);
-            } catch (Exception e) {
+            } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
                 errorPayload.put("message", e.getMessage());
@@ -330,8 +332,8 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
 
         try {
             return objectMapper.readValue(body, FulfillmentStockListResponse.class);
-        } catch (Exception e) {
-            log.warn("Failed to parse Fulfillment stock list response: {}", e.getMessage(), e);
+        } catch (JsonProcessingException e) {
+            log.warn("fallback applied: Fulfillment stock list 응답 파싱 실패, null 반환", e);
             return null;
         }
     }
@@ -479,8 +481,8 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
         try {
             FulfillmentErrorResponse response = objectMapper.readValue(rawBody, FulfillmentErrorResponse.class);
             return response.resolveErrorMessage();
-        } catch (Exception e) {
-            log.warn("Failed to parse Fulfillment error response: {}", e.getMessage(), e);
+        } catch (JsonProcessingException e) {
+            log.warn("fallback applied: Fulfillment 에러 응답 파싱 실패, null 반환", e);
             return null;
         }
     }

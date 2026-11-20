@@ -47,6 +47,7 @@ public class FulfillmentDeliveryStatusPollingScheduler {
         try {
             pollShippingStatusUseCase.pollShippingStatuses(new PollShippingStatusCommand(customerCode));
         } catch (Exception e) {
+            // boundary swallow: @Scheduled 진입점 — 다음 폴링 실행을 위해 모든 예외를 광역 catch 후 ERROR 로그로 보존
             log.error("배송 상태 폴링 실패: customerCode={}", customerCode, e);
         }
     }

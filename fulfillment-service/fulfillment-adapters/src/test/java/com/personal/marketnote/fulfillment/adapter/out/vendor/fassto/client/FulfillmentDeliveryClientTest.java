@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.net.URI;
@@ -329,7 +330,7 @@ class FulfillmentDeliveryClientTest {
             // given
             stubDeliveryMutationProperties();
             stubPayloadGenerator();
-            stubMethodChainThrows(new RuntimeException("Connection refused"));
+            stubMethodChainThrows(new ResourceAccessException("Connection refused"));
 
             RegisterFulfillmentDeliveryCommand command = buildValidRegisterCommand();
 
@@ -393,7 +394,7 @@ class FulfillmentDeliveryClientTest {
             // given
             stubDeliveryMutationProperties();
             stubPayloadGenerator();
-            stubMethodChainThrows(new RuntimeException("Connection refused"));
+            stubMethodChainThrows(new ResourceAccessException("Connection refused"));
 
             UpdateFulfillmentDeliveryCommand command = buildValidUpdateCommand();
 
@@ -463,7 +464,7 @@ class FulfillmentDeliveryClientTest {
             // given
             stubDeliveryCarMutationProperties();
             stubPayloadGenerator();
-            stubMethodChainThrows(new RuntimeException("Connection refused"));
+            stubMethodChainThrows(new ResourceAccessException("Connection refused"));
 
             UpdateFulfillmentDeliveryCarCommand command = buildValidUpdateCarCommand();
 
@@ -533,7 +534,7 @@ class FulfillmentDeliveryClientTest {
             // given
             stubDeliveryIcsCompletedProperties();
             stubPayloadGenerator();
-            stubMethodChainThrows(new RuntimeException("Connection refused"));
+            stubMethodChainThrows(new ResourceAccessException("Connection refused"));
 
             CompleteFulfillmentDeliveryIcsCommand command = buildValidCompleteIcsCommand();
 
@@ -576,7 +577,7 @@ class FulfillmentDeliveryClientTest {
             // given
             stubDeliveryCancelProperties();
             stubPayloadGenerator();
-            stubMethodChainThrows(new RuntimeException("Connection refused"));
+            stubMethodChainThrows(new ResourceAccessException("Connection refused"));
 
             CancelFulfillmentDeliveryCommand command = buildValidCancelCommand();
 
@@ -630,7 +631,7 @@ class FulfillmentDeliveryClientTest {
             // given
             stubDeliveryListProperties();
             stubPayloadGenerator();
-            stubGetChainThrows(new RuntimeException("Connection refused"));
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
                     .customerCode("CUST001")
@@ -689,7 +690,7 @@ class FulfillmentDeliveryClientTest {
             // given
             stubDeliveryStatusProperties();
             stubPayloadGenerator();
-            stubGetChainThrows(new RuntimeException("Connection refused"));
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentDeliveryStatusesCommand command = GetFulfillmentDeliveryStatusesCommand.builder()
                     .customerCode("CUST001")
@@ -742,7 +743,7 @@ class FulfillmentDeliveryClientTest {
             // given
             stubDeliveryDetailProperties();
             stubPayloadGenerator();
-            stubGetChainThrows(new RuntimeException("Connection refused"));
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentDeliveryDetailCommand command = GetFulfillmentDeliveryDetailCommand.of(
                     "CUST001", "valid-token", "SLIP001"
@@ -816,7 +817,7 @@ class FulfillmentDeliveryClientTest {
             // given
             stubOutOrdGoodsDetailProperties();
             stubPayloadGenerator();
-            stubGetChainThrows(new RuntimeException("Connection refused"));
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentDeliveryOutOrdGoodsDetailCommand command = GetFulfillmentDeliveryOutOrdGoodsDetailCommand.of(
                     "CUST001", "valid-token", "SLIP001"
@@ -905,7 +906,7 @@ class FulfillmentDeliveryClientTest {
             // given
             stubDeliveryGoodDetailProperties();
             stubPayloadGenerator();
-            stubGetChainThrows(new RuntimeException("Connection refused"));
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentDeliveryGoodDetailCommand command = GetFulfillmentDeliveryGoodDetailCommand.builder()
                     .customerCode("CUST001")

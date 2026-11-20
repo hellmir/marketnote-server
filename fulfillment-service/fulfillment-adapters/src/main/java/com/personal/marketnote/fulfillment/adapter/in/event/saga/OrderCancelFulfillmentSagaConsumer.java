@@ -90,6 +90,7 @@ public class OrderCancelFulfillmentSagaConsumer {
 
             handleAction(stepMessage);
         } catch (Exception e) {
+            // boundary swallow: Kafka @KafkaListener 진입점 — ack 보장 + 컨슈머 스레드 보호. SAGA 실패는 publishFailure 경로로 별도 전파
             log.error("SAGA 주문 취소 풀필먼트 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
                     record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
@@ -178,6 +179,7 @@ public class OrderCancelFulfillmentSagaConsumer {
             );
             publishOrderCancelFailedSafely(orderId, buyerId);
         } catch (Exception e) {
+            // boundary swallow: SAGA 액션 처리 boundary — 모든 실패를 publishFailure 로 일원화하여 SAGA 코디네이터에 통보
             log.error("SAGA 주문 취소 풀필먼트 처리 실패. sagaId={}, orderId={}, error={}",
                     stepMessage.sagaId(), orderId, e.getMessage(), e
             );
@@ -224,6 +226,7 @@ public class OrderCancelFulfillmentSagaConsumer {
         try {
             publishOrderCancelFailedEventPort.publish(orderId, buyerId);
         } catch (Exception e) {
+            // boundary swallow: 보상 후 알림 이벤트 발행 boundary — 발행 실패가 보상 결과 publish 를 막지 않도록 광역 catch
             log.error("OrderCancelFailedEvent 발행 실패. orderId={}, buyerId={}",
                     orderId, buyerId, e
             );

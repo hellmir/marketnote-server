@@ -87,6 +87,7 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
                     stepMessage.sagaId(), stepMessage.messageType()
             );
         } catch (Exception e) {
+            // boundary swallow: Kafka @KafkaListener 진입점 — ack 보장 + 컨슈머 스레드 보호. SAGA 실패는 별도 publishFailure 경로로 전파
             log.error("SAGA 결제 완료 풀필먼트 출고 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
                     record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
@@ -140,6 +141,7 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
                     stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
             );
         } catch (Exception e) {
+            // boundary swallow: SAGA 액션 처리 boundary — 모든 실패를 publishFailure 로 일원화 (compensation 트리거)
             log.error("SAGA 풀필먼트 출고 등록 처리 실패. sagaId={}, error={}",
                     stepMessage.sagaId(), e.getMessage(), e
             );
@@ -205,6 +207,7 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
                     stepMessage.messageType(), "풀필먼트 출고 취소 보상 거부: " + e.getMessage()
             );
         } catch (Exception e) {
+            // boundary swallow: SAGA 보상 처리 boundary — 보상 실패도 publishFailure 로 SAGA 코디네이터에 통보
             log.error("SAGA 풀필먼트 출고 취소 보상 실패. sagaId={}, error={}",
                     stepMessage.sagaId(), e.getMessage(), e
             );

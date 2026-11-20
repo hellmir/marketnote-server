@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
@@ -111,7 +112,7 @@ class FulfillmentDirectReturnDeliveryClientTest {
         when(restClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(any(java.net.URI.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.headers(any())).thenReturn(requestBodySpec);
-        when(requestBodySpec.body(any())).thenReturn(requestBodySpec);
+        when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.toEntity(any(Class.class))).thenThrow(exception);
     }
@@ -126,7 +127,7 @@ class FulfillmentDirectReturnDeliveryClientTest {
             // given
             stubDirectReturnDeliveryProperties();
             stubPayloadGenerator();
-            stubPostChainThrows(new RuntimeException("Connection refused"));
+            stubPostChainThrows(new ResourceAccessException("Connection refused"));
 
             RegisterFulfillmentDirectReturnDeliveryCommand command = buildValidRegisterCommand();
 
