@@ -1,5 +1,6 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
@@ -363,7 +364,8 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
                         FulfillmentErrorResponse.class
                 );
                 return errorResponse.resolveErrorMessage();
-            } catch (Exception ignored) {
+            } catch (JsonProcessingException ignored) {
+                // 벤더 에러 응답 파싱 실패는 폴백 (parsedResponse 메시지 우선, 본문 미해석 시 null 반환)
             }
         }
 
@@ -379,7 +381,8 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
             try {
                 FulfillmentErrorResponse parsedResponse = objectMapper.readValue(body, FulfillmentErrorResponse.class);
                 return parsedResponse.resolveErrorMessage();
-            } catch (Exception ignored) {
+            } catch (JsonProcessingException ignored) {
+                // RestClientResponseException 본문 파싱 실패는 폴백 (메시지 미해석 시 null 반환)
             }
         }
         return null;

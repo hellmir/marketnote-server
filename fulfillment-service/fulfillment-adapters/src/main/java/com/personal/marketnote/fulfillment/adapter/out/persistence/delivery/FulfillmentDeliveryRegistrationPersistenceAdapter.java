@@ -26,7 +26,7 @@ public class FulfillmentDeliveryRegistrationPersistenceAdapter
             repository.saveAndFlush(FulfillmentDeliveryRegistrationJpaEntity.from(registration));
         } catch (DataIntegrityViolationException e) {
             log.info("이미 Fulfillment에 출고 요청된 주문입니다. orderId={}", registration.getOrderId());
-            throw new FulfillmentDeliveryAlreadyRegisteredException();
+            throw new FulfillmentDeliveryAlreadyRegisteredException(e);
         }
     }
 

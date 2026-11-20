@@ -169,7 +169,8 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
     private UUID parseProductKey(String customerProductCode) {
         try {
             return UUID.fromString(customerProductCode);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
+            // UUID 형식이 아닌 customerProductCode는 외부에서 비-UUID로 등록된 케이스 — null 반환으로 호출자 폴백
             return null;
         }
     }

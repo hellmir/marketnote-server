@@ -199,8 +199,8 @@ public class OrderCancelFulfillmentSagaConsumer {
         try {
             return objectMapper.writeValueAsString(body);
         } catch (JsonProcessingException e) {
-            log.warn("skipped 응답 직렬화 실패, 기본 메시지 사용. originalStatus={}, error={}",
-                    originalStatus, e.getMessage()
+            log.warn("fallback applied: skipped 응답 직렬화 실패, 기본 메시지 사용. originalStatus={}",
+                    originalStatus, e
             );
             return "{\"compensated\":true,\"reason\":\"fulfillment-cancel-not-required\",\"skipped\":true}";
         }
