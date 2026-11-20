@@ -50,6 +50,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.*;
 public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmentDirectReturnDeliveryPort {
     private static final String ACCESS_TOKEN_HEADER = "accessToken";
     private static final String CUSTOMER_CODE_PLACEHOLDER = "{customerCode}";
+    private static final long RETRY_JITTER_MAX_MILLIS = 500L;
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
@@ -154,7 +155,7 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
                     error = e;
                 }
 
-                sleeper.sleepWithBaseAndJitter(sleepMillis, 500L);
+                sleeper.sleepWithBaseAndJitter(sleepMillis, RETRY_JITTER_MAX_MILLIS);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
                 continue;
             }
@@ -210,7 +211,7 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
                 break;
             }
 
-            sleeper.sleepWithBaseAndJitter(sleepMillis, 500L);
+            sleeper.sleepWithBaseAndJitter(sleepMillis, RETRY_JITTER_MAX_MILLIS);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
