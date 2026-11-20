@@ -236,9 +236,9 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 long itemTotal = Math.multiplyExact(item.unitAmount(), item.quantity());
                 calculatedTotal = Math.addExact(calculatedTotal, itemTotal);
             }
-        } catch (ArithmeticException e) {
-            log.warn("주문 금액 오버플로우 발생 - 전송된 총액: {}", command.amount().totalAmount());
-            throw new OrderAmountMismatchException(command.amount().totalAmount(), -1L);
+        } catch (ArithmeticException ae) {
+            log.warn("주문 금액 오버플로우 발생. requestedTotal={}", command.amount().totalAmount(), ae);
+            throw new OrderAmountMismatchException(command.amount().totalAmount(), -1L, ae);
         }
 
         if (!command.amount().totalAmount().equals(calculatedTotal)) {
@@ -257,10 +257,13 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         try {
             totalDiscount = Math.addExact(couponAmount, pointAmount);
             payableAmount = Math.addExact(command.amount().totalAmount(), shippingFee);
-        } catch (ArithmeticException e) {
-            log.warn("할인/배송비 금액 오버플로우 - 쿠폰: {}, 포인트: {}, 배송비: {}", couponAmount, pointAmount, shippingFee);
+        } catch (ArithmeticException ae) {
+            log.warn(
+                    "할인/배송비 금액 오버플로우. couponAmount={}, pointAmount={}, shippingFee={}",
+                    couponAmount, pointAmount, shippingFee, ae
+            );
             throw new ExcessiveDiscountException(
-                    command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
+                    command.amount().totalAmount(), shippingFee, couponAmount, pointAmount, ae
             );
         }
 

@@ -91,7 +91,7 @@ public class ApproveQuickPaymentService implements ApproveQuickPaymentUseCase {
         try {
             return Installment.of(Short.parseShort(quota));
         } catch (NumberFormatException | InvalidInstallmentException e) {
-            log.warn("할부 개월 수 파싱 실패, 일시불로 폴백합니다. quota={}", quota, e);
+            log.warn("fallback applied: 할부 개월 수 파싱 실패 — 일시불(0개월) 폴백. quota={}", quota, e);
             return Installment.of((short) 0);
         }
     }

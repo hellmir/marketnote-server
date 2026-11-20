@@ -74,8 +74,8 @@ public class UserShippingAddressServiceClient implements UpdateUserShippingAddre
                 );
             }
         } catch (Exception e) {
-            log.warn("배송 요청사항 업데이트 실패 - shippingAddressId: {}, userId: {}, error: {}",
-                    shippingAddressId, userId, e.getMessage()
+            log.warn("fallback applied: 배송 요청사항 업데이트 실패 — 무시. shippingAddressId={}, userId={}",
+                    shippingAddressId, userId, e
             );
         }
     }

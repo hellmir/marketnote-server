@@ -216,7 +216,8 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
             long jitteredSleepMillis = ThreadLocalRandom.current()
                     .nextLong(Math.max(1L, millis) + 1);
             Thread.sleep(jitteredSleepMillis);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
+            // 백오프 대기 중 인터럽트 — interrupt flag 복원 후 재시도 흐름 종료 (정상 종료 경로)
             Thread.currentThread().interrupt();
         }
     }

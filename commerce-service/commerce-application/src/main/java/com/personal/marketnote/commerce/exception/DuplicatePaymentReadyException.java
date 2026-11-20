@@ -8,4 +8,8 @@ public class DuplicatePaymentReadyException extends DomainAlreadyExistsException
     public DuplicatePaymentReadyException() {
         super(MESSAGE);
     }
+
+    public DuplicatePaymentReadyException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

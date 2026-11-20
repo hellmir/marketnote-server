@@ -33,12 +33,12 @@ public class InventoryReservationPersistenceAdapter implements
                             .map(InventoryReservationJpaEntity::from)
                             .toList()
             );
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException dive) {
             Long orderId = inventoryReservations.stream()
                     .findFirst()
                     .map(InventoryReservation::getOrderId)
                     .orElse(null);
-            throw new DuplicateInventoryReservationException(orderId);
+            throw new DuplicateInventoryReservationException(orderId, dive);
         }
     }
 

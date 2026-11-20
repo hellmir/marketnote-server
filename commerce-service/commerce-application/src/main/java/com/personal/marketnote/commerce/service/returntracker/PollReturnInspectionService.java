@@ -81,7 +81,9 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
         try {
             return getReturnInspectionResultPort.getReturnGodDetail(returnSlipNumbers);
         } catch (Exception e) {
-            log.error("반품 검수 상태 조회 실패: {}", e.getMessage(), e);
+            log.warn("fallback applied: 반품 검수 상태 조회 실패 — 폴링 라운드 스킵 (null 반환). returnSlipNumbers={}",
+                    returnSlipNumbers, e
+            );
             return null;
         }
     }
@@ -106,8 +108,8 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
             try {
                 processInspectionResult(resultItem, trackerByOrderId);
             } catch (Exception e) {
-                log.error("반품 검수 상태 업데이트 실패 - orderNumber: {}, error: {}",
-                        resultItem.orderNumber(), e.getMessage(), e
+                log.error("반품 검수 상태 업데이트 실패 - orderNumber={}",
+                        resultItem.orderNumber(), e
                 );
             }
         }

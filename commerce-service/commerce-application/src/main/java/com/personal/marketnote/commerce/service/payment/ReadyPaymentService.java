@@ -94,9 +94,9 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
 
         try {
             savePspPaymentEventPort.save(readyEvent);
-        } catch (DataIntegrityViolationException e) {
-            log.warn("Race Condition으로 인한 중복 거래 등록 감지. orderKey={}", payment.getOrderKey(), e);
-            throw new DuplicatePaymentReadyException();
+        } catch (DataIntegrityViolationException dive) {
+            log.warn("Race Condition으로 인한 중복 거래 등록 감지. orderKey={}", payment.getOrderKey(), dive);
+            throw new DuplicatePaymentReadyException(dive);
         }
     }
 }

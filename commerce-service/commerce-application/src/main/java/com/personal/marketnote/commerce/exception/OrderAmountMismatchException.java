@@ -16,4 +16,8 @@ public class OrderAmountMismatchException extends InvalidValueException {
     public OrderAmountMismatchException(Long requestedTotal, Long calculatedTotal) {
         super(String.format(MESSAGE, requestedTotal, calculatedTotal));
     }
+
+    public OrderAmountMismatchException(Long requestedTotal, Long calculatedTotal, Throwable cause) {
+        super(String.format(MESSAGE, requestedTotal, calculatedTotal), cause);
+    }
 }

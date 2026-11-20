@@ -81,10 +81,10 @@ public class ShippingStatusChangedOrderStatusConsumer {
 
             log.info("Kafka 이벤트로 주문 상태 {} 변경 완료. orderId={}", orderStatus, payload.orderId());
         } catch (OrderStatusAlreadyChangedException e) {
-            log.warn("이미 주문 상태가 변경됨. eventId={}, key={}, message={}", envelope.eventId(), record.key(), e.getMessage());
+            log.warn("이미 주문 상태가 변경됨 (멱등 처리). eventId={}, key={}", envelope.eventId(), record.key(), e);
         } catch (InvalidOrderStatusTransitionException e) {
-            log.warn("전이 불가 상태에서 배송 상태 변경 이벤트 수신. eventId={}, key={}, message={}",
-                    envelope.eventId(), record.key(), e.getMessage()
+            log.warn("전이 불가 상태에서 배송 상태 변경 이벤트 수신. eventId={}, key={}",
+                    envelope.eventId(), record.key(), e
             );
         } catch (Exception e) {
             log.error("주문 상태 변경 실패. eventId={}, key={}, error={}", envelope.eventId(), record.key(), e.getMessage(), e);

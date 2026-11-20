@@ -32,8 +32,10 @@ public class CreateReturnTrackerAfterReturnRequestService {
     ) {
         try {
             return registerFulfillmentReturnDeliveryPort.registerReturnDelivery(command);
-        } catch (FulfillmentServiceRequestFailedException e) {
-            log.error("풀필먼트 반품 등록 실패 - orderId: {}, error: {}", command.orderId(), e.getMessage(), e);
+        } catch (FulfillmentServiceRequestFailedException fsrfe) {
+            log.warn("fallback applied: 풀필먼트 반품 등록 실패 — null 반환 (ReturnTracker 미생성). orderId={}",
+                    command.orderId(), fsrfe
+            );
             return null;
         }
     }
@@ -41,11 +43,12 @@ public class CreateReturnTrackerAfterReturnRequestService {
     private void persistReturnTracker(Long orderId, String returnSlipNumber) {
         try {
             returnTrackerPersistenceService.saveReturnTracker(orderId, returnSlipNumber);
-        } catch (DataIntegrityViolationException e) {
-            log.warn("ReturnTracker 이미 존재 - orderId: {} (멱등 처리)", orderId);
-        } catch (DataAccessException e) {
-            log.error("ReturnTracker 저장 실패 - orderId: {}, returnSlipNumber: {}, error: {}",
-                    orderId, returnSlipNumber, e.getMessage(), e
+        } catch (DataIntegrityViolationException ignored) {
+            // 동시 처리로 인한 멱등 저장 충돌 — 동일 orderId ReturnTracker 이미 존재 (멱등 처리)
+            log.info("ReturnTracker 이미 존재 - orderId: {} (멱등 처리)", orderId);
+        } catch (DataAccessException dae) {
+            log.error("ReturnTracker 저장 실패. orderId={}, returnSlipNumber={}",
+                    orderId, returnSlipNumber, dae
             );
         }
     }

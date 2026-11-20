@@ -126,13 +126,13 @@ public class InventoryPersistenceAdapter implements SaveInventoryPort, FindInven
                             .map(InventoryDeductionHistoryJpaEntity::from)
                             .toList()
             );
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException dive) {
             Long orderId = inventoryDeductionHistories.getInventoryDeductionHistories()
                     .stream()
                     .findFirst()
                     .map(InventoryDeductionHistory::getOrderId)
                     .orElse(null);
-            throw new DuplicateInventoryDeductionException(orderId);
+            throw new DuplicateInventoryDeductionException(orderId, dive);
         }
     }
 
@@ -145,13 +145,13 @@ public class InventoryPersistenceAdapter implements SaveInventoryPort, FindInven
                             .map(InventoryRestorationHistoryJpaEntity::from)
                             .toList()
             );
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException dive) {
             Long orderId = inventoryRestorationHistories.getInventoryRestorationHistories()
                     .stream()
                     .findFirst()
                     .map(InventoryRestorationHistory::getOrderId)
                     .orElse(null);
-            throw new DuplicateInventoryRestorationException(orderId);
+            throw new DuplicateInventoryRestorationException(orderId, dive);
         }
     }
 }

@@ -33,8 +33,8 @@ public enum CancellableFulfillmentWorkStatus {
         }
         try {
             return valueOf(workStatusCode);
-        } catch (IllegalArgumentException e) {
-            throw new InvalidFulfillmentWorkStatusException(workStatusCode);
+        } catch (IllegalArgumentException iae) {
+            throw new InvalidFulfillmentWorkStatusException(workStatusCode, iae);
         }
     }
 }
