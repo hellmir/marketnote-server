@@ -8,4 +8,8 @@ public class FulfillmentDeliveryAlreadyRegisteredException extends DomainAlready
     public FulfillmentDeliveryAlreadyRegisteredException() {
         super(MESSAGE);
     }
+
+    public FulfillmentDeliveryAlreadyRegisteredException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

@@ -8,4 +8,8 @@ public class ShippingTrackerAlreadyExistsException extends DomainAlreadyExistsEx
     public ShippingTrackerAlreadyExistsException() {
         super(MESSAGE);
     }
+
+    public ShippingTrackerAlreadyExistsException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

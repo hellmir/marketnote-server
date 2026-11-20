@@ -35,7 +35,7 @@ public class ShippingTrackerPersistenceAdapter implements
             repository.saveAndFlush(ShippingTrackerJpaEntity.from(shippingTracker));
         } catch (DataIntegrityViolationException e) {
             log.info("이미 배송 추적이 등록된 주문입니다. orderId={}", shippingTracker.getOrderId());
-            throw new ShippingTrackerAlreadyExistsException();
+            throw new ShippingTrackerAlreadyExistsException(e);
         }
     }
 

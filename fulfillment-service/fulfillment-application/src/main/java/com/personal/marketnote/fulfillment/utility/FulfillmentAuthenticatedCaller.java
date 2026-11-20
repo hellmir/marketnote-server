@@ -20,13 +20,13 @@ public class FulfillmentAuthenticatedCaller {
         try {
             return operation.apply(token.getValue());
         } catch (FulfillmentInvalidAccessException firstFailure) {
-            log.warn("Fulfillment vendor returned INVALID_ACCESS. Invalidating cached token and retrying once.");
+            log.warn("Fulfillment vendor returned INVALID_ACCESS. Invalidating cached token and retrying once.", firstFailure);
             requestFulfillmentAuthUseCase.invalidateCache();
             FulfillmentAccessToken retriedToken = requestFulfillmentAuthUseCase.requestAccessToken();
             try {
                 return operation.apply(retriedToken.getValue());
             } catch (FulfillmentInvalidAccessException secondFailure) {
-                log.error("Fulfillment vendor returned INVALID_ACCESS even after token reissue. Giving up.");
+                log.error("Fulfillment vendor returned INVALID_ACCESS even after token reissue. Giving up.", secondFailure);
                 throw secondFailure;
             }
         }

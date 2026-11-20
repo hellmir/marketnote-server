@@ -28,7 +28,7 @@ public class FulfillmentGoodsRegistrationPersistenceAdapter
         try {
             repository.saveAndFlush(FulfillmentGoodsRegistrationJpaEntity.from(registration));
         } catch (DataIntegrityViolationException e) {
-            throw new FulfillmentGoodsAlreadyRegisteredException(registration.getProductKey());
+            throw new FulfillmentGoodsAlreadyRegisteredException(registration.getProductKey(), e);
         }
     }
 }
