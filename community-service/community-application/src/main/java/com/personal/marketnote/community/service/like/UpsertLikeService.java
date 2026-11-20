@@ -35,7 +35,8 @@ public class UpsertLikeService implements UpsertLikeUseCase {
             }
 
             return UpsertLikeResult.from(like, false);
-        } catch (LikeNotFoundException lnfe) {
+        } catch (LikeNotFoundException ignored) {
+            // Upsert 제어 흐름: 좋아요 미존재 시 신규 생성 분기로 진입
             Like like = Like.from(LikeCommandToStateMapper.mapToState(command));
             saveLikePort.save(like);
 

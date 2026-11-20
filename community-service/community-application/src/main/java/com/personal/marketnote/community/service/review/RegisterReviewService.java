@@ -59,7 +59,8 @@ public class RegisterReviewService implements RegisterReviewUseCase {
             productReviewAggregate = getReviewUseCase.getProductReviewAggregate(productId);
             productReviewAggregate.addReview(savedReview.getRating());
             updateReviewPort.update(productReviewAggregate);
-        } catch (ProductReviewAggregateNotFoundException pranfe) {
+        } catch (ProductReviewAggregateNotFoundException ignored) {
+            // Upsert 제어 흐름: 상품 리뷰 집계 미존재 시 신규 생성 분기로 진입
             productReviewAggregate = ProductReviewAggregate.from(savedReview);
             saveReviewPort.saveAggregate(productReviewAggregate);
         }

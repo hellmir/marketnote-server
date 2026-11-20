@@ -80,7 +80,8 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
                     pricePolicyId, productId, sellerId, name, brandName, price, discountPrice, accumulatedPoint
             );
             productReadModelJpaRepository.saveAndFlush(entity);
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException ignored) {
+            // 멱등 Upsert: 동시 INSERT race로 중복 발생 시 기존 엔티티를 조회해 update로 전환
             log.info("상품 Read Model 중복 저장 (멱등 처리). pricePolicyId={}", pricePolicyId);
             productReadModelJpaRepository.findByPricePolicyId(pricePolicyId)
                     .ifPresent(entity -> entity.updateFrom(
