@@ -1,5 +1,6 @@
 package com.personal.marketnote.file.adapter.out.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
@@ -7,6 +8,7 @@ import com.personal.marketnote.common.kafka.event.ImageChangeAction;
 import com.personal.marketnote.common.kafka.event.ImageChangedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
+import com.personal.marketnote.file.adapter.out.event.exception.ImageEventSerializationException;
 import com.personal.marketnote.file.port.out.event.ImageEventCommand;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +24,7 @@ import java.time.ZoneId;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -161,23 +164,49 @@ class ImageEventKafkaProducerTest {
     }
 
     @Test
-    @DisplayName("Outbox 저장 중 예외 발생 시 나머지 이벤트를 계속 처리한다")
-    void publishImageCreatedEvents_outboxSaveFailure_continuesProcessing() throws Exception {
+    @DisplayName("Outbox 저장 실패 시 예외를 전파하여 나머지 이벤트 처리를 중단한다")
+    void publishImageCreatedEvents_outboxSaveFailure_propagatesAndAborts() throws Exception {
         // given
         setUpClock("2026-03-27T10:00:00Z");
-        when(objectMapper.writeValueAsString(any()))
-                .thenThrow(new RuntimeException("직렬화 실패"))
-                .thenReturn("{}");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        doThrow(new RuntimeException("DB connection failed"))
+                .when(saveOutboxEventPort).save(any(OutboxEvent.class));
 
         List<ImageEventCommand> commands = List.of(
                 new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of()),
                 new ImageEventCommand(2L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/2.png", 2, List.of())
         );
 
-        // when
-        imageEventKafkaProducer.publishImageCreatedEvents(commands);
+        // when & then
+        assertThatThrownBy(() -> imageEventKafkaProducer.publishImageCreatedEvents(commands))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("DB connection failed");
 
-        // then
+        // 첫번째 이벤트만 save 시도되고 두번째는 처리되지 않는다
         verify(saveOutboxEventPort, times(1)).save(any(OutboxEvent.class));
+    }
+
+    @Test
+    @DisplayName("Payload 직렬화 실패 시 ImageEventSerializationException을 던진다")
+    void publishImageCreatedEvents_throwsImageEventSerializationExceptionOnJsonProcessingFailure() throws Exception {
+        // given
+        setUpClock("2026-03-27T10:00:00Z");
+        when(objectMapper.writeValueAsString(any()))
+                .thenThrow(new TestJsonProcessingException("Serialization failed"));
+
+        ImageEventCommand command = new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of());
+        List<ImageEventCommand> commands = List.of(command);
+
+        // when & then
+        assertThatThrownBy(() -> imageEventKafkaProducer.publishImageCreatedEvents(commands))
+                .isInstanceOf(ImageEventSerializationException.class)
+                .hasCauseInstanceOf(JsonProcessingException.class);
+        verifyNoInteractions(saveOutboxEventPort);
+    }
+
+    private static class TestJsonProcessingException extends JsonProcessingException {
+        protected TestJsonProcessingException(String msg) {
+            super(msg);
+        }
     }
 }

@@ -1,11 +1,13 @@
 package com.personal.marketnote.community.adapter.out.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.*;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
+import com.personal.marketnote.community.adapter.out.event.exception.CommunityEventSerializationException;
 import com.personal.marketnote.community.port.out.event.PublishPostEventPort;
 import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
 import lombok.RequiredArgsConstructor;
@@ -86,17 +88,20 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
     }
 
     private <T> void saveOutboxEvent(String topic, String partitionKey, EventEnvelope<T> envelope) {
+        String payloadJson = serializePayload(envelope, topic);
+        OutboxEvent outboxEvent = OutboxEvent.of(
+                envelope.eventId(), topic, partitionKey,
+                envelope.eventType(), SOURCE, payloadJson, clock
+        );
+        saveOutboxEventPort.save(outboxEvent);
+        log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
+    }
+
+    private <T> String serializePayload(EventEnvelope<T> envelope, String topic) {
         try {
-            String payloadJson = objectMapper.writeValueAsString(envelope);
-            OutboxEvent outboxEvent = OutboxEvent.of(
-                    envelope.eventId(), topic, partitionKey,
-                    envelope.eventType(), SOURCE, payloadJson, clock
-            );
-            saveOutboxEventPort.save(outboxEvent);
-            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
-        } catch (Exception e) {
-            // Outbox 저장 실패: 직렬화/DB 오류 모두 가능하여 광역 catch 유지. cause 인자로 stack 보존
-            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}", topic, partitionKey, e);
+            return objectMapper.writeValueAsString(envelope);
+        } catch (JsonProcessingException e) {
+            throw new CommunityEventSerializationException(topic, e);
         }
     }
 }

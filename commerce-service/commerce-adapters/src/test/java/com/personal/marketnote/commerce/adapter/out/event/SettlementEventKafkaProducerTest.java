@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.adapter.out.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.adapter.out.event.exception.SettlementEventSerializationException;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
@@ -19,7 +20,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -63,31 +64,35 @@ class SettlementEventKafkaProducerTest {
     }
 
     @Test
-    @DisplayName("ObjectMapper에서 JsonProcessingException 발생 시 예외를 삼킨다")
-    void shouldSwallowJsonProcessingException() throws JsonProcessingException {
+    @DisplayName("ObjectMapper에서 JsonProcessingException 발생 시 SettlementEventSerializationException을 던진다")
+    void shouldThrowSettlementEventSerializationExceptionOnJsonProcessingFailure() throws JsonProcessingException {
         // given
         when(objectMapper.writeValueAsString(org.mockito.ArgumentMatchers.any()))
                 .thenThrow(new JsonProcessingException("test error") {
                 });
 
         // when & then
-        assertThatCode(() -> producer.publishSettlementExecutedEvent(
+        assertThatThrownBy(() -> producer.publishSettlementExecutedEvent(
                 1L, 100L, 100000L, 3000L, 1000L, 2000L, 100000L
-        )).doesNotThrowAnyException();
+        ))
+                .isInstanceOf(SettlementEventSerializationException.class)
+                .hasCauseInstanceOf(JsonProcessingException.class);
 
         verifyNoInteractions(saveOutboxEventPort);
     }
 
     @Test
-    @DisplayName("SaveOutboxEventPort 저장 실패 예외도 삼킨다")
-    void shouldSwallowSaveError() throws JsonProcessingException {
+    @DisplayName("SaveOutboxEventPort 저장 실패 시 예외를 전파한다")
+    void shouldPropagateSaveError() throws JsonProcessingException {
         // given
         when(objectMapper.writeValueAsString(org.mockito.ArgumentMatchers.any())).thenReturn("{}");
         doThrow(new RuntimeException("save failed")).when(saveOutboxEventPort).save(org.mockito.ArgumentMatchers.any());
 
         // when & then
-        assertThatCode(() -> producer.publishSettlementExecutedEvent(
+        assertThatThrownBy(() -> producer.publishSettlementExecutedEvent(
                 1L, 100L, 100000L, 3000L, 1000L, 2000L, 100000L
-        )).doesNotThrowAnyException();
+        ))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("save failed");
     }
 }

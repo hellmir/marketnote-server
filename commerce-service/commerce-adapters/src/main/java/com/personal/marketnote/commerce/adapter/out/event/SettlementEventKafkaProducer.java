@@ -1,6 +1,8 @@
 package com.personal.marketnote.commerce.adapter.out.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.adapter.out.event.exception.SettlementEventSerializationException;
 import com.personal.marketnote.commerce.port.out.event.PublishSettlementEventPort;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
@@ -39,18 +41,20 @@ public class SettlementEventKafkaProducer implements PublishSettlementEventPort 
                 topic, SOURCE, payload, clock
         );
 
+        String payloadJson = serializePayload(envelope, topic);
+        OutboxEvent outboxEvent = OutboxEvent.of(
+                envelope.eventId(), topic, settlementId.toString(),
+                envelope.eventType(), SOURCE, payloadJson, clock
+        );
+        saveOutboxEventPort.save(outboxEvent);
+        log.info("Outbox 이벤트 저장. topic={}, settlementId={}, eventId={}", topic, settlementId, envelope.eventId());
+    }
+
+    private String serializePayload(EventEnvelope<SettlementExecutedEvent> envelope, String topic) {
         try {
-            String payloadJson = objectMapper.writeValueAsString(envelope);
-            OutboxEvent outboxEvent = OutboxEvent.of(
-                    envelope.eventId(), topic, settlementId.toString(),
-                    envelope.eventType(), SOURCE, payloadJson, clock
-            );
-            saveOutboxEventPort.save(outboxEvent);
-            log.info("Outbox 이벤트 저장. topic={}, settlementId={}, eventId={}", topic, settlementId, envelope.eventId());
-        } catch (Exception e) {
-            log.error("Outbox 이벤트 저장 실패. topic={}, settlementId={}, error={}",
-                    topic, settlementId, e.getMessage(), e
-            );
+            return objectMapper.writeValueAsString(envelope);
+        } catch (JsonProcessingException e) {
+            throw new SettlementEventSerializationException(topic, e);
         }
     }
 }
