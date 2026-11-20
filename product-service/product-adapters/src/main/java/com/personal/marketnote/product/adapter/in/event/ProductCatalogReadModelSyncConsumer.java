@@ -100,7 +100,7 @@ public class ProductCatalogReadModelSyncConsumer {
         try {
             return objectMapper.writeValueAsString(tags);
         } catch (JsonProcessingException jpe) {
-            log.warn("상품 카탈로그 Read Model productTags 직렬화 실패. pricePolicyId={}", pricePolicyId, jpe);
+            log.warn("fallback applied: 상품 카탈로그 Read Model productTags 직렬화 실패 — null 반환. pricePolicyId={}", pricePolicyId, jpe);
             return null;
         }
     }
@@ -114,7 +114,7 @@ public class ProductCatalogReadModelSyncConsumer {
         try {
             return objectMapper.writeValueAsString(options);
         } catch (JsonProcessingException jpe) {
-            log.warn("상품 카탈로그 Read Model selectedOptions 직렬화 실패. pricePolicyId={}", pricePolicyId, jpe);
+            log.warn("fallback applied: 상품 카탈로그 Read Model selectedOptions 직렬화 실패 — null 반환. pricePolicyId={}", pricePolicyId, jpe);
             return null;
         }
     }
@@ -154,7 +154,8 @@ public class ProductCatalogReadModelSyncConsumer {
     private UUID parseEventId(String eventId) {
         try {
             return UUID.fromString(eventId);
-        } catch (IllegalArgumentException iae) {
+        } catch (IllegalArgumentException ignored) {
+            // 잘못된 UUID 형식 — 메시지 스킵 분기 (멱등 로그 키 생성 불가)
             log.warn("이벤트 eventId 파싱 실패 — 건너뜀. eventId={}", eventId);
             return null;
         }

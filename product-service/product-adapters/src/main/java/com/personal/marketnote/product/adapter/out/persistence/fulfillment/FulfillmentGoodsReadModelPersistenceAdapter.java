@@ -49,7 +49,8 @@ public class FulfillmentGoodsReadModelPersistenceAdapter implements
             FulfillmentGoodsReadModelJpaEntity entity = FulfillmentGoodsReadModelJpaEntity.of(event.customerGoodsCode());
             updateEntity(entity, event);
             repository.saveAndFlush(entity);
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException ignored) {
+            // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회 후 업데이트로 복원
             log.info("풀필먼트 상품 Read Model 중복 저장 (멱등 처리). customerGoodsCode={}", event.customerGoodsCode());
             repository.findByCustomerGoodsCode(event.customerGoodsCode())
                     .ifPresent(entity -> updateEntity(entity, event));

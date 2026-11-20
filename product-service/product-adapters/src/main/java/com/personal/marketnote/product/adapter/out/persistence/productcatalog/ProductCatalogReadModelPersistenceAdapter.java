@@ -128,6 +128,7 @@ public class ProductCatalogReadModelPersistenceAdapter
             );
             repository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException e) {
+            // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회로 복원, 미존재 시 원본 예외 재throw
             ProductCatalogReadModelJpaEntity entity = repository.findByPricePolicyId(pricePolicyId)
                     .orElseThrow(() -> e);
             log.info("상품 카탈로그 Read Model 중복 저장 (멱등 처리). pricePolicyId={}", pricePolicyId);
@@ -248,7 +249,7 @@ public class ProductCatalogReadModelPersistenceAdapter
         try {
             return objectMapper.writeValueAsString(resizedImageUrls);
         } catch (JsonProcessingException jpe) {
-            log.warn("상품 카탈로그 Read Model resized 이미지 직렬화 실패. urls={}", resizedImageUrls, jpe);
+            log.warn("fallback applied: 상품 카탈로그 Read Model resized 이미지 직렬화 실패 — null 반환. urls={}", resizedImageUrls, jpe);
             return null;
         }
     }

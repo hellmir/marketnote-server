@@ -75,7 +75,8 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
             );
             entity.addResizedFiles(resizedInputs);
             imageReadModelJpaRepository.saveAndFlush(entity);
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException ignored) {
+            // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회 후 resized 파일 교체로 복원
             log.info("이미지 Read Model 중복 저장 (멱등 처리). imageId={}", imageId);
             imageReadModelJpaRepository.findByImageId(imageId).ifPresent(entity -> replaceExistingResizedFiles(
                     entity, targetId, targetType, fileSort, imageUrl, sortOrder, resizedInputs

@@ -49,7 +49,8 @@ public class CacheStockRedisAdapter implements SaveCacheStockPort, FindCacheStoc
             Integer parsedStock = null;
             try {
                 parsedStock = FormatConverter.parseToInteger(stocks.get(i));
-            } catch (ParsingIntegerException e) {
+            } catch (ParsingIntegerException ignored) {
+                // Redis 캐시에 저장된 값이 정수 형식이 아니거나 null — 결과 맵에 null 재고로 채워서 호출자에게 미적재 표시
             }
 
             inventories.put(pricePolicyIds.get(i), parsedStock);

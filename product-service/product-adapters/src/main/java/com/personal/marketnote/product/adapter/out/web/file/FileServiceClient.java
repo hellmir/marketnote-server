@@ -105,7 +105,7 @@ public class FileServiceClient implements DeleteProductImagesPort {
                     exception
             );
             log.warn(e.getMessage(), e);
-            throw new FileServiceRequestFailedException(new IOException());
+            throw new FileServiceRequestFailedException(new IOException(e.getMessage(), e));
         }
     }
 
