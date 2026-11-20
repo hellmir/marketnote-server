@@ -9,6 +9,7 @@ import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentDirectRe
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDeliveryGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDirectReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDirectReturnDeliveryItemCommand;
+import com.personal.marketnote.fulfillment.utility.NoOpSleeper;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -72,7 +73,8 @@ class FulfillmentDirectReturnDeliveryClientTest {
                 vendorCommunicationRecorder,
                 vendorCommunicationPayloadGenerator,
                 vendorCommunicationFailureHandler,
-                externalCallLogger
+                externalCallLogger,
+                new NoOpSleeper()
         );
     }
 

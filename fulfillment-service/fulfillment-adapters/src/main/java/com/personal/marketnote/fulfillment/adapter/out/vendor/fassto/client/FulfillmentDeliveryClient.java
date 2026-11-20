@@ -20,6 +20,7 @@ import com.personal.marketnote.fulfillment.exception.*;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.*;
 import com.personal.marketnote.fulfillment.port.out.vendor.*;
+import com.personal.marketnote.fulfillment.utility.Sleeper;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,6 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -53,6 +53,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
     private final ExternalCallLogger externalCallLogger;
+    private final Sleeper sleeper;
 
     public FulfillmentDeliveryClient(
             RestClient.Builder restClientBuilder,
@@ -61,7 +62,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             VendorCommunicationRecorder vendorCommunicationRecorder,
             VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
             VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            ExternalCallLogger externalCallLogger
+            ExternalCallLogger externalCallLogger,
+            Sleeper sleeper
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -70,6 +72,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
         this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
         this.externalCallLogger = externalCallLogger;
+        this.sleeper = sleeper;
     }
 
     @Override
@@ -236,7 +239,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithJitter(sleepMillis);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
                 continue;
             }
@@ -289,7 +292,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithJitter(sleepMillis);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
@@ -361,7 +364,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithJitter(sleepMillis);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
                 continue;
             }
@@ -414,7 +417,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithJitter(sleepMillis);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
@@ -482,7 +485,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithJitter(sleepMillis);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
                 continue;
             }
@@ -539,7 +542,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithJitter(sleepMillis);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
@@ -611,7 +614,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithJitter(sleepMillis);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
                 continue;
             }
@@ -664,7 +667,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithJitter(sleepMillis);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
@@ -736,7 +739,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithJitter(sleepMillis);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
                 continue;
             }
@@ -789,7 +792,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithJitter(sleepMillis);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
@@ -856,7 +859,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithJitter(sleepMillis);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
                 continue;
             }
@@ -909,7 +912,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithJitter(sleepMillis);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
@@ -979,7 +982,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithJitter(sleepMillis);
                 // exponential backoff 적용
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
                 continue;
@@ -1036,7 +1039,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithJitter(sleepMillis);
             // exponential backoff 적용
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
@@ -1116,7 +1119,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithJitter(sleepMillis);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
                 continue;
             }
@@ -1172,7 +1175,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithJitter(sleepMillis);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
@@ -1250,7 +1253,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithJitter(sleepMillis);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
                 continue;
             }
@@ -1306,7 +1309,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithJitter(sleepMillis);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
@@ -1380,7 +1383,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithJitter(sleepMillis);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
                 continue;
             }
@@ -1436,7 +1439,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithJitter(sleepMillis);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
@@ -1510,7 +1513,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithJitter(sleepMillis);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
                 continue;
             }
@@ -1566,7 +1569,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithJitter(sleepMillis);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
@@ -2797,17 +2800,6 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         return "*".repeat(maskedLength) + value.substring(value.length() - visible);
-    }
-
-    private void sleep(long millis) {
-        try {
-            // 대상 서비스 장애 시 요청 트래픽 폭주를 방지하기 위해 jitter 설정
-            long jitteredSleepMillis = ThreadLocalRandom.current()
-                    .nextLong(Math.max(1L, millis) + 1);
-            Thread.sleep(jitteredSleepMillis);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 
     private String resolveVendorMessage(RegisterFulfillmentDeliveryResponse response, String rawBody) {

@@ -25,6 +25,7 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfil
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryItemResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.out.vendor.RegisterFulfillmentDirectReturnDeliveryPort;
+import com.personal.marketnote.fulfillment.utility.Sleeper;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,6 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -58,6 +58,7 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
     private final ExternalCallLogger externalCallLogger;
+    private final Sleeper sleeper;
 
     public FulfillmentDirectReturnDeliveryClient(
             RestClient.Builder restClientBuilder,
@@ -66,7 +67,8 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
             VendorCommunicationRecorder vendorCommunicationRecorder,
             VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
             VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            ExternalCallLogger externalCallLogger
+            ExternalCallLogger externalCallLogger,
+            Sleeper sleeper
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -75,6 +77,7 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
         this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
         this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
         this.externalCallLogger = externalCallLogger;
+        this.sleeper = sleeper;
     }
 
     @Override
@@ -151,7 +154,7 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
                     error = e;
                 }
 
-                sleep(sleepMillis);
+                sleeper.sleepWithBaseAndJitter(sleepMillis, 500L);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
                 continue;
             }
@@ -207,7 +210,7 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
                 break;
             }
 
-            sleep(sleepMillis);
+            sleeper.sleepWithBaseAndJitter(sleepMillis, 500L);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
@@ -398,11 +401,4 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
         return value.substring(0, 4) + "****";
     }
 
-    private void sleep(long millis) {
-        try {
-            Thread.sleep(millis + ThreadLocalRandom.current().nextLong(500));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
 }

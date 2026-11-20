@@ -16,6 +16,7 @@ import com.personal.marketnote.fulfillment.exception.FulfillmentAuthDisconnectFa
 import com.personal.marketnote.fulfillment.exception.FulfillmentAuthRequestFailedException;
 import com.personal.marketnote.fulfillment.exception.FulfillmentClientInvalidRequestException;
 import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
+import com.personal.marketnote.fulfillment.utility.NoOpSleeper;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -107,7 +108,8 @@ class FulfillmentAuthClientTest {
                 vendorCommunicationRecorder,
                 vendorCommunicationPayloadGenerator,
                 vendorCommunicationFailureHandler,
-                externalCallLogger
+                externalCallLogger,
+                new NoOpSleeper()
         );
     }
 

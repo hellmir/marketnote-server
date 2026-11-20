@@ -9,6 +9,7 @@ import com.personal.marketnote.fulfillment.exception.GetFulfillmentShopsFailedEx
 import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentShopFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentShopsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentShopCommand;
+import com.personal.marketnote.fulfillment.utility.NoOpSleeper;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -68,7 +69,8 @@ class FulfillmentShopClientTest {
                 vendorCommunicationRecorder,
                 vendorCommunicationPayloadGenerator,
                 vendorCommunicationFailureHandler,
-                externalCallLogger
+                externalCallLogger,
+                new NoOpSleeper()
         );
     }
 
