@@ -1,5 +1,6 @@
 package com.personal.marketnote.file.adapter.out.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
@@ -8,6 +9,7 @@ import com.personal.marketnote.common.kafka.event.ImageChangeAction;
 import com.personal.marketnote.common.kafka.event.ImageChangedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
+import com.personal.marketnote.file.adapter.out.event.exception.ImageEventSerializationException;
 import com.personal.marketnote.file.port.out.event.ImageEventCommand;
 import com.personal.marketnote.file.port.out.event.PublishImageEventPort;
 import lombok.RequiredArgsConstructor;
@@ -53,18 +55,21 @@ public class ImageEventKafkaProducer implements PublishImageEventPort {
     }
 
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
+        String payloadJson = serializePayload(envelope, topic);
+        OutboxEvent outboxEvent = OutboxEvent.of(
+                envelope.eventId(), topic, partitionKey,
+                envelope.eventType(), SOURCE, payloadJson, clock
+        );
+        saveOutboxEventPort.save(outboxEvent);
+        log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}",
+                topic, partitionKey, envelope.eventId());
+    }
+
+    private <T> String serializePayload(EventEnvelope<T> envelope, String topic) {
         try {
-            String payloadJson = objectMapper.writeValueAsString(envelope);
-            OutboxEvent outboxEvent = OutboxEvent.of(
-                    envelope.eventId(), topic, partitionKey,
-                    envelope.eventType(), SOURCE, payloadJson, clock
-            );
-            saveOutboxEventPort.save(outboxEvent);
-            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}",
-                    topic, partitionKey, envelope.eventId());
-        } catch (Exception e) {
-            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}",
-                    topic, partitionKey, e.getMessage(), e);
+            return objectMapper.writeValueAsString(envelope);
+        } catch (JsonProcessingException e) {
+            throw new ImageEventSerializationException(topic, e);
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.personal.marketnote.commerce.adapter.out.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.adapter.out.event.exception.PaymentEventSerializationException;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PaymentApprovedEvent;
@@ -19,8 +21,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -90,5 +95,41 @@ class PaymentEventKafkaProducerTest {
         assertThat(payload.orderId()).isEqualTo(10L);
         assertThat(payload.orderKey()).isEqualTo("order-key-10");
         assertThat(payload.paymentAmount()).isEqualTo(75000L);
+    }
+
+    @Test
+    @DisplayName("Outbox 저장 실패 시 예외를 전파한다")
+    void publishPaymentApprovedEvent_propagatesExceptionWhenSaveFails() throws Exception {
+        // given
+        setUpClock("2026-11-21T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        doThrow(new RuntimeException("DB connection failed"))
+                .when(saveOutboxEventPort).save(any(OutboxEvent.class));
+
+        // when & then
+        assertThatThrownBy(() -> paymentEventKafkaProducer.publishPaymentApprovedEvent(1L, "order-key-1", 50000L))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("DB connection failed");
+    }
+
+    @Test
+    @DisplayName("Payload 직렬화 실패 시 PaymentEventSerializationException을 던진다")
+    void publishPaymentApprovedEvent_throwsPaymentEventSerializationExceptionOnJsonProcessingFailure() throws Exception {
+        // given
+        setUpClock("2026-11-21T10:00:00Z");
+        when(objectMapper.writeValueAsString(any()))
+                .thenThrow(new TestJsonProcessingException("Serialization failed"));
+
+        // when & then
+        assertThatThrownBy(() -> paymentEventKafkaProducer.publishPaymentApprovedEvent(1L, "order-key-1", 50000L))
+                .isInstanceOf(PaymentEventSerializationException.class)
+                .hasCauseInstanceOf(JsonProcessingException.class);
+        verifyNoInteractions(saveOutboxEventPort);
+    }
+
+    private static class TestJsonProcessingException extends JsonProcessingException {
+        protected TestJsonProcessingException(String msg) {
+            super(msg);
+        }
     }
 }

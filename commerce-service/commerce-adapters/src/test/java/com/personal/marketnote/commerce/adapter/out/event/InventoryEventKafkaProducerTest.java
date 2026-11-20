@@ -1,6 +1,8 @@
 package com.personal.marketnote.commerce.adapter.out.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.adapter.out.event.exception.InventoryEventSerializationException;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.*;
 import com.personal.marketnote.common.outbox.OutboxEvent;
@@ -18,8 +20,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -195,5 +200,45 @@ class InventoryEventKafkaProducerTest {
         assertThat(payload.releasedQuantity()).isEqualTo(2);
         assertThat(payload.reason()).isEqualTo("SAGA 보상 - 예약 해소");
         assertThat(payload.orderId()).isEqualTo(900L);
+    }
+
+    @Test
+    @DisplayName("Outbox 저장 실패 시 예외를 전파한다")
+    void publishInventoryChangedEvent_propagatesExceptionWhenSaveFails() throws Exception {
+        // given
+        setUpClock("2026-11-21T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        doThrow(new RuntimeException("DB connection failed"))
+                .when(saveOutboxEventPort).save(any(OutboxEvent.class));
+
+        // when & then
+        assertThatThrownBy(() -> inventoryEventKafkaProducer.publishInventoryChangedEvent(
+                100L, 1L, 50, InventoryChangeAction.UPDATED
+        ))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("DB connection failed");
+    }
+
+    @Test
+    @DisplayName("Payload 직렬화 실패 시 InventoryEventSerializationException을 던진다")
+    void publishInventoryChangedEvent_throwsInventoryEventSerializationExceptionOnJsonProcessingFailure() throws Exception {
+        // given
+        setUpClock("2026-11-21T10:00:00Z");
+        when(objectMapper.writeValueAsString(any()))
+                .thenThrow(new TestJsonProcessingException("Serialization failed"));
+
+        // when & then
+        assertThatThrownBy(() -> inventoryEventKafkaProducer.publishInventoryChangedEvent(
+                100L, 1L, 50, InventoryChangeAction.UPDATED
+        ))
+                .isInstanceOf(InventoryEventSerializationException.class)
+                .hasCauseInstanceOf(JsonProcessingException.class);
+        verifyNoInteractions(saveOutboxEventPort);
+    }
+
+    private static class TestJsonProcessingException extends JsonProcessingException {
+        protected TestJsonProcessingException(String msg) {
+            super(msg);
+        }
     }
 }

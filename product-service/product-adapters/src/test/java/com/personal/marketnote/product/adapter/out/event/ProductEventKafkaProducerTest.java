@@ -1,10 +1,12 @@
 package com.personal.marketnote.product.adapter.out.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.*;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
+import com.personal.marketnote.product.adapter.out.event.exception.ProductEventSerializationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,8 +20,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -316,5 +321,41 @@ class ProductEventKafkaProducerTest {
         assertThat(payload.productTags().get(0).id()).isEqualTo(10L);
         assertThat(payload.productTags().get(0).name()).isEqualTo("봄");
         assertThat(payload.productTags().get(1).orderNum()).isEqualTo(2L);
+    }
+
+    @Test
+    @DisplayName("Outbox 저장 실패 시 예외를 전파한다")
+    void publishProductDeletedEvent_propagatesExceptionWhenSaveFails() throws Exception {
+        // given
+        setUpClock("2026-11-21T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        doThrow(new RuntimeException("DB connection failed"))
+                .when(saveOutboxEventPort).save(any(OutboxEvent.class));
+
+        // when & then
+        assertThatThrownBy(() -> productEventKafkaProducer.publishProductDeletedEvent(1L))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("DB connection failed");
+    }
+
+    @Test
+    @DisplayName("Payload 직렬화 실패 시 ProductEventSerializationException을 던진다")
+    void publishProductDeletedEvent_throwsProductEventSerializationExceptionOnJsonProcessingFailure() throws Exception {
+        // given
+        setUpClock("2026-11-21T10:00:00Z");
+        when(objectMapper.writeValueAsString(any()))
+                .thenThrow(new TestJsonProcessingException("Serialization failed"));
+
+        // when & then
+        assertThatThrownBy(() -> productEventKafkaProducer.publishProductDeletedEvent(1L))
+                .isInstanceOf(ProductEventSerializationException.class)
+                .hasCauseInstanceOf(JsonProcessingException.class);
+        verifyNoInteractions(saveOutboxEventPort);
+    }
+
+    private static class TestJsonProcessingException extends JsonProcessingException {
+        protected TestJsonProcessingException(String msg) {
+            super(msg);
+        }
     }
 }

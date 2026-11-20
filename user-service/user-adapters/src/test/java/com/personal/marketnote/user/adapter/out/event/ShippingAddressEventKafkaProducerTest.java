@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.adapter.out.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
@@ -7,6 +8,7 @@ import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 import com.personal.marketnote.common.kafka.event.ShippingAddressChangedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
+import com.personal.marketnote.user.adapter.out.event.exception.ShippingAddressEventSerializationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,8 +22,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -146,5 +151,45 @@ class ShippingAddressEventKafkaProducerTest {
         assertThat(payload.shippingAddressId()).isEqualTo(3L);
         assertThat(payload.userId()).isEqualTo(300L);
         assertThat(payload.action()).isEqualTo(ShippingAddressChangeAction.DELETED);
+    }
+
+    @Test
+    @DisplayName("Outbox 저장 실패 시 예외를 전파한다")
+    void publishShippingAddressChangedEvent_propagatesExceptionWhenSaveFails() throws Exception {
+        // given
+        setUpClock("2026-11-21T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        doThrow(new RuntimeException("DB connection failed"))
+                .when(saveOutboxEventPort).save(any(OutboxEvent.class));
+
+        // when & then
+        assertThatThrownBy(() -> shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
+                1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+        ))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("DB connection failed");
+    }
+
+    @Test
+    @DisplayName("Payload 직렬화 실패 시 ShippingAddressEventSerializationException을 던진다")
+    void publishShippingAddressChangedEvent_throwsShippingAddressEventSerializationExceptionOnJsonProcessingFailure() throws Exception {
+        // given
+        setUpClock("2026-11-21T10:00:00Z");
+        when(objectMapper.writeValueAsString(any()))
+                .thenThrow(new TestJsonProcessingException("Serialization failed"));
+
+        // when & then
+        assertThatThrownBy(() -> shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
+                1L, 100L, "홍길동", "01012345678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+        ))
+                .isInstanceOf(ShippingAddressEventSerializationException.class)
+                .hasCauseInstanceOf(JsonProcessingException.class);
+        verifyNoInteractions(saveOutboxEventPort);
+    }
+
+    private static class TestJsonProcessingException extends JsonProcessingException {
+        protected TestJsonProcessingException(String msg) {
+            super(msg);
+        }
     }
 }

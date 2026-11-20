@@ -1,11 +1,13 @@
 package com.personal.marketnote.product.adapter.out.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.*;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
+import com.personal.marketnote.product.adapter.out.event.exception.ProductEventSerializationException;
 import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -91,16 +93,20 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
     }
 
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
+        String payloadJson = serializePayload(envelope, topic);
+        OutboxEvent outboxEvent = OutboxEvent.of(
+                envelope.eventId(), topic, partitionKey,
+                envelope.eventType(), SOURCE, payloadJson, clock
+        );
+        saveOutboxEventPort.save(outboxEvent);
+        log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
+    }
+
+    private <T> String serializePayload(EventEnvelope<T> envelope, String topic) {
         try {
-            String payloadJson = objectMapper.writeValueAsString(envelope);
-            OutboxEvent outboxEvent = OutboxEvent.of(
-                    envelope.eventId(), topic, partitionKey,
-                    envelope.eventType(), SOURCE, payloadJson, clock
-            );
-            saveOutboxEventPort.save(outboxEvent);
-            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
-        } catch (Exception e) {
-            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}", topic, partitionKey, e.getMessage(), e);
+            return objectMapper.writeValueAsString(envelope);
+        } catch (JsonProcessingException e) {
+            throw new ProductEventSerializationException(topic, e);
         }
     }
 }
