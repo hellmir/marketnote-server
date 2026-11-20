@@ -95,7 +95,8 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
             saveOutboxEventPort.save(outboxEvent);
             log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
         } catch (Exception e) {
-            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}", topic, partitionKey, e.getMessage(), e);
+            // Outbox 저장 실패: 직렬화/DB 오류 모두 가능하여 광역 catch 유지. cause 인자로 stack 보존
+            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}", topic, partitionKey, e);
         }
     }
 }

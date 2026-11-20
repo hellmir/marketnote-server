@@ -46,7 +46,8 @@ public class OrderProductReadModelPersistenceAdapter
             OrderProductReadModelJpaEntity entity =
                     OrderProductReadModelJpaEntity.of(orderId, pricePolicyId, buyerId, unitAmount);
             orderProductReadModelJpaRepository.saveAndFlush(entity);
-        } catch (DataIntegrityViolationException dive) {
+        } catch (DataIntegrityViolationException ignored) {
+            // 멱등 Upsert: 동시 INSERT race로 중복 발생 시 기존 엔티티를 조회해 update로 전환
             log.info("주문 상품 Read Model 중복 저장 (멱등 처리). orderId={}, pricePolicyId={}",
                     orderId, pricePolicyId
             );

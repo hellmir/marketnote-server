@@ -8,4 +8,8 @@ public class ReviewAlreadyExistsException extends DomainAlreadyExistsException {
     public ReviewAlreadyExistsException() {
         super(MESSAGE);
     }
+
+    public ReviewAlreadyExistsException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

@@ -14,4 +14,8 @@ public class InvalidOrderStatusForReviewException extends IllegalStateException 
     public InvalidOrderStatusForReviewException() {
         super(INVALID_ORDER_STATUS_FOR_REVIEW_EXCEPTION_MESSAGE);
     }
+
+    public InvalidOrderStatusForReviewException(Throwable cause) {
+        super(INVALID_ORDER_STATUS_FOR_REVIEW_EXCEPTION_MESSAGE, cause);
+    }
 }

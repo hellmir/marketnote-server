@@ -46,12 +46,12 @@ public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort,
             savedEntity.setIdToOrderNum();
 
             return ReviewJpaEntityToDomainMapper.mapToDomain(savedEntity).orElse(null);
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException dive) {
             log.warn(
                     "이미 해당 주문에 대한 리뷰가 존재합니다. orderId={}, pricePolicyId={}",
-                    review.getOrderId(), review.getPricePolicyId()
+                    review.getOrderId(), review.getPricePolicyId(), dive
             );
-            throw new ReviewAlreadyExistsException();
+            throw new ReviewAlreadyExistsException(dive);
         }
     }
 

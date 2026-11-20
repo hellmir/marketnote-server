@@ -355,7 +355,8 @@ public class ReviewController {
                     ),
                     HttpStatus.OK
             );
-        } catch (ProductReviewAggregateNotFoundException pranfe) {
+        } catch (ProductReviewAggregateNotFoundException ignored) {
+            // 집계 미존재는 정상 응답: 리뷰가 없는 상품은 빈 집계 결과를 반환
             return new ResponseEntity<>(
                     BaseResponse.of(
                             GetProductReviewAggregateResponse.from(

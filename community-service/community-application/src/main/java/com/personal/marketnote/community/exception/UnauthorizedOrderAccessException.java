@@ -16,4 +16,8 @@ public class UnauthorizedOrderAccessException extends BusinessSecurityException 
     public UnauthorizedOrderAccessException() {
         super(UNAUTHORIZED_ORDER_ACCESS_EXCEPTION_MESSAGE);
     }
+
+    public UnauthorizedOrderAccessException(Throwable cause) {
+        super(UNAUTHORIZED_ORDER_ACCESS_EXCEPTION_MESSAGE, cause);
+    }
 }

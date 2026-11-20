@@ -88,10 +88,10 @@ public class CommerceServiceClient implements VerifyOrderOwnershipPort {
                 return;
             } catch (HttpClientErrorException hce) {
                 if (hce.getStatusCode().value() == 403) {
-                    throw new UnauthorizedOrderAccessException();
+                    throw new UnauthorizedOrderAccessException(hce);
                 }
                 if (hce.getStatusCode().value() == 409) {
-                    throw new InvalidOrderStatusForReviewException();
+                    throw new InvalidOrderStatusForReviewException(hce);
                 }
 
                 // 4xx 클라이언트 에러는 재시도해도 결과가 동일하므로 즉시 실패
@@ -101,6 +101,7 @@ public class CommerceServiceClient implements VerifyOrderOwnershipPort {
                 );
                 throw hce;
             } catch (Exception e) {
+                // 재시도 boundary: 네트워크/타임아웃 등 비결정적 오류 전반을 포괄해야 하므로 광역 catch 유지
                 recordError(targetId, uri, attempt, e);
                 log.warn("커머스 서비스 주문 소유권 검증 통신 오류 - orderId: {}, attempt: {}", orderId, attempt, e);
 
@@ -148,7 +149,8 @@ public class CommerceServiceClient implements VerifyOrderOwnershipPort {
             long jitteredSleepMillis = ThreadLocalRandom.current()
                     .nextLong(Math.max(1L, sleepMillis) + 1);
             Thread.sleep(jitteredSleepMillis);
-        } catch (InterruptedException ie) {
+        } catch (InterruptedException ignored) {
+            // 재시도 backoff 중 인터럽트 — 인터럽트 플래그 복원 후 호출자에 위임
             Thread.currentThread().interrupt();
         }
     }
