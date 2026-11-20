@@ -70,7 +70,8 @@ public class ShippingPolicyReadModelPersistenceAdapter implements FindShippingPo
                     sellerId, shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge
             );
             shippingPolicyReadModelJpaRepository.saveAndFlush(entity);
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException ignored) {
+            // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회 후 업데이트로 복원
             log.info("배송비 정책 Read Model 중복 저장 (멱등 처리). sellerId={}", sellerId);
             shippingPolicyReadModelJpaRepository.findBySellerId(sellerId)
                     .ifPresent(entity -> entity.updateFrom(

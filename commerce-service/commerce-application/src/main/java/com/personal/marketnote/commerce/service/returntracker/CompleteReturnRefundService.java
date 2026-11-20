@@ -40,11 +40,12 @@ public class CompleteReturnRefundService implements CompleteReturnRefundUseCase 
         try {
             refundPaymentUseCase.refund(refundCommand);
             completeRefund(tracker);
-        } catch (PaymentAlreadyRefundedException e) {
-            log.info("이미 환불 처리된 결제 (멱등 처리). orderId={}, message={}", command.orderId(), e.getMessage());
+        } catch (PaymentAlreadyRefundedException ignored) {
+            // 동일 환불이 이미 처리된 멱등 케이스 — tracker만 완료 전이
+            log.info("이미 환불 처리된 결제 (멱등 처리). orderId={}", command.orderId());
             completeRefund(tracker);
-        } catch (PaymentCancelException e) {
-            log.error("PG 환불 실패. orderId={}, message={}", command.orderId(), e.getMessage());
+        } catch (PaymentCancelException pce) {
+            log.error("PG 환불 실패. orderId={}", command.orderId(), pce);
             failRefund(tracker);
         }
     }

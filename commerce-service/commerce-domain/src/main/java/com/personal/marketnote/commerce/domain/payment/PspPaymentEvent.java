@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -127,7 +128,8 @@ public class PspPaymentEvent {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
             return LocalDateTime.parse(appTime, formatter);
-        } catch (Exception e) {
+        } catch (DateTimeParseException ignored) {
+            // PG 응답 appTime 형식 오류 — 현재 시각 폴백 (외부 응답 정화)
             return LocalDateTime.now();
         }
     }

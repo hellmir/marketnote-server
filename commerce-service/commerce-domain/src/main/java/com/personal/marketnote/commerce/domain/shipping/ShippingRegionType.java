@@ -30,7 +30,8 @@ public enum ShippingRegionType {
         }
         try {
             return valueOf(regionType);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
+            // 미정의 코드 — 기본값 NORMAL 폴백 (외부 입력 정화)
             return NORMAL;
         }
     }

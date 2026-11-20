@@ -60,9 +60,9 @@ public class PaymentCancelResultSerializer {
 
         try {
             return objectMapper.writeValueAsString(payload);
-        } catch (JsonProcessingException e) {
-            log.error("결제 취소 멱등성 result 직렬화 실패 - orderKey: {}",
-                    context.originalCommand().orderKey(), e);
+        } catch (JsonProcessingException jpe) {
+            log.error("fallback applied: 결제 취소 멱등성 result 직렬화 실패 — 빈 JSON 반환. orderKey={}",
+                    context.originalCommand().orderKey(), jpe);
             incrementSerializerFailureCounter();
             return "{}";
         }

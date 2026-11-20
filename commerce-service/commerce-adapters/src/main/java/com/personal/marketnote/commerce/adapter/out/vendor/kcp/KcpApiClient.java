@@ -204,7 +204,7 @@ public class KcpApiClient {
         try {
             return objectMapper.readValue(responseBody, responseType);
         } catch (Exception e) {
-            log.error("{} 응답 파싱 실패: {}", operationLabel, e.getMessage());
+            log.error("KCP 응답 파싱 실패. operationLabel={}", operationLabel, e);
             throw new KcpCommunicationException(operationLabel + " 응답 파싱 실패", e);
         }
     }

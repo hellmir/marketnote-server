@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.vendorcommunication;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.adapter.out.persistence.vendorcommunication.entity.CommerceVendorCommunicationHistoryJpaEntity;
@@ -9,7 +10,9 @@ import com.personal.marketnote.commerce.port.out.vendorcommunication.SaveCommerc
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class CommerceVendorCommunicationHistoryPersistenceAdapter
@@ -32,7 +35,8 @@ public class CommerceVendorCommunicationHistoryPersistenceAdapter
         }
         try {
             return objectMapper.readTree(jsonString);
-        } catch (Exception e) {
+        } catch (JsonProcessingException jpe) {
+            log.warn("fallback applied: 벤더 통신 이력 payload JSON 파싱 실패 — null 반환.", jpe);
             return null;
         }
     }

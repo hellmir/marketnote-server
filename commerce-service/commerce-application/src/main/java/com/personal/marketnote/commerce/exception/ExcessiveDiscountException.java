@@ -16,4 +16,10 @@ public class ExcessiveDiscountException extends InvalidValueException {
     public ExcessiveDiscountException(Long totalAmount, Long shippingFee, Long couponAmount, Long pointAmount) {
         super(String.format(MESSAGE, totalAmount, shippingFee, couponAmount, pointAmount));
     }
+
+    public ExcessiveDiscountException(
+            Long totalAmount, Long shippingFee, Long couponAmount, Long pointAmount, Throwable cause
+    ) {
+        super(String.format(MESSAGE, totalAmount, shippingFee, couponAmount, pointAmount), cause);
+    }
 }

@@ -77,7 +77,8 @@ public class ProductEventKafkaListener {
             log.info("Kafka 이벤트로 재고 등록 완료. productId={}, pricePolicyId={}",
                     payload.productId(), payload.pricePolicyId()
             );
-        } catch (InventoryAlreadyExistsException e) {
+        } catch (InventoryAlreadyExistsException ignored) {
+            // 동일 pricePolicyId 재고가 이미 존재 — Kafka 재처리/중복 이벤트 멱등 처리
             log.info("재고가 이미 존재합니다 (멱등 처리). eventId={}, key={}", envelope.eventId(), record.key());
         }
 

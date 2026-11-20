@@ -4,4 +4,8 @@ public class DuplicateInventoryRestorationException extends RuntimeException {
     public DuplicateInventoryRestorationException(Long orderId) {
         super("이미 처리된 재고 복구입니다. orderId=" + orderId);
     }
+
+    public DuplicateInventoryRestorationException(Long orderId, Throwable cause) {
+        super("이미 처리된 재고 복구입니다. orderId=" + orderId, cause);
+    }
 }

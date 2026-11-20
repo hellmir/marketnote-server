@@ -62,7 +62,8 @@ public class ShippingAddressReadModelPersistenceAdapter implements FindUserShipp
                     shippingAddressId, userId, recipientName, recipientPhoneNumber, address, addressDetail, regionType
             );
             shippingAddressReadModelJpaRepository.saveAndFlush(entity);
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException ignored) {
+            // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회 후 업데이트로 복원
             log.info("배송지 Read Model 중복 저장 (멱등 처리). shippingAddressId={}", shippingAddressId);
             shippingAddressReadModelJpaRepository.findByShippingAddressId(shippingAddressId)
                     .ifPresent(entity -> entity.updateFrom(
