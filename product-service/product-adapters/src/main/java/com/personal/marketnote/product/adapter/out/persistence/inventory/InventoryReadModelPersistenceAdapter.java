@@ -61,7 +61,8 @@ public class InventoryReadModelPersistenceAdapter implements FindStockPort, Save
         try {
             InventoryReadModelJpaEntity entity = InventoryReadModelJpaEntity.of(pricePolicyId, productId, stockQuantity);
             inventoryReadModelJpaRepository.saveAndFlush(entity);
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException ignored) {
+            // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회 후 업데이트로 복원
             log.info("재고 Read Model 중복 저장 (멱등 처리). pricePolicyId={}", pricePolicyId);
             inventoryReadModelJpaRepository.findByPricePolicyId(pricePolicyId)
                     .ifPresent(entity -> entity.updateFrom(stockQuantity));

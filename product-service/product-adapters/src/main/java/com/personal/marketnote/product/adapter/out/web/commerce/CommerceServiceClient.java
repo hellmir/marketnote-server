@@ -128,7 +128,8 @@ public class CommerceServiceClient implements RegisterInventoryPort {
                     long jitteredSleepMillis = ThreadLocalRandom.current()
                             .nextLong(Math.max(1L, sleepMillis) + 1);
                     Thread.sleep(jitteredSleepMillis);
-                } catch (InterruptedException ie) {
+                } catch (InterruptedException ignored) {
+                    // 백오프 대기 중 인터럽트 — interrupt flag 복원 후 재시도 중단 (정상 종료 경로)
                     Thread.currentThread().interrupt();
                     return;
                 }
@@ -138,7 +139,7 @@ public class CommerceServiceClient implements RegisterInventoryPort {
         }
 
         log.error("Failed to register inventory: {} with error: {}", uri, error.getMessage(), error);
-        throw new CommerceServiceRequestFailedException(new IOException());
+        throw new CommerceServiceRequestFailedException(new IOException(error.getMessage(), error));
     }
 
     private void recordCommunication(

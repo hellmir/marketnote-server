@@ -8,4 +8,8 @@ public class ShippingPolicyAlreadyExistsException extends DomainAlreadyExistsExc
     public ShippingPolicyAlreadyExistsException() {
         super(MESSAGE);
     }
+
+    public ShippingPolicyAlreadyExistsException(Throwable cause) {
+        super(MESSAGE, cause);
+    }
 }

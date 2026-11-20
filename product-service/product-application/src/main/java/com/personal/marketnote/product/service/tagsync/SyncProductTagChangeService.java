@@ -39,7 +39,8 @@ public class SyncProductTagChangeService implements SyncProductTagChangeUseCase 
 
         try {
             productTagChangeSyncLogPort.markProcessed(eventId);
-        } catch (DataIntegrityViolationException dive) {
+        } catch (DataIntegrityViolationException ignored) {
+            // 동시 처리로 인한 멱등 로그 충돌 — 다른 컨슈머가 이미 처리 중이므로 무시
             log.info("상품 태그 변경 동기화 멱등 로그 충돌 (동시 처리). eventId={}, productId={}", eventId, productId);
             return;
         }
@@ -56,7 +57,7 @@ public class SyncProductTagChangeService implements SyncProductTagChangeUseCase 
         try {
             return objectMapper.writeValueAsString(tags);
         } catch (JsonProcessingException jpe) {
-            log.warn("상품 태그 변경 이벤트 직렬화 실패. productId={}", productId, jpe);
+            log.warn("fallback applied: 상품 태그 변경 이벤트 직렬화 실패 — null 반환. productId={}", productId, jpe);
             return null;
         }
     }

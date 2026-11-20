@@ -46,7 +46,8 @@ public class SyncConfirmedOrderSalesService implements SyncConfirmedOrderSalesUs
 
         try {
             orderSalesSyncLogPort.markProcessed(orderId);
-        } catch (DataIntegrityViolationException dive) {
+        } catch (DataIntegrityViolationException ignored) {
+            // 동시 처리로 인한 멱등 로그 충돌 — 다른 컨슈머가 이미 처리 중이므로 무시
             log.info("구매 확정 판매량 동기화 멱등 로그 충돌 (동시 처리). orderId={}", orderId);
             return;
         }

@@ -41,7 +41,8 @@ public class SyncPricePolicyCreatedService implements SyncPricePolicyCreatedUseC
 
         try {
             pricePolicyCreatedSyncLogPort.markProcessed(eventId);
-        } catch (DataIntegrityViolationException dive) {
+        } catch (DataIntegrityViolationException ignored) {
+            // 동시 처리로 인한 멱등 로그 충돌 — 다른 컨슈머가 이미 처리 중이므로 무시
             log.info("가격 정책 생성 동기화 멱등 로그 충돌 (동시 처리). eventId={}, pricePolicyId={}", eventId, pricePolicyId);
             return;
         }
@@ -80,7 +81,7 @@ public class SyncPricePolicyCreatedService implements SyncPricePolicyCreatedUseC
         try {
             return objectMapper.writeValueAsString(tags);
         } catch (JsonProcessingException jpe) {
-            log.warn("가격 정책 생성 이벤트 productTags 직렬화 실패. pricePolicyId={}", pricePolicyId, jpe);
+            log.warn("fallback applied: 가격 정책 생성 이벤트 productTags 직렬화 실패 — null 반환. pricePolicyId={}", pricePolicyId, jpe);
             return null;
         }
     }
@@ -94,7 +95,7 @@ public class SyncPricePolicyCreatedService implements SyncPricePolicyCreatedUseC
         try {
             return objectMapper.writeValueAsString(options);
         } catch (JsonProcessingException jpe) {
-            log.warn("가격 정책 생성 이벤트 selectedOptions 직렬화 실패. pricePolicyId={}", pricePolicyId, jpe);
+            log.warn("fallback applied: 가격 정책 생성 이벤트 selectedOptions 직렬화 실패 — null 반환. pricePolicyId={}", pricePolicyId, jpe);
             return null;
         }
     }

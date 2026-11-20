@@ -33,7 +33,7 @@ public class ShippingPolicyPersistenceAdapter implements SaveShippingPolicyPort,
             return saved.getId();
         } catch (DataIntegrityViolationException dive) {
             log.warn("해당 판매자의 배송비 정책이 이미 존재합니다. sellerId={}", shippingPolicy.getSellerId());
-            throw new ShippingPolicyAlreadyExistsException();
+            throw new ShippingPolicyAlreadyExistsException(dive);
         }
     }
 

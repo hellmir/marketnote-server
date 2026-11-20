@@ -64,7 +64,7 @@ public class ProductCatalogReadModelJpaEntityToResultMapper {
         try {
             return objectMapper.readValue(json, STRING_LIST);
         } catch (IOException ioe) {
-            log.warn("상품 카탈로그 Read Model resized 이미지 JSON 역직렬화 실패. pricePolicyId={}, json={}",
+            log.warn("fallback applied: 상품 카탈로그 Read Model resized 이미지 JSON 역직렬화 실패 — 빈 목록 반환. pricePolicyId={}, json={}",
                     pricePolicyId, json, ioe);
             return new ArrayList<>();
         }
@@ -79,7 +79,7 @@ public class ProductCatalogReadModelJpaEntityToResultMapper {
         try {
             return objectMapper.readValue(json, TAG_LIST);
         } catch (IOException ioe) {
-            log.warn("상품 카탈로그 Read Model productTags JSON 역직렬화 실패. pricePolicyId={}, json={}",
+            log.warn("fallback applied: 상품 카탈로그 Read Model productTags JSON 역직렬화 실패 — 빈 목록 반환. pricePolicyId={}, json={}",
                     pricePolicyId, json, ioe);
             return new ArrayList<>();
         }
@@ -94,7 +94,7 @@ public class ProductCatalogReadModelJpaEntityToResultMapper {
         try {
             return objectMapper.readValue(json, OPTION_LIST);
         } catch (IOException ioe) {
-            log.warn("상품 카탈로그 Read Model selectedOptions JSON 역직렬화 실패. pricePolicyId={}, json={}",
+            log.warn("fallback applied: 상품 카탈로그 Read Model selectedOptions JSON 역직렬화 실패 — 빈 목록 반환. pricePolicyId={}, json={}",
                     pricePolicyId, json, ioe);
             return new ArrayList<>();
         }
