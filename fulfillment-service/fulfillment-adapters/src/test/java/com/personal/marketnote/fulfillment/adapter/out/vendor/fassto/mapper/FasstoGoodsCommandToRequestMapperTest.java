@@ -1,5 +1,6 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsDetailQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsElementQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsMapper;
@@ -87,10 +88,12 @@ class FasstoGoodsCommandToRequestMapperTest {
             FulfillmentGoodsMapper mapper = FasstoGoodsCommandToRequestMapper.mapToRegisterRequest(command);
 
             // then
-            assertThat(mapper.getProductKey()).isEqualTo(productKey.toString());
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
+            assertThat(mapper.getProductKey()).isEqualTo(encoded);
             String payload = mapper.toPayload().toString();
-            assertThat(payload).contains(productKey.toString());
+            assertThat(payload).contains(encoded);
             assertThat(payload).doesNotContain("GOD001");
+            assertThat(payload).doesNotContain(productKey.toString());
         }
 
         @Test
@@ -125,7 +128,7 @@ class FasstoGoodsCommandToRequestMapperTest {
             // then
             Map<String, Object> payload = mapper.toPayload().getFirst();
             assertThat(payload)
-                    .containsEntry("cstGodCd", productKey.toString())
+                    .containsEntry("cstGodCd", FasstoCustomerGoodsCodeEncoder.encode(productKey))
                     .containsEntry("godNm", "상품명")
                     .containsEntry("godType", "TYPE01")
                     .containsEntry("giftDiv", "N")
@@ -200,9 +203,11 @@ class FasstoGoodsCommandToRequestMapperTest {
             FulfillmentGoodsMapper mapper = FasstoGoodsCommandToRequestMapper.mapToUpdateRequest(command);
 
             // then
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             String payload = mapper.toPayload().toString();
-            assertThat(payload).contains(productKey.toString());
+            assertThat(payload).contains(encoded);
             assertThat(payload).doesNotContain("GOD001");
+            assertThat(payload).doesNotContain(productKey.toString());
         }
 
         @Test

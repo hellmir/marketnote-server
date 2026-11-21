@@ -9,6 +9,7 @@ import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoStockCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentErrorResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentStockItemResponse;
@@ -433,7 +434,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
         return FulfillmentStockInfoResult.builder()
                 .warehouseCode(item.whCd())
                 .productCode(item.godCd())
-                .customerProductCode(item.cstGodCd())
+                .customerProductCode(FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(item.cstGodCd()))
                 .productName(item.godNm())
                 .distributionTermDate(item.distTermDt())
                 .distributionTermManagementYn(item.distTermMgtYn())
