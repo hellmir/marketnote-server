@@ -7,6 +7,7 @@ import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.personal.marketnote.common.exception.VendorOperationFailedException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.micrometer.core.instrument.Counter;
@@ -428,6 +429,34 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().getMessage()).isEqualTo("서버 내부 오류가 발생했습니다.");
             assertThat(response.getBody().getMessage()).doesNotContain("10.0.1.5");
+        }
+
+        @Test
+        @DisplayName("VendorOperationFailedException 핸들러는 502 BAD_GATEWAY와 고정 메시지를 반환한다")
+        void shouldReturn502ForVendorOperationFailedException() {
+            FakeVendorOperationFailedException exception =
+                    new FakeVendorOperationFailedException("Fassto cstGodCd length is invalid. reason=raw=GOD-1234567890");
+
+            ResponseEntity<ErrorResponse> response = handler.handleVendorOperationFailedException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getCode()).isEqualTo("BAD_GATEWAY");
+            assertThat(response.getBody().getMessage()).isEqualTo("벤더 통신 처리 중 오류가 발생했습니다.");
+        }
+
+        @Test
+        @DisplayName("VendorOperationFailedException 응답 메시지에 vendor 원본 메시지가 노출되지 않는다")
+        void shouldNotLeakVendorOriginalMessageInResponse() {
+            FakeVendorOperationFailedException exception =
+                    new FakeVendorOperationFailedException("Fassto cstGodCd charset invalid: raw=SECRET-CODE-XYZ");
+
+            ResponseEntity<ErrorResponse> response = handler.handleVendorOperationFailedException(exception);
+
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).doesNotContain("SECRET-CODE-XYZ");
+            assertThat(response.getBody().getMessage()).doesNotContain("Fassto");
+            assertThat(response.getBody().getMessage()).doesNotContain("cstGodCd");
         }
     }
 
@@ -1214,6 +1243,25 @@ class GlobalExceptionHandlerTest {
         }
 
         @Test
+        @DisplayName("VendorOperationFailedException 처리 시 vendor 원본 메시지가 로그에 포함되지 않는다")
+        void shouldNotLogVendorOriginalMessageWhenHandlingVendorOperationFailedException() {
+            FakeVendorOperationFailedException exception = new FakeVendorOperationFailedException(
+                    "Fassto cstGodCd length is invalid. reason=raw=SECRET-PRODUCT-KEY-1234567890"
+            );
+
+            handler.handleVendorOperationFailedException(exception);
+
+            String logged = joinMessages();
+            assertThat(logged).doesNotContain("SECRET-PRODUCT-KEY-1234567890");
+            assertThat(logged).doesNotContain("cstGodCd");
+            assertThat(logged).doesNotContain("Fassto");
+            assertThat(logged).contains("type=FakeVendorOperationFailedException");
+            assertThat(appender.list)
+                    .hasSize(1)
+                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        }
+
+        @Test
         @DisplayName("DataIntegrityViolationException 처리 시 SQL 쿼리/바인딩 값이 로그에 포함되지 않는다")
         void shouldNotLogSqlOrBindingValueWhenHandlingDataIntegrityViolationException() {
             DataIntegrityViolationException exception = new DataIntegrityViolationException(
@@ -1260,6 +1308,13 @@ class GlobalExceptionHandlerTest {
     // Group A 검증용 named subclass: anonymous는 SimpleName이 빈 문자라 contains 검증 불가.
     static class FakeBusinessSecurityException extends BusinessSecurityException {
         FakeBusinessSecurityException(String message) {
+            super(message);
+        }
+    }
+
+    // VendorOperationFailedException 추상 클래스 검증용 named subclass.
+    static class FakeVendorOperationFailedException extends VendorOperationFailedException {
+        FakeVendorOperationFailedException(String message) {
             super(message);
         }
     }
