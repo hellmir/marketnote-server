@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3ResponseMetadata;
@@ -34,6 +35,7 @@ public class S3FileStorageAdapter implements UploadFilesPort {
     private static final String TLS_HTTP_PROTOCOL = "https://";
     private static final String S3_ADDRESS = "s3.amazonaws.com";
     private static final String OPERATION_UPLOAD = "upload";
+    private static final String OPERATION_DELETE = "delete";
     private static final String TAG_BUCKET = "bucket";
     private static final String TAG_KEY = "key";
     private static final String TAG_SIZE = "size";
@@ -58,6 +60,57 @@ public class S3FileStorageAdapter implements UploadFilesPort {
         }
 
         return urls;
+    }
+
+    @Override
+    public void deleteFiles(List<String> storageUrls) {
+        if (FormatValidator.hasNoValue(storageUrls)) {
+            return;
+        }
+
+        for (String storageUrl : storageUrls) {
+            deleteQuietly(storageUrl);
+        }
+    }
+
+    private void deleteQuietly(String storageUrl) {
+        if (FormatValidator.hasNoValue(storageUrl)) {
+            return;
+        }
+
+        String key = extractKeyFromStorageUrl(storageUrl);
+        if (FormatValidator.hasNoValue(key)) {
+            LOG.warn("S3 orphan cleanup skip: storage URL에서 key 추출 실패. storageUrl={}", storageUrl);
+            return;
+        }
+
+        try {
+            Map<String, String> tags = buildDeleteTags(key);
+            externalCallLogger.record(
+                    ExternalSystem.S3, OPERATION_DELETE, tags,
+                    () -> s3Client.deleteObject(
+                            DeleteObjectRequest.builder().bucket(s3BucketName).key(key).build()
+                    )
+            );
+        } catch (RuntimeException re) {
+            // eventual consistency: 단건 삭제 실패는 다른 객체 cleanup을 막지 않음. 후속 배치 정리에 위임.
+            LOG.warn("S3 orphan cleanup 단건 실패. bucket={}, key={}", s3BucketName, key, re);
+        }
+    }
+
+    private String extractKeyFromStorageUrl(String storageUrl) {
+        String prefix = String.format("%s%s.%s/", TLS_HTTP_PROTOCOL, s3BucketName, S3_ADDRESS);
+        if (!storageUrl.startsWith(prefix)) {
+            return null;
+        }
+        return storageUrl.substring(prefix.length());
+    }
+
+    private Map<String, String> buildDeleteTags(String key) {
+        Map<String, String> tags = new LinkedHashMap<>();
+        tags.put(TAG_BUCKET, s3BucketName);
+        tags.put(TAG_KEY, key);
+        return tags;
     }
 
     private String upload(MultipartFile multipartFile, OwnerType ownerType, Long ownerId) {

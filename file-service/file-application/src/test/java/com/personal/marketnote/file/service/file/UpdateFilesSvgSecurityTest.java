@@ -88,6 +88,8 @@ class UpdateFilesSvgSecurityTest {
     private UpdateFilesPort updateFilesPort;
     @Mock
     private PublishImageEventPort publishImageEventPort;
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher applicationEventPublisher;
 
     @InjectMocks
     private UpdateFilesService updateFilesService;

@@ -23,6 +23,12 @@ public interface UploadFilesPort {
      * @Description 파일 목록을 업로드합니다.
      */
     List<String> uploadFiles(List<MultipartFile> files, OwnerType ownerType, Long ownerId);
+
+    /**
+     * @param storageUrls 삭제할 storage URL 목록
+     * @Description 도메인 트랜잭션 롤백 시 비가역으로 잔존하는 S3 객체(orphan)를 보상 정리합니다.
+     */
+    void deleteFiles(List<String> storageUrls);
 }
 
 

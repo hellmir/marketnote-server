@@ -33,6 +33,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockMultipartFile;
 
 import javax.imageio.ImageIO;
@@ -62,6 +63,8 @@ class UpdateFilesUseCaseTest {
     private UpdateFilesPort updateFilesPort;
     @Mock
     private PublishImageEventPort publishImageEventPort;
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @InjectMocks
     private UpdateFilesService updateFilesService;
@@ -716,5 +719,65 @@ class UpdateFilesUseCaseTest {
                 .requesterId(100L)
                 .requesterRole(role)
                 .build();
+    }
+
+    @Test
+    @DisplayName("S3 업로드 직후 즉시 S3OrphanCleanupEvent를 발행한다 (정상 흐름)")
+    void updateFiles_publishesOrphanCleanupEventImmediatelyAfterUpload() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
+
+        updateFilesService.updateFiles(command);
+
+        ArgumentCaptor<S3OrphanCleanupEvent> eventCaptor = ArgumentCaptor.forClass(S3OrphanCleanupEvent.class);
+        verify(applicationEventPublisher).publishEvent(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().storageUrls())
+                .containsExactly("https://cdn.example.com/new_0.png");
+    }
+
+    @Test
+    @DisplayName("saveFilesPort 실패로 롤백되어도 S3OrphanCleanupEvent가 이미 발행되어 있다")
+    void updateFiles_publishesOrphanCleanupEvent_evenWhenSaveFilesPortFails() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList()))
+                .thenThrow(new RuntimeException("DB 저장 실패"));
+
+        assertThatThrownBy(() -> updateFilesService.updateFiles(command))
+                .isInstanceOf(RuntimeException.class);
+
+        ArgumentCaptor<S3OrphanCleanupEvent> eventCaptor = ArgumentCaptor.forClass(S3OrphanCleanupEvent.class);
+        verify(applicationEventPublisher).publishEvent(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().storageUrls())
+                .containsExactly("https://cdn.example.com/new_0.png");
+        verify(publishImageEventPort, never()).publishImageCreatedEvents(anyList());
+    }
+
+    @Test
+    @DisplayName("publishImageCreatedEvents 실패로 롤백되어도 S3OrphanCleanupEvent가 이미 발행되어 있다")
+    void updateFiles_publishesOrphanCleanupEvent_evenWhenOutboxPublishFails() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
+        doThrow(new RuntimeException("Outbox 직렬화 실패"))
+                .when(publishImageEventPort).publishImageCreatedEvents(anyList());
+
+        assertThatThrownBy(() -> updateFilesService.updateFiles(command))
+                .isInstanceOf(RuntimeException.class);
+
+        ArgumentCaptor<S3OrphanCleanupEvent> eventCaptor = ArgumentCaptor.forClass(S3OrphanCleanupEvent.class);
+        verify(applicationEventPublisher).publishEvent(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().storageUrls())
+                .containsExactly("https://cdn.example.com/new_0.png");
     }
 }
