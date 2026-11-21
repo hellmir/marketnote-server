@@ -81,9 +81,11 @@ public class GiftishowApiClient {
     }
 
     /**
-     * 0111 - 상품 상세 조회 (GET)
+     * 0111 - 상품 상세 조회 (POST + URL path variable)
      */
     public GiftishowApiResponse<GiftishowProductDetailResponse> getProductDetail(String goodsCode) {
+        MultiValueMap<String, String> params = createAuthParams();
+
         log.info("기프티쇼 상품 상세 조회 요청: goodsCode={}", goodsCode);
 
         Map<String, String> tags = mutableTags();
@@ -91,10 +93,10 @@ public class GiftishowApiClient {
 
         return externalCallLogger.record(
                 ExternalSystem.GIFTISHOW, OP_PRODUCT_DETAIL, tags,
-                () -> executeGet(
+                () -> executePostWithPathVariable(
                         properties.getApi().getProductDetailPath(),
                         goodsCode,
-                        "goods_code",
+                        params,
                         new TypeReference<>() {
                         }
                 )
@@ -123,9 +125,11 @@ public class GiftishowApiClient {
     }
 
     /**
-     * 0112 - 브랜드 상세 조회 (GET)
+     * 0112 - 브랜드 상세 조회 (POST + URL path variable)
      */
     public GiftishowApiResponse<GiftishowBrandDetailResponse> getBrandDetail(String brandCode) {
+        MultiValueMap<String, String> params = createAuthParams();
+
         log.info("기프티쇼 브랜드 상세 조회 요청: brandCode={}", brandCode);
 
         Map<String, String> tags = mutableTags();
@@ -133,10 +137,10 @@ public class GiftishowApiClient {
 
         return externalCallLogger.record(
                 ExternalSystem.GIFTISHOW, OP_BRAND_DETAIL, tags,
-                () -> executeGet(
+                () -> executePostWithPathVariable(
                         properties.getApi().getBrandDetailPath(),
                         brandCode,
-                        "brand_code",
+                        params,
                         new TypeReference<>() {
                         }
                 )
@@ -326,25 +330,23 @@ public class GiftishowApiClient {
         return parseResponse(rawResponse, path, typeReference);
     }
 
-    private <T> GiftishowApiResponse<T> executeGet(
-            String path,
-            String paramValue,
-            String paramName,
+    private <T> GiftishowApiResponse<T> executePostWithPathVariable(
+            String basePath,
+            String pathVariable,
+            MultiValueMap<String, String> params,
             TypeReference<GiftishowApiResponse<T>> typeReference
     ) {
-        ResponseEntity<String> rawResponse = giftishowRestClient.get()
+        ResponseEntity<String> rawResponse = giftishowRestClient.post()
                 .uri(uriBuilder -> uriBuilder
-                        .path(path)
-                        .queryParam("api_code", properties.getApiCode())
-                        .queryParam("auth_code", properties.getAuthCode())
-                        .queryParam("auth_token", properties.getAuthToken())
-                        .queryParam("dev_yn", properties.getDevYn())
-                        .queryParam(paramName, paramValue)
+                        .path(basePath)
+                        .pathSegment(pathVariable)
                         .build())
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(params)
                 .retrieve()
                 .toEntity(String.class);
 
-        return parseResponse(rawResponse, path, typeReference);
+        return parseResponse(rawResponse, basePath, typeReference);
     }
 
     private <T> GiftishowApiResponse<T> parseResponse(

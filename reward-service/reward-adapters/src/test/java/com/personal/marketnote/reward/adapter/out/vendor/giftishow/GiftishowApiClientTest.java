@@ -15,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -168,11 +170,19 @@ class GiftishowApiClientTest {
     class GetProductDetailTest {
 
         @Test
-        @DisplayName("상품 상세 조회에 성공하면 응답을 반환한다")
+        @DisplayName("상품 상세 조회에 성공하면 POST + URL path variable로 요청한다")
         void shouldReturnProductDetailWhenRequestSucceeds() {
             // given
-            mockServer.expect(requestTo(BASE_URL + "/bizApi/goods?api_code=test-api-code&auth_code=test-auth-code&auth_token=test-auth-token&dev_yn=Y&goods_code=G001"))
-                    .andExpect(method(HttpMethod.GET))
+            MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
+            expectedFormData.add("api_code", API_CODE);
+            expectedFormData.add("auth_code", AUTH_CODE);
+            expectedFormData.add("auth_token", AUTH_TOKEN);
+            expectedFormData.add("dev_yn", DEV_YN);
+
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/goods/G001"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().formData(expectedFormData))
                     .andRespond(withSuccess("""
                             {
                                 "code": "0000",
@@ -260,11 +270,19 @@ class GiftishowApiClientTest {
     class GetBrandDetailTest {
 
         @Test
-        @DisplayName("브랜드 상세 조회에 성공하면 응답을 반환한다")
+        @DisplayName("브랜드 상세 조회에 성공하면 POST + URL path variable로 요청한다")
         void shouldReturnBrandDetailWhenRequestSucceeds() {
             // given
-            mockServer.expect(requestTo(BASE_URL + "/bizApi/brands?api_code=test-api-code&auth_code=test-auth-code&auth_token=test-auth-token&dev_yn=Y&brand_code=B001"))
-                    .andExpect(method(HttpMethod.GET))
+            MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
+            expectedFormData.add("api_code", API_CODE);
+            expectedFormData.add("auth_code", AUTH_CODE);
+            expectedFormData.add("auth_token", AUTH_TOKEN);
+            expectedFormData.add("dev_yn", DEV_YN);
+
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/brands/B001"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().formData(expectedFormData))
                     .andRespond(withSuccess("""
                             {
                                 "code": "0000",
