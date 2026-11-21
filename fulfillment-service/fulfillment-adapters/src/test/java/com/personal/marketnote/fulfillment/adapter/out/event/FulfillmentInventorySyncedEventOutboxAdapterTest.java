@@ -82,6 +82,7 @@ class FulfillmentInventorySyncedEventOutboxAdapterTest {
             assertThat(savedEvent.getPartitionKey()).isEqualTo("fulfillment-inventory-sync");
             assertThat(savedEvent.getEventType()).isEqualTo("FulfillmentInventorySyncedEvent");
             assertThat(savedEvent.getSource()).isEqualTo("fulfillment-service");
+            assertThat(savedEvent.getEventId()).isEqualTo(capturedEnvelope.eventId());
             assertThat(savedEvent.getPayload()).isEqualTo("{\"eventType\":\"fulfillment.inventory.synced\"}");
         }
     }

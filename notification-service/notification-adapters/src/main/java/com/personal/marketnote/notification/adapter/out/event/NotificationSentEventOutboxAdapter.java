@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -28,10 +27,15 @@ public class NotificationSentEventOutboxAdapter implements PublishNotificationSe
     public void publish(PushNotificationSentEvent event) {
         String topic = KafkaTopicConstants.NOTIFICATION_PUSH_SENT;
         String partitionKey = String.valueOf(event.notificationId());
-        String eventId = UUID.randomUUID().toString();
-        String payload = serialize(event, topic, partitionKey, eventId);
+        EventEnvelope<PushNotificationSentEvent> envelope = EventEnvelope.of(
+                topic,
+                EVENT_SOURCE,
+                event,
+                clock
+        );
+        String payload = serialize(envelope, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                eventId,
+                envelope.eventId(),
                 topic,
                 partitionKey,
                 PushNotificationSentEvent.class.getSimpleName(),
@@ -42,17 +46,13 @@ public class NotificationSentEventOutboxAdapter implements PublishNotificationSe
         saveOutboxEventPort.save(outboxEvent);
     }
 
-    private String serialize(PushNotificationSentEvent event, String topic, String partitionKey, String eventId) {
-        EventEnvelope<PushNotificationSentEvent> envelope = EventEnvelope.of(
-                topic,
-                EVENT_SOURCE,
-                event,
-                clock
-        );
+    private String serialize(EventEnvelope<PushNotificationSentEvent> envelope, String partitionKey) {
         try {
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
-            throw new NotificationSentEventSerializationException(topic, partitionKey, eventId, e);
+            throw new NotificationSentEventSerializationException(
+                    envelope.eventType(), partitionKey, envelope.eventId(), e
+            );
         }
     }
 }

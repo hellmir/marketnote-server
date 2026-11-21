@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -29,10 +28,15 @@ public class FulfillmentDeliveryWorkStatusChangedEventOutboxAdapter implements P
     public void publish(FulfillmentDeliveryWorkStatusChangedEvent event) {
         String topic = KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED;
         String partitionKey = String.valueOf(event.orderId());
-        String eventId = UUID.randomUUID().toString();
-        String payload = serialize(event, topic, partitionKey, eventId);
+        EventEnvelope<FulfillmentDeliveryWorkStatusChangedEvent> envelope = EventEnvelope.of(
+                topic,
+                EVENT_SOURCE,
+                event,
+                clock
+        );
+        String payload = serialize(envelope, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                eventId,
+                envelope.eventId(),
                 topic,
                 partitionKey,
                 FulfillmentDeliveryWorkStatusChangedEvent.class.getSimpleName(),
@@ -43,19 +47,13 @@ public class FulfillmentDeliveryWorkStatusChangedEventOutboxAdapter implements P
         saveOutboxEventPort.save(outboxEvent);
     }
 
-    private String serialize(
-            FulfillmentDeliveryWorkStatusChangedEvent event, String topic, String partitionKey, String eventId
-    ) {
-        EventEnvelope<FulfillmentDeliveryWorkStatusChangedEvent> envelope = EventEnvelope.of(
-                topic,
-                EVENT_SOURCE,
-                event,
-                clock
-        );
+    private String serialize(EventEnvelope<FulfillmentDeliveryWorkStatusChangedEvent> envelope, String partitionKey) {
         try {
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
-            throw new FulfillmentDeliveryWorkStatusChangedEventSerializationException(topic, partitionKey, eventId, e);
+            throw new FulfillmentDeliveryWorkStatusChangedEventSerializationException(
+                    envelope.eventType(), partitionKey, envelope.eventId(), e
+            );
         }
     }
 }

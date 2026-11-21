@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -29,10 +28,15 @@ public class FulfillmentInventorySyncedEventOutboxAdapter implements PublishFulf
     public void publish(FulfillmentInventorySyncedEvent event) {
         String topic = KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED;
         String partitionKey = "fulfillment-inventory-sync";
-        String eventId = UUID.randomUUID().toString();
-        String payload = serialize(event, topic, partitionKey, eventId);
+        EventEnvelope<FulfillmentInventorySyncedEvent> envelope = EventEnvelope.of(
+                topic,
+                EVENT_SOURCE,
+                event,
+                clock
+        );
+        String payload = serialize(envelope, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                eventId,
+                envelope.eventId(),
                 topic,
                 partitionKey,
                 FulfillmentInventorySyncedEvent.class.getSimpleName(),
@@ -43,17 +47,13 @@ public class FulfillmentInventorySyncedEventOutboxAdapter implements PublishFulf
         saveOutboxEventPort.save(outboxEvent);
     }
 
-    private String serialize(FulfillmentInventorySyncedEvent event, String topic, String partitionKey, String eventId) {
-        EventEnvelope<FulfillmentInventorySyncedEvent> envelope = EventEnvelope.of(
-                topic,
-                EVENT_SOURCE,
-                event,
-                clock
-        );
+    private String serialize(EventEnvelope<FulfillmentInventorySyncedEvent> envelope, String partitionKey) {
         try {
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
-            throw new FulfillmentInventorySyncedEventSerializationException(topic, partitionKey, eventId, e);
+            throw new FulfillmentInventorySyncedEventSerializationException(
+                    envelope.eventType(), partitionKey, envelope.eventId(), e
+            );
         }
     }
 }

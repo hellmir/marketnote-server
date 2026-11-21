@@ -78,6 +78,7 @@ class FulfillmentDeliveryWorkStatusChangedEventOutboxAdapterTest {
             assertThat(savedEvent.getPartitionKey()).isEqualTo("100");
             assertThat(savedEvent.getEventType()).isEqualTo("FulfillmentDeliveryWorkStatusChangedEvent");
             assertThat(savedEvent.getSource()).isEqualTo("fulfillment-service");
+            assertThat(savedEvent.getEventId()).isEqualTo(capturedEnvelope.eventId());
             assertThat(savedEvent.getPayload()).isEqualTo("{\"eventType\":\"fulfillment.delivery.work.status.changed\"}");
         }
     }

@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -29,10 +28,15 @@ public class ShippingStatusEventOutboxAdapter implements PublishShippingStatusCh
     public void publish(ShippingStatusChangedEvent event) {
         String topic = KafkaTopicConstants.SHIPPING_STATUS_CHANGED;
         String partitionKey = String.valueOf(event.orderId());
-        String eventId = UUID.randomUUID().toString();
-        String payload = serialize(event, topic, partitionKey, eventId);
+        EventEnvelope<ShippingStatusChangedEvent> envelope = EventEnvelope.of(
+                topic,
+                EVENT_SOURCE,
+                event,
+                clock
+        );
+        String payload = serialize(envelope, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                eventId,
+                envelope.eventId(),
                 topic,
                 partitionKey,
                 ShippingStatusChangedEvent.class.getSimpleName(),
@@ -43,17 +47,13 @@ public class ShippingStatusEventOutboxAdapter implements PublishShippingStatusCh
         saveOutboxEventPort.save(outboxEvent);
     }
 
-    private String serialize(ShippingStatusChangedEvent event, String topic, String partitionKey, String eventId) {
-        EventEnvelope<ShippingStatusChangedEvent> envelope = EventEnvelope.of(
-                topic,
-                EVENT_SOURCE,
-                event,
-                clock
-        );
+    private String serialize(EventEnvelope<ShippingStatusChangedEvent> envelope, String partitionKey) {
         try {
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
-            throw new ShippingStatusEventSerializationException(topic, partitionKey, eventId, e);
+            throw new ShippingStatusEventSerializationException(
+                    envelope.eventType(), partitionKey, envelope.eventId(), e
+            );
         }
     }
 }

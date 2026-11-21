@@ -89,6 +89,7 @@ class FulfillmentGoodsSyncedEventOutboxAdapterTest {
             assertThat(savedEvent.getPartitionKey()).isEqualTo("CGC001");
             assertThat(savedEvent.getEventType()).isEqualTo("FulfillmentGoodsSyncedEvent");
             assertThat(savedEvent.getSource()).isEqualTo("fulfillment-service");
+            assertThat(savedEvent.getEventId()).isEqualTo(capturedEnvelope.eventId());
             assertThat(savedEvent.getPayload()).isEqualTo("{\"eventType\":\"fulfillment.goods.synced\"}");
         }
     }
