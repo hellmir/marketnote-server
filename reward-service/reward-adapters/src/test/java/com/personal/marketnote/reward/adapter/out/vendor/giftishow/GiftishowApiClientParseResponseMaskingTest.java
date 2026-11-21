@@ -32,6 +32,10 @@ class GiftishowApiClientParseResponseMaskingTest {
 
     private static final String BASE_URL = "http://localhost:9999";
     private static final String COUPON_SEND_PATH = "/bizApi/coupon";
+    private static final String COUPON_DETAIL_PATH = "/bizApi/coupon/detail";
+    private static final String COUPON_RESEND_PATH = "/bizApi/coupon/resend";
+    private static final String COUPON_CANCEL_PATH = "/bizApi/coupon/cancel";
+    private static final String COUPON_SEND_FAIL_CANCEL_PATH = "/bizApi/coupon/sendFailCancel";
     private static final String PRODUCT_LIST_PATH = "/bizApi/goods";
     private static final String SENSITIVE_BODY_WITH_PIN = "invalid_json_with_pin_1234-5678-9012-3456";
     private static final String NON_SENSITIVE_INVALID_BODY = "invalid json";
@@ -58,11 +62,11 @@ class GiftishowApiClientParseResponseMaskingTest {
         api.setBrandListPath("/bizApi/brand");
         api.setBrandDetailPath("/bizApi/brand");
         api.setCouponSendPath(COUPON_SEND_PATH);
-        api.setCouponDetailPath("/bizApi/coupon/detail");
-        api.setCouponCancelPath("/bizApi/coupon/cancel");
-        api.setCouponResendPath("/bizApi/coupon/resend");
+        api.setCouponDetailPath(COUPON_DETAIL_PATH);
+        api.setCouponCancelPath(COUPON_CANCEL_PATH);
+        api.setCouponResendPath(COUPON_RESEND_PATH);
         api.setBizMoneyBalancePath("/bizApi/bizMoney");
-        api.setCouponSendFailCancelPath("/bizApi/coupon/sendFailCancel");
+        api.setCouponSendFailCancelPath(COUPON_SEND_FAIL_CANCEL_PATH);
         properties.setApi(api);
 
         RestClient.Builder builder = RestClient.builder().baseUrl(BASE_URL);
@@ -190,6 +194,100 @@ class GiftishowApiClientParseResponseMaskingTest {
                 .hasMessageContaining("응답 파싱 실패")
                 .hasMessageContaining(PRODUCT_LIST_PATH)
                 .hasCauseInstanceOf(com.fasterxml.jackson.core.JsonProcessingException.class);
+
+        mockServer.verify();
+    }
+
+    @Test
+    @DisplayName("couponDetail sensitive path 응답 파싱 실패 시 cause를 제거하여 raw body 노출을 차단한다")
+    void shouldMaskWhenCouponDetailParseFails() {
+        // given
+        mockServer.expect(requestTo(BASE_URL + COUPON_DETAIL_PATH))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
+
+        // when & then
+        assertThatThrownBy(() -> giftishowApiClient.getCouponDetail("TR_001"))
+                .isInstanceOf(GiftishowCommunicationException.class)
+                .hasMessageContaining("응답 파싱 실패")
+                .hasMessageContaining(COUPON_DETAIL_PATH)
+                .hasNoCause();
+
+        ILoggingEvent errorEvent = findErrorEvent();
+        String formattedMessage = errorEvent.getFormattedMessage();
+        assertThat(formattedMessage).doesNotContain("1234-5678-9012-3456");
+        assertThat(formattedMessage).doesNotContain("invalid_json_with_pin");
+        assertThat(errorEvent.getThrowableProxy()).isNull();
+
+        mockServer.verify();
+    }
+
+    @Test
+    @DisplayName("couponResend sensitive path 응답 파싱 실패 시 cause를 제거하여 raw body 노출을 차단한다")
+    void shouldMaskWhenCouponResendParseFails() {
+        // given
+        mockServer.expect(requestTo(BASE_URL + COUPON_RESEND_PATH))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
+
+        // when & then
+        assertThatThrownBy(() -> giftishowApiClient.resendCoupon("TR_001", "01012345678"))
+                .isInstanceOf(GiftishowCommunicationException.class)
+                .hasMessageContaining("응답 파싱 실패")
+                .hasMessageContaining(COUPON_RESEND_PATH)
+                .hasNoCause();
+
+        ILoggingEvent errorEvent = findErrorEvent();
+        String formattedMessage = errorEvent.getFormattedMessage();
+        assertThat(formattedMessage).doesNotContain("1234-5678-9012-3456");
+        assertThat(formattedMessage).doesNotContain("invalid_json_with_pin");
+        assertThat(errorEvent.getThrowableProxy()).isNull();
+
+        mockServer.verify();
+    }
+
+    @Test
+    @DisplayName("couponCancel non-sensitive path 응답 파싱 실패 시 stack trace를 포함하고 cause를 보존한다")
+    void shouldPreserveCauseWhenCouponCancelParseFails() {
+        // given
+        mockServer.expect(requestTo(BASE_URL + COUPON_CANCEL_PATH))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
+
+        // when & then
+        assertThatThrownBy(() -> giftishowApiClient.cancelCoupon("TR_001", "user1"))
+                .isInstanceOf(GiftishowCommunicationException.class)
+                .hasMessageContaining("응답 파싱 실패")
+                .hasMessageContaining(COUPON_CANCEL_PATH)
+                .hasCauseInstanceOf(com.fasterxml.jackson.core.JsonProcessingException.class);
+
+        ILoggingEvent errorEvent = findErrorEvent();
+        assertThat(errorEvent.getThrowableProxy()).isNotNull();
+        assertThat(errorEvent.getThrowableProxy().getClassName())
+                .containsAnyOf("JsonParseException", "JsonProcessingException", "MismatchedInputException");
+
+        mockServer.verify();
+    }
+
+    @Test
+    @DisplayName("couponSendFailCancel non-sensitive path 응답 파싱 실패 시 stack trace를 포함하고 cause를 보존한다")
+    void shouldPreserveCauseWhenCouponSendFailCancelParseFails() {
+        // given
+        mockServer.expect(requestTo(BASE_URL + COUPON_SEND_FAIL_CANCEL_PATH))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
+
+        // when & then
+        assertThatThrownBy(() -> giftishowApiClient.cancelSendFailedCoupon("TR_001", "user1"))
+                .isInstanceOf(GiftishowCommunicationException.class)
+                .hasMessageContaining("응답 파싱 실패")
+                .hasMessageContaining(COUPON_SEND_FAIL_CANCEL_PATH)
+                .hasCauseInstanceOf(com.fasterxml.jackson.core.JsonProcessingException.class);
+
+        ILoggingEvent errorEvent = findErrorEvent();
+        assertThat(errorEvent.getThrowableProxy()).isNotNull();
+        assertThat(errorEvent.getThrowableProxy().getClassName())
+                .containsAnyOf("JsonParseException", "JsonProcessingException", "MismatchedInputException");
 
         mockServer.verify();
     }
