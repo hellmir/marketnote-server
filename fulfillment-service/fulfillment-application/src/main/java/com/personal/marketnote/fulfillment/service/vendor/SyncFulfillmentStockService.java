@@ -35,6 +35,7 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
     private final PublishFulfillmentInventorySyncedEventPort publishFulfillmentInventorySyncedEventPort;
 
     @Override
+    @Transactional(isolation = READ_COMMITTED)
     public void sync(SyncFulfillmentStockCommand command) {
         if (FormatValidator.hasNoValue(command)) {
             throw new FulfillmentQueryParameterNoValueException("Sync Fulfillment stock command");
@@ -74,6 +75,7 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
     }
 
     @Override
+    @Transactional(isolation = READ_COMMITTED)
     public void syncAll(SyncFulfillmentAllStockCommand command) {
         if (FormatValidator.hasNoValue(command)) {
             throw new FulfillmentQueryParameterNoValueException("Sync all Fulfillment stock command");

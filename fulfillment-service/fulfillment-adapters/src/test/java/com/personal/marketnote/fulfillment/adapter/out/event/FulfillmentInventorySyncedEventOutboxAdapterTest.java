@@ -3,6 +3,7 @@ package com.personal.marketnote.fulfillment.adapter.out.event;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
+import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.FulfillmentInventorySyncedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
@@ -47,7 +48,7 @@ class FulfillmentInventorySyncedEventOutboxAdapterTest {
     class PublishSuccess {
 
         @Test
-        @DisplayName("이벤트를 직렬화하여 OutboxEvent로 저장한다")
+        @DisplayName("이벤트를 EventEnvelope으로 감싸 직렬화하여 OutboxEvent로 저장한다")
         void shouldSerializeAndSaveOutboxEvent() throws JsonProcessingException {
             // given
             Clock fixedClock = Clock.fixed(Instant.parse("2026-09-03T00:00:00Z"), ZoneId.of("Asia/Seoul"));
@@ -60,12 +61,19 @@ class FulfillmentInventorySyncedEventOutboxAdapterTest {
                             new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 50)
                     )
             );
-            when(objectMapper.writeValueAsString(event)).thenReturn("{\"inventories\":[]}");
+            ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+            when(objectMapper.writeValueAsString(envelopeCaptor.capture())).thenReturn("{\"eventType\":\"fulfillment.inventory.synced\"}");
 
             // when
             adapter.publish(event);
 
             // then
+            EventEnvelope<?> capturedEnvelope = envelopeCaptor.getValue();
+            assertThat(capturedEnvelope.eventType()).isEqualTo(KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED);
+            assertThat(capturedEnvelope.source()).isEqualTo("fulfillment-service");
+            assertThat(capturedEnvelope.eventId()).isNotBlank();
+            assertThat(capturedEnvelope.payload()).isEqualTo(event);
+
             ArgumentCaptor<OutboxEvent> captor = ArgumentCaptor.forClass(OutboxEvent.class);
             verify(saveOutboxEventPort).save(captor.capture());
 
@@ -74,7 +82,7 @@ class FulfillmentInventorySyncedEventOutboxAdapterTest {
             assertThat(savedEvent.getPartitionKey()).isEqualTo("fulfillment-inventory-sync");
             assertThat(savedEvent.getEventType()).isEqualTo("FulfillmentInventorySyncedEvent");
             assertThat(savedEvent.getSource()).isEqualTo("fulfillment-service");
-            assertThat(savedEvent.getPayload()).isEqualTo("{\"inventories\":[]}");
+            assertThat(savedEvent.getPayload()).isEqualTo("{\"eventType\":\"fulfillment.inventory.synced\"}");
         }
     }
 
@@ -86,8 +94,12 @@ class FulfillmentInventorySyncedEventOutboxAdapterTest {
         @DisplayName("직렬화 실패 시 FulfillmentInventorySyncedEventSerializationException이 발생한다")
         void shouldThrowSerializationExceptionWhenSerializationFails() throws JsonProcessingException {
             // given
+            Clock fixedClock = Clock.fixed(Instant.parse("2026-09-03T00:00:00Z"), ZoneId.of("Asia/Seoul"));
+            when(clock.instant()).thenReturn(fixedClock.instant());
+            when(clock.getZone()).thenReturn(fixedClock.getZone());
+
             FulfillmentInventorySyncedEvent event = new FulfillmentInventorySyncedEvent(List.of());
-            when(objectMapper.writeValueAsString(event))
+            when(objectMapper.writeValueAsString(any(EventEnvelope.class)))
                     .thenThrow(new JsonProcessingException("직렬화 실패") {
                     });
 
