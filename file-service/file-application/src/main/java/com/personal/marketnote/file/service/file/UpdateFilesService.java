@@ -26,6 +26,7 @@ import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.InputSource;
@@ -62,6 +63,7 @@ public class UpdateFilesService implements UpdateFileUseCase {
     private final SaveResizedFilesPort saveResizedFilesPort;
     private final UpdateFilesPort updateFilesPort;
     private final PublishImageEventPort publishImageEventPort;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public void updateFiles(UpdateFilesCommand updateFilesCommand) {
         String ownerType = updateFilesCommand.ownerType();
@@ -103,11 +105,22 @@ public class UpdateFilesService implements UpdateFileUseCase {
                 .map(UpdateFileCommand::file)
                 .toList();
 
+        // 트랜잭션 롤백 시 S3 orphan 보상 정리를 위한 누적 URL 컨테이너.
+        // 첫 업로드 직후 즉시 publishEvent 1회 호출하여, 이후 saveFilesPort/saveResizedFilesPort/Outbox 직렬화 등
+        // 어떤 단계에서 롤백되어도 cleanup 이벤트가 등록되도록 보장한다.
+        // record가 mutable List 참조를 보유하므로 이후 resized URL을 같은 List에 addAll하면 자동으로 반영된다.
+        List<String> uploadedStorageUrls = new ArrayList<>();
+
         List<String> storageUrls = uploadFilesPort.uploadFiles(
                 originals,
                 OwnerType.from(updateFilesCommand.ownerType()),
                 updateFilesCommand.ownerId()
         );
+        uploadedStorageUrls.addAll(storageUrls);
+
+        if (FormatValidator.hasValue(uploadedStorageUrls)) {
+            applicationEventPublisher.publishEvent(new S3OrphanCleanupEvent(uploadedStorageUrls));
+        }
 
         List<FileDomain> savedFiles = saveFilesPort.saveAll(newFiles, storageUrls);
 
@@ -126,6 +139,7 @@ public class UpdateFilesService implements UpdateFileUseCase {
                     OwnerType.from(updateFilesCommand.ownerType()),
                     updateFilesCommand.ownerId()
             );
+            uploadedStorageUrls.addAll(resizedStorageUrls);
 
             if (FormatValidator.hasValue(resizedToSave)) {
                 List<ResizedFile> resizedWithUrls = new ArrayList<>(resizedToSave.size());
