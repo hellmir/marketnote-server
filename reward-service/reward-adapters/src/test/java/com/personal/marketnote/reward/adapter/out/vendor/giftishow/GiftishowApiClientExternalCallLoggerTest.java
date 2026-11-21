@@ -25,6 +25,7 @@ import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
@@ -35,9 +36,9 @@ class GiftishowApiClientExternalCallLoggerTest {
 
     private static final String BASE_URL = "http://localhost:9999";
     private static final String PRODUCT_LIST_PATH = "/bizApi/goods";
-    private static final String PRODUCT_DETAIL_PATH = "/bizApi/goodsDetail";
+    private static final String PRODUCT_DETAIL_PATH = "/bizApi/goods";
     private static final String BRAND_LIST_PATH = "/bizApi/brands";
-    private static final String BRAND_DETAIL_PATH = "/bizApi/brandsDetail";
+    private static final String BRAND_DETAIL_PATH = "/bizApi/brands";
     private static final String COUPON_SEND_PATH = "/bizApi/send";
     private static final String COUPON_DETAIL_PATH = "/bizApi/coupons";
     private static final String COUPON_CANCEL_PATH = "/bizApi/cancel";
@@ -132,12 +133,9 @@ class GiftishowApiClientExternalCallLoggerTest {
         @Test
         @DisplayName("상품 상세 조회 성공 시 product.detail success Timer와 goods_code 태그가 로그에 포함된다")
         void shouldRecordSuccessForProductDetail() {
-            mockServer.expect(requestTo(
-                            BASE_URL + PRODUCT_DETAIL_PATH
-                                    + "?api_code=test-api-code&auth_code=test-auth-code"
-                                    + "&auth_token=test-auth-token&dev_yn=Y&goods_code=" + GOODS_CODE
-                    ))
-                    .andExpect(method(HttpMethod.GET))
+            mockServer.expect(requestTo(BASE_URL + PRODUCT_DETAIL_PATH + "/" + GOODS_CODE))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
                     .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.getProductDetail(GOODS_CODE);
@@ -161,12 +159,9 @@ class GiftishowApiClientExternalCallLoggerTest {
         @Test
         @DisplayName("브랜드 상세 조회 성공 시 brand.detail success Timer와 brand_code 태그가 로그에 포함된다")
         void shouldRecordSuccessForBrandDetail() {
-            mockServer.expect(requestTo(
-                            BASE_URL + BRAND_DETAIL_PATH
-                                    + "?api_code=test-api-code&auth_code=test-auth-code"
-                                    + "&auth_token=test-auth-token&dev_yn=Y&brand_code=" + BRAND_CODE
-                    ))
-                    .andExpect(method(HttpMethod.GET))
+            mockServer.expect(requestTo(BASE_URL + BRAND_DETAIL_PATH + "/" + BRAND_CODE))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
                     .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.getBrandDetail(BRAND_CODE);
