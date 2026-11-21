@@ -40,6 +40,7 @@ public class ResolveUnknownPaymentService implements ResolveUnknownPaymentUseCas
     private final UpdatePaymentPort updatePaymentPort;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
     private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
+    private final PaymentApprovalAppTimeParser appTimeParser;
 
     @Override
     public ResolveUnknownPaymentResult resolve(ResolveUnknownPaymentCommand command) {
@@ -71,7 +72,7 @@ public class ResolveUnknownPaymentService implements ResolveUnknownPaymentUseCas
                 .approvalNumber(command.approvalNumber())
                 .resultCode(command.resultCode())
                 .resultMessage(command.resultMessage())
-                .appTime(command.appTime())
+                .appTime(appTimeParser.parse(command.appTime()))
                 .build();
         event.resolveToComplete(approvalInfo);
         updatePspPaymentEventPort.update(event);

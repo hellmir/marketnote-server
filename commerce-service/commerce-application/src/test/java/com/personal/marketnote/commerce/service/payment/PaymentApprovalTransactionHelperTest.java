@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,6 +83,9 @@ class PaymentApprovalTransactionHelperTest {
 
     @Mock
     private Optional<OrderPaymentSagaStarter> orderPaymentSagaStarter;
+
+    @Mock
+    private PaymentApprovalAppTimeParser appTimeParser;
 
     private static final Long BUYER_ID = 100L;
     private static final Long ORDER_ID = 1L;
@@ -234,16 +238,18 @@ class PaymentApprovalTransactionHelperTest {
     class CommitSuccessTest {
 
         @Test
-        @DisplayName("commitSuccess는 Order를 PAID로 변경하는 changeOrderStatus를 호출한다")
+        @DisplayName("commitSuccess는 Order를 PAID로 변경하는 changeOrderStatus를 호출하고 paidAt이 vendor 응답에서 파싱된 값으로 설정된다")
         void shouldChangeOrderStatusToPaidOnCommitSuccess() {
             Payment payment = createPayment();
             Order order = createOrder(OrderStatus.PAYMENT_EXECUTING);
             PspPaymentEvent event = createExecutingEvent();
             PaymentApprovalContext context = PaymentApprovalContext.of(payment, event);
             PaymentApprovalVendorResult vendorResult = createSuccessVendorResult();
+            LocalDateTime parsedAppTime = LocalDateTime.of(2026, 2, 10, 15, 30, 0);
 
             when(findOrderPort.findById(ORDER_ID)).thenReturn(Optional.of(order));
             when(orderPaymentSagaStarter.isPresent()).thenReturn(false);
+            when(appTimeParser.parse("20260210153000")).thenReturn(parsedAppTime);
 
             txHelper.commitSuccess(context, vendorResult, Installment.of((short) 0));
 
@@ -253,6 +259,7 @@ class PaymentApprovalTransactionHelperTest {
             ChangeOrderStatusCommand captured = captor.getValue();
             assertThat(captured.id()).isEqualTo(ORDER_ID);
             assertThat(captured.orderStatus()).isEqualTo(OrderStatus.PAID);
+            assertThat(event.getPaidAt()).isEqualTo(parsedAppTime);
         }
 
         @Test

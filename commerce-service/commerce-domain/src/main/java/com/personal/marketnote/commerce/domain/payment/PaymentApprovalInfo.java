@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
@@ -19,5 +21,5 @@ public class PaymentApprovalInfo {
     private final String resultCode;
     private final String resultMessage;
     private final String pgApprovalResult;
-    private final String appTime;
+    private final LocalDateTime appTime;
 }
