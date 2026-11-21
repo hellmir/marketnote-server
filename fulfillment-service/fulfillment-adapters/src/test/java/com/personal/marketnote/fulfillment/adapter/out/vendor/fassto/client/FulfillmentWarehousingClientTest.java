@@ -3,6 +3,7 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingAbnormalQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingDetailQuery;
@@ -31,6 +32,7 @@ import org.springframework.web.client.RestClient;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -710,6 +712,120 @@ class FulfillmentWarehousingClientTest {
             // when & then
             assertThatThrownBy(() -> client.getWarehousing(command))
                     .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("cstGodCd 디코딩")
+    class CstGodCdDecoding {
+
+        private static final UUID TEST_PRODUCT_KEY = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+        private static final String TEST_ENCODED_CST_GOD_CD = FasstoCustomerGoodsCodeEncoder.encode(TEST_PRODUCT_KEY);
+        private static final String FALLBACK_PRODUCT_CODE = "PROD01";
+        private static final String LEGACY_UUID_RAW = "550e8400-e29b-41d4-a716-446655440000";
+
+        @Test
+        @DisplayName("cstGodCd 22자 Base62 인코딩 응답 → customerProductCode UUID 문자열로 디코딩")
+        void shouldDecodeBase62EncodedCstGodCdToUuidString() {
+            // given
+            stubWarehousingDetailProperties();
+            stubPayloadGenerator();
+            String body = String.format("""
+                    {
+                      "header": {"code": "200", "msg": "success", "dataCount": 1},
+                      "data": [{
+                        "slipNo": "SLIP001",
+                        "ordNo": "ORD001",
+                        "goods": [{
+                          "godCd": "GOD001",
+                          "cstGodCd": "%s",
+                          "godNm": "테스트 상품"
+                        }]
+                      }]
+                    }
+                    """, TEST_ENCODED_CST_GOD_CD);
+            stubGetChain(ResponseEntity.ok(body));
+
+            GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
+                    "CUST001", "valid-token", "SLIP001", null
+            );
+
+            // when
+            GetFulfillmentWarehousingDetailResult result = client.getWarehousingDetail(command);
+
+            // then
+            assertThat(result.details()).hasSize(1);
+            assertThat(result.details().get(0).goods()).hasSize(1);
+            assertThat(result.details().get(0).goods().get(0).customerProductCode())
+                    .isEqualTo(TEST_PRODUCT_KEY.toString());
+        }
+
+        @Test
+        @DisplayName("cstGodCd 폴백 productCode 6자 응답 → customerProductCode raw 통과")
+        void shouldPassThroughFallbackProductCode() {
+            // given
+            stubWarehousingDetailProperties();
+            stubPayloadGenerator();
+            String body = String.format("""
+                    {
+                      "header": {"code": "200", "msg": "success", "dataCount": 1},
+                      "data": [{
+                        "slipNo": "SLIP001",
+                        "ordNo": "ORD001",
+                        "goods": [{
+                          "godCd": "GOD001",
+                          "cstGodCd": "%s",
+                          "godNm": "테스트 상품"
+                        }]
+                      }]
+                    }
+                    """, FALLBACK_PRODUCT_CODE);
+            stubGetChain(ResponseEntity.ok(body));
+
+            GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
+                    "CUST001", "valid-token", "SLIP001", null
+            );
+
+            // when
+            GetFulfillmentWarehousingDetailResult result = client.getWarehousingDetail(command);
+
+            // then
+            assertThat(result.details().get(0).goods().get(0).customerProductCode())
+                    .isEqualTo(FALLBACK_PRODUCT_CODE);
+        }
+
+        @Test
+        @DisplayName("cstGodCd 36자 UUID 형태 응답(이전 마이그레이션 잔존) → raw 통과")
+        void shouldPassThroughLegacyUuidRaw() {
+            // given
+            stubWarehousingDetailProperties();
+            stubPayloadGenerator();
+            String body = String.format("""
+                    {
+                      "header": {"code": "200", "msg": "success", "dataCount": 1},
+                      "data": [{
+                        "slipNo": "SLIP001",
+                        "ordNo": "ORD001",
+                        "goods": [{
+                          "godCd": "GOD001",
+                          "cstGodCd": "%s",
+                          "godNm": "테스트 상품"
+                        }]
+                      }]
+                    }
+                    """, LEGACY_UUID_RAW);
+            stubGetChain(ResponseEntity.ok(body));
+
+            GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
+                    "CUST001", "valid-token", "SLIP001", null
+            );
+
+            // when
+            GetFulfillmentWarehousingDetailResult result = client.getWarehousingDetail(command);
+
+            // then
+            assertThat(result.details().get(0).goods().get(0).customerProductCode())
+                    .isEqualTo(LEGACY_UUID_RAW);
         }
     }
 }

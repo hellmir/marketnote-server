@@ -3,12 +3,14 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentStockDetailFailedException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentStocksFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStockDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStocksCommand;
+import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentStocksResult;
 import com.personal.marketnote.fulfillment.utility.NoOpSleeper;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
@@ -20,9 +22,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -91,6 +98,19 @@ class FulfillmentStockClientTest {
         when(respSpec.toEntity(any(Class.class))).thenThrow(exception);
     }
 
+    @SuppressWarnings("unchecked")
+    private void stubGetChainReturns(ResponseEntity<String> entity) {
+        RestClient.RequestHeadersUriSpec rawSpec = mock(RestClient.RequestHeadersUriSpec.class);
+        RestClient.RequestHeadersSpec headerSpec = mock(RestClient.RequestHeadersSpec.class);
+        RestClient.ResponseSpec respSpec = mock(RestClient.ResponseSpec.class);
+
+        when(restClient.get()).thenReturn(rawSpec);
+        when(rawSpec.uri(any(java.net.URI.class))).thenReturn(headerSpec);
+        when(headerSpec.headers(any())).thenReturn(headerSpec);
+        when(headerSpec.retrieve()).thenReturn(respSpec);
+        when(respSpec.toEntity(any(Class.class))).thenReturn(entity);
+    }
+
     @Nested
     @DisplayName("getStocks 실패")
     class GetStocksFailure {
@@ -148,6 +168,101 @@ class FulfillmentStockClientTest {
             // when & then
             assertThatThrownBy(() -> client.getStocks(command))
                     .isInstanceOf(FulfillmentConfigurationException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("cstGodCd 디코딩")
+    class CstGodCdDecoding {
+
+        private static final UUID TEST_PRODUCT_KEY = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+        private static final String TEST_ENCODED_CST_GOD_CD = FasstoCustomerGoodsCodeEncoder.encode(TEST_PRODUCT_KEY);
+        private static final String FALLBACK_PRODUCT_CODE = "PROD01";
+        private static final String LEGACY_UUID_RAW = "550e8400-e29b-41d4-a716-446655440000";
+
+        @Test
+        @DisplayName("cstGodCd 22자 Base62 인코딩 응답 → customerProductCode UUID 문자열로 디코딩")
+        void shouldDecodeBase62EncodedCstGodCdToUuidString() {
+            // given
+            stubStockProperties();
+            stubPayloadGenerator();
+            String body = String.format("""
+                    {
+                      "header": {"code": "200", "msg": "success", "dataCount": 1},
+                      "data": [{
+                        "whCd": "WH01",
+                        "godCd": "GOD001",
+                        "cstGodCd": "%s",
+                        "godNm": "테스트 상품"
+                      }]
+                    }
+                    """, TEST_ENCODED_CST_GOD_CD);
+            stubGetChainReturns(new ResponseEntity<>(body, HttpStatus.OK));
+
+            GetFulfillmentStocksCommand command = GetFulfillmentStocksCommand.of("CUST001", "valid-token");
+
+            // when
+            GetFulfillmentStocksResult result = client.getStocks(command);
+
+            // then
+            assertThat(result.stocks()).hasSize(1);
+            assertThat(result.stocks().get(0).customerProductCode()).isEqualTo(TEST_PRODUCT_KEY.toString());
+        }
+
+        @Test
+        @DisplayName("cstGodCd 폴백 productCode 6자 응답 → customerProductCode raw 통과")
+        void shouldPassThroughFallbackProductCode() {
+            // given
+            stubStockProperties();
+            stubPayloadGenerator();
+            String body = String.format("""
+                    {
+                      "header": {"code": "200", "msg": "success", "dataCount": 1},
+                      "data": [{
+                        "whCd": "WH01",
+                        "godCd": "GOD001",
+                        "cstGodCd": "%s",
+                        "godNm": "테스트 상품"
+                      }]
+                    }
+                    """, FALLBACK_PRODUCT_CODE);
+            stubGetChainReturns(new ResponseEntity<>(body, HttpStatus.OK));
+
+            GetFulfillmentStocksCommand command = GetFulfillmentStocksCommand.of("CUST001", "valid-token");
+
+            // when
+            GetFulfillmentStocksResult result = client.getStocks(command);
+
+            // then
+            assertThat(result.stocks().get(0).customerProductCode()).isEqualTo(FALLBACK_PRODUCT_CODE);
+        }
+
+        @Test
+        @DisplayName("cstGodCd 36자 UUID 형태 응답(이전 마이그레이션 잔존) → raw 통과")
+        void shouldPassThroughLegacyUuidRaw() {
+            // given
+            stubStockProperties();
+            stubPayloadGenerator();
+            String body = String.format("""
+                    {
+                      "header": {"code": "200", "msg": "success", "dataCount": 1},
+                      "data": [{
+                        "whCd": "WH01",
+                        "godCd": "GOD001",
+                        "cstGodCd": "%s",
+                        "godNm": "테스트 상품"
+                      }]
+                    }
+                    """, LEGACY_UUID_RAW);
+            stubGetChainReturns(new ResponseEntity<>(body, HttpStatus.OK));
+
+            GetFulfillmentStocksCommand command = GetFulfillmentStocksCommand.of("CUST001", "valid-token");
+
+            // when
+            GetFulfillmentStocksResult result = client.getStocks(command);
+
+            // then
+            assertThat(result.stocks().get(0).customerProductCode()).isEqualTo(LEGACY_UUID_RAW);
         }
     }
 }
