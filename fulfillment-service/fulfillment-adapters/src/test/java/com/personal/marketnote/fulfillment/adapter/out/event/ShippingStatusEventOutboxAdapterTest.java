@@ -90,6 +90,7 @@ class ShippingStatusEventOutboxAdapterTest {
             assertThat(savedEvent.getEventType()).isEqualTo("ShippingStatusChangedEvent");
             assertThat(savedEvent.getSource()).isEqualTo("fulfillment-service");
             assertThat(savedEvent.getEventId()).isNotBlank();
+            assertThat(savedEvent.getEventId()).isEqualTo(capturedEnvelope.eventId());
             assertThat(savedEvent.getPayload()).isEqualTo("{\"eventType\":\"shipping.status.changed\"}");
         }
     }

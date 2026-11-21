@@ -83,6 +83,7 @@ class NotificationSentEventOutboxAdapterTest {
             assertThat(savedEvent.getEventType()).isEqualTo("PushNotificationSentEvent");
             assertThat(savedEvent.getSource()).isEqualTo("notification-service");
             assertThat(savedEvent.getEventId()).isNotBlank();
+            assertThat(savedEvent.getEventId()).isEqualTo(capturedEnvelope.eventId());
             assertThat(savedEvent.getPayload()).isEqualTo("{\"eventType\":\"notification.push.sent\"}");
         }
     }

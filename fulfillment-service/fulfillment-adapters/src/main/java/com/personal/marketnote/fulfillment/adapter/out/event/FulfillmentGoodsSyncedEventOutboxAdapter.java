@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -29,10 +28,15 @@ public class FulfillmentGoodsSyncedEventOutboxAdapter implements PublishFulfillm
     public void publish(FulfillmentGoodsSyncedEvent event) {
         String topic = KafkaTopicConstants.FULFILLMENT_GOODS_SYNCED;
         String partitionKey = event.customerGoodsCode();
-        String eventId = UUID.randomUUID().toString();
-        String payload = serialize(event, topic, partitionKey, eventId);
+        EventEnvelope<FulfillmentGoodsSyncedEvent> envelope = EventEnvelope.of(
+                topic,
+                EVENT_SOURCE,
+                event,
+                clock
+        );
+        String payload = serialize(envelope, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                eventId,
+                envelope.eventId(),
                 topic,
                 partitionKey,
                 FulfillmentGoodsSyncedEvent.class.getSimpleName(),
@@ -43,17 +47,13 @@ public class FulfillmentGoodsSyncedEventOutboxAdapter implements PublishFulfillm
         saveOutboxEventPort.save(outboxEvent);
     }
 
-    private String serialize(FulfillmentGoodsSyncedEvent event, String topic, String partitionKey, String eventId) {
-        EventEnvelope<FulfillmentGoodsSyncedEvent> envelope = EventEnvelope.of(
-                topic,
-                EVENT_SOURCE,
-                event,
-                clock
-        );
+    private String serialize(EventEnvelope<FulfillmentGoodsSyncedEvent> envelope, String partitionKey) {
         try {
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
-            throw new FulfillmentGoodsSyncedEventSerializationException(topic, partitionKey, eventId, e);
+            throw new FulfillmentGoodsSyncedEventSerializationException(
+                    envelope.eventType(), partitionKey, envelope.eventId(), e
+            );
         }
     }
 }
