@@ -20,6 +20,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -67,6 +68,7 @@ class GiftishowApiClientParseResponseMaskingTest {
         api.setCouponResendPath(COUPON_RESEND_PATH);
         api.setBizMoneyBalancePath("/bizApi/bizMoney");
         api.setCouponSendFailCancelPath(COUPON_SEND_FAIL_CANCEL_PATH);
+        api.setSensitivePaths(Set.of(COUPON_SEND_PATH, COUPON_DETAIL_PATH, COUPON_RESEND_PATH));
         properties.setApi(api);
 
         RestClient.Builder builder = RestClient.builder().baseUrl(BASE_URL);

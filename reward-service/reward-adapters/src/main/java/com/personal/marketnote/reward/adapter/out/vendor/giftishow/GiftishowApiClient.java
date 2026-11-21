@@ -398,10 +398,7 @@ public class GiftishowApiClient {
     }
 
     private boolean isSensitivePath(String path) {
-        GiftishowApiProperties.Api api = properties.getApi();
-        return path.equals(api.getCouponSendPath())
-                || path.equals(api.getCouponDetailPath())
-                || path.equals(api.getCouponResendPath());
+        return properties.getApi().getSensitivePaths().contains(path);
     }
 
     private Map<String, String> mutableTags() {

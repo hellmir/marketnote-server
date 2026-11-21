@@ -125,6 +125,10 @@ vendor:
       coupon-resend-path: /bizApi/coupon/resend
       biz-money-balance-path: /bizApi/bizMoney
       coupon-send-fail-cancel-path: /bizApi/coupon/sendFailCancel
+      sensitive-paths:
+        - /bizApi/coupon
+        - /bizApi/coupon/detail
+        - /bizApi/coupon/resend
 
 security:
   validation:

@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Set;
+
 @Configuration
 @ConfigurationProperties(prefix = "vendor.giftishow")
 @Getter
@@ -36,5 +38,6 @@ public class GiftishowApiProperties {
         private String couponResendPath;
         private String bizMoneyBalancePath;
         private String couponSendFailCancelPath;
+        private Set<String> sensitivePaths = Set.of();
     }
 }
