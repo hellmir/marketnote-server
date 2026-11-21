@@ -11,6 +11,7 @@ public record ResolveUnknownPaymentRequest(
         String resultMessage,
         String pgPaymentKey,
         String approvalNumber,
+        @Pattern(regexp = "^(\\d{14})?$", message = "appTime은 14자리 숫자 형식이어야 합니다 (yyyyMMddHHmmss)")
         String appTime
 ) {
 }
