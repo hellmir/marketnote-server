@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.adapter.out.vendor.giftishow;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -276,12 +277,23 @@ public class GiftishowApiClient {
 
         try {
             return objectMapper.readValue(responseBody, typeReference);
-        } catch (Exception e) {
-            log.error("기프티쇼 API 응답 파싱 실패: path={}", path, e);
+        } catch (JsonProcessingException e) {
+            logParseFailure(path, e);
             throw new GiftishowCommunicationException(
                     "기프티쇼 API 응답 파싱 실패. path=" + path, e
             );
         }
+    }
+
+    private void logParseFailure(String path, JsonProcessingException e) {
+        if (isSensitivePath(path)) {
+            log.error(
+                    "기프티쇼 API 응답 파싱 실패: path={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    path, e.getClass().getSimpleName()
+            );
+            return;
+        }
+        log.error("기프티쇼 API 응답 파싱 실패: path={}", path, e);
     }
 
     private void logApiResponse(String path, ResponseEntity<String> rawResponse, String responseBody) {
