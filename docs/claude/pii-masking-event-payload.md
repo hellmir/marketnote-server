@@ -73,6 +73,21 @@ event:
 
 `common/src/main/java/com/personal/marketnote/common/configuration/security/SecurityPropertiesValidator.java`의 `qa.test`/`prod` 프로파일 가드에 `event.payload.pii-salt` 항목을 추가하여, 기본값(`dev-salt-change-me`)으로 운영 환경 부팅 시 앱 시작을 차단한다 (sub-issue로 분리 권장).
 
+### Salt 엔트로피 권장
+
+운영(`prod`) salt는 충분한 엔트로피를 갖는 임의 값으로 주입한다.
+
+- 권장 길이: **32 random bytes 이상**, base64 인코딩 권장 (44자 base64 문자열)
+- 생성 예시:
+
+```bash
+openssl rand -base64 32
+# 결과 예: 7QJpOq+oU3M8AKw6PvF1NrZjHb2cE9vSkLyTaXgWiUE=  (44자)
+```
+
+- `dev-salt-change-me` 등 약한 기본값으로 `qa.test`/`prod` 부팅 시 `SecurityPropertiesValidator`가 앱 시작을 차단한다.
+- salt 길이가 32자 미만으로 `qa.test`/`prod`에 적용될 경우에도 부팅이 차단된다.
+
 ### Salt 회전 (Rotation)
 
 - 회전은 이전/신규 salt 기간에 동일 PII가 다른 해시로 발행됨을 의미한다(연결 단절 — 의도된 동작).
@@ -116,5 +131,5 @@ grep -rln "new <EventClassName>(" --include="*.java" | grep -v test
 - [x] 본 정책 문서 작성
 - [x] PII-bearing event 전수 정리
 - [ ] 각 어댑터 적용 (sub-issue)
-- [ ] `application.yml` salt 주입 (sub-issue)
-- [ ] `SecurityPropertiesValidator` 가드 추가 (sub-issue)
+- [x] `application.yml` salt 주입 (sub-issue)
+- [x] `SecurityPropertiesValidator` 가드 추가 (sub-issue)
