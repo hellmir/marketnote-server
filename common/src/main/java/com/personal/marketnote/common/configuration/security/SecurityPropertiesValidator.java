@@ -22,12 +22,15 @@ public class SecurityPropertiesValidator {
             "dev-secret-change-me", "dev-hmac-secret-change-me",
             "dev-pin-key-change-me", "dev-pin-key-change-me-0123456789",
             "dev-aligo-api-key-change-me", "dev-aligo-user-id-change-me",
+            "dev-salt-change-me",
             "abc", "def", "ghi",
             "change-me", "password", "root", "secret", "test",
             "0000", "1234567890123456"
     );
 
     private static final String REQUIRED_KAFKA_SASL_PROTOCOL = "SASL_SSL";
+
+    private static final int PII_SALT_MIN_LENGTH = 32;
 
     @Value("${spring.jwt.secret:}")
     private String jwtSecret;
@@ -83,6 +86,9 @@ public class SecurityPropertiesValidator {
     @Value("${oauth2.apple.allowed-audiences:}")
     private List<String> appleAllowedAudiences;
 
+    @Value("${event.payload.pii-salt:}")
+    private String eventPayloadPiiSalt;
+
     @PostConstruct
     public void validateSecurityProperties() {
         List<String> violations = new ArrayList<>();
@@ -115,6 +121,8 @@ public class SecurityPropertiesValidator {
                     violations, "oauth2.apple.allowed-audiences (APPLE_ALLOWED_AUDIENCES)", appleAllowedAudiences
             );
         }
+
+        validateEventPayloadPiiSalt(violations);
 
         if (!violations.isEmpty()) {
             String message = String.join("\n  - ", violations);
@@ -172,5 +180,19 @@ public class SecurityPropertiesValidator {
         }
         validateRequired(violations, "spring.kafka.sasl.username (KAFKA_SASL_USERNAME)", kafkaSaslUsername);
         validateRequired(violations, "spring.kafka.sasl.password (KAFKA_SASL_PASSWORD)", kafkaSaslPassword);
+    }
+
+    private void validateEventPayloadPiiSalt(List<String> violations) {
+        int beforeSize = violations.size();
+        validateRequired(violations, "event.payload.pii-salt (EVENT_PAYLOAD_PII_SALT)", eventPayloadPiiSalt);
+        if (violations.size() > beforeSize) {
+            return;
+        }
+        if (eventPayloadPiiSalt.length() < PII_SALT_MIN_LENGTH) {
+            violations.add("event.payload.pii-salt (EVENT_PAYLOAD_PII_SALT) 값이 최소 "
+                    + PII_SALT_MIN_LENGTH + "자 이상이어야 합니다. 현재 길이="
+                    + eventPayloadPiiSalt.length()
+            );
+        }
     }
 }
