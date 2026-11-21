@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -73,7 +74,7 @@ public class UserShippingAddressServiceClient implements UpdateUserShippingAddre
                         shippingAddressId, userId, responseEntity.getStatusCode()
                 );
             }
-        } catch (Exception e) {
+        } catch (RestClientException e) {
             log.warn("fallback applied: 배송 요청사항 업데이트 실패 — 무시. shippingAddressId={}, userId={}",
                     shippingAddressId, userId, e
             );

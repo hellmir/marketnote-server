@@ -80,6 +80,7 @@ public class ExecuteSettlementService implements ExecuteSettlementUseCase {
                         command, sellerId, sellerAllocations, pgFeeRate, platformFeeRate
                 );
             } catch (Exception e) {
+                // boundary swallow: 한 판매자 실패가 다른 판매자 정산에 영향 안 가도록 per-seller swallow + failedCount 누적
                 failedCount++;
                 log.error("판매자 정산 실패 - sellerId: {}, year: {}, month: {}, pgFeeRate: {}, platformFeeRate: {}, error: {}",
                         sellerId, command.year(), command.month(), pgFeeRate, platformFeeRate, e.getMessage(), e

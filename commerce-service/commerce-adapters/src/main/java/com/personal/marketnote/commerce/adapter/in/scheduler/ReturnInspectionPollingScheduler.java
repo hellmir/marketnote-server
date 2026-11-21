@@ -24,6 +24,7 @@ public class ReturnInspectionPollingScheduler {
             pollReturnInspectionUseCase.pollPendingInspections();
             log.info("반품 검수 폴링 완료");
         } catch (Exception e) {
+            // boundary E: @Scheduled — 호출자 전파 불가, ERROR + cause 인자 필수
             log.error("반품 검수 폴링 실패: {}", e.getMessage(), e);
         }
     }

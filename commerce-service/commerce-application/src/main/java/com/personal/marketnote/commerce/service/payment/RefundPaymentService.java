@@ -153,6 +153,7 @@ public class RefundPaymentService implements RefundPaymentUseCase {
             Refund refund = Refund.from(createState);
             saveRefundPort.save(refund);
         } catch (Exception e) {
+            // boundary swallow: 반품 배송비 차감 환불 기록 저장 실패 시에도 환불 본 흐름 진행 (보상 트랜잭션 — Refund 는 부가 기록)
             log.error("반품 배송비 차감 환불 기록 저장 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);
         }
     }
@@ -225,6 +226,7 @@ public class RefundPaymentService implements RefundPaymentUseCase {
             Refund refund = Refund.from(createState);
             saveRefundPort.save(refund);
         } catch (Exception e) {
+            // boundary swallow: 환불 상세 기록 저장 실패 시에도 환불 본 흐름 진행 (보상 트랜잭션 — Refund 는 부가 기록)
             log.error("환불 상세 기록 저장 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);
         }
     }

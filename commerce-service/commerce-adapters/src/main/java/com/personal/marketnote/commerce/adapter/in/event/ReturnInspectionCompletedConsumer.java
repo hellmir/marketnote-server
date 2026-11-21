@@ -60,6 +60,7 @@ public class ReturnInspectionCompletedConsumer {
 
             log.info("반품 완료 처리 성공. orderId={}", payload.orderId());
         } catch (Exception e) {
+            // boundary E: @KafkaListener — 호출자 전파 불가, ERROR + cause 인자 필수 (ack 후 swallow)
             log.error("반품 완료 처리 실패. orderId={}, error={}", payload.orderId(), e.getMessage(), e);
         }
 

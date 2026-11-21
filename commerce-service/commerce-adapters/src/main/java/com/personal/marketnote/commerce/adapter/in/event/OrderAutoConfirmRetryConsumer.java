@@ -74,6 +74,7 @@ public class OrderAutoConfirmRetryConsumer {
                     envelope.eventId(), record.key(), e.getMessage()
             );
         } catch (Exception e) {
+            // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수
             log.error(
                     "자동 확정 재시도 실패. eventId={}, key={}, error={}",
                     envelope.eventId(), record.key(), e.getMessage(), e

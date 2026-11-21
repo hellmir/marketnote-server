@@ -62,6 +62,7 @@ public class ExpireInventoryReservationService implements ExpireInventoryReserva
             );
             log.info("만료 예약 해소 완료. orderId={}", orderId);
         } catch (Exception e) {
+            // boundary swallow: 한 주문 실패가 다른 주문 만료 예약 해소에 영향 안 가도록 per-order swallow
             log.error("만료 예약 해소 실패. orderId={}", orderId, e);
         }
     }

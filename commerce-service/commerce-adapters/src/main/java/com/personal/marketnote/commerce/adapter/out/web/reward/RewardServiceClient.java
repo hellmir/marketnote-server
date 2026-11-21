@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -84,7 +85,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
                 }
 
                 log.warn("포인트 잔액 조회 비정상 응답 - userId: {}, attempt: {}", userId, attempt);
-            } catch (Exception e) {
+            } catch (RestClientException | RewardServiceRequestFailedException e) {
                 lastError = e;
                 log.warn("포인트 잔액 조회 실패 - userId: {}, attempt: {}, error: {}",
                         userId, attempt, e.getMessage(), e
@@ -369,7 +370,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
                 log.warn("{} 비정상 응답 - userIdentifier: {}, attempt: {}, status: {}",
                         operationName, userIdentifier, attempt, responseEntity.getStatusCode()
                 );
-            } catch (Exception e) {
+            } catch (RestClientException | RewardServiceRequestFailedException e) {
                 log.warn("{} 요청 실패 - userIdentifier: {}, attempt: {}, error: {}",
                         operationName, userIdentifier, attempt, e.getMessage(), e
                 );

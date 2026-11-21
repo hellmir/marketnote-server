@@ -58,6 +58,7 @@ public class OrderReturnPointRefundSagaConsumer {
 
             log.warn("알 수 없는 messageType. sagaId={}, messageType={}", stepMessage.sagaId(), stepMessage.messageType());
         } catch (Exception e) {
+            // boundary E: @KafkaListener record-level boundary — 호출자 전파 불가 (finally ack), ERROR + cause 인자 필수
             log.error("SAGA 반품 포인트 환불 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
                     record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
@@ -96,6 +97,7 @@ public class OrderReturnPointRefundSagaConsumer {
                     stepMessage.sagaId(), payload.orderId(), payload.buyerId(), payload.refundPointAmount()
             );
         } catch (Exception e) {
+            // boundary E: SAGA step boundary — UseCase 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 반품 포인트 환불 처리 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
@@ -134,6 +136,7 @@ public class OrderReturnPointRefundSagaConsumer {
                     stepMessage.sagaId(), payload.orderId(), payload.buyerId(), payload.refundPointAmount()
             );
         } catch (Exception e) {
+            // boundary E: SAGA compensation boundary — 보상 처리 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 반품 포인트 환불 보상 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),

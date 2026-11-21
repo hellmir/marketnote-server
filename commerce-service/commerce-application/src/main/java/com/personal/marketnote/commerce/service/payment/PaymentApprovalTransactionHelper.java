@@ -366,6 +366,7 @@ public class PaymentApprovalTransactionHelper {
                     payment.getPaymentAmount().getValue()
             );
         } catch (Exception e) {
+            // boundary swallow: 결제 승인 후속 이벤트 발행 실패 시에도 결제 승인 본 흐름 (DB 변경) 은 진행 — Outbox 미적용 대비 best-effort
             log.error("결제 승인 이벤트 발행 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);
         }
     }
@@ -379,6 +380,7 @@ public class PaymentApprovalTransactionHelper {
                     resultMessage
             );
         } catch (Exception e) {
+            // boundary swallow: 결제 실패 후속 이벤트 발행 실패 시에도 결제 실패 본 흐름 (DB 변경) 은 진행 — Outbox 미적용 대비 best-effort
             log.error("결제 실패 이벤트 발행 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);
         }
     }

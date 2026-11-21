@@ -24,6 +24,7 @@ public class AutoConfirmDeliveredOrdersScheduler {
             autoConfirmDeliveredOrdersUseCase.autoConfirmDeliveredOrders();
             log.info("구매 자동 확정 스케줄러 실행 완료");
         } catch (Exception e) {
+            // boundary E: @Scheduled — 호출자 전파 불가, ERROR + cause 인자 필수
             log.error("구매 자동 확정 스케줄러 실행 실패", e);
         }
     }

@@ -42,6 +42,7 @@ public class SettlementScheduler {
         } catch (NoUnsettledAllocationException e) {
             log.info("전월 미정산 배분 없음, 정산 스킵 - year: {}, month: {}", year, month);
         } catch (Exception e) {
+            // boundary E: @Scheduled — 호출자 전파 불가, ERROR + cause 인자 필수
             log.error("월별 자동 정산 실행 실패 - year: {}, month: {}", year, month, e);
         }
     }

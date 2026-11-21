@@ -81,6 +81,7 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
         try {
             return getReturnInspectionResultPort.getReturnGodDetail(returnSlipNumbers);
         } catch (Exception e) {
+            // 분류 C: 외부 fulfillment 조회 실패 시 폴링 라운드 스킵 (null fallback) — Adapter 가 다양한 예외를 던질 수 있어 광역 catch 유지
             log.warn("fallback applied: 반품 검수 상태 조회 실패 — 폴링 라운드 스킵 (null 반환). returnSlipNumbers={}",
                     returnSlipNumbers, e
             );
@@ -108,6 +109,7 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
             try {
                 processInspectionResult(resultItem, trackerByOrderId);
             } catch (Exception e) {
+                // boundary swallow: 한 result item 실패가 다른 result item 처리에 영향 안 가도록 per-item swallow
                 log.error("반품 검수 상태 업데이트 실패 - orderNumber={}",
                         resultItem.orderNumber(), e
                 );
