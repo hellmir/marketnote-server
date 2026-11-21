@@ -1,12 +1,9 @@
 package com.personal.marketnote.commerce.domain.payment;
 
 import com.personal.marketnote.common.domain.money.Money;
-import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -118,20 +115,7 @@ public class PspPaymentEvent {
         resultCode = info.getResultCode();
         resultMessage = info.getResultMessage();
         pgApprovalResult = info.getPgApprovalResult();
-        paidAt = parseAppTime(info.getAppTime());
-    }
-
-    private LocalDateTime parseAppTime(String appTime) {
-        if (FormatValidator.hasNoValue(appTime)) {
-            return LocalDateTime.now();
-        }
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-            return LocalDateTime.parse(appTime, formatter);
-        } catch (DateTimeParseException ignored) {
-            // PG 응답 appTime 형식 오류 — 현재 시각 폴백 (외부 응답 정화)
-            return LocalDateTime.now();
-        }
+        paidAt = info.getAppTime();
     }
 
     public void failExecution(String resultCode, String resultMessage) {
@@ -167,7 +151,7 @@ public class PspPaymentEvent {
         resultCode = info.getResultCode();
         resultMessage = info.getResultMessage();
         pgApprovalResult = info.getPgApprovalResult();
-        paidAt = parseAppTime(info.getAppTime());
+        paidAt = info.getAppTime();
     }
 
     public void resolveToFailed(String resultCode, String resultMessage) {

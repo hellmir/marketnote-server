@@ -54,6 +54,7 @@ public class PaymentApprovalTransactionHelper {
     private final PublishPaymentEventPort publishPaymentEventPort;
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final Optional<OrderPaymentSagaStarter> orderPaymentSagaStarter;
+    private final PaymentApprovalAppTimeParser appTimeParser;
 
     /**
      * TX-1: 검증 + EXECUTING 상태 커밋
@@ -157,7 +158,7 @@ public class PaymentApprovalTransactionHelper {
                 .resultCode(vendorResult.resultCode())
                 .resultMessage(vendorResult.resultMessage())
                 .pgApprovalResult(vendorResult.rawResponse())
-                .appTime(vendorResult.approvalTime())
+                .appTime(appTimeParser.parse(vendorResult.approvalTime()))
                 .build();
         event.completeWithApproval(approvalInfo);
         updatePspPaymentEventPort.update(event);

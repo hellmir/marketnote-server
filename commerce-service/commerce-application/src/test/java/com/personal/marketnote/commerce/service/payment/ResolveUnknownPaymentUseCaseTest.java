@@ -55,6 +55,9 @@ class ResolveUnknownPaymentUseCaseTest {
     @Mock
     private RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
+    @Mock
+    private PaymentApprovalAppTimeParser appTimeParser;
+
     private static final String ORDER_KEY = UUID.randomUUID().toString();
     private static final Long ORDER_ID = 1L;
 
@@ -68,6 +71,7 @@ class ResolveUnknownPaymentUseCaseTest {
             // given
             PspPaymentEvent event = createUnknownEvent();
             Payment payment = createPayment();
+            LocalDateTime parsedAppTime = LocalDateTime.of(2026, 4, 2, 15, 0, 0);
             ResolveUnknownPaymentCommand command = ResolveUnknownPaymentCommand.builder()
                     .orderKey(ORDER_KEY)
                     .resolvedStatus("COMPLETE")
@@ -80,6 +84,7 @@ class ResolveUnknownPaymentUseCaseTest {
 
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
+            when(appTimeParser.parse("20260402150000")).thenReturn(parsedAppTime);
 
             // when
             ResolveUnknownPaymentResult result = resolveUnknownPaymentService.resolve(command);
@@ -88,6 +93,7 @@ class ResolveUnknownPaymentUseCaseTest {
             assertThat(result.orderKey()).isEqualTo(ORDER_KEY);
             assertThat(result.resolvedStatus()).isEqualTo("COMPLETE");
             assertThat(result.orderId()).isEqualTo(ORDER_ID);
+            assertThat(event.getPaidAt()).isEqualTo(parsedAppTime);
 
             verify(updatePspPaymentEventPort).update(event);
             verify(updatePaymentPort).update(payment);
@@ -101,6 +107,7 @@ class ResolveUnknownPaymentUseCaseTest {
             // given
             PspPaymentEvent event = createUnknownEvent();
             Payment payment = createPayment();
+            LocalDateTime parsedAppTime = LocalDateTime.of(2026, 4, 2, 15, 0, 0);
             ResolveUnknownPaymentCommand command = ResolveUnknownPaymentCommand.builder()
                     .orderKey(ORDER_KEY)
                     .resolvedStatus("COMPLETE")
@@ -113,6 +120,7 @@ class ResolveUnknownPaymentUseCaseTest {
 
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
             when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
+            when(appTimeParser.parse("20260402150000")).thenReturn(parsedAppTime);
             doThrow(new RuntimeException("분개 실패"))
                     .when(recordLedgerEntryUseCase).recordPaymentApproval(ORDER_ID, 50000L);
 
@@ -121,6 +129,7 @@ class ResolveUnknownPaymentUseCaseTest {
 
             // then
             assertThat(result.resolvedStatus()).isEqualTo("COMPLETE");
+            assertThat(event.getPaidAt()).isEqualTo(parsedAppTime);
             verify(updatePspPaymentEventPort).update(event);
             verify(updatePaymentPort).update(payment);
             verify(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));

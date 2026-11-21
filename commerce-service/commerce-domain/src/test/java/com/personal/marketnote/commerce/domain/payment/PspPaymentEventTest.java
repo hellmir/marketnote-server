@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,8 +68,9 @@ class PspPaymentEventTest {
         @DisplayName("EXECUTING 상태에서 승인 정보와 함께 COMPLETE로 전이된다")
         void shouldCompleteWithApprovalData() {
             PspPaymentEvent event = createExecutingEvent();
+            LocalDateTime appTime = LocalDateTime.of(2026, 2, 10, 15, 30, 0);
 
-            event.completeWithApproval(createApprovalInfo("20260210153000"));
+            event.completeWithApproval(createApprovalInfo(appTime));
 
             assertThat(event.getPoStatus()).isEqualTo(PaymentEventStatus.COMPLETE);
             assertThat(event.getPgPaymentKey()).isEqualTo("tno_123");
@@ -81,18 +83,7 @@ class PspPaymentEventTest {
             assertThat(event.getResultCode()).isEqualTo("0000");
             assertThat(event.getResultMessage()).isEqualTo("승인 성공");
             assertThat(event.getPgApprovalResult()).isEqualTo("{\"res_cd\":\"0000\"}");
-            assertThat(event.getPaidAt()).isNotNull();
-            assertThat(event.getPaidAt().getYear()).isEqualTo(2026);
-        }
-
-        @Test
-        @DisplayName("appTime이 null이면 현재 시간을 사용한다")
-        void shouldUseCurrentTimeWhenAppTimeIsNull() {
-            PspPaymentEvent event = createExecutingEvent();
-
-            event.completeWithApproval(createApprovalInfo(null));
-
-            assertThat(event.getPaidAt()).isNotNull();
+            assertThat(event.getPaidAt()).isEqualTo(appTime);
         }
 
         @Test
@@ -100,7 +91,7 @@ class PspPaymentEventTest {
         void shouldThrowWhenNotExecuting() {
             PspPaymentEvent event = createReadyEvent();
 
-            assertThatThrownBy(() -> event.completeWithApproval(createApprovalInfo("20260210153000")))
+            assertThatThrownBy(() -> event.completeWithApproval(createApprovalInfo(LocalDateTime.now())))
                     .isInstanceOf(IllegalStateException.class);
         }
     }
@@ -165,13 +156,15 @@ class PspPaymentEventTest {
         @DisplayName("UNKNOWN 상태에서 승인 정보와 함께 COMPLETE로 전이된다")
         void shouldTransitionToCompleteFromUnknown() {
             PspPaymentEvent event = createUnknownEvent();
+            LocalDateTime appTime = LocalDateTime.of(2026, 3, 4, 12, 0, 0);
 
-            event.resolveToComplete(createApprovalInfo("20260304120000"));
+            event.resolveToComplete(createApprovalInfo(appTime));
 
             assertThat(event.getPoStatus()).isEqualTo(PaymentEventStatus.COMPLETE);
             assertThat(event.getPgPaymentKey()).isEqualTo("tno_123");
             assertThat(event.getApprovalNumber()).isEqualTo("12345678");
             assertThat(event.getResultCode()).isEqualTo("0000");
+            assertThat(event.getPaidAt()).isEqualTo(appTime);
         }
 
         @Test
@@ -179,7 +172,7 @@ class PspPaymentEventTest {
         void shouldThrowWhenNotUnknown() {
             PspPaymentEvent event = createExecutingEvent();
 
-            assertThatThrownBy(() -> event.resolveToComplete(createApprovalInfo("20260304120000")))
+            assertThatThrownBy(() -> event.resolveToComplete(createApprovalInfo(LocalDateTime.now())))
                     .isInstanceOf(IllegalStateException.class);
         }
     }
@@ -400,7 +393,7 @@ class PspPaymentEventTest {
 
     private PspPaymentEvent createCompletedEvent() {
         PspPaymentEvent event = createExecutingEvent();
-        event.completeWithApproval(createApprovalInfo("20260210153000"));
+        event.completeWithApproval(createApprovalInfo(LocalDateTime.of(2026, 2, 10, 15, 30, 0)));
         return event;
     }
 
@@ -410,7 +403,7 @@ class PspPaymentEventTest {
         return event;
     }
 
-    private PaymentApprovalInfo createApprovalInfo(String appTime) {
+    private PaymentApprovalInfo createApprovalInfo(LocalDateTime appTime) {
         return PaymentApprovalInfo.builder()
                 .pgPaymentKey("tno_123")
                 .method("PACA")
