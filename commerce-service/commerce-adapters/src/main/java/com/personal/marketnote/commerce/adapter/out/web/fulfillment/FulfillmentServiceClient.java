@@ -48,70 +48,68 @@ public class FulfillmentServiceClient implements RegisterFulfillmentReturnDelive
 
         Map<String, Object> body = buildReturnDeliveryBody(command);
 
+        ResponseEntity<JsonNode> responseEntity;
         try {
-            ResponseEntity<JsonNode> responseEntity = restClient.post()
+            responseEntity = restClient.post()
                     .uri(uri)
                     .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath()))
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(body)
                     .retrieve()
                     .toEntity(JsonNode.class);
-
-            if (responseEntity.getStatusCode().isError()) {
-                throw new FulfillmentServiceRequestFailedException(
-                        new IOException("Fulfillment service returned error: " + responseEntity.getStatusCode()));
-            }
-
-            if (responseEntity.getStatusCode().is2xxSuccessful()
-                    && FormatValidator.hasValue(responseEntity.getBody())) {
-                JsonNode content = responseEntity.getBody().path("content");
-                return RegisterFulfillmentReturnDeliveryResult.of(
-                        content.path("orderId").asLong(),
-                        content.path("returnSlipNumber").asText(null),
-                        content.path("registered").asBoolean(),
-                        content.path("message").asText(null)
-                );
-            }
-
-            throw new FulfillmentServiceRequestFailedException(
-                    new IOException("풀필먼트 반품 등록 비정상 응답 - orderId: " + command.orderId()));
-        } catch (FulfillmentServiceRequestFailedException e) {
-            throw e;
-        } catch (RestClientException e) {
-            log.error("풀필먼트 반품 등록 실패 - orderId: {}", command.orderId(), e);
-            throw new FulfillmentServiceRequestFailedException(new IOException(e));
+        } catch (RestClientException rce) {
+            log.error("풀필먼트 반품 등록 실패 - orderId: {}", command.orderId(), rce);
+            throw new FulfillmentServiceRequestFailedException(new IOException(rce));
         }
+
+        if (responseEntity.getStatusCode().isError()) {
+            throw new FulfillmentServiceRequestFailedException(
+                    new IOException("Fulfillment service returned error: " + responseEntity.getStatusCode()));
+        }
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()
+                && FormatValidator.hasValue(responseEntity.getBody())) {
+            JsonNode content = responseEntity.getBody().path("content");
+            return RegisterFulfillmentReturnDeliveryResult.of(
+                    content.path("orderId").asLong(),
+                    content.path("returnSlipNumber").asText(null),
+                    content.path("registered").asBoolean(),
+                    content.path("message").asText(null)
+            );
+        }
+
+        throw new FulfillmentServiceRequestFailedException(
+                new IOException("풀필먼트 반품 등록 비정상 응답 - orderId: " + command.orderId()));
     }
 
     @Override
     public ReturnInspectionResult getReturnGodDetail(String returnSlipNumbers) {
         URI uri = buildReturnGodDetailUri(returnSlipNumbers);
 
+        ResponseEntity<JsonNode> responseEntity;
         try {
-            ResponseEntity<JsonNode> responseEntity = restClient.get()
+            responseEntity = restClient.get()
                     .uri(uri)
                     .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath()))
                     .retrieve()
                     .toEntity(JsonNode.class);
-
-            if (responseEntity.getStatusCode().isError()) {
-                throw new FulfillmentServiceRequestFailedException(
-                        new IOException("Fulfillment service returned error: " + responseEntity.getStatusCode()));
-            }
-
-            if (responseEntity.getStatusCode().is2xxSuccessful()
-                    && FormatValidator.hasValue(responseEntity.getBody())) {
-                return parseReturnGodDetailResponse(responseEntity.getBody().path("content"));
-            }
-
-            throw new FulfillmentServiceRequestFailedException(
-                    new IOException("풀필먼트 반품 검수 상태 조회 비정상 응답"));
-        } catch (FulfillmentServiceRequestFailedException e) {
-            throw e;
-        } catch (RestClientException e) {
-            log.error("풀필먼트 반품 검수 상태 조회 실패 - returnSlipNumbers: {}", returnSlipNumbers, e);
-            throw new FulfillmentServiceRequestFailedException(new IOException(e));
+        } catch (RestClientException rce) {
+            log.error("풀필먼트 반품 검수 상태 조회 실패 - returnSlipNumbers: {}", returnSlipNumbers, rce);
+            throw new FulfillmentServiceRequestFailedException(new IOException(rce));
         }
+
+        if (responseEntity.getStatusCode().isError()) {
+            throw new FulfillmentServiceRequestFailedException(
+                    new IOException("Fulfillment service returned error: " + responseEntity.getStatusCode()));
+        }
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()
+                && FormatValidator.hasValue(responseEntity.getBody())) {
+            return parseReturnGodDetailResponse(responseEntity.getBody().path("content"));
+        }
+
+        throw new FulfillmentServiceRequestFailedException(
+                new IOException("풀필먼트 반품 검수 상태 조회 비정상 응답"));
     }
 
     private ReturnInspectionResult parseReturnGodDetailResponse(JsonNode content) {
