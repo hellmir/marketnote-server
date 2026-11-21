@@ -9,16 +9,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 class OrderCancelFailedEventSerializationExceptionTest {
 
     @Test
-    @DisplayName("orderId와 JsonProcessingException cause를 메시지+체인에 보존한다")
-    void preservesOrderIdAndCause() {
-        Long orderId = 12345L;
+    @DisplayName("topic/partitionKey/eventId와 JsonProcessingException cause를 메시지+체인에 보존한다")
+    void preservesContextAndCause() {
         JsonProcessingException root = new JsonProcessingException("invalid token") {
         };
 
-        OrderCancelFailedEventSerializationException ex = new OrderCancelFailedEventSerializationException(orderId, root);
+        OrderCancelFailedEventSerializationException ex = new OrderCancelFailedEventSerializationException(
+                "order.cancel.failed", "12345", "evt-1", root
+        );
 
-        assertThat(ex.getMessage()).contains("주문 취소 실패 이벤트 직렬화 실패");
-        assertThat(ex.getMessage()).contains(String.valueOf(orderId));
+        assertThat(ex.getMessage())
+                .contains("ERR_ORDER_CANCEL_FAILED_EVENT_01")
+                .contains("주문 취소 실패 이벤트")
+                .contains("topic=order.cancel.failed")
+                .contains("partitionKey=12345")
+                .contains("eventId=evt-1");
         assertThat(ex.getCause()).isSameAs(root);
         assertThat(ex).hasCause(root);
         assertThat(ex).hasRootCause(root);

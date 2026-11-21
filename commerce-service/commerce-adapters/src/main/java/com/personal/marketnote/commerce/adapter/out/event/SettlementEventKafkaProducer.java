@@ -41,20 +41,21 @@ public class SettlementEventKafkaProducer implements PublishSettlementEventPort 
                 topic, SOURCE, payload, clock
         );
 
-        String payloadJson = serializePayload(envelope, topic);
+        String partitionKey = settlementId.toString();
+        String payloadJson = serializePayload(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(), topic, settlementId.toString(),
+                envelope.eventId(), topic, partitionKey,
                 envelope.eventType(), SOURCE, payloadJson, clock
         );
         saveOutboxEventPort.save(outboxEvent);
         log.info("Outbox 이벤트 저장. topic={}, settlementId={}, eventId={}", topic, settlementId, envelope.eventId());
     }
 
-    private String serializePayload(EventEnvelope<SettlementExecutedEvent> envelope, String topic) {
+    private String serializePayload(EventEnvelope<SettlementExecutedEvent> envelope, String topic, String partitionKey) {
         try {
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
-            throw new SettlementEventSerializationException(topic, e);
+            throw new SettlementEventSerializationException(topic, partitionKey, envelope.eventId(), e);
         }
     }
 }

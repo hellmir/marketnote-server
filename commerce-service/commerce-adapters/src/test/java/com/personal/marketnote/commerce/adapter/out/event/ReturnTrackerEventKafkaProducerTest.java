@@ -74,7 +74,10 @@ class ReturnTrackerEventKafkaProducerTest {
         // when & then
         assertThatThrownBy(() -> producer.publishReturnInspectionCompletedEvent(42L))
                 .isInstanceOf(ReturnTrackerEventSerializationException.class)
-                .hasMessageContaining("orderId=42");
+                .hasMessageContaining("ERR_RETURN_TRACKER_EVENT_01")
+                .hasMessageContaining("반품 추적 이벤트")
+                .hasMessageContaining("partitionKey=42")
+                .hasMessageContaining("eventId=");
 
         verifyNoInteractions(saveOutboxEventPort);
     }

@@ -1,8 +1,10 @@
 package com.personal.marketnote.fulfillment.exception;
 
-public class ShippingStatusEventSerializationException extends RuntimeException {
+import com.personal.marketnote.common.outbox.exception.BaseEventSerializationException;
 
-    public ShippingStatusEventSerializationException(Long orderId, Throwable cause) {
-        super("배송 상태 변경 이벤트 직렬화 실패. orderId=" + orderId, cause);
+public class ShippingStatusEventSerializationException extends BaseEventSerializationException {
+
+    public ShippingStatusEventSerializationException(String topic, String partitionKey, String eventId, Throwable cause) {
+        super("ERR_SHIPPING_STATUS_EVENT_01", "배송 상태 변경 이벤트", topic, partitionKey, eventId, cause);
     }
 }

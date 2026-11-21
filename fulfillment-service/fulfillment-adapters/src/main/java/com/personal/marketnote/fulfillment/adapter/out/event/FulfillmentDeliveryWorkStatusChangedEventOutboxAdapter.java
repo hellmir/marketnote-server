@@ -26,11 +26,14 @@ public class FulfillmentDeliveryWorkStatusChangedEventOutboxAdapter implements P
 
     @Override
     public void publish(FulfillmentDeliveryWorkStatusChangedEvent event) {
-        String payload = serialize(event);
+        String topic = KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED;
+        String partitionKey = String.valueOf(event.orderId());
+        String eventId = UUID.randomUUID().toString();
+        String payload = serialize(event, topic, partitionKey, eventId);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                UUID.randomUUID().toString(),
-                KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED,
-                String.valueOf(event.orderId()),
+                eventId,
+                topic,
+                partitionKey,
                 FulfillmentDeliveryWorkStatusChangedEvent.class.getSimpleName(),
                 EVENT_SOURCE,
                 payload,
@@ -39,11 +42,13 @@ public class FulfillmentDeliveryWorkStatusChangedEventOutboxAdapter implements P
         saveOutboxEventPort.save(outboxEvent);
     }
 
-    private String serialize(FulfillmentDeliveryWorkStatusChangedEvent event) {
+    private String serialize(
+            FulfillmentDeliveryWorkStatusChangedEvent event, String topic, String partitionKey, String eventId
+    ) {
         try {
             return objectMapper.writeValueAsString(event);
         } catch (JsonProcessingException e) {
-            throw new FulfillmentDeliveryWorkStatusChangedEventSerializationException(e);
+            throw new FulfillmentDeliveryWorkStatusChangedEventSerializationException(topic, partitionKey, eventId, e);
         }
     }
 }

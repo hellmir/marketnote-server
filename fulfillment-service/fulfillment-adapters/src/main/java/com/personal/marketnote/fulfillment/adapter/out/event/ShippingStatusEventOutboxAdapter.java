@@ -26,11 +26,14 @@ public class ShippingStatusEventOutboxAdapter implements PublishShippingStatusCh
 
     @Override
     public void publish(ShippingStatusChangedEvent event) {
-        String payload = serialize(event);
+        String topic = KafkaTopicConstants.SHIPPING_STATUS_CHANGED;
+        String partitionKey = String.valueOf(event.orderId());
+        String eventId = UUID.randomUUID().toString();
+        String payload = serialize(event, topic, partitionKey, eventId);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                UUID.randomUUID().toString(),
-                KafkaTopicConstants.SHIPPING_STATUS_CHANGED,
-                String.valueOf(event.orderId()),
+                eventId,
+                topic,
+                partitionKey,
                 ShippingStatusChangedEvent.class.getSimpleName(),
                 EVENT_SOURCE,
                 payload,
@@ -39,11 +42,11 @@ public class ShippingStatusEventOutboxAdapter implements PublishShippingStatusCh
         saveOutboxEventPort.save(outboxEvent);
     }
 
-    private String serialize(ShippingStatusChangedEvent event) {
+    private String serialize(ShippingStatusChangedEvent event, String topic, String partitionKey, String eventId) {
         try {
             return objectMapper.writeValueAsString(event);
         } catch (JsonProcessingException e) {
-            throw new ShippingStatusEventSerializationException(event.orderId(), e);
+            throw new ShippingStatusEventSerializationException(topic, partitionKey, eventId, e);
         }
     }
 }

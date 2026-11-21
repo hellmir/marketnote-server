@@ -1,8 +1,16 @@
 package com.personal.marketnote.fulfillment.exception;
 
-public class FulfillmentDeliveryWorkStatusChangedEventSerializationException extends RuntimeException {
+import com.personal.marketnote.common.outbox.exception.BaseEventSerializationException;
 
-    public FulfillmentDeliveryWorkStatusChangedEventSerializationException(Throwable cause) {
-        super("풀필먼트 배송 작업 상태 변경 이벤트 직렬화 실패", cause);
+public class FulfillmentDeliveryWorkStatusChangedEventSerializationException extends BaseEventSerializationException {
+
+    public FulfillmentDeliveryWorkStatusChangedEventSerializationException(
+            String topic, String partitionKey, String eventId, Throwable cause
+    ) {
+        super(
+                "ERR_FULFILLMENT_DELIVERY_WORK_STATUS_EVENT_01",
+                "풀필먼트 배송 작업 상태 변경 이벤트",
+                topic, partitionKey, eventId, cause
+        );
     }
 }

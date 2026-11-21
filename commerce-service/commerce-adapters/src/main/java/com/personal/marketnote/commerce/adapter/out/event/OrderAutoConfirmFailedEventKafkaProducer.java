@@ -37,9 +37,10 @@ public class OrderAutoConfirmFailedEventKafkaProducer implements PublishOrderAut
                 topic, SOURCE, payload, clock
         );
 
-        String payloadJson = serialize(envelope, topic);
+        String partitionKey = String.valueOf(orderId);
+        String payloadJson = serialize(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(), topic, String.valueOf(orderId),
+                envelope.eventId(), topic, partitionKey,
                 envelope.eventType(), SOURCE, payloadJson, clock
         );
         saveOutboxEventPort.save(outboxEvent);
@@ -49,11 +50,11 @@ public class OrderAutoConfirmFailedEventKafkaProducer implements PublishOrderAut
         );
     }
 
-    private String serialize(EventEnvelope<OrderAutoConfirmFailedEvent> envelope, String topic) {
+    private String serialize(EventEnvelope<OrderAutoConfirmFailedEvent> envelope, String topic, String partitionKey) {
         try {
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
-            throw new OrderEventSerializationException(topic, e);
+            throw new OrderEventSerializationException(topic, partitionKey, envelope.eventId(), e);
         }
     }
 

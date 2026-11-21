@@ -87,7 +87,10 @@ class OrderCancelFailedEventOutboxAdapterTest {
         // when & then
         assertThatThrownBy(() -> adapter.publish(300L, 99L))
                 .isInstanceOf(OrderCancelFailedEventSerializationException.class)
-                .hasMessageContaining("orderId=300");
+                .hasMessageContaining("ERR_ORDER_CANCEL_FAILED_EVENT_01")
+                .hasMessageContaining("주문 취소 실패 이벤트")
+                .hasMessageContaining("partitionKey=300")
+                .hasMessageContaining("eventId=");
         verifyNoInteractions(saveOutboxEventPort);
     }
 }

@@ -25,11 +25,14 @@ public class NotificationSentEventOutboxAdapter implements PublishNotificationSe
 
     @Override
     public void publish(PushNotificationSentEvent event) {
-        String payload = serialize(event);
+        String topic = KafkaTopicConstants.NOTIFICATION_PUSH_SENT;
+        String partitionKey = String.valueOf(event.notificationId());
+        String eventId = UUID.randomUUID().toString();
+        String payload = serialize(event, topic, partitionKey, eventId);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                UUID.randomUUID().toString(),
-                KafkaTopicConstants.NOTIFICATION_PUSH_SENT,
-                String.valueOf(event.notificationId()),
+                eventId,
+                topic,
+                partitionKey,
                 PushNotificationSentEvent.class.getSimpleName(),
                 EVENT_SOURCE,
                 payload,
@@ -38,11 +41,11 @@ public class NotificationSentEventOutboxAdapter implements PublishNotificationSe
         saveOutboxEventPort.save(outboxEvent);
     }
 
-    private String serialize(PushNotificationSentEvent event) {
+    private String serialize(PushNotificationSentEvent event, String topic, String partitionKey, String eventId) {
         try {
             return objectMapper.writeValueAsString(event);
         } catch (JsonProcessingException e) {
-            throw new NotificationSentEventSerializationException(event.notificationId(), e);
+            throw new NotificationSentEventSerializationException(topic, partitionKey, eventId, e);
         }
     }
 }

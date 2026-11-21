@@ -88,7 +88,7 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
     }
 
     private <T> void saveOutboxEvent(String topic, String partitionKey, EventEnvelope<T> envelope) {
-        String payloadJson = serializePayload(envelope, topic);
+        String payloadJson = serializePayload(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
                 envelope.eventId(), topic, partitionKey,
                 envelope.eventType(), SOURCE, payloadJson, clock
@@ -97,11 +97,11 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
         log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
     }
 
-    private <T> String serializePayload(EventEnvelope<T> envelope, String topic) {
+    private <T> String serializePayload(EventEnvelope<T> envelope, String topic, String partitionKey) {
         try {
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
-            throw new CommunityEventSerializationException(topic, e);
+            throw new CommunityEventSerializationException(topic, partitionKey, envelope.eventId(), e);
         }
     }
 }
