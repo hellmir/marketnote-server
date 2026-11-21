@@ -5,6 +5,7 @@ import com.personal.marketnote.common.adapter.in.request.RegisterInventoryReques
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.exception.CommerceServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
+import com.personal.marketnote.common.security.hmac.exception.HmacSignatureGenerationFailedException;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationSenderType;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -88,7 +90,12 @@ public class CommerceServiceClient implements RegisterInventoryPort {
                     throw new CommerceServiceRequestFailedException(new IOException("Commerce service returned error: " + responseEntity.getStatusCode()));
                 }
                 return;
-            } catch (Exception e) {
+            } catch (RestClientException
+                    | HmacSignatureGenerationFailedException
+                    | CommerceServiceRequestFailedException e) {
+                // boundary E (retry): transient/runtime 오류 retry, 비결정적 RuntimeException(NPE 등)은 우회.
+                // CommerceServiceRequestFailedException 은 5xx 응답 변환 경로(line 88) — 5xx retry 동작 보존.
+                // GeneralSecurityException 은 HmacSignatureGenerator 내부에서 HmacSignatureGenerationFailedException 으로 wrap 됨.
                 String exception = e.getClass().getSimpleName();
                 JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
                         HttpMethod.POST,

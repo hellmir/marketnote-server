@@ -3,6 +3,7 @@ package com.personal.marketnote.community.adapter.out.web.commerce;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
+import com.personal.marketnote.common.security.hmac.exception.HmacSignatureGenerationFailedException;
 import com.personal.marketnote.common.utility.audit.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.community.domain.servicecommunication.CommunityServiceCommunicationSenderType;
 import com.personal.marketnote.community.domain.servicecommunication.CommunityServiceCommunicationTargetType;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -100,8 +102,11 @@ public class CommerceServiceClient implements VerifyOrderOwnershipPort {
                         orderId, hce.getStatusCode().value(), hce
                 );
                 throw hce;
-            } catch (Exception e) {
-                // 재시도 boundary: 네트워크/타임아웃 등 비결정적 오류 전반을 포괄해야 하므로 광역 catch 유지
+            } catch (RestClientException | HmacSignatureGenerationFailedException e) {
+                // boundary E (retry): RestClient 네트워크/타임아웃/응답 변환 오류 + HMAC 헤더 빌더 실패만 retry 대상.
+                // 4xx 는 line 89 HttpClientErrorException 사전 선별 후 도메인 예외로 throw.
+                // 5xx (HttpServerErrorException) 는 RestClientException 가지로 catch 되어 retry.
+                // GeneralSecurityException 은 HmacSignatureGenerator 내부에서 HmacSignatureGenerationFailedException 으로 wrap 됨.
                 recordError(targetId, uri, attempt, e);
                 log.warn("커머스 서비스 주문 소유권 검증 통신 오류 - orderId: {}, attempt: {}", orderId, attempt, e);
 

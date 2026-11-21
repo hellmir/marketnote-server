@@ -2,6 +2,7 @@ package com.personal.marketnote.community.adapter.out.web.commerce;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
+import com.personal.marketnote.common.security.hmac.exception.HmacSignatureGenerationFailedException;
 import com.personal.marketnote.common.utility.audit.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.community.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.community.utility.ServiceCommunicationRecorder;
@@ -12,12 +13,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
+
+import java.security.GeneralSecurityException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
@@ -122,6 +126,32 @@ class CommerceServiceClientTest {
 
             mockServer.verify();
             verify(serviceCommunicationRecorder, atLeastOnce()).record(any(), any(), any(), any(), any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("HMAC 서명 생성 실패가 5회 반복되면 마지막 시도 후 예외를 전파한다 (retry 대상 보존)")
+        void retriesOnHmacSignatureGenerationFailure() {
+            doThrow(new HmacSignatureGenerationFailedException(new GeneralSecurityException("test")))
+                    .when(hmacServiceAuthHeaderBuilder)
+                    .applyHeaders(any(HttpHeaders.class), eq("GET"), anyString());
+
+            assertThatThrownBy(() -> client.verifyOrderOwnership(1L, 10L))
+                    .isInstanceOf(HmacSignatureGenerationFailedException.class);
+
+            verify(serviceCommunicationRecorder, atLeastOnce()).record(any(), any(), any(), any(), any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("retry 대상이 아닌 RuntimeException(NPE)은 retry 없이 즉시 호출자에게 전파된다")
+        void doesNotRetryOnUnexpectedRuntimeException() {
+            doThrow(new NullPointerException("unexpected"))
+                    .when(hmacServiceAuthHeaderBuilder)
+                    .applyHeaders(any(HttpHeaders.class), eq("GET"), anyString());
+
+            assertThatThrownBy(() -> client.verifyOrderOwnership(1L, 10L))
+                    .isInstanceOf(NullPointerException.class);
+
+            verifyNoInteractions(serviceCommunicationRecorder);
         }
     }
 
