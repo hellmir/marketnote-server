@@ -9,6 +9,7 @@ import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoReturnDeliveryCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.returndelivery.FulfillmentReturnDeliveryMapper;
@@ -577,7 +578,7 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
 
     private FulfillmentReturnGodDetailGoodsResult mapReturnGodDetailGoods(FulfillmentReturnGodDetailGoodsResponse goods) {
         return FulfillmentReturnGodDetailGoodsResult.builder()
-                .customerProductCode(goods.cstGodCd())
+                .customerProductCode(FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(goods.cstGodCd()))
                 .productName(goods.godNm())
                 .manufacturingDate(goods.makeDt())
                 .expirationDate(goods.distTermDt())

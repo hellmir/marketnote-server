@@ -1,7 +1,7 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
-import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.delivery.*;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 
 import java.util.List;
@@ -201,10 +201,11 @@ public class FasstoDeliveryCommandToRequestMapper {
     }
 
     private static FulfillmentDeliveryGoodsMapper mapGoods(RegisterFulfillmentDeliveryGoodsCommand item) {
-        String cstGodCd = FormatValidator.hasValue(item.productKey())
-                ? item.productKey().toString()
-                : item.productCode();
-        return FulfillmentDeliveryGoodsMapper.of(cstGodCd, item.expirationDate(), item.orderQuantity());
+        return FulfillmentDeliveryGoodsMapper.of(
+                FasstoCustomerGoodsCodeEncoder.encodeOrFallback(item.productKey(), item.productCode()),
+                item.expirationDate(),
+                item.orderQuantity()
+        );
     }
 
     private static FulfillmentDeliveryIcsItemMapper mapIcsItem(RegisterFulfillmentDeliveryIcsItemCommand item) {

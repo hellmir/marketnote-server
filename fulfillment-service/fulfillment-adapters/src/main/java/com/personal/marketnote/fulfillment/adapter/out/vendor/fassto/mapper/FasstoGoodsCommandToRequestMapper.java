@@ -1,20 +1,12 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
-import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.*;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 
 import java.util.List;
-import java.util.UUID;
 
 public class FasstoGoodsCommandToRequestMapper {
-
-    private static String resolveCstGodCd(UUID productKey, String productCode) {
-        if (FormatValidator.hasValue(productKey)) {
-            return productKey.toString();
-        }
-        return productCode;
-    }
 
     public static FulfillmentGoodsMapper mapToRegisterRequest(RegisterFulfillmentGoodsCommand command) {
         List<FulfillmentGoodsItemMapper> goods = command.goods().stream()
@@ -46,7 +38,7 @@ public class FasstoGoodsCommandToRequestMapper {
 
     private static FulfillmentGoodsItemMapper mapItem(RegisterFulfillmentGoodsItemCommand item) {
         return FulfillmentGoodsItemMapper.of(
-                resolveCstGodCd(item.productKey(), item.productCode()),
+                FasstoCustomerGoodsCodeEncoder.encodeOrFallback(item.productKey(), item.productCode()),
                 item.productName(),
                 item.productType(),
                 item.giftDivision(),
@@ -86,7 +78,7 @@ public class FasstoGoodsCommandToRequestMapper {
 
     private static FulfillmentGoodsItemMapper mapUpdateItem(UpdateFulfillmentGoodsItemCommand item) {
         return FulfillmentGoodsItemMapper.of(
-                resolveCstGodCd(item.productKey(), item.productCode()),
+                FasstoCustomerGoodsCodeEncoder.encodeOrFallback(item.productKey(), item.productCode()),
                 item.productName(),
                 item.productType(),
                 item.giftDivision(),

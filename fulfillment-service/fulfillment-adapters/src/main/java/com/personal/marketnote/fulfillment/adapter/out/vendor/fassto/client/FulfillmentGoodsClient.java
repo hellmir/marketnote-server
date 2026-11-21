@@ -9,6 +9,7 @@ import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsDetailQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsElementQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsMapper;
@@ -988,7 +989,11 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
     }
 
     private RegisterFulfillmentGoodsItemResult mapGoodsItem(RegisterFulfillmentGoodsItemResponse item) {
-        return RegisterFulfillmentGoodsItemResult.of(item.msg(), item.code(), item.cstGodCd());
+        return RegisterFulfillmentGoodsItemResult.of(
+                item.msg(),
+                item.code(),
+                FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(item.cstGodCd())
+        );
     }
 
     private UpdateFulfillmentGoodsItemResult mapUpdateGoodsItem(UpdateFulfillmentGoodsItemResponse item) {
@@ -1008,7 +1013,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
                 .productName(item.godNm())
                 .productTypeName(item.godTypeNm())
                 .inventoryProductNameUseYn(item.invGodNmUseYn())
-                .customerProductCode(item.cstGodCd())
+                .customerProductCode(FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(item.cstGodCd()))
                 .productOptionCode1(item.godOptCd1())
                 .productOptionCode2(item.godOptCd2())
                 .customerCode(item.cstCd())
@@ -1076,7 +1081,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
 
         return FulfillmentGoodsElementInfoResult.builder()
                 .productCode(item.godCd())
-                .customerProductCode(item.cstGodCd())
+                .customerProductCode(FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(item.cstGodCd()))
                 .productName(item.godNm())
                 .useYn(item.useYn())
                 .elementList(elements)
@@ -1086,7 +1091,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
     private FulfillmentGoodsElementItemResult mapGoodsElementItem(FulfillmentGoodsElementItemResponse item) {
         return FulfillmentGoodsElementItemResult.builder()
                 .productCode(item.godCd())
-                .customerProductCode(item.cstGodCd())
+                .customerProductCode(FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(item.cstGodCd()))
                 .productBarcode(item.godBarcd())
                 .productName(item.godNm())
                 .productType(item.godType())

@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.delivery.*;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -340,9 +341,11 @@ class FasstoDeliveryCommandToRequestMapperTest {
             FulfillmentDeliveryMapper mapper = FasstoDeliveryCommandToRequestMapper.mapToRegisterRequest(command);
 
             // then
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             String payload = mapper.toPayload().toString();
-            assertThat(payload).contains(productKey.toString());
+            assertThat(payload).contains(encoded);
             assertThat(payload).doesNotContain("GOD001");
+            assertThat(payload).doesNotContain(productKey.toString());
         }
 
         @Test

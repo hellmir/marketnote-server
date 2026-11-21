@@ -10,6 +10,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.delivery.*;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoDeliveryCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
@@ -2723,7 +2724,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 .shopCode(item.shopCd())
                 .supplierCode(item.supCd())
                 .productCode(item.godCd())
-                .customerProductCode(item.cstGodCd())
+                .customerProductCode(FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(item.cstGodCd()))
                 .productName(item.godNm())
                 .originalProductCode(item.orgGodCd())
                 .productType(item.godType())
@@ -2748,7 +2749,11 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private FulfillmentDeliveryOutOrdGoodsItemInfoResult mapOutOrdGoodsDelivered(FulfillmentOutOrdGoodsDeliveredResponse item) {
-        return FulfillmentDeliveryOutOrdGoodsItemInfoResult.of(item.cstGodCd(), item.godNm(), item.packQty());
+        return FulfillmentDeliveryOutOrdGoodsItemInfoResult.of(
+                FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(item.cstGodCd()),
+                item.godNm(),
+                item.packQty()
+        );
     }
 
     private FulfillmentDeliveryOutOrdGoodsByOrdNoInfoResult mapOutOrdGoodsByOrdNo(FulfillmentOutOrdGoodsByOrdNoItemResponse item) {
@@ -2760,7 +2765,11 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private FulfillmentDeliveryOutOrdGoodsByOrdNoItemInfoResult mapOutOrdGoodsByOrdNoGoods(FulfillmentOutOrdGoodsByOrdNoGoodsResponse item) {
-        return FulfillmentDeliveryOutOrdGoodsByOrdNoItemInfoResult.of(item.cstGodCd(), item.godNm(), item.ordQty());
+        return FulfillmentDeliveryOutOrdGoodsByOrdNoItemInfoResult.of(
+                FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(item.cstGodCd()),
+                item.godNm(),
+                item.ordQty()
+        );
     }
 
     private FulfillmentDeliveryGoodDetailInfoResult mapDeliveryGoodDetailItem(FulfillmentDeliveryGoodDetailItemResponse item) {
@@ -2775,7 +2784,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 .sellerChannel(item.sellerChannel())
                 .recipientName(item.custNm())
                 .productCode(item.godCd())
-                .customerProductCode(item.cstGodCd())
+                .customerProductCode(FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(item.cstGodCd()))
                 .productName(item.godNm())
                 .releaseQuantity(item.outQty())
                 .markedPrAmount(item.markedPrAmount())

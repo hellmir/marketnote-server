@@ -3,6 +3,7 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsDetailQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsElementQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
@@ -35,6 +36,7 @@ import org.springframework.web.client.RestClient;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -201,10 +203,13 @@ class FulfillmentGoodsClientTest {
         }
     }
 
+    private static final UUID TEST_PRODUCT_KEY = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+    private static final String TEST_ENCODED_CST_GOD_CD = FasstoCustomerGoodsCodeEncoder.encode(TEST_PRODUCT_KEY);
+
     private FulfillmentGoodsItemResponse buildGoodsItemResponse() {
         return new FulfillmentGoodsItemResponse(
                 "GOD001", "1", "테스트 상품", "Type", "N",
-                "CPROD001", null, null, "CUST001", "Cust",
+                TEST_ENCODED_CST_GOD_CD, null, null, "CUST001", "Cust",
                 "SUP001", "Sup", "CAT001", "Category", "SEASON",
                 "GENDER", "1000", "800", "1200", "NORMAL",
                 "PF", "01", "GiftDiv", "10", "20", "30",
@@ -229,7 +234,7 @@ class FulfillmentGoodsClientTest {
             stubPayloadGenerator();
             RegisterFulfillmentGoodsResponse payload = new RegisterFulfillmentGoodsResponse(
                     new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new RegisterFulfillmentGoodsItemResponse("OK", "200", "CPROD001")),
+                    List.of(new RegisterFulfillmentGoodsItemResponse("OK", "200", TEST_ENCODED_CST_GOD_CD)),
                     null
             );
             stubPostChain(ResponseEntity.ok(toJson(payload)));
@@ -240,7 +245,7 @@ class FulfillmentGoodsClientTest {
             // then
             assertThat(result.dataCount()).isEqualTo(1);
             assertThat(result.goods()).hasSize(1);
-            assertThat(result.goods().get(0).customerProductCode()).isEqualTo("CPROD001");
+            assertThat(result.goods().get(0).customerProductCode()).isEqualTo(TEST_PRODUCT_KEY.toString());
             assertThat(result.goods().get(0).code()).isEqualTo("200");
         }
     }
@@ -346,7 +351,7 @@ class FulfillmentGoodsClientTest {
             FulfillmentGoodsElementsResponse payload = new FulfillmentGoodsElementsResponse(
                     new FulfillmentResponseHeader("200", "success", 1),
                     List.of(new FulfillmentGoodsElementResponse(
-                            "GOD001", "CPROD001", "테스트 상품", "Y", List.of()
+                            "GOD001", TEST_ENCODED_CST_GOD_CD, "테스트 상품", "Y", List.of()
                     )),
                     null
             );

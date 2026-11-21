@@ -1,5 +1,6 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingAbnormalImageQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
@@ -41,8 +42,10 @@ class FasstoWarehousingCommandToRequestMapperTest {
             FulfillmentWarehousingMapper mapper = FasstoWarehousingCommandToRequestMapper.mapToRegisterRequest(command);
 
             // then
-            assertThat(mapper.toPayload().toString()).contains(productKey.toString());
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
+            assertThat(mapper.toPayload().toString()).contains(encoded);
             assertThat(mapper.toPayload().toString()).doesNotContain("GOD001");
+            assertThat(mapper.toPayload().toString()).doesNotContain(productKey.toString());
         }
 
         @Test
@@ -97,8 +100,10 @@ class FasstoWarehousingCommandToRequestMapperTest {
             FulfillmentWarehousingMapper mapper = FasstoWarehousingCommandToRequestMapper.mapToUpdateRequest(command);
 
             // then
-            assertThat(mapper.toPayload().toString()).contains(productKey.toString());
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
+            assertThat(mapper.toPayload().toString()).contains(encoded);
             assertThat(mapper.toPayload().toString()).doesNotContain("GOD001");
+            assertThat(mapper.toPayload().toString()).doesNotContain(productKey.toString());
         }
 
         @Test
@@ -152,7 +157,7 @@ class FasstoWarehousingCommandToRequestMapperTest {
                     FasstoWarehousingCommandToRequestMapper.mapToAbnormalImageQuery(command);
 
             // then
-            assertThat(query.getGodCd()).isEqualTo(productKey.toString());
+            assertThat(query.getGodCd()).isEqualTo(FasstoCustomerGoodsCodeEncoder.encode(productKey));
         }
 
         @Test
