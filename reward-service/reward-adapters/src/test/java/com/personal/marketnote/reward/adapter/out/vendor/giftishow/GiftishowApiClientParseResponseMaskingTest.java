@@ -5,8 +5,10 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -67,7 +69,10 @@ class GiftishowApiClientParseResponseMaskingTest {
         mockServer = MockRestServiceServer.bindTo(builder).build();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        giftishowApiClient = new GiftishowApiClient(properties, builder.build(), objectMapper);
+        ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
+        giftishowApiClient = new GiftishowApiClient(
+                properties, builder.build(), objectMapper, externalCallLogger
+        );
 
         clientLogger = (Logger) LoggerFactory.getLogger(GiftishowApiClient.class);
         listAppender = new ListAppender<>();
@@ -131,8 +136,8 @@ class GiftishowApiClientParseResponseMaskingTest {
     }
 
     @Test
-    @DisplayName("sensitive path 응답 파싱 실패 시 GiftishowCommunicationException이 throw되며 cause는 원본 예외이다")
-    void shouldThrowExceptionWithCauseWhenSensitivePathParseFails() {
+    @DisplayName("sensitive path 응답 파싱 실패 시 GiftishowCommunicationException은 cause를 제거하여 raw body 노출을 차단한다")
+    void shouldThrowExceptionWithoutCauseWhenSensitivePathParseFails() {
         // given
         mockServer.expect(requestTo(BASE_URL + COUPON_SEND_PATH))
                 .andExpect(method(HttpMethod.POST))
@@ -145,7 +150,7 @@ class GiftishowApiClientParseResponseMaskingTest {
                 .isInstanceOf(GiftishowCommunicationException.class)
                 .hasMessageContaining("응답 파싱 실패")
                 .hasMessageContaining(COUPON_SEND_PATH)
-                .hasCauseInstanceOf(com.fasterxml.jackson.core.JsonProcessingException.class);
+                .hasNoCause();
 
         mockServer.verify();
     }

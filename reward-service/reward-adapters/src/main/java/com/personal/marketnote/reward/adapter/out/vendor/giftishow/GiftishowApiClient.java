@@ -3,6 +3,8 @@ package com.personal.marketnote.reward.adapter.out.vendor.giftishow;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.*;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
@@ -15,22 +17,44 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 @Slf4j
 public class GiftishowApiClient {
 
+    private static final String OP_PRODUCT_LIST = "product.list";
+    private static final String OP_PRODUCT_DETAIL = "product.detail";
+    private static final String OP_BRAND_LIST = "brand.list";
+    private static final String OP_BRAND_DETAIL = "brand.detail";
+    private static final String OP_COUPON_SEND = "coupon.send";
+    private static final String OP_COUPON_DETAIL = "coupon.detail";
+    private static final String OP_COUPON_CANCEL = "coupon.cancel";
+    private static final String OP_COUPON_RESEND = "coupon.resend";
+    private static final String OP_BIZMONEY_BALANCE = "bizmoney.balance";
+    private static final String OP_COUPON_SEND_FAIL_CANCEL = "coupon.sendFailCancel";
+
+    private static final String TAG_TR_ID = "tr_id";
+    private static final String TAG_GOODS_CODE = "goods_code";
+    private static final String TAG_BRAND_CODE = "brand_code";
+    private static final String TAG_USER_ID = "user_id";
+
     private final GiftishowApiProperties properties;
     private final RestClient giftishowRestClient;
     private final ObjectMapper objectMapper;
+    private final ExternalCallLogger externalCallLogger;
 
     public GiftishowApiClient(
             GiftishowApiProperties properties,
             RestClient giftishowRestClient,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            ExternalCallLogger externalCallLogger
     ) {
         this.properties = properties;
         this.giftishowRestClient = giftishowRestClient;
         this.objectMapper = objectMapper;
+        this.externalCallLogger = externalCallLogger;
     }
 
     /**
@@ -43,11 +67,16 @@ public class GiftishowApiClient {
 
         log.info("기프티쇼 상품 리스트 조회 요청: start={}, size={}", start, size);
 
-        return executePost(
-                properties.getApi().getProductListPath(),
-                params,
-                new TypeReference<>() {
-                }
+        Map<String, String> tags = mutableTags();
+
+        return externalCallLogger.record(
+                ExternalSystem.GIFTISHOW, OP_PRODUCT_LIST, tags,
+                () -> executePost(
+                        properties.getApi().getProductListPath(),
+                        params,
+                        new TypeReference<>() {
+                        }
+                )
         );
     }
 
@@ -57,12 +86,18 @@ public class GiftishowApiClient {
     public GiftishowApiResponse<GiftishowProductDetailResponse> getProductDetail(String goodsCode) {
         log.info("기프티쇼 상품 상세 조회 요청: goodsCode={}", goodsCode);
 
-        return executeGet(
-                properties.getApi().getProductDetailPath(),
-                goodsCode,
-                "goods_code",
-                new TypeReference<>() {
-                }
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_GOODS_CODE, goodsCode);
+
+        return externalCallLogger.record(
+                ExternalSystem.GIFTISHOW, OP_PRODUCT_DETAIL, tags,
+                () -> executeGet(
+                        properties.getApi().getProductDetailPath(),
+                        goodsCode,
+                        "goods_code",
+                        new TypeReference<>() {
+                        }
+                )
         );
     }
 
@@ -74,11 +109,16 @@ public class GiftishowApiClient {
 
         log.info("기프티쇼 브랜드 조회 요청");
 
-        return executePost(
-                properties.getApi().getBrandListPath(),
-                params,
-                new TypeReference<>() {
-                }
+        Map<String, String> tags = mutableTags();
+
+        return externalCallLogger.record(
+                ExternalSystem.GIFTISHOW, OP_BRAND_LIST, tags,
+                () -> executePost(
+                        properties.getApi().getBrandListPath(),
+                        params,
+                        new TypeReference<>() {
+                        }
+                )
         );
     }
 
@@ -88,12 +128,18 @@ public class GiftishowApiClient {
     public GiftishowApiResponse<GiftishowBrandDetailResponse> getBrandDetail(String brandCode) {
         log.info("기프티쇼 브랜드 상세 조회 요청: brandCode={}", brandCode);
 
-        return executeGet(
-                properties.getApi().getBrandDetailPath(),
-                brandCode,
-                "brand_code",
-                new TypeReference<>() {
-                }
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_BRAND_CODE, brandCode);
+
+        return externalCallLogger.record(
+                ExternalSystem.GIFTISHOW, OP_BRAND_DETAIL, tags,
+                () -> executeGet(
+                        properties.getApi().getBrandDetailPath(),
+                        brandCode,
+                        "brand_code",
+                        new TypeReference<>() {
+                        }
+                )
         );
     }
 
@@ -120,11 +166,19 @@ public class GiftishowApiClient {
 
         log.info("기프티쇼 쿠폰 발송 요청: trId={}, goodsCode={}, userId={}", trId, goodsCode, userId);
 
-        return executePost(
-                properties.getApi().getCouponSendPath(),
-                params,
-                new TypeReference<>() {
-                }
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_TR_ID, trId);
+        putIfPresent(tags, TAG_GOODS_CODE, goodsCode);
+        putIfPresent(tags, TAG_USER_ID, userId);
+
+        return externalCallLogger.record(
+                ExternalSystem.GIFTISHOW, OP_COUPON_SEND, tags,
+                () -> executePost(
+                        properties.getApi().getCouponSendPath(),
+                        params,
+                        new TypeReference<>() {
+                        }
+                )
         );
     }
 
@@ -137,11 +191,17 @@ public class GiftishowApiClient {
 
         log.info("기프티쇼 쿠폰 상세 조회 요청: trId={}", trId);
 
-        return executePost(
-                properties.getApi().getCouponDetailPath(),
-                params,
-                new TypeReference<>() {
-                }
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_TR_ID, trId);
+
+        return externalCallLogger.record(
+                ExternalSystem.GIFTISHOW, OP_COUPON_DETAIL, tags,
+                () -> executePost(
+                        properties.getApi().getCouponDetailPath(),
+                        params,
+                        new TypeReference<>() {
+                        }
+                )
         );
     }
 
@@ -155,11 +215,18 @@ public class GiftishowApiClient {
 
         log.info("기프티쇼 쿠폰 취소 요청: trId={}, userId={}", trId, userId);
 
-        return executePost(
-                properties.getApi().getCouponCancelPath(),
-                params,
-                new TypeReference<>() {
-                }
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_TR_ID, trId);
+        putIfPresent(tags, TAG_USER_ID, userId);
+
+        return externalCallLogger.record(
+                ExternalSystem.GIFTISHOW, OP_COUPON_CANCEL, tags,
+                () -> executePost(
+                        properties.getApi().getCouponCancelPath(),
+                        params,
+                        new TypeReference<>() {
+                        }
+                )
         );
     }
 
@@ -173,11 +240,17 @@ public class GiftishowApiClient {
 
         log.info("기프티쇼 쿠폰 재전송 요청: trId={}", trId);
 
-        return executePost(
-                properties.getApi().getCouponResendPath(),
-                params,
-                new TypeReference<>() {
-                }
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_TR_ID, trId);
+
+        return externalCallLogger.record(
+                ExternalSystem.GIFTISHOW, OP_COUPON_RESEND, tags,
+                () -> executePost(
+                        properties.getApi().getCouponResendPath(),
+                        params,
+                        new TypeReference<>() {
+                        }
+                )
         );
     }
 
@@ -190,11 +263,17 @@ public class GiftishowApiClient {
 
         log.info("기프티쇼 비즈머니 잔액 조회 요청: userId={}", userId);
 
-        return executePost(
-                properties.getApi().getBizMoneyBalancePath(),
-                params,
-                new TypeReference<>() {
-                }
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_USER_ID, userId);
+
+        return externalCallLogger.record(
+                ExternalSystem.GIFTISHOW, OP_BIZMONEY_BALANCE, tags,
+                () -> executePost(
+                        properties.getApi().getBizMoneyBalancePath(),
+                        params,
+                        new TypeReference<>() {
+                        }
+                )
         );
     }
 
@@ -208,11 +287,18 @@ public class GiftishowApiClient {
 
         log.info("기프티쇼 발송실패 취소 요청: trId={}, userId={}", trId, userId);
 
-        return executePost(
-                properties.getApi().getCouponSendFailCancelPath(),
-                params,
-                new TypeReference<>() {
-                }
+        Map<String, String> tags = mutableTags();
+        putIfPresent(tags, TAG_TR_ID, trId);
+        putIfPresent(tags, TAG_USER_ID, userId);
+
+        return externalCallLogger.record(
+                ExternalSystem.GIFTISHOW, OP_COUPON_SEND_FAIL_CANCEL, tags,
+                () -> executePost(
+                        properties.getApi().getCouponSendFailCancelPath(),
+                        params,
+                        new TypeReference<>() {
+                        }
+                )
         );
     }
 
@@ -279,6 +365,11 @@ public class GiftishowApiClient {
             return objectMapper.readValue(responseBody, typeReference);
         } catch (JsonProcessingException e) {
             logParseFailure(path, e);
+            if (isSensitivePath(path)) {
+                throw new GiftishowCommunicationException(
+                        "기프티쇼 API 응답 파싱 실패. path=" + path
+                );
+            }
             throw new GiftishowCommunicationException(
                     "기프티쇼 API 응답 파싱 실패. path=" + path, e
             );
@@ -308,5 +399,16 @@ public class GiftishowApiClient {
 
     private boolean isSensitivePath(String path) {
         return path.equals(properties.getApi().getCouponSendPath());
+    }
+
+    private Map<String, String> mutableTags() {
+        return new HashMap<>();
+    }
+
+    private void putIfPresent(Map<String, String> tags, String key, String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return;
+        }
+        tags.put(key, value);
     }
 }

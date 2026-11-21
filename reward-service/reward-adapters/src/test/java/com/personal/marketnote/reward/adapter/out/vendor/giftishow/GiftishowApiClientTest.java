@@ -1,9 +1,11 @@
 package com.personal.marketnote.reward.adapter.out.vendor.giftishow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.*;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -64,7 +66,10 @@ class GiftishowApiClientTest {
         mockServer = MockRestServiceServer.bindTo(builder).build();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        giftishowApiClient = new GiftishowApiClient(properties, builder.build(), objectMapper);
+        ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
+        giftishowApiClient = new GiftishowApiClient(
+                properties, builder.build(), objectMapper, externalCallLogger
+        );
     }
 
     @Nested
