@@ -5,4 +5,8 @@ public class InvalidGiftishowApiPropertiesException extends IllegalStateExceptio
     public InvalidGiftishowApiPropertiesException(String violation) {
         super("Giftishow API 설정 검증 실패: " + violation);
     }
+
+    public InvalidGiftishowApiPropertiesException(String violation, Throwable cause) {
+        super("Giftishow API 설정 검증 실패: " + violation, cause);
+    }
 }
