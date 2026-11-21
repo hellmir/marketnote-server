@@ -13,7 +13,8 @@ public enum ExternalSystem {
     GOOGLE_OAUTH("google_oauth"),
     KAKAO_OAUTH("kakao_oauth"),
     ALIGO("aligo"),
-    S3("s3");
+    S3("s3"),
+    USER("user");
 
     private static final String LOGGER_PREFIX = "external.";
 
