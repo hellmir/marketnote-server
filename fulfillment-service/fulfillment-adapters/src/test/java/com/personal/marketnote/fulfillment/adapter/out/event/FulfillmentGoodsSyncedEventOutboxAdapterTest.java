@@ -3,6 +3,7 @@ package com.personal.marketnote.fulfillment.adapter.out.event;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
+import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.FulfillmentGoodsSyncedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
@@ -23,6 +24,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,7 +48,7 @@ class FulfillmentGoodsSyncedEventOutboxAdapterTest {
     class PublishSuccess {
 
         @Test
-        @DisplayName("이벤트를 직렬화하여 OutboxEvent로 저장한다")
+        @DisplayName("이벤트를 EventEnvelope으로 감싸 직렬화하여 OutboxEvent로 저장한다")
         void shouldSerializeAndSaveOutboxEvent() throws JsonProcessingException {
             // given
             Clock fixedClock = Clock.fixed(Instant.parse("2026-09-28T00:00:00Z"), ZoneId.of("Asia/Seoul"));
@@ -66,12 +68,19 @@ class FulfillmentGoodsSyncedEventOutboxAdapterTest {
                     null, null,
                     List.of()
             );
-            when(objectMapper.writeValueAsString(event)).thenReturn("{\"customerGoodsCode\":\"CGC001\"}");
+            ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+            when(objectMapper.writeValueAsString(envelopeCaptor.capture())).thenReturn("{\"eventType\":\"fulfillment.goods.synced\"}");
 
             // when
             adapter.publish(event);
 
             // then
+            EventEnvelope<?> capturedEnvelope = envelopeCaptor.getValue();
+            assertThat(capturedEnvelope.eventType()).isEqualTo(KafkaTopicConstants.FULFILLMENT_GOODS_SYNCED);
+            assertThat(capturedEnvelope.source()).isEqualTo("fulfillment-service");
+            assertThat(capturedEnvelope.eventId()).isNotBlank();
+            assertThat(capturedEnvelope.payload()).isEqualTo(event);
+
             ArgumentCaptor<OutboxEvent> captor = ArgumentCaptor.forClass(OutboxEvent.class);
             verify(saveOutboxEventPort).save(captor.capture());
 
@@ -80,7 +89,7 @@ class FulfillmentGoodsSyncedEventOutboxAdapterTest {
             assertThat(savedEvent.getPartitionKey()).isEqualTo("CGC001");
             assertThat(savedEvent.getEventType()).isEqualTo("FulfillmentGoodsSyncedEvent");
             assertThat(savedEvent.getSource()).isEqualTo("fulfillment-service");
-            assertThat(savedEvent.getPayload()).isEqualTo("{\"customerGoodsCode\":\"CGC001\"}");
+            assertThat(savedEvent.getPayload()).isEqualTo("{\"eventType\":\"fulfillment.goods.synced\"}");
         }
     }
 
@@ -92,6 +101,10 @@ class FulfillmentGoodsSyncedEventOutboxAdapterTest {
         @DisplayName("직렬화 실패 시 FulfillmentGoodsSyncedEventSerializationException이 발생한다")
         void shouldThrowSerializationExceptionWhenSerializationFails() throws JsonProcessingException {
             // given
+            Clock fixedClock = Clock.fixed(Instant.parse("2026-09-28T00:00:00Z"), ZoneId.of("Asia/Seoul"));
+            when(clock.instant()).thenReturn(fixedClock.instant());
+            when(clock.getZone()).thenReturn(fixedClock.getZone());
+
             FulfillmentGoodsSyncedEvent event = new FulfillmentGoodsSyncedEvent(
                     "CGC001", "GC001", "테스트 상품", "1", "일반", "Y",
                     null, null, "CUST001", "테스트 고객사",
@@ -105,7 +118,7 @@ class FulfillmentGoodsSyncedEventOutboxAdapterTest {
                     null, null,
                     List.of()
             );
-            when(objectMapper.writeValueAsString(event))
+            when(objectMapper.writeValueAsString(any(EventEnvelope.class)))
                     .thenThrow(new JsonProcessingException("직렬화 실패") {
                     });
 
