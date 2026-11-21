@@ -3,12 +3,13 @@ package com.personal.marketnote.commerce.adapter.out.web.user;
 import com.personal.marketnote.commerce.port.out.user.UpdateUserShippingAddressDeliveryRequestPort;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -28,18 +29,23 @@ import java.util.Map;
 @Slf4j
 public class UserShippingAddressServiceClient implements UpdateUserShippingAddressDeliveryRequestPort {
 
+    private static final String OPERATION_UPDATE_DELIVERY_REQUEST = "shipping.update_delivery_request";
+
     private final RestClient restClient;
     private final String userServiceBaseUrl;
     private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
+    private final ExternalCallLogger externalCallLogger;
 
     public UserShippingAddressServiceClient(
             RestClient.Builder restClientBuilder,
             @Value("${user-service.base-url:http://localhost:8080}") String userServiceBaseUrl,
-            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder
+            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
+            ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.userServiceBaseUrl = userServiceBaseUrl;
         this.hmacServiceAuthHeaderBuilder = hmacServiceAuthHeaderBuilder;
+        this.externalCallLogger = externalCallLogger;
     }
 
     @Override
@@ -60,25 +66,32 @@ public class UserShippingAddressServiceClient implements UpdateUserShippingAddre
             body.put("deliveryRequestMessage", deliveryRequestMessage);
         }
 
-        try {
-            ResponseEntity<Void> responseEntity = restClient.patch()
-                    .uri(uri)
-                    .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "PATCH", path))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(body)
-                    .retrieve()
-                    .toBodilessEntity();
+        Map<String, String> tags = Map.of(
+                "shippingAddressId", String.valueOf(shippingAddressId),
+                "userId", String.valueOf(userId)
+        );
 
-            if (responseEntity.getStatusCode().isError()) {
-                log.warn("배송 요청사항 업데이트 실패 - shippingAddressId: {}, userId: {}, status: {}",
-                        shippingAddressId, userId, responseEntity.getStatusCode()
-                );
-            }
+        try {
+            externalCallLogger.recordVoid(
+                    ExternalSystem.USER, OPERATION_UPDATE_DELIVERY_REQUEST, tags,
+                    () -> sendUpdateDeliveryRequest(uri, path, body)
+            );
         } catch (RestClientException e) {
-            log.warn("fallback applied: 배송 요청사항 업데이트 실패 — 무시. shippingAddressId={}, userId={}",
+            log.warn(
+                    "fallback applied: 배송 요청사항 업데이트 실패 — 무시. shippingAddressId={}, userId={}",
                     shippingAddressId, userId, e
             );
         }
+    }
+
+    private void sendUpdateDeliveryRequest(URI uri, String path, Map<String, String> body) {
+        restClient.patch()
+                .uri(uri)
+                .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "PATCH", path))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve()
+                .toBodilessEntity();
     }
 
 }

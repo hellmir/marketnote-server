@@ -20,7 +20,8 @@ class ExternalSystemTest {
                 Arguments.of(ExternalSystem.GOOGLE_OAUTH, "google_oauth", "external.google_oauth"),
                 Arguments.of(ExternalSystem.KAKAO_OAUTH, "kakao_oauth", "external.kakao_oauth"),
                 Arguments.of(ExternalSystem.ALIGO, "aligo", "external.aligo"),
-                Arguments.of(ExternalSystem.S3, "s3", "external.s3")
+                Arguments.of(ExternalSystem.S3, "s3", "external.s3"),
+                Arguments.of(ExternalSystem.USER, "user", "external.user")
         );
     }
 
@@ -33,8 +34,8 @@ class ExternalSystemTest {
     }
 
     @Test
-    @DisplayName("정의된 외부 시스템은 6개이다")
-    void shouldHaveSixDefinedSystems() {
-        assertThat(ExternalSystem.values()).hasSize(6);
+    @DisplayName("정의된 외부 시스템은 7개이다")
+    void shouldHaveSevenDefinedSystems() {
+        assertThat(ExternalSystem.values()).hasSize(7);
     }
 }
