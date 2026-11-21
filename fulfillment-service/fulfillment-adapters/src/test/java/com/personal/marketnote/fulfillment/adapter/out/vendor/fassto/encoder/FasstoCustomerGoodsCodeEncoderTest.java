@@ -1,5 +1,6 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder;
 
+import com.personal.marketnote.common.exception.VendorOperationFailedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -105,56 +106,57 @@ class FasstoCustomerGoodsCodeEncoderTest {
         }
 
         @Test
-        @DisplayName("22자 초과 입력(prefix 포함 27자 등)은 InvalidFasstoCustomerGoodsCodeLengthException을 던진다 (strict 매칭)")
+        @DisplayName("22자 초과 입력(prefix 포함 27자 등)은 FasstoCustomerGoodsCodeLengthDecodingFailedException을 던진다 (strict 매칭)")
         void shouldThrowOnLongerThanTwentyTwo() {
             UUID original = UUID.randomUUID();
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(original);
             String prefixed = "94388" + encoded;
 
             assertThatThrownBy(() -> FasstoCustomerGoodsCodeEncoder.decode(prefixed))
-                    .isInstanceOf(InvalidFasstoCustomerGoodsCodeLengthException.class);
+                    .isInstanceOf(FasstoCustomerGoodsCodeLengthDecodingFailedException.class)
+                    .isInstanceOf(VendorOperationFailedException.class);
         }
 
         @Test
-        @DisplayName("36자 UUID 형태 입력(이전 마이그레이션 잔존)은 InvalidFasstoCustomerGoodsCodeLengthException을 던진다")
+        @DisplayName("36자 UUID 형태 입력(이전 마이그레이션 잔존)은 FasstoCustomerGoodsCodeLengthDecodingFailedException을 던진다")
         void shouldThrowOnLegacyUuidString() {
             String legacyUuid = UUID.randomUUID().toString();
 
             assertThatThrownBy(() -> FasstoCustomerGoodsCodeEncoder.decode(legacyUuid))
-                    .isInstanceOf(InvalidFasstoCustomerGoodsCodeLengthException.class);
+                    .isInstanceOf(FasstoCustomerGoodsCodeLengthDecodingFailedException.class);
         }
 
         @Test
-        @DisplayName("null 입력은 InvalidFasstoCustomerGoodsCodeLengthException을 던진다")
+        @DisplayName("null 입력은 FasstoCustomerGoodsCodeLengthDecodingFailedException을 던진다")
         void shouldThrowOnNull() {
             assertThatThrownBy(() -> FasstoCustomerGoodsCodeEncoder.decode(null))
-                    .isInstanceOf(InvalidFasstoCustomerGoodsCodeLengthException.class);
+                    .isInstanceOf(FasstoCustomerGoodsCodeLengthDecodingFailedException.class);
         }
 
         @Test
-        @DisplayName("빈 문자열 입력은 InvalidFasstoCustomerGoodsCodeLengthException을 던진다")
+        @DisplayName("빈 문자열 입력은 FasstoCustomerGoodsCodeLengthDecodingFailedException을 던진다")
         void shouldThrowOnBlank() {
             assertThatThrownBy(() -> FasstoCustomerGoodsCodeEncoder.decode(""))
-                    .isInstanceOf(InvalidFasstoCustomerGoodsCodeLengthException.class);
+                    .isInstanceOf(FasstoCustomerGoodsCodeLengthDecodingFailedException.class);
         }
 
         @ParameterizedTest
         @ValueSource(ints = {1, 5, 10, 21})
-        @DisplayName("22자 미만 입력은 InvalidFasstoCustomerGoodsCodeLengthException을 던진다")
+        @DisplayName("22자 미만 입력은 FasstoCustomerGoodsCodeLengthDecodingFailedException을 던진다")
         void shouldThrowOnShorterThanTwentyTwo(int length) {
             String shortInput = "a".repeat(length);
 
             assertThatThrownBy(() -> FasstoCustomerGoodsCodeEncoder.decode(shortInput))
-                    .isInstanceOf(InvalidFasstoCustomerGoodsCodeLengthException.class);
+                    .isInstanceOf(FasstoCustomerGoodsCodeLengthDecodingFailedException.class);
         }
 
         @Test
-        @DisplayName("정확히 22자이지만 영숫자 외 문자 포함 시 InvalidFasstoCustomerGoodsCodeCharsetException을 던진다")
+        @DisplayName("정확히 22자이지만 영숫자 외 문자 포함 시 FasstoCustomerGoodsCodeCharsetDecodingFailedException을 던진다")
         void shouldThrowOnNonAlphanumericTwentyTwo() {
             String invalid = "550e8400-e29b-41d4-a71";
 
             assertThatThrownBy(() -> FasstoCustomerGoodsCodeEncoder.decode(invalid))
-                    .isInstanceOf(InvalidFasstoCustomerGoodsCodeCharsetException.class);
+                    .isInstanceOf(FasstoCustomerGoodsCodeCharsetDecodingFailedException.class);
         }
     }
 

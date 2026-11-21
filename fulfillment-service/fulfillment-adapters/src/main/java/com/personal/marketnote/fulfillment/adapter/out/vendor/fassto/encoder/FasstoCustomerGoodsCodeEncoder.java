@@ -32,13 +32,13 @@ public final class FasstoCustomerGoodsCodeEncoder {
 
     public static UUID decode(String cstGodCd) {
         if (FormatValidator.hasNoValue(cstGodCd)) {
-            throw new InvalidFasstoCustomerGoodsCodeLengthException("input is null or blank");
+            throw new FasstoCustomerGoodsCodeLengthDecodingFailedException("input is null or blank");
         }
         if (cstGodCd.length() != ENCODED_LENGTH) {
-            throw new InvalidFasstoCustomerGoodsCodeLengthException(cstGodCd.length());
+            throw new FasstoCustomerGoodsCodeLengthDecodingFailedException(cstGodCd.length());
         }
         if (!BASE62_PATTERN.matcher(cstGodCd).matches()) {
-            throw new InvalidFasstoCustomerGoodsCodeCharsetException();
+            throw new FasstoCustomerGoodsCodeCharsetDecodingFailedException();
         }
         BigInteger value = fromBase62(cstGodCd);
         return bytesToUuid(toFixed16Bytes(value));
@@ -106,6 +106,6 @@ public final class FasstoCustomerGoodsCodeEncoder {
             System.arraycopy(raw, 0, padded, UUID_BYTE_LENGTH - raw.length, raw.length);
             return padded;
         }
-        throw new InvalidFasstoCustomerGoodsCodeLengthException("decoded byte length=" + raw.length);
+        throw new FasstoCustomerGoodsCodeLengthDecodingFailedException("decoded byte length=" + raw.length);
     }
 }

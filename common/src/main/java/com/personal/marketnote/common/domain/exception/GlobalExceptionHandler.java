@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.domain.exception;
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.personal.marketnote.common.exception.VendorOperationFailedException;
 import com.personal.marketnote.common.utility.FormatValidator;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -354,6 +355,14 @@ public class GlobalExceptionHandler {
         HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
         log.error(LOG_ERROR_MESSAGE, formatGenericLogMessage(e));
         return buildErrorResponse(httpStatus, httpStatus.name(), "서버 내부 오류가 발생했습니다.");
+    }
+
+    @ExceptionHandler(VendorOperationFailedException.class)
+    ResponseEntity<ErrorResponse> handleVendorOperationFailedException(VendorOperationFailedException e) {
+        HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
+        log.error(LOG_ERROR_MESSAGE, formatGenericLogMessage(e));
+        debugStackTrace(e);
+        return buildErrorResponse(httpStatus, httpStatus.name(), "벤더 통신 처리 중 오류가 발생했습니다.");
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
