@@ -1,20 +1,20 @@
 package com.personal.marketnote.fulfillment.adapter.out.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
+import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.ShippingStatusChangedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import com.personal.marketnote.fulfillment.exception.ShippingStatusEventSerializationException;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Clock;
@@ -24,7 +24,9 @@ import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,99 +39,95 @@ class ShippingStatusEventOutboxAdapterTest {
     @Mock
     private SaveOutboxEventPort saveOutboxEventPort;
 
-    @Spy
-    private ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+    @Mock
+    private ObjectMapper objectMapper;
 
-    @Spy
-    private Clock clock = Clock.fixed(Instant.parse("2026-06-03T10:00:00Z"), ZoneId.of("Asia/Seoul"));
+    @Mock
+    private Clock clock;
 
-    @Test
-    @DisplayName("ShippingStatusChangedEvent를 OutboxEvent로 저장한다")
-    void publishSavesOutboxEvent() {
-        // given
-        ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                100L,
-                1L,
-                "SHIPPING",
-                "INV001",
-                "CJ",
-                LocalDateTime.of(2026, 4, 9, 10, 0),
-                null,
-                null
-        );
+    @Nested
+    @DisplayName("publish 성공")
+    class PublishSuccess {
 
-        // when
-        adapter.publish(event);
+        @Test
+        @DisplayName("이벤트를 EventEnvelope으로 감싸 직렬화하여 OutboxEvent로 저장한다")
+        void shouldSerializeAndSaveOutboxEvent() throws JsonProcessingException {
+            // given
+            Clock fixedClock = Clock.fixed(Instant.parse("2026-06-03T10:00:00Z"), ZoneId.of("Asia/Seoul"));
+            when(clock.instant()).thenReturn(fixedClock.instant());
+            when(clock.getZone()).thenReturn(fixedClock.getZone());
 
-        // then
-        ArgumentCaptor<OutboxEvent> captor = ArgumentCaptor.forClass(OutboxEvent.class);
-        verify(saveOutboxEventPort).save(captor.capture());
+            ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
+                    100L,
+                    1L,
+                    "SHIPPING",
+                    "INV001",
+                    "CJ",
+                    LocalDateTime.of(2026, 4, 9, 10, 0),
+                    null,
+                    null
+            );
+            ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+            when(objectMapper.writeValueAsString(envelopeCaptor.capture()))
+                    .thenReturn("{\"eventType\":\"shipping.status.changed\"}");
 
-        OutboxEvent outboxEvent = captor.getValue();
-        assertThat(outboxEvent.getTopic()).isEqualTo(KafkaTopicConstants.SHIPPING_STATUS_CHANGED);
-        assertThat(outboxEvent.getPartitionKey()).isEqualTo("100");
-        assertThat(outboxEvent.getEventType()).isEqualTo("ShippingStatusChangedEvent");
-        assertThat(outboxEvent.getSource()).isEqualTo("fulfillment-service");
-        assertThat(outboxEvent.getEventId()).isNotBlank();
-        assertThat(outboxEvent.getPayload()).contains("\"orderId\":100");
-        assertThat(outboxEvent.getPayload()).contains("\"shippingStatus\":\"SHIPPING\"");
-        assertThat(outboxEvent.getPayload()).contains("\"trackingNumber\":\"INV001\"");
-        assertThat(outboxEvent.getPayload()).contains("\"carrierCode\":\"CJ\"");
+            // when
+            adapter.publish(event);
+
+            // then
+            EventEnvelope<?> capturedEnvelope = envelopeCaptor.getValue();
+            assertThat(capturedEnvelope.eventType()).isEqualTo(KafkaTopicConstants.SHIPPING_STATUS_CHANGED);
+            assertThat(capturedEnvelope.source()).isEqualTo("fulfillment-service");
+            assertThat(capturedEnvelope.eventId()).isNotBlank();
+            assertThat(capturedEnvelope.payload()).isEqualTo(event);
+
+            ArgumentCaptor<OutboxEvent> captor = ArgumentCaptor.forClass(OutboxEvent.class);
+            verify(saveOutboxEventPort).save(captor.capture());
+
+            OutboxEvent savedEvent = captor.getValue();
+            assertThat(savedEvent.getTopic()).isEqualTo(KafkaTopicConstants.SHIPPING_STATUS_CHANGED);
+            assertThat(savedEvent.getPartitionKey()).isEqualTo("100");
+            assertThat(savedEvent.getEventType()).isEqualTo("ShippingStatusChangedEvent");
+            assertThat(savedEvent.getSource()).isEqualTo("fulfillment-service");
+            assertThat(savedEvent.getEventId()).isNotBlank();
+            assertThat(savedEvent.getPayload()).isEqualTo("{\"eventType\":\"shipping.status.changed\"}");
+        }
     }
 
-    @Test
-    @DisplayName("페이로드 JSON이 올바르게 직렬화된다")
-    void payloadIsValidJson() throws Exception {
-        // given
-        ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                200L,
-                2L,
-                "DELIVERED",
-                "INV002",
-                "HANJIN",
-                LocalDateTime.of(2026, 4, 9, 12, 0),
-                null,
-                null
-        );
+    @Nested
+    @DisplayName("publish 실패")
+    class PublishFailure {
 
-        // when
-        adapter.publish(event);
+        @Test
+        @DisplayName("직렬화 실패 시 ShippingStatusEventSerializationException이 발생한다")
+        void shouldThrowSerializationExceptionWhenSerializationFails() throws JsonProcessingException {
+            // given
+            Clock fixedClock = Clock.fixed(Instant.parse("2026-06-03T14:00:00Z"), ZoneId.of("Asia/Seoul"));
+            when(clock.instant()).thenReturn(fixedClock.instant());
+            when(clock.getZone()).thenReturn(fixedClock.getZone());
 
-        // then
-        ArgumentCaptor<OutboxEvent> captor = ArgumentCaptor.forClass(OutboxEvent.class);
-        verify(saveOutboxEventPort).save(captor.capture());
+            ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
+                    300L,
+                    3L,
+                    "DELIVERY_FAILED",
+                    "INV003",
+                    "CJ",
+                    LocalDateTime.of(2026, 4, 9, 14, 0),
+                    null,
+                    null
+            );
+            when(objectMapper.writeValueAsString(any(EventEnvelope.class)))
+                    .thenThrow(new JsonProcessingException("test failure") {
+                    });
 
-        JsonNode parsed = objectMapper.readTree(captor.getValue().getPayload());
-        assertThat(parsed.get("orderId").asLong()).isEqualTo(200L);
-        assertThat(parsed.get("shippingStatus").asText()).isEqualTo("DELIVERED");
-        assertThat(parsed.get("trackingNumber").asText()).isEqualTo("INV002");
-        assertThat(parsed.get("carrierCode").asText()).isEqualTo("HANJIN");
-    }
-
-    @Test
-    @DisplayName("직렬화 실패 시 ShippingStatusEventSerializationException을 던진다")
-    void throwsOnSerializationFailure() throws Exception {
-        // given
-        ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                300L,
-                3L,
-                "DELIVERY_FAILED",
-                "INV003",
-                "CJ",
-                LocalDateTime.of(2026, 4, 9, 14, 0),
-                null,
-                null
-        );
-        when(objectMapper.writeValueAsString(event))
-                .thenThrow(new JsonProcessingException("test failure") {
-                });
-
-        // when & then
-        assertThatThrownBy(() -> adapter.publish(event))
-                .isInstanceOf(ShippingStatusEventSerializationException.class)
-                .hasMessageContaining("ERR_SHIPPING_STATUS_EVENT_01")
-                .hasMessageContaining("배송 상태 변경 이벤트")
-                .hasMessageContaining("partitionKey=300")
-                .hasMessageContaining("eventId=");
+            // when & then
+            assertThatThrownBy(() -> adapter.publish(event))
+                    .isInstanceOf(ShippingStatusEventSerializationException.class)
+                    .hasMessageContaining("ERR_SHIPPING_STATUS_EVENT_01")
+                    .hasMessageContaining("배송 상태 변경 이벤트")
+                    .hasMessageContaining("partitionKey=300")
+                    .hasMessageContaining("eventId=");
+            verifyNoInteractions(saveOutboxEventPort);
+        }
     }
 }
