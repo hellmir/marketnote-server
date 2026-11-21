@@ -45,6 +45,8 @@ class GiftishowApiClientParseResponseMaskingTest {
     private GiftishowApiClient giftishowApiClient;
     private ListAppender<ILoggingEvent> listAppender;
     private Logger clientLogger;
+    private boolean previousAdditive;
+    private Level previousLevel;
 
     @BeforeEach
     void setUp() {
@@ -81,6 +83,9 @@ class GiftishowApiClientParseResponseMaskingTest {
         );
 
         clientLogger = (Logger) LoggerFactory.getLogger(GiftishowApiClient.class);
+        previousAdditive = clientLogger.isAdditive();
+        previousLevel = clientLogger.getLevel();
+        clientLogger.setAdditive(false);
         listAppender = new ListAppender<>();
         listAppender.start();
         clientLogger.addAppender(listAppender);
@@ -90,6 +95,8 @@ class GiftishowApiClientParseResponseMaskingTest {
     void tearDown() {
         clientLogger.detachAppender(listAppender);
         listAppender.stop();
+        clientLogger.setAdditive(previousAdditive);
+        clientLogger.setLevel(previousLevel);
     }
 
     @Test
