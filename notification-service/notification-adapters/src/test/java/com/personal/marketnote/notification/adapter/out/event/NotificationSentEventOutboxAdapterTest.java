@@ -111,6 +111,10 @@ class NotificationSentEventOutboxAdapterTest {
         // when & then
         assertThatThrownBy(() -> adapter.publish(event))
                 .isInstanceOf(NotificationSentEventSerializationException.class)
-                .hasMessageContaining("notificationId=300");
+                .hasMessageContaining("ERR_NOTIFICATION_SENT_EVENT_01")
+                .hasMessageContaining("알림 발송 완료 이벤트")
+                .hasMessageContaining("topic=" + KafkaTopicConstants.NOTIFICATION_PUSH_SENT)
+                .hasMessageContaining("partitionKey=300")
+                .hasMessageContaining("eventId=");
     }
 }

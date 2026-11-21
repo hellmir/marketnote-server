@@ -45,7 +45,7 @@ public class UserEventKafkaProducer implements PublishUserEventPort {
     }
 
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
-        String payloadJson = serializePayload(envelope, topic);
+        String payloadJson = serializePayload(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
                 envelope.eventId(), topic, partitionKey,
                 envelope.eventType(), SOURCE, payloadJson, clock
@@ -54,11 +54,11 @@ public class UserEventKafkaProducer implements PublishUserEventPort {
         log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
     }
 
-    private <T> String serializePayload(EventEnvelope<T> envelope, String topic) {
+    private <T> String serializePayload(EventEnvelope<T> envelope, String topic, String partitionKey) {
         try {
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
-            throw new UserEventSerializationException(topic, e);
+            throw new UserEventSerializationException(topic, partitionKey, envelope.eventId(), e);
         }
     }
 }

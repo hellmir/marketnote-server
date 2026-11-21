@@ -127,6 +127,9 @@ class ShippingStatusEventOutboxAdapterTest {
         // when & then
         assertThatThrownBy(() -> adapter.publish(event))
                 .isInstanceOf(ShippingStatusEventSerializationException.class)
-                .hasMessageContaining("orderId=300");
+                .hasMessageContaining("ERR_SHIPPING_STATUS_EVENT_01")
+                .hasMessageContaining("배송 상태 변경 이벤트")
+                .hasMessageContaining("partitionKey=300")
+                .hasMessageContaining("eventId=");
     }
 }

@@ -1,8 +1,16 @@
 package com.personal.marketnote.fulfillment.exception;
 
-public class FulfillmentInventorySyncedEventSerializationException extends RuntimeException {
+import com.personal.marketnote.common.outbox.exception.BaseEventSerializationException;
 
-    public FulfillmentInventorySyncedEventSerializationException(Throwable cause) {
-        super("풀필먼트 재고 동기화 이벤트 직렬화 실패", cause);
+public class FulfillmentInventorySyncedEventSerializationException extends BaseEventSerializationException {
+
+    public FulfillmentInventorySyncedEventSerializationException(
+            String topic, String partitionKey, String eventId, Throwable cause
+    ) {
+        super(
+                "ERR_FULFILLMENT_INVENTORY_SYNCED_EVENT_01",
+                "풀필먼트 재고 동기화 이벤트",
+                topic, partitionKey, eventId, cause
+        );
     }
 }

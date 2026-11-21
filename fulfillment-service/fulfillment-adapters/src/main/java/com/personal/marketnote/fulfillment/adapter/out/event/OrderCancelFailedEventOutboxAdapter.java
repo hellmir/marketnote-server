@@ -27,14 +27,16 @@ public class OrderCancelFailedEventOutboxAdapter implements PublishOrderCancelFa
     @Override
     public void publish(Long orderId, Long buyerId) {
         OrderCancelFailedEvent payload = new OrderCancelFailedEvent(orderId, buyerId);
+        String topic = KafkaTopicConstants.ORDER_CANCEL_FAILED;
+        String partitionKey = String.valueOf(orderId);
         EventEnvelope<OrderCancelFailedEvent> envelope = EventEnvelope.of(
-                KafkaTopicConstants.ORDER_CANCEL_FAILED, EVENT_SOURCE, payload, clock
+                topic, EVENT_SOURCE, payload, clock
         );
-        String serializedPayload = serialize(envelope, orderId);
+        String serializedPayload = serialize(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
                 envelope.eventId(),
-                KafkaTopicConstants.ORDER_CANCEL_FAILED,
-                String.valueOf(orderId),
+                topic,
+                partitionKey,
                 OrderCancelFailedEvent.class.getSimpleName(),
                 EVENT_SOURCE,
                 serializedPayload,
@@ -43,11 +45,11 @@ public class OrderCancelFailedEventOutboxAdapter implements PublishOrderCancelFa
         saveOutboxEventPort.save(outboxEvent);
     }
 
-    private String serialize(EventEnvelope<OrderCancelFailedEvent> envelope, Long orderId) {
+    private String serialize(EventEnvelope<OrderCancelFailedEvent> envelope, String topic, String partitionKey) {
         try {
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
-            throw new OrderCancelFailedEventSerializationException(orderId, e);
+            throw new OrderCancelFailedEventSerializationException(topic, partitionKey, envelope.eventId(), e);
         }
     }
 }
