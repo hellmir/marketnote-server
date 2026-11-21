@@ -88,6 +88,7 @@ public class OrderReturnedInventoryConsumer {
         } catch (DuplicateInventoryRestorationException e) {
             log.info("이미 처리된 재고 복구 이벤트 (멱등 처리). eventId={}, message={}", envelope.eventId(), e.getMessage());
         } catch (Exception e) {
+            // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수
             log.error("반품 완료 재고 복구 이벤트 처리 실패. eventId={}, key={}, error={}",
                     envelope.eventId(), record.key(), e.getMessage(), e
             );

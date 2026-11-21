@@ -58,6 +58,7 @@ public class RetryFailedSettlementService implements RetryFailedSettlementUseCas
 
             settlement.complete();
         } catch (Exception e) {
+            // boundary E: 분개 처리 중 어떤 예외든 settlement.fail() 마킹 후 호출자 전파 (광역 catch 의도) — ERROR + cause 인자 필수
             settlement.fail();
             updateSettlementPort.update(settlement);
             log.error("정산 재시도 실패 - settlementId: {}, error: {}", settlementId, e.getMessage(), e);

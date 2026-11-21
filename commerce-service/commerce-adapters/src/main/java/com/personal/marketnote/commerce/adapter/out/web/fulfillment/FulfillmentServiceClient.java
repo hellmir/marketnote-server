@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -76,7 +77,7 @@ public class FulfillmentServiceClient implements RegisterFulfillmentReturnDelive
                     new IOException("풀필먼트 반품 등록 비정상 응답 - orderId: " + command.orderId()));
         } catch (FulfillmentServiceRequestFailedException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (RestClientException e) {
             log.error("풀필먼트 반품 등록 실패 - orderId: {}", command.orderId(), e);
             throw new FulfillmentServiceRequestFailedException(new IOException(e));
         }
@@ -107,7 +108,7 @@ public class FulfillmentServiceClient implements RegisterFulfillmentReturnDelive
                     new IOException("풀필먼트 반품 검수 상태 조회 비정상 응답"));
         } catch (FulfillmentServiceRequestFailedException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (RestClientException e) {
             log.error("풀필먼트 반품 검수 상태 조회 실패 - returnSlipNumbers: {}", returnSlipNumbers, e);
             throw new FulfillmentServiceRequestFailedException(new IOException(e));
         }

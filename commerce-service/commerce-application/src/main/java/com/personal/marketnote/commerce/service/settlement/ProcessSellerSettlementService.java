@@ -129,6 +129,7 @@ public class ProcessSellerSettlementService {
                     pgFeeAmount, platformFeeAmount, sellerPayoutAmount
             );
         } catch (Exception e) {
+            // boundary swallow: 정산 실행 후속 이벤트 발행 실패 시에도 정산 본 흐름 (DB 변경) 은 진행 — Outbox 미적용 대비 best-effort
             log.error("정산 실행 이벤트 발행 실패 - settlementId: {}, sellerId: {}, error: {}",
                     settlementId, sellerId, e.getMessage(), e
             );

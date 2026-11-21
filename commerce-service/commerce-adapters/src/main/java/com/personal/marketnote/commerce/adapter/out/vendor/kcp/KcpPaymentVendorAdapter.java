@@ -18,6 +18,7 @@ import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.RestClientException;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -124,7 +125,7 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
                 KcpPaymentApprovalResponse response = kcpApiClient.approvePayment(request);
                 recordResponse(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL, orderNo, response);
                 return buildApprovalResult(response);
-            } catch (Exception e) {
+            } catch (RestClientException | KcpCommunicationException e) {
                 lastException = e;
                 recordError(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL, orderNo, e);
 
@@ -259,7 +260,7 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
                 KcpPaymentCancelResponse response = kcpApiClient.cancelPayment(request);
                 recordResponse(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, transactionId, response);
                 return buildCancelResult(response);
-            } catch (Exception e) {
+            } catch (RestClientException | KcpCommunicationException e) {
                 lastException = e;
                 recordError(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, transactionId, e);
 

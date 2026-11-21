@@ -43,6 +43,7 @@ public class PaymentCancelIdempotencyCleanupScheduler {
             int deleted = deletePort.deleteOlderThan(threshold);
             log.info("결제 취소 멱등성 레코드 TTL 정리 완료 - threshold: {}, deleted: {}", threshold, deleted);
         } catch (Exception e) {
+            // boundary E: @Scheduled — 호출자 전파 불가, ERROR + cause 인자 필수
             log.error("결제 취소 멱등성 레코드 TTL 정리 실패 - threshold: {}", threshold, e);
         }
     }

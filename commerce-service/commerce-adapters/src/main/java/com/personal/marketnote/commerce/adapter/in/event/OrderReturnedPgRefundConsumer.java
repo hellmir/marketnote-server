@@ -74,6 +74,7 @@ public class OrderReturnedPgRefundConsumer {
 
             log.info("반품 PG 환불 처리 완료. orderId={}", payload.orderId());
         } catch (Exception e) {
+            // boundary E: @KafkaListener — 호출자 전파 불가, ERROR + cause 인자 필수 (ack 후 swallow)
             log.error("반품 PG 환불 처리 실패. orderId={}, error={}", payload.orderId(), e.getMessage(), e);
         }
 

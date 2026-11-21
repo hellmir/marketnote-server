@@ -60,6 +60,7 @@ public class OrderReturnCompletedSagaConsumer {
                     stepMessage.sagaId(), stepMessage.messageType()
             );
         } catch (Exception e) {
+            // boundary E: @KafkaListener record-level boundary — 호출자 전파 불가 (finally ack), ERROR + cause 인자 필수
             log.error("SAGA 반품 완료 이벤트 발행 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
                     record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
@@ -94,6 +95,7 @@ public class OrderReturnCompletedSagaConsumer {
 
             log.info("SAGA 반품 완료 이벤트 발행 성공. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
         } catch (Exception e) {
+            // boundary E: SAGA step boundary — UseCase 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 반품 완료 이벤트 발행 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),

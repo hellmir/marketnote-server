@@ -109,6 +109,7 @@ public class ResolveUnknownPaymentService implements ResolveUnknownPaymentUseCas
         try {
             recordLedgerEntryUseCase.recordPaymentApproval(payment.getOrderId(), payment.getPaymentAmount().getValue());
         } catch (Exception e) {
+            // boundary swallow: UNKNOWN 해소 후속 분개 기록 실패 시에도 결제 상태 변경 본 흐름 진행 (보상 트랜잭션)
             log.error("UNKNOWN 해소 분개 기록 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);
         }
     }

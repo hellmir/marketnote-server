@@ -162,6 +162,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
                     orderId
             );
         } catch (Exception e) {
+            // boundary swallow: 상품 적립 예정 포인트 추가 실패 시에도 주문 상태 변경 본 흐름 진행 (보상 트랜잭션)
             log.error("상품 적립 예정 포인트 추가 실패 - orderId: {}, buyerId: {}, amount: {}, error: {}",
                     orderId, buyerId, totalAccumulatedPoint, e.getMessage(), e
             );

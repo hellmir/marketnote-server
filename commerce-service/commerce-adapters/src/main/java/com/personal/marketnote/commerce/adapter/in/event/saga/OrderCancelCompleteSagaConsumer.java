@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.adapter.in.event.saga;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.adapter.in.event.saga.payload.CompleteCancellationSagaPayload;
 import com.personal.marketnote.commerce.port.in.command.order.CompleteCancelOrderCommand;
@@ -108,6 +109,7 @@ public class OrderCancelCompleteSagaConsumer {
                     stepMessage.sagaId(), payload.orderId(), payload.orderKey()
             );
         } catch (Exception e) {
+            // boundary E: SAGA step boundary — UseCase 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 주문 취소 완료 처리 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
@@ -120,7 +122,7 @@ public class OrderCancelCompleteSagaConsumer {
     private CompleteCancellationSagaPayload parsePayload(SagaStepMessage stepMessage) {
         try {
             return objectMapper.readValue(stepMessage.payload(), CompleteCancellationSagaPayload.class);
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             log.error("SAGA 주문 취소 완료 스텝 페이로드 역직렬화 실패. sagaId={}, error={}",
                     stepMessage.sagaId(), e.getMessage(), e
             );
@@ -141,6 +143,7 @@ public class OrderCancelCompleteSagaConsumer {
         try {
             publishOrderEventPort.publishOrderCancelFailedEvent(payload.orderId(), payload.buyerId());
         } catch (Exception e) {
+            // boundary swallow: SAGA 실패 알림 publish 자체 실패 시 SAGA 본 흐름은 계속 진행 (best-effort 보상 publish)
             log.error("OrderCancelFailedEvent 발행 실패. orderId={}, buyerId={}",
                     payload.orderId(), payload.buyerId(), e
             );

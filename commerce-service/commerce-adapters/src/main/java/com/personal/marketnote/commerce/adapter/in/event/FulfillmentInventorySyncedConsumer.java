@@ -77,6 +77,7 @@ public class FulfillmentInventorySyncedConsumer {
         } catch (InventoryProductNotFoundException | InvalidFulfillmentSyncCommandException e) {
             log.warn("풀필먼트 재고 동기화 실패 (재시도 불필요). eventId={}", envelope.eventId(), e);
         } catch (Exception e) {
+            // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수
             log.error("풀필먼트 재고 동기화 실패. eventId={}, error={}", envelope.eventId(), e.getMessage(), e);
             throw e;
         }

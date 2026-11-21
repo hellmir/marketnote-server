@@ -61,7 +61,7 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
             txHelper.commitFailure(context, "CONN_FAIL", e.getMessage());
             throw PaymentApprovalException.approvalRequestFailed(e);
         } catch (Exception e) {
-            // TX-2: 기타 통신 오류 → UNKNOWN (요청이 PG사에 도달했을 수 있음)
+            // boundary swallow→rethrow: PG 통신 광역 예외 → UNKNOWN 상태 commit 후 도메인 예외로 cause 보존 전파 (TX-2 fail-safe — 요청이 PG사에 도달했을 수 있음)
             txHelper.commitUnknown(context, "UNKNOWN", "PG사 통신 오류: " + e.getMessage());
             throw PaymentApprovalException.approvalRequestFailed(e);
         }

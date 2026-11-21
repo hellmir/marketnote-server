@@ -66,6 +66,7 @@ public class ReviewRegisteredCommerceConsumer {
                     payload.orderId(), payload.pricePolicyId()
             );
         } catch (Exception e) {
+            // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수
             log.error("주문상품 리뷰 상태 업데이트 실패. eventId={}, key={}, error={}",
                     envelope.eventId(), record.key(), e.getMessage(), e
             );

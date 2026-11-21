@@ -99,6 +99,7 @@ public class OrderPaymentInventorySagaConsumer {
                     stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
             );
         } catch (Exception e) {
+            // boundary E: SAGA step boundary — UseCase 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 재고 차감 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
@@ -132,6 +133,7 @@ public class OrderPaymentInventorySagaConsumer {
 
             log.info("SAGA 재고 복구 완료. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
         } catch (Exception e) {
+            // boundary E: SAGA compensation boundary — 보상 처리 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 재고 복구 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),

@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.adapter.out.vendor.kcp;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.*;
@@ -203,7 +204,7 @@ public class KcpApiClient {
 
         try {
             return objectMapper.readValue(responseBody, responseType);
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             log.error("KCP 응답 파싱 실패. operationLabel={}", operationLabel, e);
             throw new KcpCommunicationException(operationLabel + " 응답 파싱 실패", e);
         }

@@ -16,6 +16,7 @@ import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.RestClientException;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -215,7 +216,7 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
                 recordResponse(CommerceVendorCommunicationTargetType.QUICK_PAYMENT_BATCH_APPROVAL, orderKey, response);
 
                 return buildBatchApprovalResult(response);
-            } catch (Exception e) {
+            } catch (RestClientException | KcpCommunicationException e) {
                 lastException = e;
                 recordError(CommerceVendorCommunicationTargetType.QUICK_PAYMENT_BATCH_APPROVAL, orderKey, e);
 

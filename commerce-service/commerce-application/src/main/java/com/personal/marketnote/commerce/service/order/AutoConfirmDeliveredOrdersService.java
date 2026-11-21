@@ -58,6 +58,7 @@ public class AutoConfirmDeliveredOrdersService implements AutoConfirmDeliveredOr
             changeOrderStatusUseCase.changeOrderStatus(ChangeOrderStatusCommand.toConfirmed(orderId));
             log.info("주문 자동 확정 완료 - orderId: {}", orderId);
         } catch (Exception e) {
+            // boundary swallow: 한 주문 실패가 다른 주문 자동 확정에 영향 안 가도록 per-order swallow + 재시도 이벤트 발행
             log.error("주문 자동 확정 실패 - orderId: {}, error: {}", orderId, e.getMessage(), e);
             publishAutoConfirmFailedEvent(orderId, e.getMessage());
         }

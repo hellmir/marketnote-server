@@ -428,6 +428,7 @@ public class PaymentCancelTransactionHelper {
             }
             return totalDeduction;
         } catch (Exception e) {
+            // boundary swallow: 부분 취소 배송비 재계산 실패 시 0 으로 fallback 하여 결제 취소 본 흐름 진행 (보상 트랜잭션)
             log.error("부분 취소 배송비 재계산 실패 - orderId: {}, error: {}", order.getId(), e.getMessage(), e);
             return 0L;
         }
@@ -479,6 +480,7 @@ public class PaymentCancelTransactionHelper {
                     order.getOrderProducts(), order.getId(), "주문 전액 취소에 의한 재고 복구"
             );
         } catch (Exception e) {
+            // boundary swallow: 전액 취소 재고 복구 실패 시에도 결제 취소 본 흐름 진행 (보상 트랜잭션)
             log.error("재고 복구 실패 - orderId: {}, error: {}",
                     order.getId(), e.getMessage(), e);
         }
@@ -497,6 +499,7 @@ public class PaymentCancelTransactionHelper {
                     .toList();
             restoreProductInventoryUseCase.restore(cancelTargetProducts, order.getId(), "주문 부분 취소에 의한 재고 복구");
         } catch (Exception e) {
+            // boundary swallow: 부분 취소 재고 복구 실패 시에도 결제 취소 본 흐름 진행 (보상 트랜잭션)
             log.error("부분 취소 재고 복구 실패 - orderId: {}, error: {}",
                     order.getId(), e.getMessage(), e);
         }
@@ -558,6 +561,7 @@ public class PaymentCancelTransactionHelper {
             modifyUserPointPort.reducePartialPendingSharedPurchasePoints(
                     sharerKeys, paymentAmount, cancelAmount, order.getId());
         } catch (Exception e) {
+            // boundary swallow: 부분 취소 공유 적립 예정 포인트 차감 실패 시에도 결제 취소 본 흐름 진행 (보상 트랜잭션)
             log.error("부분 취소 공유 적립 예정 포인트 차감 실패 - orderId: {}, sharerKeys: {}, error: {}",
                     order.getId(), sharerKeys, e.getMessage(), e);
         }
@@ -573,6 +577,7 @@ public class PaymentCancelTransactionHelper {
 
             modifyUserPointPort.reducePartialPendingPoints(buyerId, precomputedDeduction, orderId);
         } catch (Exception e) {
+            // boundary swallow: 부분 취소 상품 적립 예정 포인트 차감 실패 시에도 결제 취소 본 흐름 진행 (보상 트랜잭션)
             log.error("부분 취소 상품 적립 예정 포인트 차감 실패 - orderId: {}, buyerId: {}, error: {}",
                     orderId, buyerId, e.getMessage(), e);
         }
@@ -662,6 +667,7 @@ public class PaymentCancelTransactionHelper {
 
             return resolveProportionalDeductionPoint(orderProducts, paymentAmount, cancelAmount);
         } catch (Exception e) {
+            // boundary swallow: 포인트 사전 계산 실패 시 null 반환 (호출자에서 후속 분기 처리, 결제 취소 본 흐름 진행)
             log.error("부분 취소 포인트 사전 계산 실패 - error: {}", e.getMessage(), e);
             return null;
         }
@@ -719,6 +725,7 @@ public class PaymentCancelTransactionHelper {
                     pointAmount, isFullCancel, alreadyRefunded, cancelId, orderProducts, cancelProducts,
                     partialProductPendingDeduction);
         } catch (Exception e) {
+            // boundary swallow: 결제 취소 후속 이벤트 발행 실패 시에도 결제 취소 본 흐름 (DB 변경) 은 진행 — Outbox 미적용 대비 best-effort
             log.error("결제 취소 이벤트 발행 실패 - orderId: {}, orderKey: {}, error: {}",
                     orderId, orderKey, e.getMessage(), e);
         }
@@ -733,6 +740,7 @@ public class PaymentCancelTransactionHelper {
         try {
             modifyUserPointPort.refundOrderPoints(order.getBuyerId(), pointAmount, order.getId());
         } catch (Exception e) {
+            // boundary swallow: 포인트 환불 실패 시에도 결제 취소 본 흐름 진행 (보상 트랜잭션)
             log.error("포인트 환불 실패 - orderId: {}, buyerId: {}, pointAmount: {}, error: {}",
                     order.getId(), order.getBuyerId(), pointAmount, e.getMessage(), e);
         }

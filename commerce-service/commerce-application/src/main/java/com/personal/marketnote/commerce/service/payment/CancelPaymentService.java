@@ -65,6 +65,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                 String resultJson = resultSerializer.serialize(context);
                 idempotencyHelper.markCompleted(idempotencyKey, resultJson);
             } catch (Exception postCommitException) {
+                // 분류 B: post-commit 단계 (직렬화/멱등 레코드 전이) 광역 catch — ERROR 로그 후 cause 보존하여 호출자 전파 (markFailed 경로 회피 위해 businessCompleted=true 후에 위치)
                 log.error(
                         "결제 취소 성공 후 멱등 레코드 COMPLETED 전이 실패 — idempotencyKey: {}, orderKey: {}, reason: {}",
                         idempotencyKey, command.orderKey(), postCommitException.getMessage(), postCommitException
@@ -72,6 +73,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                 throw postCommitException;
             }
         } catch (Exception e) {
+            // boundary E: outer 광역 catch — 멱등성 markFailed 추적용 failureReason 누적 후 cause 그대로 호출자 전파 (finally 에서 markFailed 실행)
             failureReason = e.getClass().getSimpleName() + ": "
                     + (FormatValidator.hasValue(e.getMessage()) ? e.getMessage() : "no message");
             throw e;
