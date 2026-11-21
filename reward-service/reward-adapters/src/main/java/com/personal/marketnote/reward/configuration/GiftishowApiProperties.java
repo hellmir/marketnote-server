@@ -25,6 +25,10 @@ public class GiftishowApiProperties {
     private String userId;
     private Api api = new Api();
 
+    /**
+     * Giftishow API 엔드포인트 정의. 신규 path 추가 시 필드명은 반드시 {@code *Path}로 끝나야 한다.
+     * {@link GiftishowApiPropertiesValidator}가 reflection으로 sensitive-paths 정합을 검증한다.
+     */
     @Getter
     @Setter
     public static class Api {
