@@ -215,11 +215,13 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
             FulfillmentStockListResponse parsedResponse = parseStockListResponse(response);
             boolean isSuccess = isStockListSuccess(response, parsedResponse);
             String exception = isSuccess ? null : resolveStockListException(response, parsedResponse);
+            String productKey = FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(cstGodCd);
 
             vendorCommunicationRecorder.record(
                     targetType,
                     FulfillmentVendorCommunicationType.REQUEST,
                     FulfillmentVendorCommunicationSenderType.SERVER,
+                    productKey,
                     vendorName,
                     requestPayload,
                     requestPayloadJson,
@@ -229,6 +231,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
                     targetType,
                     FulfillmentVendorCommunicationType.RESPONSE,
                     FulfillmentVendorCommunicationSenderType.VENDOR,
+                    productKey,
                     vendorName,
                     responsePayload,
                     responsePayloadJson,
