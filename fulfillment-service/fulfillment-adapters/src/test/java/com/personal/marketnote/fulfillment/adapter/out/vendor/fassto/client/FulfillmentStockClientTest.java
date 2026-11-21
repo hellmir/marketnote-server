@@ -5,6 +5,10 @@ import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
 import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentStockDetailFailedException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentStocksFailedException;
@@ -32,6 +36,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -263,6 +269,113 @@ class FulfillmentStockClientTest {
 
             // then
             assertThat(result.stocks().get(0).customerProductCode()).isEqualTo(LEGACY_UUID_RAW);
+        }
+    }
+
+    @Nested
+    @DisplayName("record targetId(productKey) 전달")
+    class RecordTargetIdProductKey {
+
+        private static final UUID TEST_PRODUCT_KEY = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+
+        private String successBody() {
+            return """
+                    {"header": {"code": "200", "msg": "OK", "dataCount": 0}, "data": [], "meta": null}
+                    """;
+        }
+
+        @Test
+        @DisplayName("getStockDetail 성공 시 productKey UUID가 record targetId로 전달된다")
+        void shouldPassDecodedProductKeyAsTargetIdOnGetStockDetailSuccess() {
+            // given
+            stubStockProperties();
+            stubPayloadGenerator();
+            stubGetChainReturns(new ResponseEntity<>(successBody(), HttpStatus.OK));
+
+            GetFulfillmentStockDetailCommand command = GetFulfillmentStockDetailCommand.forProductKey(
+                    "CUST001", "valid-token", TEST_PRODUCT_KEY, null
+            );
+
+            // when
+            client.getStockDetail(command);
+
+            // then
+            String expectedProductKey = TEST_PRODUCT_KEY.toString();
+            verify(vendorCommunicationRecorder).record(
+                    eq(FulfillmentVendorCommunicationTargetType.STOCK),
+                    eq(FulfillmentVendorCommunicationType.REQUEST),
+                    eq(FulfillmentVendorCommunicationSenderType.SERVER),
+                    eq(expectedProductKey),
+                    eq(FulfillmentVendorName.FASSTO),
+                    any(String.class),
+                    any(),
+                    isNull()
+            );
+            verify(vendorCommunicationRecorder).record(
+                    eq(FulfillmentVendorCommunicationTargetType.STOCK),
+                    eq(FulfillmentVendorCommunicationType.RESPONSE),
+                    eq(FulfillmentVendorCommunicationSenderType.VENDOR),
+                    eq(expectedProductKey),
+                    eq(FulfillmentVendorName.FASSTO),
+                    any(String.class),
+                    any(),
+                    isNull()
+            );
+        }
+
+        @Test
+        @DisplayName("getStockDetail 호출 시 사용자 지정 customerProductCode가 22자 Base62 형식이면 디코딩된 UUID가 targetId에 저장된다")
+        void shouldDecodeBase62CustomerProductCodeForTargetId() {
+            // given
+            stubStockProperties();
+            stubPayloadGenerator();
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(TEST_PRODUCT_KEY);
+            stubGetChainReturns(new ResponseEntity<>(successBody(), HttpStatus.OK));
+
+            GetFulfillmentStockDetailCommand command = GetFulfillmentStockDetailCommand.of(
+                    "CUST001", "valid-token", encoded, null
+            );
+
+            // when
+            client.getStockDetail(command);
+
+            // then
+            verify(vendorCommunicationRecorder, times(2)).record(
+                    eq(FulfillmentVendorCommunicationTargetType.STOCK),
+                    any(FulfillmentVendorCommunicationType.class),
+                    any(FulfillmentVendorCommunicationSenderType.class),
+                    eq(TEST_PRODUCT_KEY.toString()),
+                    eq(FulfillmentVendorName.FASSTO),
+                    any(String.class),
+                    any(),
+                    isNull()
+            );
+        }
+
+        @Test
+        @DisplayName("getStocks(list) 호출은 cstGodCd가 없어 record targetId에 null이 전달된다")
+        void shouldPassNullTargetIdOnGetStocksList() {
+            // given
+            stubStockProperties();
+            stubPayloadGenerator();
+            stubGetChainReturns(new ResponseEntity<>(successBody(), HttpStatus.OK));
+
+            GetFulfillmentStocksCommand command = GetFulfillmentStocksCommand.of("CUST001", "valid-token");
+
+            // when
+            client.getStocks(command);
+
+            // then
+            verify(vendorCommunicationRecorder, times(2)).record(
+                    eq(FulfillmentVendorCommunicationTargetType.STOCK),
+                    any(FulfillmentVendorCommunicationType.class),
+                    any(FulfillmentVendorCommunicationSenderType.class),
+                    isNull(),
+                    eq(FulfillmentVendorName.FASSTO),
+                    any(String.class),
+                    any(),
+                    isNull()
+            );
         }
     }
 }
