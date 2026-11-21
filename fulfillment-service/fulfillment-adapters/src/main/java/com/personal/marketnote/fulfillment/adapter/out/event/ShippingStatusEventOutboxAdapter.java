@@ -3,6 +3,7 @@ package com.personal.marketnote.fulfillment.adapter.out.event;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
+import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.ShippingStatusChangedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
@@ -43,8 +44,14 @@ public class ShippingStatusEventOutboxAdapter implements PublishShippingStatusCh
     }
 
     private String serialize(ShippingStatusChangedEvent event, String topic, String partitionKey, String eventId) {
+        EventEnvelope<ShippingStatusChangedEvent> envelope = EventEnvelope.of(
+                topic,
+                EVENT_SOURCE,
+                event,
+                clock
+        );
         try {
-            return objectMapper.writeValueAsString(event);
+            return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
             throw new ShippingStatusEventSerializationException(topic, partitionKey, eventId, e);
         }
