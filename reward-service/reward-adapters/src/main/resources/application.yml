@@ -117,18 +117,18 @@ vendor:
     api:
       product-list-path: /bizApi/goods
       product-detail-path: /bizApi/goods
-      brand-list-path: /bizApi/brand
-      brand-detail-path: /bizApi/brand
-      coupon-send-path: /bizApi/coupon
-      coupon-detail-path: /bizApi/coupon/detail
-      coupon-cancel-path: /bizApi/coupon/cancel
-      coupon-resend-path: /bizApi/coupon/resend
-      biz-money-balance-path: /bizApi/bizMoney
-      coupon-send-fail-cancel-path: /bizApi/coupon/sendFailCancel
+      brand-list-path: /bizApi/brands
+      brand-detail-path: /bizApi/brands
+      coupon-send-path: /bizApi/send
+      coupon-detail-path: /bizApi/coupons
+      coupon-cancel-path: /bizApi/cancel
+      coupon-resend-path: /bizApi/resend
+      biz-money-balance-path: /bizApi/bizmoney
+      coupon-send-fail-cancel-path: /bizApi/sendFail/cancel
       sensitive-paths:
-        - /bizApi/coupon
-        - /bizApi/coupon/detail
-        - /bizApi/coupon/resend
+        - /bizApi/send
+        - /bizApi/coupons
+        - /bizApi/resend
 
 security:
   validation:

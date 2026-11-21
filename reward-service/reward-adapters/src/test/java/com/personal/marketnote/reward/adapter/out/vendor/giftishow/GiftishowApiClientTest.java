@@ -52,14 +52,14 @@ class GiftishowApiClientTest {
         GiftishowApiProperties.Api api = new GiftishowApiProperties.Api();
         api.setProductListPath("/bizApi/goods");
         api.setProductDetailPath("/bizApi/goods");
-        api.setBrandListPath("/bizApi/brand");
-        api.setBrandDetailPath("/bizApi/brand");
-        api.setCouponSendPath("/bizApi/coupon");
-        api.setCouponDetailPath("/bizApi/coupon/detail");
-        api.setCouponCancelPath("/bizApi/coupon/cancel");
-        api.setCouponResendPath("/bizApi/coupon/resend");
-        api.setBizMoneyBalancePath("/bizApi/bizMoney");
-        api.setCouponSendFailCancelPath("/bizApi/coupon/sendFailCancel");
+        api.setBrandListPath("/bizApi/brands");
+        api.setBrandDetailPath("/bizApi/brands");
+        api.setCouponSendPath("/bizApi/send");
+        api.setCouponDetailPath("/bizApi/coupons");
+        api.setCouponCancelPath("/bizApi/cancel");
+        api.setCouponResendPath("/bizApi/resend");
+        api.setBizMoneyBalancePath("/bizApi/bizmoney");
+        api.setCouponSendFailCancelPath("/bizApi/sendFail/cancel");
         properties.setApi(api);
 
         RestClient.Builder builder = RestClient.builder().baseUrl(BASE_URL);
@@ -216,7 +216,7 @@ class GiftishowApiClientTest {
         @DisplayName("브랜드 조회에 성공하면 응답을 반환한다")
         void shouldReturnBrandListWhenRequestSucceeds() {
             // given
-            mockServer.expect(requestTo(BASE_URL + "/bizApi/brand"))
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/brands"))
                     .andExpect(method(HttpMethod.POST))
                     .andRespond(withSuccess("""
                             {
@@ -263,7 +263,7 @@ class GiftishowApiClientTest {
         @DisplayName("브랜드 상세 조회에 성공하면 응답을 반환한다")
         void shouldReturnBrandDetailWhenRequestSucceeds() {
             // given
-            mockServer.expect(requestTo(BASE_URL + "/bizApi/brand?api_code=test-api-code&auth_code=test-auth-code&auth_token=test-auth-token&dev_yn=Y&brand_code=B001"))
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/brands?api_code=test-api-code&auth_code=test-auth-code&auth_token=test-auth-token&dev_yn=Y&brand_code=B001"))
                     .andExpect(method(HttpMethod.GET))
                     .andRespond(withSuccess("""
                             {
@@ -300,7 +300,7 @@ class GiftishowApiClientTest {
         @DisplayName("쿠폰 발송에 성공하면 응답을 반환한다")
         void shouldReturnCouponSendResponseWhenRequestSucceeds() {
             // given
-            mockServer.expect(requestTo(BASE_URL + "/bizApi/coupon"))
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
                     .andExpect(method(HttpMethod.POST))
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
                     .andRespond(withSuccess("""
@@ -348,7 +348,7 @@ class GiftishowApiClientTest {
         @DisplayName("쿠폰 상세 조회에 성공하면 응답을 반환한다")
         void shouldReturnCouponDetailWhenRequestSucceeds() {
             // given
-            mockServer.expect(requestTo(BASE_URL + "/bizApi/coupon/detail"))
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/coupons"))
                     .andExpect(method(HttpMethod.POST))
                     .andRespond(withSuccess("""
                             {
@@ -388,7 +388,7 @@ class GiftishowApiClientTest {
         @DisplayName("쿠폰 취소에 성공하면 응답을 반환한다")
         void shouldReturnCancelResponseWhenRequestSucceeds() {
             // given
-            mockServer.expect(requestTo(BASE_URL + "/bizApi/coupon/cancel"))
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/cancel"))
                     .andExpect(method(HttpMethod.POST))
                     .andRespond(withSuccess("""
                             {
@@ -421,7 +421,7 @@ class GiftishowApiClientTest {
         @DisplayName("쿠폰 재전송에 성공하면 응답을 반환한다")
         void shouldReturnResendResponseWhenRequestSucceeds() {
             // given
-            mockServer.expect(requestTo(BASE_URL + "/bizApi/coupon/resend"))
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/resend"))
                     .andExpect(method(HttpMethod.POST))
                     .andRespond(withSuccess("""
                             {
@@ -454,7 +454,7 @@ class GiftishowApiClientTest {
         @DisplayName("비즈머니 잔액 조회에 성공하면 응답을 반환한다")
         void shouldReturnBizMoneyBalanceWhenRequestSucceeds() {
             // given
-            mockServer.expect(requestTo(BASE_URL + "/bizApi/bizMoney"))
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/bizmoney"))
                     .andExpect(method(HttpMethod.POST))
                     .andRespond(withSuccess("""
                             {
@@ -488,7 +488,7 @@ class GiftishowApiClientTest {
         @DisplayName("발송실패 취소에 성공하면 응답을 반환한다")
         void shouldReturnCancelResponseWhenRequestSucceeds() {
             // given
-            mockServer.expect(requestTo(BASE_URL + "/bizApi/coupon/sendFailCancel"))
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/sendFail/cancel"))
                     .andExpect(method(HttpMethod.POST))
                     .andRespond(withSuccess("""
                             {
@@ -521,7 +521,7 @@ class GiftishowApiClientTest {
         @DisplayName("응답 코드가 0000이 아니면 isSuccess는 false를 반환한다")
         void shouldReturnFalseWhenCodeIsNotSuccess() {
             // given
-            mockServer.expect(requestTo(BASE_URL + "/bizApi/bizMoney"))
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/bizmoney"))
                     .andExpect(method(HttpMethod.POST))
                     .andRespond(withSuccess("""
                             {
