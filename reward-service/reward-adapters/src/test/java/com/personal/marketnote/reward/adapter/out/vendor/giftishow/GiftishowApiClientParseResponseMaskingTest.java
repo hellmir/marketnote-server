@@ -32,11 +32,11 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 class GiftishowApiClientParseResponseMaskingTest {
 
     private static final String BASE_URL = "http://localhost:9999";
-    private static final String COUPON_SEND_PATH = "/bizApi/coupon";
-    private static final String COUPON_DETAIL_PATH = "/bizApi/coupon/detail";
-    private static final String COUPON_RESEND_PATH = "/bizApi/coupon/resend";
-    private static final String COUPON_CANCEL_PATH = "/bizApi/coupon/cancel";
-    private static final String COUPON_SEND_FAIL_CANCEL_PATH = "/bizApi/coupon/sendFailCancel";
+    private static final String COUPON_SEND_PATH = "/bizApi/send";
+    private static final String COUPON_DETAIL_PATH = "/bizApi/coupons";
+    private static final String COUPON_RESEND_PATH = "/bizApi/resend";
+    private static final String COUPON_CANCEL_PATH = "/bizApi/cancel";
+    private static final String COUPON_SEND_FAIL_CANCEL_PATH = "/bizApi/sendFail/cancel";
     private static final String PRODUCT_LIST_PATH = "/bizApi/goods";
     private static final String SENSITIVE_BODY_WITH_PIN = "invalid_json_with_pin_1234-5678-9012-3456";
     private static final String NON_SENSITIVE_INVALID_BODY = "invalid json";
@@ -62,13 +62,13 @@ class GiftishowApiClientParseResponseMaskingTest {
         GiftishowApiProperties.Api api = new GiftishowApiProperties.Api();
         api.setProductListPath(PRODUCT_LIST_PATH);
         api.setProductDetailPath("/bizApi/goods");
-        api.setBrandListPath("/bizApi/brand");
-        api.setBrandDetailPath("/bizApi/brand");
+        api.setBrandListPath("/bizApi/brands");
+        api.setBrandDetailPath("/bizApi/brands");
         api.setCouponSendPath(COUPON_SEND_PATH);
         api.setCouponDetailPath(COUPON_DETAIL_PATH);
         api.setCouponCancelPath(COUPON_CANCEL_PATH);
         api.setCouponResendPath(COUPON_RESEND_PATH);
-        api.setBizMoneyBalancePath("/bizApi/bizMoney");
+        api.setBizMoneyBalancePath("/bizApi/bizmoney");
         api.setCouponSendFailCancelPath(COUPON_SEND_FAIL_CANCEL_PATH);
         api.setSensitivePaths(Set.of(COUPON_SEND_PATH, COUPON_DETAIL_PATH, COUPON_RESEND_PATH));
         properties.setApi(api);

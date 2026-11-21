@@ -38,7 +38,7 @@ class GiftishowApiPropertiesValidatorTest {
     @DisplayName("sensitivePaths 모두가 Api 필드의 path 값과 매칭되면 검증을 통과한다")
     void shouldPassWhenSensitivePathsAllMatchDefinedPaths() {
         GiftishowApiProperties properties = newPropertiesWithApiPathsAndSensitivePaths(
-                Set.of("/bizApi/coupon", "/bizApi/coupon/detail", "/bizApi/coupon/resend")
+                Set.of("/bizApi/send", "/bizApi/coupons", "/bizApi/resend")
         );
         GiftishowApiPropertiesValidator validator = new GiftishowApiPropertiesValidator(properties);
 
@@ -50,14 +50,14 @@ class GiftishowApiPropertiesValidatorTest {
     @DisplayName("sensitivePaths에 Api 필드와 매칭되지 않는 orphan path가 포함되면 앱 시작을 차단한다")
     void shouldFailWhenSensitivePathsContainOrphan() {
         GiftishowApiProperties properties = newPropertiesWithApiPathsAndSensitivePaths(
-                Set.of("/bizApi/coupon", "/bizApi/coupon/orphan")
+                Set.of("/bizApi/send", "/bizApi/orphan")
         );
         GiftishowApiPropertiesValidator validator = new GiftishowApiPropertiesValidator(properties);
 
         assertThatThrownBy(validator::validateProperties)
                 .isInstanceOf(InvalidGiftishowApiPropertiesException.class)
                 .hasMessageContaining("orphans=")
-                .hasMessageContaining("/bizApi/coupon/orphan");
+                .hasMessageContaining("/bizApi/orphan");
     }
 
     @Test
@@ -65,9 +65,9 @@ class GiftishowApiPropertiesValidatorTest {
     void shouldPassWhenSomeApiPathFieldsAreNullButSensitivePathsMatchDefined() {
         GiftishowApiProperties properties = new GiftishowApiProperties();
         GiftishowApiProperties.Api api = new GiftishowApiProperties.Api();
-        api.setCouponSendPath("/bizApi/coupon");
-        api.setCouponDetailPath("/bizApi/coupon/detail");
-        api.setSensitivePaths(Set.of("/bizApi/coupon", "/bizApi/coupon/detail"));
+        api.setCouponSendPath("/bizApi/send");
+        api.setCouponDetailPath("/bizApi/coupons");
+        api.setSensitivePaths(Set.of("/bizApi/send", "/bizApi/coupons"));
         properties.setApi(api);
 
         GiftishowApiPropertiesValidator validator = new GiftishowApiPropertiesValidator(properties);
@@ -89,14 +89,14 @@ class GiftishowApiPropertiesValidatorTest {
         GiftishowApiProperties.Api api = new GiftishowApiProperties.Api();
         api.setProductListPath("/bizApi/goods");
         api.setProductDetailPath("/bizApi/goods");
-        api.setBrandListPath("/bizApi/brand");
-        api.setBrandDetailPath("/bizApi/brand");
-        api.setCouponSendPath("/bizApi/coupon");
-        api.setCouponDetailPath("/bizApi/coupon/detail");
-        api.setCouponCancelPath("/bizApi/coupon/cancel");
-        api.setCouponResendPath("/bizApi/coupon/resend");
-        api.setBizMoneyBalancePath("/bizApi/bizMoney");
-        api.setCouponSendFailCancelPath("/bizApi/coupon/sendFailCancel");
+        api.setBrandListPath("/bizApi/brands");
+        api.setBrandDetailPath("/bizApi/brands");
+        api.setCouponSendPath("/bizApi/send");
+        api.setCouponDetailPath("/bizApi/coupons");
+        api.setCouponCancelPath("/bizApi/cancel");
+        api.setCouponResendPath("/bizApi/resend");
+        api.setBizMoneyBalancePath("/bizApi/bizmoney");
+        api.setCouponSendFailCancelPath("/bizApi/sendFail/cancel");
         api.setSensitivePaths(sensitivePaths);
         properties.setApi(api);
         return properties;

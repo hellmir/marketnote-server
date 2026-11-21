@@ -36,14 +36,14 @@ class GiftishowApiClientExternalCallLoggerTest {
     private static final String BASE_URL = "http://localhost:9999";
     private static final String PRODUCT_LIST_PATH = "/bizApi/goods";
     private static final String PRODUCT_DETAIL_PATH = "/bizApi/goodsDetail";
-    private static final String BRAND_LIST_PATH = "/bizApi/brand";
-    private static final String BRAND_DETAIL_PATH = "/bizApi/brandDetail";
-    private static final String COUPON_SEND_PATH = "/bizApi/coupon";
-    private static final String COUPON_DETAIL_PATH = "/bizApi/coupon/detail";
-    private static final String COUPON_CANCEL_PATH = "/bizApi/coupon/cancel";
-    private static final String COUPON_RESEND_PATH = "/bizApi/coupon/resend";
-    private static final String BIZMONEY_BALANCE_PATH = "/bizApi/bizMoney";
-    private static final String COUPON_SEND_FAIL_CANCEL_PATH = "/bizApi/coupon/sendFailCancel";
+    private static final String BRAND_LIST_PATH = "/bizApi/brands";
+    private static final String BRAND_DETAIL_PATH = "/bizApi/brandsDetail";
+    private static final String COUPON_SEND_PATH = "/bizApi/send";
+    private static final String COUPON_DETAIL_PATH = "/bizApi/coupons";
+    private static final String COUPON_CANCEL_PATH = "/bizApi/cancel";
+    private static final String COUPON_RESEND_PATH = "/bizApi/resend";
+    private static final String BIZMONEY_BALANCE_PATH = "/bizApi/bizmoney";
+    private static final String COUPON_SEND_FAIL_CANCEL_PATH = "/bizApi/sendFail/cancel";
 
     private static final String TR_ID = "TR_001";
     private static final String GOODS_CODE = "G001";

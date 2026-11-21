@@ -25,15 +25,15 @@ import static org.assertj.core.api.Assertions.assertThat;
         properties = {
                 "vendor.giftishow.api.product-list-path=/bizApi/goods",
                 "vendor.giftishow.api.product-detail-path=/bizApi/goods",
-                "vendor.giftishow.api.brand-list-path=/bizApi/brand",
-                "vendor.giftishow.api.brand-detail-path=/bizApi/brand",
-                "vendor.giftishow.api.coupon-send-path=/bizApi/coupon",
-                "vendor.giftishow.api.coupon-detail-path=/bizApi/coupon/detail",
-                "vendor.giftishow.api.coupon-cancel-path=/bizApi/coupon/cancel",
-                "vendor.giftishow.api.coupon-resend-path=/bizApi/coupon/resend",
-                "vendor.giftishow.api.biz-money-balance-path=/bizApi/bizMoney",
-                "vendor.giftishow.api.coupon-send-fail-cancel-path=/bizApi/coupon/sendFailCancel",
-                "vendor.giftishow.api.sensitive-paths=/bizApi/coupon,/bizApi/coupon/detail,/bizApi/coupon/resend"
+                "vendor.giftishow.api.brand-list-path=/bizApi/brands",
+                "vendor.giftishow.api.brand-detail-path=/bizApi/brands",
+                "vendor.giftishow.api.coupon-send-path=/bizApi/send",
+                "vendor.giftishow.api.coupon-detail-path=/bizApi/coupons",
+                "vendor.giftishow.api.coupon-cancel-path=/bizApi/cancel",
+                "vendor.giftishow.api.coupon-resend-path=/bizApi/resend",
+                "vendor.giftishow.api.biz-money-balance-path=/bizApi/bizmoney",
+                "vendor.giftishow.api.coupon-send-fail-cancel-path=/bizApi/sendFail/cancel",
+                "vendor.giftishow.api.sensitive-paths=/bizApi/send,/bizApi/coupons,/bizApi/resend"
         }
 )
 @DisplayName("GiftishowApiProperties yml ↔ Validator 정합성 통합 테스트")
@@ -47,9 +47,9 @@ class GiftishowApiPropertiesIntegrationTest {
     void shouldLoadContextWhenSensitivePathsConsistentWithDefinedPaths() {
         assertThat(properties.getApi().getSensitivePaths())
                 .containsExactlyInAnyOrder(
-                        "/bizApi/coupon",
-                        "/bizApi/coupon/detail",
-                        "/bizApi/coupon/resend"
+                        "/bizApi/send",
+                        "/bizApi/coupons",
+                        "/bizApi/resend"
                 );
     }
 
