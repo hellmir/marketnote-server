@@ -283,7 +283,7 @@ TZ=Asia/Seoul
 30 3 * * * %SERVICE=reward-service
 0 4 * * * %SERVICE=commerce-service
 30 4 * * * %SERVICE=community-service
-0 5 * * * %SERVICE=fulfillment-service
+0 5 * * * %SERVICE=game-service
 30 5 * * * %SERVICE=notification-service
 '''
 }
