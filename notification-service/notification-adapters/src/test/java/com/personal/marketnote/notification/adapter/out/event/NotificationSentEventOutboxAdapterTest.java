@@ -1,19 +1,19 @@
 package com.personal.marketnote.notification.adapter.out.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
+import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PushNotificationSentEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Clock;
@@ -23,7 +23,9 @@ import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,85 +38,84 @@ class NotificationSentEventOutboxAdapterTest {
     @Mock
     private SaveOutboxEventPort saveOutboxEventPort;
 
-    @Spy
-    private ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+    @Mock
+    private ObjectMapper objectMapper;
 
-    @Spy
-    private Clock clock = Clock.fixed(
-            Instant.parse("2026-09-03T05:00:00Z"),
-            ZoneId.of("Asia/Seoul")
-    );
+    @Mock
+    private Clock clock;
 
-    @Test
-    @DisplayName("PushNotificationSentEvent를 OutboxEvent로 저장한다")
-    void publishSavesOutboxEvent() {
-        // given
-        PushNotificationSentEvent event = new PushNotificationSentEvent(
-                100L, 1L, "ORDER_PAYMENT_COMPLETED", "SENT",
-                2, 0, LocalDateTime.of(2026, 4, 10, 14, 0)
-        );
+    @Nested
+    @DisplayName("publish 성공")
+    class PublishSuccess {
 
-        // when
-        adapter.publish(event);
+        @Test
+        @DisplayName("이벤트를 EventEnvelope으로 감싸 직렬화하여 OutboxEvent로 저장한다")
+        void shouldSerializeAndSaveOutboxEvent() throws JsonProcessingException {
+            // given
+            Clock fixedClock = Clock.fixed(Instant.parse("2026-09-03T05:00:00Z"), ZoneId.of("Asia/Seoul"));
+            when(clock.instant()).thenReturn(fixedClock.instant());
+            when(clock.getZone()).thenReturn(fixedClock.getZone());
 
-        // then
-        ArgumentCaptor<OutboxEvent> captor = ArgumentCaptor.forClass(OutboxEvent.class);
-        verify(saveOutboxEventPort).save(captor.capture());
+            PushNotificationSentEvent event = new PushNotificationSentEvent(
+                    100L, 1L, "ORDER_PAYMENT_COMPLETED", "SENT",
+                    2, 0, LocalDateTime.of(2026, 4, 10, 14, 0)
+            );
+            ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+            when(objectMapper.writeValueAsString(envelopeCaptor.capture()))
+                    .thenReturn("{\"eventType\":\"notification.push.sent\"}");
 
-        OutboxEvent outboxEvent = captor.getValue();
-        assertThat(outboxEvent.getTopic()).isEqualTo(KafkaTopicConstants.NOTIFICATION_PUSH_SENT);
-        assertThat(outboxEvent.getPartitionKey()).isEqualTo("100");
-        assertThat(outboxEvent.getEventType()).isEqualTo("PushNotificationSentEvent");
-        assertThat(outboxEvent.getSource()).isEqualTo("notification-service");
-        assertThat(outboxEvent.getEventId()).isNotBlank();
-        assertThat(outboxEvent.getPayload()).contains("\"notificationId\":100");
-        assertThat(outboxEvent.getPayload()).contains("\"sendStatus\":\"SENT\"");
+            // when
+            adapter.publish(event);
+
+            // then
+            EventEnvelope<?> capturedEnvelope = envelopeCaptor.getValue();
+            assertThat(capturedEnvelope.eventType()).isEqualTo(KafkaTopicConstants.NOTIFICATION_PUSH_SENT);
+            assertThat(capturedEnvelope.source()).isEqualTo("notification-service");
+            assertThat(capturedEnvelope.eventId()).isNotBlank();
+            assertThat(capturedEnvelope.payload()).isEqualTo(event);
+
+            ArgumentCaptor<OutboxEvent> captor = ArgumentCaptor.forClass(OutboxEvent.class);
+            verify(saveOutboxEventPort).save(captor.capture());
+
+            OutboxEvent savedEvent = captor.getValue();
+            assertThat(savedEvent.getTopic()).isEqualTo(KafkaTopicConstants.NOTIFICATION_PUSH_SENT);
+            assertThat(savedEvent.getPartitionKey()).isEqualTo("100");
+            assertThat(savedEvent.getEventType()).isEqualTo("PushNotificationSentEvent");
+            assertThat(savedEvent.getSource()).isEqualTo("notification-service");
+            assertThat(savedEvent.getEventId()).isNotBlank();
+            assertThat(savedEvent.getPayload()).isEqualTo("{\"eventType\":\"notification.push.sent\"}");
+        }
     }
 
-    @Test
-    @DisplayName("페이로드 JSON이 올바르게 직렬화된다")
-    void payloadIsValidJson() throws Exception {
-        // given
-        PushNotificationSentEvent event = new PushNotificationSentEvent(
-                200L, 2L, "SHIPPING_STARTED", "SENT",
-                1, 1, LocalDateTime.of(2026, 4, 10, 15, 0)
-        );
+    @Nested
+    @DisplayName("publish 실패")
+    class PublishFailure {
 
-        // when
-        adapter.publish(event);
+        @Test
+        @DisplayName("직렬화 실패 시 NotificationSentEventSerializationException이 발생한다")
+        void shouldThrowSerializationExceptionWhenSerializationFails() throws JsonProcessingException {
+            // given
+            Clock fixedClock = Clock.fixed(Instant.parse("2026-09-03T05:00:00Z"), ZoneId.of("Asia/Seoul"));
+            when(clock.instant()).thenReturn(fixedClock.instant());
+            when(clock.getZone()).thenReturn(fixedClock.getZone());
 
-        // then
-        ArgumentCaptor<OutboxEvent> captor = ArgumentCaptor.forClass(OutboxEvent.class);
-        verify(saveOutboxEventPort).save(captor.capture());
+            PushNotificationSentEvent event = new PushNotificationSentEvent(
+                    300L, 3L, "NOTICE", "SENT",
+                    1, 0, LocalDateTime.of(2026, 4, 10, 16, 0)
+            );
+            when(objectMapper.writeValueAsString(any(EventEnvelope.class)))
+                    .thenThrow(new JsonProcessingException("test failure") {
+                    });
 
-        JsonNode parsed = objectMapper.readTree(captor.getValue().getPayload());
-        assertThat(parsed.get("notificationId").asLong()).isEqualTo(200L);
-        assertThat(parsed.get("userId").asLong()).isEqualTo(2L);
-        assertThat(parsed.get("notificationType").asText()).isEqualTo("SHIPPING_STARTED");
-        assertThat(parsed.get("sendStatus").asText()).isEqualTo("SENT");
-        assertThat(parsed.get("sentDeviceCount").asInt()).isEqualTo(1);
-        assertThat(parsed.get("failedDeviceCount").asInt()).isEqualTo(1);
-    }
-
-    @Test
-    @DisplayName("직렬화 실패 시 NotificationSentEventSerializationException을 던진다")
-    void throwsOnSerializationFailure() throws Exception {
-        // given
-        PushNotificationSentEvent event = new PushNotificationSentEvent(
-                300L, 3L, "NOTICE", "SENT",
-                1, 0, LocalDateTime.of(2026, 4, 10, 16, 0)
-        );
-        when(objectMapper.writeValueAsString(event))
-                .thenThrow(new JsonProcessingException("test failure") {
-                });
-
-        // when & then
-        assertThatThrownBy(() -> adapter.publish(event))
-                .isInstanceOf(NotificationSentEventSerializationException.class)
-                .hasMessageContaining("ERR_NOTIFICATION_SENT_EVENT_01")
-                .hasMessageContaining("알림 발송 완료 이벤트")
-                .hasMessageContaining("topic=" + KafkaTopicConstants.NOTIFICATION_PUSH_SENT)
-                .hasMessageContaining("partitionKey=300")
-                .hasMessageContaining("eventId=");
+            // when & then
+            assertThatThrownBy(() -> adapter.publish(event))
+                    .isInstanceOf(NotificationSentEventSerializationException.class)
+                    .hasMessageContaining("ERR_NOTIFICATION_SENT_EVENT_01")
+                    .hasMessageContaining("알림 발송 완료 이벤트")
+                    .hasMessageContaining("topic=" + KafkaTopicConstants.NOTIFICATION_PUSH_SENT)
+                    .hasMessageContaining("partitionKey=300")
+                    .hasMessageContaining("eventId=");
+            verifyNoInteractions(saveOutboxEventPort);
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.personal.marketnote.notification.adapter.out.event;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
+import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PushNotificationSentEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
@@ -42,8 +43,14 @@ public class NotificationSentEventOutboxAdapter implements PublishNotificationSe
     }
 
     private String serialize(PushNotificationSentEvent event, String topic, String partitionKey, String eventId) {
+        EventEnvelope<PushNotificationSentEvent> envelope = EventEnvelope.of(
+                topic,
+                EVENT_SOURCE,
+                event,
+                clock
+        );
         try {
-            return objectMapper.writeValueAsString(event);
+            return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
             throw new NotificationSentEventSerializationException(topic, partitionKey, eventId, e);
         }
