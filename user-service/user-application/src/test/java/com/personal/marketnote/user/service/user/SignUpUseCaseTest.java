@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.PasswordNoValueException;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.user.domain.authentication.Role;
 import com.personal.marketnote.user.domain.user.LoginHistory;
 import com.personal.marketnote.user.domain.user.Terms;
@@ -96,6 +97,8 @@ class SignUpUseCaseTest {
         when(savedUser.getId()).thenReturn(1L);
         when(savedUser.getUserKey()).thenReturn(userKey);
         when(savedUser.getRole()).thenReturn(Role.getBuyer());
+        when(savedUser.getFullName()).thenReturn("홍길동");
+        when(savedUser.getPhoneNumber()).thenReturn(null);
         when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
 
         when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("access-token");
@@ -112,7 +115,7 @@ class SignUpUseCaseTest {
         assertThat(result.refreshToken()).isEqualTo("refresh-token");
 
         verify(saveUserPort).save(any(User.class));
-        verify(publishUserEventPort).publishUserSignupCompletedEvent(1L, userKey.toString());
+        verify(publishUserEventPort).publishUserSignupCompletedEvent(1L, userKey.toString(), null, "홍길동");
 
         verify(saveLoginHistoryPort).saveLoginHistory(any(LoginHistory.class));
         verify(updateUserPort, never()).update(any());
@@ -151,7 +154,9 @@ class SignUpUseCaseTest {
 
         verify(updateUserPort).update(existingUser);
         verify(saveLoginHistoryPort).saveLoginHistory(any(LoginHistory.class));
-        verify(publishUserEventPort, never()).publishUserSignupCompletedEvent(anyLong(), anyString());
+        verify(publishUserEventPort, never()).publishUserSignupCompletedEvent(
+                anyLong(), anyString(), nullable(String.class), nullable(String.class)
+        );
 
         verify(saveUserPort, never()).save(any());
     }
@@ -244,7 +249,9 @@ class SignUpUseCaseTest {
                 .isInstanceOf(InvalidVerificationCodeException.class);
 
         verify(saveUserPort, never()).save(any());
-        verify(publishUserEventPort, never()).publishUserSignupCompletedEvent(anyLong(), anyString());
+        verify(publishUserEventPort, never()).publishUserSignupCompletedEvent(
+                anyLong(), anyString(), nullable(String.class), nullable(String.class)
+        );
 
         verify(saveLoginHistoryPort, never()).saveLoginHistory(any());
     }
@@ -273,7 +280,9 @@ class SignUpUseCaseTest {
 
         verify(updateUserPort, never()).update(any());
         verify(saveUserPort, never()).save(any());
-        verify(publishUserEventPort, never()).publishUserSignupCompletedEvent(anyLong(), anyString());
+        verify(publishUserEventPort, never()).publishUserSignupCompletedEvent(
+                anyLong(), anyString(), nullable(String.class), nullable(String.class)
+        );
 
     }
 
@@ -424,6 +433,8 @@ class SignUpUseCaseTest {
         when(savedUser.getId()).thenReturn(100L);
         when(savedUser.getUserKey()).thenReturn(userKey);
         when(savedUser.getRole()).thenReturn(Role.getBuyer());
+        when(savedUser.getFullName()).thenReturn("홍길동");
+        when(savedUser.getPhoneNumber()).thenReturn(null);
         when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
 
         when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("access-token");
@@ -459,6 +470,8 @@ class SignUpUseCaseTest {
         when(savedUser.getId()).thenReturn(101L);
         when(savedUser.getUserKey()).thenReturn(userKey);
         when(savedUser.getRole()).thenReturn(Role.getBuyer());
+        when(savedUser.getFullName()).thenReturn("홍길동");
+        when(savedUser.getPhoneNumber()).thenReturn(null);
         when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
 
         when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("access-token");
@@ -494,6 +507,8 @@ class SignUpUseCaseTest {
         when(savedUser.getId()).thenReturn(50L);
         when(savedUser.getUserKey()).thenReturn(UUID.randomUUID());
         when(savedUser.getRole()).thenReturn(Role.getBuyer());
+        when(savedUser.getFullName()).thenReturn("홍길동");
+        when(savedUser.getPhoneNumber()).thenReturn(null);
         when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
 
         when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("test-access-token");
@@ -562,6 +577,8 @@ class SignUpUseCaseTest {
         when(savedUser.getId()).thenReturn(99L);
         when(savedUser.getUserKey()).thenReturn(UUID.randomUUID());
         when(savedUser.getRole()).thenReturn(Role.getBuyer());
+        when(savedUser.getFullName()).thenReturn("홍길동");
+        when(savedUser.getPhoneNumber()).thenReturn(null);
         when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
 
         when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("my-access");
@@ -575,6 +592,76 @@ class SignUpUseCaseTest {
         assertThat(result.refreshToken()).isNotNull();
         assertThat(result.accessToken()).isEqualTo("my-access");
         assertThat(result.refreshToken()).isEqualTo("my-refresh");
+    }
+
+    @Test
+    @DisplayName("회원가입 시 fullName과 phoneNumber.getValue()가 publishUserSignupCompletedEvent에 평문으로 전달된다")
+    void signUp_passesPlainPiiToPublishPort() {
+        // given
+        String email = "pii@test.com";
+        String password = "password1!";
+        String phone = "01098765432";
+        SignUpCommand command = createCommand(email, password, "123456", "tester", "홍길동", phone);
+
+        when(findUserPort.existsByEmail(email)).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity("tester")).thenReturn(false);
+        when(findUserPort.existsByNickname("tester")).thenReturn(false);
+        when(findUserPort.existsByPhoneNumber(phone)).thenReturn(false);
+        when(verifyCodePort.verify(email, "123456")).thenReturn(true);
+        when(findTermsPort.findAll()).thenReturn(List.of(mock(Terms.class)));
+        when(passwordEncoder.encode(password)).thenReturn("encoded");
+
+        UUID userKey = UUID.randomUUID();
+        User savedUser = mock(User.class);
+        when(savedUser.getId()).thenReturn(7L);
+        when(savedUser.getUserKey()).thenReturn(userKey);
+        when(savedUser.getRole()).thenReturn(Role.getBuyer());
+        when(savedUser.getFullName()).thenReturn("홍길동");
+        when(savedUser.getPhoneNumber()).thenReturn(PhoneNumber.of(phone));
+        when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
+
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("at");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("rt");
+
+        // when
+        signUpService.signUp(command, AuthVendor.NATIVE, null, "127.0.0.1");
+
+        // then
+        verify(publishUserEventPort).publishUserSignupCompletedEvent(7L, userKey.toString(), phone, "홍길동");
+    }
+
+    @Test
+    @DisplayName("회원가입 시 phoneNumber가 null이면 publishUserSignupCompletedEvent에 phoneNumber=null로 전달된다")
+    void signUp_phoneNumberNull_passesNullToPublishPort() {
+        // given
+        String email = "nullphone@test.com";
+        String password = "password1!";
+        SignUpCommand command = createCommand(email, password, "123456", "tester", "홍길동", null);
+
+        when(findUserPort.existsByEmail(email)).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity("tester")).thenReturn(false);
+        when(findUserPort.existsByNickname("tester")).thenReturn(false);
+        when(verifyCodePort.verify(email, "123456")).thenReturn(true);
+        when(findTermsPort.findAll()).thenReturn(List.of(mock(Terms.class)));
+        when(passwordEncoder.encode(password)).thenReturn("encoded");
+
+        UUID userKey = UUID.randomUUID();
+        User savedUser = mock(User.class);
+        when(savedUser.getId()).thenReturn(8L);
+        when(savedUser.getUserKey()).thenReturn(userKey);
+        when(savedUser.getRole()).thenReturn(Role.getBuyer());
+        when(savedUser.getFullName()).thenReturn("홍길동");
+        when(savedUser.getPhoneNumber()).thenReturn(null);
+        when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
+
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("at");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("rt");
+
+        // when
+        signUpService.signUp(command, AuthVendor.NATIVE, null, "127.0.0.1");
+
+        // then
+        verify(publishUserEventPort).publishUserSignupCompletedEvent(8L, userKey.toString(), null, "홍길동");
     }
 
     private SignUpCommand createCommand(
