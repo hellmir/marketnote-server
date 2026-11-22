@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.adapter.out.vendor.giftishow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.*;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowBrandCodeException;
@@ -24,8 +25,15 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -44,6 +52,7 @@ class GiftishowApiClientTest {
     private MockRestServiceServer mockServer;
     private GiftishowApiClient giftishowApiClient;
     private GiftishowApiProperties properties;
+    private ExternalCallLogger externalCallLogger;
 
     @BeforeEach
     void setUp() {
@@ -67,13 +76,14 @@ class GiftishowApiClientTest {
         api.setCouponResendPath("/bizApi/resend");
         api.setBizMoneyBalancePath("/bizApi/bizmoney");
         api.setCouponSendFailCancelPath("/bizApi/sendFail/cancel");
+        api.setSensitivePaths(Set.of("/bizApi/send", "/bizApi/coupons", "/bizApi/resend"));
         properties.setApi(api);
 
         RestClient.Builder builder = RestClient.builder().baseUrl(BASE_URL);
         mockServer = MockRestServiceServer.bindTo(builder).build();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
+        externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
         giftishowApiClient = new GiftishowApiClient(
                 properties, builder.build(), objectMapper, externalCallLogger
         );
@@ -654,6 +664,172 @@ class GiftishowApiClientTest {
         void shouldThrowWhenGetBizMoneyBalanceUserIdIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.getBizMoneyBalance(null))
                     .isInstanceOf(InvalidGiftishowUserIdException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("ExternalCallLogger sensitive 분기")
+    class ExternalCallLoggerSensitiveDispatchTest {
+
+        @Test
+        @DisplayName("sendCoupon (sensitive path /bizApi/send) 호출 시 recordSensitive로 위임된다")
+        void shouldDispatchToRecordSensitiveWhenSendCoupon() {
+            // given
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD001",
+                                    "pin_no": "1234-5678-9012",
+                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
+                                    "valid_prd_end_dt": "20260503"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.sendCoupon(
+                    "NTCASH_1_20260403120000", "G001", "01012345678",
+                    "user1", "msg", "title"
+            );
+
+            // then
+            verify(externalCallLogger).recordSensitive(
+                    eq(ExternalSystem.GIFTISHOW), eq("coupon.send"), any(), any()
+            );
+            verify(externalCallLogger, never()).record(
+                    eq(ExternalSystem.GIFTISHOW), eq("coupon.send"), any(), any()
+            );
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("getCouponDetail (sensitive path /bizApi/coupons) 호출 시 recordSensitive로 위임된다")
+        void shouldDispatchToRecordSensitiveWhenGetCouponDetail() {
+            // given
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/coupons"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD001",
+                                    "pin_status_cd": "01",
+                                    "pin_status_nm": "발행",
+                                    "valid_prd_end_dt": "20260503",
+                                    "goods_code": "G001",
+                                    "goods_name": "테스트 상품"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.getCouponDetail("NTCASH_1_20260403120000");
+
+            // then
+            verify(externalCallLogger).recordSensitive(
+                    eq(ExternalSystem.GIFTISHOW), eq("coupon.detail"), any(), any()
+            );
+            verify(externalCallLogger, never()).record(
+                    eq(ExternalSystem.GIFTISHOW), eq("coupon.detail"), any(), any()
+            );
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("resendCoupon (sensitive path /bizApi/resend) 호출 시 recordSensitive로 위임된다")
+        void shouldDispatchToRecordSensitiveWhenResendCoupon() {
+            // given
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/resend"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD001"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.resendCoupon("NTCASH_1_20260403120000", "01012345678");
+
+            // then
+            verify(externalCallLogger).recordSensitive(
+                    eq(ExternalSystem.GIFTISHOW), eq("coupon.resend"), any(), any()
+            );
+            verify(externalCallLogger, never()).record(
+                    eq(ExternalSystem.GIFTISHOW), eq("coupon.resend"), any(), any()
+            );
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("getProductList (non-sensitive path /bizApi/goods) 호출 시 record로 위임된다")
+        void shouldDispatchToRecordWhenGetProductList() {
+            // given
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/goods"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "list_total_cnt": 0,
+                                    "goodsList": []
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.getProductList(0, 20);
+
+            // then
+            verify(externalCallLogger).record(
+                    eq(ExternalSystem.GIFTISHOW), eq("product.list"), any(), any()
+            );
+            verify(externalCallLogger, never()).recordSensitive(
+                    eq(ExternalSystem.GIFTISHOW), eq("product.list"), any(), any()
+            );
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("cancelCoupon (non-sensitive path /bizApi/cancel) 호출 시 record로 위임된다")
+        void shouldDispatchToRecordWhenCancelCoupon() {
+            // given
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/cancel"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD001"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.cancelCoupon("NTCASH_1_20260403120000", "user1");
+
+            // then
+            verify(externalCallLogger).record(
+                    eq(ExternalSystem.GIFTISHOW), eq("coupon.cancel"), any(), any()
+            );
+            verify(externalCallLogger, never()).recordSensitive(
+                    eq(ExternalSystem.GIFTISHOW), eq("coupon.cancel"), any(), any()
+            );
+            mockServer.verify();
         }
     }
 
