@@ -171,4 +171,42 @@ class ExternalCallLoggerTest {
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1L);
     }
+
+    @Test
+    @DisplayName("recordSensitive 실패 시 cause throwable과 message가 ERROR 로그에 노출되지 않는다")
+    void shouldMaskCauseWhenRecordSensitiveFailure() {
+        String forbiddenToken = "1234-5678-9012-3456";
+        RuntimeException cause = new RuntimeException("raw body with PIN " + forbiddenToken);
+
+        assertThatThrownBy(() -> externalCallLogger.recordSensitive(
+                SYSTEM, "test.sensitive", Map.of(), () -> { throw cause; }
+        )).isSameAs(cause);
+
+        assertThat(appender.list)
+                .filteredOn(event -> event.getLevel() == Level.ERROR)
+                .isNotEmpty()
+                .allSatisfy(event -> {
+                    assertThat(event.getFormattedMessage()).doesNotContain(forbiddenToken);
+                    assertThat(event.getThrowableProxy()).isNull();
+                });
+    }
+
+    @Test
+    @DisplayName("recordVoidSensitive 실패 시 cause throwable과 message가 ERROR 로그에 노출되지 않는다")
+    void shouldMaskCauseWhenRecordVoidSensitiveFailure() {
+        String forbiddenToken = "9876-5432-1098-7654";
+        RuntimeException cause = new RuntimeException("raw body " + forbiddenToken);
+
+        assertThatThrownBy(() -> externalCallLogger.recordVoidSensitive(
+                SYSTEM, "test.void.sensitive", Map.of(), () -> { throw cause; }
+        )).isSameAs(cause);
+
+        assertThat(appender.list)
+                .filteredOn(event -> event.getLevel() == Level.ERROR)
+                .isNotEmpty()
+                .allSatisfy(event -> {
+                    assertThat(event.getFormattedMessage()).doesNotContain(forbiddenToken);
+                    assertThat(event.getThrowableProxy()).isNull();
+                });
+    }
 }
