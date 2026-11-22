@@ -55,10 +55,8 @@ class GiftishowApiClientParseResponseMaskingTest {
     void setUp() {
         GiftishowApiProperties properties = new GiftishowApiProperties();
         properties.setBaseUrl(BASE_URL);
-        properties.setApiCode("test-api-code");
         properties.setAuthCode("test-auth-code");
         properties.setAuthToken("test-auth-token");
-        properties.setDevYn("Y");
         properties.setCallbackNo("0000000000");
         properties.setGubun("I");
 

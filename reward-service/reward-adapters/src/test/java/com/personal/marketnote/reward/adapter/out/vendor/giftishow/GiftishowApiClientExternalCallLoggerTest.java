@@ -69,10 +69,8 @@ class GiftishowApiClientExternalCallLoggerTest {
     void setUp() {
         GiftishowApiProperties properties = new GiftishowApiProperties();
         properties.setBaseUrl(BASE_URL);
-        properties.setApiCode("test-api-code");
         properties.setAuthCode("test-auth-code");
         properties.setAuthToken("test-auth-token");
-        properties.setDevYn("Y");
         properties.setCallbackNo("0000000000");
         properties.setGubun("I");
 
@@ -313,14 +311,13 @@ class GiftishowApiClientExternalCallLoggerTest {
         }
 
         @Test
-        @DisplayName("인증 파라미터(api_code/auth_code/auth_token)가 외부 호출 로그에 포함되지 않는다")
+        @DisplayName("인증 파라미터(custom_auth_code/custom_auth_token)가 외부 호출 로그에 포함되지 않는다")
         void shouldNotIncludeAuthParamsInLog() {
             mockServer.expect(requestTo(BASE_URL + COUPON_DETAIL_PATH))
                     .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
             client.getCouponDetail(TR_ID);
 
-            assertNoLogContains("test-api-code");
             assertNoLogContains("test-auth-code");
             assertNoLogContains("test-auth-token");
         }

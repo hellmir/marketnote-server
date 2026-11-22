@@ -103,11 +103,9 @@ vendor:
         android: ${ADISCOPE_ANDROID_HASH_KEY:abc}
         ios: ${ADISCOPE_IOS_HASH_KEY:def}
   giftishow:
-    base-url: ${GIFTISHOW_BASE_URL:https://bizapi.giftishow.com}
-    api-code: ${GIFTISHOW_API_CODE:0000}
+    base-url: https://bizapi.giftishow.com
     auth-code: ${GIFTISHOW_AUTH_CODE:0000}
     auth-token: ${GIFTISHOW_AUTH_TOKEN:0000}
-    dev-yn: ${GIFTISHOW_DEV_YN:Y}
     callback-no: ${GIFTISHOW_CALLBACK_NO:0000000000}
     phone-no: ${GIFTISHOW_PHONE_NO:0000000000}
     mms-msg: ${GIFTISHOW_MMS_MSG:마켓노트 기프티콘}

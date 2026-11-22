@@ -11,10 +11,8 @@ import java.util.Set;
 @Setter
 public class GiftishowApiProperties {
     private String baseUrl;
-    private String apiCode;
     private String authCode;
     private String authToken;
-    private String devYn;
     private String callbackNo;
     private String phoneNo;
     private String mmsMsg;
