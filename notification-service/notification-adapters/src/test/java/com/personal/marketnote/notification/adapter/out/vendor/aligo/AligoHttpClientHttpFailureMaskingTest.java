@@ -75,7 +75,9 @@ class AligoHttpClientHttpFailureMaskingTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
-        aligoHttpClient = new AligoHttpClient(builder.build(), objectMapper, properties, externalCallLogger);
+        aligoHttpClient = AligoHttpClientTestSupport.newClient(
+                builder.build(), objectMapper, properties, externalCallLogger
+        );
 
         clientLogger = (Logger) LoggerFactory.getLogger(AligoHttpClient.class);
         clientPreviousAdditive = clientLogger.isAdditive();
