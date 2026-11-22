@@ -1,8 +1,11 @@
 package com.personal.marketnote.common.kafka.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record OrderCancelledEvent(
         Long orderId,
         String orderKey,
@@ -18,6 +21,7 @@ public record OrderCancelledEvent(
         String cancelId
 ) {
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public record OrderProductItem(
             Long pricePolicyId,
             UUID sharerKey,

@@ -1,7 +1,10 @@
 package com.personal.marketnote.common.kafka.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record PricePolicyCreatedEvent(
         Long productId,
         Long pricePolicyId,
@@ -16,6 +19,7 @@ public record PricePolicyCreatedEvent(
         List<ProductOptionSnapshot> selectedOptions
 ) {
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public record ProductTagSnapshot(
             Long id,
             String name,
@@ -23,6 +27,7 @@ public record PricePolicyCreatedEvent(
     ) {
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public record ProductOptionSnapshot(
             Long id,
             String content

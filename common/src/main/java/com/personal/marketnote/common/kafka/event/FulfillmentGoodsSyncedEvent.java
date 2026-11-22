@@ -1,7 +1,10 @@
 package com.personal.marketnote.common.kafka.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record FulfillmentGoodsSyncedEvent(
         String customerGoodsCode,
         String goodsCode,
@@ -67,6 +70,7 @@ public record FulfillmentGoodsSyncedEvent(
         List<GoodsElementItem> elements
 ) {
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public record GoodsElementItem(
             String goodsCode,
             String customerGoodsCode,

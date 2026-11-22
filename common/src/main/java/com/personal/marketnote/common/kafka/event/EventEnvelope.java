@@ -1,5 +1,6 @@
 package com.personal.marketnote.common.kafka.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.AccessLevel;
@@ -9,6 +10,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 
 @Builder(access = AccessLevel.PRIVATE)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record EventEnvelope<T>(
         String eventId,
         String eventType,
