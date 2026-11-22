@@ -3,6 +3,7 @@ package com.personal.marketnote.product.adapter.in.web.product.controller;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
+import com.personal.marketnote.product.adapter.in.web.product.request.ImportProductRequest;
 import com.personal.marketnote.product.adapter.in.web.product.request.RegisterProductRequest;
 import com.personal.marketnote.product.adapter.in.web.product.request.ReorderProductTagsRequest;
 import com.personal.marketnote.product.adapter.in.web.product.request.UpdateProductRequest;
@@ -232,6 +233,52 @@ class ProductControllerTest {
             assertThat(preAuthorize.value()).contains("ROLE_ADMIN");
             assertThat(preAuthorize.value()).contains("ROLE_SELLER");
             assertThat(preAuthorize.value()).contains("#request.sellerId.toString() == authentication.name");
+        }
+    }
+
+    @Nested
+    @DisplayName("POST /api/v1/products/admin/import")
+    class ImportProduct {
+
+        @Test
+        @DisplayName("파스토 기등록 상품 import 시 201 CREATED와 등록 결과를 반환하고 fasstoProductCode를 커맨드에 전달한다")
+        void importProduct_returnsCreatedAndPropagatesFasstoProductCode() {
+            ImportProductRequest request = new ImportProductRequest(
+                    10L, "import 상품", "브랜드", "상세",
+                    10_000L, 8_000L, 100L, true,
+                    List.of("tag1"), "FASSTO0000000000000000001"
+            );
+            UUID productKey = UUID.randomUUID();
+            RegisterProductResult result = new RegisterProductResult(1L, productKey);
+            when(registerProductUseCase.registerProduct(any(RegisterProductCommand.class))).thenReturn(result);
+
+            ResponseEntity<BaseResponse<RegisterProductResponse>> response =
+                    productController.importProduct(request);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getContent().id()).isEqualTo(1L);
+            assertThat(response.getBody().getContent().productKey()).isEqualTo(productKey);
+
+            ArgumentCaptor<RegisterProductCommand> captor = ArgumentCaptor.forClass(RegisterProductCommand.class);
+            verify(registerProductUseCase).registerProduct(captor.capture());
+            RegisterProductCommand captured = captor.getValue();
+            assertThat(captured.sellerId()).isEqualTo(10L);
+            assertThat(captured.name()).isEqualTo("import 상품");
+            assertThat(captured.fasstoProductCode()).isEqualTo("FASSTO0000000000000000001");
+            assertThat(captured.fulfillmentVendorGoods()).isNull();
+        }
+
+        @Test
+        @DisplayName("importProduct 메서드에 @PreAuthorize(관리자 권한 전용) 어노테이션이 부착되어 있다")
+        void importProductHasAdminOnlyPreAuthorize() throws NoSuchMethodException {
+            Method method = ProductController.class.getMethod("importProduct", ImportProductRequest.class);
+
+            PreAuthorize preAuthorize = method.getAnnotation(PreAuthorize.class);
+
+            assertThat(preAuthorize).isNotNull();
+            assertThat(preAuthorize.value()).contains("ROLE_ADMIN");
+            assertThat(preAuthorize.value()).doesNotContain("ROLE_SELLER");
         }
     }
 

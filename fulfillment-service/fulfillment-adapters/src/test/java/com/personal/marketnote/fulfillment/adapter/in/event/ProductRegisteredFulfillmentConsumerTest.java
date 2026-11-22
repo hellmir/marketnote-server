@@ -53,8 +53,16 @@ class ProductRegisteredFulfillmentConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
             Long productId, String productName, String godType
     ) {
+        return buildRecord(productId, productName, godType, null, false);
+    }
+
+    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
+            Long productId, String productName, String godType, String fasstoProductCode, boolean imported
+    ) {
         ProductRegisteredEvent event = new ProductRegisteredEvent(
-                productId, UUID.randomUUID(), 100L, 1L, productName, godType, "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null);
+                productId, UUID.randomUUID(), 100L, 1L, productName, godType, "테스트 브랜드",
+                10000L, 8000L, 100L, 0L, null, null, fasstoProductCode, imported
+        );
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "product.product.registered", "product-service",
                 LocalDateTime.of(2026, 2, 27, 10, 0), event
@@ -154,7 +162,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_nullProductKey_skipsAndAcknowledges() {
         // given
         ProductRegisteredEvent event = new ProductRegisteredEvent(
-                1L, null, 100L, 1L, "테스트", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null);
+                1L, null, 100L, 1L, "테스트", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "product.product.registered", "product-service",
                 LocalDateTime.of(2026, 2, 27, 10, 0), event
@@ -227,7 +235,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
     void handleEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
-        ProductRegisteredEvent event = new ProductRegisteredEvent(1L, null, 100L, 1L, "테스트", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null);
+        ProductRegisteredEvent event = new ProductRegisteredEvent(1L, null, 100L, 1L, "테스트", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "product-service",
                 LocalDateTime.of(2026, 2, 27, 10, 0), event
@@ -261,5 +269,39 @@ class ProductRegisteredFulfillmentConsumerTest {
 
         verify(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
         verify(acknowledgment, never()).acknowledge();
+    }
+
+    @Test
+    @DisplayName("imported=true 이벤트 수신 시 Fastto 송신을 스킵하고 acknowledge한다")
+    void handleEvent_imported_skipsFasstoCallAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
+                100L, "import 상품", "1", "FASSTO0000000000000000001", true
+        );
+
+        // when
+        consumer.handleProductRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, registerFulfillmentGoodsUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("imported=false 이벤트 수신 시 기존 등록 흐름을 수행한다")
+    void handleEvent_notImported_proceedsWithRegistration() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
+                200L, "신규 상품", "1", null, false
+        );
+        stubAuthenticatedCaller();
+        when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
+
+        // when
+        consumer.handleProductRegisteredEvent(record, acknowledgment);
+
+        // then
+        verify(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
+        verify(acknowledgment).acknowledge();
     }
 }

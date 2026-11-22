@@ -93,7 +93,7 @@ class ProductCatalogReadModelSyncConsumerTest {
         Cache cache = mock(Cache.class);
         when(cacheManager.getCache("product:list:first")).thenReturn(cache);
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                100L, null, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드", 10000L, 9000L, 100L, 0L, null, null, "TestFasstoCode00000001");
+                100L, null, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드", 10000L, 9000L, 100L, 0L, null, null, "TestFasstoCode00000001", false);
         EventEnvelope<ProductRegisteredEvent> envelope =
                 envelopeOf(KafkaTopicConstants.PRODUCT_REGISTERED, "product-service", payload);
         ConsumerRecord<String, EventEnvelope<?>> record =
@@ -127,7 +127,7 @@ class ProductCatalogReadModelSyncConsumerTest {
         );
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
                 100L, null, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드",
-                10000L, 9000L, 100L, 50L, tags, options, "TestFasstoCode00000002"
+                10000L, 9000L, 100L, 50L, tags, options, "TestFasstoCode00000002", false
         );
         EventEnvelope<ProductRegisteredEvent> envelope =
                 envelopeOf(KafkaTopicConstants.PRODUCT_REGISTERED, "product-service", payload);
@@ -153,7 +153,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     @DisplayName("ProductRegistered productId가 null이면 upsert와 캐시 삭제를 호출하지 않는다")
     void handleProductRegistered_nullProductId_acknowledges() {
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                null, null, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드", 10000L, 9000L, 100L, 0L, null, null, "TestFasstoCode00000003");
+                null, null, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드", 10000L, 9000L, 100L, 0L, null, null, "TestFasstoCode00000003", false);
         EventEnvelope<ProductRegisteredEvent> envelope =
                 envelopeOf(KafkaTopicConstants.PRODUCT_REGISTERED, "product-service", payload);
         ConsumerRecord<String, EventEnvelope<?>> record =
