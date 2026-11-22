@@ -3,15 +3,19 @@ package com.personal.marketnote.reward.adapter.in.web.gifticon.controller;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.GetAdminGifticonGoodsApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageFeaturedGifticonGoodsApiDocs;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonGoodsCashPriceApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonGoodsExposureApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonGoodsOrderApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageFeaturedGifticonGoodsRequest;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsCashPriceRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsExposureRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsOrderRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetAdminGifticonGoodsResponse;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetAdminGifticonGoodsCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageFeaturedGifticonGoodsCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageFeaturedGifticonGoodsCommand.FeaturedGoodsItem;
+import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsCashPriceCommand;
+import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsCashPriceCommand.CashPriceItem;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsExposureCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsExposureCommand.ExposureItem;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsOrderCommand;
@@ -19,6 +23,7 @@ import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoo
 import com.personal.marketnote.reward.port.in.result.gifticon.GetAdminGifticonGoodsResult;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.GetAdminGifticonGoodsUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageFeaturedGifticonGoodsUseCase;
+import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsCashPriceUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsExposureUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsOrderUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,6 +47,7 @@ public class AdminGifticonGoodsController {
     private final ManageGifticonGoodsExposureUseCase manageGifticonGoodsExposureUseCase;
     private final ManageGifticonGoodsOrderUseCase manageGifticonGoodsOrderUseCase;
     private final ManageFeaturedGifticonGoodsUseCase manageFeaturedGifticonGoodsUseCase;
+    private final ManageGifticonGoodsCashPriceUseCase manageGifticonGoodsCashPriceUseCase;
 
     /**
      * (관리자) 기프티콘 전체 상품 목록 조회
@@ -166,6 +172,37 @@ public class AdminGifticonGoodsController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "기프티콘 인기상품 관리 성공"
+                )
+        );
+    }
+
+    /**
+     * (관리자) 기프티콘 상품 사용자 판매가 관리
+     *
+     * @param request 사용자 판매가 관리 요청
+     * @Author 성효빈
+     * @Date 2026-11-21
+     * @Description 관리자가 기프티콘 상품의 사용자 판매가(cashPrice)를 변경합니다.
+     */
+    @PatchMapping("/cash-price")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @ManageGifticonGoodsCashPriceApiDocs
+    public ResponseEntity<BaseResponse<Void>> manageGifticonGoodsCashPrice(
+            @Valid @RequestBody ManageGifticonGoodsCashPriceRequest request
+    ) {
+        ManageGifticonGoodsCashPriceCommand command = new ManageGifticonGoodsCashPriceCommand(
+                request.items().stream()
+                        .map(item -> new CashPriceItem(item.goodsCode(), item.cashPrice()))
+                        .toList()
+        );
+
+        manageGifticonGoodsCashPriceUseCase.manageCashPrice(command);
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "기프티콘 상품 사용자 판매가 관리 성공"
                 )
         );
     }
