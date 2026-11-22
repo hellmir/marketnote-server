@@ -54,11 +54,12 @@ public class RegisterProductService implements RegisterProductUseCase {
                 : 0L;
         List<ProductRegisteredEvent.ProductTagSnapshot> productTags = toTagSnapshots(savedProduct.getProductTags());
 
+        boolean imported = FormatValidator.hasValue(command.fasstoProductCode());
         publishProductEventPort.publishProductRegisteredEvent(
                 savedProduct.getId(), savedProduct.getProductKey(),
                 registerPricePolicyResult.id(), command.sellerId(), savedProduct.getName(), goodsType,
                 savedProduct.getBrandName(), command.price(), command.discountPrice(), command.accumulatedPoint(),
-                sales, productTags, List.of(), savedProduct.getFasstoProductCode()
+                sales, productTags, List.of(), savedProduct.getFasstoProductCode(), imported
         );
 
         return RegisterProductResult.from(savedProduct);

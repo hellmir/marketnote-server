@@ -58,6 +58,15 @@ public class ProductRegisteredFulfillmentConsumer {
 
             log.info("상품 등록 이벤트 수신 (풀필먼트). eventId={}, productKey={}", envelope.eventId(), payload.productKey());
 
+            if (payload.imported()) {
+                log.info(
+                        "import 상품, Fastto 송신 스킵. eventId={}, fasstoProductCode={}",
+                        envelope.eventId(), payload.fasstoProductCode()
+                );
+                acknowledgment.acknowledge();
+                return;
+            }
+
             if (FormatValidator.hasNoValue(payload.productKey())) {
                 log.error("productKey 누락. eventId={}", envelope.eventId());
                 acknowledgment.acknowledge();

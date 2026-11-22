@@ -22,6 +22,23 @@ public class ProductRequestToCommandMapper {
                 .isFindAllOptions(registerProductRequest.isFindAllOptions())
                 .tags(registerProductRequest.tags())
                 .fulfillmentVendorGoods(mapToCommand(registerProductRequest.fulfillmentVendorGoods()))
+                .fasstoProductCode(null)
+                .build();
+    }
+
+    public static RegisterProductCommand mapToCommand(ImportProductRequest importProductRequest) {
+        return RegisterProductCommand.builder()
+                .sellerId(importProductRequest.sellerId())
+                .name(importProductRequest.name())
+                .brandName(importProductRequest.brandName())
+                .detail(importProductRequest.detail())
+                .price(importProductRequest.price())
+                .discountPrice(importProductRequest.discountPrice())
+                .accumulatedPoint(importProductRequest.accumulatedPoint())
+                .isFindAllOptions(importProductRequest.isFindAllOptions())
+                .tags(importProductRequest.tags())
+                .fulfillmentVendorGoods(null)
+                .fasstoProductCode(importProductRequest.fasstoProductCode())
                 .build();
     }
 

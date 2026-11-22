@@ -7,6 +7,7 @@ import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.in.web.product.controller.apidocs.*;
 import com.personal.marketnote.product.adapter.in.web.product.mapper.ProductRequestToCommandMapper;
+import com.personal.marketnote.product.adapter.in.web.product.request.ImportProductRequest;
 import com.personal.marketnote.product.adapter.in.web.product.request.RegisterProductRequest;
 import com.personal.marketnote.product.adapter.in.web.product.request.ReorderProductTagsRequest;
 import com.personal.marketnote.product.adapter.in.web.product.request.UpdateProductRequest;
@@ -85,6 +86,37 @@ public class ProductController {
                         HttpStatus.CREATED,
                         DEFAULT_SUCCESS_CODE,
                         "상품 등록 성공"
+                ),
+                HttpStatus.CREATED
+        );
+    }
+
+    /**
+     * (관리자) 파스토 기등록 상품 import
+     *
+     * @param request 파스토 기등록 상품 import 요청
+     * @return 상품 등록 응답 {@link RegisterProductResponse}
+     * @Author 성효빈
+     * @Date 2026-11-22
+     * @Description 파스토에 이미 등록된 상품의 운영코드(cstGodCd)를 입력받아 자사 카탈로그에 등록합니다.
+     *              Fastto 송신은 스킵합니다.
+     */
+    @PostMapping("/admin/import")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @ImportProductApiDocs
+    public ResponseEntity<BaseResponse<RegisterProductResponse>> importProduct(
+            @Valid @RequestBody ImportProductRequest request
+    ) {
+        RegisterProductResult result = registerProductUseCase.registerProduct(
+                ProductRequestToCommandMapper.mapToCommand(request)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        RegisterProductResponse.from(result),
+                        HttpStatus.CREATED,
+                        DEFAULT_SUCCESS_CODE,
+                        "파스토 기등록 상품 import 성공"
                 ),
                 HttpStatus.CREATED
         );

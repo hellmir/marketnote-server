@@ -33,6 +33,7 @@ public class ProductCommandToStateMapper {
                                 .map(tag -> ProductTagCreateState.builder().name(tag).build())
                                 .toList()
                 )
+                .fasstoProductCode(command.fasstoProductCode())
                 .build();
     }
 

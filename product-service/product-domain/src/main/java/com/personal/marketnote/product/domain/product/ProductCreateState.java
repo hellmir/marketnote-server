@@ -17,5 +17,6 @@ public class ProductCreateState {
     private final String detail;
     private final boolean findAllOptionsYn;
     private final List<ProductTagCreateState> tags;
+    private final String fasstoProductCode;
 }
 

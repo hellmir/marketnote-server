@@ -17,7 +17,8 @@ public record ProductRegisteredEvent(
         Long sales,
         List<ProductTagSnapshot> productTags,
         List<ProductOptionSnapshot> selectedOptions,
-        String fasstoProductCode
+        String fasstoProductCode,
+        boolean imported
 ) {
 
     public record ProductTagSnapshot(
