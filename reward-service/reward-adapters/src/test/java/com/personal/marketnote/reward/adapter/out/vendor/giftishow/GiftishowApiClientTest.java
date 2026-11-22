@@ -45,10 +45,9 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 class GiftishowApiClientTest {
 
     private static final String BASE_URL = "http://localhost:9999";
-    private static final String API_CODE = "test-api-code";
     private static final String AUTH_CODE = "test-auth-code";
     private static final String AUTH_TOKEN = "test-auth-token";
-    private static final String DEV_YN = "Y";
+    private static final String DEV_YN = "N";
     private static final String CALLBACK_NO = "0000000000";
     private static final String GUBUN = "I";
 
@@ -62,10 +61,8 @@ class GiftishowApiClientTest {
     void setUp() {
         properties = new GiftishowApiProperties();
         properties.setBaseUrl(BASE_URL);
-        properties.setApiCode(API_CODE);
         properties.setAuthCode(AUTH_CODE);
         properties.setAuthToken(AUTH_TOKEN);
-        properties.setDevYn(DEV_YN);
         properties.setCallbackNo(CALLBACK_NO);
         properties.setGubun(GUBUN);
 
@@ -197,10 +194,10 @@ class GiftishowApiClientTest {
         void shouldReturnProductDetailWhenRequestSucceeds() {
             // given
             MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
-            expectedFormData.add("api_code", API_CODE);
-            expectedFormData.add("auth_code", AUTH_CODE);
-            expectedFormData.add("auth_token", AUTH_TOKEN);
+            expectedFormData.add("custom_auth_code", AUTH_CODE);
+            expectedFormData.add("custom_auth_token", AUTH_TOKEN);
             expectedFormData.add("dev_yn", DEV_YN);
+            expectedFormData.add("api_code", "0111");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/goods/G001"))
                     .andExpect(method(HttpMethod.POST))
@@ -297,10 +294,10 @@ class GiftishowApiClientTest {
         void shouldReturnBrandDetailWhenRequestSucceeds() {
             // given
             MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
-            expectedFormData.add("api_code", API_CODE);
-            expectedFormData.add("auth_code", AUTH_CODE);
-            expectedFormData.add("auth_token", AUTH_TOKEN);
+            expectedFormData.add("custom_auth_code", AUTH_CODE);
+            expectedFormData.add("custom_auth_token", AUTH_TOKEN);
             expectedFormData.add("dev_yn", DEV_YN);
+            expectedFormData.add("api_code", "0112");
 
             mockServer.expect(requestTo(BASE_URL + "/bizApi/brands/B001"))
                     .andExpect(method(HttpMethod.POST))

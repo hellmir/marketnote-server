@@ -51,6 +51,18 @@ public class GiftishowApiClient {
     private static final String OP_COUPON_SEND_FAIL_CANCEL =
             GiftishowOperationTargetTypeResolver.OP_COUPON_SEND_FAIL_CANCEL;
 
+    private static final String DEV_YN_PRODUCTION = "N";
+    private static final String API_CODE_PRODUCT_LIST = "0101";
+    private static final String API_CODE_PRODUCT_DETAIL = "0111";
+    private static final String API_CODE_BRAND_LIST = "0102";
+    private static final String API_CODE_BRAND_DETAIL = "0112";
+    private static final String API_CODE_COUPON_DETAIL = "0201";
+    private static final String API_CODE_COUPON_CANCEL = "0202";
+    private static final String API_CODE_COUPON_RESEND = "0203";
+    private static final String API_CODE_COUPON_SEND = "0204";
+    private static final String API_CODE_COUPON_SEND_FAIL_CANCEL = "0205";
+    private static final String API_CODE_BIZMONEY_BALANCE = "0301";
+
     private static final String TAG_TR_ID = "tr_id";
     private static final String TAG_GOODS_CODE = "goods_code";
     private static final String TAG_BRAND_CODE = "brand_code";
@@ -87,6 +99,7 @@ public class GiftishowApiClient {
      */
     public GiftishowApiResponse<GiftishowProductListResponse> getProductList(int start, int size) {
         MultiValueMap<String, String> params = createAuthParams();
+        params.add("api_code", API_CODE_PRODUCT_LIST);
         params.add("start", String.valueOf(start));
         params.add("size", String.valueOf(size));
 
@@ -114,6 +127,7 @@ public class GiftishowApiClient {
             throw new InvalidGiftishowGoodsCodeException();
         }
         MultiValueMap<String, String> params = createAuthParams();
+        params.add("api_code", API_CODE_PRODUCT_DETAIL);
 
         log.info("기프티쇼 상품 상세 조회 요청: goodsCode={}", goodsCode);
 
@@ -138,6 +152,7 @@ public class GiftishowApiClient {
      */
     public GiftishowApiResponse<GiftishowBrandListResponse> getBrandList() {
         MultiValueMap<String, String> params = createAuthParams();
+        params.add("api_code", API_CODE_BRAND_LIST);
 
         log.info("기프티쇼 브랜드 조회 요청");
 
@@ -163,6 +178,7 @@ public class GiftishowApiClient {
             throw new InvalidGiftishowBrandCodeException();
         }
         MultiValueMap<String, String> params = createAuthParams();
+        params.add("api_code", API_CODE_BRAND_DETAIL);
 
         log.info("기프티쇼 브랜드 상세 조회 요청: brandCode={}", brandCode);
 
@@ -206,6 +222,7 @@ public class GiftishowApiClient {
             throw new InvalidGiftishowUserIdException();
         }
         MultiValueMap<String, String> params = createAuthParams();
+        params.add("api_code", API_CODE_COUPON_SEND);
         params.add("tr_id", trId);
         params.add("goods_code", goodsCode);
         params.add("phone_no", phoneNo);
@@ -242,6 +259,7 @@ public class GiftishowApiClient {
             throw new InvalidGiftishowTrIdException();
         }
         MultiValueMap<String, String> params = createAuthParams();
+        params.add("api_code", API_CODE_COUPON_DETAIL);
         params.add("tr_id", trId);
 
         log.info("기프티쇼 쿠폰 상세 조회 요청: trId={}", trId);
@@ -272,6 +290,7 @@ public class GiftishowApiClient {
             throw new InvalidGiftishowUserIdException();
         }
         MultiValueMap<String, String> params = createAuthParams();
+        params.add("api_code", API_CODE_COUPON_CANCEL);
         params.add("tr_id", trId);
         params.add("user_id", userId);
 
@@ -304,6 +323,7 @@ public class GiftishowApiClient {
             throw new InvalidGiftishowPhoneNoException();
         }
         MultiValueMap<String, String> params = createAuthParams();
+        params.add("api_code", API_CODE_COUPON_RESEND);
         params.add("tr_id", trId);
         params.add("phone_no", phoneNo);
 
@@ -332,6 +352,7 @@ public class GiftishowApiClient {
             throw new InvalidGiftishowUserIdException();
         }
         MultiValueMap<String, String> params = createAuthParams();
+        params.add("api_code", API_CODE_BIZMONEY_BALANCE);
         params.add("user_id", userId);
 
         log.info("기프티쇼 비즈머니 잔액 조회 요청: userId={}", userId);
@@ -362,6 +383,7 @@ public class GiftishowApiClient {
             throw new InvalidGiftishowUserIdException();
         }
         MultiValueMap<String, String> params = createAuthParams();
+        params.add("api_code", API_CODE_COUPON_SEND_FAIL_CANCEL);
         params.add("tr_id", trId);
         params.add("user_id", userId);
 
@@ -385,10 +407,9 @@ public class GiftishowApiClient {
 
     private MultiValueMap<String, String> createAuthParams() {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("api_code", properties.getApiCode());
-        params.add("auth_code", properties.getAuthCode());
-        params.add("auth_token", properties.getAuthToken());
-        params.add("dev_yn", properties.getDevYn());
+        params.add("custom_auth_code", properties.getAuthCode());
+        params.add("custom_auth_token", properties.getAuthToken());
+        params.add("dev_yn", DEV_YN_PRODUCTION);
         return params;
     }
 
@@ -704,7 +725,7 @@ public class GiftishowApiClient {
     }
 
     private boolean isAuthParam(String key) {
-        return "auth_code".equals(key) || "auth_token".equals(key) || "api_code".equals(key);
+        return "custom_auth_code".equals(key) || "custom_auth_token".equals(key);
     }
 
     private boolean isSensitiveParam(String key) {

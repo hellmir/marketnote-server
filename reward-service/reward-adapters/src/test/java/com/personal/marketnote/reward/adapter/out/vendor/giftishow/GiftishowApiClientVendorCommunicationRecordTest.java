@@ -54,7 +54,6 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 class GiftishowApiClientVendorCommunicationRecordTest {
 
     private static final String BASE_URL = "http://localhost:9999";
-    private static final String API_CODE = "test-api-code";
     private static final String AUTH_CODE = "test-auth-code";
     private static final String AUTH_TOKEN = "test-auth-token";
 
@@ -73,10 +72,8 @@ class GiftishowApiClientVendorCommunicationRecordTest {
     void setUp() {
         GiftishowApiProperties properties = new GiftishowApiProperties();
         properties.setBaseUrl(BASE_URL);
-        properties.setApiCode(API_CODE);
         properties.setAuthCode(AUTH_CODE);
         properties.setAuthToken(AUTH_TOKEN);
-        properties.setDevYn("Y");
         properties.setCallbackNo("0000000000");
         properties.setGubun("I");
 
