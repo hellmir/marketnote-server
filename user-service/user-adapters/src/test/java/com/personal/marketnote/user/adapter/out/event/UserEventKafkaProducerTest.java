@@ -56,7 +56,7 @@ class UserEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         // when
-        userEventKafkaProducer.publishUserSignupCompletedEvent(1L, "user-key-123");
+        userEventKafkaProducer.publishUserSignupCompletedEvent(1L, "user-key-123", "010-1234-5678", "홍길동");
 
         // then
         ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
@@ -70,15 +70,15 @@ class UserEventKafkaProducerTest {
     }
 
     @Test
-    @DisplayName("회원가입 완료 이벤트 발행 시 EventEnvelope에 올바른 페이로드가 포함된다")
+    @DisplayName("회원가입 완료 이벤트 발행 시 EventEnvelope에 userId/userKey가 평문 그대로 포함된다")
     @SuppressWarnings("unchecked")
-    void publishUserSignupCompletedEvent_envelopeContainsCorrectPayload() throws Exception {
+    void publishUserSignupCompletedEvent_envelopeContainsPlainNonPiiFields() throws Exception {
         // given
         setUpClock("2026-03-02T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         // when
-        userEventKafkaProducer.publishUserSignupCompletedEvent(10L, "user-key-456");
+        userEventKafkaProducer.publishUserSignupCompletedEvent(10L, "user-key-456", "010-1234-5678", "홍길동");
 
         // then
         ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
@@ -105,7 +105,9 @@ class UserEventKafkaProducerTest {
                 .when(saveOutboxEventPort).save(any(OutboxEvent.class));
 
         // when & then
-        assertThatThrownBy(() -> userEventKafkaProducer.publishUserSignupCompletedEvent(1L, "user-key-1"))
+        assertThatThrownBy(
+                () -> userEventKafkaProducer.publishUserSignupCompletedEvent(1L, "user-key-1", null, null)
+        )
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("DB connection failed");
     }
@@ -119,10 +121,72 @@ class UserEventKafkaProducerTest {
                 .thenThrow(new TestJsonProcessingException("Serialization failed"));
 
         // when & then
-        assertThatThrownBy(() -> userEventKafkaProducer.publishUserSignupCompletedEvent(1L, "user-key-1"))
+        assertThatThrownBy(
+                () -> userEventKafkaProducer.publishUserSignupCompletedEvent(1L, "user-key-1", null, null)
+        )
                 .isInstanceOf(UserEventSerializationException.class)
                 .hasCauseInstanceOf(JsonProcessingException.class);
         verifyNoInteractions(saveOutboxEventPort);
+    }
+
+    @Test
+    @DisplayName("회원가입 이벤트 발행 시 envelope payload의 phoneNumber가 입력 평문 그대로 발행된다")
+    @SuppressWarnings("unchecked")
+    void publishUserSignupCompletedEvent_publishesPhoneNumberAsPlaintextInPayload() throws Exception {
+        // given
+        setUpClock("2026-11-21T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        String plainPhone = "010-1234-5678";
+
+        // when
+        userEventKafkaProducer.publishUserSignupCompletedEvent(1L, "user-key-1", plainPhone, "홍길동");
+
+        // then
+        ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+        verify(objectMapper).writeValueAsString(envelopeCaptor.capture());
+
+        UserSignupCompletedEvent payload = (UserSignupCompletedEvent) envelopeCaptor.getValue().payload();
+        assertThat(payload.phoneNumber()).isEqualTo(plainPhone);
+    }
+
+    @Test
+    @DisplayName("회원가입 이벤트 발행 시 envelope payload의 userName이 입력 평문 그대로 발행된다")
+    @SuppressWarnings("unchecked")
+    void publishUserSignupCompletedEvent_publishesUserNameAsPlaintextInPayload() throws Exception {
+        // given
+        setUpClock("2026-11-21T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        String plainName = "홍길동";
+
+        // when
+        userEventKafkaProducer.publishUserSignupCompletedEvent(1L, "user-key-1", "010-1234-5678", plainName);
+
+        // then
+        ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+        verify(objectMapper).writeValueAsString(envelopeCaptor.capture());
+
+        UserSignupCompletedEvent payload = (UserSignupCompletedEvent) envelopeCaptor.getValue().payload();
+        assertThat(payload.userName()).isEqualTo(plainName);
+    }
+
+    @Test
+    @DisplayName("phoneNumber/userName이 null이면 envelope payload에도 null 그대로 유지된다")
+    @SuppressWarnings("unchecked")
+    void publishUserSignupCompletedEvent_keepsNullForNullInputs() throws Exception {
+        // given
+        setUpClock("2026-11-21T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        // when
+        userEventKafkaProducer.publishUserSignupCompletedEvent(1L, "user-key-1", null, null);
+
+        // then
+        ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+        verify(objectMapper).writeValueAsString(envelopeCaptor.capture());
+
+        UserSignupCompletedEvent payload = (UserSignupCompletedEvent) envelopeCaptor.getValue().payload();
+        assertThat(payload.phoneNumber()).isNull();
+        assertThat(payload.userName()).isNull();
     }
 
     private static class TestJsonProcessingException extends JsonProcessingException {

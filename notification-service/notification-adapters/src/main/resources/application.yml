@@ -94,10 +94,6 @@ kafka:
 outbox:
   enabled: true
 
-event:
-  payload:
-    pii-salt: ${EVENT_PAYLOAD_PII_SALT:dev-salt-change-me}
-
 sse:
   max-connections: ${SSE_MAX_CONNECTIONS:5000}
   emitter:

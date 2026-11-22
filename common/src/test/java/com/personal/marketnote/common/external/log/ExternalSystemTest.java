@@ -34,8 +34,8 @@ class ExternalSystemTest {
     }
 
     @Test
-    @DisplayName("정의된 외부 시스템은 7개이다")
-    void shouldHaveSevenDefinedSystems() {
-        assertThat(ExternalSystem.values()).hasSize(7);
+    @DisplayName("정의된 외부 시스템은 8개이다")
+    void shouldHaveEightDefinedSystems() {
+        assertThat(ExternalSystem.values()).hasSize(8);
     }
 }

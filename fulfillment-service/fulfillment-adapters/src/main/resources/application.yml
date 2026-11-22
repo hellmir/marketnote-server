@@ -130,10 +130,6 @@ outbox:
   enabled: ${OUTBOX_ENABLED:true}
   polling-interval-ms: ${OUTBOX_POLLING_INTERVAL_MS:3000}
 
-event:
-  payload:
-    pii-salt: ${EVENT_PAYLOAD_PII_SALT:dev-salt-change-me}
-
 logging:
   config: classpath:logback-spring.xml
   level:

@@ -163,60 +163,6 @@ class SecurityPropertiesValidatorTest {
                 .doesNotThrowAnyException();
     }
 
-    @Test
-    @DisplayName("event.payload.pii-salt 미설정 시 검증에 실패한다")
-    void shouldFailWhenEventPayloadPiiSaltEmpty() {
-        ReflectionTestUtils.setField(validator, "eventPayloadPiiSalt", "");
-
-        assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("event.payload.pii-salt");
-    }
-
-    @Test
-    @DisplayName("event.payload.pii-salt 약한 기본값 dev-salt-change-me일 때 검증에 실패한다")
-    void shouldFailWhenEventPayloadPiiSaltIsWeakDefault() {
-        ReflectionTestUtils.setField(validator, "eventPayloadPiiSalt", "dev-salt-change-me");
-
-        assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("event.payload.pii-salt");
-    }
-
-    @Test
-    @DisplayName("event.payload.pii-salt 32자 미만일 때 검증에 실패한다")
-    void shouldFailWhenEventPayloadPiiSaltTooShort() {
-        // 31 chars (PII_SALT_MIN_LENGTH - 1)
-        String thirtyOneChars = "short-salt-only-31-chars-aaaaaa";
-        ReflectionTestUtils.setField(validator, "eventPayloadPiiSalt", thirtyOneChars);
-
-        assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("event.payload.pii-salt")
-                .hasMessageContaining("최소 32자");
-    }
-
-    @Test
-    @DisplayName("event.payload.pii-salt 약한 기본값이면서 32자 미만일 때 위반 메시지가 1줄만 추가된다")
-    void shouldEmitOnlyOneViolationWhenWeakDefaultAndTooShort() {
-        // dev-salt-change-me: 18자 (weak default + 32자 미만 두 조건 모두 만족)
-        ReflectionTestUtils.setField(validator, "eventPayloadPiiSalt", "dev-salt-change-me");
-
-        assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("event.payload.pii-salt")
-                .hasMessageNotContaining("최소 32자");
-    }
-
-    @Test
-    @DisplayName("event.payload.pii-salt 32자 이상 강한 값이면 검증을 통과한다")
-    void shouldPassWhenEventPayloadPiiSaltIsStrong() {
-        ReflectionTestUtils.setField(validator, "eventPayloadPiiSalt", "valid-pii-salt-32-chars-aaaaaaaa");
-
-        assertThatCode(() -> validator.validateSecurityProperties())
-                .doesNotThrowAnyException();
-    }
-
     private void setCommonRequiredFields(SecurityPropertiesValidator validator) {
         ReflectionTestUtils.setField(validator, "jwtSecret", "valid-jwt-secret");
         ReflectionTestUtils.setField(validator, "adminAccessToken", "valid-admin-token");
@@ -229,6 +175,5 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "kafkaSaslPassword", "kafka-password");
         ReflectionTestUtils.setField(validator, "gifticonPinValidationEnabled", false);
         ReflectionTestUtils.setField(validator, "gifticonPinEncryptKey", "");
-        ReflectionTestUtils.setField(validator, "eventPayloadPiiSalt", "valid-pii-salt-32-chars-aaaaaaaa");
     }
 }

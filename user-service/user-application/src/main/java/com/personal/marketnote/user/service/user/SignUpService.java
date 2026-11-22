@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.*;
@@ -94,8 +95,16 @@ public class SignUpService implements SignUpUseCase {
 
         // Outbox 이벤트 저장 (트랜잭션 내)
         // [#929][#1036] 포인트 초기화는 Kafka Consumer(UserSignupCompletedRewardConsumer)로 전환 완료
+        // [#5091] AlimTalk 발송에 필요한 PII(phoneNumber/userName)를 envelope payload에 평문 전달.
+        // PhoneNumber VO는 미설정 가능 → null-safe 변환 후 전달.
+        String phoneNumberValue = Optional.ofNullable(signedUpUser.getPhoneNumber())
+                .map(PhoneNumber::getValue)
+                .orElse(null);
         publishUserEventPort.publishUserSignupCompletedEvent(
-                signedUpUser.getId(), signedUpUser.getUserKey().toString()
+                signedUpUser.getId(),
+                signedUpUser.getUserKey().toString(),
+                phoneNumberValue,
+                signedUpUser.getFullName()
         );
 
         saveLoginHistoryPort.saveLoginHistory(
