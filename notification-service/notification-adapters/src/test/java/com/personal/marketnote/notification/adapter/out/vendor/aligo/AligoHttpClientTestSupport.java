@@ -2,10 +2,15 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.utility.audit.VendorCommunicationHistoryDispatcher;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.notification.adapter.utility.AligoVendorCommunicationFailureHandler;
 import com.personal.marketnote.notification.adapter.utility.AligoVendorCommunicationRecorder;
 import com.personal.marketnote.notification.configuration.AligoProperties;
+import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationSenderType;
+import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationTargetType;
+import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationType;
+import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorName;
 import org.springframework.web.client.RestClient;
 
 /**
@@ -25,11 +30,27 @@ public final class AligoHttpClientTestSupport {
             AligoProperties properties,
             ExternalCallLogger externalCallLogger
     ) {
-        AligoVendorCommunicationRecorder recorder = new AligoVendorCommunicationRecorder(
+        return newClient(
+                restClient, objectMapper, properties, externalCallLogger,
                 (targetType, targetId, vendorName, communicationType, sender, exception, payload, payloadJson) -> {
                     // no-op
                 }
         );
+    }
+
+    public static AligoHttpClient newClient(
+            RestClient restClient,
+            ObjectMapper objectMapper,
+            AligoProperties properties,
+            ExternalCallLogger externalCallLogger,
+            VendorCommunicationHistoryDispatcher<
+                    NotificationVendorCommunicationTargetType,
+                    NotificationVendorName,
+                    NotificationVendorCommunicationType,
+                    NotificationVendorCommunicationSenderType
+                    > dispatcher
+    ) {
+        AligoVendorCommunicationRecorder recorder = new AligoVendorCommunicationRecorder(dispatcher);
         VendorCommunicationPayloadGenerator payloadGenerator =
                 new VendorCommunicationPayloadGenerator(objectMapper);
         AligoVendorCommunicationFailureHandler failureHandler =

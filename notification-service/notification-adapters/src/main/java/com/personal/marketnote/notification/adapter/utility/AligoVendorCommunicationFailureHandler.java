@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.utility;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationSenderType;
 import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationTargetType;
@@ -103,7 +104,7 @@ public class AligoVendorCommunicationFailureHandler {
             return map;
         }
         map.put("status", statusCode);
-        if (responseBody != null) {
+        if (FormatValidator.isNotNull(responseBody)) {
             map.put("body", responseBody);
         }
         return map;
@@ -117,7 +118,7 @@ public class AligoVendorCommunicationFailureHandler {
             return map;
         }
         map.put("exception", exceptionName);
-        if (responseBody != null) {
+        if (FormatValidator.isNotNull(responseBody)) {
             map.put("body", responseBody);
         }
         return map;
