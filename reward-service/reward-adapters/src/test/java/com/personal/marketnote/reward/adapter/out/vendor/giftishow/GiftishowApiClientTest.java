@@ -4,6 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.*;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
+import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowBrandCodeException;
+import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowGoodsCodeException;
+import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowPhoneNoException;
+import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowTrIdException;
+import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowUserIdException;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -528,6 +533,127 @@ class GiftishowApiClientTest {
             assertThat(response.result().trId()).isEqualTo("NTCASH_1_20260403120000");
 
             mockServer.verify();
+        }
+    }
+
+    @Nested
+    @DisplayName("public 메서드 입력 파라미터 가드")
+    class InputGuardTest {
+
+        @Test
+        @DisplayName("getProductDetail에 null goodsCode를 전달하면 InvalidGiftishowGoodsCodeException이 발생한다")
+        void shouldThrowWhenGetProductDetailGoodsCodeIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.getProductDetail(null))
+                    .isInstanceOf(InvalidGiftishowGoodsCodeException.class);
+        }
+
+        @Test
+        @DisplayName("getProductDetail에 blank goodsCode를 전달하면 InvalidGiftishowGoodsCodeException이 발생한다")
+        void shouldThrowWhenGetProductDetailGoodsCodeIsBlank() {
+            assertThatThrownBy(() -> giftishowApiClient.getProductDetail("  "))
+                    .isInstanceOf(InvalidGiftishowGoodsCodeException.class);
+        }
+
+        @Test
+        @DisplayName("getBrandDetail에 null brandCode를 전달하면 InvalidGiftishowBrandCodeException이 발생한다")
+        void shouldThrowWhenGetBrandDetailBrandCodeIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.getBrandDetail(null))
+                    .isInstanceOf(InvalidGiftishowBrandCodeException.class);
+        }
+
+        @Test
+        @DisplayName("getBrandDetail에 blank brandCode를 전달하면 InvalidGiftishowBrandCodeException이 발생한다")
+        void shouldThrowWhenGetBrandDetailBrandCodeIsBlank() {
+            assertThatThrownBy(() -> giftishowApiClient.getBrandDetail("  "))
+                    .isInstanceOf(InvalidGiftishowBrandCodeException.class);
+        }
+
+        @Test
+        @DisplayName("sendCoupon에 null trId를 전달하면 InvalidGiftishowTrIdException이 발생한다")
+        void shouldThrowWhenSendCouponTrIdIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
+                    null, "G001", "01012345678", "user1", "msg", "title"
+            )).isInstanceOf(InvalidGiftishowTrIdException.class);
+        }
+
+        @Test
+        @DisplayName("sendCoupon에 null goodsCode를 전달하면 InvalidGiftishowGoodsCodeException이 발생한다")
+        void shouldThrowWhenSendCouponGoodsCodeIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
+                    "TR001", null, "01012345678", "user1", "msg", "title"
+            )).isInstanceOf(InvalidGiftishowGoodsCodeException.class);
+        }
+
+        @Test
+        @DisplayName("sendCoupon에 null phoneNo를 전달하면 InvalidGiftishowPhoneNoException이 발생한다")
+        void shouldThrowWhenSendCouponPhoneNoIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
+                    "TR001", "G001", null, "user1", "msg", "title"
+            )).isInstanceOf(InvalidGiftishowPhoneNoException.class);
+        }
+
+        @Test
+        @DisplayName("sendCoupon에 null userId를 전달하면 InvalidGiftishowUserIdException이 발생한다")
+        void shouldThrowWhenSendCouponUserIdIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
+                    "TR001", "G001", "01012345678", null, "msg", "title"
+            )).isInstanceOf(InvalidGiftishowUserIdException.class);
+        }
+
+        @Test
+        @DisplayName("getCouponDetail에 null trId를 전달하면 InvalidGiftishowTrIdException이 발생한다")
+        void shouldThrowWhenGetCouponDetailTrIdIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.getCouponDetail(null))
+                    .isInstanceOf(InvalidGiftishowTrIdException.class);
+        }
+
+        @Test
+        @DisplayName("cancelCoupon에 null trId를 전달하면 InvalidGiftishowTrIdException이 발생한다")
+        void shouldThrowWhenCancelCouponTrIdIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.cancelCoupon(null, "user1"))
+                    .isInstanceOf(InvalidGiftishowTrIdException.class);
+        }
+
+        @Test
+        @DisplayName("cancelCoupon에 null userId를 전달하면 InvalidGiftishowUserIdException이 발생한다")
+        void shouldThrowWhenCancelCouponUserIdIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.cancelCoupon("TR001", null))
+                    .isInstanceOf(InvalidGiftishowUserIdException.class);
+        }
+
+        @Test
+        @DisplayName("resendCoupon에 null trId를 전달하면 InvalidGiftishowTrIdException이 발생한다")
+        void shouldThrowWhenResendCouponTrIdIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.resendCoupon(null, "01012345678"))
+                    .isInstanceOf(InvalidGiftishowTrIdException.class);
+        }
+
+        @Test
+        @DisplayName("resendCoupon에 null phoneNo를 전달하면 InvalidGiftishowPhoneNoException이 발생한다")
+        void shouldThrowWhenResendCouponPhoneNoIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.resendCoupon("TR001", null))
+                    .isInstanceOf(InvalidGiftishowPhoneNoException.class);
+        }
+
+        @Test
+        @DisplayName("cancelSendFailedCoupon에 null trId를 전달하면 InvalidGiftishowTrIdException이 발생한다")
+        void shouldThrowWhenCancelSendFailedCouponTrIdIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.cancelSendFailedCoupon(null, "user1"))
+                    .isInstanceOf(InvalidGiftishowTrIdException.class);
+        }
+
+        @Test
+        @DisplayName("cancelSendFailedCoupon에 null userId를 전달하면 InvalidGiftishowUserIdException이 발생한다")
+        void shouldThrowWhenCancelSendFailedCouponUserIdIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.cancelSendFailedCoupon("TR001", null))
+                    .isInstanceOf(InvalidGiftishowUserIdException.class);
+        }
+
+        @Test
+        @DisplayName("getBizMoneyBalance에 null userId를 전달하면 InvalidGiftishowUserIdException이 발생한다")
+        void shouldThrowWhenGetBizMoneyBalanceUserIdIsNull() {
+            assertThatThrownBy(() -> giftishowApiClient.getBizMoneyBalance(null))
+                    .isInstanceOf(InvalidGiftishowUserIdException.class);
         }
     }
 
