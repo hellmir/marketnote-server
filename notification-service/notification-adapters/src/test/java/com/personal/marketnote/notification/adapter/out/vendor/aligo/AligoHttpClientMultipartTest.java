@@ -46,7 +46,9 @@ class AligoHttpClientMultipartTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
-        aligoHttpClient = new AligoHttpClient(restClient, objectMapper, properties, externalCallLogger);
+        aligoHttpClient = AligoHttpClientTestSupport.newClient(
+                restClient, objectMapper, properties, externalCallLogger
+        );
     }
 
     @Test

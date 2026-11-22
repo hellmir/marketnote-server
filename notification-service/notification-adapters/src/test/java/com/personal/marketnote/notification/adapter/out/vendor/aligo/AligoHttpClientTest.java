@@ -72,7 +72,9 @@ class AligoHttpClientTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
-        aligoHttpClient = new AligoHttpClient(restClient, objectMapper, properties, externalCallLogger);
+        aligoHttpClient = AligoHttpClientTestSupport.newClient(
+                restClient, objectMapper, properties, externalCallLogger
+        );
 
         aligoLogger = (Logger) LoggerFactory.getLogger(ExternalSystem.ALIGO.loggerName());
         previousAdditive = aligoLogger.isAdditive();

@@ -50,7 +50,7 @@ class AligoAlimTalkExternalAdapterTest {
         mockServer = MockRestServiceServer.bindTo(builder).build();
         RestClient restClient = builder.baseUrl("http://localhost").build();
 
-        AligoHttpClient aligoHttpClient = new AligoHttpClient(
+        AligoHttpClient aligoHttpClient = AligoHttpClientTestSupport.newClient(
                 restClient, objectMapper, properties,
                 new ExternalCallLogger(new SimpleMeterRegistry())
         );
