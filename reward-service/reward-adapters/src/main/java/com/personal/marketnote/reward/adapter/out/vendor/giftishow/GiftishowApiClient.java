@@ -25,6 +25,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 @Component
 @Slf4j
@@ -74,11 +75,12 @@ public class GiftishowApiClient {
         log.info("기프티쇼 상품 리스트 조회 요청: start={}, size={}", start, size);
 
         Map<String, String> tags = mutableTags();
+        String path = properties.getApi().getProductListPath();
 
-        return externalCallLogger.record(
-                ExternalSystem.GIFTISHOW, OP_PRODUCT_LIST, tags,
+        return recordCall(
+                path, OP_PRODUCT_LIST, tags,
                 () -> executePost(
-                        properties.getApi().getProductListPath(),
+                        path,
                         params,
                         new TypeReference<>() {
                         }
@@ -99,11 +101,12 @@ public class GiftishowApiClient {
 
         Map<String, String> tags = mutableTags();
         putIfPresent(tags, TAG_GOODS_CODE, goodsCode);
+        String path = properties.getApi().getProductDetailPath();
 
-        return externalCallLogger.record(
-                ExternalSystem.GIFTISHOW, OP_PRODUCT_DETAIL, tags,
+        return recordCall(
+                path, OP_PRODUCT_DETAIL, tags,
                 () -> executePostWithPathVariable(
-                        properties.getApi().getProductDetailPath(),
+                        path,
                         goodsCode,
                         params,
                         new TypeReference<>() {
@@ -121,11 +124,12 @@ public class GiftishowApiClient {
         log.info("기프티쇼 브랜드 조회 요청");
 
         Map<String, String> tags = mutableTags();
+        String path = properties.getApi().getBrandListPath();
 
-        return externalCallLogger.record(
-                ExternalSystem.GIFTISHOW, OP_BRAND_LIST, tags,
+        return recordCall(
+                path, OP_BRAND_LIST, tags,
                 () -> executePost(
-                        properties.getApi().getBrandListPath(),
+                        path,
                         params,
                         new TypeReference<>() {
                         }
@@ -146,11 +150,12 @@ public class GiftishowApiClient {
 
         Map<String, String> tags = mutableTags();
         putIfPresent(tags, TAG_BRAND_CODE, brandCode);
+        String path = properties.getApi().getBrandDetailPath();
 
-        return externalCallLogger.record(
-                ExternalSystem.GIFTISHOW, OP_BRAND_DETAIL, tags,
+        return recordCall(
+                path, OP_BRAND_DETAIL, tags,
                 () -> executePostWithPathVariable(
-                        properties.getApi().getBrandDetailPath(),
+                        path,
                         brandCode,
                         params,
                         new TypeReference<>() {
@@ -198,11 +203,12 @@ public class GiftishowApiClient {
         putIfPresent(tags, TAG_TR_ID, trId);
         putIfPresent(tags, TAG_GOODS_CODE, goodsCode);
         putIfPresent(tags, TAG_USER_ID, userId);
+        String path = properties.getApi().getCouponSendPath();
 
-        return externalCallLogger.record(
-                ExternalSystem.GIFTISHOW, OP_COUPON_SEND, tags,
+        return recordCall(
+                path, OP_COUPON_SEND, tags,
                 () -> executePost(
-                        properties.getApi().getCouponSendPath(),
+                        path,
                         params,
                         new TypeReference<>() {
                         }
@@ -224,11 +230,12 @@ public class GiftishowApiClient {
 
         Map<String, String> tags = mutableTags();
         putIfPresent(tags, TAG_TR_ID, trId);
+        String path = properties.getApi().getCouponDetailPath();
 
-        return externalCallLogger.record(
-                ExternalSystem.GIFTISHOW, OP_COUPON_DETAIL, tags,
+        return recordCall(
+                path, OP_COUPON_DETAIL, tags,
                 () -> executePost(
-                        properties.getApi().getCouponDetailPath(),
+                        path,
                         params,
                         new TypeReference<>() {
                         }
@@ -255,11 +262,12 @@ public class GiftishowApiClient {
         Map<String, String> tags = mutableTags();
         putIfPresent(tags, TAG_TR_ID, trId);
         putIfPresent(tags, TAG_USER_ID, userId);
+        String path = properties.getApi().getCouponCancelPath();
 
-        return externalCallLogger.record(
-                ExternalSystem.GIFTISHOW, OP_COUPON_CANCEL, tags,
+        return recordCall(
+                path, OP_COUPON_CANCEL, tags,
                 () -> executePost(
-                        properties.getApi().getCouponCancelPath(),
+                        path,
                         params,
                         new TypeReference<>() {
                         }
@@ -285,11 +293,12 @@ public class GiftishowApiClient {
 
         Map<String, String> tags = mutableTags();
         putIfPresent(tags, TAG_TR_ID, trId);
+        String path = properties.getApi().getCouponResendPath();
 
-        return externalCallLogger.record(
-                ExternalSystem.GIFTISHOW, OP_COUPON_RESEND, tags,
+        return recordCall(
+                path, OP_COUPON_RESEND, tags,
                 () -> executePost(
-                        properties.getApi().getCouponResendPath(),
+                        path,
                         params,
                         new TypeReference<>() {
                         }
@@ -311,11 +320,12 @@ public class GiftishowApiClient {
 
         Map<String, String> tags = mutableTags();
         putIfPresent(tags, TAG_USER_ID, userId);
+        String path = properties.getApi().getBizMoneyBalancePath();
 
-        return externalCallLogger.record(
-                ExternalSystem.GIFTISHOW, OP_BIZMONEY_BALANCE, tags,
+        return recordCall(
+                path, OP_BIZMONEY_BALANCE, tags,
                 () -> executePost(
-                        properties.getApi().getBizMoneyBalancePath(),
+                        path,
                         params,
                         new TypeReference<>() {
                         }
@@ -342,11 +352,12 @@ public class GiftishowApiClient {
         Map<String, String> tags = mutableTags();
         putIfPresent(tags, TAG_TR_ID, trId);
         putIfPresent(tags, TAG_USER_ID, userId);
+        String path = properties.getApi().getCouponSendFailCancelPath();
 
-        return externalCallLogger.record(
-                ExternalSystem.GIFTISHOW, OP_COUPON_SEND_FAIL_CANCEL, tags,
+        return recordCall(
+                path, OP_COUPON_SEND_FAIL_CANCEL, tags,
                 () -> executePost(
-                        properties.getApi().getCouponSendFailCancelPath(),
+                        path,
                         params,
                         new TypeReference<>() {
                         }
@@ -472,6 +483,15 @@ public class GiftishowApiClient {
         }
         log.debug("기프티쇼 API 응답: path={}, status={}, body={}",
                 path, rawResponse.getStatusCode(), responseBody);
+    }
+
+    private <T> T recordCall(
+            String path, String operation, Map<String, String> tags, Supplier<T> call
+    ) {
+        if (isSensitivePath(path)) {
+            return externalCallLogger.recordSensitive(ExternalSystem.GIFTISHOW, operation, tags, call);
+        }
+        return externalCallLogger.record(ExternalSystem.GIFTISHOW, operation, tags, call);
     }
 
     private boolean isSensitivePath(String path) {
