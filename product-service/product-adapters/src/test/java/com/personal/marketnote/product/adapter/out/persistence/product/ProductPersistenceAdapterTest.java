@@ -7,6 +7,7 @@ import com.personal.marketnote.product.adapter.out.persistence.product.repositor
 import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
+import com.personal.marketnote.product.exception.DuplicateFasstoProductCodeException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
@@ -51,6 +53,46 @@ class ProductPersistenceAdapterTest {
             assertThat(result).isNotNull();
             assertThat(result.getId()).isEqualTo(10L);
             verify(productJpaRepository).save(any(ProductJpaEntity.class));
+        }
+
+        @Test
+        @DisplayName("DataIntegrityViolationException 메시지에 fasstoProductCode 유니크 제약명이 포함되면 DuplicateFasstoProductCodeException을 던진다")
+        void throwsDuplicateFasstoProductCodeWhenMessageContainsConstraintName() {
+            Product product = buildProductDomain(null, "상품", EntityStatus.ACTIVE);
+            when(productJpaRepository.save(any(ProductJpaEntity.class)))
+                    .thenThrow(new DataIntegrityViolationException("could not execute statement [uk_product_fassto_product_code]"));
+
+            assertThatThrownBy(() -> adapter.save(product))
+                    .isInstanceOf(DuplicateFasstoProductCodeException.class)
+                    .hasMessageContaining("이미 등록된 fasstoProductCode입니다");
+        }
+
+        @Test
+        @DisplayName("DataIntegrityViolationException 루트 원인 메시지에 fasstoProductCode 유니크 제약명이 포함되면 DuplicateFasstoProductCodeException을 던진다")
+        void throwsDuplicateFasstoProductCodeWhenRootCauseMessageContainsConstraintName() {
+            Product product = buildProductDomain(null, "상품", EntityStatus.ACTIVE);
+            DataIntegrityViolationException dive = new DataIntegrityViolationException(
+                    "could not execute",
+                    new RuntimeException("ERROR: duplicate key value violates unique constraint \"uk_product_fassto_product_code\"")
+            );
+            when(productJpaRepository.save(any(ProductJpaEntity.class))).thenThrow(dive);
+
+            assertThatThrownBy(() -> adapter.save(product))
+                    .isInstanceOf(DuplicateFasstoProductCodeException.class);
+        }
+
+        @Test
+        @DisplayName("다른 유니크 제약 위반은 DataIntegrityViolationException을 그대로 전파한다")
+        void rethrowsWhenOtherConstraintViolation() {
+            Product product = buildProductDomain(null, "상품", EntityStatus.ACTIVE);
+            DataIntegrityViolationException dive = new DataIntegrityViolationException(
+                    "could not execute statement [uk_other_constraint]"
+            );
+            when(productJpaRepository.save(any(ProductJpaEntity.class))).thenThrow(dive);
+
+            assertThatThrownBy(() -> adapter.save(product))
+                    .isInstanceOf(DataIntegrityViolationException.class)
+                    .isNotInstanceOf(DuplicateFasstoProductCodeException.class);
         }
     }
 

@@ -7,6 +7,7 @@ import com.personal.marketnote.product.adapter.out.persistence.product.entity.Pr
 import com.personal.marketnote.product.adapter.out.persistence.product.entity.ProductTagJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.product.repository.ProductJpaRepository;
 import com.personal.marketnote.product.domain.product.Product;
+import com.personal.marketnote.product.exception.DuplicateFasstoProductCodeException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.product.SaveProductPort;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.*;
 
@@ -25,10 +27,12 @@ import java.util.*;
 public class ProductPersistenceAdapter implements SaveProductPort, FindProductPort, UpdateProductPort {
     private final ProductJpaRepository productJpaRepository;
 
+    private static final String FASSTO_PRODUCT_CODE_UNIQUE_CONSTRAINT = "uk_product_fassto_product_code";
+
     @Override
     @CachePut(value = "product:detail", key = "#result.id", unless = "#result == null")
     public Product save(Product product) {
-        ProductJpaEntity savedEntity = productJpaRepository.save(ProductJpaEntity.from(product));
+        ProductJpaEntity savedEntity = saveEntity(product);
         savedEntity.setIdToOrderNum();
         savedEntity.getProductTagJpaEntities().forEach(ProductTagJpaEntity::setIdToOrderNum);
 
@@ -37,6 +41,28 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
                     log.warn("저장된 상품을 도메인으로 매핑할 수 없습니다. productId={}", savedEntity.getId());
                     return new ProductNotFoundException();
                 });
+    }
+
+    private ProductJpaEntity saveEntity(Product product) {
+        try {
+            return productJpaRepository.save(ProductJpaEntity.from(product));
+        } catch (DataIntegrityViolationException dive) {
+            if (isFasstoProductCodeUniqueViolation(dive)) {
+                throw new DuplicateFasstoProductCodeException(product.getFasstoProductCode());
+            }
+            throw dive;
+        }
+    }
+
+    private boolean isFasstoProductCodeUniqueViolation(DataIntegrityViolationException dive) {
+        if (FormatValidator.hasValue(dive.getMessage()) && dive.getMessage().contains(FASSTO_PRODUCT_CODE_UNIQUE_CONSTRAINT)) {
+            return true;
+        }
+        Throwable rootCause = dive.getRootCause();
+        if (FormatValidator.isNull(rootCause)) {
+            return false;
+        }
+        return FormatValidator.hasValue(rootCause.getMessage()) && rootCause.getMessage().contains(FASSTO_PRODUCT_CODE_UNIQUE_CONSTRAINT);
     }
 
     @Override
