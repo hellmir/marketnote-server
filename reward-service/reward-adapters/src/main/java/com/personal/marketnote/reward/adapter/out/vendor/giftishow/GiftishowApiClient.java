@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -320,12 +321,17 @@ public class GiftishowApiClient {
             MultiValueMap<String, String> params,
             TypeReference<GiftishowApiResponse<T>> typeReference
     ) {
-        ResponseEntity<String> rawResponse = giftishowRestClient.post()
-                .uri(path)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(params)
-                .retrieve()
-                .toEntity(String.class);
+        ResponseEntity<String> rawResponse;
+        try {
+            rawResponse = giftishowRestClient.post()
+                    .uri(path)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(params)
+                    .retrieve()
+                    .toEntity(String.class);
+        } catch (RestClientResponseException re) {
+            throw wrapHttpFailure(path, re);
+        }
 
         return parseResponse(rawResponse, path, typeReference);
     }
@@ -336,17 +342,39 @@ public class GiftishowApiClient {
             MultiValueMap<String, String> params,
             TypeReference<GiftishowApiResponse<T>> typeReference
     ) {
-        ResponseEntity<String> rawResponse = giftishowRestClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path(basePath)
-                        .pathSegment(pathVariable)
-                        .build())
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(params)
-                .retrieve()
-                .toEntity(String.class);
+        ResponseEntity<String> rawResponse;
+        try {
+            rawResponse = giftishowRestClient.post()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(basePath)
+                            .pathSegment(pathVariable)
+                            .build())
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(params)
+                    .retrieve()
+                    .toEntity(String.class);
+        } catch (RestClientResponseException re) {
+            throw wrapHttpFailure(basePath, re);
+        }
 
         return parseResponse(rawResponse, basePath, typeReference);
+    }
+
+    private GiftishowCommunicationException wrapHttpFailure(String path, RestClientResponseException re) {
+        int statusCode = re.getStatusCode().value();
+        if (isSensitivePath(path)) {
+            log.error(
+                    "기프티쇼 API HTTP 응답 실패: path={}, status={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    path, statusCode, re.getClass().getSimpleName()
+            );
+            return new GiftishowCommunicationException(
+                    "기프티쇼 API HTTP 응답 실패. path=" + path + ", status=" + statusCode
+            );
+        }
+        log.error("기프티쇼 API HTTP 응답 실패: path={}, status={}", path, statusCode, re);
+        return new GiftishowCommunicationException(
+                "기프티쇼 API HTTP 응답 실패. path=" + path + ", status=" + statusCode, re
+        );
     }
 
     private <T> GiftishowApiResponse<T> parseResponse(
