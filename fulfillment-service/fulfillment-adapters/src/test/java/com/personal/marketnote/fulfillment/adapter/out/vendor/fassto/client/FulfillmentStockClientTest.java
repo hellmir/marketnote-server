@@ -238,7 +238,7 @@ class FulfillmentStockClientTest {
     }
 
     @Nested
-    @DisplayName("cstGodCd 디코딩")
+    @DisplayName("cstGodCd raw 통과")
     class CstGodCdDecoding {
 
         private static final UUID TEST_PRODUCT_KEY = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
@@ -247,8 +247,8 @@ class FulfillmentStockClientTest {
         private static final String LEGACY_UUID_RAW = "550e8400-e29b-41d4-a716-446655440000";
 
         @Test
-        @DisplayName("cstGodCd 22자 Base62 인코딩 응답 → customerProductCode UUID 문자열로 디코딩")
-        void shouldDecodeBase62EncodedCstGodCdToUuidString() {
+        @DisplayName("cstGodCd 22자 Base62 응답 → customerProductCode 22자 raw 그대로 통과")
+        void shouldPassThroughBase62CstGodCdRaw() {
             // given
             stubStockProperties();
             stubPayloadGenerator();
@@ -272,7 +272,7 @@ class FulfillmentStockClientTest {
 
             // then
             assertThat(result.stocks()).hasSize(1);
-            assertThat(result.stocks().get(0).customerProductCode()).isEqualTo(TEST_PRODUCT_KEY.toString());
+            assertThat(result.stocks().get(0).customerProductCode()).isEqualTo(TEST_ENCODED_CST_GOD_CD);
         }
 
         @Test
@@ -345,8 +345,8 @@ class FulfillmentStockClientTest {
         }
 
         @Test
-        @DisplayName("getStockDetail 성공 시 productKey UUID가 record targetId로 전달된다")
-        void shouldPassDecodedProductKeyAsTargetIdOnGetStockDetailSuccess() {
+        @DisplayName("getStockDetail 성공 시 cstGodCd 22자 raw가 record targetId로 전달된다")
+        void shouldPassRawCstGodCdAsTargetIdOnGetStockDetailSuccess() {
             // given
             stubStockProperties();
             stubPayloadGenerator();
@@ -360,12 +360,13 @@ class FulfillmentStockClientTest {
             client.getStockDetail(command);
 
             // then
-            String expectedProductKey = TEST_PRODUCT_KEY.toString();
+            // forProductKey는 fasstoProductCode=null + productKey 채움 → 매퍼 폴백이 encodeOrFallback(productKey, productKey.toString()) → encode(productKey) 22자 Base62 반환
+            String expectedTargetId = FasstoCustomerGoodsCodeEncoder.encode(TEST_PRODUCT_KEY);
             verify(vendorCommunicationRecorder).record(
                     eq(FulfillmentVendorCommunicationTargetType.STOCK),
                     eq(FulfillmentVendorCommunicationType.REQUEST),
                     eq(FulfillmentVendorCommunicationSenderType.SERVER),
-                    eq(expectedProductKey),
+                    eq(expectedTargetId),
                     eq(FulfillmentVendorName.FASSTO),
                     any(String.class),
                     any(),
@@ -375,7 +376,7 @@ class FulfillmentStockClientTest {
                     eq(FulfillmentVendorCommunicationTargetType.STOCK),
                     eq(FulfillmentVendorCommunicationType.RESPONSE),
                     eq(FulfillmentVendorCommunicationSenderType.VENDOR),
-                    eq(expectedProductKey),
+                    eq(expectedTargetId),
                     eq(FulfillmentVendorName.FASSTO),
                     any(String.class),
                     any(),
@@ -384,8 +385,8 @@ class FulfillmentStockClientTest {
         }
 
         @Test
-        @DisplayName("getStockDetail 호출 시 사용자 지정 customerProductCode가 22자 Base62 형식이면 디코딩된 UUID가 targetId에 저장된다")
-        void shouldDecodeBase62CustomerProductCodeForTargetId() {
+        @DisplayName("getStockDetail 호출 시 customerProductCode 22자 Base62는 raw 그대로 targetId에 전달된다")
+        void shouldPassRawBase62CustomerProductCodeForTargetId() {
             // given
             stubStockProperties();
             stubPayloadGenerator();
@@ -404,7 +405,7 @@ class FulfillmentStockClientTest {
                     eq(FulfillmentVendorCommunicationTargetType.STOCK),
                     any(FulfillmentVendorCommunicationType.class),
                     any(FulfillmentVendorCommunicationSenderType.class),
-                    eq(TEST_PRODUCT_KEY.toString()),
+                    eq(encoded),
                     eq(FulfillmentVendorName.FASSTO),
                     any(String.class),
                     any(),

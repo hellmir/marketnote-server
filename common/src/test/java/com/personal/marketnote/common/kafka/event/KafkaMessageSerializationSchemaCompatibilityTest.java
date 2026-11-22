@@ -97,7 +97,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
         @DisplayName("ProductRegisteredEvent를 EventEnvelope에 담아 직렬화/역직렬화 라운드트립 시 모든 필드가 보존된다")
         void productRegisteredEvent_roundTrip_preservesAllFields() throws Exception {
             // given
-            ProductRegisteredEvent event = new ProductRegisteredEvent(1L, null, 2L, 3L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
+            ProductRegisteredEvent event = new ProductRegisteredEvent(1L, null, 2L, 3L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, "TestFasstoCode00000001");
             EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(
                     "product.product.registered", "product-service", event, FIXED_CLOCK);
 
@@ -118,6 +118,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             assertThat(result.price()).isEqualTo(10000L);
             assertThat(result.discountPrice()).isEqualTo(8000L);
             assertThat(result.accumulatedPoint()).isEqualTo(100L);
+            assertThat(result.fasstoProductCode()).isEqualTo("TestFasstoCode00000001");
         }
 
         @Test
@@ -170,6 +171,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             assertThat(result.saleUnitQuantity()).isEqualTo(event.saleUnitQuantity());
             assertThat(result.customerGoodsImageUrl()).isEqualTo(event.customerGoodsImageUrl());
             assertThat(result.externalGoodsImageUrl()).isEqualTo(event.externalGoodsImageUrl());
+            assertThat(result.fasstoProductCode()).isEqualTo(event.fasstoProductCode());
         }
 
         @Test
@@ -388,7 +390,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
         @DisplayName("EventEnvelope의 페이로드에 null 필드가 포함되면 역직렬화 후에도 null로 보존된다")
         void nullFieldsInPayload_preservedAfterDeserialization() throws Exception {
             // given — godType, cancelProducts 등 nullable 필드를 null로 설정
-            ProductRegisteredEvent event = new ProductRegisteredEvent(1L, null, 2L, 3L, "상품", null, null, null, null, null, 0L, null, null);
+            ProductRegisteredEvent event = new ProductRegisteredEvent(1L, null, 2L, 3L, "상품", null, null, null, null, null, 0L, null, null, null);
             EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(
                     "product.product.registered", "product-service", event, FIXED_CLOCK);
 
@@ -757,7 +759,8 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
                 "1.5", "국내", "Y", "365", "7",
                 "3", "BOX", "N", "UPRIGHT",
                 "종이", "Y", "100", "N",
-                "1", "https://img.test/1.jpg", "https://external.test/1.jpg"
+                "1", "https://img.test/1.jpg", "https://external.test/1.jpg",
+                "TestFasstoCodeUpdated01"
         );
     }
 

@@ -60,7 +60,7 @@ class ProductRegisteredReadModelConsumerTest {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
                 1L, null, 100L, 10L, "테스트 상품", "1",
-                "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
+                "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -96,7 +96,7 @@ class ProductRegisteredReadModelConsumerTest {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
                 1L, null, 100L, 10L, "테스트 상품", "1",
-                "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
+                "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id",
                 "wrong.event.type",
@@ -120,7 +120,7 @@ class ProductRegisteredReadModelConsumerTest {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
                 -1L, null, 100L, 10L, "테스트 상품", "1",
-                "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
+                "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -138,7 +138,7 @@ class ProductRegisteredReadModelConsumerTest {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
                 1L, null, 0L, 10L, "테스트 상품", "1",
-                "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
+                "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -156,7 +156,7 @@ class ProductRegisteredReadModelConsumerTest {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
                 1L, null, 100L, 10L, "테스트 상품", "1",
-                null, null, null, null, 0L, null, null);
+                null, null, null, null, 0L, null, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 

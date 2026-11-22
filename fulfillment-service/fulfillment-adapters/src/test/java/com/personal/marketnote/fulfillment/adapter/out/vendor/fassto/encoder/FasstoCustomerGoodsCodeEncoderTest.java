@@ -1,18 +1,14 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder;
 
-import com.personal.marketnote.common.exception.VendorOperationFailedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("FasstoCustomerGoodsCodeEncoder 테스트")
 class FasstoCustomerGoodsCodeEncoderTest {
@@ -77,168 +73,18 @@ class FasstoCustomerGoodsCodeEncoderTest {
 
             assertThat(encoded).hasSize(ENCODED_LENGTH);
         }
-    }
 
-    @Nested
-    @DisplayName("decode")
-    class Decode {
-
+        // 본 fixture는 product-domain의 FasstoProductCodeGeneratorTest와 동일한 expected를 공유한다.
+        // 양쪽 알고리즘이 어긋나면 두 테스트가 동시에 실패하여 silent drift가 차단된다.
+        // 알고리즘 수정 시 양쪽 테스트와 expected를 함께 갱신해야 한다.
         @Test
-        @DisplayName("encode(uuid) 결과를 decode하면 원본 UUID를 반환한다 (라운드트립)")
-        void shouldRoundtripSpecificUuid() {
-            UUID original = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+        @DisplayName("호환성 fixture: UUID 0x...0001 인코딩 결과는 정확히 '0000000000000000000001' 이다")
+        void shouldEncodeFixtureUuidToKnownValue() {
+            UUID fixtureUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
-            UUID decoded = FasstoCustomerGoodsCodeEncoder.decode(FasstoCustomerGoodsCodeEncoder.encode(original));
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(fixtureUuid);
 
-            assertThat(decoded).isEqualTo(original);
-        }
-
-        @Test
-        @DisplayName("100건의 무작위 UUID에 대해 라운드트립이 보장된다")
-        void shouldRoundtripRandomUuids() {
-            IntStream.range(0, 100).forEach(i -> {
-                UUID original = UUID.randomUUID();
-
-                UUID decoded = FasstoCustomerGoodsCodeEncoder.decode(FasstoCustomerGoodsCodeEncoder.encode(original));
-
-                assertThat(decoded).isEqualTo(original);
-            });
-        }
-
-        @Test
-        @DisplayName("22자 초과 입력(prefix 포함 27자 등)은 FasstoCustomerGoodsCodeLengthDecodingFailedException을 던진다 (strict 매칭)")
-        void shouldThrowOnLongerThanTwentyTwo() {
-            UUID original = UUID.randomUUID();
-            String encoded = FasstoCustomerGoodsCodeEncoder.encode(original);
-            String prefixed = "94388" + encoded;
-
-            assertThatThrownBy(() -> FasstoCustomerGoodsCodeEncoder.decode(prefixed))
-                    .isInstanceOf(FasstoCustomerGoodsCodeLengthDecodingFailedException.class)
-                    .isInstanceOf(VendorOperationFailedException.class);
-        }
-
-        @Test
-        @DisplayName("36자 UUID 형태 입력(이전 마이그레이션 잔존)은 FasstoCustomerGoodsCodeLengthDecodingFailedException을 던진다")
-        void shouldThrowOnLegacyUuidString() {
-            String legacyUuid = UUID.randomUUID().toString();
-
-            assertThatThrownBy(() -> FasstoCustomerGoodsCodeEncoder.decode(legacyUuid))
-                    .isInstanceOf(FasstoCustomerGoodsCodeLengthDecodingFailedException.class);
-        }
-
-        @Test
-        @DisplayName("null 입력은 FasstoCustomerGoodsCodeLengthDecodingFailedException을 던진다")
-        void shouldThrowOnNull() {
-            assertThatThrownBy(() -> FasstoCustomerGoodsCodeEncoder.decode(null))
-                    .isInstanceOf(FasstoCustomerGoodsCodeLengthDecodingFailedException.class);
-        }
-
-        @Test
-        @DisplayName("빈 문자열 입력은 FasstoCustomerGoodsCodeLengthDecodingFailedException을 던진다")
-        void shouldThrowOnBlank() {
-            assertThatThrownBy(() -> FasstoCustomerGoodsCodeEncoder.decode(""))
-                    .isInstanceOf(FasstoCustomerGoodsCodeLengthDecodingFailedException.class);
-        }
-
-        @ParameterizedTest
-        @ValueSource(ints = {1, 5, 10, 21})
-        @DisplayName("22자 미만 입력은 FasstoCustomerGoodsCodeLengthDecodingFailedException을 던진다")
-        void shouldThrowOnShorterThanTwentyTwo(int length) {
-            String shortInput = "a".repeat(length);
-
-            assertThatThrownBy(() -> FasstoCustomerGoodsCodeEncoder.decode(shortInput))
-                    .isInstanceOf(FasstoCustomerGoodsCodeLengthDecodingFailedException.class);
-        }
-
-        @Test
-        @DisplayName("정확히 22자이지만 영숫자 외 문자 포함 시 FasstoCustomerGoodsCodeCharsetDecodingFailedException을 던진다")
-        void shouldThrowOnNonAlphanumericTwentyTwo() {
-            String invalid = "550e8400-e29b-41d4-a71";
-
-            assertThatThrownBy(() -> FasstoCustomerGoodsCodeEncoder.decode(invalid))
-                    .isInstanceOf(FasstoCustomerGoodsCodeCharsetDecodingFailedException.class);
-        }
-    }
-
-    @Nested
-    @DisplayName("decodeCustomerProductCode")
-    class DecodeCustomerProductCode {
-
-        @Test
-        @DisplayName("null 입력은 그대로 null을 반환한다 (폴백 productCode 호환)")
-        void shouldReturnNullForNullInput() {
-            String result = FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(null);
-
-            assertThat(result).isNull();
-        }
-
-        @Test
-        @DisplayName("빈 문자열 입력은 그대로 빈 문자열을 반환한다 (폴백 productCode 호환)")
-        void shouldReturnBlankForBlankInput() {
-            String result = FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode("");
-
-            assertThat(result).isEmpty();
-        }
-
-        @Test
-        @DisplayName("22자 인코딩값은 디코딩된 UUID 문자열을 반환한다")
-        void shouldDecodeEncodedValue() {
-            UUID original = UUID.randomUUID();
-            String encoded = FasstoCustomerGoodsCodeEncoder.encode(original);
-
-            String result = FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(encoded);
-
-            assertThat(result).isEqualTo(original.toString());
-        }
-
-        @Test
-        @DisplayName("22자 미만 입력(폴백 productCode echo)은 raw 통과한다")
-        void shouldPassThroughShorterThanTwentyTwo() {
-            String result = FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode("GOD001");
-
-            assertThat(result).isEqualTo("GOD001");
-        }
-
-        @Test
-        @DisplayName("36자 UUID 형태 입력(이전 마이그레이션 잔존)은 raw 통과한다")
-        void shouldPassThroughLegacyUuidString() {
-            String legacyUuid = UUID.randomUUID().toString();
-
-            String result = FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(legacyUuid);
-
-            assertThat(result).isEqualTo(legacyUuid);
-        }
-
-        @Test
-        @DisplayName("22자 초과 입력(prefix 포함 27자 등)은 raw 통과한다")
-        void shouldPassThroughLongerThanTwentyTwo() {
-            UUID original = UUID.randomUUID();
-            String encoded = FasstoCustomerGoodsCodeEncoder.encode(original);
-            String prefixed = "94388" + encoded;
-
-            String result = FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(prefixed);
-
-            assertThat(result).isEqualTo(prefixed);
-        }
-
-        @Test
-        @DisplayName("25자 영숫자 입력(가설적 vendor 자체 코드)은 raw 통과한다")
-        void shouldPassThroughNonEncodedAlphanumeric() {
-            String vendorCode = "ABCDEFGHIJ1234567890ABCDE";
-
-            String result = FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(vendorCode);
-
-            assertThat(result).isEqualTo(vendorCode);
-        }
-
-        @Test
-        @DisplayName("22자이지만 영숫자 외 문자 포함 시 raw 통과한다")
-        void shouldPassThroughTwentyTwoCharsWithNonAlphanumeric() {
-            String invalid = "550e8400-e29b-41d4-a71";
-
-            String result = FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(invalid);
-
-            assertThat(result).isEqualTo(invalid);
+            assertThat(encoded).isEqualTo("0000000000000000000001");
         }
     }
 
