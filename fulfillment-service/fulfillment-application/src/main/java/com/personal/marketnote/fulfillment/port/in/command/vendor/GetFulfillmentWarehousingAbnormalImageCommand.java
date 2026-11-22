@@ -10,6 +10,7 @@ public record GetFulfillmentWarehousingAbnormalImageCommand(
         String slipNumber,
         UUID productKey,
         String productCode,
+        String fasstoProductCode,
         String goodsSerialNo,
         String fileSeq,
         String imageNumber

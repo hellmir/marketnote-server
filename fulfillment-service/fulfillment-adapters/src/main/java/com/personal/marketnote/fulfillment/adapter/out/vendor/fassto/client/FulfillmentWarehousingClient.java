@@ -9,7 +9,6 @@ import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoWarehousingCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.*;
@@ -1614,7 +1613,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 .shopCode(item.shopCd())
                 .supplierCode(item.supCd())
                 .productCode(item.godCd())
-                .customerProductCode(FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(item.cstGodCd()))
+                .customerProductCode(item.cstGodCd())
                 .productName(item.godNm())
                 .originalProductCode(item.orgGodCd())
                 .productType(item.godType())

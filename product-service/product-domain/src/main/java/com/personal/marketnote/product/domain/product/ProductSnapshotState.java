@@ -28,5 +28,6 @@ public class ProductSnapshotState {
     private final List<ProductTag> productTags;
     private final Long orderNum;
     private final EntityStatus status;
+    private final String fasstoProductCode;
 }
 

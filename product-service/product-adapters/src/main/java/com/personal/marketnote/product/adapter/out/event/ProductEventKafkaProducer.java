@@ -32,12 +32,13 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
             String brandName, Long price, Long discountPrice, Long accumulatedPoint,
             Long sales,
             List<ProductRegisteredEvent.ProductTagSnapshot> productTags,
-            List<ProductRegisteredEvent.ProductOptionSnapshot> selectedOptions
+            List<ProductRegisteredEvent.ProductOptionSnapshot> selectedOptions,
+            String fasstoProductCode
     ) {
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
                 productId, productKey, pricePolicyId, sellerId, productName, goodsType, brandName,
                 price, discountPrice, accumulatedPoint,
-                sales, productTags, selectedOptions
+                sales, productTags, selectedOptions, fasstoProductCode
         );
         String topic = KafkaTopicConstants.PRODUCT_REGISTERED;
         EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);

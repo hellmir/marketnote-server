@@ -41,6 +41,7 @@ public record RegisterFulfillmentGoodsItemCommand(
         String feeYn,
         String saleUnitQuantity,
         String customerProductImageUrl,
-        String externalProductImageUrl
+        String externalProductImageUrl,
+        String fasstoProductCode
 ) {
 }

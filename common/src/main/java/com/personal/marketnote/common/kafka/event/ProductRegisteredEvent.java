@@ -16,7 +16,8 @@ public record ProductRegisteredEvent(
         Long accumulatedPoint,
         Long sales,
         List<ProductTagSnapshot> productTags,
-        List<ProductOptionSnapshot> selectedOptions
+        List<ProductOptionSnapshot> selectedOptions,
+        String fasstoProductCode
 ) {
 
     public record ProductTagSnapshot(

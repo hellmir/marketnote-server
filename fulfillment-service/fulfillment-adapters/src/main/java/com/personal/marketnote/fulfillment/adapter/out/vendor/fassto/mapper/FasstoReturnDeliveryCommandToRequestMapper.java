@@ -68,9 +68,16 @@ public class FasstoReturnDeliveryCommandToRequestMapper {
 
     private static FulfillmentDeliveryGoodsMapper mapGoods(RegisterFulfillmentDeliveryGoodsCommand item) {
         return FulfillmentDeliveryGoodsMapper.of(
-                FasstoCustomerGoodsCodeEncoder.encodeOrFallback(item.productKey(), item.productCode()),
+                resolveCustomerGoodsCode(item),
                 item.expirationDate(),
                 item.orderQuantity()
         );
+    }
+
+    private static String resolveCustomerGoodsCode(RegisterFulfillmentDeliveryGoodsCommand item) {
+        if (FormatValidator.hasValue(item.fasstoProductCode())) {
+            return item.fasstoProductCode();
+        }
+        return FasstoCustomerGoodsCodeEncoder.encodeOrFallback(item.productKey(), item.productCode());
     }
 }

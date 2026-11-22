@@ -10,6 +10,7 @@ public record GetFulfillmentStockDetailCommand(
         String accessToken,
         String customerProductCode,
         UUID productKey,
+        String fasstoProductCode,
         String outOfStockYn
 ) {
     public static GetFulfillmentStockDetailCommand of(
@@ -23,6 +24,7 @@ public record GetFulfillmentStockDetailCommand(
                 .accessToken(accessToken)
                 .customerProductCode(customerProductCode)
                 .productKey(null)
+                .fasstoProductCode(null)
                 .outOfStockYn(outOfStockYn)
                 .build();
     }
@@ -45,6 +47,24 @@ public record GetFulfillmentStockDetailCommand(
                 .accessToken(accessToken)
                 .customerProductCode(productKey.toString())
                 .productKey(productKey)
+                .fasstoProductCode(null)
+                .outOfStockYn(outOfStockYn)
+                .build();
+    }
+
+    public static GetFulfillmentStockDetailCommand forFasstoProductCode(
+            String customerCode,
+            String accessToken,
+            UUID productKey,
+            String fasstoProductCode,
+            String outOfStockYn
+    ) {
+        return GetFulfillmentStockDetailCommand.builder()
+                .customerCode(customerCode)
+                .accessToken(accessToken)
+                .customerProductCode(fasstoProductCode)
+                .productKey(productKey)
+                .fasstoProductCode(fasstoProductCode)
                 .outOfStockYn(outOfStockYn)
                 .build();
     }
