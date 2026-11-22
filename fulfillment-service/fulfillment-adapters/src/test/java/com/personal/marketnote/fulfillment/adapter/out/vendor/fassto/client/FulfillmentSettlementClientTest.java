@@ -2,6 +2,7 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
@@ -21,8 +22,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,12 +53,14 @@ class FulfillmentSettlementClientTest {
     private VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
+    private ExternalCallLogger externalCallLogger;
 
     @BeforeEach
     void setUp() {
         RestClient.Builder builder = mock(RestClient.Builder.class);
         when(builder.build()).thenReturn(restClient);
+
+        externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
 
         client = new FulfillmentSettlementClient(
                 builder,
@@ -128,6 +136,64 @@ class FulfillmentSettlementClientTest {
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(command))
                     .isInstanceOf(FulfillmentConfigurationException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("sensitive path 분기")
+    class SensitivePathDispatch {
+
+        @Test
+        @DisplayName("sensitivePaths에 등록된 settlementDailyCost 경로는 recordSensitive로 위임된다")
+        void shouldDispatchRecordSensitiveWhenPathIsSensitive() {
+            // given
+            stubSettlementProperties();
+            stubPayloadGenerator();
+            String path = "/settlement/{yearMonth}/{whCd}/{customerCode}";
+            when(properties.getSensitivePaths()).thenReturn(Set.of(path));
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
+
+            GetFulfillmentSettlementDailyCostsCommand command = GetFulfillmentSettlementDailyCostsCommand.of(
+                    "202601", "WH001", "CUST001", "valid-token"
+            );
+
+            // when
+            assertThatThrownBy(() -> client.getDailyCosts(command))
+                    .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
+
+            // then
+            verify(externalCallLogger).recordSensitive(
+                    eq(ExternalSystem.FASSTO), eq("getDailyCosts"), any(Map.class), any(Supplier.class)
+            );
+            verify(externalCallLogger, never()).record(
+                    eq(ExternalSystem.FASSTO), eq("getDailyCosts"), any(Map.class), any(Supplier.class)
+            );
+        }
+
+        @Test
+        @DisplayName("sensitivePaths에 미등록된 settlementDailyCost 경로는 record로 위임된다")
+        void shouldDispatchRecordWhenPathIsNotSensitive() {
+            // given
+            stubSettlementProperties();
+            stubPayloadGenerator();
+            when(properties.getSensitivePaths()).thenReturn(Set.of());
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
+
+            GetFulfillmentSettlementDailyCostsCommand command = GetFulfillmentSettlementDailyCostsCommand.of(
+                    "202601", "WH001", "CUST001", "valid-token"
+            );
+
+            // when
+            assertThatThrownBy(() -> client.getDailyCosts(command))
+                    .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
+
+            // then
+            verify(externalCallLogger).record(
+                    eq(ExternalSystem.FASSTO), eq("getDailyCosts"), any(Map.class), any(Supplier.class)
+            );
+            verify(externalCallLogger, never()).recordSensitive(
+                    eq(ExternalSystem.FASSTO), eq("getDailyCosts"), any(Map.class), any(Supplier.class)
+            );
         }
     }
 }

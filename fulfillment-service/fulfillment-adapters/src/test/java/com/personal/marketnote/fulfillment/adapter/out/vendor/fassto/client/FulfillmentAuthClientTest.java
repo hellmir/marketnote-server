@@ -35,9 +35,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -91,7 +96,7 @@ class FulfillmentAuthClientTest {
         when(builder.build()).thenReturn(restClient);
 
         meterRegistry = new SimpleMeterRegistry();
-        externalCallLogger = new ExternalCallLogger(meterRegistry);
+        externalCallLogger = spy(new ExternalCallLogger(meterRegistry));
 
         fasstoLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ExternalSystem.FASSTO.loggerName());
         previousAdditive = fasstoLogger.isAdditive();
@@ -369,6 +374,117 @@ class FulfillmentAuthClientTest {
             assertThat(appender.list)
                     .extracting(ILoggingEvent::getFormattedMessage)
                     .anyMatch(message -> message.contains("operation=requestAccessToken"));
+        }
+    }
+
+    @Nested
+    @DisplayName("sensitive path 분기")
+    class SensitivePathDispatch {
+
+        @Test
+        @DisplayName("sensitivePaths에 등록된 connect 경로는 recordSensitive로 위임된다")
+        void shouldDispatchRecordSensitiveForRequestAccessToken() {
+            // given
+            stubAuthProperties();
+            stubPayloadGenerator();
+            when(properties.getSensitivePaths()).thenReturn(Set.of("/auth/connect"));
+            stubPostChainThrows(new ResourceAccessException("Connection refused"));
+
+            // when
+            assertThatThrownBy(() -> client.requestAccessToken())
+                    .isInstanceOf(FulfillmentAuthRequestFailedException.class);
+
+            // then
+            verify(externalCallLogger).recordSensitive(
+                    eq(ExternalSystem.FASSTO), eq("requestAccessToken"), any(Map.class), any(java.util.function.Supplier.class)
+            );
+            verify(externalCallLogger, never()).record(
+                    eq(ExternalSystem.FASSTO), eq("requestAccessToken"), any(Map.class), any(java.util.function.Supplier.class)
+            );
+        }
+
+        @Test
+        @DisplayName("sensitivePaths에 미등록된 connect 경로는 record로 위임된다")
+        void shouldDispatchRecordForRequestAccessTokenWhenNotSensitive() {
+            // given
+            stubAuthProperties();
+            stubPayloadGenerator();
+            when(properties.getSensitivePaths()).thenReturn(Set.of());
+            stubPostChainThrows(new ResourceAccessException("Connection refused"));
+
+            // when
+            assertThatThrownBy(() -> client.requestAccessToken())
+                    .isInstanceOf(FulfillmentAuthRequestFailedException.class);
+
+            // then
+            verify(externalCallLogger).record(
+                    eq(ExternalSystem.FASSTO), eq("requestAccessToken"), any(Map.class), any(java.util.function.Supplier.class)
+            );
+            verify(externalCallLogger, never()).recordSensitive(
+                    eq(ExternalSystem.FASSTO), eq("requestAccessToken"), any(Map.class), any(java.util.function.Supplier.class)
+            );
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("sensitivePaths에 등록된 disconnect 경로는 recordVoidSensitive로 위임된다")
+        void shouldDispatchRecordVoidSensitiveForDisconnect() {
+            // given
+            stubDisconnectProperties();
+            stubPayloadGenerator();
+            when(properties.getSensitivePaths()).thenReturn(Set.of("/auth/disconnect"));
+            RestClient.RequestHeadersUriSpec rawSpec = mock(RestClient.RequestHeadersUriSpec.class);
+            RestClient.RequestHeadersSpec headerSpec = mock(RestClient.RequestHeadersSpec.class);
+            RestClient.ResponseSpec respSpec = mock(RestClient.ResponseSpec.class);
+
+            when(restClient.get()).thenReturn(rawSpec);
+            when(rawSpec.uri(any(java.net.URI.class))).thenReturn(headerSpec);
+            when(headerSpec.headers(any())).thenReturn(headerSpec);
+            when(headerSpec.retrieve()).thenReturn(respSpec);
+            when(respSpec.toEntity(String.class)).thenThrow(new ResourceAccessException("Connection refused"));
+
+            // when
+            assertThatThrownBy(() -> client.disconnectAccessToken("test-token"))
+                    .isInstanceOf(FulfillmentAuthDisconnectFailedException.class);
+
+            // then
+            verify(externalCallLogger).recordVoidSensitive(
+                    eq(ExternalSystem.FASSTO), eq("disconnectAccessToken"), any(Map.class), any(Runnable.class)
+            );
+            verify(externalCallLogger, never()).recordVoid(
+                    eq(ExternalSystem.FASSTO), eq("disconnectAccessToken"), any(Map.class), any(Runnable.class)
+            );
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        @DisplayName("sensitivePaths에 미등록된 disconnect 경로는 recordVoid로 위임된다")
+        void shouldDispatchRecordVoidForDisconnectWhenNotSensitive() {
+            // given
+            stubDisconnectProperties();
+            stubPayloadGenerator();
+            when(properties.getSensitivePaths()).thenReturn(Set.of());
+            RestClient.RequestHeadersUriSpec rawSpec = mock(RestClient.RequestHeadersUriSpec.class);
+            RestClient.RequestHeadersSpec headerSpec = mock(RestClient.RequestHeadersSpec.class);
+            RestClient.ResponseSpec respSpec = mock(RestClient.ResponseSpec.class);
+
+            when(restClient.get()).thenReturn(rawSpec);
+            when(rawSpec.uri(any(java.net.URI.class))).thenReturn(headerSpec);
+            when(headerSpec.headers(any())).thenReturn(headerSpec);
+            when(headerSpec.retrieve()).thenReturn(respSpec);
+            when(respSpec.toEntity(String.class)).thenThrow(new ResourceAccessException("Connection refused"));
+
+            // when
+            assertThatThrownBy(() -> client.disconnectAccessToken("test-token"))
+                    .isInstanceOf(FulfillmentAuthDisconnectFailedException.class);
+
+            // then
+            verify(externalCallLogger).recordVoid(
+                    eq(ExternalSystem.FASSTO), eq("disconnectAccessToken"), any(Map.class), any(Runnable.class)
+            );
+            verify(externalCallLogger, never()).recordVoidSensitive(
+                    eq(ExternalSystem.FASSTO), eq("disconnectAccessToken"), any(Map.class), any(Runnable.class)
+            );
         }
     }
 }

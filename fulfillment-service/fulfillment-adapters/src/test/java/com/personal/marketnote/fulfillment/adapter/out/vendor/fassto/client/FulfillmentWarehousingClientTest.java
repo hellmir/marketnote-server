@@ -2,6 +2,7 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
@@ -32,11 +33,15 @@ import org.springframework.web.client.RestClient;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,12 +75,14 @@ class FulfillmentWarehousingClientTest {
     private VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
+    private ExternalCallLogger externalCallLogger;
 
     @BeforeEach
     void setUp() {
         RestClient.Builder builder = mock(RestClient.Builder.class);
         when(builder.build()).thenReturn(restClient);
+
+        externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
 
         client = new FulfillmentWarehousingClient(
                 builder,
@@ -826,6 +833,64 @@ class FulfillmentWarehousingClientTest {
             // then
             assertThat(result.details().get(0).goods().get(0).customerProductCode())
                     .isEqualTo(LEGACY_UUID_RAW);
+        }
+    }
+
+    @Nested
+    @DisplayName("sensitive path 분기")
+    class SensitivePathDispatch {
+
+        @Test
+        @DisplayName("sensitivePaths에 등록된 warehousingList 경로는 recordSensitive로 위임된다")
+        void shouldDispatchRecordSensitiveWhenPathIsSensitive() {
+            // given
+            stubWarehousingListProperties();
+            stubPayloadGenerator();
+            String path = "/warehousing/{customerCode}/{startDate}/{endDate}";
+            when(properties.getSensitivePaths()).thenReturn(Set.of(path));
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
+
+            GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
+                    "CUST001", "valid-token", "20260101", "20260131"
+            );
+
+            // when
+            assertThatThrownBy(() -> client.getWarehousing(command))
+                    .isInstanceOf(GetFulfillmentWarehousingFailedException.class);
+
+            // then
+            verify(externalCallLogger).recordSensitive(
+                    eq(ExternalSystem.FASSTO), eq("getWarehousing"), any(Map.class), any(Supplier.class)
+            );
+            verify(externalCallLogger, never()).record(
+                    eq(ExternalSystem.FASSTO), eq("getWarehousing"), any(Map.class), any(Supplier.class)
+            );
+        }
+
+        @Test
+        @DisplayName("sensitivePaths에 미등록된 warehousingList 경로는 record로 위임된다")
+        void shouldDispatchRecordWhenPathIsNotSensitive() {
+            // given
+            stubWarehousingListProperties();
+            stubPayloadGenerator();
+            when(properties.getSensitivePaths()).thenReturn(Set.of());
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
+
+            GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
+                    "CUST001", "valid-token", "20260101", "20260131"
+            );
+
+            // when
+            assertThatThrownBy(() -> client.getWarehousing(command))
+                    .isInstanceOf(GetFulfillmentWarehousingFailedException.class);
+
+            // then
+            verify(externalCallLogger).record(
+                    eq(ExternalSystem.FASSTO), eq("getWarehousing"), any(Map.class), any(Supplier.class)
+            );
+            verify(externalCallLogger, never()).recordSensitive(
+                    eq(ExternalSystem.FASSTO), eq("getWarehousing"), any(Map.class), any(Supplier.class)
+            );
         }
     }
 }

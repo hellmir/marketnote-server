@@ -49,6 +49,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -89,10 +90,15 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
 
     @Override
     public GetFulfillmentStocksResult getStocks(GetFulfillmentStocksCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getStocks", Map.of(),
-                () -> doGetStocks(command)
-        );
+        String path = properties.getStockListPath();
+        return recordCall(path, "getStocks", () -> doGetStocks(command));
+    }
+
+    private <T> T recordCall(String path, String operation, Supplier<T> call) {
+        if (isSensitivePath(path)) {
+            return externalCallLogger.recordSensitive(ExternalSystem.FASSTO, operation, Map.of(), call);
+        }
+        return externalCallLogger.record(ExternalSystem.FASSTO, operation, Map.of(), call);
     }
 
     private GetFulfillmentStocksResult doGetStocks(GetFulfillmentStocksCommand command) {
@@ -115,10 +121,8 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
 
     @Override
     public GetFulfillmentStocksResult getStockDetail(GetFulfillmentStockDetailCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getStockDetail", Map.of(),
-                () -> doGetStockDetail(command)
-        );
+        String path = properties.getStockListPath();
+        return recordCall(path, "getStockDetail", () -> doGetStockDetail(command));
     }
 
     private GetFulfillmentStocksResult doGetStockDetail(GetFulfillmentStockDetailCommand command) {

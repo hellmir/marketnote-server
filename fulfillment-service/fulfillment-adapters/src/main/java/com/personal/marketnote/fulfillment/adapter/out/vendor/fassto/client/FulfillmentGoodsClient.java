@@ -43,6 +43,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -83,10 +84,8 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
 
     @Override
     public RegisterFulfillmentGoodsResult registerGoods(RegisterFulfillmentGoodsCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "registerGoods", Map.of(),
-                () -> doRegisterGoods(command)
-        );
+        String path = properties.getGoodsPath();
+        return recordCall(path, "registerGoods", () -> doRegisterGoods(command));
     }
 
     private RegisterFulfillmentGoodsResult doRegisterGoods(RegisterFulfillmentGoodsCommand command) {
@@ -96,10 +95,15 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
 
     @Override
     public GetFulfillmentGoodsResult getGoods(GetFulfillmentGoodsCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getGoods", Map.of(),
-                () -> doGetGoods(command)
-        );
+        String path = properties.getGoodsPath();
+        return recordCall(path, "getGoods", () -> doGetGoods(command));
+    }
+
+    private <T> T recordCall(String path, String operation, Supplier<T> call) {
+        if (isSensitivePath(path)) {
+            return externalCallLogger.recordSensitive(ExternalSystem.FASSTO, operation, Map.of(), call);
+        }
+        return externalCallLogger.record(ExternalSystem.FASSTO, operation, Map.of(), call);
     }
 
     private GetFulfillmentGoodsResult doGetGoods(GetFulfillmentGoodsCommand command) {
@@ -115,10 +119,8 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
 
     @Override
     public GetFulfillmentGoodsResult getGoodsDetail(GetFulfillmentGoodsDetailCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getGoodsDetail", Map.of(),
-                () -> doGetGoodsDetail(command)
-        );
+        String path = properties.getGoodsPath();
+        return recordCall(path, "getGoodsDetail", () -> doGetGoodsDetail(command));
     }
 
     private GetFulfillmentGoodsResult doGetGoodsDetail(GetFulfillmentGoodsDetailCommand command) {
@@ -134,10 +136,8 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
 
     @Override
     public GetFulfillmentGoodsElementsResult getGoodsElements(GetFulfillmentGoodsElementsCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getGoodsElements", Map.of(),
-                () -> doGetGoodsElements(command)
-        );
+        String path = properties.getGoodsElementPath();
+        return recordCall(path, "getGoodsElements", () -> doGetGoodsElements(command));
     }
 
     private GetFulfillmentGoodsElementsResult doGetGoodsElements(GetFulfillmentGoodsElementsCommand command) {
@@ -382,10 +382,8 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
 
     @Override
     public UpdateFulfillmentGoodsResult updateGoods(UpdateFulfillmentGoodsCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "updateGoods", Map.of(),
-                () -> doUpdateGoods(command)
-        );
+        String path = properties.getGoodsPath();
+        return recordCall(path, "updateGoods", () -> doUpdateGoods(command));
     }
 
     private UpdateFulfillmentGoodsResult doUpdateGoods(UpdateFulfillmentGoodsCommand command) {

@@ -2,6 +2,7 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
@@ -30,11 +31,15 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -68,12 +73,14 @@ class FulfillmentReturnDeliveryClientTest {
     private VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
+    private ExternalCallLogger externalCallLogger;
 
     @BeforeEach
     void setUp() {
         RestClient.Builder builder = mock(RestClient.Builder.class);
         when(builder.build()).thenReturn(restClient);
+
+        externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
 
         client = new FulfillmentReturnDeliveryClient(
                 builder,
@@ -222,6 +229,63 @@ class FulfillmentReturnDeliveryClientTest {
             // when & then
             assertThatThrownBy(() -> client.getReturnGodDetail(command))
                     .isInstanceOf(FulfillmentConfigurationException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("sensitive path 분기")
+    class SensitivePathDispatch {
+
+        @Test
+        @DisplayName("sensitivePaths에 등록된 returnDelivery 경로는 recordSensitive로 위임된다")
+        void shouldDispatchRecordSensitiveForRegisterReturnDelivery() {
+            // given
+            stubReturnDeliveryProperties();
+            stubPayloadGenerator();
+            String path = "/return-delivery/{customerCode}";
+            when(properties.getSensitivePaths()).thenReturn(Set.of(path));
+            stubPostChainThrows(new ResourceAccessException("Connection refused"));
+
+            // when
+            assertThatThrownBy(() -> client.registerReturnDelivery(buildValidRegisterCommand()))
+                    .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class);
+
+            // then
+            verify(externalCallLogger).recordSensitive(
+                    eq(ExternalSystem.FASSTO), eq("registerReturnDelivery"), any(Map.class), any(Supplier.class)
+            );
+            verify(externalCallLogger, never()).record(
+                    eq(ExternalSystem.FASSTO), eq("registerReturnDelivery"), any(Map.class), any(Supplier.class)
+            );
+        }
+
+        @Test
+        @DisplayName("sensitivePaths에 미등록된 returnGodDetail 경로는 record로 위임된다")
+        void shouldDispatchRecordForReturnGodDetailWhenNotSensitive() {
+            // given
+            stubReturnGodDetailProperties();
+            stubPayloadGenerator();
+            when(properties.getSensitivePaths()).thenReturn(Set.of());
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
+
+            GetFulfillmentReturnGodDetailCommand command = GetFulfillmentReturnGodDetailCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .build();
+
+            // when
+            assertThatThrownBy(() -> client.getReturnGodDetail(command))
+                    .isInstanceOf(GetFulfillmentReturnGodDetailFailedException.class);
+
+            // then
+            verify(externalCallLogger).record(
+                    eq(ExternalSystem.FASSTO), eq("getReturnGodDetail"), any(Map.class), any(Supplier.class)
+            );
+            verify(externalCallLogger, never()).recordSensitive(
+                    eq(ExternalSystem.FASSTO), eq("getReturnGodDetail"), any(Map.class), any(Supplier.class)
+            );
         }
     }
 
