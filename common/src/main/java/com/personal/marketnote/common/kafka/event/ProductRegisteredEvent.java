@@ -1,8 +1,11 @@
 package com.personal.marketnote.common.kafka.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record ProductRegisteredEvent(
         Long productId,
         UUID productKey,
@@ -21,6 +24,7 @@ public record ProductRegisteredEvent(
         boolean imported
 ) {
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public record ProductTagSnapshot(
             Long id,
             String name,
@@ -28,6 +32,7 @@ public record ProductRegisteredEvent(
     ) {
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public record ProductOptionSnapshot(
             Long id,
             String content

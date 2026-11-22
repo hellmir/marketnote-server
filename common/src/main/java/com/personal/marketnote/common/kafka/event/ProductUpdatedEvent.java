@@ -1,7 +1,10 @@
 package com.personal.marketnote.common.kafka.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record ProductUpdatedEvent(
         Long productId,
         UUID productKey,
