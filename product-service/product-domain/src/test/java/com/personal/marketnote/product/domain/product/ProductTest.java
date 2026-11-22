@@ -208,6 +208,68 @@ class ProductTest {
     }
 
     @Nested
+    @DisplayName("fasstoProductCode import 분기")
+    class FasstoProductCodeImportTest {
+
+        @Test
+        @DisplayName("ProductCreateState fasstoProductCode가 입력되면 그대로 저장하고 자동 발급을 스킵한다")
+        void shouldUseProvidedFasstoProductCodeWhenImported() {
+            String importedCode = "FASSTO0000000000000000001";
+            ProductCreateState state = ProductCreateState.builder()
+                    .sellerId(1L)
+                    .name("import 상품")
+                    .brandName("브랜드")
+                    .detail("설명")
+                    .findAllOptionsYn(false)
+                    .tags(List.of())
+                    .fasstoProductCode(importedCode)
+                    .build();
+
+            Product product = Product.from(state);
+
+            assertThat(product.getFasstoProductCode()).isEqualTo(importedCode);
+        }
+
+        @Test
+        @DisplayName("ProductCreateState fasstoProductCode가 null이면 productKey 기반으로 자동 발급한다")
+        void shouldAutoGenerateFasstoProductCodeWhenNotImported() {
+            ProductCreateState state = ProductCreateState.builder()
+                    .sellerId(1L)
+                    .name("자동 발급 상품")
+                    .brandName("브랜드")
+                    .detail("설명")
+                    .findAllOptionsYn(false)
+                    .tags(List.of())
+                    .fasstoProductCode(null)
+                    .build();
+
+            Product product = Product.from(state);
+
+            assertThat(product.getFasstoProductCode())
+                    .isEqualTo(FasstoProductCodeGenerator.encode(product.getProductKey()));
+        }
+
+        @Test
+        @DisplayName("ProductCreateState fasstoProductCode가 빈 문자열이면 productKey 기반으로 자동 발급한다")
+        void shouldAutoGenerateFasstoProductCodeWhenBlank() {
+            ProductCreateState state = ProductCreateState.builder()
+                    .sellerId(1L)
+                    .name("자동 발급 상품")
+                    .brandName("브랜드")
+                    .detail("설명")
+                    .findAllOptionsYn(false)
+                    .tags(List.of())
+                    .fasstoProductCode("")
+                    .build();
+
+            Product product = Product.from(state);
+
+            assertThat(product.getFasstoProductCode())
+                    .isEqualTo(FasstoProductCodeGenerator.encode(product.getProductKey()));
+        }
+    }
+
+    @Nested
     @DisplayName("productKey 생성/복원")
     class ProductKeyTest {
 
