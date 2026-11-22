@@ -50,6 +50,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -90,10 +91,8 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
 
     @Override
     public RegisterFulfillmentShopResult registerShop(RegisterFulfillmentShopCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "registerShop", Map.of(),
-                () -> doRegisterShop(command)
-        );
+        String path = properties.getShopPath();
+        return recordCall(path, "registerShop", () -> doRegisterShop(command));
     }
 
     private RegisterFulfillmentShopResult doRegisterShop(RegisterFulfillmentShopCommand command) {
@@ -103,10 +102,8 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
 
     @Override
     public UpdateFulfillmentShopResult updateShop(UpdateFulfillmentShopCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "updateShop", Map.of(),
-                () -> doUpdateShop(command)
-        );
+        String path = properties.getShopPath();
+        return recordCall(path, "updateShop", () -> doUpdateShop(command));
     }
 
     private UpdateFulfillmentShopResult doUpdateShop(UpdateFulfillmentShopCommand command) {
@@ -117,10 +114,15 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
 
     @Override
     public GetFulfillmentShopsResult getShops(GetFulfillmentShopsCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getShops", Map.of(),
-                () -> doGetShops(command)
-        );
+        String path = properties.getShopPath();
+        return recordCall(path, "getShops", () -> doGetShops(command));
+    }
+
+    private <T> T recordCall(String path, String operation, Supplier<T> call) {
+        if (isSensitivePath(path)) {
+            return externalCallLogger.recordSensitive(ExternalSystem.FASSTO, operation, Map.of(), call);
+        }
+        return externalCallLogger.record(ExternalSystem.FASSTO, operation, Map.of(), call);
     }
 
     private GetFulfillmentShopsResult doGetShops(GetFulfillmentShopsCommand command) {

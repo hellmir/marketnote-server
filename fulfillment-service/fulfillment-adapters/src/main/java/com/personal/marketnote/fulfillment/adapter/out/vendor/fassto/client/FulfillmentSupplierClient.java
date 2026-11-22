@@ -50,6 +50,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -90,10 +91,8 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
 
     @Override
     public RegisterFulfillmentSupplierResult registerSupplier(RegisterFulfillmentSupplierCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "registerSupplier", Map.of(),
-                () -> doRegisterSupplier(command)
-        );
+        String path = properties.getSupplierPath();
+        return recordCall(path, "registerSupplier", () -> doRegisterSupplier(command));
     }
 
     private RegisterFulfillmentSupplierResult doRegisterSupplier(RegisterFulfillmentSupplierCommand command) {
@@ -103,10 +102,8 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
 
     @Override
     public UpdateFulfillmentSupplierResult updateSupplier(UpdateFulfillmentSupplierCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "updateSupplier", Map.of(),
-                () -> doUpdateSupplier(command)
-        );
+        String path = properties.getSupplierPath();
+        return recordCall(path, "updateSupplier", () -> doUpdateSupplier(command));
     }
 
     private UpdateFulfillmentSupplierResult doUpdateSupplier(UpdateFulfillmentSupplierCommand command) {
@@ -117,10 +114,15 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
 
     @Override
     public GetFulfillmentSuppliersResult getSuppliers(GetFulfillmentSuppliersCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getSuppliers", Map.of(),
-                () -> doGetSuppliers(command)
-        );
+        String path = properties.getSupplierPath();
+        return recordCall(path, "getSuppliers", () -> doGetSuppliers(command));
+    }
+
+    private <T> T recordCall(String path, String operation, Supplier<T> call) {
+        if (isSensitivePath(path)) {
+            return externalCallLogger.recordSensitive(ExternalSystem.FASSTO, operation, Map.of(), call);
+        }
+        return externalCallLogger.record(ExternalSystem.FASSTO, operation, Map.of(), call);
     }
 
     private GetFulfillmentSuppliersResult doGetSuppliers(GetFulfillmentSuppliersCommand command) {

@@ -46,6 +46,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -87,10 +88,8 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
 
     @Override
     public RegisterFulfillmentDeliveryResult registerReturnDelivery(RegisterFulfillmentReturnDeliveryCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "registerReturnDelivery", Map.of(),
-                () -> doRegisterReturnDelivery(command)
-        );
+        String path = properties.getReturnDeliveryPath();
+        return recordCall(path, "registerReturnDelivery", () -> doRegisterReturnDelivery(command));
     }
 
     private RegisterFulfillmentDeliveryResult doRegisterReturnDelivery(RegisterFulfillmentReturnDeliveryCommand command) {
@@ -101,10 +100,15 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
 
     @Override
     public GetFulfillmentReturnGodDetailResult getReturnGodDetail(GetFulfillmentReturnGodDetailCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getReturnGodDetail", Map.of(),
-                () -> doGetReturnGodDetail(command)
-        );
+        String path = properties.getReturnGodDetailPath();
+        return recordCall(path, "getReturnGodDetail", () -> doGetReturnGodDetail(command));
+    }
+
+    private <T> T recordCall(String path, String operation, Supplier<T> call) {
+        if (isSensitivePath(path)) {
+            return externalCallLogger.recordSensitive(ExternalSystem.FASSTO, operation, Map.of(), call);
+        }
+        return externalCallLogger.record(ExternalSystem.FASSTO, operation, Map.of(), call);
     }
 
     private GetFulfillmentReturnGodDetailResult doGetReturnGodDetail(GetFulfillmentReturnGodDetailCommand command) {

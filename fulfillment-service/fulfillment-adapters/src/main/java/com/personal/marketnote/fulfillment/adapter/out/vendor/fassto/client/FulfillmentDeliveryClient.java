@@ -40,6 +40,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -80,10 +81,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public RegisterFulfillmentDeliveryResult registerDelivery(RegisterFulfillmentDeliveryCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "registerDelivery", Map.of(),
-                () -> doRegisterDelivery(command)
-        );
+        String path = properties.getDeliveryPath();
+        return recordCall(path, "registerDelivery", () -> doRegisterDelivery(command));
     }
 
     private RegisterFulfillmentDeliveryResult doRegisterDelivery(RegisterFulfillmentDeliveryCommand command) {
@@ -94,10 +93,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public RegisterFulfillmentDeliveryResult updateDelivery(UpdateFulfillmentDeliveryCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "updateDelivery", Map.of(),
-                () -> doUpdateDelivery(command)
-        );
+        String path = properties.getDeliveryPath();
+        return recordCall(path, "updateDelivery", () -> doUpdateDelivery(command));
     }
 
     private RegisterFulfillmentDeliveryResult doUpdateDelivery(UpdateFulfillmentDeliveryCommand command) {
@@ -108,10 +105,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public RegisterFulfillmentDeliveryResult registerDeliveryCar(RegisterFulfillmentDeliveryCarCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "registerDeliveryCar", Map.of(),
-                () -> doRegisterDeliveryCar(command)
-        );
+        String path = properties.getDeliveryCarPath();
+        return recordCall(path, "registerDeliveryCar", () -> doRegisterDeliveryCar(command));
     }
 
     private RegisterFulfillmentDeliveryResult doRegisterDeliveryCar(RegisterFulfillmentDeliveryCarCommand command) {
@@ -122,10 +117,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public RegisterFulfillmentDeliveryResult registerDeliveryIcs(RegisterFulfillmentDeliveryIcsCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "registerDeliveryIcs", Map.of(),
-                () -> doRegisterDeliveryIcs(command)
-        );
+        String path = properties.getDeliveryIcsPath();
+        return recordCall(path, "registerDeliveryIcs", () -> doRegisterDeliveryIcs(command));
     }
 
     private RegisterFulfillmentDeliveryResult doRegisterDeliveryIcs(RegisterFulfillmentDeliveryIcsCommand command) {
@@ -136,10 +129,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public CompleteFulfillmentDeliveryIcsResult completeDeliveryIcs(CompleteFulfillmentDeliveryIcsCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "completeDeliveryIcs", Map.of(),
-                () -> doCompleteDeliveryIcs(command)
-        );
+        String path = properties.getDeliveryIcsCompletedPath();
+        return recordCall(path, "completeDeliveryIcs", () -> doCompleteDeliveryIcs(command));
     }
 
     private CompleteFulfillmentDeliveryIcsResult doCompleteDeliveryIcs(CompleteFulfillmentDeliveryIcsCommand command) {
@@ -150,10 +141,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public RegisterFulfillmentDeliveryResult updateDeliveryCar(UpdateFulfillmentDeliveryCarCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "updateDeliveryCar", Map.of(),
-                () -> doUpdateDeliveryCar(command)
-        );
+        String path = properties.getDeliveryCarPath();
+        return recordCall(path, "updateDeliveryCar", () -> doUpdateDeliveryCar(command));
     }
 
     private RegisterFulfillmentDeliveryResult doUpdateDeliveryCar(UpdateFulfillmentDeliveryCarCommand command) {
@@ -164,10 +153,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public CancelFulfillmentDeliveryResult cancelDelivery(CancelFulfillmentDeliveryCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "cancelDelivery", Map.of(),
-                () -> doCancelDelivery(command)
-        );
+        String path = properties.getDeliveryCancelPath();
+        return recordCall(path, "cancelDelivery", () -> doCancelDelivery(command));
     }
 
     private CancelFulfillmentDeliveryResult doCancelDelivery(CancelFulfillmentDeliveryCommand command) {
@@ -178,10 +165,15 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public GetFulfillmentDeliveriesResult getDeliveries(GetFulfillmentDeliveriesCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getDeliveries", Map.of(),
-                () -> doGetDeliveries(command)
-        );
+        String path = properties.getDeliveryListPath();
+        return recordCall(path, "getDeliveries", () -> doGetDeliveries(command));
+    }
+
+    private <T> T recordCall(String path, String operation, Supplier<T> call) {
+        if (isSensitivePath(path)) {
+            return externalCallLogger.recordSensitive(ExternalSystem.FASSTO, operation, Map.of(), call);
+        }
+        return externalCallLogger.record(ExternalSystem.FASSTO, operation, Map.of(), call);
     }
 
     private GetFulfillmentDeliveriesResult doGetDeliveries(GetFulfillmentDeliveriesCommand command) {
@@ -306,10 +298,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public GetFulfillmentDeliveryStatusesResult getDeliveryStatuses(GetFulfillmentDeliveryStatusesCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getDeliveryStatuses", Map.of(),
-                () -> doGetDeliveryStatuses(command)
-        );
+        String path = properties.getDeliveryStatusPath();
+        return recordCall(path, "getDeliveryStatuses", () -> doGetDeliveryStatuses(command));
     }
 
     private GetFulfillmentDeliveryStatusesResult doGetDeliveryStatuses(GetFulfillmentDeliveryStatusesCommand command) {
@@ -432,10 +422,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public GetFulfillmentDeliveryOutOrdGoodsDetailResult getOutOrdGoodsDetail(GetFulfillmentDeliveryOutOrdGoodsDetailCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getOutOrdGoodsDetail", Map.of(),
-                () -> doGetOutOrdGoodsDetail(command)
-        );
+        String path = properties.getDeliveryOutOrdGoodsDetailPath();
+        return recordCall(path, "getOutOrdGoodsDetail", () -> doGetOutOrdGoodsDetail(command));
     }
 
     private GetFulfillmentDeliveryOutOrdGoodsDetailResult doGetOutOrdGoodsDetail(GetFulfillmentDeliveryOutOrdGoodsDetailCommand command) {
@@ -558,10 +546,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult getOutOrdGoodsByOrdNo(GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getOutOrdGoodsByOrdNo", Map.of(),
-                () -> doGetOutOrdGoodsByOrdNo(command)
-        );
+        String path = properties.getDeliveryOutOrdGoodsByOrdNoPath();
+        return recordCall(path, "getOutOrdGoodsByOrdNo", () -> doGetOutOrdGoodsByOrdNo(command));
     }
 
     private GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult doGetOutOrdGoodsByOrdNo(GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command) {
@@ -684,10 +670,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public GetFulfillmentDeliveryGoodDetailResult getDeliveryGoodDetail(GetFulfillmentDeliveryGoodDetailCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getDeliveryGoodDetail", Map.of(),
-                () -> doGetDeliveryGoodDetail(command)
-        );
+        String path = properties.getDeliveryGoodDetailPath();
+        return recordCall(path, "getDeliveryGoodDetail", () -> doGetDeliveryGoodDetail(command));
     }
 
     private GetFulfillmentDeliveryGoodDetailResult doGetDeliveryGoodDetail(GetFulfillmentDeliveryGoodDetailCommand command) {
@@ -810,10 +794,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     @Override
     public GetFulfillmentDeliveryDetailResult getDeliveryDetail(GetFulfillmentDeliveryDetailCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getDeliveryDetail", Map.of(),
-                () -> doGetDeliveryDetail(command)
-        );
+        String path = properties.getDeliveryDetailPath();
+        return recordCall(path, "getDeliveryDetail", () -> doGetDeliveryDetail(command));
     }
 
     private GetFulfillmentDeliveryDetailResult doGetDeliveryDetail(GetFulfillmentDeliveryDetailCommand command) {

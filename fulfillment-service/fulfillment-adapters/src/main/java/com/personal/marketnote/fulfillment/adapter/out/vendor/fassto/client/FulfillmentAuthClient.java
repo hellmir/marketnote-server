@@ -42,6 +42,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -83,10 +84,23 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
 
     @Override
     public FulfillmentAccessToken requestAccessToken() {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "requestAccessToken", Map.of(),
-                this::doRequestAccessToken
-        );
+        String path = properties.getConnectPath();
+        return recordCall(path, "requestAccessToken", this::doRequestAccessToken);
+    }
+
+    private <T> T recordCall(String path, String operation, Supplier<T> call) {
+        if (isSensitivePath(path)) {
+            return externalCallLogger.recordSensitive(ExternalSystem.FASSTO, operation, Map.of(), call);
+        }
+        return externalCallLogger.record(ExternalSystem.FASSTO, operation, Map.of(), call);
+    }
+
+    private void recordVoidCall(String path, String operation, Runnable call) {
+        if (isSensitivePath(path)) {
+            externalCallLogger.recordVoidSensitive(ExternalSystem.FASSTO, operation, Map.of(), call);
+            return;
+        }
+        externalCallLogger.recordVoid(ExternalSystem.FASSTO, operation, Map.of(), call);
     }
 
     private FulfillmentAccessToken doRequestAccessToken() {
@@ -197,10 +211,8 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             throw new FulfillmentClientInvalidRequestException("Fulfillment access token is required.");
         }
 
-        externalCallLogger.recordVoid(
-                ExternalSystem.FASSTO, "disconnectAccessToken", Map.of(),
-                () -> doDisconnectAccessToken(accessToken)
-        );
+        String path = properties.getDisconnectPath();
+        recordVoidCall(path, "disconnectAccessToken", () -> doDisconnectAccessToken(accessToken));
     }
 
     private void doDisconnectAccessToken(String accessToken) {

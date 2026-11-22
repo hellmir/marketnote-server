@@ -40,6 +40,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -80,10 +81,15 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     @Override
     public RegisterFulfillmentWarehousingResult registerWarehousing(RegisterFulfillmentWarehousingCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "registerWarehousing", Map.of(),
-                () -> doRegisterWarehousing(command)
-        );
+        String path = properties.getWarehousingPath();
+        return recordCall(path, "registerWarehousing", () -> doRegisterWarehousing(command));
+    }
+
+    private <T> T recordCall(String path, String operation, Supplier<T> call) {
+        if (isSensitivePath(path)) {
+            return externalCallLogger.recordSensitive(ExternalSystem.FASSTO, operation, Map.of(), call);
+        }
+        return externalCallLogger.record(ExternalSystem.FASSTO, operation, Map.of(), call);
     }
 
     private RegisterFulfillmentWarehousingResult doRegisterWarehousing(RegisterFulfillmentWarehousingCommand command) {
@@ -99,10 +105,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     @Override
     public UpdateFulfillmentWarehousingResult updateWarehousing(UpdateFulfillmentWarehousingCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "updateWarehousing", Map.of(),
-                () -> doUpdateWarehousing(command)
-        );
+        String path = properties.getWarehousingPath();
+        return recordCall(path, "updateWarehousing", () -> doUpdateWarehousing(command));
     }
 
     private UpdateFulfillmentWarehousingResult doUpdateWarehousing(UpdateFulfillmentWarehousingCommand command) {
@@ -118,10 +122,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     @Override
     public GetFulfillmentWarehousingResult getWarehousing(GetFulfillmentWarehousingCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getWarehousing", Map.of(),
-                () -> doGetWarehousing(command)
-        );
+        String path = properties.getWarehousingListPath();
+        return recordCall(path, "getWarehousing", () -> doGetWarehousing(command));
     }
 
     private GetFulfillmentWarehousingResult doGetWarehousing(GetFulfillmentWarehousingCommand command) {
@@ -251,10 +253,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     @Override
     public GetFulfillmentWarehousingDetailResult getWarehousingDetail(GetFulfillmentWarehousingDetailCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getWarehousingDetail", Map.of(),
-                () -> doGetWarehousingDetail(command)
-        );
+        String path = properties.getWarehousingDetailPath();
+        return recordCall(path, "getWarehousingDetail", () -> doGetWarehousingDetail(command));
     }
 
     private GetFulfillmentWarehousingDetailResult doGetWarehousingDetail(GetFulfillmentWarehousingDetailCommand command) {
@@ -378,10 +378,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     @Override
     public GetFulfillmentWarehousingInspecDetailResult getWarehousingInspecDetail(GetFulfillmentWarehousingInspecDetailCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getWarehousingInspecDetail", Map.of(),
-                () -> doGetWarehousingInspecDetail(command)
-        );
+        String path = properties.getWarehousingInspecDetailPath();
+        return recordCall(path, "getWarehousingInspecDetail", () -> doGetWarehousingInspecDetail(command));
     }
 
     private GetFulfillmentWarehousingInspecDetailResult doGetWarehousingInspecDetail(GetFulfillmentWarehousingInspecDetailCommand command) {
@@ -499,10 +497,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     @Override
     public GetFulfillmentWarehousingAbnormalResult getWarehousingAbnormal(GetFulfillmentWarehousingAbnormalCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getWarehousingAbnormal", Map.of(),
-                () -> doGetWarehousingAbnormal(command)
-        );
+        String path = properties.getWarehousingAbnormalPath();
+        return recordCall(path, "getWarehousingAbnormal", () -> doGetWarehousingAbnormal(command));
     }
 
     private GetFulfillmentWarehousingAbnormalResult doGetWarehousingAbnormal(GetFulfillmentWarehousingAbnormalCommand command) {
@@ -621,10 +617,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     @Override
     public GetFulfillmentWarehousingAbnormalImageResult getWarehousingAbnormalImage(GetFulfillmentWarehousingAbnormalImageCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getWarehousingAbnormalImage", Map.of(),
-                () -> doGetWarehousingAbnormalImage(command)
-        );
+        String path = properties.getWarehousingAbnormalImagePath();
+        return recordCall(path, "getWarehousingAbnormalImage", () -> doGetWarehousingAbnormalImage(command));
     }
 
     private GetFulfillmentWarehousingAbnormalImageResult doGetWarehousingAbnormalImage(GetFulfillmentWarehousingAbnormalImageCommand command) {

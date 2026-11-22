@@ -43,6 +43,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -84,10 +85,15 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
 
     @Override
     public RegisterFulfillmentDeliveryResult registerDirectReturnDelivery(RegisterFulfillmentDirectReturnDeliveryCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "registerDirectReturnDelivery", Map.of(),
-                () -> doRegisterDirectReturnDelivery(command)
-        );
+        String path = properties.getReturnDirectDeliveryPath();
+        return recordCall(path, "registerDirectReturnDelivery", () -> doRegisterDirectReturnDelivery(command));
+    }
+
+    private <T> T recordCall(String path, String operation, Supplier<T> call) {
+        if (isSensitivePath(path)) {
+            return externalCallLogger.recordSensitive(ExternalSystem.FASSTO, operation, Map.of(), call);
+        }
+        return externalCallLogger.record(ExternalSystem.FASSTO, operation, Map.of(), call);
     }
 
     private RegisterFulfillmentDeliveryResult doRegisterDirectReturnDelivery(RegisterFulfillmentDirectReturnDeliveryCommand command) {

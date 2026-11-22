@@ -44,6 +44,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
@@ -86,10 +87,15 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
 
     @Override
     public GetFulfillmentSettlementDailyCostsResult getDailyCosts(GetFulfillmentSettlementDailyCostsCommand command) {
-        return externalCallLogger.record(
-                ExternalSystem.FASSTO, "getDailyCosts", Map.of(),
-                () -> doGetDailyCosts(command)
-        );
+        String path = properties.getSettlementDailyCostPath();
+        return recordCall(path, "getDailyCosts", () -> doGetDailyCosts(command));
+    }
+
+    private <T> T recordCall(String path, String operation, Supplier<T> call) {
+        if (isSensitivePath(path)) {
+            return externalCallLogger.recordSensitive(ExternalSystem.FASSTO, operation, Map.of(), call);
+        }
+        return externalCallLogger.record(ExternalSystem.FASSTO, operation, Map.of(), call);
     }
 
     private GetFulfillmentSettlementDailyCostsResult doGetDailyCosts(GetFulfillmentSettlementDailyCostsCommand command) {
