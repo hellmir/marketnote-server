@@ -15,6 +15,7 @@ public record RegisterProductCommand(
         Long accumulatedPoint,
         Boolean isFindAllOptions,
         List<String> tags,
-        FulfillmentVendorGoodsOptionCommand fulfillmentVendorGoods
+        FulfillmentVendorGoodsOptionCommand fulfillmentVendorGoods,
+        String fasstoProductCode
 ) {
 }

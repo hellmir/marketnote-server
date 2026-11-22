@@ -89,8 +89,15 @@ public class Product extends BaseDomain {
                 .detail(state.getDetail())
                 .findAllOptionsYn(state.isFindAllOptionsYn())
                 .productTags(tags)
-                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .fasstoProductCode(resolveFasstoProductCodeOnCreate(state, productKey))
                 .build();
+    }
+
+    private static String resolveFasstoProductCodeOnCreate(ProductCreateState state, UUID productKey) {
+        if (FormatValidator.hasValue(state.getFasstoProductCode())) {
+            return state.getFasstoProductCode();
+        }
+        return FasstoProductCodeGenerator.encode(productKey);
     }
 
     public static Product from(ProductSnapshotState state) {

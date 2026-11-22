@@ -16,7 +16,8 @@ public interface PublishProductEventPort {
             Long sales,
             List<ProductRegisteredEvent.ProductTagSnapshot> productTags,
             List<ProductRegisteredEvent.ProductOptionSnapshot> selectedOptions,
-            String fasstoProductCode
+            String fasstoProductCode,
+            boolean imported
     );
 
     void publishPricePolicyCreatedEvent(PricePolicyCreatedEvent event);
