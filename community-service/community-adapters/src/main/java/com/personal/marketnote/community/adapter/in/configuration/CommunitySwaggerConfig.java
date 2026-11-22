@@ -36,6 +36,8 @@ public class CommunitySwaggerConfig {
             "리뷰 API",
             "좋아요 API",
             "신고 API",
+            "Outbox API",
+            "DLT API",
             "서버 정보 API"
     );
 

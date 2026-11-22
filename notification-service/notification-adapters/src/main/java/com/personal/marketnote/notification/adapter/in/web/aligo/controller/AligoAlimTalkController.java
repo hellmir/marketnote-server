@@ -27,7 +27,7 @@ import java.util.Map;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
-@Tag(name = "(관리자) 알리고 알림톡 발송", description = "알리고 알림톡 발송 API")
+@Tag(name = "(관리자) 알리고 알림톡 발송 API", description = "알리고 알림톡 발송 API")
 @SecurityRequirement(name = "bearer")
 @RestController
 @RequestMapping("/api/v1/admin/aligo/alimtalk")

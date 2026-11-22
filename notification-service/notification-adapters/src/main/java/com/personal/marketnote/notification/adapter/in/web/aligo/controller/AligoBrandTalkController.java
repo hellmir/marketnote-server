@@ -26,7 +26,7 @@ import java.util.List;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
-@Tag(name = "(관리자) 알리고 브랜드메시지 전송", description = "알리고 브랜드메시지 전송 API")
+@Tag(name = "(관리자) 알리고 브랜드메시지 전송 API", description = "알리고 브랜드메시지 전송 API")
 @SecurityRequirement(name = "bearer")
 @RestController
 @RequestMapping("/api/v1/admin/aligo/brandtalk")

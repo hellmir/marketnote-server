@@ -29,7 +29,7 @@ import java.util.List;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
-@Tag(name = "(관리자) 알리고 알림톡 템플릿", description = "알리고 알림톡 템플릿 CRUD API")
+@Tag(name = "(관리자) 알리고 알림톡 템플릿 API", description = "알리고 알림톡 템플릿 CRUD API")
 @SecurityRequirement(name = "bearer")
 @RestController
 @RequestMapping("/api/v1/admin/aligo/templates")

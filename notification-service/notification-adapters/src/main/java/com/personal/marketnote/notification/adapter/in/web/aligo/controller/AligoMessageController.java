@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
-@Tag(name = "(관리자) 알리고 메시지 조회", description = "알리고 알림톡 메시지 조회 API")
+@Tag(name = "(관리자) 알리고 메시지 조회 API", description = "알리고 알림톡 메시지 조회 API")
 @SecurityRequirement(name = "bearer")
 @RestController
 @RequestMapping("/api/v1/admin/aligo/messages")

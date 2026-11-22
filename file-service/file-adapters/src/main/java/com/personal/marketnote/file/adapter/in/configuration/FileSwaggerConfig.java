@@ -35,6 +35,8 @@ public class FileSwaggerConfig {
 
     private static final List<String> TAGS_ORDER = List.of(
             "파일 API",
+            "Outbox API",
+            "DLT API",
             "서버 정보 API"
     );
 
