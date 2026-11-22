@@ -2,6 +2,7 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.domain.aligo.AligoProfileInspectionStatus;
 import com.personal.marketnote.notification.domain.aligo.AligoSenderProfile;
 import com.personal.marketnote.notification.domain.aligo.AligoSenderProfileCreateState;
@@ -22,14 +23,12 @@ public class AligoSenderProfileExternalAdapter
         implements RequestAligoSenderAuthenticationPort, RegisterAligoSenderProfileExternalPort,
         GetAligoSenderProfileListExternalPort {
 
-    private static final String PROFILE_AUTH_PATH = "/akv10/profile/auth/";
-    private static final String PROFILE_ADD_PATH = "/akv10/profile/add/";
-    private static final String PROFILE_LIST_PATH = "/akv10/profile/list/";
     private static final String REQUEST_SENDER_AUTHENTICATION_OPERATION = "requestSenderAuthentication";
     private static final String REGISTER_SENDER_PROFILE_OPERATION = "registerSenderProfile";
     private static final String GET_SENDER_PROFILE_LIST_OPERATION = "getSenderProfileList";
 
     private final AligoHttpClient aligoHttpClient;
+    private final AligoProperties aligoProperties;
 
     @Override
     public String requestAuthentication(String plusId, String phoneNumber) {
@@ -38,7 +37,8 @@ public class AligoSenderProfileExternalAdapter
         params.add("phonenumber", phoneNumber);
 
         AligoAuthResponse response = aligoHttpClient.post(
-                REQUEST_SENDER_AUTHENTICATION_OPERATION, PROFILE_AUTH_PATH, params, AligoAuthResponse.class
+                REQUEST_SENDER_AUTHENTICATION_OPERATION, aligoProperties.getApi().getProfileAuthPath(),
+                params, AligoAuthResponse.class
         );
         return response.senderKey();
     }
@@ -49,7 +49,10 @@ public class AligoSenderProfileExternalAdapter
         params.add("senderkey", senderKey);
         params.add("categorycode", categoryCode);
 
-        aligoHttpClient.post(REGISTER_SENDER_PROFILE_OPERATION, PROFILE_ADD_PATH, params, AligoApiResponse.class);
+        aligoHttpClient.post(
+                REGISTER_SENDER_PROFILE_OPERATION, aligoProperties.getApi().getProfileAddPath(),
+                params, AligoApiResponse.class
+        );
     }
 
     @Override
@@ -57,7 +60,8 @@ public class AligoSenderProfileExternalAdapter
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         AligoProfileListResponse response = aligoHttpClient.post(
-                GET_SENDER_PROFILE_LIST_OPERATION, PROFILE_LIST_PATH, params, AligoProfileListResponse.class
+                GET_SENDER_PROFILE_LIST_OPERATION, aligoProperties.getApi().getProfileListPath(),
+                params, AligoProfileListResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.list())) {

@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.port.in.result.aligo.GetAligoCategoryTreeResult;
 import com.personal.marketnote.notification.port.out.aligo.GetAligoCategoryExternalPort;
 import lombok.RequiredArgsConstructor;
@@ -17,17 +18,18 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AligoCategoryExternalAdapter implements GetAligoCategoryExternalPort {
 
-    private static final String CATEGORY_PATH = "/akv10/category/";
     private static final String GET_CATEGORY_TREE_OPERATION = "getCategoryTree";
 
     private final AligoHttpClient aligoHttpClient;
+    private final AligoProperties aligoProperties;
 
     @Override
     public GetAligoCategoryTreeResult getCategoryTree() {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         AligoCategoryApiResponse response = aligoHttpClient.post(
-                GET_CATEGORY_TREE_OPERATION, CATEGORY_PATH, params, AligoCategoryApiResponse.class
+                GET_CATEGORY_TREE_OPERATION, aligoProperties.getApi().getCategoryPath(),
+                params, AligoCategoryApiResponse.class
         );
 
         List<GetAligoCategoryTreeResult.CategoryResult> categories = buildCategoryTree(response.data());

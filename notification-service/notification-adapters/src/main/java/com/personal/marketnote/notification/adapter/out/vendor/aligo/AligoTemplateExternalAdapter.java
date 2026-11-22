@@ -3,6 +3,7 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.out.aligo.*;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +22,6 @@ public class AligoTemplateExternalAdapter
         DeleteAligoTemplateExternalPort, GetAligoTemplateListExternalPort,
         RequestAligoTemplateInspectionExternalPort {
 
-    private static final String TEMPLATE_ADD_PATH = "/akv10/template/add/";
-    private static final String TEMPLATE_MODIFY_PATH = "/akv10/template/modify/";
-    private static final String TEMPLATE_LIST_PATH = "/akv10/template/list/";
-    private static final String TEMPLATE_REQUEST_PATH = "/akv10/template/request/";
-    private static final String TEMPLATE_DEL_PATH = "/akv10/template/del/";
     private static final String REGISTER_TEMPLATE_OPERATION = "registerTemplate";
     private static final String UPDATE_TEMPLATE_OPERATION = "updateTemplate";
     private static final String GET_TEMPLATE_LIST_OPERATION = "getTemplateList";
@@ -34,17 +30,24 @@ public class AligoTemplateExternalAdapter
 
     private final AligoHttpClient aligoHttpClient;
     private final ObjectMapper objectMapper;
+    private final AligoProperties aligoProperties;
 
     @Override
     public void registerTemplate(AligoTemplate template) {
         MultiValueMap<String, String> params = buildTemplateParams(template);
-        aligoHttpClient.post(REGISTER_TEMPLATE_OPERATION, TEMPLATE_ADD_PATH, params, AligoApiResponse.class);
+        aligoHttpClient.post(
+                REGISTER_TEMPLATE_OPERATION, aligoProperties.getApi().getTemplateAddPath(),
+                params, AligoApiResponse.class
+        );
     }
 
     @Override
     public void updateTemplate(AligoTemplate template) {
         MultiValueMap<String, String> params = buildTemplateParams(template);
-        aligoHttpClient.post(UPDATE_TEMPLATE_OPERATION, TEMPLATE_MODIFY_PATH, params, AligoApiResponse.class);
+        aligoHttpClient.post(
+                UPDATE_TEMPLATE_OPERATION, aligoProperties.getApi().getTemplateModifyPath(),
+                params, AligoApiResponse.class
+        );
     }
 
     @Override
@@ -53,7 +56,8 @@ public class AligoTemplateExternalAdapter
         params.add("senderkey", senderKey);
 
         AligoTemplateListApiResponse response = aligoHttpClient.post(
-                GET_TEMPLATE_LIST_OPERATION, TEMPLATE_LIST_PATH, params, AligoTemplateListApiResponse.class
+                GET_TEMPLATE_LIST_OPERATION, aligoProperties.getApi().getTemplateListPath(),
+                params, AligoTemplateListApiResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.list())) {
@@ -71,7 +75,8 @@ public class AligoTemplateExternalAdapter
         params.add("senderkey", senderKey);
         params.add("tpl_code", templateCode);
         aligoHttpClient.post(
-                REQUEST_TEMPLATE_INSPECTION_OPERATION, TEMPLATE_REQUEST_PATH, params, AligoApiResponse.class
+                REQUEST_TEMPLATE_INSPECTION_OPERATION, aligoProperties.getApi().getTemplateRequestPath(),
+                params, AligoApiResponse.class
         );
     }
 
@@ -80,7 +85,10 @@ public class AligoTemplateExternalAdapter
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("senderkey", senderKey);
         params.add("tpl_code", templateCode);
-        aligoHttpClient.post(DELETE_TEMPLATE_OPERATION, TEMPLATE_DEL_PATH, params, AligoApiResponse.class);
+        aligoHttpClient.post(
+                DELETE_TEMPLATE_OPERATION, aligoProperties.getApi().getTemplateDelPath(),
+                params, AligoApiResponse.class
+        );
     }
 
     private MultiValueMap<String, String> buildTemplateParams(AligoTemplate template) {

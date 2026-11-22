@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.domain.aligo.AligoApiRequestFailedException;
 import com.personal.marketnote.notification.domain.aligo.AligoMessage;
 import com.personal.marketnote.notification.domain.aligo.AligoMessageRecipient;
@@ -16,17 +17,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AligoAlimTalkExternalAdapter implements SendAligoAlimTalkExternalPort {
 
-    private static final String ALIMTALK_SEND_PATH = "/akv10/alimtalk/send/";
     private static final String SEND_ALIM_TALK_OPERATION = "sendAlimTalk";
 
     private final AligoHttpClient aligoHttpClient;
+    private final AligoProperties aligoProperties;
 
     @Override
     public AligoAlimTalkSendResponse send(AligoMessage message) {
         MultiValueMap<String, String> params = buildSendParams(message);
 
         AligoAlimTalkApiResponse response = aligoHttpClient.post(
-                SEND_ALIM_TALK_OPERATION, ALIMTALK_SEND_PATH, params, AligoAlimTalkApiResponse.class
+                SEND_ALIM_TALK_OPERATION, aligoProperties.getApi().getAlimtalkSendPath(),
+                params, AligoAlimTalkApiResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.info())) {

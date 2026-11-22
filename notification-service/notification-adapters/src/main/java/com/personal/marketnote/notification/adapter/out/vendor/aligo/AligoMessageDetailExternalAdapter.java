@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.port.out.aligo.GetAligoMessageDetailExternalPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,11 +16,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AligoMessageDetailExternalAdapter implements GetAligoMessageDetailExternalPort {
 
-    private static final String HISTORY_DETAIL_PATH = "/akv10/history/detail/";
     private static final String GET_MESSAGE_DETAIL_OPERATION = "getMessageDetail";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final AligoHttpClient aligoHttpClient;
+    private final AligoProperties aligoProperties;
 
     @Override
     public List<AligoRecipientDetailResult> getMessageDetail(String mid) {
@@ -29,7 +30,8 @@ public class AligoMessageDetailExternalAdapter implements GetAligoMessageDetailE
         params.add("limit", "500");
 
         AligoMessageDetailApiResponse response = aligoHttpClient.post(
-                GET_MESSAGE_DETAIL_OPERATION, HISTORY_DETAIL_PATH, params, AligoMessageDetailApiResponse.class
+                GET_MESSAGE_DETAIL_OPERATION, aligoProperties.getApi().getHistoryDetailPath(),
+                params, AligoMessageDetailApiResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.list())) {

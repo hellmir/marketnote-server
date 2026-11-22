@@ -34,6 +34,7 @@ class AligoCategoryExternalAdapterTest {
         properties.setUserId("test-user-id");
         properties.setTestMode(true);
         properties.getRetry().setMaxAttempts(1);
+        AligoTestPathConfigurer.configure(properties);
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -45,7 +46,7 @@ class AligoCategoryExternalAdapterTest {
                 restClient, objectMapper, properties,
                 new ExternalCallLogger(new SimpleMeterRegistry())
         );
-        adapter = new AligoCategoryExternalAdapter(aligoHttpClient);
+        adapter = new AligoCategoryExternalAdapter(aligoHttpClient, properties);
     }
 
     @Test

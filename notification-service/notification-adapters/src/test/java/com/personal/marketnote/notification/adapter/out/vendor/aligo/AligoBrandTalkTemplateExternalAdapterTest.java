@@ -42,6 +42,7 @@ class AligoBrandTalkTemplateExternalAdapterTest {
         retry.setMaxAttempts(1);
         retry.setInitialBackoffMs(10);
         properties.setRetry(retry);
+        AligoTestPathConfigurer.configure(properties);
 
         objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -54,7 +55,7 @@ class AligoBrandTalkTemplateExternalAdapterTest {
                 restClient, objectMapper, properties,
                 new ExternalCallLogger(new SimpleMeterRegistry())
         );
-        adapter = new AligoBrandTalkTemplateExternalAdapter(aligoHttpClient, objectMapper);
+        adapter = new AligoBrandTalkTemplateExternalAdapter(aligoHttpClient, objectMapper, properties);
     }
 
     @Nested
@@ -274,6 +275,7 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             retry.setMaxAttempts(1);
             retry.setInitialBackoffMs(10);
             properties.setRetry(retry);
+            AligoTestPathConfigurer.configure(properties);
 
             RestClient.Builder builder = RestClient.builder();
             MockRestServiceServer.bindTo(builder).build();
@@ -284,7 +286,7 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             );
 
             AligoBrandTalkTemplateExternalAdapter failingAdapter =
-                    new AligoBrandTalkTemplateExternalAdapter(httpClient, failingMapper);
+                    new AligoBrandTalkTemplateExternalAdapter(httpClient, failingMapper, properties);
 
             BrandTalkButton button = BrandTalkButton.from(
                     BrandTalkButtonCreateState.builder()

@@ -41,6 +41,7 @@ class AligoAlimTalkExternalAdapterTest {
         retry.setMaxAttempts(1);
         retry.setInitialBackoffMs(10);
         properties.setRetry(retry);
+        AligoTestPathConfigurer.configure(properties);
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -53,7 +54,7 @@ class AligoAlimTalkExternalAdapterTest {
                 restClient, objectMapper, properties,
                 new ExternalCallLogger(new SimpleMeterRegistry())
         );
-        adapter = new AligoAlimTalkExternalAdapter(aligoHttpClient);
+        adapter = new AligoAlimTalkExternalAdapter(aligoHttpClient, properties);
     }
 
     private AligoMessage buildMessage(
