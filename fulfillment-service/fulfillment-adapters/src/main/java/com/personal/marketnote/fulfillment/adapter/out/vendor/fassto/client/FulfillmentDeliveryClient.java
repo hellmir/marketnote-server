@@ -198,6 +198,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 query.getOutDiv(),
                 query.getOrdNo()
         );
+        String path = properties.getDeliveryListPath();
         Exception error = new Exception();
         String failureMessage = null;
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
@@ -219,7 +220,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -228,7 +229,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -237,7 +238,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to get Fulfillment delivery list: attempt={}, message={}", attempt, e.getMessage(), e);
+                logVendorFailureWarn("Failed to get Fulfillment delivery list", attempt, path, e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -299,8 +300,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to get Fulfillment delivery list: {} with error: {}", uri, error.getMessage(), error);
-        throw new GetFulfillmentDeliveriesFailedException(failureMessage, new IOException(error));
+        logVendorFailureError("Failed to get Fulfillment delivery list", uri, path, error);
+        throw new GetFulfillmentDeliveriesFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     @Override
@@ -323,6 +324,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 query.getEndDate(),
                 query.getOutDiv()
         );
+        String path = properties.getDeliveryStatusPath();
         Exception error = new Exception();
         String failureMessage = null;
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
@@ -344,7 +346,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -353,7 +355,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -362,7 +364,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to get Fulfillment delivery status: attempt={}, message={}", attempt, e.getMessage(), e);
+                logVendorFailureWarn("Failed to get Fulfillment delivery status", attempt, path, e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -424,8 +426,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to get Fulfillment delivery status: {} with error: {}", uri, error.getMessage(), error);
-        throw new GetFulfillmentDeliveryStatusesFailedException(failureMessage, new IOException(error));
+        logVendorFailureError("Failed to get Fulfillment delivery status", uri, path, error);
+        throw new GetFulfillmentDeliveryStatusesFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     @Override
@@ -443,6 +445,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         URI uri = buildOutOrdGoodsDetailUri(query.getCustomerCode(), query.getOutOrdSlipNo());
+        String path = properties.getDeliveryOutOrdGoodsDetailPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -465,7 +468,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -474,7 +477,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -483,7 +486,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to get Fulfillment out-ord goods detail: attempt={}, message={}", attempt, e.getMessage(), e);
+                logVendorFailureWarn("Failed to get Fulfillment out-ord goods detail", attempt, path, e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -549,8 +552,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to get Fulfillment out-ord goods detail: {} with error: {}", uri, error.getMessage(), error);
-        throw new GetFulfillmentDeliveryOutOrdGoodsDetailFailedException(failureMessage, new IOException(error));
+        logVendorFailureError("Failed to get Fulfillment out-ord goods detail", uri, path, error);
+        throw new GetFulfillmentDeliveryOutOrdGoodsDetailFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     @Override
@@ -573,6 +576,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 query.getEndDate(),
                 query.getOrdNo()
         );
+        String path = properties.getDeliveryOutOrdGoodsByOrdNoPath();
         Exception error = new Exception();
         String failureMessage = null;
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
@@ -594,7 +598,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -603,7 +607,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -612,7 +616,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to get Fulfillment out-ord goods by ordNo: attempt={}, message={}", attempt, e.getMessage(), e);
+                logVendorFailureWarn("Failed to get Fulfillment out-ord goods by ordNo", attempt, path, e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -674,8 +678,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to get Fulfillment out-ord goods by ordNo: {} with error: {}", uri, error.getMessage(), error);
-        throw new GetFulfillmentDeliveryOutOrdGoodsByOrdNoFailedException(failureMessage, new IOException(error));
+        logVendorFailureError("Failed to get Fulfillment out-ord goods by ordNo", uri, path, error);
+        throw new GetFulfillmentDeliveryOutOrdGoodsByOrdNoFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     @Override
@@ -698,6 +702,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 query.getEndDate(),
                 query.getOrdNo()
         );
+        String path = properties.getDeliveryGoodDetailPath();
         Exception error = new Exception();
         String failureMessage = null;
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
@@ -719,7 +724,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -728,7 +733,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -737,7 +742,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to get Fulfillment delivery good detail: attempt={}, message={}", attempt, e.getMessage(), e);
+                logVendorFailureWarn("Failed to get Fulfillment delivery good detail", attempt, path, e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -799,8 +804,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to get Fulfillment delivery good detail: {} with error: {}", uri, error.getMessage(), error);
-        throw new GetFulfillmentDeliveryGoodDetailFailedException(failureMessage, new IOException(error));
+        logVendorFailureError("Failed to get Fulfillment delivery good detail", uri, path, error);
+        throw new GetFulfillmentDeliveryGoodDetailFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     @Override
@@ -818,6 +823,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         URI uri = buildDeliveryDetailUri(query.getCustomerCode(), query.getSlipNo(), query.getOrdNo());
+        String path = properties.getDeliveryDetailPath();
         Exception error = new Exception();
         String failureMessage = null;
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
@@ -839,7 +845,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -848,7 +854,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -857,7 +863,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to get Fulfillment delivery detail: attempt={}, message={}", attempt, e.getMessage(), e);
+                logVendorFailureWarn("Failed to get Fulfillment delivery detail", attempt, path, e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -919,8 +925,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to get Fulfillment delivery detail: {} with error: {}", uri, error.getMessage(), error);
-        throw new GetFulfillmentDeliveryDetailFailedException(failureMessage, new IOException(error));
+        logVendorFailureError("Failed to get Fulfillment delivery detail", uri, path, error);
+        throw new GetFulfillmentDeliveryDetailFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private RegisterFulfillmentDeliveryResponse executeDeliveryMutation(
@@ -934,6 +940,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         URI uri = buildDeliveryUri(request.getCustomerCode());
+        String path = properties.getDeliveryPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -957,7 +964,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -966,7 +973,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -975,11 +982,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to {} Fulfillment delivery: attempt={}, message={}",
-                        action.toLowerCase(),
-                        attempt,
-                        e.getMessage(),
-                        e
+                logVendorFailureWarn(
+                        "Failed to " + action.toLowerCase() + " Fulfillment delivery",
+                        attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -1047,17 +1052,15 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to {} Fulfillment delivery request: {} with error: {}",
-                action.toLowerCase(),
-                uri,
-                error.getMessage(),
-                error
+        logVendorFailureError(
+                "Failed to " + action.toLowerCase() + " Fulfillment delivery request",
+                uri, path, error
         );
 
         if (isUpdate) {
-            throw new UpdateFulfillmentDeliveryFailedException(failureMessage, new IOException(error));
+            throw new UpdateFulfillmentDeliveryFailedException(failureMessage, wrapCauseIfSensitive(path, error));
         }
-        throw new RegisterFulfillmentDeliveryFailedException(failureMessage, new IOException(error));
+        throw new RegisterFulfillmentDeliveryFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private RegisterFulfillmentDeliveryResponse executeDeliveryCarMutation(
@@ -1071,6 +1074,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         URI uri = buildDeliveryCarUri(request.getCustomerCode());
+        String path = properties.getDeliveryCarPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -1094,7 +1098,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -1103,7 +1107,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -1112,11 +1116,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to {} Fulfillment delivery car: attempt={}, message={}",
-                        action.toLowerCase(),
-                        attempt,
-                        e.getMessage(),
-                        e
+                logVendorFailureWarn(
+                        "Failed to " + action.toLowerCase() + " Fulfillment delivery car",
+                        attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -1182,17 +1184,15 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to {} Fulfillment delivery car request: {} with error: {}",
-                action.toLowerCase(),
-                uri,
-                error.getMessage(),
-                error
+        logVendorFailureError(
+                "Failed to " + action.toLowerCase() + " Fulfillment delivery car request",
+                uri, path, error
         );
 
         if (isUpdate) {
-            throw new UpdateFulfillmentDeliveryCarFailedException(failureMessage, new IOException(error));
+            throw new UpdateFulfillmentDeliveryCarFailedException(failureMessage, wrapCauseIfSensitive(path, error));
         }
-        throw new RegisterFulfillmentDeliveryFailedException(failureMessage, new IOException(error));
+        throw new RegisterFulfillmentDeliveryFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private RegisterFulfillmentDeliveryResponse executeDeliveryIcsMutation(
@@ -1205,6 +1205,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         URI uri = buildDeliveryIcsUri(request.getCustomerCode());
+        String path = properties.getDeliveryIcsPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -1228,7 +1229,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -1237,7 +1238,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -1246,11 +1247,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to {} Fulfillment delivery ics: attempt={}, message={}",
-                        action.toLowerCase(),
-                        attempt,
-                        e.getMessage(),
-                        e
+                logVendorFailureWarn(
+                        "Failed to " + action.toLowerCase() + " Fulfillment delivery ics",
+                        attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -1316,14 +1315,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to {} Fulfillment delivery ics request: {} with error: {}",
-                action.toLowerCase(),
-                uri,
-                error.getMessage(),
-                error
+        logVendorFailureError(
+                "Failed to " + action.toLowerCase() + " Fulfillment delivery ics request",
+                uri, path, error
         );
 
-        throw new RegisterFulfillmentDeliveryFailedException(failureMessage, new IOException(error));
+        throw new RegisterFulfillmentDeliveryFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private FulfillmentDeliveryIcsCompletionListResponse executeDeliveryIcsCompletionMutation(
@@ -1335,6 +1332,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         URI uri = buildDeliveryIcsCompletedUri(request.getCustomerCode());
+        String path = properties.getDeliveryIcsCompletedPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -1358,7 +1356,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -1367,7 +1365,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -1376,11 +1374,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to {} Fulfillment delivery ics completion: attempt={}, message={}",
-                        action.toLowerCase(),
-                        attempt,
-                        e.getMessage(),
-                        e
+                logVendorFailureWarn(
+                        "Failed to " + action.toLowerCase() + " Fulfillment delivery ics completion",
+                        attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -1446,14 +1442,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to {} Fulfillment delivery ics completion request: {} with error: {}",
-                action.toLowerCase(),
-                uri,
-                error.getMessage(),
-                error
+        logVendorFailureError(
+                "Failed to " + action.toLowerCase() + " Fulfillment delivery ics completion request",
+                uri, path, error
         );
 
-        throw new CompleteFulfillmentDeliveryIcsFailedException(failureMessage, new IOException(error));
+        throw new CompleteFulfillmentDeliveryIcsFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private RegisterFulfillmentDeliveryResponse executeDeliveryCancellation(
@@ -1465,6 +1459,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         }
 
         URI uri = buildDeliveryCancelUri(request.getCustomerCode());
+        String path = properties.getDeliveryCancelPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -1488,7 +1483,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -1497,7 +1492,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -1506,11 +1501,9 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to {} Fulfillment delivery: attempt={}, message={}",
-                        action.toLowerCase(),
-                        attempt,
-                        e.getMessage(),
-                        e
+                logVendorFailureWarn(
+                        "Failed to " + action.toLowerCase() + " Fulfillment delivery",
+                        attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -1576,14 +1569,12 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to {} Fulfillment delivery request: {} with error: {}",
-                action.toLowerCase(),
-                uri,
-                error.getMessage(),
-                error
+        logVendorFailureError(
+                "Failed to " + action.toLowerCase() + " Fulfillment delivery request",
+                uri, path, error
         );
 
-        throw new CancelFulfillmentDeliveryFailedException(failureMessage, new IOException(error));
+        throw new CancelFulfillmentDeliveryFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private URI buildDeliveryUri(String customerCode) {
@@ -2915,5 +2906,52 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
         String body = responseException.getResponseBodyAsString();
 
         return resolveVendorMessage(body);
+    }
+
+    private boolean isSensitivePath(String path) {
+        return properties.getSensitivePaths().contains(path);
+    }
+
+    private String maskExceptionMessage(String path, Exception e) {
+        if (isSensitivePath(path)) {
+            return e.getClass().getSimpleName();
+        }
+        return e.getMessage();
+    }
+
+    private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
+        if (isSensitivePath(path)) {
+            log.warn(
+                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    message, attempt, e.getClass().getSimpleName()
+            );
+            return;
+        }
+        log.warn("{}: attempt={}, message={}", message, attempt, e.getMessage(), e);
+    }
+
+    private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
+        if (isSensitivePath(path)) {
+            log.error(
+                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    message, uri, error.getClass().getSimpleName()
+            );
+            return;
+        }
+        log.error("{}: {} with error: {}", message, uri, error.getMessage(), error);
+    }
+
+    private IOException wrapCauseIfSensitive(String path, Throwable error) {
+        if (isSensitivePath(path)) {
+            return new IOException(error.getClass().getSimpleName());
+        }
+        return new IOException(error);
+    }
+
+    private Exception maskExceptionForHandler(String path, Exception e) {
+        if (isSensitivePath(path)) {
+            return new IOException(e.getClass().getSimpleName());
+        }
+        return e;
     }
 }

@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @Component
@@ -42,4 +44,5 @@ public class FulfillmentAuthProperties {
     private String returnDirectDeliveryPath = "/api/v1/return/direct/{customerCode}";
     private String returnGodDetailPath = "/api/v1/return/godDetail/{customerCode}";
     private String settlementDailyCostPath = "/api/v1/settlement/{yearMonth}/{whCd}/{customerCode}";
+    private Set<String> sensitivePaths = Set.of();
 }

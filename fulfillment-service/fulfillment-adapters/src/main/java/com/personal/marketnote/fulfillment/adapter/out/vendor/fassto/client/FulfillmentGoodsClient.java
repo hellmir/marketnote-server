@@ -148,6 +148,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
         }
 
         URI uri = buildGoodsElementUri(query.getCustomerCode());
+        String path = properties.getGoodsElementPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -170,7 +171,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -179,7 +180,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -188,7 +189,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to get Fulfillment goods elements: attempt={}, message={}", attempt, e.getMessage(), e);
+                logVendorFailureWarn("Failed to get Fulfillment goods elements", attempt, path, e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -254,8 +255,8 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to get Fulfillment goods elements: {} with error: {}", uri, error.getMessage(), error);
-        throw new GetFulfillmentGoodsElementsFailedException(failureMessage, new IOException(error));
+        logVendorFailureError("Failed to get Fulfillment goods elements", uri, path, error);
+        throw new GetFulfillmentGoodsElementsFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private GetFulfillmentGoodsResult executeGoodsList(
@@ -265,6 +266,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             String godNm,
             boolean isDetail
     ) {
+        String path = properties.getGoodsPath();
         Exception error = new Exception();
         String failureMessage = null;
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
@@ -287,7 +289,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -296,7 +298,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -305,7 +307,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to get Fulfillment goods {}: attempt={}, message={}", requestLabel, attempt, e.getMessage(), e);
+                logVendorFailureWarn("Failed to get Fulfillment goods " + requestLabel, attempt, path, e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -371,11 +373,11 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to get Fulfillment goods {}: {} with error: {}", requestLabel, uri, error.getMessage(), error);
+        logVendorFailureError("Failed to get Fulfillment goods " + requestLabel, uri, path, error);
         if (isDetail) {
-            throw new GetFulfillmentGoodsDetailFailedException(failureMessage, new IOException(error));
+            throw new GetFulfillmentGoodsDetailFailedException(failureMessage, wrapCauseIfSensitive(path, error));
         }
-        throw new GetFulfillmentGoodsFailedException(failureMessage, new IOException(error));
+        throw new GetFulfillmentGoodsFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     @Override
@@ -400,6 +402,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
         }
 
         URI uri = buildGoodsUri(request.getCustomerCode());
+        String path = properties.getGoodsPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -423,7 +426,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -432,7 +435,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -441,7 +444,9 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to {} Fulfillment goods: attempt={}, message={}", action.toLowerCase(), attempt, e.getMessage(), e);
+                logVendorFailureWarn(
+                        "Failed to " + action.toLowerCase() + " Fulfillment goods", attempt, path, e
+                );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -511,8 +516,10 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to {} Fulfillment goods: {} with error: {}", action.toLowerCase(), uri, error.getMessage(), error);
-        throw new RegisterFulfillmentGoodsFailedException(failureMessage, new IOException(error));
+        logVendorFailureError(
+                "Failed to " + action.toLowerCase() + " Fulfillment goods", uri, path, error
+        );
+        throw new RegisterFulfillmentGoodsFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private UpdateFulfillmentGoodsResult executeGoodsUpdate(
@@ -524,6 +531,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
         }
 
         URI uri = buildGoodsUri(request.getCustomerCode());
+        String path = properties.getGoodsPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -547,7 +555,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -556,7 +564,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -565,7 +573,9 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to {} Fulfillment goods: attempt={}, message={}", action.toLowerCase(), attempt, e.getMessage(), e);
+                logVendorFailureWarn(
+                        "Failed to " + action.toLowerCase() + " Fulfillment goods", attempt, path, e
+                );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -635,8 +645,10 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to {} Fulfillment goods: {} with error: {}", action.toLowerCase(), uri, error.getMessage(), error);
-        throw new UpdateFulfillmentGoodsFailedException(failureMessage, new IOException(error));
+        logVendorFailureError(
+                "Failed to " + action.toLowerCase() + " Fulfillment goods", uri, path, error
+        );
+        throw new UpdateFulfillmentGoodsFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private URI buildGoodsUri(String customerCode) {
@@ -1175,5 +1187,52 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
 
         String body = responseException.getResponseBodyAsString();
         return resolveVendorMessage(body);
+    }
+
+    private boolean isSensitivePath(String path) {
+        return properties.getSensitivePaths().contains(path);
+    }
+
+    private String maskExceptionMessage(String path, Exception e) {
+        if (isSensitivePath(path)) {
+            return e.getClass().getSimpleName();
+        }
+        return e.getMessage();
+    }
+
+    private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
+        if (isSensitivePath(path)) {
+            log.warn(
+                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    message, attempt, e.getClass().getSimpleName()
+            );
+            return;
+        }
+        log.warn("{}: attempt={}, message={}", message, attempt, e.getMessage(), e);
+    }
+
+    private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
+        if (isSensitivePath(path)) {
+            log.error(
+                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    message, uri, error.getClass().getSimpleName()
+            );
+            return;
+        }
+        log.error("{}: {} with error: {}", message, uri, error.getMessage(), error);
+    }
+
+    private IOException wrapCauseIfSensitive(String path, Throwable error) {
+        if (isSensitivePath(path)) {
+            return new IOException(error.getClass().getSimpleName());
+        }
+        return new IOException(error);
+    }
+
+    private Exception maskExceptionForHandler(String path, Exception e) {
+        if (isSensitivePath(path)) {
+            return new IOException(e.getClass().getSimpleName());
+        }
+        return e;
     }
 }

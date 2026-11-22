@@ -130,6 +130,7 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
 
         FulfillmentShopQuery query = FasstoShopCommandToRequestMapper.mapToShopsQuery(command);
         URI uri = buildShopUri(query.getCustomerCode());
+        String path = properties.getShopPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -152,7 +153,7 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -161,7 +162,7 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -170,7 +171,7 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to get Fulfillment shop list: attempt={}, message={}", attempt, e.getMessage(), e);
+                logVendorFailureWarn("Failed to get Fulfillment shop list", attempt, path, e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -234,8 +235,8 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to get Fulfillment shop list: {} with error: {}", uri, error.getMessage(), error);
-        throw new GetFulfillmentShopsFailedException(failureMessage, new IOException(error));
+        logVendorFailureError("Failed to get Fulfillment shop list", uri, path, error);
+        throw new GetFulfillmentShopsFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private URI buildShopUri(String customerCode) {
@@ -381,6 +382,7 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
         }
 
         URI uri = buildShopUri(request.getCustomerCode());
+        String path = properties.getShopPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -404,7 +406,7 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -413,7 +415,7 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -422,7 +424,9 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to {} Fulfillment shop: attempt={}, message={}", action.toLowerCase(), attempt, e.getMessage(), e);
+                logVendorFailureWarn(
+                        "Failed to " + action.toLowerCase() + " Fulfillment shop", attempt, path, e
+                );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -491,12 +495,14 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to {} Fulfillment shop: {} with error: {}", action.toLowerCase(), uri, error.getMessage(), error);
+        logVendorFailureError(
+                "Failed to " + action.toLowerCase() + " Fulfillment shop", uri, path, error
+        );
 
         if (isUpdate) {
-            throw new UpdateFulfillmentShopFailedException(failureMessage, new IOException(error));
+            throw new UpdateFulfillmentShopFailedException(failureMessage, wrapCauseIfSensitive(path, error));
         }
-        throw new RegisterFulfillmentShopFailedException(failureMessage, new IOException(error));
+        throw new RegisterFulfillmentShopFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private JsonNode buildListRequestPayloadJson(FulfillmentShopQuery query, URI uri, int attempt) {
@@ -632,5 +638,52 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
 
         String body = responseException.getResponseBodyAsString();
         return resolveVendorMessage(body);
+    }
+
+    private boolean isSensitivePath(String path) {
+        return properties.getSensitivePaths().contains(path);
+    }
+
+    private String maskExceptionMessage(String path, Exception e) {
+        if (isSensitivePath(path)) {
+            return e.getClass().getSimpleName();
+        }
+        return e.getMessage();
+    }
+
+    private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
+        if (isSensitivePath(path)) {
+            log.warn(
+                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    message, attempt, e.getClass().getSimpleName()
+            );
+            return;
+        }
+        log.warn("{}: attempt={}, message={}", message, attempt, e.getMessage(), e);
+    }
+
+    private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
+        if (isSensitivePath(path)) {
+            log.error(
+                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    message, uri, error.getClass().getSimpleName()
+            );
+            return;
+        }
+        log.error("{}: {} with error: {}", message, uri, error.getMessage(), error);
+    }
+
+    private IOException wrapCauseIfSensitive(String path, Throwable error) {
+        if (isSensitivePath(path)) {
+            return new IOException(error.getClass().getSimpleName());
+        }
+        return new IOException(error);
+    }
+
+    private Exception maskExceptionForHandler(String path, Exception e) {
+        if (isSensitivePath(path)) {
+            return new IOException(e.getClass().getSimpleName());
+        }
+        return e;
     }
 }
