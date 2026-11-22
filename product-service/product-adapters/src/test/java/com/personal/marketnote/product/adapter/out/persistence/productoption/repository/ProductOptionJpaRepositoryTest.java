@@ -12,6 +12,7 @@ import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.option.ProductOptionCategory;
 import com.personal.marketnote.product.domain.option.ProductOptionCategoryCreateState;
 import com.personal.marketnote.product.domain.option.ProductOptionCreateState;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import jakarta.persistence.EntityManager;
@@ -25,6 +26,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -218,9 +220,10 @@ class ProductOptionJpaRepositoryTest {
     }
 
     private ProductJpaEntity saveProduct(String name) {
+        UUID productKey = RandomCodeGenerator.generateProductKey();
         Product product = Product.from(
                 ProductSnapshotState.builder()
-                        .productKey(RandomCodeGenerator.generateProductKey())
+                        .productKey(productKey)
                         .sellerId(1L)
                         .name(name)
                         .brandName("브랜드")
@@ -228,6 +231,7 @@ class ProductOptionJpaRepositoryTest {
                         .findAllOptionsYn(false)
                         .productTags(List.of())
                         .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                         .build()
         );
         ProductJpaEntity entity = ProductJpaEntity.from(product);

@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
@@ -110,6 +111,7 @@ class GetProductKeyUseCaseTest {
                         .findAllOptionsYn(false)
                         .productTags(List.of())
                         .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                         .build()
         );
     }

@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.option.ProductOptionSnapshotState;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -207,11 +209,14 @@ class PricePolicyTest {
     }
 
     private Product createProduct(Long id) {
+        UUID productKey = UUID.randomUUID();
         return Product.from(ProductSnapshotState.builder()
                 .id(id)
+                .productKey(productKey)
                 .sellerId(1L)
                 .name("테스트 상품")
                 .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                 .build());
     }
 

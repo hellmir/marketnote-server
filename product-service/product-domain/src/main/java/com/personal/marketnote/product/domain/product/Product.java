@@ -115,7 +115,7 @@ public class Product extends BaseDomain {
                 .findAllOptionsYn(state.isFindAllOptionsYn())
                 .productTags(state.getProductTags())
                 .orderNum(state.getOrderNum())
-                .fasstoProductCode(resolveFasstoProductCode(state))
+                .fasstoProductCode(state.getFasstoProductCode())
                 .build();
         product.status = state.getStatus();
 
@@ -143,15 +143,5 @@ public class Product extends BaseDomain {
 
     public void delete() {
         deactivate();
-    }
-
-    private static String resolveFasstoProductCode(ProductSnapshotState state) {
-        if (FormatValidator.hasValue(state.getFasstoProductCode())) {
-            return state.getFasstoProductCode();
-        }
-        if (FormatValidator.hasValue(state.getProductKey())) {
-            return FasstoProductCodeGenerator.encode(state.getProductKey());
-        }
-        return null;
     }
 }

@@ -11,6 +11,7 @@ import com.personal.marketnote.product.domain.option.ProductOptionSnapshotState;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
@@ -44,6 +45,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -509,9 +511,11 @@ class GetProductUseCaseTest {
     }
 
     private Product buildProduct(Long id, boolean findAllOptions) {
+        UUID productKey = UUID.randomUUID();
         return Product.from(
                 ProductSnapshotState.builder()
                         .id(id)
+                        .productKey(productKey)
                         .sellerId(1L)
                         .name("상품-" + id)
                         .brandName("브랜드-" + id)
@@ -519,6 +523,7 @@ class GetProductUseCaseTest {
                         .findAllOptionsYn(findAllOptions)
                         .productTags(List.of())
                         .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                         .build()
         );
     }

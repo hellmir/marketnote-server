@@ -3,6 +3,7 @@ package com.personal.marketnote.product.service.product;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
 import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductTag;
@@ -26,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -255,9 +257,11 @@ class UpdateProductUseCaseTest {
     }
 
     private Product buildProduct(Long id, String name) {
+        UUID productKey = UUID.randomUUID();
         return Product.from(
                 ProductSnapshotState.builder()
                         .id(id)
+                        .productKey(productKey)
                         .sellerId(1L)
                         .name(name)
                         .brandName("기존 브랜드")
@@ -265,14 +269,17 @@ class UpdateProductUseCaseTest {
                         .findAllOptionsYn(false)
                         .productTags(List.of())
                         .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                         .build()
         );
     }
 
     private Product buildProductWithTags(Long id, List<ProductTag> tags) {
+        UUID productKey = UUID.randomUUID();
         return Product.from(
                 ProductSnapshotState.builder()
                         .id(id)
+                        .productKey(productKey)
                         .sellerId(1L)
                         .name("변경 상품")
                         .brandName("변경 브랜드")
@@ -280,6 +287,7 @@ class UpdateProductUseCaseTest {
                         .findAllOptionsYn(true)
                         .productTags(tags)
                         .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                         .build()
         );
     }

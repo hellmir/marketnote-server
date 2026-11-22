@@ -76,6 +76,7 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
         Product product = Product.from(
                 ProductSnapshotState.builder()
                         .id(productJpaEntity.getId())
+                        .productKey(productJpaEntity.getProductKey())
                         .sellerId(productJpaEntity.getSellerId())
                         .name(productJpaEntity.getName())
                         .brandName(productJpaEntity.getBrandName())
@@ -91,6 +92,7 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
                         .productTags(java.util.List.of())
                         .orderNum(productJpaEntity.getOrderNum())
                         .status(productJpaEntity.getStatus())
+                        .fasstoProductCode(productJpaEntity.getFasstoProductCode())
                         .build()
         );
 

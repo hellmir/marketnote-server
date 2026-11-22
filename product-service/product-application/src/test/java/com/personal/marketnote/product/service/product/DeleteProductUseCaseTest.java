@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
@@ -18,6 +19,8 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -145,9 +148,11 @@ class DeleteProductUseCaseTest {
     }
 
     private Product buildProduct(Long id) {
+        UUID productKey = UUID.randomUUID();
         return Product.from(
                 ProductSnapshotState.builder()
                         .id(id)
+                        .productKey(productKey)
                         .sellerId(1L)
                         .name("상품-" + id)
                         .brandName("브랜드-" + id)
@@ -155,6 +160,7 @@ class DeleteProductUseCaseTest {
                         .findAllOptionsYn(false)
                         .productTags(java.util.List.of())
                         .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                         .build()
         );
     }

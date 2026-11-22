@@ -2,6 +2,7 @@ package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductTag;
@@ -25,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -227,9 +229,11 @@ class ReorderProductTagsUseCaseTest {
                         .id(200L).productId(productId).name("태그2").orderNum(2L).status(EntityStatus.ACTIVE).build())
         );
 
+        UUID productKey = UUID.randomUUID();
         return Product.from(
                 ProductSnapshotState.builder()
                         .id(productId)
+                        .productKey(productKey)
                         .sellerId(sellerId)
                         .name("테스트 상품")
                         .brandName("테스트 브랜드")
@@ -237,6 +241,7 @@ class ReorderProductTagsUseCaseTest {
                         .findAllOptionsYn(false)
                         .productTags(tags)
                         .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                         .build()
         );
     }
