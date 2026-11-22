@@ -295,7 +295,7 @@ public class AligoHttpClient {
 
     private Object sanitizeMultiValueEntry(String key, Object rawValue) {
         if ("apikey".equals(key) || "userid".equals(key)) {
-            return maskValue(rawValue == null ? null : rawValue.toString());
+            return maskValue(FormatValidator.isNull(rawValue) ? null : rawValue.toString());
         }
         if (!(rawValue instanceof List<?> list)) {
             return summarizeValue(rawValue);
@@ -349,7 +349,7 @@ public class AligoHttpClient {
         }
         map.put("resultCode", baseResponse.resultCode());
         map.put("message", baseResponse.message());
-        if (responseBody != null) {
+        if (FormatValidator.isNotNull(responseBody)) {
             map.put("body", responseBody);
         }
         return vendorCommunicationPayloadGenerator.buildPayloadJson(map);
