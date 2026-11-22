@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.port.out.aligo.GetAligoMessageHistoryExternalPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,10 +14,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AligoMessageHistoryExternalAdapter implements GetAligoMessageHistoryExternalPort {
 
-    private static final String HISTORY_LIST_PATH = "/akv10/history/list/";
     private static final String GET_MESSAGE_HISTORY_OPERATION = "getMessageHistory";
 
     private final AligoHttpClient aligoHttpClient;
+    private final AligoProperties aligoProperties;
 
     @Override
     public AligoMessageHistoryResult getMessageHistory(int page, int limit, String startDate, String endDate) {
@@ -31,7 +32,8 @@ public class AligoMessageHistoryExternalAdapter implements GetAligoMessageHistor
         }
 
         AligoMessageHistoryApiResponse response = aligoHttpClient.post(
-                GET_MESSAGE_HISTORY_OPERATION, HISTORY_LIST_PATH, params, AligoMessageHistoryApiResponse.class
+                GET_MESSAGE_HISTORY_OPERATION, aligoProperties.getApi().getHistoryListPath(),
+                params, AligoMessageHistoryApiResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.list())) {

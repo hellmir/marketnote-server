@@ -40,6 +40,7 @@ class AligoBrandTalkExternalAdapterTest {
         retry.setMaxAttempts(1);
         retry.setInitialBackoffMs(10);
         properties.setRetry(retry);
+        AligoTestPathConfigurer.configure(properties);
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -52,7 +53,7 @@ class AligoBrandTalkExternalAdapterTest {
                 restClient, objectMapper, properties,
                 new ExternalCallLogger(new SimpleMeterRegistry())
         );
-        adapter = new AligoBrandTalkExternalAdapter(aligoHttpClient);
+        adapter = new AligoBrandTalkExternalAdapter(aligoHttpClient, properties);
     }
 
     private AligoBrandTalkMessage buildMessage(int recipientCount, boolean failoverEnabled, BrandTalkFailoverType failoverType) {

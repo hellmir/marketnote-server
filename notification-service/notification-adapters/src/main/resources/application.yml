@@ -110,6 +110,31 @@ aligo:
   retry:
     max-attempts: ${ALIGO_RETRY_MAX_ATTEMPTS:3}
     initial-backoff-ms: ${ALIGO_RETRY_INITIAL_BACKOFF_MS:1000}
+  api:
+    alimtalk-send-path: /akv10/alimtalk/send/
+    brand-talk-template-create-path: /brandtalk/template/create/
+    brand-talk-template-list-path: /brandtalk/template/list/
+    profile-auth-path: /akv10/profile/auth/
+    profile-add-path: /akv10/profile/add/
+    profile-list-path: /akv10/profile/list/
+    heart-info-path: /akv10/heartinfo/
+    cancel-path: /akv10/cancel/
+    history-list-path: /akv10/history/list/
+    template-add-path: /akv10/template/add/
+    template-modify-path: /akv10/template/modify/
+    template-list-path: /akv10/template/list/
+    template-request-path: /akv10/template/request/
+    template-del-path: /akv10/template/del/
+    category-path: /akv10/category/
+    history-detail-path: /akv10/history/detail/
+    brand-talk-send-path: /brandtalk/template/send/
+    sensitive-paths:
+      - /akv10/alimtalk/send/
+      - /brandtalk/template/send/
+      - /akv10/history/list/
+      - /akv10/history/detail/
+      - /akv10/profile/auth/
+      - /akv10/profile/add/
 
 management:
   endpoints:

@@ -3,6 +3,7 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.in.result.aligo.GetBrandTalkTemplateListResult;
 import com.personal.marketnote.notification.port.out.aligo.GetBrandTalkTemplateListExternalPort;
@@ -23,13 +24,12 @@ import java.util.Map;
 public class AligoBrandTalkTemplateExternalAdapter
         implements RegisterBrandTalkTemplateExternalPort, GetBrandTalkTemplateListExternalPort {
 
-    private static final String BRAND_TALK_TEMPLATE_CREATE_PATH = "/brandtalk/template/create/";
-    private static final String BRAND_TALK_TEMPLATE_LIST_PATH = "/brandtalk/template/list/";
     private static final String CREATE_BRAND_TALK_TEMPLATE_OPERATION = "createBrandTalkTemplate";
     private static final String GET_BRAND_TALK_TEMPLATE_LIST_OPERATION = "getBrandTalkTemplateList";
 
     private final AligoHttpClient aligoHttpClient;
     private final ObjectMapper objectMapper;
+    private final AligoProperties aligoProperties;
 
     @Override
     public void registerTemplate(
@@ -60,7 +60,8 @@ public class AligoBrandTalkTemplateExternalAdapter
         }
 
         aligoHttpClient.postMultipart(
-                CREATE_BRAND_TALK_TEMPLATE_OPERATION, BRAND_TALK_TEMPLATE_CREATE_PATH, params, AligoApiResponse.class
+                CREATE_BRAND_TALK_TEMPLATE_OPERATION, aligoProperties.getApi().getBrandTalkTemplateCreatePath(),
+                params, AligoApiResponse.class
         );
     }
 
@@ -74,8 +75,8 @@ public class AligoBrandTalkTemplateExternalAdapter
         params.add("pagesize", String.valueOf(pageSize));
 
         AligoBrandTalkTemplateListApiResponse response = aligoHttpClient.post(
-                GET_BRAND_TALK_TEMPLATE_LIST_OPERATION, BRAND_TALK_TEMPLATE_LIST_PATH, params,
-                AligoBrandTalkTemplateListApiResponse.class
+                GET_BRAND_TALK_TEMPLATE_LIST_OPERATION, aligoProperties.getApi().getBrandTalkTemplateListPath(),
+                params, AligoBrandTalkTemplateListApiResponse.class
         );
 
         GetBrandTalkTemplateListResult.PageInfo pageInfo = new GetBrandTalkTemplateListResult.PageInfo(

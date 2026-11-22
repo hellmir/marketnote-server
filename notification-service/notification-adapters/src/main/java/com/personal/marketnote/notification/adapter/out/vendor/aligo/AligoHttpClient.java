@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -87,14 +88,19 @@ public class AligoHttpClient {
     private <T> T executeRequest(
             String operation, String path, Object body, Class<T> responseType, MediaType contentType
     ) {
+        String responseBody;
         try {
-            String responseBody = restClient.post()
+            responseBody = restClient.post()
                     .uri(path)
                     .contentType(contentType)
                     .body(body)
                     .retrieve()
                     .body(String.class);
+        } catch (RestClientResponseException re) {
+            throw wrapHttpFailure(path, re);
+        }
 
+        try {
             AligoApiResponse baseResponse = objectMapper.readValue(responseBody, AligoApiResponse.class);
             logResultCode(operation, path, baseResponse.resultCode(), baseResponse.message());
             AligoApiErrorMapper.throwIfError(baseResponse.resultCode(), baseResponse.message());
@@ -106,8 +112,41 @@ public class AligoHttpClient {
         } catch (AligoApiException e) {
             throw e;
         } catch (Exception e) {
-            throw new AligoApiRequestFailedException("알리고 API 요청 중 오류가 발생했습니다: " + e.getMessage(), e);
+            throw wrapParseFailure(path, e);
         }
+    }
+
+    private AligoApiRequestFailedException wrapParseFailure(String path, Exception e) {
+        if (isSensitivePath(path)) {
+            log.error(
+                    "알리고 API 응답 처리 실패: path={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    path, e.getClass().getSimpleName()
+            );
+            return new AligoApiRequestFailedException("알리고 API 응답 처리 실패. path=" + path);
+        }
+        log.error("알리고 API 응답 처리 실패: path={}", path, e);
+        return new AligoApiRequestFailedException("알리고 API 응답 처리 실패. path=" + path, e);
+    }
+
+    private AligoApiRequestFailedException wrapHttpFailure(String path, RestClientResponseException re) {
+        int statusCode = re.getStatusCode().value();
+        if (isSensitivePath(path)) {
+            log.error(
+                    "알리고 API HTTP 응답 실패: path={}, status={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    path, statusCode, re.getClass().getSimpleName()
+            );
+            return new AligoApiRequestFailedException(
+                    "알리고 API HTTP 응답 실패. path=" + path + ", status=" + statusCode
+            );
+        }
+        log.error("알리고 API HTTP 응답 실패: path={}, status={}", path, statusCode, re);
+        return new AligoApiRequestFailedException(
+                "알리고 API HTTP 응답 실패. path=" + path + ", status=" + statusCode, re
+        );
+    }
+
+    private boolean isSensitivePath(String path) {
+        return properties.getApi().getSensitivePaths().contains(path);
     }
 
     private void logResultCode(String operation, String path, int resultCode, String message) {

@@ -38,6 +38,7 @@ class AligoTemplateExternalAdapterTest {
         retry.setMaxAttempts(1);
         retry.setInitialBackoffMs(10);
         properties.setRetry(retry);
+        AligoTestPathConfigurer.configure(properties);
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -50,7 +51,7 @@ class AligoTemplateExternalAdapterTest {
                 restClient, objectMapper, properties,
                 new ExternalCallLogger(new SimpleMeterRegistry())
         );
-        adapter = new AligoTemplateExternalAdapter(aligoHttpClient, objectMapper);
+        adapter = new AligoTemplateExternalAdapter(aligoHttpClient, objectMapper, properties);
     }
 
     private AligoTemplate basicTemplate() {
