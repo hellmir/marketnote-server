@@ -23,8 +23,15 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -34,10 +41,12 @@ class AligoHttpClientTest {
 
     private static final String OPERATION = "sendTest";
     private static final String PATH = "/send/";
+    private static final String SENSITIVE_PATH = "/auth/login/";
     private static final String RECIPIENT_PHONE = "01012345678";
 
     private AligoHttpClient aligoHttpClient;
     private MockRestServiceServer mockServer;
+    private ExternalCallLogger externalCallLogger;
     private Logger aligoLogger;
     private ListAppender<ILoggingEvent> appender;
     private boolean previousAdditive;
@@ -55,13 +64,14 @@ class AligoHttpClientTest {
         retry.setMaxAttempts(1);
         retry.setInitialBackoffMs(10);
         properties.setRetry(retry);
+        properties.getApi().setSensitivePaths(Set.of(SENSITIVE_PATH));
 
         RestClient.Builder builder = RestClient.builder();
         mockServer = MockRestServiceServer.bindTo(builder).build();
         RestClient restClient = builder.baseUrl("http://localhost").build();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
+        externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
         aligoHttpClient = new AligoHttpClient(restClient, objectMapper, properties, externalCallLogger);
 
         aligoLogger = (Logger) LoggerFactory.getLogger(ExternalSystem.ALIGO.loggerName());
@@ -184,6 +194,90 @@ class AligoHttpClientTest {
         boolean leaksPhone = appender.list.stream()
                 .anyMatch(event -> event.getFormattedMessage().contains(RECIPIENT_PHONE));
         assertThat(leaksPhone).isFalse();
+    }
+
+    @Test
+    @DisplayName("post 호출 시 sensitive path는 ExternalCallLogger.recordSensitive로 위임된다")
+    void shouldDelegateToRecordSensitiveOnPostWithSensitivePath() {
+        String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
+        mockServer.expect(requestTo("http://localhost" + SENSITIVE_PATH))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("receiver", RECIPIENT_PHONE);
+
+        aligoHttpClient.post(OPERATION, SENSITIVE_PATH, params, AligoApiResponse.class);
+
+        verify(externalCallLogger).recordSensitive(
+                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+        );
+        verify(externalCallLogger, never()).record(
+                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+        );
+    }
+
+    @Test
+    @DisplayName("post 호출 시 non-sensitive path는 ExternalCallLogger.record로 위임된다")
+    void shouldDelegateToRecordOnPostWithNonSensitivePath() {
+        String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
+        mockServer.expect(requestTo("http://localhost" + PATH))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("receiver", RECIPIENT_PHONE);
+
+        aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class);
+
+        verify(externalCallLogger).record(
+                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+        );
+        verify(externalCallLogger, never()).recordSensitive(
+                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+        );
+    }
+
+    @Test
+    @DisplayName("postMultipart 호출 시 sensitive path는 ExternalCallLogger.recordSensitive로 위임된다")
+    void shouldDelegateToRecordSensitiveOnPostMultipartWithSensitivePath() {
+        String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
+        mockServer.expect(requestTo("http://localhost" + SENSITIVE_PATH))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
+        params.add("receiver", RECIPIENT_PHONE);
+
+        aligoHttpClient.postMultipart(OPERATION, SENSITIVE_PATH, params, AligoApiResponse.class);
+
+        verify(externalCallLogger).recordSensitive(
+                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+        );
+        verify(externalCallLogger, never()).record(
+                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+        );
+    }
+
+    @Test
+    @DisplayName("postMultipart 호출 시 non-sensitive path는 ExternalCallLogger.record로 위임된다")
+    void shouldDelegateToRecordOnPostMultipartWithNonSensitivePath() {
+        String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
+        mockServer.expect(requestTo("http://localhost" + PATH))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
+        params.add("receiver", RECIPIENT_PHONE);
+
+        aligoHttpClient.postMultipart(OPERATION, PATH, params, AligoApiResponse.class);
+
+        verify(externalCallLogger).record(
+                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+        );
+        verify(externalCallLogger, never()).recordSensitive(
+                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+        );
     }
 
     @Test

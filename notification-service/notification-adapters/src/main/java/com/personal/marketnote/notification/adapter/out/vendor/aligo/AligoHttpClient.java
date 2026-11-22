@@ -41,6 +41,16 @@ public class AligoHttpClient {
 
     public <T> T post(String operation, String path, MultiValueMap<String, String> params, Class<T> responseType) {
         MultiValueMap<String, String> mergedParams = mergeCommonParams(params);
+        if (isSensitivePath(path)) {
+            return externalCallLogger.recordSensitive(
+                    ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
+                    () -> executeWithRetry(
+                            () -> executeRequest(
+                                    operation, path, mergedParams, responseType, MediaType.APPLICATION_FORM_URLENCODED
+                            )
+                    )
+            );
+        }
         return externalCallLogger.record(
                 ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
                 () -> executeWithRetry(
@@ -55,6 +65,16 @@ public class AligoHttpClient {
             String operation, String path, MultiValueMap<String, Object> params, Class<T> responseType
     ) {
         MultiValueMap<String, Object> mergedParams = mergeCommonParams(params);
+        if (isSensitivePath(path)) {
+            return externalCallLogger.recordSensitive(
+                    ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
+                    () -> executeWithRetry(
+                            () -> executeRequest(
+                                    operation, path, mergedParams, responseType, MediaType.MULTIPART_FORM_DATA
+                            )
+                    )
+            );
+        }
         return externalCallLogger.record(
                 ExternalSystem.ALIGO, operation, Map.of(TAG_PATH, path),
                 () -> executeWithRetry(
