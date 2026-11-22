@@ -2,16 +2,19 @@ package com.personal.marketnote.reward.adapter.in.web.gifticon.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageFeaturedGifticonGoodsRequest;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsCashPriceRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsExposureRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsOrderRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetAdminGifticonGoodsResponse;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetAdminGifticonGoodsCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageFeaturedGifticonGoodsCommand;
+import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsCashPriceCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsExposureCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsOrderCommand;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetAdminGifticonGoodsResult;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.GetAdminGifticonGoodsUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageFeaturedGifticonGoodsUseCase;
+import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsCashPriceUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsExposureUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsOrderUseCase;
 import org.junit.jupiter.api.DisplayName;
@@ -44,6 +47,8 @@ class AdminGifticonGoodsControllerTest {
     private ManageGifticonGoodsOrderUseCase manageGifticonGoodsOrderUseCase;
     @Mock
     private ManageFeaturedGifticonGoodsUseCase manageFeaturedGifticonGoodsUseCase;
+    @Mock
+    private ManageGifticonGoodsCashPriceUseCase manageGifticonGoodsCashPriceUseCase;
 
     @InjectMocks
     private AdminGifticonGoodsController controller;
@@ -125,6 +130,24 @@ class AdminGifticonGoodsControllerTest {
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(manageFeaturedGifticonGoodsUseCase).manageFeatured(any(ManageFeaturedGifticonGoodsCommand.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("PATCH /api/v1/admin/gifticon/goods/cash-price")
+    class ManageGifticonGoodsCashPrice {
+
+        @Test
+        @DisplayName("정상 요청 시 OK 상태를 반환하고 UseCase를 호출한다")
+        void returnsOkAndDelegates() {
+            ManageGifticonGoodsCashPriceRequest request = new ManageGifticonGoodsCashPriceRequest(
+                    List.of(new ManageGifticonGoodsCashPriceRequest.CashPriceItem("G-01", 2900L))
+            );
+
+            ResponseEntity<BaseResponse<Void>> response = controller.manageGifticonGoodsCashPrice(request);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            verify(manageGifticonGoodsCashPriceUseCase).manageCashPrice(any(ManageGifticonGoodsCashPriceCommand.class));
         }
     }
 }
