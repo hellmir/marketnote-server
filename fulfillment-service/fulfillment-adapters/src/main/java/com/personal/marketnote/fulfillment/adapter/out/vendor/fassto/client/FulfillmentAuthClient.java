@@ -91,6 +91,7 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
 
     private FulfillmentAccessToken doRequestAccessToken() {
         URI uri = buildAuthUri();
+        String path = properties.getConnectPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -113,7 +114,7 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -122,7 +123,7 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -131,7 +132,7 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to request Fulfillment auth: attempt={}, message={}", attempt, e.getMessage(), e);
+                logVendorFailureWarn("Failed to request Fulfillment auth", attempt, path, e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -186,8 +187,8 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to request Fulfillment auth: {} with error: {}", uri, error.getMessage(), error);
-        throw new FulfillmentAuthRequestFailedException(failureMessage, new IOException(error));
+        logVendorFailureError("Failed to request Fulfillment auth", uri, path, error);
+        throw new FulfillmentAuthRequestFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     @Override
@@ -204,6 +205,7 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
 
     private void doDisconnectAccessToken(String accessToken) {
         URI uri = buildDisconnectUri();
+        String path = properties.getDisconnectPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -229,7 +231,7 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -238,7 +240,7 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -247,7 +249,7 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to disconnect Fulfillment auth: attempt={}, message={}", attempt, e.getMessage(), e);
+                logVendorFailureWarn("Failed to disconnect Fulfillment auth", attempt, path, e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -303,8 +305,8 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to disconnect Fulfillment auth: {} with error: {}", uri, error.getMessage(), error);
-        throw new FulfillmentAuthDisconnectFailedException(failureMessage, new IOException(error));
+        logVendorFailureError("Failed to disconnect Fulfillment auth", uri, path, error);
+        throw new FulfillmentAuthDisconnectFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private URI buildAuthUri() {
@@ -533,6 +535,53 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             log.warn("fallback applied: Fulfillment disconnect 에러 응답 파싱 실패, null 반환", e);
             return null;
         }
+    }
+
+    private boolean isSensitivePath(String path) {
+        return properties.getSensitivePaths().contains(path);
+    }
+
+    private String maskExceptionMessage(String path, Exception e) {
+        if (isSensitivePath(path)) {
+            return e.getClass().getSimpleName();
+        }
+        return e.getMessage();
+    }
+
+    private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
+        if (isSensitivePath(path)) {
+            log.warn(
+                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    message, attempt, e.getClass().getSimpleName()
+            );
+            return;
+        }
+        log.warn("{}: attempt={}, message={}", message, attempt, e.getMessage(), e);
+    }
+
+    private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
+        if (isSensitivePath(path)) {
+            log.error(
+                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    message, uri, error.getClass().getSimpleName()
+            );
+            return;
+        }
+        log.error("{}: {} with error: {}", message, uri, error.getMessage(), error);
+    }
+
+    private IOException wrapCauseIfSensitive(String path, Throwable error) {
+        if (isSensitivePath(path)) {
+            return new IOException(error.getClass().getSimpleName());
+        }
+        return new IOException(error);
+    }
+
+    private Exception maskExceptionForHandler(String path, Exception e) {
+        if (isSensitivePath(path)) {
+            return new IOException(e.getClass().getSimpleName());
+        }
+        return e;
     }
 
     private String resolveVendorMessageFromException(Exception e) {

@@ -148,6 +148,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
             String cstGodCd,
             boolean isDetail
     ) {
+        String path = properties.getStockListPath();
         Exception error = new Exception();
         String failureMessage = null;
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
@@ -178,7 +179,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -187,7 +188,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -196,7 +197,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to get Fulfillment stock {}: attempt={}, message={}", requestLabel, attempt, e.getMessage(), e);
+                logVendorFailureWarn("Failed to get Fulfillment stock " + requestLabel, attempt, path, e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -267,11 +268,11 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to get Fulfillment stock {}: {} with error: {}", requestLabel, uri, error.getMessage(), error);
+        logVendorFailureError("Failed to get Fulfillment stock " + requestLabel, uri, path, error);
         if (isDetail) {
-            throw new GetFulfillmentStockDetailFailedException(failureMessage, new IOException(error));
+            throw new GetFulfillmentStockDetailFailedException(failureMessage, wrapCauseIfSensitive(path, error));
         }
-        throw new GetFulfillmentStocksFailedException(failureMessage, new IOException(error));
+        throw new GetFulfillmentStocksFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     private URI buildStockListUri(String customerCode, String outOfStockYn, String whCd) {
@@ -498,5 +499,52 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
 
         String body = responseException.getResponseBodyAsString();
         return resolveVendorMessage(body);
+    }
+
+    private boolean isSensitivePath(String path) {
+        return properties.getSensitivePaths().contains(path);
+    }
+
+    private String maskExceptionMessage(String path, Exception e) {
+        if (isSensitivePath(path)) {
+            return e.getClass().getSimpleName();
+        }
+        return e.getMessage();
+    }
+
+    private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
+        if (isSensitivePath(path)) {
+            log.warn(
+                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    message, attempt, e.getClass().getSimpleName()
+            );
+            return;
+        }
+        log.warn("{}: attempt={}, message={}", message, attempt, e.getMessage(), e);
+    }
+
+    private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
+        if (isSensitivePath(path)) {
+            log.error(
+                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    message, uri, error.getClass().getSimpleName()
+            );
+            return;
+        }
+        log.error("{}: {} with error: {}", message, uri, error.getMessage(), error);
+    }
+
+    private IOException wrapCauseIfSensitive(String path, Throwable error) {
+        if (isSensitivePath(path)) {
+            return new IOException(error.getClass().getSimpleName());
+        }
+        return new IOException(error);
+    }
+
+    private Exception maskExceptionForHandler(String path, Exception e) {
+        if (isSensitivePath(path)) {
+            return new IOException(e.getClass().getSimpleName());
+        }
+        return e;
     }
 }

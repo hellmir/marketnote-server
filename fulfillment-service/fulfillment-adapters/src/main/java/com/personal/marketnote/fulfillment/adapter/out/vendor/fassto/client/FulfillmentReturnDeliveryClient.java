@@ -114,6 +114,7 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
         }
 
         URI uri = buildReturnGodDetailUri(query);
+        String path = properties.getReturnGodDetailPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -136,7 +137,7 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -145,7 +146,7 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -154,7 +155,7 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to get Fulfillment return god detail: attempt={}, message={}", attempt, e.getMessage(), e);
+                logVendorFailureWarn("Failed to get Fulfillment return god detail", attempt, path, e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
                 }
@@ -214,8 +215,8 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to get Fulfillment return god detail: {} with error: {}", uri, error.getMessage(), error);
-        throw new GetFulfillmentReturnGodDetailFailedException(failureMessage, new IOException(error));
+        logVendorFailureError("Failed to get Fulfillment return god detail", uri, path, error);
+        throw new GetFulfillmentReturnGodDetailFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     // ── 반품 등록 (POST) ──
@@ -229,6 +230,7 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
         }
 
         URI uri = buildReturnDeliveryUri(request.getCustomerCode());
+        String path = properties.getReturnDeliveryPath();
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -252,7 +254,7 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
-                errorPayload.put("message", e.getMessage());
+                errorPayload.put("message", maskExceptionMessage(path, e));
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
@@ -261,7 +263,7 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
                         requestPayload,
                         requestPayloadJson,
                         errorPayload,
-                        e
+                        maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -270,11 +272,9 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
                     error = new Exception(vendorMessage);
                 }
 
-                log.warn("Failed to {} Fulfillment return delivery: attempt={}, message={}",
-                        action.toLowerCase(),
-                        attempt,
-                        e.getMessage(),
-                        e
+                logVendorFailureWarn(
+                        "Failed to " + action.toLowerCase() + " Fulfillment return delivery",
+                        attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -340,14 +340,12 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("Failed to {} Fulfillment return delivery request: {} with error: {}",
-                action.toLowerCase(),
-                uri,
-                error.getMessage(),
-                error
+        logVendorFailureError(
+                "Failed to " + action.toLowerCase() + " Fulfillment return delivery request",
+                uri, path, error
         );
 
-        throw new RegisterFulfillmentReturnDeliveryFailedException(failureMessage, new IOException(error));
+        throw new RegisterFulfillmentReturnDeliveryFailedException(failureMessage, wrapCauseIfSensitive(path, error));
     }
 
     // ── URI 빌드 ──
@@ -722,6 +720,53 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             return "****";
         }
         return value.substring(0, 4) + "****";
+    }
+
+    private boolean isSensitivePath(String path) {
+        return properties.getSensitivePaths().contains(path);
+    }
+
+    private String maskExceptionMessage(String path, Exception e) {
+        if (isSensitivePath(path)) {
+            return e.getClass().getSimpleName();
+        }
+        return e.getMessage();
+    }
+
+    private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
+        if (isSensitivePath(path)) {
+            log.warn(
+                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    message, attempt, e.getClass().getSimpleName()
+            );
+            return;
+        }
+        log.warn("{}: attempt={}, message={}", message, attempt, e.getMessage(), e);
+    }
+
+    private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
+        if (isSensitivePath(path)) {
+            log.error(
+                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                    message, uri, error.getClass().getSimpleName()
+            );
+            return;
+        }
+        log.error("{}: {} with error: {}", message, uri, error.getMessage(), error);
+    }
+
+    private IOException wrapCauseIfSensitive(String path, Throwable error) {
+        if (isSensitivePath(path)) {
+            return new IOException(error.getClass().getSimpleName());
+        }
+        return new IOException(error);
+    }
+
+    private Exception maskExceptionForHandler(String path, Exception e) {
+        if (isSensitivePath(path)) {
+            return new IOException(e.getClass().getSimpleName());
+        }
+        return e;
     }
 
 }

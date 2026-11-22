@@ -114,8 +114,28 @@ vendor:
       delivery-good-detail-path: ${FASSTO_DELIVERY_GOOD_DETAIL_PATH:/api/v1/delivery/goodDetail/{customerCode}/{startDate}/{endDate}}
       delivery-ics-completed-path: ${FASSTO_DELIVERY_ICS_COMPLETED_PATH:/api/v1/delivery/ics/completed/{customerCode}}
       stock-list-path: ${FASSTO_STOCK_LIST_PATH:/api/v1/stock/list/{customerCode}}
+      return-delivery-path: ${FASSTO_RETURN_DELIVERY_PATH:/api/v1/return/parcel/{customerCode}}
+      return-direct-delivery-path: ${FASSTO_RETURN_DIRECT_DELIVERY_PATH:/api/v1/return/direct/{customerCode}}
       return-god-detail-path: ${FASSTO_RETURN_GOD_DETAIL_PATH:/api/v1/return/godDetail/{customerCode}}
       settlement-daily-cost-path: ${FASSTO_SETTLEMENT_DAILY_COST_PATH:/api/v1/settlement/{yearMonth}/{whCd}/{customerCode}}
+      sensitive-paths:
+        - /api/v1/auth/connect
+        - /api/v1/auth/disconnect
+        - /api/v1/delivery/parcel/{customerCode}
+        - /api/v1/delivery/car/{customerCode}
+        - /api/v1/delivery/ics/{customerCode}
+        - /api/v1/delivery/{customerCode}/{startDate}/{endDate}/{status}/{outDiv}
+        - /api/v1/delivery/parcel/{customerCode}/{startDate}/{endDate}/{outDiv}
+        - /api/v1/delivery/detail/{customerCode}/{slipNo}
+        - /api/v1/delivery/cancel/{customerCode}
+        - /api/v1/delivery/outOrd/goodsDetail/{customerCode}
+        - /api/v1/delivery/outOrd/ordNo/{customerCode}/{startDate}/{endDate}
+        - /api/v1/delivery/goodDetail/{customerCode}/{startDate}/{endDate}
+        - /api/v1/delivery/ics/completed/{customerCode}
+        - /api/v1/return/parcel/{customerCode}
+        - /api/v1/return/godDetail/{customerCode}
+        - /api/v1/return/direct/{customerCode}
+        - /api/v1/settlement/{yearMonth}/{whCd}/{customerCode}
       api-cd: ${FASSTO_API_CD:change-me}
       api-key: ${FASSTO_API_KEY:change-me}
 
