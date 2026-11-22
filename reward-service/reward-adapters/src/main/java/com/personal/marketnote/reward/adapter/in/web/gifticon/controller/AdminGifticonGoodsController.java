@@ -6,6 +6,7 @@ import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonGoodsCashPriceApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonGoodsExposureApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonGoodsOrderApiDocs;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.SyncGifticonGoodsAndBrandsApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageFeaturedGifticonGoodsRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsCashPriceRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsExposureRequest;
@@ -26,6 +27,7 @@ import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageFeaturedGif
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsCashPriceUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsExposureUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsOrderUseCase;
+import com.personal.marketnote.reward.port.in.usecase.gifticon.SyncGifticonGoodsAndBrandsUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +50,7 @@ public class AdminGifticonGoodsController {
     private final ManageGifticonGoodsOrderUseCase manageGifticonGoodsOrderUseCase;
     private final ManageFeaturedGifticonGoodsUseCase manageFeaturedGifticonGoodsUseCase;
     private final ManageGifticonGoodsCashPriceUseCase manageGifticonGoodsCashPriceUseCase;
+    private final SyncGifticonGoodsAndBrandsUseCase syncGifticonGoodsAndBrandsUseCase;
 
     /**
      * (관리자) 기프티콘 전체 상품 목록 조회
@@ -203,6 +206,28 @@ public class AdminGifticonGoodsController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "기프티콘 상품 사용자 판매가 관리 성공"
+                )
+        );
+    }
+
+    /**
+     * (관리자) 기프티콘 상품/브랜드 수동 동기화
+     *
+     * @Author 성효빈
+     * @Date 2026-11-22
+     * @Description 관리자가 기프티쇼 벤더 상품/브랜드/카테고리를 즉시 동기화합니다. 정기 스케줄러(월/수/금 03:00 KST)와 동일 로직.
+     */
+    @PostMapping("/sync")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @SyncGifticonGoodsAndBrandsApiDocs
+    public ResponseEntity<BaseResponse<Void>> syncGifticonGoodsAndBrands() {
+        syncGifticonGoodsAndBrandsUseCase.syncAll();
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "기프티콘 상품/브랜드 수동 동기화 성공"
                 )
         );
     }
