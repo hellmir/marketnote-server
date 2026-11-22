@@ -10,7 +10,7 @@ import java.util.UUID;
  *
  * <p>이 코드는 Product 생성 시점에 1회 발급되어 영속화되며 이후 불변.
  * Fassto 외부 시스템 연동 호출 시 cstGodCd 페이로드로 사용된다.
- * fulfillment-adapters의 FasstoCustomerGoodsCodeEncoder.encode와 동일 알고리즘이며
+ * fulfillment-domain의 FasstoCustomerGoodsCodeEncoder.encode와 동일 알고리즘이며
  * 두 인코더 간 출력 동일성은 FasstoProductCodeGeneratorTest에서 회귀 검증된다.</p>
  */
 public final class FasstoProductCodeGenerator {

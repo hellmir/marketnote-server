@@ -4,6 +4,7 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.kafka.event.FulfillmentInventorySyncedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStockDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStocksCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.SyncFulfillmentAllStockCommand;
@@ -57,12 +58,14 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
 
         List<FulfillmentInventorySyncedEvent.InventoryItem> inventories = new ArrayList<>();
         for (UUID productKey : productKeys) {
+            String fasstoProductCode = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             GetFulfillmentStocksResult stockDetail = fulfillmentAuthenticatedCaller.call(token ->
                     getFulfillmentStockDetailUseCase.getStockDetail(
                             GetFulfillmentStockDetailCommand.forProductKey(
                                     command.customerCode(),
                                     token,
                                     productKey,
+                                    fasstoProductCode,
                                     DEFAULT_OUT_OF_STOCK_INCLUDED
                             )
                     )

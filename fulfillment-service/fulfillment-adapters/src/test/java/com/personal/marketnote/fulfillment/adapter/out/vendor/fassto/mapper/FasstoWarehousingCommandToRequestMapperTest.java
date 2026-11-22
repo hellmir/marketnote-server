@@ -1,6 +1,6 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingAbnormalImageQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;

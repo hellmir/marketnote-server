@@ -13,6 +13,11 @@ public record GetFulfillmentStockDetailCommand(
         String fasstoProductCode,
         String outOfStockYn
 ) {
+    /**
+     * Admin/cstGodCd 경로 Command 생성.
+     * <p>
+     * cstGodCd는 운영자가 Fassto에 직접 등록한 운영 코드이므로 customerProductCode와 fasstoProductCode가 같다.
+     */
     public static GetFulfillmentStockDetailCommand of(
             String customerCode,
             String accessToken,
@@ -24,7 +29,7 @@ public record GetFulfillmentStockDetailCommand(
                 .accessToken(accessToken)
                 .customerProductCode(customerProductCode)
                 .productKey(null)
-                .fasstoProductCode(null)
+                .fasstoProductCode(customerProductCode)
                 .outOfStockYn(outOfStockYn)
                 .build();
     }
@@ -40,6 +45,7 @@ public record GetFulfillmentStockDetailCommand(
             String customerCode,
             String accessToken,
             UUID productKey,
+            String fasstoProductCode,
             String outOfStockYn
     ) {
         return GetFulfillmentStockDetailCommand.builder()
@@ -47,7 +53,7 @@ public record GetFulfillmentStockDetailCommand(
                 .accessToken(accessToken)
                 .customerProductCode(productKey.toString())
                 .productKey(productKey)
-                .fasstoProductCode(null)
+                .fasstoProductCode(fasstoProductCode)
                 .outOfStockYn(outOfStockYn)
                 .build();
     }

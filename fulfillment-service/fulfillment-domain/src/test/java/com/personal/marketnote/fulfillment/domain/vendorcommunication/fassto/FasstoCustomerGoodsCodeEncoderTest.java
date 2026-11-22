@@ -1,4 +1,4 @@
-package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder;
+package com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

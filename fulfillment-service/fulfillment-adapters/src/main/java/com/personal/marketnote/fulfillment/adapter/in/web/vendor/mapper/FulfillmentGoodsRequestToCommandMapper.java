@@ -15,6 +15,7 @@ public class FulfillmentGoodsRequestToCommandMapper {
         List<RegisterFulfillmentGoodsItemCommand> goods = request.stream()
                 .map(item -> RegisterFulfillmentGoodsItemCommand.builder()
                         .productCode(item.getCstGodCd())
+                        .fasstoProductCode(item.getCstGodCd())
                         .productName(item.getGodNm())
                         // Admin 경로: productKey는 미지정 (Fassto에 직접 등록)
 
@@ -87,6 +88,7 @@ public class FulfillmentGoodsRequestToCommandMapper {
         List<UpdateFulfillmentGoodsItemCommand> goods = request.stream()
                 .map(item -> UpdateFulfillmentGoodsItemCommand.builder()
                         .productCode(item.getCstGodCd())
+                        .fasstoProductCode(item.getCstGodCd())
                         .productName(item.getGodNm())
                         .productType(item.getGodType())
                         .giftDivision(item.getGiftDiv())
