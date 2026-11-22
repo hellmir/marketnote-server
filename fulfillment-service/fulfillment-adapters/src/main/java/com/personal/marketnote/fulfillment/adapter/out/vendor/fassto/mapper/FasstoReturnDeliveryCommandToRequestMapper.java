@@ -2,7 +2,7 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.delivery.FulfillmentDeliveryGoodsMapper;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.returndelivery.FulfillmentReturnDeliveryItemMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.returndelivery.FulfillmentReturnDeliveryMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.returndelivery.FulfillmentReturnGodDetailQuery;

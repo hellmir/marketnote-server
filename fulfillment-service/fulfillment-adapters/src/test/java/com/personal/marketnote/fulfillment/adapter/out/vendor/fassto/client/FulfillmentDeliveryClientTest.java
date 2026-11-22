@@ -5,7 +5,7 @@ import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.delivery.*;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;
 import com.personal.marketnote.fulfillment.exception.*;

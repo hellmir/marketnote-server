@@ -179,6 +179,26 @@ class SyncFulfillmentStockUseCaseTest {
         }
 
         @Test
+        @DisplayName("Fassto에 productKey 인코딩 결과가 fasstoProductCode로 전달된다 (22자 영숫자)")
+        void shouldSendEncodedFasstoProductCode() {
+            // given
+            UUID productKey = UUID.fromString("00000000-0000-0000-0000-000000000001");
+            when(getFulfillmentStockDetailUseCase.getStockDetail(any(GetFulfillmentStockDetailCommand.class)))
+                    .thenReturn(GetFulfillmentStocksResult.of(0, List.of()));
+            SyncFulfillmentStockCommand command =
+                    SyncFulfillmentStockCommand.of("CUST001", List.of(productKey));
+
+            // when
+            service.sync(command);
+
+            // then
+            ArgumentCaptor<GetFulfillmentStockDetailCommand> captor =
+                    ArgumentCaptor.forClass(GetFulfillmentStockDetailCommand.class);
+            verify(getFulfillmentStockDetailUseCase).getStockDetail(captor.capture());
+            assertThat(captor.getValue().fasstoProductCode()).isEqualTo("0000000000000000000001");
+        }
+
+        @Test
         @DisplayName("발행되는 InventoryItem에 productKey가 담긴다")
         void shouldPublishProductKeyInInventoryItem() {
             // given

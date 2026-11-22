@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
@@ -352,16 +352,17 @@ class FulfillmentStockClientTest {
             stubPayloadGenerator();
             stubGetChainReturns(new ResponseEntity<>(successBody(), HttpStatus.OK));
 
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(TEST_PRODUCT_KEY);
             GetFulfillmentStockDetailCommand command = GetFulfillmentStockDetailCommand.forProductKey(
-                    "CUST001", "valid-token", TEST_PRODUCT_KEY, null
+                    "CUST001", "valid-token", TEST_PRODUCT_KEY, encoded, null
             );
 
             // when
             client.getStockDetail(command);
 
             // then
-            // forProductKey는 fasstoProductCode=null + productKey 채움 → 매퍼 폴백이 encodeOrFallback(productKey, productKey.toString()) → encode(productKey) 22자 Base62 반환
-            String expectedTargetId = FasstoCustomerGoodsCodeEncoder.encode(TEST_PRODUCT_KEY);
+            // caller가 채운 fasstoProductCode가 cstGodCd로 송신되며 targetId에도 그대로 사용된다
+            String expectedTargetId = encoded;
             verify(vendorCommunicationRecorder).record(
                     eq(FulfillmentVendorCommunicationTargetType.STOCK),
                     eq(FulfillmentVendorCommunicationType.REQUEST),
