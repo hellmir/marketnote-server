@@ -129,6 +129,10 @@ public class GifticonGoods {
         this.exposed = true;
     }
 
+    public void changeCashPrice(Money cashPrice) {
+        this.cashPrice = cashPrice;
+    }
+
     public void unexpose() {
         this.exposed = false;
     }
