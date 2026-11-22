@@ -14,6 +14,7 @@ import com.personal.marketnote.product.domain.cart.CartProductCreateState;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import jakarta.persistence.EntityManager;
@@ -241,9 +242,10 @@ class CartJpaRepositoryTest {
     }
 
     private ProductJpaEntity saveProduct(String name, String brandName) {
+        UUID productKey = RandomCodeGenerator.generateProductKey();
         Product product = Product.from(
                 ProductSnapshotState.builder()
-                        .productKey(RandomCodeGenerator.generateProductKey())
+                        .productKey(productKey)
                         .sellerId(1L)
                         .name(name)
                         .brandName(brandName)
@@ -251,6 +253,7 @@ class CartJpaRepositoryTest {
                         .findAllOptionsYn(false)
                         .productTags(List.of())
                         .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                         .build()
         );
         ProductJpaEntity entity = ProductJpaEntity.from(product);

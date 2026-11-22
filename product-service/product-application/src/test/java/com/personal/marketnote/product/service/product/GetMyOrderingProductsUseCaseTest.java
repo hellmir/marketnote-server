@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.port.in.command.GetMyOrderingProductsQuery;
@@ -190,9 +191,11 @@ class GetMyOrderingProductsUseCaseTest {
     }
 
     private Product buildProduct(Long id) {
+        UUID productKey = UUID.randomUUID();
         return Product.from(
                 ProductSnapshotState.builder()
                         .id(id)
+                        .productKey(productKey)
                         .sellerId(1L)
                         .name("상품-" + id)
                         .brandName("브랜드-" + id)
@@ -200,6 +203,7 @@ class GetMyOrderingProductsUseCaseTest {
                         .findAllOptionsYn(false)
                         .productTags(List.of())
                         .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                         .build()
         );
     }

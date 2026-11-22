@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.product.adapter.out.persistence.product.entity.ProductJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.product.repository.ProductJpaRepository;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
@@ -18,6 +19,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -195,10 +197,11 @@ class ProductPersistenceAdapterTest {
     }
 
     private Product buildProductDomain(Long id, String name, EntityStatus status) {
+        UUID productKey = RandomCodeGenerator.generateProductKey();
         return Product.from(
                 ProductSnapshotState.builder()
                         .id(id)
-                        .productKey(RandomCodeGenerator.generateProductKey())
+                        .productKey(productKey)
                         .sellerId(1L)
                         .name(name)
                         .brandName("브랜드")
@@ -206,6 +209,7 @@ class ProductPersistenceAdapterTest {
                         .findAllOptionsYn(false)
                         .productTags(List.of())
                         .status(status)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                         .build()
         );
     }

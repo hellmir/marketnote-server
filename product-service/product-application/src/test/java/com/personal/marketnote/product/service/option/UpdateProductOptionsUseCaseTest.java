@@ -5,6 +5,7 @@ import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.option.ProductOptionCategory;
 import com.personal.marketnote.product.domain.option.ProductOptionCategorySnapshotState;
 import com.personal.marketnote.product.domain.option.ProductOptionSnapshotState;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
@@ -26,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -233,9 +235,11 @@ class UpdateProductOptionsUseCaseTest {
     }
 
     private Product buildProduct(Long productId, Long sellerId) {
+        UUID productKey = UUID.randomUUID();
         return Product.from(
                 ProductSnapshotState.builder()
                         .id(productId)
+                        .productKey(productKey)
                         .sellerId(sellerId)
                         .name("테스트 상품")
                         .brandName("브랜드")
@@ -243,6 +247,7 @@ class UpdateProductOptionsUseCaseTest {
                         .findAllOptionsYn(false)
                         .productTags(List.of())
                         .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                         .build()
         );
     }

@@ -12,6 +12,7 @@ import com.personal.marketnote.product.adapter.out.persistence.productcategory.r
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductTag;
@@ -28,6 +29,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -229,9 +231,10 @@ class ProductJpaRepositoryTest {
                                 .build()
                 ))
                 .toList();
+        UUID productKey = RandomCodeGenerator.generateProductKey();
         Product product = Product.from(
                 ProductSnapshotState.builder()
-                        .productKey(RandomCodeGenerator.generateProductKey())
+                        .productKey(productKey)
                         .sellerId(sellerId)
                         .name(name)
                         .brandName(brandName)
@@ -239,6 +242,7 @@ class ProductJpaRepositoryTest {
                         .findAllOptionsYn(false)
                         .productTags(productTags)
                         .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                         .build()
         );
         ProductJpaEntity entity = ProductJpaEntity.from(product);

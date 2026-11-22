@@ -8,6 +8,7 @@ import com.personal.marketnote.product.adapter.out.persistence.productoption.rep
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
@@ -27,6 +28,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -53,10 +55,13 @@ class PricePolicyPersistenceAdapterTest {
 
     @BeforeEach
     void setUp() {
+        UUID productKey = UUID.randomUUID();
         product = Product.from(
                 ProductSnapshotState.builder()
                         .id(100L)
+                        .productKey(productKey)
                         .name("테스트 상품")
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                         .build()
         );
         pricePolicy = PricePolicy.from(

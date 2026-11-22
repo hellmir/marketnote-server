@@ -18,6 +18,7 @@ import com.personal.marketnote.product.adapter.out.persistence.productcatalog.ma
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
+import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductTag;
@@ -118,6 +119,7 @@ class CacheConfigObjectMapperTest {
                         .productTags(List.of(tag))
                         .orderNum(1L)
                         .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(TEST_PRODUCT_KEY))
                         .build()
         );
     }

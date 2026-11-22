@@ -71,8 +71,10 @@ class ProductTest {
                 ProductTag.from(ProductTagSnapshotState.builder()
                         .id(10L).productId(1L).name("태그A").orderNum(1L).status(EntityStatus.ACTIVE).build())
         );
+        UUID productKey = UUID.randomUUID();
         ProductSnapshotState state = ProductSnapshotState.builder()
                 .id(1L)
+                .productKey(productKey)
                 .sellerId(100L)
                 .name("테스트 상품")
                 .brandName("테스트 브랜드")
@@ -84,6 +86,7 @@ class ProductTest {
                 .productTags(tags)
                 .orderNum(1L)
                 .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                 .build();
 
         Product product = Product.from(state);
@@ -105,8 +108,10 @@ class ProductTest {
     @Test
     @DisplayName("SnapshotState로 복원하면 status가 SnapshotState의 값으로 설정된다")
     void shouldRestoreStatusFromSnapshotState() {
+        UUID productKey = UUID.randomUUID();
         ProductSnapshotState state = ProductSnapshotState.builder()
                 .id(1L)
+                .productKey(productKey)
                 .sellerId(100L)
                 .name("테스트 상품")
                 .brandName("테스트 브랜드")
@@ -114,6 +119,7 @@ class ProductTest {
                 .findAllOptionsYn(false)
                 .productTags(List.of())
                 .status(EntityStatus.INACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                 .build();
 
         Product product = Product.from(state);
@@ -319,6 +325,7 @@ class ProductTest {
                     .productTags(List.of())
                     .orderNum(1L)
                     .status(EntityStatus.ACTIVE)
+                    .fasstoProductCode(FasstoProductCodeGenerator.encode(expectedKey))
                     .build();
 
             Product product = Product.from(state);
@@ -350,8 +357,10 @@ class ProductTest {
     }
 
     private Product createActiveProduct() {
+        UUID productKey = UUID.randomUUID();
         return Product.from(ProductSnapshotState.builder()
                 .id(1L)
+                .productKey(productKey)
                 .sellerId(100L)
                 .name("테스트 상품")
                 .brandName("테스트 브랜드")
@@ -360,6 +369,7 @@ class ProductTest {
                 .productTags(List.of())
                 .orderNum(1L)
                 .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                 .build());
     }
 }
