@@ -327,6 +327,14 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(httpStatus, httpStatus.name(), "지원하지 않는 토큰입니다.");
     }
 
+    @ExceptionHandler(DomainAlreadyExistsWithMessageException.class)
+    ResponseEntity<ErrorResponse> handleDomainAlreadyExistsWithMessageException(DomainAlreadyExistsWithMessageException e) {
+        HttpStatus httpStatus = HttpStatus.CONFLICT;
+        log.info(LOG_INFO_MESSAGE, formatGenericLogMessage(e));
+        debugStackTrace(e);
+        return buildErrorResponse(httpStatus, httpStatus.name(), e.getMessage());
+    }
+
     @ExceptionHandler(DomainAlreadyExistsException.class)
     ResponseEntity<ErrorResponse> handleDomainAlreadyExistsException(DomainAlreadyExistsException e) {
         HttpStatus httpStatus = HttpStatus.CONFLICT;
