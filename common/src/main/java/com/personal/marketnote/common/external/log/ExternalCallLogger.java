@@ -87,6 +87,42 @@ public class ExternalCallLogger {
         });
     }
 
+    /**
+     * 민감 정보를 포함할 수 있는 외부 호출을 래핑한다 (실패 시 cause throwable/message 로깅 생략).
+     * 예: 토큰 발급, PIN/카드번호 raw 응답 본문 등.
+     */
+    public <T> T recordSensitive(
+            ExternalSystem system, String operation, Map<String, String> tags, Supplier<T> call
+    ) {
+        Logger log = LoggerFactory.getLogger(system.loggerName());
+        Map<String, String> safeTags = safeTags(tags);
+        logStart(log, operation, safeTags);
+
+        long startNanos = System.nanoTime();
+        try {
+            T result = call.get();
+            long elapsedNanos = System.nanoTime() - startNanos;
+            recordSuccess(log, system, operation, safeTags, elapsedNanos);
+            return result;
+        } catch (RuntimeException re) {
+            long elapsedNanos = System.nanoTime() - startNanos;
+            recordFailureSensitive(log, system, operation, safeTags, elapsedNanos, re);
+            throw re;
+        }
+    }
+
+    /**
+     * 민감 정보를 포함할 수 있는 결과 없는 외부 호출을 래핑한다 (실패 시 cause throwable/message 로깅 생략).
+     */
+    public void recordVoidSensitive(
+            ExternalSystem system, String operation, Map<String, String> tags, Runnable call
+    ) {
+        recordSensitive(system, operation, tags, () -> {
+            call.run();
+            return null;
+        });
+    }
+
     private void logStart(Logger log, String operation, Map<String, String> safeTags) {
         if (!log.isDebugEnabled()) {
             return;
@@ -117,6 +153,17 @@ public class ExternalCallLogger {
                 "External call failure: operation={}, tags={}, elapsedMs={}, exception={}, message={}",
                 operation, safeTags, toMillis(elapsedNanos),
                 cause.getClass().getSimpleName(), cause.getMessage(), cause
+        );
+    }
+
+    private void recordFailureSensitive(
+            Logger log, ExternalSystem system, String operation,
+            Map<String, String> safeTags, long elapsedNanos, Throwable cause
+    ) {
+        timer(system, operation, OUTCOME_FAILURE).record(elapsedNanos, TimeUnit.NANOSECONDS);
+        log.error(
+                "External call failure (sensitive — message/stack 로깅 생략): operation={}, tags={}, elapsedMs={}, exception={}",
+                operation, safeTags, toMillis(elapsedNanos), cause.getClass().getSimpleName()
         );
     }
 
