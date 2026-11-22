@@ -3,6 +3,7 @@ package com.personal.marketnote.reward.adapter.out.vendor.giftishow;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
+import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.*;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowBrandCodeException;
@@ -11,6 +12,7 @@ import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.Inv
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowTrIdException;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowUserIdException;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
+import com.personal.marketnote.reward.utility.VendorCommunicationRecorder;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -53,6 +56,7 @@ class GiftishowApiClientTest {
     private GiftishowApiClient giftishowApiClient;
     private GiftishowApiProperties properties;
     private ExternalCallLogger externalCallLogger;
+    private VendorCommunicationRecorder vendorCommunicationRecorder;
 
     @BeforeEach
     void setUp() {
@@ -84,8 +88,12 @@ class GiftishowApiClientTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
+        vendorCommunicationRecorder = mock(VendorCommunicationRecorder.class);
+        VendorCommunicationPayloadGenerator payloadGenerator = new VendorCommunicationPayloadGenerator(objectMapper);
+        GiftishowOperationTargetTypeResolver resolver = new GiftishowOperationTargetTypeResolver();
         giftishowApiClient = new GiftishowApiClient(
-                properties, builder.build(), objectMapper, externalCallLogger
+                properties, builder.build(), objectMapper, externalCallLogger,
+                vendorCommunicationRecorder, payloadGenerator, resolver
         );
     }
 

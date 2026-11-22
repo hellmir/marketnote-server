@@ -9,8 +9,11 @@ import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
+import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
+import com.personal.marketnote.reward.utility.VendorCommunicationRecorder;
+import org.mockito.Mockito;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,8 +90,12 @@ class GiftishowApiClientHttpFailureMaskingTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
+        VendorCommunicationRecorder vendorCommunicationRecorder = Mockito.mock(VendorCommunicationRecorder.class);
+        VendorCommunicationPayloadGenerator payloadGenerator = new VendorCommunicationPayloadGenerator(objectMapper);
+        GiftishowOperationTargetTypeResolver resolver = new GiftishowOperationTargetTypeResolver();
         giftishowApiClient = new GiftishowApiClient(
-                properties, builder.build(), objectMapper, externalCallLogger
+                properties, builder.build(), objectMapper, externalCallLogger,
+                vendorCommunicationRecorder, payloadGenerator, resolver
         );
 
         clientLogger = (Logger) LoggerFactory.getLogger(GiftishowApiClient.class);

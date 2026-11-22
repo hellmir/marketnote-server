@@ -7,8 +7,11 @@ import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
+import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
+import com.personal.marketnote.reward.utility.VendorCommunicationRecorder;
+import org.mockito.Mockito;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -93,7 +96,14 @@ class GiftishowApiClientExternalCallLoggerTest {
         meterRegistry = new SimpleMeterRegistry();
         ExternalCallLogger externalCallLogger = new ExternalCallLogger(meterRegistry);
 
-        client = new GiftishowApiClient(properties, builder.build(), objectMapper, externalCallLogger);
+        VendorCommunicationRecorder vendorCommunicationRecorder = Mockito.mock(VendorCommunicationRecorder.class);
+        VendorCommunicationPayloadGenerator payloadGenerator = new VendorCommunicationPayloadGenerator(objectMapper);
+        GiftishowOperationTargetTypeResolver resolver = new GiftishowOperationTargetTypeResolver();
+
+        client = new GiftishowApiClient(
+                properties, builder.build(), objectMapper, externalCallLogger,
+                vendorCommunicationRecorder, payloadGenerator, resolver
+        );
 
         giftishowLogger = (Logger) LoggerFactory.getLogger(ExternalSystem.GIFTISHOW.loggerName());
         previousAdditive = giftishowLogger.isAdditive();

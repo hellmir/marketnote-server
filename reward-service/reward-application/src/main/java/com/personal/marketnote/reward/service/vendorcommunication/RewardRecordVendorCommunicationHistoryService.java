@@ -7,9 +7,14 @@ import com.personal.marketnote.reward.port.in.command.vendorcommunication.Reward
 import com.personal.marketnote.reward.port.in.usecase.vendorcommunication.RewardRecordVendorCommunicationHistoryUseCase;
 import com.personal.marketnote.reward.port.out.vendorcommunication.RewardSaveVendorCommunicationHistoryPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
 @UseCase
 @RequiredArgsConstructor
+@Transactional(isolation = READ_COMMITTED, propagation = REQUIRES_NEW)
 public class RewardRecordVendorCommunicationHistoryService implements RewardRecordVendorCommunicationHistoryUseCase {
     private final RewardSaveVendorCommunicationHistoryPort saveVendorCommunicationHistoryPort;
 
