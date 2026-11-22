@@ -17,6 +17,7 @@ import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageFeaturedGif
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsCashPriceUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsExposureUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsOrderUseCase;
+import com.personal.marketnote.reward.port.in.usecase.gifticon.SyncGifticonGoodsAndBrandsUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,8 @@ class AdminGifticonGoodsControllerTest {
     private ManageFeaturedGifticonGoodsUseCase manageFeaturedGifticonGoodsUseCase;
     @Mock
     private ManageGifticonGoodsCashPriceUseCase manageGifticonGoodsCashPriceUseCase;
+    @Mock
+    private SyncGifticonGoodsAndBrandsUseCase syncGifticonGoodsAndBrandsUseCase;
 
     @InjectMocks
     private AdminGifticonGoodsController controller;
@@ -148,6 +151,29 @@ class AdminGifticonGoodsControllerTest {
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(manageGifticonGoodsCashPriceUseCase).manageCashPrice(any(ManageGifticonGoodsCashPriceCommand.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("POST /api/v1/admin/gifticon/goods/sync")
+    class SyncGifticonGoodsAndBrands {
+
+        @Test
+        @DisplayName("수동 동기화 호출 시 OK 상태와 성공 메시지를 반환한다")
+        void returnsOkWithSuccessMessage() {
+            ResponseEntity<BaseResponse<Void>> response = controller.syncGifticonGoodsAndBrands();
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("기프티콘 상품/브랜드 수동 동기화 성공");
+        }
+
+        @Test
+        @DisplayName("수동 동기화 호출 시 SyncGifticonGoodsAndBrandsUseCase.syncAll()을 위임 호출한다")
+        void delegatesToSyncAll() {
+            controller.syncGifticonGoodsAndBrands();
+
+            verify(syncGifticonGoodsAndBrandsUseCase).syncAll();
         }
     }
 }
