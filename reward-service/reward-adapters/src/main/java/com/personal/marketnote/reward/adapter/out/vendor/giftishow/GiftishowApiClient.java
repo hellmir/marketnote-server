@@ -8,6 +8,11 @@ import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.*;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
+import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowBrandCodeException;
+import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowGoodsCodeException;
+import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowPhoneNoException;
+import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowTrIdException;
+import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowUserIdException;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -85,6 +90,9 @@ public class GiftishowApiClient {
      * 0111 - 상품 상세 조회 (POST + URL path variable)
      */
     public GiftishowApiResponse<GiftishowProductDetailResponse> getProductDetail(String goodsCode) {
+        if (FormatValidator.hasNoValue(goodsCode)) {
+            throw new InvalidGiftishowGoodsCodeException();
+        }
         MultiValueMap<String, String> params = createAuthParams();
 
         log.info("기프티쇼 상품 상세 조회 요청: goodsCode={}", goodsCode);
@@ -129,6 +137,9 @@ public class GiftishowApiClient {
      * 0112 - 브랜드 상세 조회 (POST + URL path variable)
      */
     public GiftishowApiResponse<GiftishowBrandDetailResponse> getBrandDetail(String brandCode) {
+        if (FormatValidator.hasNoValue(brandCode)) {
+            throw new InvalidGiftishowBrandCodeException();
+        }
         MultiValueMap<String, String> params = createAuthParams();
 
         log.info("기프티쇼 브랜드 상세 조회 요청: brandCode={}", brandCode);
@@ -159,6 +170,18 @@ public class GiftishowApiClient {
             String mmsMsg,
             String mmsTitle
     ) {
+        if (FormatValidator.hasNoValue(trId)) {
+            throw new InvalidGiftishowTrIdException();
+        }
+        if (FormatValidator.hasNoValue(goodsCode)) {
+            throw new InvalidGiftishowGoodsCodeException();
+        }
+        if (FormatValidator.hasNoValue(phoneNo)) {
+            throw new InvalidGiftishowPhoneNoException();
+        }
+        if (FormatValidator.hasNoValue(userId)) {
+            throw new InvalidGiftishowUserIdException();
+        }
         MultiValueMap<String, String> params = createAuthParams();
         params.add("tr_id", trId);
         params.add("goods_code", goodsCode);
@@ -191,6 +214,9 @@ public class GiftishowApiClient {
      * 0201 - 쿠폰 상세 조회 (POST)
      */
     public GiftishowApiResponse<GiftishowCouponDetailResponse> getCouponDetail(String trId) {
+        if (FormatValidator.hasNoValue(trId)) {
+            throw new InvalidGiftishowTrIdException();
+        }
         MultiValueMap<String, String> params = createAuthParams();
         params.add("tr_id", trId);
 
@@ -214,6 +240,12 @@ public class GiftishowApiClient {
      * 0202 - 쿠폰 취소 (POST)
      */
     public GiftishowApiResponse<GiftishowCouponCancelResponse> cancelCoupon(String trId, String userId) {
+        if (FormatValidator.hasNoValue(trId)) {
+            throw new InvalidGiftishowTrIdException();
+        }
+        if (FormatValidator.hasNoValue(userId)) {
+            throw new InvalidGiftishowUserIdException();
+        }
         MultiValueMap<String, String> params = createAuthParams();
         params.add("tr_id", trId);
         params.add("user_id", userId);
@@ -239,6 +271,12 @@ public class GiftishowApiClient {
      * 0203 - 쿠폰 재전송 (POST)
      */
     public GiftishowApiResponse<GiftishowCouponResendResponse> resendCoupon(String trId, String phoneNo) {
+        if (FormatValidator.hasNoValue(trId)) {
+            throw new InvalidGiftishowTrIdException();
+        }
+        if (FormatValidator.hasNoValue(phoneNo)) {
+            throw new InvalidGiftishowPhoneNoException();
+        }
         MultiValueMap<String, String> params = createAuthParams();
         params.add("tr_id", trId);
         params.add("phone_no", phoneNo);
@@ -263,6 +301,9 @@ public class GiftishowApiClient {
      * 0301 - 비즈머니 잔액 조회 (POST)
      */
     public GiftishowApiResponse<GiftishowBizMoneyResponse> getBizMoneyBalance(String userId) {
+        if (FormatValidator.hasNoValue(userId)) {
+            throw new InvalidGiftishowUserIdException();
+        }
         MultiValueMap<String, String> params = createAuthParams();
         params.add("user_id", userId);
 
@@ -286,6 +327,12 @@ public class GiftishowApiClient {
      * 0205 - 발송실패 취소 (POST)
      */
     public GiftishowApiResponse<GiftishowCouponCancelResponse> cancelSendFailedCoupon(String trId, String userId) {
+        if (FormatValidator.hasNoValue(trId)) {
+            throw new InvalidGiftishowTrIdException();
+        }
+        if (FormatValidator.hasNoValue(userId)) {
+            throw new InvalidGiftishowUserIdException();
+        }
         MultiValueMap<String, String> params = createAuthParams();
         params.add("tr_id", trId);
         params.add("user_id", userId);
