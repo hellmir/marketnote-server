@@ -57,7 +57,8 @@ class ProductUpdatedFulfillmentConsumerTest {
                 null, null, null, null, null, null, null, null, null, // godOptCd1 ~ makeYr (9)
                 null, null, null, null, null, null, null, null, null, // godPr ~ distTermMgtYn (9)
                 null, null, null, null, null, null, null, null, null, // useTermDay ~ useYn (9)
-                null, null, null, null                                // safetyStock ~ externalGodImgUrl (4)
+                null, null, null, null,                               // safetyStock ~ externalGodImgUrl (4)
+                null                                                  // fasstoProductCode
         );
         EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "product.product.updated", "product-service",
@@ -72,7 +73,8 @@ class ProductUpdatedFulfillmentConsumerTest {
                 "opt1", "opt2", "Y", "상품명", "SUP", "CATE", "2024", "M", "2024",
                 "12000", "9000", "10000", "ROOM", "A1", "BARCODE", "2.5", "KR", "Y",
                 "30", "7", "7", "BOX", "N", "UP", "COTTON", "Y", "10",
-                "N", "1", "https://example.com/image.jpg", "https://example.com/external.jpg"
+                "N", "1", "https://example.com/image.jpg", "https://example.com/external.jpg",
+                null
         );
         EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "product.product.updated", "product-service",
@@ -172,7 +174,7 @@ class ProductUpdatedFulfillmentConsumerTest {
                 null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null,
-                null, null, null, null
+                null, null, null, null, null
         );
         EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "product.product.updated", "product-service",
@@ -233,7 +235,7 @@ class ProductUpdatedFulfillmentConsumerTest {
                 null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null,
-                null, null, null, null
+                null, null, null, null, null
         );
         EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "product-service",

@@ -32,6 +32,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class RegisterProductUseCaseTest {
     private static final UUID PRODUCT_KEY = UUID.fromString("01900000-0000-7000-8000-000000000001");
+    private static final String FASSTO_PRODUCT_CODE = "TestFasstoCodeSnapshot01";
 
     @Mock
     private RegisterPricePolicyUseCase registerPricePolicyUseCase;
@@ -87,7 +88,7 @@ class RegisterProductUseCaseTest {
 
         verify(publishProductEventPort).publishProductRegisteredEvent(
                 10L, PRODUCT_KEY, 100L, command.sellerId(), "테스트 상품", null, "테스트 브랜드",
-                10000L, 8000L, 100L, 0L, java.util.List.of(), java.util.List.of()
+                10000L, 8000L, 100L, 0L, java.util.List.of(), java.util.List.of(), FASSTO_PRODUCT_CODE
         );
 
         verifyNoMoreInteractions(
@@ -113,7 +114,7 @@ class RegisterProductUseCaseTest {
 
         verify(publishProductEventPort).publishProductRegisteredEvent(
                 11L, PRODUCT_KEY, 101L, command.sellerId(), "테스트 상품", "2", "테스트 브랜드",
-                10000L, 8000L, 100L, 0L, java.util.List.of(), java.util.List.of()
+                10000L, 8000L, 100L, 0L, java.util.List.of(), java.util.List.of(), FASSTO_PRODUCT_CODE
         );
     }
 
@@ -165,6 +166,7 @@ class RegisterProductUseCaseTest {
                         .findAllOptionsYn(command.isFindAllOptions())
                         .productTags(List.of())
                         .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FASSTO_PRODUCT_CODE)
                         .build()
         );
     }

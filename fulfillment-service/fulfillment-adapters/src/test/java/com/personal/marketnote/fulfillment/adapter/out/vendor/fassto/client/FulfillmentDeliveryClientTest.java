@@ -1239,7 +1239,7 @@ class FulfillmentDeliveryClientTest {
     }
 
     @Nested
-    @DisplayName("cstGodCd 디코딩")
+    @DisplayName("cstGodCd raw 통과")
     class CstGodCdDecoding {
 
         private static final UUID TEST_PRODUCT_KEY = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
@@ -1248,8 +1248,8 @@ class FulfillmentDeliveryClientTest {
         private static final String LEGACY_UUID_RAW = "550e8400-e29b-41d4-a716-446655440000";
 
         @Test
-        @DisplayName("cstGodCd 22자 Base62 인코딩 응답 → customerProductCode UUID 문자열로 디코딩")
-        void shouldDecodeBase62EncodedCstGodCdToUuidString() {
+        @DisplayName("cstGodCd 22자 Base62 응답 → customerProductCode 22자 raw 그대로 통과")
+        void shouldPassThroughBase62CstGodCdRaw() {
             // given
             stubDeliveryDetailProperties();
             stubPayloadGenerator();
@@ -1280,7 +1280,7 @@ class FulfillmentDeliveryClientTest {
             assertThat(result.deliveries()).hasSize(1);
             assertThat(result.deliveries().get(0).goods()).hasSize(1);
             assertThat(result.deliveries().get(0).goods().get(0).customerProductCode())
-                    .isEqualTo(TEST_PRODUCT_KEY.toString());
+                    .isEqualTo(TEST_ENCODED_CST_GOD_CD);
         }
 
         @Test

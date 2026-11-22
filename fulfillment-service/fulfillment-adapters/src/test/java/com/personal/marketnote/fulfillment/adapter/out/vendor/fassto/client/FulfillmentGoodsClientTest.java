@@ -252,7 +252,7 @@ class FulfillmentGoodsClientTest {
             // then
             assertThat(result.dataCount()).isEqualTo(1);
             assertThat(result.goods()).hasSize(1);
-            assertThat(result.goods().get(0).customerProductCode()).isEqualTo(TEST_PRODUCT_KEY.toString());
+            assertThat(result.goods().get(0).customerProductCode()).isEqualTo(TEST_ENCODED_CST_GOD_CD);
             assertThat(result.goods().get(0).code()).isEqualTo("200");
         }
     }
