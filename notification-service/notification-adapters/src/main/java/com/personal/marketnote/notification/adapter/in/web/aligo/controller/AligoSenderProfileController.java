@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
-@Tag(name = "(관리자) 알리고 발신프로필", description = "알리고 카카오채널 발신프로필 관리 API")
+@Tag(name = "(관리자) 알리고 발신프로필 API", description = "알리고 카카오채널 발신프로필 관리 API")
 @SecurityRequirement(name = "bearer")
 @RestController
 @RequestMapping("/api/v1/admin/aligo/sender-profiles")

@@ -40,8 +40,21 @@ public class NotificationSwaggerConfig {
     private final SwaggerOrigin swaggerOrigin;
 
     private static final List<String> TAGS_ORDER = List.of(
-            "알림 API",
+            "디바이스 토큰 API",
+            "알림 수신 설정 API",
+            "알림 템플릿 API",
             "SSE 알림 스트림 API",
+            "알림 이력 API",
+            "(관리자) 알리고 카테고리 API",
+            "(관리자) 알리고 발신프로필 API",
+            "(관리자) 알리고 발송가능건수 API",
+            "(관리자) 알리고 알림톡 템플릿 API",
+            "(관리자) 알리고 알림톡 발송 API",
+            "(관리자) 알리고 메시지 조회 API",
+            "(관리자) 알리고 브랜드메시지 템플릿 API",
+            "(관리자) 알리고 브랜드메시지 전송 API",
+            "Outbox API",
+            "DLT API",
             "서버 정보 API"
     );
 

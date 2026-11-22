@@ -35,6 +35,13 @@ public class RewardSwaggerConfig {
             "오퍼월 API",
             "출석 정책 API",
             "출석체크 API",
+            "기프티콘 카테고리 API",
+            "기프티콘 브랜드 API",
+            "기프티콘 상품 API",
+            "기프티콘 주문 API",
+            "관리자 기프티콘 상품 API",
+            "관리자 기프티쇼 비즈머니 API",
+            "Outbox API",
             "DLT API",
             "서버 정보 API"
     );
