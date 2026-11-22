@@ -256,6 +256,66 @@ class GiftishowApiClientHttpFailureMaskingTest {
         mockServer.verify();
     }
 
+    @Test
+    @DisplayName("non-sensitive path /bizApi/cancel 5xx 응답 시 cause는 보존되고 stack trace가 client 로그에 포함된다")
+    void shouldPreserveCauseWhenCouponCancelHttpFailure() {
+        // given
+        mockServer.expect(requestTo(BASE_URL + COUPON_CANCEL_PATH))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(NON_SENSITIVE_ERROR_BODY));
+
+        // when & then
+        assertThatThrownBy(() -> giftishowApiClient.cancelCoupon("TR_001", "user1"))
+                .isInstanceOf(GiftishowCommunicationException.class)
+                .hasMessageContaining("HTTP 응답 실패")
+                .hasMessageContaining(COUPON_CANCEL_PATH)
+                .hasMessageContaining("status=500")
+                .hasCauseInstanceOf(org.springframework.web.client.RestClientResponseException.class);
+
+        ILoggingEvent errorEvent = findClientErrorEvent();
+        assertThat(errorEvent.getThrowableProxy()).isNotNull();
+        assertThat(errorEvent.getThrowableProxy().getClassName())
+                .containsAnyOf(
+                        "RestClientResponseException",
+                        "HttpServerErrorException",
+                        "InternalServerError"
+                );
+
+        mockServer.verify();
+    }
+
+    @Test
+    @DisplayName("non-sensitive path /bizApi/sendFail/cancel 5xx 응답 시 cause는 보존되고 stack trace가 client 로그에 포함된다")
+    void shouldPreserveCauseWhenCouponSendFailCancelHttpFailure() {
+        // given
+        mockServer.expect(requestTo(BASE_URL + COUPON_SEND_FAIL_CANCEL_PATH))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(NON_SENSITIVE_ERROR_BODY));
+
+        // when & then
+        assertThatThrownBy(() -> giftishowApiClient.cancelSendFailedCoupon("TR_001", "user1"))
+                .isInstanceOf(GiftishowCommunicationException.class)
+                .hasMessageContaining("HTTP 응답 실패")
+                .hasMessageContaining(COUPON_SEND_FAIL_CANCEL_PATH)
+                .hasMessageContaining("status=500")
+                .hasCauseInstanceOf(org.springframework.web.client.RestClientResponseException.class);
+
+        ILoggingEvent errorEvent = findClientErrorEvent();
+        assertThat(errorEvent.getThrowableProxy()).isNotNull();
+        assertThat(errorEvent.getThrowableProxy().getClassName())
+                .containsAnyOf(
+                        "RestClientResponseException",
+                        "HttpServerErrorException",
+                        "InternalServerError"
+                );
+
+        mockServer.verify();
+    }
+
     private ILoggingEvent findClientErrorEvent() {
         List<ILoggingEvent> events = clientAppender.list;
         return events.stream()
