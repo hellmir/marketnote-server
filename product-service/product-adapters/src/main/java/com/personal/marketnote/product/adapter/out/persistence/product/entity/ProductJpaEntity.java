@@ -63,6 +63,9 @@ public class ProductJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "find_all_options_yn", nullable = false, columnDefinition = BOOLEAN_DEFAULT_FALSE)
     private boolean findAllOptionsYn;
 
+    @Column(name = "fassto_product_code", nullable = false, unique = true, updatable = false, length = 25)
+    private String fasstoProductCode;
+
     @OneToMany(mappedBy = "productJpaEntity", cascade = {PERSIST, MERGE}, orphanRemoval = true)
     private List<ProductTagJpaEntity> productTagJpaEntities = new ArrayList<>();
 
@@ -77,6 +80,7 @@ public class ProductJpaEntity extends BaseOrderedGeneralEntity {
                 .brandName(product.getBrandName())
                 .detail(product.getDetail())
                 .findAllOptionsYn(product.isFindAllOptionsYn())
+                .fasstoProductCode(product.getFasstoProductCode())
                 .build();
 
         productJpaEntity.productTagJpaEntities = (

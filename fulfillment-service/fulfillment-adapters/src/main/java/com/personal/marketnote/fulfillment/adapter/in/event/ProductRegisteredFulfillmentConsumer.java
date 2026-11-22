@@ -74,6 +74,7 @@ public class ProductRegisteredFulfillmentConsumer {
 
             RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
                     .productKey(payload.productKey())
+                    .fasstoProductCode(payload.fasstoProductCode())
                     .productName(payload.productName())
                     .productType(godType)
                     .giftDivision(DEFAULT_GIFT_DIV)

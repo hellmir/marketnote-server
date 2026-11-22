@@ -67,6 +67,7 @@ public class ProductUpdatedFulfillmentConsumer {
 
         UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.builder()
                 .productKey(payload.productKey())
+                .fasstoProductCode(payload.fasstoProductCode())
                 .productName(payload.productName())
                 .productType(payload.goodsType())
                 .giftDivision(payload.giftDivision())

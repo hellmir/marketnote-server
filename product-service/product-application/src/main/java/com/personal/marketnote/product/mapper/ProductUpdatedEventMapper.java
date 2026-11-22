@@ -58,7 +58,8 @@ public class ProductUpdatedEventMapper {
                 options.feeApplied(),
                 options.saleUnitQuantity(),
                 options.customerGoodsImageUrl(),
-                options.externalGoodsImageUrl()
+                options.externalGoodsImageUrl(),
+                product.getFasstoProductCode()
         );
     }
 }

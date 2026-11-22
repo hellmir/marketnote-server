@@ -31,6 +31,7 @@ public class Product extends BaseDomain {
     private boolean findAllOptionsYn;
     private List<ProductTag> productTags;
     private Long orderNum;
+    private String fasstoProductCode;
 
     @JsonCreator
     private static Product jsonCreator(
@@ -47,7 +48,8 @@ public class Product extends BaseDomain {
             @JsonProperty("findAllOptionsYn") boolean findAllOptionsYn,
             @JsonProperty("productTags") List<ProductTag> productTags,
             @JsonProperty("orderNum") Long orderNum,
-            @JsonProperty("status") EntityStatus status
+            @JsonProperty("status") EntityStatus status,
+            @JsonProperty("fasstoProductCode") String fasstoProductCode
     ) {
         return from(
                 ProductSnapshotState.builder()
@@ -65,6 +67,7 @@ public class Product extends BaseDomain {
                         .productTags(productTags)
                         .orderNum(orderNum)
                         .status(status)
+                        .fasstoProductCode(fasstoProductCode)
                         .build()
         );
     }
@@ -77,14 +80,16 @@ public class Product extends BaseDomain {
                 .collect(Collectors.toList())
                 : List.of();
 
+        UUID productKey = RandomCodeGenerator.generateProductKey();
         return Product.builder()
-                .productKey(RandomCodeGenerator.generateProductKey())
+                .productKey(productKey)
                 .sellerId(state.getSellerId())
                 .name(state.getName())
                 .brandName(state.getBrandName())
                 .detail(state.getDetail())
                 .findAllOptionsYn(state.isFindAllOptionsYn())
                 .productTags(tags)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
                 .build();
     }
 
@@ -103,6 +108,7 @@ public class Product extends BaseDomain {
                 .findAllOptionsYn(state.isFindAllOptionsYn())
                 .productTags(state.getProductTags())
                 .orderNum(state.getOrderNum())
+                .fasstoProductCode(resolveFasstoProductCode(state))
                 .build();
         product.status = state.getStatus();
 
@@ -130,5 +136,15 @@ public class Product extends BaseDomain {
 
     public void delete() {
         deactivate();
+    }
+
+    private static String resolveFasstoProductCode(ProductSnapshotState state) {
+        if (FormatValidator.hasValue(state.getFasstoProductCode())) {
+            return state.getFasstoProductCode();
+        }
+        if (FormatValidator.hasValue(state.getProductKey())) {
+            return FasstoProductCodeGenerator.encode(state.getProductKey());
+        }
+        return null;
     }
 }

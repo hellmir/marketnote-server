@@ -5,6 +5,7 @@ import java.util.UUID;
 public record RegisterFulfillmentWarehousingGoodsCommand(
         UUID productKey,
         String productCode,
+        String fasstoProductCode,
         String expirationDate,
         Integer orderQuantity
 ) {
@@ -13,7 +14,7 @@ public record RegisterFulfillmentWarehousingGoodsCommand(
             String expirationDate,
             Integer orderQuantity
     ) {
-        return new RegisterFulfillmentWarehousingGoodsCommand(null, productCode, expirationDate, orderQuantity);
+        return new RegisterFulfillmentWarehousingGoodsCommand(null, productCode, null, expirationDate, orderQuantity);
     }
 
     public static RegisterFulfillmentWarehousingGoodsCommand of(
@@ -22,6 +23,16 @@ public record RegisterFulfillmentWarehousingGoodsCommand(
             String expirationDate,
             Integer orderQuantity
     ) {
-        return new RegisterFulfillmentWarehousingGoodsCommand(productKey, productCode, expirationDate, orderQuantity);
+        return new RegisterFulfillmentWarehousingGoodsCommand(productKey, productCode, null, expirationDate, orderQuantity);
+    }
+
+    public static RegisterFulfillmentWarehousingGoodsCommand of(
+            UUID productKey,
+            String productCode,
+            String fasstoProductCode,
+            String expirationDate,
+            Integer orderQuantity
+    ) {
+        return new RegisterFulfillmentWarehousingGoodsCommand(productKey, productCode, fasstoProductCode, expirationDate, orderQuantity);
     }
 }

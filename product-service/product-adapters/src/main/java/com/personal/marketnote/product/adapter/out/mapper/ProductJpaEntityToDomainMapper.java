@@ -46,6 +46,7 @@ public class ProductJpaEntityToDomainMapper {
                                             .productTags(tags)
                                             .orderNum(entity.getOrderNum())
                                             .status(entity.getStatus())
+                                            .fasstoProductCode(entity.getFasstoProductCode())
                                             .build()
                             );
                         }
@@ -77,6 +78,7 @@ public class ProductJpaEntityToDomainMapper {
                                             .productTags(tags)
                                             .orderNum(entity.getOrderNum())
                                             .status(entity.getStatus())
+                                            .fasstoProductCode(entity.getFasstoProductCode())
                                             .build()
                             );
                         }
@@ -221,6 +223,7 @@ public class ProductJpaEntityToDomainMapper {
                         .productTags(List.of())
                         .orderNum(productJpaEntity.getOrderNum())
                         .status(productJpaEntity.getStatus())
+                        .fasstoProductCode(productJpaEntity.getFasstoProductCode())
                         .build()
         );
     }

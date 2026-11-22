@@ -39,6 +39,7 @@ public record ProductUpdatedEvent(
         String feeApplied,
         String saleUnitQuantity,
         String customerGoodsImageUrl,
-        String externalGoodsImageUrl
+        String externalGoodsImageUrl,
+        String fasstoProductCode
 ) {
 }

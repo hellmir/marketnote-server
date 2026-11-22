@@ -58,7 +58,7 @@ public class RegisterProductService implements RegisterProductUseCase {
                 savedProduct.getId(), savedProduct.getProductKey(),
                 registerPricePolicyResult.id(), command.sellerId(), savedProduct.getName(), goodsType,
                 savedProduct.getBrandName(), command.price(), command.discountPrice(), command.accumulatedPoint(),
-                sales, productTags, List.of()
+                sales, productTags, List.of(), savedProduct.getFasstoProductCode()
         );
 
         return RegisterProductResult.from(savedProduct);

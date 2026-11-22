@@ -9,7 +9,6 @@ import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.encoder.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoStockCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentErrorResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentStockItemResponse;
@@ -220,13 +219,13 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
             FulfillmentStockListResponse parsedResponse = parseStockListResponse(response);
             boolean isSuccess = isStockListSuccess(response, parsedResponse);
             String exception = isSuccess ? null : resolveStockListException(response, parsedResponse);
-            String productKey = FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(cstGodCd);
+            String productIdentifier = cstGodCd;
 
             vendorCommunicationRecorder.record(
                     targetType,
                     FulfillmentVendorCommunicationType.REQUEST,
                     FulfillmentVendorCommunicationSenderType.SERVER,
-                    productKey,
+                    productIdentifier,
                     vendorName,
                     requestPayload,
                     requestPayloadJson,
@@ -236,7 +235,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
                     targetType,
                     FulfillmentVendorCommunicationType.RESPONSE,
                     FulfillmentVendorCommunicationSenderType.VENDOR,
-                    productKey,
+                    productIdentifier,
                     vendorName,
                     responsePayload,
                     responsePayloadJson,
@@ -442,7 +441,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
         return FulfillmentStockInfoResult.builder()
                 .warehouseCode(item.whCd())
                 .productCode(item.godCd())
-                .customerProductCode(FasstoCustomerGoodsCodeEncoder.decodeCustomerProductCode(item.cstGodCd()))
+                .customerProductCode(item.cstGodCd())
                 .productName(item.godNm())
                 .distributionTermDate(item.distTermDt())
                 .distributionTermManagementYn(item.distTermMgtYn())
