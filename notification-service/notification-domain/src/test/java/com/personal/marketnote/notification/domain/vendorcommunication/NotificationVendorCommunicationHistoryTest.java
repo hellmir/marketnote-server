@@ -26,6 +26,7 @@ class NotificationVendorCommunicationHistoryTest {
                         .exception(null)
                         .payload("{\"title\":\"알림\"}")
                         .payloadJson(payloadJson)
+                        .attemptCount(1)
                         .build();
 
         NotificationVendorCommunicationHistory history = NotificationVendorCommunicationHistory.from(state);
@@ -38,8 +39,28 @@ class NotificationVendorCommunicationHistoryTest {
         assertThat(history.getException()).isNull();
         assertThat(history.getPayload()).isEqualTo("{\"title\":\"알림\"}");
         assertThat(history.getPayloadJson()).isEqualTo(payloadJson);
+        assertThat(history.getAttemptCount()).isEqualTo(1);
         assertThat(history.getId()).isNull();
         assertThat(history.getCreatedAt()).isNull();
+    }
+
+    @Test
+    @DisplayName("재시도된 통신 이력의 attemptCount는 2 이상으로 매핑된다")
+    void shouldMapAttemptCountForRetriedCommunication() {
+        NotificationVendorCommunicationHistoryCreateState state =
+                NotificationVendorCommunicationHistoryCreateState.builder()
+                        .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
+                        .targetId("150")
+                        .vendorName(NotificationVendorName.FCM)
+                        .communicationType(NotificationVendorCommunicationType.REQUEST)
+                        .sender(NotificationVendorCommunicationSenderType.SERVER)
+                        .payload("{}")
+                        .attemptCount(3)
+                        .build();
+
+        NotificationVendorCommunicationHistory history = NotificationVendorCommunicationHistory.from(state);
+
+        assertThat(history.getAttemptCount()).isEqualTo(3);
     }
 
     @Test
@@ -118,6 +139,7 @@ class NotificationVendorCommunicationHistoryTest {
                         .exception("INTERNAL")
                         .payload("{\"success\":false}")
                         .payloadJson(payloadJson)
+                        .attemptCount(2)
                         .createdAt(createdAt)
                         .build();
 
@@ -127,6 +149,7 @@ class NotificationVendorCommunicationHistoryTest {
         assertThat(history.getCreatedAt()).isEqualTo(createdAt);
         assertThat(history.getException()).isEqualTo("INTERNAL");
         assertThat(history.getPayloadJson()).isEqualTo(payloadJson);
+        assertThat(history.getAttemptCount()).isEqualTo(2);
         assertThat(history.isFailure()).isTrue();
     }
 }

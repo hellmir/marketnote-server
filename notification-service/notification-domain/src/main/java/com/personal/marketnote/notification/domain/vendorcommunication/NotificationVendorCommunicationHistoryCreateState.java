@@ -15,4 +15,5 @@ public class NotificationVendorCommunicationHistoryCreateState {
     private final String exception;
     private final String payload;
     private final JsonNode payloadJson;
+    private final Integer attemptCount;
 }

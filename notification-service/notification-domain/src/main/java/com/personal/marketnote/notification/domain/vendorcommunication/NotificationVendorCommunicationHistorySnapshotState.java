@@ -18,5 +18,6 @@ public class NotificationVendorCommunicationHistorySnapshotState {
     private final String exception;
     private final String payload;
     private final JsonNode payloadJson;
+    private final Integer attemptCount;
     private final LocalDateTime createdAt;
 }

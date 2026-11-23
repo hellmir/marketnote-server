@@ -20,6 +20,7 @@ public class NotificationVendorCommunicationHistoryCommandToStateMapper {
                 .exception(command.getException())
                 .payload(command.getPayload())
                 .payloadJson(command.getPayloadJson())
+                .attemptCount(command.getAttemptCount())
                 .build();
     }
 }

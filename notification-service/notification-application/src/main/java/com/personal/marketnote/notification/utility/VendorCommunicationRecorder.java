@@ -95,6 +95,7 @@ public class VendorCommunicationRecorder {
                         .exception(exception)
                         .payload(payload)
                         .payloadJson(payloadJson)
+                        .attemptCount(1)
                         .build()
         );
     }

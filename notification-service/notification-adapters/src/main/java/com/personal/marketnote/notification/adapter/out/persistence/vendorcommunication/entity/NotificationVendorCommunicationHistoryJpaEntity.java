@@ -54,6 +54,9 @@ public class NotificationVendorCommunicationHistoryJpaEntity {
     @Column(name = "payload_json", columnDefinition = "jsonb")
     private JsonNode payloadJson;
 
+    @Column(name = "attempt_count", nullable = false)
+    private Integer attemptCount;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -73,6 +76,7 @@ public class NotificationVendorCommunicationHistoryJpaEntity {
                 .exception(history.getException())
                 .payload(history.getPayload())
                 .payloadJson(history.getPayloadJson())
+                .attemptCount(history.getAttemptCount())
                 .createdAt(history.getCreatedAt())
                 .build();
     }
@@ -89,6 +93,7 @@ public class NotificationVendorCommunicationHistoryJpaEntity {
                         .exception(exception)
                         .payload(payload)
                         .payloadJson(payloadJson)
+                        .attemptCount(attemptCount)
                         .createdAt(createdAt)
                         .build()
         );

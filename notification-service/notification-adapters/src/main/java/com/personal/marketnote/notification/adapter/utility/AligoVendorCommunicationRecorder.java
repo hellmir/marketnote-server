@@ -43,6 +43,7 @@ public class AligoVendorCommunicationRecorder
                                 .exception(exception)
                                 .payload(payload)
                                 .payloadJson(payloadJson)
+                                .attemptCount(attemptCount)
                                 .build()
                 )
         );

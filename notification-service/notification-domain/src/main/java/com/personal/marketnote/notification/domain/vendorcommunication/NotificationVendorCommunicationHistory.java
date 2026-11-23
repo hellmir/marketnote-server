@@ -20,6 +20,7 @@ public class NotificationVendorCommunicationHistory {
     private String exception;
     private String payload;
     private JsonNode payloadJson;
+    private Integer attemptCount;
     private LocalDateTime createdAt;
 
     public static NotificationVendorCommunicationHistory from(NotificationVendorCommunicationHistoryCreateState state) {
@@ -32,6 +33,7 @@ public class NotificationVendorCommunicationHistory {
                 .exception(state.getException())
                 .payload(state.getPayload())
                 .payloadJson(state.getPayloadJson())
+                .attemptCount(state.getAttemptCount())
                 .build();
     }
 
@@ -46,6 +48,7 @@ public class NotificationVendorCommunicationHistory {
                 .exception(state.getException())
                 .payload(state.getPayload())
                 .payloadJson(state.getPayloadJson())
+                .attemptCount(state.getAttemptCount())
                 .createdAt(state.getCreatedAt())
                 .build();
     }
