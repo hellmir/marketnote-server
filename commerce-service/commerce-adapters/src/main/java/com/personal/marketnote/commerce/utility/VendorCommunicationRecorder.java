@@ -23,7 +23,10 @@ public class VendorCommunicationRecorder extends com.personal.marketnote.common.
         CommerceVendorCommunicationSenderType
         > {
     public VendorCommunicationRecorder(RecordCommerceVendorCommunicationHistoryUseCase useCase) {
-        super((targetType, targetId, vendorName, communicationType, sender, exception, payload, payloadJson) ->
+        super((
+                targetType, targetId, vendorName, communicationType, sender,
+                exception, payload, payloadJson, attemptCount
+        ) ->
                 useCase.record(
                         CommerceVendorCommunicationHistoryCommand.builder()
                                 .targetType(targetType)
