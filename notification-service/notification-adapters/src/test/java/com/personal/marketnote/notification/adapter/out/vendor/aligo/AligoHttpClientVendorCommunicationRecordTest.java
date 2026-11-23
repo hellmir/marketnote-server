@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -95,13 +96,16 @@ class AligoHttpClientVendorCommunicationRecordTest {
                             JsonNode requestPayloadJson,
                             int statusCode,
                             String responseBody,
-                            boolean masked
+                            boolean masked,
+                            int attemptCount,
+                            List<AttemptResult> attempts
                     ) {
                         httpFailureCalls.add(new HttpFailureCall(
                                 targetType, requestPayload, statusCode, responseBody, masked
                         ));
                         super.handleHttpFailure(
-                                targetType, requestPayload, requestPayloadJson, statusCode, responseBody, masked
+                                targetType, requestPayload, requestPayloadJson, statusCode, responseBody, masked,
+                                attemptCount, attempts
                         );
                     }
                 };
