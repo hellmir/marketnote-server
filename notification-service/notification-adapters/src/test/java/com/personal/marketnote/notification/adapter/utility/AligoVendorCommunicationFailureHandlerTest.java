@@ -37,7 +37,10 @@ class AligoVendorCommunicationFailureHandlerTest {
         recordedCalls = new ArrayList<>();
         objectMapper = new ObjectMapper();
         AligoVendorCommunicationRecorder recorder = new AligoVendorCommunicationRecorder(
-                (targetType, targetId, vendorName, communicationType, sender, exception, payload, payloadJson) ->
+                (
+                        targetType, targetId, vendorName, communicationType, sender,
+                        exception, payload, payloadJson, attemptCount
+                ) ->
                         recordedCalls.add(new RecordedCall(communicationType, payloadJson))
         );
         VendorCommunicationPayloadGenerator payloadGenerator =

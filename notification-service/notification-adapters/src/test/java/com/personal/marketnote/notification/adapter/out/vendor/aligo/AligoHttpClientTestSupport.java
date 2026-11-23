@@ -32,7 +32,10 @@ public final class AligoHttpClientTestSupport {
     ) {
         return newClient(
                 restClient, objectMapper, properties, externalCallLogger,
-                (targetType, targetId, vendorName, communicationType, sender, exception, payload, payloadJson) -> {
+                (
+                        targetType, targetId, vendorName, communicationType, sender,
+                        exception, payload, payloadJson, attemptCount
+                ) -> {
                     // no-op
                 }
         );

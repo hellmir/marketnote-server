@@ -29,7 +29,10 @@ public class AligoVendorCommunicationRecorder
         > {
     @Autowired
     public AligoVendorCommunicationRecorder(NotificationRecordVendorCommunicationHistoryUseCase useCase) {
-        super((targetType, targetId, vendorName, communicationType, sender, exception, payload, payloadJson) ->
+        super((
+                targetType, targetId, vendorName, communicationType, sender,
+                exception, payload, payloadJson, attemptCount
+        ) ->
                 useCase.record(
                         NotificationVendorCommunicationHistoryCommand.builder()
                                 .targetType(targetType)

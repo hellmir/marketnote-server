@@ -76,7 +76,10 @@ class AligoHttpClientVendorCommunicationRecordTest {
                 NotificationVendorName,
                 NotificationVendorCommunicationType,
                 NotificationVendorCommunicationSenderType
-                > dispatcher = (targetType, targetId, vendorName, communicationType, sender, exception, payload, payloadJson) ->
+                > dispatcher = (
+                        targetType, targetId, vendorName, communicationType, sender,
+                        exception, payload, payloadJson, attemptCount
+                ) ->
                 recordCalls.add(new RecordCall(
                         targetType, targetId, vendorName, communicationType, sender, exception, payload
                 ));

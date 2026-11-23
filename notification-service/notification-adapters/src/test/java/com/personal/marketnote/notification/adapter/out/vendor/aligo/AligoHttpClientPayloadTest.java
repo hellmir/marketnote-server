@@ -62,7 +62,10 @@ class AligoHttpClientPayloadTest {
         recordedCalls = new ArrayList<>();
         aligoHttpClient = AligoHttpClientTestSupport.newClient(
                 restClient, objectMapper, properties, externalCallLogger,
-                (targetType, targetId, vendorName, communicationType, sender, exception, payload, payloadJson) ->
+                (
+                        targetType, targetId, vendorName, communicationType, sender,
+                        exception, payload, payloadJson, attemptCount
+                ) ->
                         recordedCalls.add(new RecordedCall(communicationType, payloadJson))
         );
     }
