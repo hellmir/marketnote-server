@@ -19,10 +19,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("FasstoGoodsCommandToRequestMapper 테스트")
 class FasstoGoodsCommandToRequestMapperTest {
 
-    private static RegisterFulfillmentGoodsItemCommand buildRegisterItem(UUID productKey, String productCode) {
+    private static RegisterFulfillmentGoodsItemCommand buildRegisterItem(
+            UUID productKey, String productCode, String fasstoProductCode
+    ) {
         return RegisterFulfillmentGoodsItemCommand.builder()
                 .productKey(productKey)
                 .productCode(productCode)
+                .fasstoProductCode(fasstoProductCode)
                 .productName("상품명")
                 .productType("TYPE01")
                 .giftDivision("N")
@@ -60,10 +63,13 @@ class FasstoGoodsCommandToRequestMapperTest {
                 .build();
     }
 
-    private static UpdateFulfillmentGoodsItemCommand buildUpdateItem(UUID productKey, String productCode) {
+    private static UpdateFulfillmentGoodsItemCommand buildUpdateItem(
+            UUID productKey, String productCode, String fasstoProductCode
+    ) {
         return UpdateFulfillmentGoodsItemCommand.builder()
                 .productKey(productKey)
                 .productCode(productCode)
+                .fasstoProductCode(fasstoProductCode)
                 .productName("상품명")
                 .productType("TYPE01")
                 .giftDivision("N")
@@ -75,11 +81,12 @@ class FasstoGoodsCommandToRequestMapperTest {
     class MapToRegisterRequest {
 
         @Test
-        @DisplayName("productKey가 있으면 UUID가 cstGodCd로 매핑된다")
-        void shouldPreferProductKey() {
+        @DisplayName("caller가 채운 fasstoProductCode가 cstGodCd로 그대로 송신된다")
+        void shouldSendCallerProvidedFasstoProductCode() {
             // given
             UUID productKey = UUID.randomUUID();
-            RegisterFulfillmentGoodsItemCommand item = buildRegisterItem(productKey, "GOD001");
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
+            RegisterFulfillmentGoodsItemCommand item = buildRegisterItem(productKey, "GOD001", encoded);
             RegisterFulfillmentGoodsCommand command = RegisterFulfillmentGoodsCommand.of(
                     "CUST001", "token", List.of(item)
             );
@@ -88,7 +95,6 @@ class FasstoGoodsCommandToRequestMapperTest {
             FulfillmentGoodsMapper mapper = FasstoGoodsCommandToRequestMapper.mapToRegisterRequest(command);
 
             // then
-            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             assertThat(mapper.getProductKey()).isEqualTo(encoded);
             String payload = mapper.toPayload().toString();
             assertThat(payload).contains(encoded);
@@ -97,27 +103,12 @@ class FasstoGoodsCommandToRequestMapperTest {
         }
 
         @Test
-        @DisplayName("productKey가 null이면 productCode가 cstGodCd로 폴백된다")
-        void shouldFallbackToProductCode() {
-            // given
-            RegisterFulfillmentGoodsItemCommand item = buildRegisterItem(null, "GOD001");
-            RegisterFulfillmentGoodsCommand command = RegisterFulfillmentGoodsCommand.of(
-                    "CUST001", "token", List.of(item)
-            );
-
-            // when
-            FulfillmentGoodsMapper mapper = FasstoGoodsCommandToRequestMapper.mapToRegisterRequest(command);
-
-            // then
-            assertThat(mapper.getProductKey()).isEqualTo("GOD001");
-        }
-
-        @Test
         @DisplayName("상품 기본 필드와 옵션 필드가 payload로 매핑된다")
         void shouldMapAllItemFields() {
             // given
             UUID productKey = UUID.randomUUID();
-            RegisterFulfillmentGoodsItemCommand item = buildRegisterItem(productKey, null);
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
+            RegisterFulfillmentGoodsItemCommand item = buildRegisterItem(productKey, null, encoded);
             RegisterFulfillmentGoodsCommand command = RegisterFulfillmentGoodsCommand.of(
                     "CUST001", "token", List.of(item)
             );
@@ -128,7 +119,7 @@ class FasstoGoodsCommandToRequestMapperTest {
             // then
             Map<String, Object> payload = mapper.toPayload().getFirst();
             assertThat(payload)
-                    .containsEntry("cstGodCd", FasstoCustomerGoodsCodeEncoder.encode(productKey))
+                    .containsEntry("cstGodCd", encoded)
                     .containsEntry("godNm", "상품명")
                     .containsEntry("godType", "TYPE01")
                     .containsEntry("giftDiv", "N")
@@ -171,8 +162,10 @@ class FasstoGoodsCommandToRequestMapperTest {
             // given
             UUID productKey1 = UUID.randomUUID();
             UUID productKey2 = UUID.randomUUID();
-            RegisterFulfillmentGoodsItemCommand item1 = buildRegisterItem(productKey1, null);
-            RegisterFulfillmentGoodsItemCommand item2 = buildRegisterItem(productKey2, null);
+            String encoded1 = FasstoCustomerGoodsCodeEncoder.encode(productKey1);
+            String encoded2 = FasstoCustomerGoodsCodeEncoder.encode(productKey2);
+            RegisterFulfillmentGoodsItemCommand item1 = buildRegisterItem(productKey1, null, encoded1);
+            RegisterFulfillmentGoodsItemCommand item2 = buildRegisterItem(productKey2, null, encoded2);
             RegisterFulfillmentGoodsCommand command = RegisterFulfillmentGoodsCommand.of(
                     "CUST001", "token", List.of(item1, item2)
             );
@@ -190,11 +183,12 @@ class FasstoGoodsCommandToRequestMapperTest {
     class MapToUpdateRequest {
 
         @Test
-        @DisplayName("productKey가 있으면 UUID가 cstGodCd로 매핑된다")
-        void shouldPreferProductKey() {
+        @DisplayName("caller가 채운 fasstoProductCode가 cstGodCd로 그대로 송신된다")
+        void shouldSendCallerProvidedFasstoProductCode() {
             // given
             UUID productKey = UUID.randomUUID();
-            UpdateFulfillmentGoodsItemCommand item = buildUpdateItem(productKey, "GOD001");
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
+            UpdateFulfillmentGoodsItemCommand item = buildUpdateItem(productKey, "GOD001", encoded);
             UpdateFulfillmentGoodsCommand command = UpdateFulfillmentGoodsCommand.of(
                     "CUST001", "token", List.of(item)
             );
@@ -203,27 +197,10 @@ class FasstoGoodsCommandToRequestMapperTest {
             FulfillmentGoodsMapper mapper = FasstoGoodsCommandToRequestMapper.mapToUpdateRequest(command);
 
             // then
-            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             String payload = mapper.toPayload().toString();
             assertThat(payload).contains(encoded);
             assertThat(payload).doesNotContain("GOD001");
             assertThat(payload).doesNotContain(productKey.toString());
-        }
-
-        @Test
-        @DisplayName("productKey가 null이면 productCode가 cstGodCd로 폴백된다")
-        void shouldFallbackToProductCode() {
-            // given
-            UpdateFulfillmentGoodsItemCommand item = buildUpdateItem(null, "GOD001");
-            UpdateFulfillmentGoodsCommand command = UpdateFulfillmentGoodsCommand.of(
-                    "CUST001", "token", List.of(item)
-            );
-
-            // when
-            FulfillmentGoodsMapper mapper = FasstoGoodsCommandToRequestMapper.mapToUpdateRequest(command);
-
-            // then
-            assertThat(mapper.toPayload().toString()).contains("GOD001");
         }
     }
 

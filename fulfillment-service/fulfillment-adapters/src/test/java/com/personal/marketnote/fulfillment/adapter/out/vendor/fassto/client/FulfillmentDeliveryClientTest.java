@@ -158,7 +158,7 @@ class FulfillmentDeliveryClientTest {
 
     private RegisterFulfillmentDeliveryCommand buildValidRegisterCommand() {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                "PROD001", "20260414", 1
+                null, "PROD001", "PROD001", "20260414", 1
         );
         RegisterFulfillmentDeliveryItemCommand itemCommand = RegisterFulfillmentDeliveryItemCommand.builder()
                 .orderNumber("ORD001")
@@ -174,7 +174,7 @@ class FulfillmentDeliveryClientTest {
 
     private UpdateFulfillmentDeliveryCommand buildValidUpdateCommand() {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                "PROD001", "20260414", 1
+                null, "PROD001", "PROD001", "20260414", 1
         );
         UpdateFulfillmentDeliveryItemCommand itemCommand = UpdateFulfillmentDeliveryItemCommand.builder()
                 .orderNumber("ORD001")
@@ -191,7 +191,7 @@ class FulfillmentDeliveryClientTest {
 
     private RegisterFulfillmentDeliveryCarCommand buildValidRegisterCarCommand() {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                "PROD001", "20260414", 1
+                null, "PROD001", "PROD001", "20260414", 1
         );
         RegisterFulfillmentDeliveryCarItemCommand itemCommand = RegisterFulfillmentDeliveryCarItemCommand.builder()
                 .orderNumber("ORD001")
@@ -205,7 +205,7 @@ class FulfillmentDeliveryClientTest {
 
     private UpdateFulfillmentDeliveryCarCommand buildValidUpdateCarCommand() {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                "PROD001", "20260414", 1
+                null, "PROD001", "PROD001", "20260414", 1
         );
         UpdateFulfillmentDeliveryCarItemCommand itemCommand = UpdateFulfillmentDeliveryCarItemCommand.builder()
                 .orderNumber("ORD001")
@@ -220,7 +220,7 @@ class FulfillmentDeliveryClientTest {
 
     private RegisterFulfillmentDeliveryIcsCommand buildValidRegisterIcsCommand() {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                "PROD001", "20260414", 1
+                null, "PROD001", "PROD001", "20260414", 1
         );
         RegisterFulfillmentDeliveryIcsItemCommand itemCommand = RegisterFulfillmentDeliveryIcsItemCommand.builder()
                 .orderNumber("ORD001")

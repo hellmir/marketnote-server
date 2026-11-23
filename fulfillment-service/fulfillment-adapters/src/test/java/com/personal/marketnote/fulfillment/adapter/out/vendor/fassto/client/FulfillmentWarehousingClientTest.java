@@ -130,7 +130,7 @@ class FulfillmentWarehousingClientTest {
 
     private RegisterFulfillmentWarehousingCommand buildValidRegisterCommand() {
         RegisterFulfillmentWarehousingGoodsCommand goodsCommand = RegisterFulfillmentWarehousingGoodsCommand.of(
-                "PROD001", null, 10
+                null, "PROD001", "PROD001", null, 10
         );
         RegisterFulfillmentWarehousingItemCommand itemCommand = RegisterFulfillmentWarehousingItemCommand.builder()
                 .orderDate("20260414")
@@ -144,7 +144,7 @@ class FulfillmentWarehousingClientTest {
 
     private UpdateFulfillmentWarehousingCommand buildValidUpdateCommand() {
         UpdateFulfillmentWarehousingGoodsCommand goodsCommand = UpdateFulfillmentWarehousingGoodsCommand.of(
-                null, "PROD001", null, 10
+                null, "PROD001", "PROD001", null, 10
         );
         UpdateFulfillmentWarehousingItemCommand itemCommand = UpdateFulfillmentWarehousingItemCommand.builder()
                 .orderDate("20260414")

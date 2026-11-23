@@ -118,6 +118,7 @@ class FulfillmentGoodsClientTest {
     private RegisterFulfillmentGoodsCommand buildValidRegisterCommand() {
         RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
                 .productCode("PROD001")
+                .fasstoProductCode("PROD001")
                 .productName("테스트 상품")
                 .productType("1")
                 .giftDivision("01")
@@ -128,6 +129,7 @@ class FulfillmentGoodsClientTest {
     private UpdateFulfillmentGoodsCommand buildValidUpdateCommand() {
         UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.builder()
                 .productCode("PROD001")
+                .fasstoProductCode("PROD001")
                 .productName("테스트 상품")
                 .productType("1")
                 .giftDivision("01")
