@@ -100,6 +100,24 @@ class NotificationRecordVendorCommunicationHistoryUseCaseTest {
         assertThat(captor.getValue().getPayload()).contains("\"messageId\":\"msg-1\"");
     }
 
+    @Test
+    @DisplayName("Command의 attemptCount가 도메인 객체에 그대로 전달되어 저장된다")
+    void shouldPassAttemptCountAsIs() throws Exception {
+        JsonNode payloadJson = objectMapper.readTree("{\"response\":{\"success\":true}}");
+        NotificationVendorCommunicationHistoryCommand command = baseCommandBuilder(payloadJson)
+                .attemptCount(2)
+                .build();
+        given(saveNotificationVendorCommunicationHistoryPort.save(any(NotificationVendorCommunicationHistory.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+        service.record(command);
+
+        ArgumentCaptor<NotificationVendorCommunicationHistory> captor =
+                ArgumentCaptor.forClass(NotificationVendorCommunicationHistory.class);
+        verify(saveNotificationVendorCommunicationHistoryPort).save(captor.capture());
+        assertThat(captor.getValue().getAttemptCount()).isEqualTo(2);
+    }
+
     private NotificationVendorCommunicationHistoryCommand.NotificationVendorCommunicationHistoryCommandBuilder baseCommandBuilder(
             JsonNode payloadJson
     ) {
@@ -110,6 +128,7 @@ class NotificationRecordVendorCommunicationHistoryUseCaseTest {
                 .communicationType(NotificationVendorCommunicationType.REQUEST)
                 .sender(NotificationVendorCommunicationSenderType.SERVER)
                 .payload(payloadJson.toString())
-                .payloadJson(payloadJson);
+                .payloadJson(payloadJson)
+                .attemptCount(1);
     }
 }

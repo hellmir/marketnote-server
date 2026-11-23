@@ -51,6 +51,7 @@ class NotificationVendorCommunicationHistoryPersistenceAdapterTest {
         assertThat(captured.getCommunicationType()).isEqualTo(NotificationVendorCommunicationType.REQUEST);
         assertThat(captured.getSender()).isEqualTo(NotificationVendorCommunicationSenderType.SERVER);
         assertThat(captured.getPayload()).isEqualTo("{\"k\":\"v\"}");
+        assertThat(captured.getAttemptCount()).isEqualTo(1);
     }
 
     @Test
@@ -78,6 +79,7 @@ class NotificationVendorCommunicationHistoryPersistenceAdapterTest {
         assertThat(saved.getSender()).isEqualTo(NotificationVendorCommunicationSenderType.SERVER);
         assertThat(saved.getException()).isEqualTo("UNREGISTERED");
         assertThat(saved.getPayload()).isEqualTo("{\"k\":\"v\"}");
+        assertThat(saved.getAttemptCount()).isEqualTo(1);
         assertThat(saved.isFailure()).isTrue();
     }
 
@@ -92,6 +94,7 @@ class NotificationVendorCommunicationHistoryPersistenceAdapterTest {
                         .exception("UNREGISTERED")
                         .payload("{\"k\":\"v\"}")
                         .payloadJson(null)
+                        .attemptCount(1)
                         .build()
         );
     }
