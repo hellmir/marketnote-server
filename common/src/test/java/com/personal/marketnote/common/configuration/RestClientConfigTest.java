@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.configuration;
 
 import com.personal.marketnote.common.utility.http.client.restclient.RestClientLoggingInterceptor;
+import com.personal.marketnote.common.utility.http.client.restclient.TraceIdPropagationInterceptor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.web.client.RestClientCustomizer;
@@ -17,7 +18,9 @@ class RestClientConfigTest {
         RestClientConfig config = new RestClientConfig(5000, 10000);
 
         // when
-        RestClientCustomizer customizer = config.restClientCustomizer(new RestClientLoggingInterceptor());
+        RestClientCustomizer customizer = config.restClientCustomizer(
+                new RestClientLoggingInterceptor(), new TraceIdPropagationInterceptor()
+        );
 
         // then
         assertThat(customizer).isNotNull();
@@ -28,7 +31,9 @@ class RestClientConfigTest {
     void shouldApplyCustomizerToRestClientBuilder() {
         // given
         RestClientConfig config = new RestClientConfig(3000, 8000);
-        RestClientCustomizer customizer = config.restClientCustomizer(new RestClientLoggingInterceptor());
+        RestClientCustomizer customizer = config.restClientCustomizer(
+                new RestClientLoggingInterceptor(), new TraceIdPropagationInterceptor()
+        );
 
         // when & then
         assertThatCode(() -> {
@@ -46,6 +51,19 @@ class RestClientConfigTest {
 
         // when
         RestClientLoggingInterceptor interceptor = config.restClientLoggingInterceptor();
+
+        // then
+        assertThat(interceptor).isNotNull();
+    }
+
+    @Test
+    @DisplayName("TraceIdPropagationInterceptor 빈이 정상적으로 생성된다")
+    void shouldCreateTraceIdPropagationInterceptor() {
+        // given
+        RestClientConfig config = new RestClientConfig(5000, 10000);
+
+        // when
+        TraceIdPropagationInterceptor interceptor = config.traceIdPropagationInterceptor();
 
         // then
         assertThat(interceptor).isNotNull();
