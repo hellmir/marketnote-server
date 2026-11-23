@@ -11,6 +11,7 @@ import com.personal.marketnote.user.adapter.in.web.user.request.SignInRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignUpRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.UpdateUserInfoRequest;
 import com.personal.marketnote.user.adapter.in.web.user.response.*;
+import com.personal.marketnote.user.domain.user.ReferenceCode;
 import com.personal.marketnote.user.port.in.result.CheckNicknameResult;
 import com.personal.marketnote.user.port.in.result.SignInResult;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
@@ -171,6 +172,34 @@ public class UserController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "추천 회원 초대 코드 등록 여부 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 초대 코드 존재 여부 조회
+     *
+     * @param code 초대 코드
+     * @return 초대 코드 존재 여부 응답 {@link IsReferredUserCodeExistsResponse}
+     * @Author 성효빈
+     * @Date 2026-11-22
+     * @Description 입력한 초대 코드에 해당하는 회원이 존재하는지 여부를 조회합니다.
+     */
+    @GetMapping("/referred-user-code/exists")
+    @IsReferredUserCodeExistsApiDocs
+    public ResponseEntity<BaseResponse<IsReferredUserCodeExistsResponse>> existsReferredUserCode(
+            @RequestParam String code
+    ) {
+        ReferenceCode referenceCode = ReferenceCode.of(code);
+        boolean exists = getUserUseCase.existsUser(referenceCode.getValue());
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        IsReferredUserCodeExistsResponse.of(exists),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "초대 코드 존재 여부 조회 성공"
                 ),
                 HttpStatus.OK
         );
