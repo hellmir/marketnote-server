@@ -3,7 +3,10 @@ package com.personal.marketnote.user.adapter.in.web.user.controller;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignInRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignUpRequest;
+import com.personal.marketnote.user.adapter.in.web.user.response.IsReferredUserCodeExistsResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.IsReferredUserCodeRegisteredResponse;
+import com.personal.marketnote.user.domain.user.exception.InvalidReferenceCodeException;
+import com.personal.marketnote.user.domain.user.exception.ReferenceCodeNoValueException;
 import com.personal.marketnote.user.port.in.result.SignInResult;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.port.in.usecase.user.*;
@@ -23,6 +26,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import static com.personal.marketnote.common.security.token.utility.TokenConstant.ISS_CLAIM_KEY;
 import static com.personal.marketnote.common.security.token.utility.TokenConstant.SUB_CLAIM_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -346,6 +350,95 @@ class UserControllerTest {
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().getContent().isRegistered()).isFalse();
             verify(getUserUseCase).isReferredUserCodeRegistered(7L);
+        }
+    }
+
+    @Nested
+    @DisplayName("existsReferredUserCode - 초대 코드 존재 여부 조회")
+    class ExistsReferredUserCodeTest {
+
+        @Test
+        @DisplayName("존재하는 초대 코드면 HTTP 200과 exists=true로 응답한다")
+        void shouldReturnTrueWhenCodeExists() {
+            // given
+            String code = "ABC123";
+            when(getUserUseCase.existsUser(code)).thenReturn(true);
+
+            // when
+            ResponseEntity<BaseResponse<IsReferredUserCodeExistsResponse>> response =
+                    userController.existsReferredUserCode(code);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getContent().exists()).isTrue();
+            verify(getUserUseCase).existsUser(code);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 초대 코드면 HTTP 200과 exists=false로 응답한다")
+        void shouldReturnFalseWhenCodeDoesNotExist() {
+            // given
+            String code = "XYZ789";
+            when(getUserUseCase.existsUser(code)).thenReturn(false);
+
+            // when
+            ResponseEntity<BaseResponse<IsReferredUserCodeExistsResponse>> response =
+                    userController.existsReferredUserCode(code);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getContent().exists()).isFalse();
+            verify(getUserUseCase).existsUser(code);
+        }
+
+        @Test
+        @DisplayName("초대 코드 형식이 잘못되면 InvalidReferenceCodeException을 던진다")
+        void shouldThrowWhenCodeFormatInvalid() {
+            // given - 패턴 ^[A-Z0-9]{6}$ 위반: 소문자 포함
+            String invalidCode = "abc123";
+
+            // when & then
+            assertThatThrownBy(() -> userController.existsReferredUserCode(invalidCode))
+                    .isInstanceOf(InvalidReferenceCodeException.class);
+            verify(getUserUseCase, never()).existsUser(anyString());
+        }
+
+        @Test
+        @DisplayName("초대 코드 길이가 6자리가 아니면 InvalidReferenceCodeException을 던진다")
+        void shouldThrowWhenCodeLengthInvalid() {
+            // given
+            String invalidCode = "AB12";
+
+            // when & then
+            assertThatThrownBy(() -> userController.existsReferredUserCode(invalidCode))
+                    .isInstanceOf(InvalidReferenceCodeException.class);
+            verify(getUserUseCase, never()).existsUser(anyString());
+        }
+
+        @Test
+        @DisplayName("초대 코드가 빈 문자열이면 ReferenceCodeNoValueException을 던진다")
+        void shouldThrowWhenCodeBlank() {
+            // given
+            String blankCode = "";
+
+            // when & then
+            assertThatThrownBy(() -> userController.existsReferredUserCode(blankCode))
+                    .isInstanceOf(ReferenceCodeNoValueException.class);
+            verify(getUserUseCase, never()).existsUser(anyString());
+        }
+
+        @Test
+        @DisplayName("초대 코드가 공백 문자열이면 ReferenceCodeNoValueException을 던진다")
+        void shouldThrowWhenCodeWhitespace() {
+            // given
+            String whitespaceCode = "   ";
+
+            // when & then
+            assertThatThrownBy(() -> userController.existsReferredUserCode(whitespaceCode))
+                    .isInstanceOf(ReferenceCodeNoValueException.class);
+            verify(getUserUseCase, never()).existsUser(anyString());
         }
     }
 
