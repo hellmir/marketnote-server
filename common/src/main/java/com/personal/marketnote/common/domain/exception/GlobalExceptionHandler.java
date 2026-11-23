@@ -32,7 +32,6 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
@@ -68,13 +67,7 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus httpStatus, String code, String message) {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-
+        ErrorResponse errorResponse = ErrorResponse.of(httpStatus.value(), code, message);
         return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
     }
 
