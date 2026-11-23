@@ -2,6 +2,7 @@ package com.personal.marketnote.common.configuration;
 
 import com.personal.marketnote.common.utility.http.client.restclient.RestClientErrorHandler;
 import com.personal.marketnote.common.utility.http.client.restclient.RestClientLoggingInterceptor;
+import com.personal.marketnote.common.utility.http.client.restclient.TraceIdPropagationInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestClientCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -30,13 +31,22 @@ public class RestClientConfig {
     }
 
     @Bean
-    public RestClientCustomizer restClientCustomizer(RestClientLoggingInterceptor loggingInterceptor) {
+    public TraceIdPropagationInterceptor traceIdPropagationInterceptor() {
+        return new TraceIdPropagationInterceptor();
+    }
+
+    @Bean
+    public RestClientCustomizer restClientCustomizer(
+            RestClientLoggingInterceptor loggingInterceptor,
+            TraceIdPropagationInterceptor traceIdPropagationInterceptor
+    ) {
         return builder -> {
             SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
             requestFactory.setConnectTimeout(Duration.ofMillis(connectTimeout));
             requestFactory.setReadTimeout(Duration.ofMillis(readTimeout));
 
             builder.requestFactory(requestFactory)
+                    .requestInterceptor(traceIdPropagationInterceptor)
                     .requestInterceptor(loggingInterceptor)
                     .defaultStatusHandler(RestClientErrorHandler::isError, RestClientErrorHandler.noOpErrorHandler());
         };
