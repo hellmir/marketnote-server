@@ -31,6 +31,9 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.matchesRegex;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -97,6 +100,40 @@ class GiftishowApiClientTest {
     @Nested
     @DisplayName("getProductList (0101)")
     class GetProductListTest {
+
+        @Test
+        @DisplayName("상품 리스트 조회는 api_code=0101을 송신한다")
+        void shouldSendApiCode0101WhenGetProductList() {
+            // given
+            MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
+            expectedFormData.add("custom_auth_code", AUTH_CODE);
+            expectedFormData.add("custom_auth_token", AUTH_TOKEN);
+            expectedFormData.add("dev_yn", DEV_YN);
+            expectedFormData.add("api_code", "0101");
+            expectedFormData.add("start", "0");
+            expectedFormData.add("size", "20");
+
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/goods"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().formData(expectedFormData))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "list_total_cnt": 0,
+                                    "goodsList": []
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.getProductList(0, 20);
+
+            // then
+            mockServer.verify();
+        }
 
         @Test
         @DisplayName("상품 리스트 조회에 성공하면 응답을 반환한다")
@@ -243,6 +280,38 @@ class GiftishowApiClientTest {
     class GetBrandListTest {
 
         @Test
+        @DisplayName("브랜드 리스트 조회는 api_code=0102를 송신한다")
+        void shouldSendApiCode0102WhenGetBrandList() {
+            // given
+            MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
+            expectedFormData.add("custom_auth_code", AUTH_CODE);
+            expectedFormData.add("custom_auth_token", AUTH_TOKEN);
+            expectedFormData.add("dev_yn", DEV_YN);
+            expectedFormData.add("api_code", "0102");
+
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/brands"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().formData(expectedFormData))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "list_total_cnt": 0,
+                                    "brandList": []
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.getBrandList();
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
         @DisplayName("브랜드 조회에 성공하면 응답을 반환한다")
         void shouldReturnBrandListWhenRequestSucceeds() {
             // given
@@ -335,6 +404,56 @@ class GiftishowApiClientTest {
     class SendCouponTest {
 
         @Test
+        @DisplayName("쿠폰 발송은 api_code=0204를 송신한다")
+        void shouldSendApiCode0204WhenSendCoupon() {
+            // given
+            MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
+            expectedFormData.add("custom_auth_code", AUTH_CODE);
+            expectedFormData.add("custom_auth_token", AUTH_TOKEN);
+            expectedFormData.add("dev_yn", DEV_YN);
+            expectedFormData.add("api_code", "0204");
+            expectedFormData.add("tr_id", "NTCASH_1_20260403120000");
+            expectedFormData.add("goods_code", "G001");
+            expectedFormData.add("phone_no", "01012345678");
+            expectedFormData.add("user_id", "user1");
+            expectedFormData.add("gubun", GUBUN);
+            expectedFormData.add("callback_no", CALLBACK_NO);
+            expectedFormData.add("mms_msg", "기프티콘 발송");
+            expectedFormData.add("mms_title", "마켓노트");
+
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().formData(expectedFormData))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD001",
+                                    "pin_no": "1234-5678-9012",
+                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
+                                    "valid_prd_end_dt": "20260503"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.sendCoupon(
+                    "NTCASH_1_20260403120000",
+                    "G001",
+                    "01012345678",
+                    "user1",
+                    "기프티콘 발송",
+                    "마켓노트"
+            );
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
         @DisplayName("쿠폰 발송에 성공하면 응답을 반환한다")
         void shouldReturnCouponSendResponseWhenRequestSucceeds() {
             // given
@@ -383,6 +502,44 @@ class GiftishowApiClientTest {
     class GetCouponDetailTest {
 
         @Test
+        @DisplayName("쿠폰 상세 조회는 api_code=0201을 송신한다")
+        void shouldSendApiCode0201WhenGetCouponDetail() {
+            // given
+            MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
+            expectedFormData.add("custom_auth_code", AUTH_CODE);
+            expectedFormData.add("custom_auth_token", AUTH_TOKEN);
+            expectedFormData.add("dev_yn", DEV_YN);
+            expectedFormData.add("api_code", "0201");
+            expectedFormData.add("tr_id", "NTCASH_1_20260403120000");
+
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/coupons"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().formData(expectedFormData))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD001",
+                                    "pin_status_cd": "01",
+                                    "pin_status_nm": "발행",
+                                    "valid_prd_end_dt": "20260503",
+                                    "goods_code": "G001",
+                                    "goods_name": "테스트 상품"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.getCouponDetail("NTCASH_1_20260403120000");
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
         @DisplayName("쿠폰 상세 조회에 성공하면 응답을 반환한다")
         void shouldReturnCouponDetailWhenRequestSucceeds() {
             // given
@@ -423,6 +580,40 @@ class GiftishowApiClientTest {
     class CancelCouponTest {
 
         @Test
+        @DisplayName("쿠폰 취소는 api_code=0202를 송신한다")
+        void shouldSendApiCode0202WhenCancelCoupon() {
+            // given
+            MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
+            expectedFormData.add("custom_auth_code", AUTH_CODE);
+            expectedFormData.add("custom_auth_token", AUTH_TOKEN);
+            expectedFormData.add("dev_yn", DEV_YN);
+            expectedFormData.add("api_code", "0202");
+            expectedFormData.add("tr_id", "NTCASH_1_20260403120000");
+            expectedFormData.add("user_id", "user1");
+
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/cancel"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().formData(expectedFormData))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD001"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.cancelCoupon("NTCASH_1_20260403120000", "user1");
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
         @DisplayName("쿠폰 취소에 성공하면 응답을 반환한다")
         void shouldReturnCancelResponseWhenRequestSucceeds() {
             // given
@@ -454,6 +645,40 @@ class GiftishowApiClientTest {
     @Nested
     @DisplayName("resendCoupon (0203)")
     class ResendCouponTest {
+
+        @Test
+        @DisplayName("쿠폰 재전송은 api_code=0203을 송신한다")
+        void shouldSendApiCode0203WhenResendCoupon() {
+            // given
+            MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
+            expectedFormData.add("custom_auth_code", AUTH_CODE);
+            expectedFormData.add("custom_auth_token", AUTH_TOKEN);
+            expectedFormData.add("dev_yn", DEV_YN);
+            expectedFormData.add("api_code", "0203");
+            expectedFormData.add("tr_id", "NTCASH_1_20260403120000");
+            expectedFormData.add("phone_no", "01012345678");
+
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/resend"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().formData(expectedFormData))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD001"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.resendCoupon("NTCASH_1_20260403120000", "01012345678");
+
+            // then
+            mockServer.verify();
+        }
 
         @Test
         @DisplayName("쿠폰 재전송에 성공하면 응답을 반환한다")
@@ -489,6 +714,39 @@ class GiftishowApiClientTest {
     class GetBizMoneyBalanceTest {
 
         @Test
+        @DisplayName("비즈머니 잔액 조회는 api_code=0301을 송신한다")
+        void shouldSendApiCode0301WhenGetBizMoneyBalance() {
+            // given
+            MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
+            expectedFormData.add("custom_auth_code", AUTH_CODE);
+            expectedFormData.add("custom_auth_token", AUTH_TOKEN);
+            expectedFormData.add("dev_yn", DEV_YN);
+            expectedFormData.add("api_code", "0301");
+            expectedFormData.add("user_id", "user1");
+
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/bizmoney"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().formData(expectedFormData))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "user_id": "user1",
+                                    "biz_money": 500000
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.getBizMoneyBalance("user1");
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
         @DisplayName("비즈머니 잔액 조회에 성공하면 응답을 반환한다")
         void shouldReturnBizMoneyBalanceWhenRequestSucceeds() {
             // given
@@ -521,6 +779,40 @@ class GiftishowApiClientTest {
     @Nested
     @DisplayName("cancelSendFailedCoupon (0205)")
     class CancelSendFailedCouponTest {
+
+        @Test
+        @DisplayName("발송실패 취소는 api_code=0205를 송신한다")
+        void shouldSendApiCode0205WhenCancelSendFailedCoupon() {
+            // given
+            MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
+            expectedFormData.add("custom_auth_code", AUTH_CODE);
+            expectedFormData.add("custom_auth_token", AUTH_TOKEN);
+            expectedFormData.add("dev_yn", DEV_YN);
+            expectedFormData.add("api_code", "0205");
+            expectedFormData.add("tr_id", "NTCASH_1_20260403120000");
+            expectedFormData.add("user_id", "user1");
+
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/sendFail/cancel"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().formData(expectedFormData))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD001"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.cancelSendFailedCoupon("NTCASH_1_20260403120000", "user1");
+
+            // then
+            mockServer.verify();
+        }
 
         @Test
         @DisplayName("발송실패 취소에 성공하면 응답을 반환한다")
@@ -868,6 +1160,93 @@ class GiftishowApiClientTest {
             assertThat(response.code()).isEqualTo("9999");
             assertThat(response.message()).isEqualTo("인증 실패");
 
+            mockServer.verify();
+        }
+    }
+
+    @Nested
+    @DisplayName("기프티쇼 비즈 API 연동 규격 회귀 가드")
+    class ApiSpecComplianceRegressionTest {
+
+        @Test
+        @DisplayName("모든 호출은 custom_auth_code/custom_auth_token 파라미터를 송신한다")
+        void shouldSendCustomAuthParamsOnAllCalls() {
+            // given
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/bizmoney"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().string(containsString("custom_auth_code=" + AUTH_CODE)))
+                    .andExpect(content().string(containsString("custom_auth_token=" + AUTH_TOKEN)))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "user_id": "user1",
+                                    "biz_money": 0
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.getBizMoneyBalance("user1");
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("기존 auth_code/auth_token 파라미터는 송신되지 않는다 (규격 위반 회귀 가드)")
+        void shouldNotSendLegacyAuthParams() {
+            // given — 본문 어디에도 (^|&)auth_code= / (^|&)auth_token= 가 등장하지 않아야 함
+            //         (custom_auth_code/custom_auth_token 은 토큰 boundary 가 다르므로 통과)
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/bizmoney"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().string(not(matchesRegex("(^|.*&)auth_code=.*"))))
+                    .andExpect(content().string(not(matchesRegex("(^|.*&)auth_token=.*"))))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "user_id": "user1",
+                                    "biz_money": 0
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.getBizMoneyBalance("user1");
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("dev_yn은 항상 N으로 송신된다 (운영 환경 상수)")
+        void shouldAlwaysSendDevYnAsN() {
+            // given
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/bizmoney"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().string(containsString("dev_yn=N")))
+                    .andExpect(content().string(not(containsString("dev_yn=Y"))))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "user_id": "user1",
+                                    "biz_money": 0
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.getBizMoneyBalance("user1");
+
+            // then
             mockServer.verify();
         }
     }
