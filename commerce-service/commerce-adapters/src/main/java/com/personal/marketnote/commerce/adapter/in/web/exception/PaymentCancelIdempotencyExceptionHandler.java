@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
@@ -44,13 +43,9 @@ public class PaymentCancelIdempotencyExceptionHandler {
 
     private ResponseEntity<ErrorResponse> buildConflictResponse(String rawMessage, Object content) {
         ParsedMessage parsed = ParsedMessage.from(rawMessage);
-        ErrorResponse response = ErrorResponse.builder()
-                .statusCode(HttpStatus.CONFLICT.value())
-                .code(parsed.code())
-                .message(parsed.message())
-                .content(content)
-                .timestamp(LocalDateTime.now())
-                .build();
+        ErrorResponse response = ErrorResponse.of(
+                HttpStatus.CONFLICT.value(), parsed.code(), parsed.message(), content
+        );
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
