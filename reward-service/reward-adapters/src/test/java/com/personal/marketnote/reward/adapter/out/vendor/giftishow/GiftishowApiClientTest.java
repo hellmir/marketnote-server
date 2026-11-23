@@ -446,7 +446,8 @@ class GiftishowApiClientTest {
                     "01012345678",
                     "user1",
                     "기프티콘 발송",
-                    "마켓노트"
+                    "마켓노트",
+                    null
             );
 
             // then
@@ -494,6 +495,218 @@ class GiftishowApiClientTest {
             assertThat(response.result().couponImgUrl()).isEqualTo("http://img.test.com/coupon.jpg");
             assertThat(response.result().validPrdEndDt()).isEqualTo("20260503");
 
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("쿠폰 발송 시 properties.templateId가 설정되어 있으면 template_id 파라미터를 송신한다")
+        void shouldSendTemplateIdWhenPropertiesTemplateIdIsSet() {
+            // given
+            properties.setTemplateId("TPL_001");
+
+            MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
+            expectedFormData.add("custom_auth_code", AUTH_CODE);
+            expectedFormData.add("custom_auth_token", AUTH_TOKEN);
+            expectedFormData.add("dev_yn", DEV_YN);
+            expectedFormData.add("api_code", "0204");
+            expectedFormData.add("tr_id", "NTCASH_1_20260403120000");
+            expectedFormData.add("goods_code", "G001");
+            expectedFormData.add("phone_no", "01012345678");
+            expectedFormData.add("user_id", "user1");
+            expectedFormData.add("gubun", GUBUN);
+            expectedFormData.add("callback_no", CALLBACK_NO);
+            expectedFormData.add("mms_msg", "기프티콘 발송");
+            expectedFormData.add("mms_title", "마켓노트");
+            expectedFormData.add("template_id", "TPL_001");
+
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().formData(expectedFormData))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD001",
+                                    "pin_no": "1234-5678-9012",
+                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
+                                    "valid_prd_end_dt": "20260503"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.sendCoupon(
+                    "NTCASH_1_20260403120000", "G001", "01012345678",
+                    "user1", "기프티콘 발송", "마켓노트", null
+            );
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("쿠폰 발송 시 properties.bannerId가 설정되어 있으면 banner_id 파라미터를 송신한다")
+        void shouldSendBannerIdWhenPropertiesBannerIdIsSet() {
+            // given
+            properties.setBannerId("BNR_001");
+
+            MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
+            expectedFormData.add("custom_auth_code", AUTH_CODE);
+            expectedFormData.add("custom_auth_token", AUTH_TOKEN);
+            expectedFormData.add("dev_yn", DEV_YN);
+            expectedFormData.add("api_code", "0204");
+            expectedFormData.add("tr_id", "NTCASH_1_20260403120000");
+            expectedFormData.add("goods_code", "G001");
+            expectedFormData.add("phone_no", "01012345678");
+            expectedFormData.add("user_id", "user1");
+            expectedFormData.add("gubun", GUBUN);
+            expectedFormData.add("callback_no", CALLBACK_NO);
+            expectedFormData.add("mms_msg", "기프티콘 발송");
+            expectedFormData.add("mms_title", "마켓노트");
+            expectedFormData.add("banner_id", "BNR_001");
+
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().formData(expectedFormData))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD001",
+                                    "pin_no": "1234-5678-9012",
+                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
+                                    "valid_prd_end_dt": "20260503"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.sendCoupon(
+                    "NTCASH_1_20260403120000", "G001", "01012345678",
+                    "user1", "기프티콘 발송", "마켓노트", null
+            );
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("쿠폰 발송 시 properties.templateId/bannerId가 미설정이면 해당 파라미터를 송신하지 않고 호출에 실패하지 않는다")
+        void shouldNotSendTemplateIdAndBannerIdWhenPropertiesAreNotSet() {
+            // given — properties.templateId/bannerId 둘 다 미설정 (기본 setUp 그대로)
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().string(not(matchesRegex("(^|.*&)template_id=.*"))))
+                    .andExpect(content().string(not(matchesRegex("(^|.*&)banner_id=.*"))))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD001",
+                                    "pin_no": "1234-5678-9012",
+                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
+                                    "valid_prd_end_dt": "20260503"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            GiftishowApiResponse<GiftishowCouponSendResponse> response =
+                    giftishowApiClient.sendCoupon(
+                            "NTCASH_1_20260403120000", "G001", "01012345678",
+                            "user1", "기프티콘 발송", "마켓노트", null
+                    );
+
+            // then
+            assertThat(response.isSuccess()).isTrue();
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("쿠폰 발송 시 orderNo가 주어지면 order_no 파라미터를 송신한다")
+        void shouldSendOrderNoWhenOrderNoIsProvided() {
+            // given
+            MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
+            expectedFormData.add("custom_auth_code", AUTH_CODE);
+            expectedFormData.add("custom_auth_token", AUTH_TOKEN);
+            expectedFormData.add("dev_yn", DEV_YN);
+            expectedFormData.add("api_code", "0204");
+            expectedFormData.add("tr_id", "NTCASH_1_20260403120000");
+            expectedFormData.add("goods_code", "G001");
+            expectedFormData.add("phone_no", "01012345678");
+            expectedFormData.add("user_id", "user1");
+            expectedFormData.add("gubun", GUBUN);
+            expectedFormData.add("callback_no", CALLBACK_NO);
+            expectedFormData.add("mms_msg", "기프티콘 발송");
+            expectedFormData.add("mms_title", "마켓노트");
+            expectedFormData.add("order_no", "ORD123456");
+
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().formData(expectedFormData))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD123456",
+                                    "pin_no": "1234-5678-9012",
+                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
+                                    "valid_prd_end_dt": "20260503"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.sendCoupon(
+                    "NTCASH_1_20260403120000", "G001", "01012345678",
+                    "user1", "기프티콘 발송", "마켓노트", "ORD123456"
+            );
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("쿠폰 발송 시 orderNo가 null/blank이면 order_no 파라미터를 송신하지 않는다")
+        void shouldNotSendOrderNoWhenOrderNoIsNullOrBlank() {
+            // given — orderNo=blank (null도 동일 분기, FormatValidator.hasValue가 둘 다 false)
+            mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                    .andExpect(content().string(not(matchesRegex("(^|.*&)order_no=.*"))))
+                    .andRespond(withSuccess("""
+                            {
+                                "code": "0000",
+                                "message": "success",
+                                "result": {
+                                    "tr_id": "NTCASH_1_20260403120000",
+                                    "order_no": "ORD001",
+                                    "pin_no": "1234-5678-9012",
+                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
+                                    "valid_prd_end_dt": "20260503"
+                                }
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+            // when
+            giftishowApiClient.sendCoupon(
+                    "NTCASH_1_20260403120000", "G001", "01012345678",
+                    "user1", "기프티콘 발송", "마켓노트", "  "
+            );
+
+            // then
             mockServer.verify();
         }
     }
