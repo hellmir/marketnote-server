@@ -114,7 +114,7 @@ class GiftishowApiClientParseResponseMaskingTest {
 
         // when
         assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                "TR_001", "G001", "01012345678", "user1", "msg", "title"
+                "TR_001", "G001", "01012345678", "user1", "msg", "title", null
         )).isInstanceOf(GiftishowCommunicationException.class);
 
         // then
@@ -137,7 +137,7 @@ class GiftishowApiClientParseResponseMaskingTest {
 
         // when
         assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                "TR_001", "G001", "01012345678", "user1", "msg", "title"
+                "TR_001", "G001", "01012345678", "user1", "msg", "title", null
         )).isInstanceOf(GiftishowCommunicationException.class);
 
         // then
@@ -163,7 +163,7 @@ class GiftishowApiClientParseResponseMaskingTest {
 
         // when & then
         assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                "TR_001", "G001", "01012345678", "user1", "msg", "title"
+                "TR_001", "G001", "01012345678", "user1", "msg", "title", null
         ))
                 .isInstanceOf(GiftishowCommunicationException.class)
                 .hasMessageContaining("응답 파싱 실패")

@@ -185,7 +185,7 @@ class GiftishowApiClientExternalCallLoggerTest {
                     .andExpect(method(HttpMethod.POST))
                     .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
-            client.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title");
+            client.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null);
 
             assertSuccessTimerExists("coupon.send");
             assertTagInDebugLog("tr_id", TR_ID);
@@ -285,7 +285,7 @@ class GiftishowApiClientExternalCallLoggerTest {
                     .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
 
             assertThatThrownBy(() -> client.sendCoupon(
-                    TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title"
+                    TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null
             )).isInstanceOf(GiftishowCommunicationException.class);
 
             assertFailureTimerExists("coupon.send");
@@ -304,7 +304,7 @@ class GiftishowApiClientExternalCallLoggerTest {
             mockServer.expect(requestTo(BASE_URL + COUPON_SEND_PATH))
                     .andRespond(withSuccess(SUCCESS_BODY, MediaType.APPLICATION_JSON));
 
-            client.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, mmsMsg, mmsTitle);
+            client.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, mmsMsg, mmsTitle, null);
 
             assertNoLogContains(mmsMsg);
             assertNoLogContains(mmsTitle);

@@ -62,7 +62,9 @@ class GifticonCouponAdapterTest {
                     "http://img.test.com/coupon.jpg",
                     "20260503"
             );
-            given(giftishowApiClient.sendCoupon(eq(TR_ID), eq(GOODS_CODE), eq(PHONE_NO), eq(USER_ID), eq(MMS_MSG), eq(MMS_TITLE)))
+            given(giftishowApiClient.sendCoupon(
+                    eq(TR_ID), eq(GOODS_CODE), eq(PHONE_NO), eq(USER_ID), eq(MMS_MSG), eq(MMS_TITLE), eq(null)
+            ))
                     .willReturn(new GiftishowApiResponse<>("0000", "success", vendorResult));
 
             // when
@@ -76,14 +78,14 @@ class GifticonCouponAdapterTest {
             assertThat(result.validEndDate()).isEqualTo("20260503");
             assertThat(result.errorCode()).isNull();
             assertThat(result.errorMessage()).isNull();
-            verify(giftishowApiClient).sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, MMS_MSG, MMS_TITLE);
+            verify(giftishowApiClient).sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, MMS_MSG, MMS_TITLE, null);
         }
 
         @Test
         @DisplayName("벤더 응답 코드가 0000이 아니면 실패 코드와 메시지를 담은 결과를 반환한다")
         void shouldReturnFailResultWhenVendorRespondsErrorCode() {
             // given
-            given(giftishowApiClient.sendCoupon(any(), any(), any(), any(), any(), any()))
+            given(giftishowApiClient.sendCoupon(any(), any(), any(), any(), any(), any(), any()))
                     .willReturn(new GiftishowApiResponse<>("9999", "잔액 부족", null));
 
             // when
@@ -101,7 +103,7 @@ class GifticonCouponAdapterTest {
         @DisplayName("벤더 호출 중 예외가 발생하면 COMM_ERROR 코드를 담은 실패 결과를 반환한다")
         void shouldReturnCommErrorWhenVendorThrowsException() {
             // given
-            given(giftishowApiClient.sendCoupon(any(), any(), any(), any(), any(), any()))
+            given(giftishowApiClient.sendCoupon(any(), any(), any(), any(), any(), any(), any()))
                     .willThrow(new RuntimeException("connection refused"));
 
             // when
