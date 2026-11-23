@@ -267,8 +267,9 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapAllFields() {
             // given
             UUID productKey = UUID.randomUUID();
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    productKey, "GOD001", "20261231", 3
+                    productKey, "GOD001", encoded, "20261231", 3
             );
             RegisterFulfillmentDeliveryItemCommand item = RegisterFulfillmentDeliveryItemCommand.builder()
                     .orderDate("20260101")
@@ -317,12 +318,13 @@ class FasstoDeliveryCommandToRequestMapperTest {
         }
 
         @Test
-        @DisplayName("productKey가 있으면 UUID가 cstGodCd로 매핑되고 productCode는 제외된다")
-        void shouldPreferProductKeyOverProductCode() {
+        @DisplayName("caller가 채운 fasstoProductCode가 cstGodCd로 그대로 송신된다")
+        void shouldSendCallerProvidedFasstoProductCode() {
             // given
             UUID productKey = UUID.randomUUID();
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    productKey, "GOD001", "20261231", 3
+                    productKey, "GOD001", encoded, "20261231", 3
             );
             RegisterFulfillmentDeliveryItemCommand item = RegisterFulfillmentDeliveryItemCommand.builder()
                     .orderDate("20260101")
@@ -341,7 +343,6 @@ class FasstoDeliveryCommandToRequestMapperTest {
             FulfillmentDeliveryMapper mapper = FasstoDeliveryCommandToRequestMapper.mapToRegisterRequest(command);
 
             // then
-            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             String payload = mapper.toPayload().toString();
             assertThat(payload).contains(encoded);
             assertThat(payload).doesNotContain("GOD001");
@@ -349,36 +350,12 @@ class FasstoDeliveryCommandToRequestMapperTest {
         }
 
         @Test
-        @DisplayName("productKey가 null이면 productCode가 cstGodCd로 폴백된다")
-        void shouldFallbackToProductCodeWhenProductKeyAbsent() {
-            // given
-            RegisterFulfillmentDeliveryGoodsCommand goods =
-                    RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", 3);
-            RegisterFulfillmentDeliveryItemCommand item = RegisterFulfillmentDeliveryItemCommand.builder()
-                    .orderDate("20260101")
-                    .orderNumber("ORD001")
-                    .recipientName("홍길동")
-                    .recipientPhoneNumber("010-1234-5678")
-                    .recipientAddress("서울시 강남구")
-                    .releaseMethod("NORMAL")
-                    .products(List.of(goods))
-                    .build();
-            RegisterFulfillmentDeliveryCommand command = RegisterFulfillmentDeliveryCommand.of(
-                    "CUST001", "token", List.of(item)
-            );
-
-            // when
-            FulfillmentDeliveryMapper mapper = FasstoDeliveryCommandToRequestMapper.mapToRegisterRequest(command);
-
-            // then
-            assertThat(mapper.toPayload().toString()).contains("GOD001");
-        }
-
-        @Test
         @DisplayName("선택 필드가 null이면 payload에서 제외된다")
         void shouldOmitNullOptionalFields() {
             // given
-            RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", 3);
+            RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
+                    null, "GOD001", "GOD001", null, 3
+            );
             RegisterFulfillmentDeliveryItemCommand item = RegisterFulfillmentDeliveryItemCommand.builder()
                     .orderDate("20260101")
                     .orderNumber("ORD001")
@@ -413,8 +390,9 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapWithSlipNumber() {
             // given
             UUID productKey = UUID.randomUUID();
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    productKey, 3
+                    productKey, null, encoded, null, 3
             );
             UpdateFulfillmentDeliveryItemCommand item = UpdateFulfillmentDeliveryItemCommand.builder()
                     .orderDate("20260101")
@@ -447,7 +425,9 @@ class FasstoDeliveryCommandToRequestMapperTest {
         @DisplayName("차량 배송 필드가 FulfillmentDeliveryCarMapper로 매핑된다")
         void shouldMapCarFields() {
             // given
-            RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", 3);
+            RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
+                    null, "GOD001", "GOD001", null, 3
+            );
             RegisterFulfillmentDeliveryCarItemCommand item = RegisterFulfillmentDeliveryCarItemCommand.builder()
                     .orderDate("20260101")
                     .orderNumber("ORD001")
@@ -485,7 +465,9 @@ class FasstoDeliveryCommandToRequestMapperTest {
         @DisplayName("차량 배송 수정 필드가 매핑된다")
         void shouldMapCarUpdateFields() {
             // given
-            RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", 3);
+            RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
+                    null, "GOD001", "GOD001", null, 3
+            );
             UpdateFulfillmentDeliveryCarItemCommand item = UpdateFulfillmentDeliveryCarItemCommand.builder()
                     .orderDate("20260101")
                     .orderNumber("ORD001")
@@ -516,7 +498,9 @@ class FasstoDeliveryCommandToRequestMapperTest {
         @DisplayName("ICS 필드가 FulfillmentDeliveryIcsMapper로 매핑된다")
         void shouldMapIcsFields() {
             // given
-            RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", 3);
+            RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
+                    null, "GOD001", "GOD001", null, 3
+            );
             RegisterFulfillmentDeliveryIcsItemCommand item = RegisterFulfillmentDeliveryIcsItemCommand.builder()
                     .orderDate("20260101")
                     .orderNumber("ORD001")

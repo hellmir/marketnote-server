@@ -98,7 +98,7 @@ class FulfillmentDirectReturnDeliveryClientTest {
 
     private RegisterFulfillmentDirectReturnDeliveryCommand buildValidRegisterCommand() {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                "PROD001", "20260414", 1
+                null, "PROD001", "PROD001", "20260414", 1
         );
         RegisterFulfillmentDirectReturnDeliveryItemCommand itemCommand = RegisterFulfillmentDirectReturnDeliveryItemCommand.builder()
                 .orderDate("20260414")

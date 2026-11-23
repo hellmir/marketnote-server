@@ -1,21 +1,12 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
-import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.delivery.*;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 
 import java.util.List;
-import java.util.UUID;
 
 public class FasstoDeliveryCommandToRequestMapper {
 
-    private static String resolveCustomerGoodsCode(UUID productKey, String productCode, String fasstoProductCode) {
-        if (FormatValidator.hasValue(fasstoProductCode)) {
-            return fasstoProductCode;
-        }
-        return FasstoCustomerGoodsCodeEncoder.encodeOrFallback(productKey, productCode);
-    }
     public static FulfillmentDeliveryQuery mapToQuery(GetFulfillmentDeliveriesCommand command) {
         return FulfillmentDeliveryQuery.of(
                 command.customerCode(),
@@ -211,7 +202,7 @@ public class FasstoDeliveryCommandToRequestMapper {
 
     private static FulfillmentDeliveryGoodsMapper mapGoods(RegisterFulfillmentDeliveryGoodsCommand item) {
         return FulfillmentDeliveryGoodsMapper.of(
-                resolveCustomerGoodsCode(item.productKey(), item.productCode(), item.fasstoProductCode()),
+                item.fasstoProductCode(),
                 item.expirationDate(),
                 item.orderQuantity()
         );

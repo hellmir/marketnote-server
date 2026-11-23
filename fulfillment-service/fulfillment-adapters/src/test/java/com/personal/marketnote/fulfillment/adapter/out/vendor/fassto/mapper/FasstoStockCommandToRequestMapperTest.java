@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FasstoStockCommandToRequestMapperTest {
 
     @Nested
-    @DisplayName("mapToDetailQuery - 재고 상세 조회 productKey 우선/fallback")
+    @DisplayName("mapToDetailQuery - 재고 상세 조회")
     class MapToDetailQuery {
 
         @Test
@@ -34,8 +34,8 @@ class FasstoStockCommandToRequestMapperTest {
         }
 
         @Test
-        @DisplayName("productKey가 null이면 customerProductCode가 그대로 송신된다 (인코딩 우회)")
-        void shouldFallbackToCustomerProductCodeWhenProductKeyAbsent() {
+        @DisplayName("운영자 등록 상품은 customerProductCode가 fasstoProductCode로 전달되어 그대로 송신된다")
+        void shouldSendCustomerProductCodeWhenAdminRegistered() {
             GetFulfillmentStockDetailCommand command = GetFulfillmentStockDetailCommand.of(
                     "CUST001", "token", "GOD001", "N"
             );

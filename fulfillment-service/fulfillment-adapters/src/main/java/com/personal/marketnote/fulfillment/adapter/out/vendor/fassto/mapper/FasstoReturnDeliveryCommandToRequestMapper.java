@@ -2,7 +2,6 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.delivery.FulfillmentDeliveryGoodsMapper;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.returndelivery.FulfillmentReturnDeliveryItemMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.returndelivery.FulfillmentReturnDeliveryMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.returndelivery.FulfillmentReturnGodDetailQuery;
@@ -68,16 +67,9 @@ public class FasstoReturnDeliveryCommandToRequestMapper {
 
     private static FulfillmentDeliveryGoodsMapper mapGoods(RegisterFulfillmentDeliveryGoodsCommand item) {
         return FulfillmentDeliveryGoodsMapper.of(
-                resolveCustomerGoodsCode(item),
+                item.fasstoProductCode(),
                 item.expirationDate(),
                 item.orderQuantity()
         );
-    }
-
-    private static String resolveCustomerGoodsCode(RegisterFulfillmentDeliveryGoodsCommand item) {
-        if (FormatValidator.hasValue(item.fasstoProductCode())) {
-            return item.fasstoProductCode();
-        }
-        return FasstoCustomerGoodsCodeEncoder.encodeOrFallback(item.productKey(), item.productCode());
     }
 }

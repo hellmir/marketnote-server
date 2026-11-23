@@ -40,15 +40,16 @@ class FasstoReturnDeliveryCommandToRequestMapperTest {
     }
 
     @Nested
-    @DisplayName("mapToRegisterRequest - 반품 등록 productKey 우선/fallback")
+    @DisplayName("mapToRegisterRequest - caller가 채운 fasstoProductCode 송신")
     class MapToRegisterRequest {
 
         @Test
-        @DisplayName("productKey가 있으면 22자 Base62 cstGodCd가 송신된다")
-        void shouldEncodeProductKeyWhenPresent() {
+        @DisplayName("caller가 채운 fasstoProductCode가 cstGodCd로 그대로 송신된다")
+        void shouldSendCallerProvidedFasstoProductCode() {
             UUID productKey = UUID.randomUUID();
+            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    productKey, "GOD001", "20261231", 1
+                    productKey, "GOD001", encoded, "20261231", 1
             );
             RegisterFulfillmentReturnDeliveryCommand command = RegisterFulfillmentReturnDeliveryCommand.of(
                     "CUST001", "token", List.of(buildItem(List.of(goods)))
@@ -56,26 +57,10 @@ class FasstoReturnDeliveryCommandToRequestMapperTest {
 
             FulfillmentReturnDeliveryMapper mapper = FasstoReturnDeliveryCommandToRequestMapper.mapToRegisterRequest(command);
 
-            String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             String payload = mapper.toPayload().toString();
             assertThat(payload).contains(encoded);
             assertThat(payload).doesNotContain("GOD001");
             assertThat(payload).doesNotContain(productKey.toString());
-        }
-
-        @Test
-        @DisplayName("productKey가 null이면 productCode가 그대로 송신된다 (인코딩 우회)")
-        void shouldFallbackToProductCodeWhenProductKeyAbsent() {
-            RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    "GOD001", "20261231", 1
-            );
-            RegisterFulfillmentReturnDeliveryCommand command = RegisterFulfillmentReturnDeliveryCommand.of(
-                    "CUST001", "token", List.of(buildItem(List.of(goods)))
-            );
-
-            FulfillmentReturnDeliveryMapper mapper = FasstoReturnDeliveryCommandToRequestMapper.mapToRegisterRequest(command);
-
-            assertThat(mapper.toPayload().toString()).contains("GOD001");
         }
     }
 }
