@@ -200,6 +200,11 @@ public class GiftishowApiClient {
 
     /**
      * 0204 - 쿠폰 발송 (POST)
+     *
+     * <p>규격서 P.26~27(v1.04)에 따라 옵션 파라미터 {@code template_id}(카드 아이디),
+     * {@code banner_id}(배너 아이디), {@code order_no}(주문번호)는 값이 존재할 때만 송신한다.
+     * {@code template_id}/{@code banner_id}는 properties에서 주입(미설정 시 기본 이미지 발송),
+     * {@code order_no}는 호출자가 전달(없으면 송신 생략).</p>
      */
     public GiftishowApiResponse<GiftishowCouponSendResponse> sendCoupon(
             String trId,
@@ -207,7 +212,8 @@ public class GiftishowApiClient {
             String phoneNo,
             String userId,
             String mmsMsg,
-            String mmsTitle
+            String mmsTitle,
+            String orderNo
     ) {
         if (FormatValidator.hasNoValue(trId)) {
             throw new InvalidGiftishowTrIdException();
@@ -231,6 +237,15 @@ public class GiftishowApiClient {
         params.add("callback_no", properties.getCallbackNo());
         params.add("mms_msg", mmsMsg);
         params.add("mms_title", mmsTitle);
+        if (FormatValidator.hasValue(properties.getTemplateId())) {
+            params.add("template_id", properties.getTemplateId());
+        }
+        if (FormatValidator.hasValue(properties.getBannerId())) {
+            params.add("banner_id", properties.getBannerId());
+        }
+        if (FormatValidator.hasValue(orderNo)) {
+            params.add("order_no", orderNo);
+        }
 
         log.info("기프티쇼 쿠폰 발송 요청: trId={}, goodsCode={}, userId={}", trId, goodsCode, userId);
 

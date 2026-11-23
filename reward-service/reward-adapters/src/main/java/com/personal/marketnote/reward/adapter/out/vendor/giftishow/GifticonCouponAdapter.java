@@ -24,7 +24,7 @@ public class GifticonCouponAdapter implements SendGifticonCouponPort, CancelGift
         try {
             GiftishowApiResponse<GiftishowCouponSendResponse> response = giftishowApiClient.sendCoupon(
                     trId, goodsCode, properties.getPhoneNo(), userId,
-                    properties.getMmsMsg(), properties.getMmsTitle()
+                    properties.getMmsMsg(), properties.getMmsTitle(), null
             );
 
             if (!response.isSuccess()) {

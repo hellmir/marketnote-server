@@ -314,7 +314,7 @@ class GiftishowApiClientVendorCommunicationRecordTest {
                             MediaType.APPLICATION_JSON
                     ));
 
-            giftishowApiClient.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title");
+            giftishowApiClient.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null);
 
             ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
             // RESPONSE (8-arg) 만 캡처 (exception 인자 포함된 오버로드)
@@ -346,7 +346,7 @@ class GiftishowApiClientVendorCommunicationRecordTest {
                             MediaType.APPLICATION_JSON
                     ));
 
-            giftishowApiClient.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title");
+            giftishowApiClient.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null);
 
             ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
@@ -376,7 +376,7 @@ class GiftishowApiClientVendorCommunicationRecordTest {
                             MediaType.APPLICATION_JSON
                     ));
 
-            giftishowApiClient.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title");
+            giftishowApiClient.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null);
 
             ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
@@ -503,7 +503,7 @@ class GiftishowApiClientVendorCommunicationRecordTest {
                             .contentType(MediaType.APPLICATION_JSON));
 
             assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                    TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title"
+                    TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null
             )).isInstanceOf(GiftishowCommunicationException.class);
 
             ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);

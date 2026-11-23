@@ -19,6 +19,8 @@ public class GiftishowApiProperties {
     private String mmsTitle;
     private String gubun;
     private String userId;
+    private String bannerId;
+    private String templateId;
     private Api api = new Api();
 
     /**

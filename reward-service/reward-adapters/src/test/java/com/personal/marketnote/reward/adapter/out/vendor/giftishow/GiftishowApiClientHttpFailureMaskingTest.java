@@ -138,7 +138,7 @@ class GiftishowApiClientHttpFailureMaskingTest {
 
         // when & then
         assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                "TR_001", "G001", "01012345678", "user1", "msg", "title"
+                "TR_001", "G001", "01012345678", "user1", "msg", "title", null
         ))
                 .isInstanceOf(GiftishowCommunicationException.class)
                 .hasMessageContaining("HTTP 응답 실패")

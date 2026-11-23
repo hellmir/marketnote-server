@@ -482,7 +482,8 @@ class GiftishowApiClientTest {
                             "01012345678",
                             "user1",
                             "기프티콘 발송",
-                            "마켓노트"
+                            "마켓노트",
+                            null
                     );
 
             // then
@@ -879,7 +880,7 @@ class GiftishowApiClientTest {
         @DisplayName("sendCoupon에 null trId를 전달하면 InvalidGiftishowTrIdException이 발생한다")
         void shouldThrowWhenSendCouponTrIdIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                    null, "G001", "01012345678", "user1", "msg", "title"
+                    null, "G001", "01012345678", "user1", "msg", "title", null
             )).isInstanceOf(InvalidGiftishowTrIdException.class);
         }
 
@@ -887,7 +888,7 @@ class GiftishowApiClientTest {
         @DisplayName("sendCoupon에 null goodsCode를 전달하면 InvalidGiftishowGoodsCodeException이 발생한다")
         void shouldThrowWhenSendCouponGoodsCodeIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                    "TR001", null, "01012345678", "user1", "msg", "title"
+                    "TR001", null, "01012345678", "user1", "msg", "title", null
             )).isInstanceOf(InvalidGiftishowGoodsCodeException.class);
         }
 
@@ -895,7 +896,7 @@ class GiftishowApiClientTest {
         @DisplayName("sendCoupon에 null phoneNo를 전달하면 InvalidGiftishowPhoneNoException이 발생한다")
         void shouldThrowWhenSendCouponPhoneNoIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                    "TR001", "G001", null, "user1", "msg", "title"
+                    "TR001", "G001", null, "user1", "msg", "title", null
             )).isInstanceOf(InvalidGiftishowPhoneNoException.class);
         }
 
@@ -903,7 +904,7 @@ class GiftishowApiClientTest {
         @DisplayName("sendCoupon에 null userId를 전달하면 InvalidGiftishowUserIdException이 발생한다")
         void shouldThrowWhenSendCouponUserIdIsNull() {
             assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                    "TR001", "G001", "01012345678", null, "msg", "title"
+                    "TR001", "G001", "01012345678", null, "msg", "title", null
             )).isInstanceOf(InvalidGiftishowUserIdException.class);
         }
 
@@ -991,7 +992,7 @@ class GiftishowApiClientTest {
             // when
             giftishowApiClient.sendCoupon(
                     "NTCASH_1_20260403120000", "G001", "01012345678",
-                    "user1", "msg", "title"
+                    "user1", "msg", "title", null
             );
 
             // then

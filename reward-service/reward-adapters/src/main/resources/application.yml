@@ -112,6 +112,8 @@ vendor:
     mms-title: ${GIFTISHOW_MMS_TITLE:마켓노트}
     gubun: I
     user-id: ${GIFTISHOW_USER_ID:0000}
+    banner-id: ${GIFTISHOW_BANNER_ID:}
+    template-id: ${GIFTISHOW_TEMPLATE_ID:}
     api:
       product-list-path: /bizApi/goods
       product-detail-path: /bizApi/goods
