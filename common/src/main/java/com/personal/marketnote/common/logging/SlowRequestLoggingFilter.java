@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  * <p>임계값 기본 1000ms (환경변수 {@code SLOW_REQUEST_THRESHOLD_MS} / property {@code slow-request.threshold-ms}).
  * prod/qa 모두 활성. WARN 레벨이라 운영 noise 거의 없음.
  *
- * <p>{@link TraceIdMdcFilter}({@link Ordered#HIGHEST_PRECEDENCE}) 직후에 실행되어 traceId가
+ * <p>{@link TraceIdMdcFilter}({@link Ordered#HIGHEST_PRECEDENCE}) 직후에 실행되어 requestId가
  * MDC에 이미 주입된 상태에서 측정한다.
  *
  * <p>query string은 {@link PiiMaskingConverter}로 PII(email/phone/nickname/name)를 마스킹하고,

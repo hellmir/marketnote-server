@@ -63,11 +63,11 @@ class MdcContextPropagationIntegrationTest {
     }
 
     @Test
-    @DisplayName("Producer 발행 시 MDC traceId가 헤더로 전파되어 Consumer MDC에 동일하게 복원된다")
+    @DisplayName("Producer 발행 시 MDC requestId가 헤더로 전파되어 Consumer MDC에 동일하게 복원된다")
     void traceIdPropagatedFromProducerMdcToConsumerMdc() throws Exception {
         // given — Producer 측 진입 시 MDC 설정 (HTTP 진입 시뮬)
         String entryTraceId = "entry-" + UUID.randomUUID();
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, entryTraceId);
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, entryTraceId);
 
         // when — Producer 인터셉터 적용해 send
         Map<String, Object> producerProps = producerProps();
@@ -87,7 +87,7 @@ class MdcContextPropagationIntegrationTest {
                 ConsumerRecords<String, Object> records = consumer.poll(Duration.ofMillis(500));
                 for (ConsumerRecord<String, Object> consumed : records) {
                     recordInterceptor.intercept(consumed, consumer);
-                    consumerTraceId.set(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY));
+                    consumerTraceId.set(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY));
                     recordInterceptor.afterRecord(consumed, consumer);
                 }
             }
@@ -98,7 +98,7 @@ class MdcContextPropagationIntegrationTest {
     }
 
     @Test
-    @DisplayName("Producer 발행 시 MDC가 비어있으면 Consumer는 신규 traceId를 생성한다")
+    @DisplayName("Producer 발행 시 MDC가 비어있으면 Consumer는 신규 requestId를 생성한다")
     void consumerGeneratesNewTraceIdWhenProducerMdcEmpty() throws Exception {
         // given — Producer 측 MDC 비움
         MDC.clear();
@@ -122,7 +122,7 @@ class MdcContextPropagationIntegrationTest {
                         continue;
                     }
                     recordInterceptor.intercept(consumed, consumer);
-                    consumerTraceId.set(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY));
+                    consumerTraceId.set(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY));
                     recordInterceptor.afterRecord(consumed, consumer);
                 }
             }
@@ -134,7 +134,7 @@ class MdcContextPropagationIntegrationTest {
     }
 
     @Test
-    @DisplayName("MdcTaskDecorator 적용된 TaskScheduler가 부모 MDC 부재 시 신규 traceId를 생성한다")
+    @DisplayName("MdcTaskDecorator 적용된 TaskScheduler가 부모 MDC 부재 시 신규 requestId를 생성한다")
     void schedulerGeneratesNewTraceIdWhenParentMdcEmpty() throws Exception {
         // given
         MdcTaskDecorator decorator = new MdcTaskDecorator();
@@ -151,7 +151,7 @@ class MdcContextPropagationIntegrationTest {
 
             // when
             scheduler.schedule(() -> {
-                capturedTraceId.set(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY));
+                capturedTraceId.set(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY));
                 latch.countDown();
             }, Instant.now().plusMillis(50));
 

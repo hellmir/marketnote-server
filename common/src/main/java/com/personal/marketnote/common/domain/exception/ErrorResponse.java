@@ -37,7 +37,10 @@ public class ErrorResponse {
     private String message;
 
     /**
-     * 요청 추적용 trace ID (X-Request-ID 헤더 기반).
+     * 요청 추적용 자체 발급 ID (X-Request-ID 헤더 기반).
+     * <p>주의: W3C Tracing의 traceId(16/32자 hex span 식별자)와 다르다. 본 필드는
+     * MDC의 {@code requestId} 키 값을 노출하며 패턴은 {@code [A-Za-z0-9._-]{1,64}}이다.
+     * 필드명 traceId는 클라이언트 API 호환성을 위해 유지한다.
      */
     private String traceId;
 
@@ -46,14 +49,14 @@ public class ErrorResponse {
     }
 
     public static ErrorResponse of(int statusCode, String code, String message, Object content) {
-        String rawTraceId = MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY);
+        String rawRequestId = MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY);
         return ErrorResponse.builder()
                 .statusCode(statusCode)
                 .code(code)
                 .message(message)
                 .content(content)
                 .timestamp(LocalDateTime.now())
-                .traceId(FormatValidator.hasValue(rawTraceId) ? rawTraceId : null)
+                .traceId(FormatValidator.hasValue(rawRequestId) ? rawRequestId : null)
                 .build();
     }
 }

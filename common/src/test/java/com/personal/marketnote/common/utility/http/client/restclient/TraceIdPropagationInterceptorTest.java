@@ -33,11 +33,11 @@ class TraceIdPropagationInterceptorTest {
     }
 
     @Test
-    @DisplayName("MDC에 traceId가 있고 호출자가 헤더를 설정하지 않았으면 X-Request-ID 헤더를 추가한다")
+    @DisplayName("MDC에 requestId가 있고 호출자가 헤더를 설정하지 않았으면 X-Request-ID 헤더를 추가한다")
     void shouldAddTraceIdHeaderWhenMdcHasValueAndHeaderAbsent() throws IOException {
         // given
         String traceId = "trace-id-12345";
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, traceId);
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, traceId);
 
         HttpRequest request = mock(HttpRequest.class);
         ClientHttpRequestExecution execution = mock(ClientHttpRequestExecution.class);
@@ -52,7 +52,7 @@ class TraceIdPropagationInterceptorTest {
         ClientHttpResponse result = interceptor.intercept(request, body, execution);
 
         // then
-        assertThat(headers.getFirst(TraceIdMdcFilter.TRACE_ID_HEADER)).isEqualTo(traceId);
+        assertThat(headers.getFirst(TraceIdMdcFilter.REQUEST_ID_HEADER)).isEqualTo(traceId);
         assertThat(result).isEqualTo(response);
     }
 
@@ -81,13 +81,13 @@ class TraceIdPropagationInterceptorTest {
         // given
         String mdcTraceId = "mdc-trace-id";
         String callerTraceId = "caller-trace-id";
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, mdcTraceId);
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, mdcTraceId);
 
         HttpRequest request = mock(HttpRequest.class);
         ClientHttpRequestExecution execution = mock(ClientHttpRequestExecution.class);
         ClientHttpResponse response = mock(ClientHttpResponse.class);
         HttpHeaders headers = new HttpHeaders();
-        headers.add(TraceIdMdcFilter.TRACE_ID_HEADER, callerTraceId);
+        headers.add(TraceIdMdcFilter.REQUEST_ID_HEADER, callerTraceId);
         byte[] body = new byte[0];
 
         when(request.getHeaders()).thenReturn(headers);
@@ -97,16 +97,16 @@ class TraceIdPropagationInterceptorTest {
         ClientHttpResponse result = interceptor.intercept(request, body, execution);
 
         // then
-        assertThat(headers.getFirst(TraceIdMdcFilter.TRACE_ID_HEADER)).isEqualTo(callerTraceId);
-        assertThat(headers.get(TraceIdMdcFilter.TRACE_ID_HEADER)).hasSize(1);
+        assertThat(headers.getFirst(TraceIdMdcFilter.REQUEST_ID_HEADER)).isEqualTo(callerTraceId);
+        assertThat(headers.get(TraceIdMdcFilter.REQUEST_ID_HEADER)).hasSize(1);
         assertThat(result).isEqualTo(response);
     }
 
     @Test
-    @DisplayName("MDC traceId가 빈 문자열이면 헤더를 추가하지 않는다")
+    @DisplayName("MDC requestId가 빈 문자열이면 헤더를 추가하지 않는다")
     void shouldNotAddHeaderWhenMdcTraceIdBlank() throws IOException {
         // given
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, "   ");
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, "   ");
 
         HttpRequest request = mock(HttpRequest.class);
         ClientHttpRequestExecution execution = mock(ClientHttpRequestExecution.class);
@@ -127,7 +127,7 @@ class TraceIdPropagationInterceptorTest {
     @DisplayName("정상 케이스에서 execution.execute를 정확히 1회 호출하고 그 응답을 반환한다")
     void shouldDelegateExecutionExactlyOnce() throws IOException {
         // given
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, "trace-once");
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, "trace-once");
 
         HttpRequest request = mock(HttpRequest.class);
         ClientHttpRequestExecution execution = mock(ClientHttpRequestExecution.class);
@@ -151,7 +151,7 @@ class TraceIdPropagationInterceptorTest {
     void shouldPreserveMdcWhenExceptionOccurs() throws IOException {
         // given
         String traceId = "preserve-trace";
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, traceId);
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, traceId);
 
         HttpRequest request = mock(HttpRequest.class);
         ClientHttpRequestExecution execution = mock(ClientHttpRequestExecution.class);
@@ -165,6 +165,6 @@ class TraceIdPropagationInterceptorTest {
         assertThatThrownBy(() -> interceptor.intercept(request, body, execution))
                 .isInstanceOf(IOException.class)
                 .hasMessage("Connection refused");
-        assertThat(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY)).isEqualTo(traceId);
+        assertThat(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY)).isEqualTo(traceId);
     }
 }

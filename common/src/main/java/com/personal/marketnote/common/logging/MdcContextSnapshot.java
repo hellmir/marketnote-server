@@ -19,12 +19,12 @@ public record MdcContextSnapshot(Map<String, String> contextMap) {
     public void applyOrInitialize() {
         if (FormatValidator.hasNoValue(contextMap)) {
             MDC.clear();
-            MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, UUID.randomUUID().toString());
+            MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, UUID.randomUUID().toString());
             return;
         }
         MDC.setContextMap(contextMap);
-        if (FormatValidator.hasNoValue(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY))) {
-            MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, UUID.randomUUID().toString());
+        if (FormatValidator.hasNoValue(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY))) {
+            MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, UUID.randomUUID().toString());
         }
     }
 }

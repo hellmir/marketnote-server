@@ -26,17 +26,17 @@ class KafkaMdcRecordInterceptorTest {
     }
 
     @Test
-    @DisplayName("Consumer 레코드 헤더의 X-Request-ID를 MDC traceId로 설정한다")
+    @DisplayName("Consumer 레코드 헤더의 X-Request-ID를 MDC requestId로 설정한다")
     void putsHeaderTraceIdIntoMdc() {
         // given
         ConsumerRecord<String, Object> record = new ConsumerRecord<>("topic", 0, 0L, "key", "value");
-        record.headers().add(TraceIdMdcFilter.TRACE_ID_HEADER, "header-trace".getBytes(StandardCharsets.UTF_8));
+        record.headers().add(TraceIdMdcFilter.REQUEST_ID_HEADER, "header-trace".getBytes(StandardCharsets.UTF_8));
 
         // when
         interceptor.intercept(record, consumer);
 
         // then
-        assertThat(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY)).isEqualTo("header-trace");
+        assertThat(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY)).isEqualTo("header-trace");
     }
 
     @Test
@@ -49,24 +49,24 @@ class KafkaMdcRecordInterceptorTest {
         interceptor.intercept(record, consumer);
 
         // then
-        String traceId = MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY);
+        String traceId = MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY);
         assertThat(traceId).isNotNull();
         assertThat(traceId.length()).isEqualTo(36);
     }
 
     @Test
-    @DisplayName("afterRecord 콜백 실행 후 MDC traceId가 정리된다")
+    @DisplayName("afterRecord 콜백 실행 후 MDC requestId가 정리된다")
     void clearsMdcAfterAfterRecord() {
         // given
         ConsumerRecord<String, Object> record = new ConsumerRecord<>("topic", 0, 0L, "key", "value");
-        record.headers().add(TraceIdMdcFilter.TRACE_ID_HEADER, "trace-z".getBytes(StandardCharsets.UTF_8));
+        record.headers().add(TraceIdMdcFilter.REQUEST_ID_HEADER, "trace-z".getBytes(StandardCharsets.UTF_8));
         interceptor.intercept(record, consumer);
 
         // when
         interceptor.afterRecord(record, consumer);
 
         // then
-        assertThat(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY)).isNull();
+        assertThat(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY)).isNull();
     }
 
     @Test
@@ -75,13 +75,13 @@ class KafkaMdcRecordInterceptorTest {
         // given
         ConsumerRecord<String, Object> record = new ConsumerRecord<>("topic", 0, 0L, "key", "value");
         String malicious = "abc\nERROR fake-log-injection";
-        record.headers().add(TraceIdMdcFilter.TRACE_ID_HEADER, malicious.getBytes(StandardCharsets.UTF_8));
+        record.headers().add(TraceIdMdcFilter.REQUEST_ID_HEADER, malicious.getBytes(StandardCharsets.UTF_8));
 
         // when
         interceptor.intercept(record, consumer);
 
         // then
-        String traceId = MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY);
+        String traceId = MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY);
         assertThat(traceId).isNotNull();
         assertThat(traceId).isNotEqualTo(malicious);
         assertThat(traceId.length()).isEqualTo(36);
@@ -93,13 +93,13 @@ class KafkaMdcRecordInterceptorTest {
         // given
         ConsumerRecord<String, Object> record = new ConsumerRecord<>("topic", 0, 0L, "key", "value");
         String tooLong = "a".repeat(65);
-        record.headers().add(TraceIdMdcFilter.TRACE_ID_HEADER, tooLong.getBytes(StandardCharsets.UTF_8));
+        record.headers().add(TraceIdMdcFilter.REQUEST_ID_HEADER, tooLong.getBytes(StandardCharsets.UTF_8));
 
         // when
         interceptor.intercept(record, consumer);
 
         // then
-        String traceId = MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY);
+        String traceId = MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY);
         assertThat(traceId).isNotNull();
         assertThat(traceId).isNotEqualTo(tooLong);
         assertThat(traceId.length()).isEqualTo(36);
@@ -134,11 +134,11 @@ class KafkaMdcRecordInterceptorTest {
     }
 
     @Test
-    @DisplayName("X-Correlation-ID 헤더가 없으면 traceId 값으로 fallback된다")
+    @DisplayName("X-Correlation-ID 헤더가 없으면 requestId 값으로 fallback된다")
     void fallsBackToTraceIdWhenCorrelationIdHeaderMissing() {
         // given
         ConsumerRecord<String, Object> record = new ConsumerRecord<>("topic", 0, 0L, "key", "value");
-        record.headers().add(TraceIdMdcFilter.TRACE_ID_HEADER, "trace-only".getBytes(StandardCharsets.UTF_8));
+        record.headers().add(TraceIdMdcFilter.REQUEST_ID_HEADER, "trace-only".getBytes(StandardCharsets.UTF_8));
 
         // when
         interceptor.intercept(record, consumer);
@@ -161,11 +161,11 @@ class KafkaMdcRecordInterceptorTest {
     }
 
     @Test
-    @DisplayName("afterRecord 호출 시 traceId/correlationId/causationId가 모두 remove된다")
+    @DisplayName("afterRecord 호출 시 requestId/correlationId/causationId가 모두 remove된다")
     void clearsAllMdcKeysAfterAfterRecord() {
         // given
         ConsumerRecord<String, Object> record = new ConsumerRecord<>("topic", 0, 0L, "key", "value");
-        record.headers().add(TraceIdMdcFilter.TRACE_ID_HEADER, "t".getBytes(StandardCharsets.UTF_8));
+        record.headers().add(TraceIdMdcFilter.REQUEST_ID_HEADER, "t".getBytes(StandardCharsets.UTF_8));
         record.headers().add(TraceIdMdcFilter.CORRELATION_ID_HEADER, "c".getBytes(StandardCharsets.UTF_8));
         record.headers().add(TraceIdMdcFilter.CAUSATION_ID_HEADER, "u".getBytes(StandardCharsets.UTF_8));
         interceptor.intercept(record, consumer);
@@ -174,7 +174,7 @@ class KafkaMdcRecordInterceptorTest {
         interceptor.afterRecord(record, consumer);
 
         // then
-        assertThat(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY)).isNull();
+        assertThat(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY)).isNull();
         assertThat(MDC.get(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY)).isNull();
         assertThat(MDC.get(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY)).isNull();
     }

@@ -138,6 +138,11 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0
+    propagation:
+      type: w3c
 
 springdoc:
   paths-to-exclude:
