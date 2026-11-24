@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +28,8 @@ import static org.mockito.Mockito.when;
 @DisplayName("FulfillmentGoodsRegistrationPersistenceAdapter 테스트")
 class FulfillmentGoodsRegistrationPersistenceAdapterTest {
 
+    private static final String VALID_FASSTO_CODE = "0000000000000000000001";
+
     @InjectMocks
     private FulfillmentGoodsRegistrationPersistenceAdapter adapter;
 
@@ -38,8 +41,22 @@ class FulfillmentGoodsRegistrationPersistenceAdapterTest {
                 FulfillmentGoodsRegistrationSnapshotState.builder()
                         .id(id)
                         .productKey(productKey)
+                        .fasstoProductCode(VALID_FASSTO_CODE)
                         .createdAt(LocalDateTime.of(2026, 4, 14, 10, 0))
                         .build()
+        );
+    }
+
+    private FulfillmentGoodsRegistrationJpaEntity buildEntity(UUID productKey, String fasstoProductCode) {
+        return FulfillmentGoodsRegistrationJpaEntity.from(
+                FulfillmentGoodsRegistration.from(
+                        FulfillmentGoodsRegistrationSnapshotState.builder()
+                                .id(1L)
+                                .productKey(productKey)
+                                .fasstoProductCode(fasstoProductCode)
+                                .createdAt(LocalDateTime.of(2026, 4, 14, 10, 0))
+                                .build()
+                )
         );
     }
 
@@ -73,6 +90,55 @@ class FulfillmentGoodsRegistrationPersistenceAdapterTest {
 
             // then
             assertThat(result).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("findProductKeyByFasstoProductCode")
+    class FindProductKeyByFasstoProductCode {
+
+        @Test
+        @DisplayName("fasstoProductCode에 매칭되는 등록이 있으면 productKey Optional을 반환한다 (auto-gen Base62 22자)")
+        void shouldReturnProductKeyForAutoGenBase62Code() {
+            // given
+            UUID productKey = UUID.randomUUID();
+            String code = "0000000000000000000001";
+            when(repository.findByFasstoProductCode(code)).thenReturn(Optional.of(buildEntity(productKey, code)));
+
+            // when
+            Optional<UUID> result = adapter.findProductKeyByFasstoProductCode(code);
+
+            // then
+            assertThat(result).contains(productKey);
+        }
+
+        @Test
+        @DisplayName("fasstoProductCode가 import 케이스(non-UUID)여도 productKey Optional을 반환한다")
+        void shouldReturnProductKeyForImportedNonUuidCode() {
+            // given
+            UUID productKey = UUID.randomUUID();
+            String code = "VZL00001";
+            when(repository.findByFasstoProductCode(code)).thenReturn(Optional.of(buildEntity(productKey, code)));
+
+            // when
+            Optional<UUID> result = adapter.findProductKeyByFasstoProductCode(code);
+
+            // then
+            assertThat(result).contains(productKey);
+        }
+
+        @Test
+        @DisplayName("fasstoProductCode에 매칭되는 등록이 없으면 Optional.empty를 반환한다")
+        void shouldReturnEmptyWhenNotFound() {
+            // given
+            String code = "UNKNOWN123";
+            when(repository.findByFasstoProductCode(code)).thenReturn(Optional.empty());
+
+            // when
+            Optional<UUID> result = adapter.findProductKeyByFasstoProductCode(code);
+
+            // then
+            assertThat(result).isEmpty();
         }
     }
 
