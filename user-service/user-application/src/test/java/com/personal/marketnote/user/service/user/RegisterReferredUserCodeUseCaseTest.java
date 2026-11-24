@@ -6,6 +6,7 @@ import com.personal.marketnote.user.domain.user.ReferenceCode;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.MutualReferralNotAllowedException;
 import com.personal.marketnote.user.exception.ReferredUserCodeAlreadyExistsException;
+import com.personal.marketnote.user.exception.ReferredUserCodeInputAlreadySkippedException;
 import com.personal.marketnote.user.exception.SelfReferralNotAllowedException;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
@@ -17,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
@@ -90,6 +92,36 @@ class RegisterReferredUserCodeUseCaseTest {
         verify(publishUserEventPort).publishUserReferralCompletedEvent(requestUserId, referredUserId);
         verify(requestUser, never()).removeReferredUserCode();
         verifyNoMoreInteractions(getUserUseCase, updateUserPort, publishUserEventPort, referredUser);
+    }
+
+    @Test
+    @DisplayName("이미 초대 코드 입력을 건너뛴 회원이 등록 시도 시 ReferredUserCodeInputAlreadySkippedException이 발생한다")
+    void registerReferredUserCode_alreadySkipped_throws() {
+        // given
+        Long requestUserId = 1L;
+        String referredUserCode = "REF456";
+        User requestUser = spy(UserTestObjectFactory.createDefaultUser(
+                requestUserId, EntityStatus.ACTIVE, false, List.of()
+        ));
+        requestUser.skipReferredUserCodeInput(LocalDateTime.of(2026, 4, 27, 10, 0));
+        User referredUser = mock(User.class);
+
+        when(getUserUseCase.existsUser(referredUserCode)).thenReturn(true);
+        when(getUserUseCase.getUser(requestUserId)).thenReturn(requestUser);
+        when(getUserUseCase.getUser(referredUserCode)).thenReturn(referredUser);
+
+        // expect
+        assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
+                .isInstanceOf(ReferredUserCodeInputAlreadySkippedException.class);
+
+        verify(getUserUseCase).existsUser(referredUserCode);
+        verify(getUserUseCase).getUser(requestUserId);
+        verify(requestUser).isSelfReferral(ReferenceCode.of(referredUserCode));
+        verify(getUserUseCase).getUser(referredUserCode);
+        verify(referredUser).isMutualReferralWith(requestUser);
+        verify(requestUser).registerReferredUserCode(ReferenceCode.of(referredUserCode));
+        verifyNoInteractions(updateUserPort, publishUserEventPort);
+        verifyNoMoreInteractions(getUserUseCase, referredUser);
     }
 
     @Test

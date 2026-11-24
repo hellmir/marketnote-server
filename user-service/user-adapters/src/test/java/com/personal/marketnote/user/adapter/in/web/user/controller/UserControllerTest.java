@@ -383,6 +383,29 @@ class UserControllerTest {
     }
 
     @Nested
+    @DisplayName("skipReferredUserCodeInput - 추천 회원 초대 코드 입력 건너뛰기")
+    class SkipReferredUserCodeInputTest {
+
+        @Test
+        @DisplayName("인증된 회원의 건너뛰기 요청에 대해 200 OK와 성공 메시지를 반환한다")
+        void shouldReturn200WhenSkipSucceeds() {
+            // given
+            OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
+            when(principal.getName()).thenReturn("42");
+
+            // when
+            ResponseEntity<BaseResponse<Void>> response =
+                    userController.skipReferredUserCodeInput(principal);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("초대 코드 입력 건너뛰기 성공");
+            verify(skipReferredUserCodeInputUseCase).skipReferredUserCodeInput(42L);
+        }
+    }
+
+    @Nested
     @DisplayName("existsReferredUserCode - 초대 코드 존재 여부 조회")
     class ExistsReferredUserCodeTest {
 

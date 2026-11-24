@@ -6,6 +6,7 @@ import com.personal.marketnote.common.domain.exception.illegalstate.SameUpdateTa
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.user.domain.authentication.Role;
 import com.personal.marketnote.user.exception.ReferredUserCodeAlreadyExistsException;
+import com.personal.marketnote.user.exception.ReferredUserCodeInputAlreadySkippedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -167,6 +168,82 @@ class UserTest {
 
             assertThatThrownBy(() -> user.registerReferredUserCode(ReferenceCode.of("NEWCD1")))
                     .isInstanceOf(ReferredUserCodeAlreadyExistsException.class);
+        }
+
+        @Test
+        @DisplayName("이미 입력을 건너뛴 상태에서 호출하면 ReferredUserCodeInputAlreadySkippedException이 발생한다")
+        void shouldThrowWhenAlreadySkipped() {
+            User user = createActiveUser();
+            user.skipReferredUserCodeInput(LocalDateTime.of(2026, 4, 27, 10, 0));
+
+            assertThatThrownBy(() -> user.registerReferredUserCode(ReferenceCode.of("NEWCD1")))
+                    .isInstanceOf(ReferredUserCodeInputAlreadySkippedException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("skipReferredUserCodeInput")
+    class SkipReferredUserCodeInput {
+
+        @Test
+        @DisplayName("미입력 상태에서 호출하면 referredUserCodeSkippedAt이 주입한 시각으로 설정된다")
+        void shouldSetSkippedAtWhenNotCompleted() {
+            User user = createActiveUser();
+            LocalDateTime now = LocalDateTime.of(2026, 4, 27, 10, 0);
+
+            user.skipReferredUserCodeInput(now);
+
+            assertThat(user.getReferredUserCodeSkippedAt()).isEqualTo(now);
+            assertThat(user.isReferredUserCodeInputSkipped()).isTrue();
+        }
+
+        @Test
+        @DisplayName("이미 추천 코드를 등록한 상태에서 호출하면 ReferredUserCodeAlreadyExistsException이 발생한다")
+        void shouldThrowWhenAlreadyRegistered() {
+            User user = createUserWithReferredUserCode("EXSTC1");
+
+            assertThatThrownBy(() -> user.skipReferredUserCodeInput(LocalDateTime.of(2026, 4, 27, 10, 0)))
+                    .isInstanceOf(ReferredUserCodeAlreadyExistsException.class);
+        }
+
+        @Test
+        @DisplayName("이미 건너뛴 상태에서 다시 호출하면 ReferredUserCodeInputAlreadySkippedException이 발생한다")
+        void shouldThrowWhenAlreadySkipped() {
+            User user = createActiveUser();
+            user.skipReferredUserCodeInput(LocalDateTime.of(2026, 4, 27, 10, 0));
+
+            assertThatThrownBy(() -> user.skipReferredUserCodeInput(LocalDateTime.of(2026, 4, 28, 10, 0)))
+                    .isInstanceOf(ReferredUserCodeInputAlreadySkippedException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("hasCompletedReferredUserCodeInput")
+    class HasCompletedReferredUserCodeInput {
+
+        @Test
+        @DisplayName("등록도 건너뛰기도 안 한 상태이면 false를 반환한다")
+        void shouldReturnFalseWhenPending() {
+            User user = createActiveUser();
+
+            assertThat(user.hasCompletedReferredUserCodeInput()).isFalse();
+        }
+
+        @Test
+        @DisplayName("추천 코드가 등록된 상태이면 true를 반환한다")
+        void shouldReturnTrueWhenRegistered() {
+            User user = createUserWithReferredUserCode("INVCD1");
+
+            assertThat(user.hasCompletedReferredUserCodeInput()).isTrue();
+        }
+
+        @Test
+        @DisplayName("입력을 건너뛴 상태이면 true를 반환한다")
+        void shouldReturnTrueWhenSkipped() {
+            User user = createActiveUser();
+            user.skipReferredUserCodeInput(LocalDateTime.of(2026, 4, 27, 10, 0));
+
+            assertThat(user.hasCompletedReferredUserCodeInput()).isTrue();
         }
     }
 

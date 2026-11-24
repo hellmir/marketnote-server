@@ -13,6 +13,7 @@ import com.personal.marketnote.user.domain.user.UserSortProperty;
 import com.personal.marketnote.user.port.in.result.AccountResult;
 import com.personal.marketnote.user.port.in.result.GetUserInfoResult;
 import com.personal.marketnote.user.port.in.result.GetUserResult;
+import com.personal.marketnote.user.port.in.result.ReferredUserCodeInputStatusResult;
 import com.personal.marketnote.user.port.out.user.FindUserPort;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import org.junit.jupiter.api.DisplayName;
@@ -957,6 +958,91 @@ class GetUserUseCaseTest {
                 .withdrawalYn(false)
                 .build();
         return User.from(state);
+    }
+
+    private User createUserWithSkippedAt(Long id, LocalDateTime skippedAt) {
+        UserSnapshotState state = UserSnapshotState.builder()
+                .id(id)
+                .userKey(UUID.fromString("00000000-0000-0000-0000-000000000099"))
+                .nickname(Nickname.of("skpuser"))
+                .referenceCode(ReferenceCode.of("OWNCD2"))
+                .referredUserCodeSkippedAt(skippedAt)
+                .role(Role.getBuyer())
+                .userAuthProviders(List.of())
+                .userTerms(List.of())
+                .status(EntityStatus.ACTIVE)
+                .withdrawalYn(false)
+                .build();
+        return User.from(state);
+    }
+
+    @Test
+    @DisplayName("미입력 회원의 입력 상태를 조회하면 (isRegistered=false, isSkipped=false)를 반환한다")
+    void getReferredUserCodeInputStatus_pending_returnsBothFalse() {
+        // given
+        Long id = 200L;
+        User user = createUserWithReferredUserCode(id, null);
+        when(findUserPort.findById(id)).thenReturn(Optional.of(user));
+
+        // when
+        ReferredUserCodeInputStatusResult result = getUserService.getReferredUserCodeInputStatus(id);
+
+        // then
+        assertThat(result.isRegistered()).isFalse();
+        assertThat(result.isSkipped()).isFalse();
+        verify(findUserPort).findById(id);
+        verifyNoMoreInteractions(findUserPort);
+    }
+
+    @Test
+    @DisplayName("등록된 회원의 입력 상태를 조회하면 (isRegistered=true, isSkipped=false)를 반환한다")
+    void getReferredUserCodeInputStatus_registered_returnsRegisteredTrue() {
+        // given
+        Long id = 201L;
+        User user = createUserWithReferredUserCode(id, "INVCD1");
+        when(findUserPort.findById(id)).thenReturn(Optional.of(user));
+
+        // when
+        ReferredUserCodeInputStatusResult result = getUserService.getReferredUserCodeInputStatus(id);
+
+        // then
+        assertThat(result.isRegistered()).isTrue();
+        assertThat(result.isSkipped()).isFalse();
+        verify(findUserPort).findById(id);
+        verifyNoMoreInteractions(findUserPort);
+    }
+
+    @Test
+    @DisplayName("건너뛴 회원의 입력 상태를 조회하면 (isRegistered=false, isSkipped=true)를 반환한다")
+    void getReferredUserCodeInputStatus_skipped_returnsSkippedTrue() {
+        // given
+        Long id = 202L;
+        User user = createUserWithSkippedAt(id, LocalDateTime.of(2026, 4, 27, 10, 0));
+        when(findUserPort.findById(id)).thenReturn(Optional.of(user));
+
+        // when
+        ReferredUserCodeInputStatusResult result = getUserService.getReferredUserCodeInputStatus(id);
+
+        // then
+        assertThat(result.isRegistered()).isFalse();
+        assertThat(result.isSkipped()).isTrue();
+        verify(findUserPort).findById(id);
+        verifyNoMoreInteractions(findUserPort);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 회원 ID로 입력 상태를 조회하면 UserNotFoundException이 발생한다")
+    void getReferredUserCodeInputStatus_userNotFound_throwsException() {
+        // given
+        Long id = 999L;
+        when(findUserPort.findById(id)).thenReturn(Optional.empty());
+
+        // expect
+        assertThatThrownBy(() -> getUserService.getReferredUserCodeInputStatus(id))
+                .isInstanceOf(UserNotFoundException.class);
+
+        verify(findUserPort).findById(id);
+        verifyNoMoreInteractions(findUserPort);
     }
 
 }
