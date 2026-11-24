@@ -22,7 +22,7 @@ class GiftishowResponseDtoMappingTest {
         void shouldParseBrandListResponseWithCamelCase() throws Exception {
             String json = """
                     {
-                        "listTotalCnt": 1,
+                        "listNum": 1,
                         "brandList": [
                             {
                                 "brandCode": "B001",
@@ -37,7 +37,7 @@ class GiftishowResponseDtoMappingTest {
 
             GiftishowBrandListResponse response = objectMapper.readValue(json, GiftishowBrandListResponse.class);
 
-            assertThat(response.listTotalCnt()).isEqualTo(1);
+            assertThat(response.listNum()).isEqualTo(1);
             assertThat(response.brandList()).hasSize(1);
             GiftishowBrandListResponse.GiftishowBrandItem item = response.brandList().getFirst();
             assertThat(item.brandCode()).isEqualTo("B001");
@@ -52,7 +52,7 @@ class GiftishowResponseDtoMappingTest {
         void shouldParseProductListResponseWithCamelCase() throws Exception {
             String json = """
                     {
-                        "listTotalCnt": 1,
+                        "listNum": 1,
                         "goodsList": [
                             {
                                 "goodsCode": "G001",
@@ -74,7 +74,7 @@ class GiftishowResponseDtoMappingTest {
 
             GiftishowProductListResponse response = objectMapper.readValue(json, GiftishowProductListResponse.class);
 
-            assertThat(response.listTotalCnt()).isEqualTo(1);
+            assertThat(response.listNum()).isEqualTo(1);
             assertThat(response.goodsList()).hasSize(1);
             GiftishowProductListResponse.GiftishowProductItem item = response.goodsList().getFirst();
             assertThat(item.goodsCode()).isEqualTo("G001");
@@ -253,7 +253,7 @@ class GiftishowResponseDtoMappingTest {
                         "code": "0000",
                         "message": "success",
                         "result": {
-                            "listTotalCnt": 1,
+                            "listNum": 1,
                             "goodsList": [
                                 {
                                     "goodsCode": "G001",
@@ -282,7 +282,7 @@ class GiftishowResponseDtoMappingTest {
             assertThat(response.isSuccess()).isTrue();
             assertThat(response.code()).isEqualTo("0000");
             assertThat(response.message()).isEqualTo("success");
-            assertThat(response.result().listTotalCnt()).isEqualTo(1);
+            assertThat(response.result().listNum()).isEqualTo(1);
             assertThat(response.result().goodsList().getFirst().goodsCode()).isEqualTo("G001");
         }
     }
@@ -309,7 +309,7 @@ class GiftishowResponseDtoMappingTest {
 
             GiftishowBrandListResponse response = objectMapper.readValue(json, GiftishowBrandListResponse.class);
 
-            assertThat(response.listTotalCnt()).isZero();
+            assertThat(response.listNum()).isZero();
             assertThat(response.brandList()).hasSize(1);
             GiftishowBrandListResponse.GiftishowBrandItem item = response.brandList().getFirst();
             assertThat(item.brandCode()).isNull();
@@ -338,7 +338,7 @@ class GiftishowResponseDtoMappingTest {
 
             GiftishowProductListResponse response = objectMapper.readValue(json, GiftishowProductListResponse.class);
 
-            assertThat(response.listTotalCnt()).isZero();
+            assertThat(response.listNum()).isZero();
             GiftishowProductListResponse.GiftishowProductItem item = response.goodsList().getFirst();
             assertThat(item.goodsCode()).isNull();
             assertThat(item.goodsName()).isNull();

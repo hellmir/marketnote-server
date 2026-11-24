@@ -6,7 +6,7 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record GiftishowBrandListResponse(
-        int listTotalCnt,
+        int listNum,
         List<GiftishowBrandItem> brandList
 ) {
 

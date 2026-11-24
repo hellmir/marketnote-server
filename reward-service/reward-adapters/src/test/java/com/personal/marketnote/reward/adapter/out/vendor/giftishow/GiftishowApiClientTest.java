@@ -122,7 +122,7 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "listTotalCnt": 0,
+                                    "listNum": 0,
                                     "goodsList": []
                                 }
                             }
@@ -147,7 +147,7 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "listTotalCnt": 1,
+                                    "listNum": 1,
                                     "goodsList": [
                                         {
                                             "goodsCode": "G001",
@@ -175,7 +175,7 @@ class GiftishowApiClientTest {
             // then
             assertThat(response.isSuccess()).isTrue();
             assertThat(response.code()).isEqualTo("0000");
-            assertThat(response.result().listTotalCnt()).isEqualTo(1);
+            assertThat(response.result().listNum()).isEqualTo(1);
             assertThat(response.result().goodsList()).hasSize(1);
 
             GiftishowProductListResponse.GiftishowProductItem item =
@@ -298,7 +298,7 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "listTotalCnt": 0,
+                                    "listNum": 0,
                                     "brandList": []
                                 }
                             }
@@ -322,7 +322,7 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "listTotalCnt": 1,
+                                    "listNum": 1,
                                     "brandList": [
                                         {
                                             "brandCode": "B001",
@@ -1294,7 +1294,7 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "listTotalCnt": 0,
+                                    "listNum": 0,
                                     "goodsList": []
                                 }
                             }
