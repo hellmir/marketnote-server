@@ -151,7 +151,7 @@ class GiftishowApiClientVendorCommunicationRecordTest {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/goods/" + GOODS_CODE))
                     .andExpect(method(HttpMethod.POST))
                     .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"goods_code\":\"G001\",\"goods_name\":\"테스트\",\"goods_img_B\":\"http://x\",\"brandCode\":\"B001\",\"brandName\":\"브\",\"brandIconImg\":\"http://x\",\"category1Seq\":\"1\",\"sale_price\":1000,\"real_price\":2000,\"limitDay\":30,\"content\":\"c\",\"goods_status\":\"SALE\"}}",
+                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"goodsCode\":\"G001\",\"goodsName\":\"테스트\",\"goodsImgB\":\"http://x\",\"brandCode\":\"B001\",\"brandName\":\"브\",\"brandIconImg\":\"http://x\",\"category1Seq\":\"1\",\"salePrice\":1000,\"realPrice\":2000,\"limitDay\":30,\"content\":\"c\",\"goodsStateCd\":\"SALE\"}}",
                             MediaType.APPLICATION_JSON
                     ));
 

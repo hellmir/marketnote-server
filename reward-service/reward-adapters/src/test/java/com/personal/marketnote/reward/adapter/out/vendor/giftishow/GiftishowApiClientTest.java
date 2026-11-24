@@ -122,7 +122,7 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "list_total_cnt": 0,
+                                    "listTotalCnt": 0,
                                     "goodsList": []
                                 }
                             }
@@ -147,21 +147,21 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "list_total_cnt": 1,
+                                    "listTotalCnt": 1,
                                     "goodsList": [
                                         {
-                                            "goods_code": "G001",
-                                            "goods_name": "테스트 상품",
-                                            "goods_img_B": "http://img.test.com/goods.jpg",
+                                            "goodsCode": "G001",
+                                            "goodsName": "테스트 상품",
+                                            "goodsImgB": "http://img.test.com/goods.jpg",
                                             "brandCode": "B001",
                                             "brandName": "테스트 브랜드",
                                             "brandIconImg": "http://img.test.com/brand.jpg",
                                             "category1Seq": "1",
-                                            "sale_price": 10000,
-                                            "real_price": 12000,
+                                            "salePrice": 10000,
+                                            "realPrice": 12000,
                                             "limitDay": 30,
                                             "content": "테스트 상품 설명",
-                                            "goods_status": "SALE"
+                                            "goodsStateCd": "SALE"
                                         }
                                     ]
                                 }
@@ -245,18 +245,18 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "goods_code": "G001",
-                                    "goods_name": "테스트 상품",
-                                    "goods_img_B": "http://img.test.com/goods.jpg",
+                                    "goodsCode": "G001",
+                                    "goodsName": "테스트 상품",
+                                    "goodsImgB": "http://img.test.com/goods.jpg",
                                     "brandCode": "B001",
                                     "brandName": "테스트 브랜드",
                                     "brandIconImg": "http://img.test.com/brand.jpg",
                                     "category1Seq": "1",
-                                    "sale_price": 10000,
-                                    "real_price": 12000,
+                                    "salePrice": 10000,
+                                    "realPrice": 12000,
                                     "limitDay": 30,
                                     "content": "테스트 상품 설명",
-                                    "goods_status": "SALE"
+                                    "goodsStateCd": "SALE"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -298,7 +298,7 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "list_total_cnt": 0,
+                                    "listTotalCnt": 0,
                                     "brandList": []
                                 }
                             }
@@ -322,12 +322,12 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "list_total_cnt": 1,
+                                    "listTotalCnt": 1,
                                     "brandList": [
                                         {
-                                            "brand_code": "B001",
-                                            "brand_name": "테스트 브랜드",
-                                            "brand_icon_img": "http://img.test.com/brand.jpg",
+                                            "brandCode": "B001",
+                                            "brandName": "테스트 브랜드",
+                                            "brandIconImg": "http://img.test.com/brand.jpg",
                                             "category1Seq": "1",
                                             "category1Name": "카페/음료"
                                         }
@@ -377,9 +377,9 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "brand_code": "B001",
-                                    "brand_name": "테스트 브랜드",
-                                    "brand_icon_img": "http://img.test.com/brand.jpg",
+                                    "brandCode": "B001",
+                                    "brandName": "테스트 브랜드",
+                                    "brandIconImg": "http://img.test.com/brand.jpg",
                                     "category1Seq": "1",
                                     "category1Name": "카페/음료"
                                 }
@@ -430,11 +430,11 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001",
-                                    "pin_no": "1234-5678-9012",
-                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
-                                    "valid_prd_end_dt": "20260503"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001",
+                                    "pinNo": "1234-5678-9012",
+                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
+                                    "validPrdEndDt": "20260503"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -466,11 +466,11 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001",
-                                    "pin_no": "1234-5678-9012",
-                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
-                                    "valid_prd_end_dt": "20260503"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001",
+                                    "pinNo": "1234-5678-9012",
+                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
+                                    "validPrdEndDt": "20260503"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -528,11 +528,11 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001",
-                                    "pin_no": "1234-5678-9012",
-                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
-                                    "valid_prd_end_dt": "20260503"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001",
+                                    "pinNo": "1234-5678-9012",
+                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
+                                    "validPrdEndDt": "20260503"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -577,11 +577,11 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001",
-                                    "pin_no": "1234-5678-9012",
-                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
-                                    "valid_prd_end_dt": "20260503"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001",
+                                    "pinNo": "1234-5678-9012",
+                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
+                                    "validPrdEndDt": "20260503"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -610,11 +610,11 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001",
-                                    "pin_no": "1234-5678-9012",
-                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
-                                    "valid_prd_end_dt": "20260503"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001",
+                                    "pinNo": "1234-5678-9012",
+                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
+                                    "validPrdEndDt": "20260503"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -659,11 +659,11 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD123456",
-                                    "pin_no": "1234-5678-9012",
-                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
-                                    "valid_prd_end_dt": "20260503"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD123456",
+                                    "pinNo": "1234-5678-9012",
+                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
+                                    "validPrdEndDt": "20260503"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -691,11 +691,11 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001",
-                                    "pin_no": "1234-5678-9012",
-                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
-                                    "valid_prd_end_dt": "20260503"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001",
+                                    "pinNo": "1234-5678-9012",
+                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
+                                    "validPrdEndDt": "20260503"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -735,13 +735,13 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001",
-                                    "pin_status_cd": "01",
-                                    "pin_status_nm": "발행",
-                                    "valid_prd_end_dt": "20260503",
-                                    "goods_code": "G001",
-                                    "goods_name": "테스트 상품"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001",
+                                    "pinStatusCd": "01",
+                                    "pinStatusNm": "발행",
+                                    "validPrdEndDt": "20260503",
+                                    "goodsCode": "G001",
+                                    "goodsName": "테스트 상품"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -764,13 +764,13 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001",
-                                    "pin_status_cd": "01",
-                                    "pin_status_nm": "발행",
-                                    "valid_prd_end_dt": "20260503",
-                                    "goods_code": "G001",
-                                    "goods_name": "테스트 상품"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001",
+                                    "pinStatusCd": "01",
+                                    "pinStatusNm": "발행",
+                                    "validPrdEndDt": "20260503",
+                                    "goodsCode": "G001",
+                                    "goodsName": "테스트 상품"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -814,8 +814,8 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -838,8 +838,8 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -881,8 +881,8 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -905,8 +905,8 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -947,8 +947,8 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "user_id": "user1",
-                                    "biz_money": 500000
+                                    "userId": "user1",
+                                    "bizMoney": 500000
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -971,8 +971,8 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "user_id": "user1",
-                                    "biz_money": 500000
+                                    "userId": "user1",
+                                    "bizMoney": 500000
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -1015,8 +1015,8 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -1039,8 +1039,8 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -1193,11 +1193,11 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001",
-                                    "pin_no": "1234-5678-9012",
-                                    "coupon_img_url": "http://img.test.com/coupon.jpg",
-                                    "valid_prd_end_dt": "20260503"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001",
+                                    "pinNo": "1234-5678-9012",
+                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
+                                    "validPrdEndDt": "20260503"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -1229,13 +1229,13 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001",
-                                    "pin_status_cd": "01",
-                                    "pin_status_nm": "발행",
-                                    "valid_prd_end_dt": "20260503",
-                                    "goods_code": "G001",
-                                    "goods_name": "테스트 상품"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001",
+                                    "pinStatusCd": "01",
+                                    "pinStatusNm": "발행",
+                                    "validPrdEndDt": "20260503",
+                                    "goodsCode": "G001",
+                                    "goodsName": "테스트 상품"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -1264,8 +1264,8 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -1294,7 +1294,7 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "list_total_cnt": 0,
+                                    "listTotalCnt": 0,
                                     "goodsList": []
                                 }
                             }
@@ -1324,8 +1324,8 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "tr_id": "NTCASH_1_20260403120000",
-                                    "order_no": "ORD001"
+                                    "trId": "NTCASH_1_20260403120000",
+                                    "orderNo": "ORD001"
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -1359,8 +1359,8 @@ class GiftishowApiClientTest {
                                 "code": "9999",
                                 "message": "인증 실패",
                                 "result": {
-                                    "user_id": "user1",
-                                    "biz_money": 0
+                                    "userId": "user1",
+                                    "bizMoney": 0
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -1396,8 +1396,8 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "user_id": "user1",
-                                    "biz_money": 0
+                                    "userId": "user1",
+                                    "bizMoney": 0
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -1424,8 +1424,8 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "user_id": "user1",
-                                    "biz_money": 0
+                                    "userId": "user1",
+                                    "bizMoney": 0
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -1451,8 +1451,8 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "user_id": "user1",
-                                    "biz_money": 0
+                                    "userId": "user1",
+                                    "bizMoney": 0
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
