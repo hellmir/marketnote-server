@@ -17,8 +17,8 @@ import java.io.IOException;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class TraceIdMdcFilter extends OncePerRequestFilter {
 
-    public static final String TRACE_ID_HEADER = "X-Request-ID";
-    public static final String TRACE_ID_MDC_KEY = "traceId";
+    public static final String REQUEST_ID_HEADER = "X-Request-ID";
+    public static final String REQUEST_ID_MDC_KEY = "requestId";
     public static final String CORRELATION_ID_HEADER = "X-Correlation-ID";
     public static final String CORRELATION_ID_MDC_KEY = "correlationId";
     public static final String CAUSATION_ID_HEADER = "X-Causation-ID";
@@ -28,11 +28,11 @@ public class TraceIdMdcFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain chain
     ) throws ServletException, IOException {
-        String traceId = TraceIdValidator.validateOrFallback(request.getHeader(TRACE_ID_HEADER));
-        MDC.put(TRACE_ID_MDC_KEY, traceId);
-        response.setHeader(TRACE_ID_HEADER, traceId);
+        String requestId = TraceIdValidator.validateOrFallback(request.getHeader(REQUEST_ID_HEADER));
+        MDC.put(REQUEST_ID_MDC_KEY, requestId);
+        response.setHeader(REQUEST_ID_HEADER, requestId);
 
-        String correlationId = resolveCorrelationId(request, traceId);
+        String correlationId = resolveCorrelationId(request, requestId);
         MDC.put(CORRELATION_ID_MDC_KEY, correlationId);
         response.setHeader(CORRELATION_ID_HEADER, correlationId);
 
@@ -44,19 +44,19 @@ public class TraceIdMdcFilter extends OncePerRequestFilter {
         try {
             chain.doFilter(request, response);
         } finally {
-            MDC.remove(TRACE_ID_MDC_KEY);
+            MDC.remove(REQUEST_ID_MDC_KEY);
             MDC.remove(CORRELATION_ID_MDC_KEY);
             MDC.remove(CAUSATION_ID_MDC_KEY);
         }
     }
 
-    private static String resolveCorrelationId(HttpServletRequest request, String traceId) {
+    private static String resolveCorrelationId(HttpServletRequest request, String requestId) {
         String headerValue = request.getHeader(CORRELATION_ID_HEADER);
         if (FormatValidator.hasNoValue(headerValue)) {
-            return traceId;
+            return requestId;
         }
         if (!TraceIdValidator.TRACE_ID_PATTERN.matcher(headerValue).matches()) {
-            return traceId;
+            return requestId;
         }
         return headerValue;
     }

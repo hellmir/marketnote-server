@@ -22,23 +22,23 @@ class KafkaMdcProducerInterceptorTest {
     }
 
     @Test
-    @DisplayName("MDC traceId가 존재하면 Producer 레코드 헤더에 X-Request-ID를 추가한다")
+    @DisplayName("MDC requestId가 존재하면 Producer 레코드 헤더에 X-Request-ID를 추가한다")
     void addsTraceIdHeaderWhenMdcPresent() {
         // given
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, "trace-abc");
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, "trace-abc");
         ProducerRecord<String, Object> record = new ProducerRecord<>("topic", "key", "value");
 
         // when
         ProducerRecord<String, Object> result = interceptor.onSend(record);
 
         // then
-        Header header = result.headers().lastHeader(TraceIdMdcFilter.TRACE_ID_HEADER);
+        Header header = result.headers().lastHeader(TraceIdMdcFilter.REQUEST_ID_HEADER);
         assertThat(header).isNotNull();
         assertThat(new String(header.value(), StandardCharsets.UTF_8)).isEqualTo("trace-abc");
     }
 
     @Test
-    @DisplayName("MDC traceId가 없으면 헤더를 추가하지 않는다")
+    @DisplayName("MDC requestId가 없으면 헤더를 추가하지 않는다")
     void noOpWhenMdcAbsent() {
         // given
         MDC.clear();
@@ -48,22 +48,22 @@ class KafkaMdcProducerInterceptorTest {
         ProducerRecord<String, Object> result = interceptor.onSend(record);
 
         // then
-        assertThat(result.headers().lastHeader(TraceIdMdcFilter.TRACE_ID_HEADER)).isNull();
+        assertThat(result.headers().lastHeader(TraceIdMdcFilter.REQUEST_ID_HEADER)).isNull();
     }
 
     @Test
     @DisplayName("기존 X-Request-ID 헤더가 있으면 덮어쓰지 않는다")
     void doesNotOverwriteExistingHeader() {
         // given
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, "new-trace");
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, "new-trace");
         ProducerRecord<String, Object> record = new ProducerRecord<>("topic", "key", "value");
-        record.headers().add(TraceIdMdcFilter.TRACE_ID_HEADER, "existing-trace".getBytes(StandardCharsets.UTF_8));
+        record.headers().add(TraceIdMdcFilter.REQUEST_ID_HEADER, "existing-trace".getBytes(StandardCharsets.UTF_8));
 
         // when
         ProducerRecord<String, Object> result = interceptor.onSend(record);
 
         // then
-        Header header = result.headers().lastHeader(TraceIdMdcFilter.TRACE_ID_HEADER);
+        Header header = result.headers().lastHeader(TraceIdMdcFilter.REQUEST_ID_HEADER);
         assertThat(new String(header.value(), StandardCharsets.UTF_8)).isEqualTo("existing-trace");
     }
 
@@ -100,10 +100,10 @@ class KafkaMdcProducerInterceptorTest {
     }
 
     @Test
-    @DisplayName("MDC에 모든 ID가 있으면 traceId/correlationId/causationId 세 헤더가 모두 부착된다")
+    @DisplayName("MDC에 모든 ID가 있으면 requestId/correlationId/causationId 세 헤더가 모두 부착된다")
     void addsAllThreeHeadersWhenAllMdcPresent() {
         // given
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, "trace-x");
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, "trace-x");
         MDC.put(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY, "corr-x");
         MDC.put(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY, "cause-x");
         ProducerRecord<String, Object> record = new ProducerRecord<>("topic", "key", "value");
@@ -112,7 +112,7 @@ class KafkaMdcProducerInterceptorTest {
         ProducerRecord<String, Object> result = interceptor.onSend(record);
 
         // then
-        assertThat(new String(result.headers().lastHeader(TraceIdMdcFilter.TRACE_ID_HEADER).value(), StandardCharsets.UTF_8))
+        assertThat(new String(result.headers().lastHeader(TraceIdMdcFilter.REQUEST_ID_HEADER).value(), StandardCharsets.UTF_8))
                 .isEqualTo("trace-x");
         assertThat(new String(result.headers().lastHeader(TraceIdMdcFilter.CORRELATION_ID_HEADER).value(), StandardCharsets.UTF_8))
                 .isEqualTo("corr-x");

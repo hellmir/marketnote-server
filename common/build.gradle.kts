@@ -78,6 +78,10 @@ dependencies {
     // micrometer (Kafka Consumer 메트릭 수집)
     implementation("io.micrometer:micrometer-core")
 
+    // Micrometer Tracing — W3C traceparent 분산 추적 (Brave bridge)
+    // Spring Boot 3.5 자동 설정으로 MDC traceId/spanId 키 자동 put + RestClient/WebClient/RestTemplate traceparent 헤더 부착
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
+
     // ShedLock (분산 스케줄러 락 — desired ≥ 2 환경에서 @Scheduled 중복 실행 방지)
     // 7개 서비스 어댑터에서 @SchedulerLock 어노테이션 직접 사용하므로 api scope로 전파
     api("net.javacrumbs.shedlock:shedlock-spring:5.16.0")
@@ -87,6 +91,10 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+
+    // Spring Boot Tracing 자동 구성 라운드트립 테스트(TracingAutoConfigurationMdcTest) 한정
+    // BraveAutoConfiguration / MicrometerTracingAutoConfiguration이 actuator-autoconfigure에 위치
+    testImplementation("org.springframework.boot:spring-boot-starter-actuator")
 
     // ArchUnit — 도메인 예외 네이밍/상속 매핑 및 생성자 규약 강제
     testFixturesApi("com.tngtech.archunit:archunit-junit5:1.3.0")

@@ -15,7 +15,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("PaymentCancelIdempotencyExceptionHandler traceId 응답 주입")
+@DisplayName("PaymentCancelIdempotencyExceptionHandler requestId 응답 주입")
 class PaymentCancelIdempotencyExceptionHandlerTraceIdTest {
 
     private final PaymentCancelIdempotencyExceptionHandler handler =
@@ -30,7 +30,7 @@ class PaymentCancelIdempotencyExceptionHandlerTraceIdTest {
     @DisplayName("IdempotencyKeyInProgressException 처리 시 traceId가 응답에 포함된다")
     void inProgressIncludesTraceId() {
         String traceId = "trace-in-progress";
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, traceId);
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, traceId);
 
         ResponseEntity<ErrorResponse> response = handler.handleInProgress(
                 new IdempotencyKeyInProgressException("KEY-1")
@@ -45,7 +45,7 @@ class PaymentCancelIdempotencyExceptionHandlerTraceIdTest {
     @DisplayName("DuplicateIdempotencyKeyException 처리 시 traceId가 응답에 포함된다")
     void duplicateIncludesTraceId() {
         String traceId = "trace-duplicate";
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, traceId);
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, traceId);
 
         ResponseEntity<ErrorResponse> response = handler.handleDuplicate(
                 new DuplicateIdempotencyKeyException("KEY-2")
@@ -57,7 +57,7 @@ class PaymentCancelIdempotencyExceptionHandlerTraceIdTest {
     }
 
     @Test
-    @DisplayName("MDC에 traceId가 없으면 응답 traceId는 null이다")
+    @DisplayName("MDC에 requestId가 없으면 응답 traceId는 null이다")
     void traceIdIsNullWhenMdcEmpty() {
         ResponseEntity<ErrorResponse> response = handler.handleDuplicate(
                 new DuplicateIdempotencyKeyException("KEY-3")
@@ -70,7 +70,7 @@ class PaymentCancelIdempotencyExceptionHandlerTraceIdTest {
     @Test
     @DisplayName("IN_PROGRESS 응답의 content가 status=IN_PROGRESS를 유지한다 (회귀 방지)")
     void inProgressContentPreserved() {
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, "trace-x");
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, "trace-x");
 
         ResponseEntity<ErrorResponse> response = handler.handleInProgress(
                 new IdempotencyKeyInProgressException("KEY-4")

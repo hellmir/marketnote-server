@@ -39,17 +39,17 @@ class TraceIdMdcFilterTest {
         // given
         String headerTraceId = "client-trace-id-1234";
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader(TraceIdMdcFilter.TRACE_ID_HEADER, headerTraceId);
+        request.addHeader(TraceIdMdcFilter.REQUEST_ID_HEADER, headerTraceId);
         MockHttpServletResponse response = new MockHttpServletResponse();
         AtomicReference<String> capturedMdc = new AtomicReference<>();
-        FilterChain chain = (req, res) -> capturedMdc.set(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY));
+        FilterChain chain = (req, res) -> capturedMdc.set(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY));
 
         // when
         filter.doFilter(request, response, chain);
 
         // then
         assertThat(capturedMdc.get()).isEqualTo(headerTraceId);
-        assertThat(response.getHeader(TraceIdMdcFilter.TRACE_ID_HEADER)).isEqualTo(headerTraceId);
+        assertThat(response.getHeader(TraceIdMdcFilter.REQUEST_ID_HEADER)).isEqualTo(headerTraceId);
     }
 
     @Test
@@ -59,13 +59,13 @@ class TraceIdMdcFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         AtomicReference<String> capturedMdc = new AtomicReference<>();
-        FilterChain chain = (req, res) -> capturedMdc.set(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY));
+        FilterChain chain = (req, res) -> capturedMdc.set(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY));
 
         // when
         filter.doFilter(request, response, chain);
 
         // then
-        String responseHeader = response.getHeader(TraceIdMdcFilter.TRACE_ID_HEADER);
+        String responseHeader = response.getHeader(TraceIdMdcFilter.REQUEST_ID_HEADER);
         assertThat(responseHeader).isNotBlank();
         assertThat(capturedMdc.get()).isEqualTo(responseHeader);
         assertThatNoExceptionParsingUuid(responseHeader);
@@ -76,16 +76,16 @@ class TraceIdMdcFilterTest {
     void shouldGenerateUuidWhenHeaderBlank() throws ServletException, IOException {
         // given
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader(TraceIdMdcFilter.TRACE_ID_HEADER, "   ");
+        request.addHeader(TraceIdMdcFilter.REQUEST_ID_HEADER, "   ");
         MockHttpServletResponse response = new MockHttpServletResponse();
         AtomicReference<String> capturedMdc = new AtomicReference<>();
-        FilterChain chain = (req, res) -> capturedMdc.set(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY));
+        FilterChain chain = (req, res) -> capturedMdc.set(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY));
 
         // when
         filter.doFilter(request, response, chain);
 
         // then
-        String responseHeader = response.getHeader(TraceIdMdcFilter.TRACE_ID_HEADER);
+        String responseHeader = response.getHeader(TraceIdMdcFilter.REQUEST_ID_HEADER);
         assertThat(responseHeader).isNotBlank();
         assertThat(responseHeader.trim()).isNotEmpty();
         assertThat(capturedMdc.get()).isEqualTo(responseHeader);
@@ -93,7 +93,7 @@ class TraceIdMdcFilterTest {
     }
 
     @Test
-    @DisplayName("필터 체인 처리 후 MDC 의 traceId 키가 자동 제거된다")
+    @DisplayName("필터 체인 처리 후 MDC 의 requestId 키가 자동 제거된다")
     void shouldClearMdcAfterChain() throws ServletException, IOException {
         // given
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -104,11 +104,11 @@ class TraceIdMdcFilterTest {
         filter.doFilter(request, response, chain);
 
         // then
-        assertThat(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY)).isNull();
+        assertThat(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY)).isNull();
     }
 
     @Test
-    @DisplayName("필터 체인에서 예외가 발생해도 MDC traceId 키는 제거된다")
+    @DisplayName("필터 체인에서 예외가 발생해도 MDC requestId 키는 제거된다")
     void shouldClearMdcWhenChainThrows() {
         // given
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -120,7 +120,7 @@ class TraceIdMdcFilterTest {
         // when / then
         assertThatThrownBy(() -> filter.doFilter(request, response, throwingChain))
                 .isInstanceOf(ServletException.class);
-        assertThat(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY)).isNull();
+        assertThat(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY)).isNull();
     }
 
     @Test
@@ -129,16 +129,16 @@ class TraceIdMdcFilterTest {
         // given
         String malicious = "valid-id\r\nX-Injected: malicious";
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader(TraceIdMdcFilter.TRACE_ID_HEADER, malicious);
+        request.addHeader(TraceIdMdcFilter.REQUEST_ID_HEADER, malicious);
         MockHttpServletResponse response = new MockHttpServletResponse();
         AtomicReference<String> capturedMdc = new AtomicReference<>();
-        FilterChain chain = (req, res) -> capturedMdc.set(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY));
+        FilterChain chain = (req, res) -> capturedMdc.set(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY));
 
         // when
         filter.doFilter(request, response, chain);
 
         // then
-        String responseHeader = response.getHeader(TraceIdMdcFilter.TRACE_ID_HEADER);
+        String responseHeader = response.getHeader(TraceIdMdcFilter.REQUEST_ID_HEADER);
         assertThat(responseHeader).isNotEqualTo(malicious);
         assertThat(responseHeader).doesNotContain("\r").doesNotContain("\n");
         assertThat(capturedMdc.get()).isEqualTo(responseHeader);
@@ -151,14 +151,14 @@ class TraceIdMdcFilterTest {
         // given
         String malicious = "abc[31mXYZ";
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader(TraceIdMdcFilter.TRACE_ID_HEADER, malicious);
+        request.addHeader(TraceIdMdcFilter.REQUEST_ID_HEADER, malicious);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // when
         filter.doFilter(request, response, new MockFilterChain());
 
         // then
-        String responseHeader = response.getHeader(TraceIdMdcFilter.TRACE_ID_HEADER);
+        String responseHeader = response.getHeader(TraceIdMdcFilter.REQUEST_ID_HEADER);
         assertThat(responseHeader).isNotEqualTo(malicious);
         assertThatNoExceptionParsingUuid(responseHeader);
     }
@@ -169,14 +169,14 @@ class TraceIdMdcFilterTest {
         // given
         String tooLong = "a".repeat(65);
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader(TraceIdMdcFilter.TRACE_ID_HEADER, tooLong);
+        request.addHeader(TraceIdMdcFilter.REQUEST_ID_HEADER, tooLong);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // when
         filter.doFilter(request, response, new MockFilterChain());
 
         // then
-        String responseHeader = response.getHeader(TraceIdMdcFilter.TRACE_ID_HEADER);
+        String responseHeader = response.getHeader(TraceIdMdcFilter.REQUEST_ID_HEADER);
         assertThat(responseHeader).isNotEqualTo(tooLong);
         assertThat(responseHeader.length()).isLessThanOrEqualTo(64);
         assertThatNoExceptionParsingUuid(responseHeader);
@@ -188,16 +188,16 @@ class TraceIdMdcFilterTest {
         // given
         String safeId = "req-abc_12345.6789";
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader(TraceIdMdcFilter.TRACE_ID_HEADER, safeId);
+        request.addHeader(TraceIdMdcFilter.REQUEST_ID_HEADER, safeId);
         MockHttpServletResponse response = new MockHttpServletResponse();
         AtomicReference<String> capturedMdc = new AtomicReference<>();
-        FilterChain chain = (req, res) -> capturedMdc.set(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY));
+        FilterChain chain = (req, res) -> capturedMdc.set(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY));
 
         // when
         filter.doFilter(request, response, chain);
 
         // then
-        assertThat(response.getHeader(TraceIdMdcFilter.TRACE_ID_HEADER)).isEqualTo(safeId);
+        assertThat(response.getHeader(TraceIdMdcFilter.REQUEST_ID_HEADER)).isEqualTo(safeId);
         assertThat(capturedMdc.get()).isEqualTo(safeId);
     }
 
@@ -221,17 +221,17 @@ class TraceIdMdcFilterTest {
     }
 
     @Test
-    @DisplayName("X-Correlation-ID 헤더가 없으면 traceId 값으로 fallback된다")
+    @DisplayName("X-Correlation-ID 헤더가 없으면 requestId 값으로 fallback된다")
     void shouldFallbackToTraceIdWhenCorrelationIdHeaderMissing() throws ServletException, IOException {
         // given
         String traceId = "trace-fallback-1";
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader(TraceIdMdcFilter.TRACE_ID_HEADER, traceId);
+        request.addHeader(TraceIdMdcFilter.REQUEST_ID_HEADER, traceId);
         MockHttpServletResponse response = new MockHttpServletResponse();
         AtomicReference<String> capturedTrace = new AtomicReference<>();
         AtomicReference<String> capturedCorrelation = new AtomicReference<>();
         FilterChain chain = (req, res) -> {
-            capturedTrace.set(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY));
+            capturedTrace.set(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY));
             capturedCorrelation.set(MDC.get(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY));
         };
 
@@ -279,11 +279,11 @@ class TraceIdMdcFilterTest {
     }
 
     @Test
-    @DisplayName("응답 종료 후 traceId/correlationId/causationId 모든 MDC 키가 remove된다")
+    @DisplayName("응답 종료 후 requestId/correlationId/causationId 모든 MDC 키가 remove된다")
     void shouldClearAllMdcKeysAfterChain() throws ServletException, IOException {
         // given
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader(TraceIdMdcFilter.TRACE_ID_HEADER, "trace-id");
+        request.addHeader(TraceIdMdcFilter.REQUEST_ID_HEADER, "trace-id");
         request.addHeader(TraceIdMdcFilter.CORRELATION_ID_HEADER, "corr-id");
         request.addHeader(TraceIdMdcFilter.CAUSATION_ID_HEADER, "cause-id");
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -292,7 +292,7 @@ class TraceIdMdcFilterTest {
         filter.doFilter(request, response, new MockFilterChain());
 
         // then
-        assertThat(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY)).isNull();
+        assertThat(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY)).isNull();
         assertThat(MDC.get(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY)).isNull();
         assertThat(MDC.get(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY)).isNull();
     }

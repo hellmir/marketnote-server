@@ -171,6 +171,11 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0
+    propagation:
+      type: w3c
 
 mail:
   from: ${MAIL_FROM:no-reply@yourdomain.com}

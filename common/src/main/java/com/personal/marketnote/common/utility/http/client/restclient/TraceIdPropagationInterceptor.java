@@ -15,16 +15,16 @@ public class TraceIdPropagationInterceptor implements ClientHttpRequestIntercept
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
             throws IOException {
-        String traceId = MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY);
+        String requestId = MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY);
 
-        if (FormatValidator.hasNoValue(traceId)) {
+        if (FormatValidator.hasNoValue(requestId)) {
             return execution.execute(request, body);
         }
-        if (request.getHeaders().containsKey(TraceIdMdcFilter.TRACE_ID_HEADER)) {
+        if (request.getHeaders().containsKey(TraceIdMdcFilter.REQUEST_ID_HEADER)) {
             return execution.execute(request, body);
         }
 
-        request.getHeaders().add(TraceIdMdcFilter.TRACE_ID_HEADER, traceId);
+        request.getHeaders().add(TraceIdMdcFilter.REQUEST_ID_HEADER, requestId);
         return execution.execute(request, body);
     }
 }

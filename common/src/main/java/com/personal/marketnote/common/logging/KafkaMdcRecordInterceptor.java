@@ -19,13 +19,13 @@ public class KafkaMdcRecordInterceptor implements RecordInterceptor<String, Obje
     public ConsumerRecord<String, Object> intercept(
             @NonNull ConsumerRecord<String, Object> record, @NonNull Consumer<String, Object> consumer
     ) {
-        String traceId = TraceIdValidator.validateOrFallback(
-                resolveHeaderValue(record, TraceIdMdcFilter.TRACE_ID_HEADER)
+        String requestId = TraceIdValidator.validateOrFallback(
+                resolveHeaderValue(record, TraceIdMdcFilter.REQUEST_ID_HEADER)
         );
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, traceId);
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, requestId);
 
         String correlationCandidate = resolveHeaderValue(record, TraceIdMdcFilter.CORRELATION_ID_HEADER);
-        String correlationId = resolveCorrelationId(correlationCandidate, traceId);
+        String correlationId = resolveCorrelationId(correlationCandidate, requestId);
         MDC.put(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY, correlationId);
 
         String causationId = resolveOptionalId(
@@ -41,7 +41,7 @@ public class KafkaMdcRecordInterceptor implements RecordInterceptor<String, Obje
     public void afterRecord(
             @NonNull ConsumerRecord<String, Object> record, @NonNull Consumer<String, Object> consumer
     ) {
-        MDC.remove(TraceIdMdcFilter.TRACE_ID_MDC_KEY);
+        MDC.remove(TraceIdMdcFilter.REQUEST_ID_MDC_KEY);
         MDC.remove(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY);
         MDC.remove(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY);
     }
@@ -58,12 +58,12 @@ public class KafkaMdcRecordInterceptor implements RecordInterceptor<String, Obje
         return new String(value, StandardCharsets.UTF_8);
     }
 
-    private static String resolveCorrelationId(String candidate, String traceId) {
+    private static String resolveCorrelationId(String candidate, String requestId) {
         if (FormatValidator.hasNoValue(candidate)) {
-            return traceId;
+            return requestId;
         }
         if (!TraceIdValidator.TRACE_ID_PATTERN.matcher(candidate).matches()) {
-            return traceId;
+            return requestId;
         }
         return candidate;
     }

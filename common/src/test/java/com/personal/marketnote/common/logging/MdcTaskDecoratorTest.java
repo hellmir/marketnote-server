@@ -20,12 +20,12 @@ class MdcTaskDecoratorTest {
     }
 
     @Test
-    @DisplayName("부모 스레드 MDC traceId가 자식 스레드로 전파된다")
+    @DisplayName("부모 스레드 MDC requestId가 자식 스레드로 전파된다")
     void propagatesParentMdcToChildThread() throws InterruptedException {
         // given
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, "parent-trace");
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, "parent-trace");
         AtomicReference<String> capturedTraceId = new AtomicReference<>();
-        Runnable wrapped = decorator.decorate(() -> capturedTraceId.set(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY)));
+        Runnable wrapped = decorator.decorate(() -> capturedTraceId.set(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY)));
 
         // when
         Thread child = new Thread(wrapped);
@@ -40,7 +40,7 @@ class MdcTaskDecoratorTest {
     @DisplayName("자식 스레드 실행 후 자식 스레드 MDC가 정리된다")
     void clearsChildMdcAfterExecution() throws InterruptedException {
         // given
-        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, "parent-trace");
+        MDC.put(TraceIdMdcFilter.REQUEST_ID_MDC_KEY, "parent-trace");
         AtomicReference<String> mdcAfterRun = new AtomicReference<>();
         Runnable wrapped = decorator.decorate(() -> {
             // task 본문 실행 시점은 MDC가 채워져 있어야 함
@@ -49,7 +49,7 @@ class MdcTaskDecoratorTest {
         // when
         Thread child = new Thread(() -> {
             wrapped.run();
-            mdcAfterRun.set(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY));
+            mdcAfterRun.set(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY));
         });
         child.start();
         child.join();
@@ -59,12 +59,12 @@ class MdcTaskDecoratorTest {
     }
 
     @Test
-    @DisplayName("부모 MDC가 비어있어도 자식 스레드에 신규 traceId가 생성된다")
+    @DisplayName("부모 MDC가 비어있어도 자식 스레드에 신규 requestId가 생성된다")
     void generatesNewTraceIdWhenParentMdcEmpty() throws InterruptedException {
         // given
         MDC.clear();
         AtomicReference<String> capturedTraceId = new AtomicReference<>();
-        Runnable wrapped = decorator.decorate(() -> capturedTraceId.set(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY)));
+        Runnable wrapped = decorator.decorate(() -> capturedTraceId.set(MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY)));
 
         // when
         Thread child = new Thread(wrapped);
