@@ -201,6 +201,118 @@ class TraceIdMdcFilterTest {
         assertThat(capturedMdc.get()).isEqualTo(safeId);
     }
 
+    @Test
+    @DisplayName("X-Correlation-ID 헤더가 있으면 MDC correlationId에 주입된다")
+    void shouldUseHeaderCorrelationIdWhenProvided() throws ServletException, IOException {
+        // given
+        String correlationId = "corr-id-7890";
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(TraceIdMdcFilter.CORRELATION_ID_HEADER, correlationId);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        AtomicReference<String> capturedMdc = new AtomicReference<>();
+        FilterChain chain = (req, res) -> capturedMdc.set(MDC.get(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY));
+
+        // when
+        filter.doFilter(request, response, chain);
+
+        // then
+        assertThat(capturedMdc.get()).isEqualTo(correlationId);
+        assertThat(response.getHeader(TraceIdMdcFilter.CORRELATION_ID_HEADER)).isEqualTo(correlationId);
+    }
+
+    @Test
+    @DisplayName("X-Correlation-ID 헤더가 없으면 traceId 값으로 fallback된다")
+    void shouldFallbackToTraceIdWhenCorrelationIdHeaderMissing() throws ServletException, IOException {
+        // given
+        String traceId = "trace-fallback-1";
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(TraceIdMdcFilter.TRACE_ID_HEADER, traceId);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        AtomicReference<String> capturedTrace = new AtomicReference<>();
+        AtomicReference<String> capturedCorrelation = new AtomicReference<>();
+        FilterChain chain = (req, res) -> {
+            capturedTrace.set(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY));
+            capturedCorrelation.set(MDC.get(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY));
+        };
+
+        // when
+        filter.doFilter(request, response, chain);
+
+        // then
+        assertThat(capturedTrace.get()).isEqualTo(traceId);
+        assertThat(capturedCorrelation.get()).isEqualTo(traceId);
+        assertThat(response.getHeader(TraceIdMdcFilter.CORRELATION_ID_HEADER)).isEqualTo(traceId);
+    }
+
+    @Test
+    @DisplayName("X-Causation-ID 헤더가 있으면 MDC causationId에 주입된다")
+    void shouldUseHeaderCausationIdWhenProvided() throws ServletException, IOException {
+        // given
+        String causationId = "cause-id-555";
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(TraceIdMdcFilter.CAUSATION_ID_HEADER, causationId);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        AtomicReference<String> capturedMdc = new AtomicReference<>();
+        FilterChain chain = (req, res) -> capturedMdc.set(MDC.get(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY));
+
+        // when
+        filter.doFilter(request, response, chain);
+
+        // then
+        assertThat(capturedMdc.get()).isEqualTo(causationId);
+    }
+
+    @Test
+    @DisplayName("X-Causation-ID 헤더가 없으면 MDC causationId는 set되지 않는다")
+    void shouldNotSetCausationIdWhenHeaderMissing() throws ServletException, IOException {
+        // given
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        AtomicReference<String> capturedMdc = new AtomicReference<>();
+        FilterChain chain = (req, res) -> capturedMdc.set(MDC.get(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY));
+
+        // when
+        filter.doFilter(request, response, chain);
+
+        // then
+        assertThat(capturedMdc.get()).isNull();
+    }
+
+    @Test
+    @DisplayName("응답 종료 후 traceId/correlationId/causationId 모든 MDC 키가 remove된다")
+    void shouldClearAllMdcKeysAfterChain() throws ServletException, IOException {
+        // given
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(TraceIdMdcFilter.TRACE_ID_HEADER, "trace-id");
+        request.addHeader(TraceIdMdcFilter.CORRELATION_ID_HEADER, "corr-id");
+        request.addHeader(TraceIdMdcFilter.CAUSATION_ID_HEADER, "cause-id");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        // when
+        filter.doFilter(request, response, new MockFilterChain());
+
+        // then
+        assertThat(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY)).isNull();
+        assertThat(MDC.get(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY)).isNull();
+        assertThat(MDC.get(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY)).isNull();
+    }
+
+    @Test
+    @DisplayName("응답 헤더에 X-Correlation-ID가 echo된다")
+    void shouldEchoCorrelationIdInResponseHeader() throws ServletException, IOException {
+        // given
+        String correlationId = "echo-corr-id";
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(TraceIdMdcFilter.CORRELATION_ID_HEADER, correlationId);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        // when
+        filter.doFilter(request, response, new MockFilterChain());
+
+        // then
+        assertThat(response.getHeader(TraceIdMdcFilter.CORRELATION_ID_HEADER)).isEqualTo(correlationId);
+    }
+
     private static void assertThatNoExceptionParsingUuid(String value) {
         try {
             UUID.fromString(value);

@@ -104,4 +104,92 @@ class KafkaMdcRecordInterceptorTest {
         assertThat(traceId).isNotEqualTo(tooLong);
         assertThat(traceId.length()).isEqualTo(36);
     }
+
+    @Test
+    @DisplayName("X-Correlation-ID 헤더가 있으면 MDC correlationId에 주입된다")
+    void putsHeaderCorrelationIdIntoMdc() {
+        // given
+        ConsumerRecord<String, Object> record = new ConsumerRecord<>("topic", 0, 0L, "key", "value");
+        record.headers().add(TraceIdMdcFilter.CORRELATION_ID_HEADER, "corr-header".getBytes(StandardCharsets.UTF_8));
+
+        // when
+        interceptor.intercept(record, consumer);
+
+        // then
+        assertThat(MDC.get(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY)).isEqualTo("corr-header");
+    }
+
+    @Test
+    @DisplayName("X-Causation-ID 헤더가 있으면 MDC causationId에 주입된다")
+    void putsHeaderCausationIdIntoMdc() {
+        // given
+        ConsumerRecord<String, Object> record = new ConsumerRecord<>("topic", 0, 0L, "key", "value");
+        record.headers().add(TraceIdMdcFilter.CAUSATION_ID_HEADER, "cause-header".getBytes(StandardCharsets.UTF_8));
+
+        // when
+        interceptor.intercept(record, consumer);
+
+        // then
+        assertThat(MDC.get(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY)).isEqualTo("cause-header");
+    }
+
+    @Test
+    @DisplayName("X-Correlation-ID 헤더가 없으면 traceId 값으로 fallback된다")
+    void fallsBackToTraceIdWhenCorrelationIdHeaderMissing() {
+        // given
+        ConsumerRecord<String, Object> record = new ConsumerRecord<>("topic", 0, 0L, "key", "value");
+        record.headers().add(TraceIdMdcFilter.TRACE_ID_HEADER, "trace-only".getBytes(StandardCharsets.UTF_8));
+
+        // when
+        interceptor.intercept(record, consumer);
+
+        // then
+        assertThat(MDC.get(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY)).isEqualTo("trace-only");
+    }
+
+    @Test
+    @DisplayName("X-Causation-ID 헤더가 없으면 MDC causationId는 set되지 않는다")
+    void doesNotSetCausationIdWhenHeaderMissing() {
+        // given
+        ConsumerRecord<String, Object> record = new ConsumerRecord<>("topic", 0, 0L, "key", "value");
+
+        // when
+        interceptor.intercept(record, consumer);
+
+        // then
+        assertThat(MDC.get(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY)).isNull();
+    }
+
+    @Test
+    @DisplayName("afterRecord 호출 시 traceId/correlationId/causationId가 모두 remove된다")
+    void clearsAllMdcKeysAfterAfterRecord() {
+        // given
+        ConsumerRecord<String, Object> record = new ConsumerRecord<>("topic", 0, 0L, "key", "value");
+        record.headers().add(TraceIdMdcFilter.TRACE_ID_HEADER, "t".getBytes(StandardCharsets.UTF_8));
+        record.headers().add(TraceIdMdcFilter.CORRELATION_ID_HEADER, "c".getBytes(StandardCharsets.UTF_8));
+        record.headers().add(TraceIdMdcFilter.CAUSATION_ID_HEADER, "u".getBytes(StandardCharsets.UTF_8));
+        interceptor.intercept(record, consumer);
+
+        // when
+        interceptor.afterRecord(record, consumer);
+
+        // then
+        assertThat(MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY)).isNull();
+        assertThat(MDC.get(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY)).isNull();
+        assertThat(MDC.get(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY)).isNull();
+    }
+
+    @Test
+    @DisplayName("X-Causation-ID 헤더 byte 배열이 비어있으면 MDC causationId는 set되지 않는다")
+    void doesNotSetCausationIdWhenHeaderValueEmpty() {
+        // given
+        ConsumerRecord<String, Object> record = new ConsumerRecord<>("topic", 0, 0L, "key", "value");
+        record.headers().add(TraceIdMdcFilter.CAUSATION_ID_HEADER, new byte[0]);
+
+        // when
+        interceptor.intercept(record, consumer);
+
+        // then
+        assertThat(MDC.get(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY)).isNull();
+    }
 }
