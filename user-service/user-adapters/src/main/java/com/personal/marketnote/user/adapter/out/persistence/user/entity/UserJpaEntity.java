@@ -55,6 +55,11 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "referred_user_code", unique = true, length = 15)
     private String referredUserCode;
 
+    @Column(name = "referred_user_code_skipped_at")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime referredUserCodeSkippedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private RoleJpaEntity roleJpaEntity;
@@ -102,6 +107,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
                 .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
                 .referenceCode(toReferenceCodeValue(user.getReferenceCode()))
                 .referredUserCode(toReferenceCodeValue(user.getReferredUserCode()))
+                .referredUserCodeSkippedAt(user.getReferredUserCodeSkippedAt())
                 .roleJpaEntity(RoleJpaEntity.from(user.getRole()))
                 .withdrawalYn(user.isWithdrawn())
                 .withdrawnAt(user.getWithdrawnAt())
@@ -138,6 +144,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
                 .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
                 .referenceCode(toReferenceCodeValue(user.getReferenceCode()))
                 .referredUserCode(toReferenceCodeValue(user.getReferredUserCode()))
+                .referredUserCodeSkippedAt(user.getReferredUserCodeSkippedAt())
                 .roleJpaEntity(RoleJpaEntity.from(user.getRole()))
                 .lastLoggedInAt(user.getLastLoggedInAt())
                 .withdrawalYn(user.isWithdrawn())
@@ -160,6 +167,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
         password = user.getPassword();
         phoneNumber = toPhoneNumberValue(user.getPhoneNumber());
         referredUserCode = toReferenceCodeValue(user.getReferredUserCode());
+        referredUserCodeSkippedAt = user.getReferredUserCodeSkippedAt();
         roleJpaEntity = RoleJpaEntity.from(user.getRole());
         signedUpAt = user.getSignedUpAt();
         lastLoggedInAt = user.getLastLoggedInAt();

@@ -43,6 +43,7 @@ import java.lang.annotation.*;
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | isRegistered | boolean | 추천인 초대 코드 등록 여부 | true |
+                | isSkipped | boolean | 추천인 초대 코드 입력 건너뛰기 여부 | false |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         responses = {
@@ -56,7 +57,8 @@ import java.lang.annotation.*;
                                           "code": "SUC01",
                                           "timestamp": "2026-11-03T11:20:19.055291",
                                           "content": {
-                                            "isRegistered": true
+                                            "isRegistered": true,
+                                            "isSkipped": false
                                           },
                                           "message": "추천 회원 초대 코드 등록 여부 조회 성공"
                                         }

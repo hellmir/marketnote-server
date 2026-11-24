@@ -24,6 +24,7 @@ public class UserSnapshotState {
     private final String phoneNumber;
     private final ReferenceCode referenceCode;
     private final ReferenceCode referredUserCode;
+    private final LocalDateTime referredUserCodeSkippedAt;
     private final Role role;
     private final List<UserAuthProvider> userAuthProviders;
     private final List<UserTerms> userTerms;

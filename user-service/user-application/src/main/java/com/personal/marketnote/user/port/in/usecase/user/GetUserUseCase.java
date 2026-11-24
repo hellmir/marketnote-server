@@ -5,6 +5,7 @@ import com.personal.marketnote.user.domain.user.UserSearchTarget;
 import com.personal.marketnote.user.domain.user.UserSortProperty;
 import com.personal.marketnote.user.port.in.result.GetUserInfoResult;
 import com.personal.marketnote.user.port.in.result.GetUserResult;
+import com.personal.marketnote.user.port.in.result.ReferredUserCodeInputStatusResult;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -102,6 +103,15 @@ public interface GetUserUseCase {
      * @Description 회원의 추천인 초대 코드 등록 여부를 조회합니다.
      */
     boolean isReferredUserCodeRegistered(Long id);
+
+    /**
+     * @param id 회원 ID
+     * @return 추천인 코드 입력 절차 상태 {@link ReferredUserCodeInputStatusResult}
+     * @Date 2026-11-22
+     * @Author 성효빈
+     * @Description 회원의 추천인 초대 코드 입력 절차 상태(등록 여부, 건너뛰기 여부)를 조회합니다.
+     */
+    ReferredUserCodeInputStatusResult getReferredUserCodeInputStatus(Long id);
 
     /**
      * @param id 회원 ID

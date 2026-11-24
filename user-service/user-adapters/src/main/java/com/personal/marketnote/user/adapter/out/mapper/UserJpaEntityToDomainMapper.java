@@ -33,6 +33,7 @@ public class UserJpaEntityToDomainMapper {
                                     .phoneNumber(entity.getPhoneNumber())
                                     .referenceCode(toReferenceCode(entity.getReferenceCode()))
                                     .referredUserCode(toReferenceCode(entity.getReferredUserCode()))
+                                    .referredUserCodeSkippedAt(entity.getReferredUserCodeSkippedAt())
                                     .role(role)
                                     .userAuthProviders(vendors)
                                     .userTerms(userTerms)

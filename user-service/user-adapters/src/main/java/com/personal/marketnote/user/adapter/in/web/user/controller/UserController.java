@@ -63,6 +63,7 @@ public class UserController {
     private final UpdateUserUseCase updateUserUseCase;
     private final CheckNicknameUseCase checkNicknameUseCase;
     private final RegisterReferredUserCodeUseCase registerReferredUserCodeUseCase;
+    private final SkipReferredUserCodeInputUseCase skipReferredUserCodeInputUseCase;
     private final SignOutUseCase signOutUseCase;
     private final WithdrawUseCase withdrawUseCase;
 
@@ -162,16 +163,44 @@ public class UserController {
     public ResponseEntity<BaseResponse<IsReferredUserCodeRegisteredResponse>> isReferredUserCodeRegistered(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
-        boolean isRegistered = getUserUseCase.isReferredUserCodeRegistered(
+        IsReferredUserCodeRegisteredResponse response = IsReferredUserCodeRegisteredResponse.from(
+                getUserUseCase.getReferredUserCodeInputStatus(ElementExtractor.extractUserId(principal))
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        response,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "추천 회원 초대 코드 등록 여부 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 추천 회원 초대 코드 입력 건너뛰기
+     *
+     * @param principal 사용자 인증 정보
+     * @Author 성효빈
+     * @Date 2026-11-22
+     * @Description 인증된 회원의 추천인 초대 코드 입력 절차를 건너뛰기로 표시합니다.
+     */
+    @PatchMapping("/referred-user-code/skip")
+    @SkipReferredUserCodeInputApiDocs
+    public ResponseEntity<BaseResponse<Void>> skipReferredUserCodeInput(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        skipReferredUserCodeInputUseCase.skipReferredUserCodeInput(
                 ElementExtractor.extractUserId(principal)
         );
 
         return new ResponseEntity<>(
                 BaseResponse.of(
-                        IsReferredUserCodeRegisteredResponse.of(isRegistered),
+                        null,
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
-                        "추천 회원 초대 코드 등록 여부 조회 성공"
+                        "초대 코드 입력 건너뛰기 성공"
                 ),
                 HttpStatus.OK
         );
