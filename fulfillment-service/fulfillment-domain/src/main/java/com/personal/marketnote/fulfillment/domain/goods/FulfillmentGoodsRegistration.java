@@ -14,14 +14,19 @@ import java.util.UUID;
 public class FulfillmentGoodsRegistration {
     private Long id;
     private UUID productKey;
+    private String fasstoProductCode;
     private LocalDateTime createdAt;
 
     public static FulfillmentGoodsRegistration from(FulfillmentGoodsRegistrationCreateState state) {
         if (FormatValidator.hasNoValue(state.getProductKey())) {
             throw new FulfillmentQueryParameterNoValueException("productKey");
         }
+        if (FormatValidator.hasNoValue(state.getFasstoProductCode())) {
+            throw new FulfillmentQueryParameterNoValueException("fasstoProductCode");
+        }
         return FulfillmentGoodsRegistration.builder()
                 .productKey(state.getProductKey())
+                .fasstoProductCode(state.getFasstoProductCode())
                 .build();
     }
 
@@ -29,6 +34,7 @@ public class FulfillmentGoodsRegistration {
         return FulfillmentGoodsRegistration.builder()
                 .id(state.getId())
                 .productKey(state.getProductKey())
+                .fasstoProductCode(state.getFasstoProductCode())
                 .createdAt(state.getCreatedAt())
                 .build();
     }

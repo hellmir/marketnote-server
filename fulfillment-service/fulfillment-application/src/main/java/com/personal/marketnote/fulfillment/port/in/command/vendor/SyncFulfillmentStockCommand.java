@@ -1,16 +1,15 @@
 package com.personal.marketnote.fulfillment.port.in.command.vendor;
 
 import java.util.List;
-import java.util.UUID;
 
 public record SyncFulfillmentStockCommand(
         String customerCode,
-        List<UUID> productKeys
+        List<String> fasstoProductCodes
 ) {
     public static SyncFulfillmentStockCommand of(
             String customerCode,
-            List<UUID> productKeys
+            List<String> fasstoProductCodes
     ) {
-        return new SyncFulfillmentStockCommand(customerCode, productKeys);
+        return new SyncFulfillmentStockCommand(customerCode, fasstoProductCodes);
     }
 }

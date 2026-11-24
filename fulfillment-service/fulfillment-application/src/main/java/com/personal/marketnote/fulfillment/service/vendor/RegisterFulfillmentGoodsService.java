@@ -2,6 +2,7 @@ package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.fulfillment.domain.goods.FulfillmentGoodsRegistration;
+import com.personal.marketnote.fulfillment.domain.goods.FulfillmentGoodsRegistrationCreateState;
 import com.personal.marketnote.fulfillment.mapper.FulfillmentCommandToStateMapper;
 import com.personal.marketnote.fulfillment.mapper.FulfillmentGoodsSyncedEventMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsCommand;
@@ -13,6 +14,8 @@ import com.personal.marketnote.fulfillment.port.out.goods.SaveFulfillmentGoodsRe
 import com.personal.marketnote.fulfillment.port.out.vendor.RegisterFulfillmentGoodsPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -44,5 +47,17 @@ public class RegisterFulfillmentGoodsService implements RegisterFulfillmentGoods
         }
 
         return result;
+    }
+
+    @Override
+    @Transactional(isolation = READ_COMMITTED)
+    public void recordImportedGoodsRegistration(UUID productKey, String fasstoProductCode) {
+        FulfillmentGoodsRegistration registration = FulfillmentGoodsRegistration.from(
+                FulfillmentGoodsRegistrationCreateState.builder()
+                        .productKey(productKey)
+                        .fasstoProductCode(fasstoProductCode)
+                        .build()
+        );
+        saveFulfillmentGoodsRegistrationPort.save(registration);
     }
 }

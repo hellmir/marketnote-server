@@ -4,8 +4,7 @@ import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentDeliveryRe
 import com.personal.marketnote.fulfillment.domain.goods.FulfillmentGoodsRegistrationCreateState;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsCommand;
-
-import java.util.UUID;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsItemCommand;
 
 public class FulfillmentCommandToStateMapper {
     private FulfillmentCommandToStateMapper() {
@@ -24,10 +23,11 @@ public class FulfillmentCommandToStateMapper {
     public static FulfillmentGoodsRegistrationCreateState mapToGoodsRegistrationCreateState(
             RegisterFulfillmentGoodsCommand command
     ) {
-        UUID productKey = command.goods().getFirst().productKey();
+        RegisterFulfillmentGoodsItemCommand firstGoods = command.goods().getFirst();
 
         return FulfillmentGoodsRegistrationCreateState.builder()
-                .productKey(productKey)
+                .productKey(firstGoods.productKey())
+                .fasstoProductCode(firstGoods.fasstoProductCode())
                 .build();
     }
 }
