@@ -25,6 +25,9 @@ public class FulfillmentGoodsRegistrationJpaEntity {
     @Column(name = "product_key", nullable = false, unique = true)
     private UUID productKey;
 
+    @Column(name = "fassto_product_code", nullable = false, unique = true, updatable = false, length = 25)
+    private String fasstoProductCode;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -33,6 +36,7 @@ public class FulfillmentGoodsRegistrationJpaEntity {
         return FulfillmentGoodsRegistrationJpaEntity.builder()
                 .id(registration.getId())
                 .productKey(registration.getProductKey())
+                .fasstoProductCode(registration.getFasstoProductCode())
                 .createdAt(registration.getCreatedAt())
                 .build();
     }
@@ -42,6 +46,7 @@ public class FulfillmentGoodsRegistrationJpaEntity {
                 FulfillmentGoodsRegistrationSnapshotState.builder()
                         .id(id)
                         .productKey(productKey)
+                        .fasstoProductCode(fasstoProductCode)
                         .createdAt(createdAt)
                         .build()
         );

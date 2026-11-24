@@ -28,6 +28,7 @@ import java.util.function.Function;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -272,18 +273,20 @@ class ProductRegisteredFulfillmentConsumerTest {
     }
 
     @Test
-    @DisplayName("imported=true 이벤트 수신 시 Fastto 송신을 스킵하고 acknowledge한다")
-    void handleEvent_imported_skipsFasstoCallAndAcknowledges() {
+    @DisplayName("imported=true 이벤트 수신 시 Fastto 송신은 스킵하지만 로컬 매핑은 저장하고 acknowledge한다")
+    void handleEvent_imported_recordsMappingAndSkipsFasstoCall() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                100L, "import 상품", "1", "FASSTO0000000000000000001", true
+                100L, "import 상품", "1", "VZL00001", true
         );
 
         // when
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(fulfillmentAuthenticatedCaller, registerFulfillmentGoodsUseCase);
+        verify(registerFulfillmentGoodsUseCase).recordImportedGoodsRegistration(any(UUID.class), eq("VZL00001"));
+        verify(registerFulfillmentGoodsUseCase, never()).registerGoodsIdempotent(any());
+        verifyNoInteractions(fulfillmentAuthenticatedCaller);
         verify(acknowledgment).acknowledge();
     }
 

@@ -42,6 +42,7 @@ class RegisterFulfillmentGoodsUseCaseTest {
     private RegisterFulfillmentGoodsCommand buildCommand(UUID productKey) {
         RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
                 .productKey(productKey)
+                .fasstoProductCode("0000000000000000000001")
                 .productName("테스트 상품")
                 .productType("1")
                 .giftDivision("01")

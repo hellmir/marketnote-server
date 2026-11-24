@@ -11,5 +11,6 @@ import java.util.UUID;
 public class FulfillmentGoodsRegistrationSnapshotState {
     private final Long id;
     private final UUID productKey;
+    private final String fasstoProductCode;
     private final LocalDateTime createdAt;
 }

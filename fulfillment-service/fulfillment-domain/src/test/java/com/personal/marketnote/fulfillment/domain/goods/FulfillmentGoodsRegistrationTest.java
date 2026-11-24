@@ -19,12 +19,13 @@ class FulfillmentGoodsRegistrationTest {
     class FromCreateState {
 
         @Test
-        @DisplayName("productKey가 유효하면 정상 생성된다")
-        void shouldCreateWhenProductKeyIsValid() {
+        @DisplayName("productKey와 fasstoProductCode가 유효하면 정상 생성된다")
+        void shouldCreateWhenFieldsValid() {
             // given
             UUID productKey = UUID.randomUUID();
             FulfillmentGoodsRegistrationCreateState state = FulfillmentGoodsRegistrationCreateState.builder()
                     .productKey(productKey)
+                    .fasstoProductCode("0000000000000000000001")
                     .build();
 
             // when
@@ -32,6 +33,7 @@ class FulfillmentGoodsRegistrationTest {
 
             // then
             assertThat(registration.getProductKey()).isEqualTo(productKey);
+            assertThat(registration.getFasstoProductCode()).isEqualTo("0000000000000000000001");
         }
 
         @Test

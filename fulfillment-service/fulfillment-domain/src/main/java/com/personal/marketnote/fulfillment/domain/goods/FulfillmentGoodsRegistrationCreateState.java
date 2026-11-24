@@ -9,4 +9,5 @@ import java.util.UUID;
 @Builder
 public class FulfillmentGoodsRegistrationCreateState {
     private final UUID productKey;
+    private final String fasstoProductCode;
 }

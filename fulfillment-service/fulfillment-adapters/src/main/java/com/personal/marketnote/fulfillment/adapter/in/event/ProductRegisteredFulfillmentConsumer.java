@@ -58,17 +58,28 @@ public class ProductRegisteredFulfillmentConsumer {
 
             log.info("상품 등록 이벤트 수신 (풀필먼트). eventId={}, productKey={}", envelope.eventId(), payload.productKey());
 
-            if (payload.imported()) {
-                log.info(
-                        "import 상품, Fastto 송신 스킵. eventId={}, fasstoProductCode={}",
-                        envelope.eventId(), payload.fasstoProductCode()
-                );
+            if (FormatValidator.hasNoValue(payload.productKey())) {
+                log.error("productKey 누락. eventId={}", envelope.eventId());
                 acknowledgment.acknowledge();
                 return;
             }
 
-            if (FormatValidator.hasNoValue(payload.productKey())) {
-                log.error("productKey 누락. eventId={}", envelope.eventId());
+            if (payload.imported()) {
+                if (FormatValidator.hasNoValue(payload.fasstoProductCode())) {
+                    log.error(
+                            "import 상품인데 fasstoProductCode 누락. eventId={}, productKey={}",
+                            envelope.eventId(), payload.productKey()
+                    );
+                    acknowledgment.acknowledge();
+                    return;
+                }
+                registerFulfillmentGoodsUseCase.recordImportedGoodsRegistration(
+                        payload.productKey(), payload.fasstoProductCode()
+                );
+                log.info(
+                        "import 상품, Fastto 송신 스킵 (로컬 매핑은 저장 완료). eventId={}, fasstoProductCode={}",
+                        envelope.eventId(), payload.fasstoProductCode()
+                );
                 acknowledgment.acknowledge();
                 return;
             }
