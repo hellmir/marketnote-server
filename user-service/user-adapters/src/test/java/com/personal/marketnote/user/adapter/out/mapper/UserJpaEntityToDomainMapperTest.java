@@ -156,6 +156,40 @@ class UserJpaEntityToDomainMapperTest {
         }
 
         @Test
+        @DisplayName("referredUserCodeSkippedAt이 설정된 엔티티를 도메인으로 매핑하면 값이 보존된다")
+        void shouldMapReferredUserCodeSkippedAtToDomain() {
+            // given
+            LocalDateTime skippedAt = LocalDateTime.of(2026, 4, 27, 10, 0);
+            UserJpaEntity userJpaEntity = createUserJpaEntityMock();
+            when(userJpaEntity.getReferredUserCode()).thenReturn(null);
+            when(userJpaEntity.getReferredUserCodeSkippedAt()).thenReturn(skippedAt);
+
+            // when
+            Optional<User> result = UserJpaEntityToDomainMapper.mapToDomain(userJpaEntity);
+
+            // then
+            assertThat(result).isPresent();
+            assertThat(result.get().getReferredUserCodeSkippedAt()).isEqualTo(skippedAt);
+            assertThat(result.get().isReferredUserCodeInputSkipped()).isTrue();
+        }
+
+        @Test
+        @DisplayName("referredUserCodeSkippedAt이 null이면 도메인의 값도 null이다")
+        void shouldMapNullReferredUserCodeSkippedAtToNull() {
+            // given
+            UserJpaEntity userJpaEntity = createUserJpaEntityMock();
+            when(userJpaEntity.getReferredUserCodeSkippedAt()).thenReturn(null);
+
+            // when
+            Optional<User> result = UserJpaEntityToDomainMapper.mapToDomain(userJpaEntity);
+
+            // then
+            assertThat(result).isPresent();
+            assertThat(result.get().getReferredUserCodeSkippedAt()).isNull();
+            assertThat(result.get().isReferredUserCodeInputSkipped()).isFalse();
+        }
+
+        @Test
         @DisplayName("roleJpaEntity가 null이면 role을 null로 변환한다")
         void shouldMapNullRoleToNull() {
             // given
