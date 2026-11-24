@@ -31,7 +31,7 @@ public class GifticonBrandFetchAdapter implements FetchGifticonBrandPort {
                 .map(this::mapToFetchedItem)
                 .toList();
 
-        return new FetchGifticonBrandResult(result.listTotalCnt(), items);
+        return new FetchGifticonBrandResult(result.listNum(), items);
     }
 
     private FetchedGifticonBrandItem mapToFetchedItem(GiftishowBrandItem item) {

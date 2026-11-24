@@ -31,7 +31,7 @@ public class GifticonGoodsFetchAdapter implements FetchGifticonGoodsPort {
                 .map(this::mapToFetchedItem)
                 .toList();
 
-        return new FetchGifticonGoodsResult(result.listTotalCnt(), items);
+        return new FetchGifticonGoodsResult(result.listNum(), items);
     }
 
     private FetchedGifticonGoodsItem mapToFetchedItem(GiftishowProductItem item) {
