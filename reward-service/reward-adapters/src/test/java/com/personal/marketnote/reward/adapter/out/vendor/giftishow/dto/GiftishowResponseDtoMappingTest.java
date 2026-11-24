@@ -388,6 +388,73 @@ class GiftishowResponseDtoMappingTest {
     }
 
     @Nested
+    @DisplayName("totalCount 필드명(listNum) 회귀 가드 (#5191/#5192 — 벤더 규격서 v1.04 P.10-11/P.17-18 정합)")
+    class ListNumFieldRegressionGuardTest {
+
+        @Test
+        @DisplayName("상품 리스트 응답의 listNum 키는 GiftishowProductListResponse.listNum으로 정상 파싱된다")
+        void shouldMapListNumKeyForProductList() throws Exception {
+            String json = """
+                    {
+                        "listNum": 100,
+                        "goodsList": []
+                    }
+                    """;
+
+            GiftishowProductListResponse response = objectMapper.readValue(json, GiftishowProductListResponse.class);
+
+            assertThat(response.listNum()).isEqualTo(100);
+            assertThat(response.goodsList()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("브랜드 리스트 응답의 listNum 키는 GiftishowBrandListResponse.listNum으로 정상 파싱된다")
+        void shouldMapListNumKeyForBrandList() throws Exception {
+            String json = """
+                    {
+                        "listNum": 50,
+                        "brandList": []
+                    }
+                    """;
+
+            GiftishowBrandListResponse response = objectMapper.readValue(json, GiftishowBrandListResponse.class);
+
+            assertThat(response.listNum()).isEqualTo(50);
+            assertThat(response.brandList()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("상품 리스트 응답이 legacy listTotalCnt 키로 들어오면 listNum은 0이다 (#5168 회귀 가드)")
+        void shouldNotMapLegacyListTotalCntKeyForProductList() throws Exception {
+            String json = """
+                    {
+                        "listTotalCnt": 100,
+                        "goodsList": []
+                    }
+                    """;
+
+            GiftishowProductListResponse response = objectMapper.readValue(json, GiftishowProductListResponse.class);
+
+            assertThat(response.listNum()).isZero();
+        }
+
+        @Test
+        @DisplayName("브랜드 리스트 응답이 legacy listTotalCnt 키로 들어오면 listNum은 0이다 (#5168 회귀 가드)")
+        void shouldNotMapLegacyListTotalCntKeyForBrandList() throws Exception {
+            String json = """
+                    {
+                        "listTotalCnt": 50,
+                        "brandList": []
+                    }
+                    """;
+
+            GiftishowBrandListResponse response = objectMapper.readValue(json, GiftishowBrandListResponse.class);
+
+            assertThat(response.listNum()).isZero();
+        }
+    }
+
+    @Nested
     @DisplayName("미지 필드 무시 (@JsonIgnoreProperties(ignoreUnknown = true) 보존 검증)")
     class IgnoreUnknownPropertiesTest {
 
