@@ -48,9 +48,6 @@ public class ProductJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "detail", length = 1023)
     private String detail;
 
-    @Column(name = "stock", nullable = false, insertable = false, columnDefinition = "INT DEFAULT 0")
-    private Integer stock;
-
     @Column(name = "sales", nullable = false, insertable = false, columnDefinition = "INT DEFAULT 0")
     private Integer sales;
 
