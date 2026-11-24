@@ -12,7 +12,7 @@
 
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread][%X{traceId:-}][%X{userId:-}][%X{orderId:-}][%X{sagaId:-}][%X{sagaStep:-}] %-5level %logger{35} - %pii%n%piiEx</pattern>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread][%X{traceId:-}][%X{correlationId:-}][%X{userId:-}][%X{orderId:-}][%X{sagaId:-}][%X{sagaStep:-}] %-5level %logger{35} - %pii%n%piiEx</pattern>
                 <charset>UTF-8</charset>
             </encoder>
         </appender>
@@ -25,7 +25,7 @@
     <springProfile name="test">
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread][%X{traceId:-}][%X{userId:-}][%X{orderId:-}][%X{sagaId:-}][%X{sagaStep:-}] %-5level %logger{35} - %msg%n</pattern>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread][%X{traceId:-}][%X{correlationId:-}][%X{userId:-}][%X{orderId:-}][%X{sagaId:-}][%X{sagaStep:-}] %-5level %logger{35} - %msg%n</pattern>
                 <charset>UTF-8</charset>
             </encoder>
         </appender>

@@ -13,15 +13,24 @@ public class KafkaMdcProducerInterceptor implements ProducerInterceptor<String, 
 
     @Override
     public ProducerRecord<String, Object> onSend(ProducerRecord<String, Object> record) {
-        String traceId = MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY);
-        if (FormatValidator.hasNoValue(traceId)) {
-            return record;
-        }
-        if (FormatValidator.isNotNull(record.headers().lastHeader(TraceIdMdcFilter.TRACE_ID_HEADER))) {
-            return record;
-        }
-        record.headers().add(TraceIdMdcFilter.TRACE_ID_HEADER, traceId.getBytes(StandardCharsets.UTF_8));
+        attachHeaderIfAbsent(record, TraceIdMdcFilter.TRACE_ID_HEADER, MDC.get(TraceIdMdcFilter.TRACE_ID_MDC_KEY));
+        attachHeaderIfAbsent(
+                record, TraceIdMdcFilter.CORRELATION_ID_HEADER, MDC.get(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY)
+        );
+        attachHeaderIfAbsent(
+                record, TraceIdMdcFilter.CAUSATION_ID_HEADER, MDC.get(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY)
+        );
         return record;
+    }
+
+    private static void attachHeaderIfAbsent(ProducerRecord<String, Object> record, String headerName, String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return;
+        }
+        if (FormatValidator.isNotNull(record.headers().lastHeader(headerName))) {
+            return;
+        }
+        record.headers().add(headerName, value.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
