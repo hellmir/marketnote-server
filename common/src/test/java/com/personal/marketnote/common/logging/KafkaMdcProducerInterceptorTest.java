@@ -66,4 +66,117 @@ class KafkaMdcProducerInterceptorTest {
         Header header = result.headers().lastHeader(TraceIdMdcFilter.TRACE_ID_HEADER);
         assertThat(new String(header.value(), StandardCharsets.UTF_8)).isEqualTo("existing-trace");
     }
+
+    @Test
+    @DisplayName("MDC에 correlationId가 있으면 X-Correlation-ID 헤더가 부착된다")
+    void addsCorrelationIdHeaderWhenMdcPresent() {
+        // given
+        MDC.put(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY, "corr-1");
+        ProducerRecord<String, Object> record = new ProducerRecord<>("topic", "key", "value");
+
+        // when
+        ProducerRecord<String, Object> result = interceptor.onSend(record);
+
+        // then
+        Header header = result.headers().lastHeader(TraceIdMdcFilter.CORRELATION_ID_HEADER);
+        assertThat(header).isNotNull();
+        assertThat(new String(header.value(), StandardCharsets.UTF_8)).isEqualTo("corr-1");
+    }
+
+    @Test
+    @DisplayName("MDC에 causationId가 있으면 X-Causation-ID 헤더가 부착된다")
+    void addsCausationIdHeaderWhenMdcPresent() {
+        // given
+        MDC.put(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY, "cause-1");
+        ProducerRecord<String, Object> record = new ProducerRecord<>("topic", "key", "value");
+
+        // when
+        ProducerRecord<String, Object> result = interceptor.onSend(record);
+
+        // then
+        Header header = result.headers().lastHeader(TraceIdMdcFilter.CAUSATION_ID_HEADER);
+        assertThat(header).isNotNull();
+        assertThat(new String(header.value(), StandardCharsets.UTF_8)).isEqualTo("cause-1");
+    }
+
+    @Test
+    @DisplayName("MDC에 모든 ID가 있으면 traceId/correlationId/causationId 세 헤더가 모두 부착된다")
+    void addsAllThreeHeadersWhenAllMdcPresent() {
+        // given
+        MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, "trace-x");
+        MDC.put(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY, "corr-x");
+        MDC.put(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY, "cause-x");
+        ProducerRecord<String, Object> record = new ProducerRecord<>("topic", "key", "value");
+
+        // when
+        ProducerRecord<String, Object> result = interceptor.onSend(record);
+
+        // then
+        assertThat(new String(result.headers().lastHeader(TraceIdMdcFilter.TRACE_ID_HEADER).value(), StandardCharsets.UTF_8))
+                .isEqualTo("trace-x");
+        assertThat(new String(result.headers().lastHeader(TraceIdMdcFilter.CORRELATION_ID_HEADER).value(), StandardCharsets.UTF_8))
+                .isEqualTo("corr-x");
+        assertThat(new String(result.headers().lastHeader(TraceIdMdcFilter.CAUSATION_ID_HEADER).value(), StandardCharsets.UTF_8))
+                .isEqualTo("cause-x");
+    }
+
+    @Test
+    @DisplayName("MDC에 correlationId가 없으면 X-Correlation-ID 헤더는 부착되지 않는다")
+    void doesNotAddCorrelationIdWhenMdcAbsent() {
+        // given
+        MDC.clear();
+        ProducerRecord<String, Object> record = new ProducerRecord<>("topic", "key", "value");
+
+        // when
+        ProducerRecord<String, Object> result = interceptor.onSend(record);
+
+        // then
+        assertThat(result.headers().lastHeader(TraceIdMdcFilter.CORRELATION_ID_HEADER)).isNull();
+    }
+
+    @Test
+    @DisplayName("MDC에 causationId가 없으면 X-Causation-ID 헤더는 부착되지 않는다")
+    void doesNotAddCausationIdWhenMdcAbsent() {
+        // given
+        MDC.clear();
+        ProducerRecord<String, Object> record = new ProducerRecord<>("topic", "key", "value");
+
+        // when
+        ProducerRecord<String, Object> result = interceptor.onSend(record);
+
+        // then
+        assertThat(result.headers().lastHeader(TraceIdMdcFilter.CAUSATION_ID_HEADER)).isNull();
+    }
+
+    @Test
+    @DisplayName("기존 X-Correlation-ID 헤더가 있으면 덮어쓰지 않는다")
+    void doesNotOverwriteExistingCorrelationIdHeader() {
+        // given
+        MDC.put(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY, "new-corr");
+        ProducerRecord<String, Object> record = new ProducerRecord<>("topic", "key", "value");
+        record.headers().add(TraceIdMdcFilter.CORRELATION_ID_HEADER, "existing-corr".getBytes(StandardCharsets.UTF_8));
+
+        // when
+        ProducerRecord<String, Object> result = interceptor.onSend(record);
+
+        // then
+        Header header = result.headers().lastHeader(TraceIdMdcFilter.CORRELATION_ID_HEADER);
+        assertThat(new String(header.value(), StandardCharsets.UTF_8)).isEqualTo("existing-corr");
+    }
+
+    @Test
+    @DisplayName("기존 X-Causation-ID 헤더가 있으면 덮어쓰지 않는다")
+    void doesNotOverwriteExistingCausationIdHeader() {
+        // given
+        MDC.put(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY, "new-cause");
+        ProducerRecord<String, Object> record = new ProducerRecord<>("topic", "key", "value");
+        record.headers().add(TraceIdMdcFilter.CAUSATION_ID_HEADER, "existing-cause".getBytes(StandardCharsets.UTF_8));
+
+        // when
+        ProducerRecord<String, Object> result = interceptor.onSend(record);
+
+        // then
+        Header header = result.headers().lastHeader(TraceIdMdcFilter.CAUSATION_ID_HEADER);
+        assertThat(new String(header.value(), StandardCharsets.UTF_8)).isEqualTo("existing-cause");
+    }
 }
