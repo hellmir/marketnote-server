@@ -273,7 +273,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     }
 
     @Test
-    @DisplayName("imported=true 이벤트 수신 시 Fastto 송신은 스킵하지만 로컬 매핑은 저장하고 acknowledge한다")
+    @DisplayName("imported=true 이벤트 수신 시 Fastto 송신은 스킵하지만 로컬 매핑은 저장하고 acknowledge한다 (#5187)")
     void handleEvent_imported_recordsMappingAndSkipsFasstoCall() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
@@ -284,9 +284,25 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verify(registerFulfillmentGoodsUseCase).recordImportedGoodsRegistration(any(UUID.class), eq("VZL00001"));
+        verify(registerFulfillmentGoodsUseCase).recordImportedGoodsRegistration(any(java.util.UUID.class), eq("VZL00001"));
         verify(registerFulfillmentGoodsUseCase, never()).registerGoodsIdempotent(any());
         verifyNoInteractions(fulfillmentAuthenticatedCaller);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("imported=true 이벤트의 fasstoProductCode가 누락되면 매핑 저장도 하지 않고 acknowledge한다")
+    void handleEvent_importedMissingFasstoCode_skipsAllAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
+                100L, "import 상품", "1", null, true
+        );
+
+        // when
+        consumer.handleProductRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 

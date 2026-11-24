@@ -14,18 +14,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("FulfillmentGoodsRegistration 테스트")
 class FulfillmentGoodsRegistrationTest {
 
+    private static final String VALID_FASSTO_CODE = "0000000000000000000001";
+
     @Nested
     @DisplayName("from(CreateState)")
     class FromCreateState {
 
         @Test
         @DisplayName("productKey와 fasstoProductCode가 유효하면 정상 생성된다")
-        void shouldCreateWhenFieldsValid() {
+        void shouldCreateWhenProductKeyAndFasstoProductCodeAreValid() {
             // given
             UUID productKey = UUID.randomUUID();
             FulfillmentGoodsRegistrationCreateState state = FulfillmentGoodsRegistrationCreateState.builder()
                     .productKey(productKey)
-                    .fasstoProductCode("0000000000000000000001")
+                    .fasstoProductCode(VALID_FASSTO_CODE)
                     .build();
 
             // when
@@ -33,7 +35,7 @@ class FulfillmentGoodsRegistrationTest {
 
             // then
             assertThat(registration.getProductKey()).isEqualTo(productKey);
-            assertThat(registration.getFasstoProductCode()).isEqualTo("0000000000000000000001");
+            assertThat(registration.getFasstoProductCode()).isEqualTo(VALID_FASSTO_CODE);
         }
 
         @Test
@@ -42,6 +44,35 @@ class FulfillmentGoodsRegistrationTest {
             // given
             FulfillmentGoodsRegistrationCreateState state = FulfillmentGoodsRegistrationCreateState.builder()
                     .productKey(null)
+                    .fasstoProductCode(VALID_FASSTO_CODE)
+                    .build();
+
+            // when & then
+            assertThatThrownBy(() -> FulfillmentGoodsRegistration.from(state))
+                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+        }
+
+        @Test
+        @DisplayName("fasstoProductCode가 null이면 FulfillmentQueryParameterNoValueException이 발생한다")
+        void shouldThrowExceptionWhenFasstoProductCodeIsNull() {
+            // given
+            FulfillmentGoodsRegistrationCreateState state = FulfillmentGoodsRegistrationCreateState.builder()
+                    .productKey(UUID.randomUUID())
+                    .fasstoProductCode(null)
+                    .build();
+
+            // when & then
+            assertThatThrownBy(() -> FulfillmentGoodsRegistration.from(state))
+                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+        }
+
+        @Test
+        @DisplayName("fasstoProductCode가 공백이면 FulfillmentQueryParameterNoValueException이 발생한다")
+        void shouldThrowExceptionWhenFasstoProductCodeIsBlank() {
+            // given
+            FulfillmentGoodsRegistrationCreateState state = FulfillmentGoodsRegistrationCreateState.builder()
+                    .productKey(UUID.randomUUID())
+                    .fasstoProductCode("   ")
                     .build();
 
             // when & then
@@ -63,6 +94,7 @@ class FulfillmentGoodsRegistrationTest {
             FulfillmentGoodsRegistrationSnapshotState state = FulfillmentGoodsRegistrationSnapshotState.builder()
                     .id(100L)
                     .productKey(productKey)
+                    .fasstoProductCode(VALID_FASSTO_CODE)
                     .createdAt(createdAt)
                     .build();
 
@@ -72,6 +104,7 @@ class FulfillmentGoodsRegistrationTest {
             // then
             assertThat(registration.getId()).isEqualTo(100L);
             assertThat(registration.getProductKey()).isEqualTo(productKey);
+            assertThat(registration.getFasstoProductCode()).isEqualTo(VALID_FASSTO_CODE);
             assertThat(registration.getCreatedAt()).isEqualTo(createdAt);
         }
     }

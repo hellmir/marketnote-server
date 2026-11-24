@@ -137,4 +137,36 @@ class RegisterFulfillmentGoodsUseCaseTest {
             verify(registerFulfillmentGoodsPort).registerGoods(any());
         }
     }
+
+    @Nested
+    @DisplayName("recordImportedGoodsRegistration (#5187 import 매핑)")
+    class RecordImportedGoodsRegistration {
+        @Test
+        @DisplayName("import 매핑은 Fastto 송신 없이 (productKey, fasstoProductCode) 등록만 저장한다")
+        void recordImported_savesRegistrationOnlyWithoutFasstoCall() {
+            // given
+            UUID productKey = UUID.randomUUID();
+
+            // when
+            registerFulfillmentGoodsService.recordImportedGoodsRegistration(productKey, "VZL00001");
+
+            // then
+            verify(saveFulfillmentGoodsRegistrationPort).save(any());
+            verifyNoInteractions(registerFulfillmentGoodsPort, publishFulfillmentGoodsSyncedEventPort);
+        }
+
+        @Test
+        @DisplayName("이미 등록된 상품이면 FulfillmentGoodsAlreadyRegisteredException을 던진다 (멱등 보장은 호출자 책임)")
+        void recordImported_alreadyRegistered_throws() {
+            // given
+            UUID productKey = UUID.randomUUID();
+            doThrow(new FulfillmentGoodsAlreadyRegisteredException(productKey))
+                    .when(saveFulfillmentGoodsRegistrationPort).save(any());
+
+            // when & then
+            assertThatThrownBy(() ->
+                    registerFulfillmentGoodsService.recordImportedGoodsRegistration(productKey, "VZL00001"))
+                    .isInstanceOf(FulfillmentGoodsAlreadyRegisteredException.class);
+        }
+    }
 }
