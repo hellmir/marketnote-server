@@ -41,7 +41,6 @@ public class PurchaseGifticonTransactionHelper {
     private final Clock clock;
 
     private static final DateTimeFormatter TR_ID_DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMddHHmmss");
-    private static final DateTimeFormatter VALID_END_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     public record DeductCashAndCreateOrderContext(
             Long orderId,
@@ -49,14 +48,15 @@ public class PurchaseGifticonTransactionHelper {
             String goodsCode,
             String goodsName,
             Long cashPrice,
-            Long userId
+            Long userId,
+            Integer validDays
     ) {
     }
 
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public DeductCashAndCreateOrderContext deductCashAndCreateOrder(
             Long userId, String goodsCode, String goodsName, String brandName,
-            String productImageUrl, Long cashPrice
+            String productImageUrl, Long cashPrice, Integer validDays
     ) {
         UserPoint userPoint = findUserPointPort.findByUserIdForUpdate(userId)
                 .orElseThrow(() -> {
@@ -84,7 +84,7 @@ public class PurchaseGifticonTransactionHelper {
         GifticonOrder savedOrder = saveGifticonOrderPort.save(order);
 
         return new DeductCashAndCreateOrderContext(
-                savedOrder.getId(), trId, goodsCode, goodsName, cashPrice, userId
+                savedOrder.getId(), trId, goodsCode, goodsName, cashPrice, userId, validDays
         );
     }
 
@@ -97,7 +97,7 @@ public class PurchaseGifticonTransactionHelper {
                 });
 
         String encryptedPin = encryptGifticonPinPort.encrypt(sendResult.pinNo());
-        LocalDate validEndDate = LocalDate.parse(sendResult.validEndDate(), VALID_END_DATE_FORMAT);
+        LocalDate validEndDate = LocalDate.now(clock).plusDays(context.validDays());
 
         order.issue(sendResult.couponImageUrl(), encryptedPin, sendResult.orderNo(), validEndDate);
         updateGifticonOrderPort.update(order);

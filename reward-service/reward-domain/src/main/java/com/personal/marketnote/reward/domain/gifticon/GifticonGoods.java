@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.domain.gifticon;
 
 import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.exception.GifticonGoodsValidDaysNoValueException;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -153,6 +154,19 @@ public class GifticonGoods {
 
     public boolean isSale() {
         return FormatValidator.hasValue(goodsStatus) && goodsStatus.isSale();
+    }
+
+    public boolean hasValidDays() {
+        return FormatValidator.hasValue(validDays);
+    }
+
+    public int getValidDaysValue() {
+        if (!hasValidDays()) {
+            throw new GifticonGoodsValidDaysNoValueException(
+                    FormatValidator.hasValue(goodsCode) ? goodsCode.getValue() : null
+            );
+        }
+        return validDays.getValue();
     }
 
     public void suspend() {

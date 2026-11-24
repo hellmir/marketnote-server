@@ -6,6 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("기프티쇼 비즈 API 응답 DTO JSON 매핑 회귀 테스트")
@@ -64,7 +66,7 @@ class GiftishowResponseDtoMappingTest {
                                 "category1Seq": "1",
                                 "salePrice": 10000,
                                 "realPrice": 12000,
-                                "limitDay": 30,
+                                "limitday": 30,
                                 "content": "상품 설명",
                                 "goodsStateCd": "SALE"
                             }
@@ -86,7 +88,7 @@ class GiftishowResponseDtoMappingTest {
             assertThat(item.category1Seq()).isEqualTo("1");
             assertThat(item.salePrice()).isEqualTo(10000L);
             assertThat(item.realPrice()).isEqualTo(12000L);
-            assertThat(item.limitDay()).isEqualTo(30);
+            assertThat(item.limitday()).isEqualTo(30);
             assertThat(item.content()).isEqualTo("상품 설명");
             assertThat(item.goodsStateCd()).isEqualTo("SALE");
         }
@@ -96,35 +98,38 @@ class GiftishowResponseDtoMappingTest {
         void shouldParseProductDetailResponseWithCamelCase() throws Exception {
             String json = """
                     {
-                        "goodsCode": "G001",
-                        "goodsName": "테스트 상품",
-                        "goodsImgB": "http://img.test.com/goods.jpg",
-                        "brandCode": "B001",
-                        "brandName": "스타벅스",
-                        "brandIconImg": "http://img.test.com/brand.jpg",
-                        "category1Seq": "1",
-                        "salePrice": 10000,
-                        "realPrice": 12000,
-                        "limitDay": 30,
-                        "content": "상품 설명",
-                        "goodsStateCd": "SALE"
+                        "goodsDetail": {
+                            "goodsCode": "G001",
+                            "goodsName": "테스트 상품",
+                            "goodsImgB": "http://img.test.com/goods.jpg",
+                            "brandCode": "B001",
+                            "brandName": "스타벅스",
+                            "brandIconImg": "http://img.test.com/brand.jpg",
+                            "categorySeq1": "1",
+                            "salePrice": 10000,
+                            "realPrice": 12000,
+                            "limitday": 30,
+                            "content": "상품 설명",
+                            "goodsStateCd": "SALE"
+                        }
                     }
                     """;
 
             GiftishowProductDetailResponse response = objectMapper.readValue(json, GiftishowProductDetailResponse.class);
 
-            assertThat(response.goodsCode()).isEqualTo("G001");
-            assertThat(response.goodsName()).isEqualTo("테스트 상품");
-            assertThat(response.goodsImgB()).isEqualTo("http://img.test.com/goods.jpg");
-            assertThat(response.brandCode()).isEqualTo("B001");
-            assertThat(response.brandName()).isEqualTo("스타벅스");
-            assertThat(response.brandIconImg()).isEqualTo("http://img.test.com/brand.jpg");
-            assertThat(response.category1Seq()).isEqualTo("1");
-            assertThat(response.salePrice()).isEqualTo(10000L);
-            assertThat(response.realPrice()).isEqualTo(12000L);
-            assertThat(response.limitDay()).isEqualTo(30);
-            assertThat(response.content()).isEqualTo("상품 설명");
-            assertThat(response.goodsStateCd()).isEqualTo("SALE");
+            GiftishowProductDetailResponse.GoodsDetail detail = response.goodsDetail();
+            assertThat(detail.goodsCode()).isEqualTo("G001");
+            assertThat(detail.goodsName()).isEqualTo("테스트 상품");
+            assertThat(detail.goodsImgB()).isEqualTo("http://img.test.com/goods.jpg");
+            assertThat(detail.brandCode()).isEqualTo("B001");
+            assertThat(detail.brandName()).isEqualTo("스타벅스");
+            assertThat(detail.brandIconImg()).isEqualTo("http://img.test.com/brand.jpg");
+            assertThat(detail.categorySeq1()).isEqualTo("1");
+            assertThat(detail.salePrice()).isEqualTo(10000L);
+            assertThat(detail.realPrice()).isEqualTo(12000L);
+            assertThat(detail.limitday()).isEqualTo(30);
+            assertThat(detail.content()).isEqualTo("상품 설명");
+            assertThat(detail.goodsStateCd()).isEqualTo("SALE");
         }
 
         @Test
@@ -132,21 +137,24 @@ class GiftishowResponseDtoMappingTest {
         void shouldParseBrandDetailResponseWithCamelCase() throws Exception {
             String json = """
                     {
-                        "brandCode": "B001",
-                        "brandName": "스타벅스",
-                        "brandIconImg": "http://img.test.com/brand.jpg",
-                        "category1Seq": "1",
-                        "category1Name": "카페/음료"
+                        "brandDetail": {
+                            "brandCode": "B001",
+                            "brandName": "스타벅스",
+                            "brandIconImg": "http://img.test.com/brand.jpg",
+                            "category1Seq": "1",
+                            "category1Name": "카페/음료"
+                        }
                     }
                     """;
 
             GiftishowBrandDetailResponse response = objectMapper.readValue(json, GiftishowBrandDetailResponse.class);
 
-            assertThat(response.brandCode()).isEqualTo("B001");
-            assertThat(response.brandName()).isEqualTo("스타벅스");
-            assertThat(response.brandIconImg()).isEqualTo("http://img.test.com/brand.jpg");
-            assertThat(response.category1Seq()).isEqualTo("1");
-            assertThat(response.category1Name()).isEqualTo("카페/음료");
+            GiftishowBrandDetailResponse.BrandDetail detail = response.brandDetail();
+            assertThat(detail.brandCode()).isEqualTo("B001");
+            assertThat(detail.brandName()).isEqualTo("스타벅스");
+            assertThat(detail.brandIconImg()).isEqualTo("http://img.test.com/brand.jpg");
+            assertThat(detail.category1Seq()).isEqualTo("1");
+            assertThat(detail.category1Name()).isEqualTo("카페/음료");
         }
 
         @Test
@@ -154,25 +162,31 @@ class GiftishowResponseDtoMappingTest {
         void shouldParseCouponDetailResponseWithCamelCase() throws Exception {
             String json = """
                     {
-                        "trId": "NTCASH_1_20260427000000",
-                        "orderNo": "ORD001",
-                        "pinStatusCd": "01",
-                        "pinStatusNm": "발행",
-                        "validPrdEndDt": "20260527",
-                        "goodsCode": "G001",
-                        "goodsName": "테스트 상품"
+                        "couponInfoList": [
+                            {
+                                "trId": "NTCASH_1_20260427000000",
+                                "orderNo": "ORD001",
+                                "pinStatusCd": "01",
+                                "pinStatusNm": "발행",
+                                "validPrdEndDt": "20260527",
+                                "goodsCd": "G001",
+                                "goodsNm": "테스트 상품"
+                            }
+                        ]
                     }
                     """;
 
             GiftishowCouponDetailResponse response = objectMapper.readValue(json, GiftishowCouponDetailResponse.class);
 
-            assertThat(response.trId()).isEqualTo("NTCASH_1_20260427000000");
-            assertThat(response.orderNo()).isEqualTo("ORD001");
-            assertThat(response.pinStatusCd()).isEqualTo("01");
-            assertThat(response.pinStatusNm()).isEqualTo("발행");
-            assertThat(response.validPrdEndDt()).isEqualTo("20260527");
-            assertThat(response.goodsCode()).isEqualTo("G001");
-            assertThat(response.goodsName()).isEqualTo("테스트 상품");
+            assertThat(response.couponInfoList()).hasSize(1);
+            GiftishowCouponDetailResponse.CouponInfo info = response.couponInfoList().getFirst();
+            assertThat(info.trId()).isEqualTo("NTCASH_1_20260427000000");
+            assertThat(info.orderNo()).isEqualTo("ORD001");
+            assertThat(info.pinStatusCd()).isEqualTo("01");
+            assertThat(info.pinStatusNm()).isEqualTo("발행");
+            assertThat(info.validPrdEndDt()).isEqualTo("20260527");
+            assertThat(info.goodsCd()).isEqualTo("G001");
+            assertThat(info.goodsNm()).isEqualTo("테스트 상품");
         }
 
         @Test
@@ -180,25 +194,28 @@ class GiftishowResponseDtoMappingTest {
         void shouldParseCouponSendResponseWithCouponImgUrl() throws Exception {
             String json = """
                     {
-                        "trId": "NTCASH_1_20260427000000",
-                        "orderNo": "ORD001",
-                        "pinNo": "1234-5678-9012",
-                        "couponImgUrl": "http://img.test.com/coupon.jpg",
-                        "validPrdEndDt": "20260527"
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "orderNo": "ORD001",
+                            "pinNo": "1234-5678-9012",
+                            "couponImgUrl": "http://img.test.com/coupon.jpg"
+                        }
                     }
                     """;
 
             GiftishowCouponSendResponse response = objectMapper.readValue(json, GiftishowCouponSendResponse.class);
 
-            assertThat(response.trId()).isEqualTo("NTCASH_1_20260427000000");
-            assertThat(response.orderNo()).isEqualTo("ORD001");
-            assertThat(response.pinNo()).isEqualTo("1234-5678-9012");
-            assertThat(response.couponImgUrl()).isEqualTo("http://img.test.com/coupon.jpg");
-            assertThat(response.validPrdEndDt()).isEqualTo("20260527");
+            assertThat(response.code()).isEqualTo("0000");
+            assertThat(response.message()).isEqualTo("success");
+            assertThat(response.result()).isNotNull();
+            assertThat(response.result().orderNo()).isEqualTo("ORD001");
+            assertThat(response.result().pinNo()).isEqualTo("1234-5678-9012");
+            assertThat(response.result().couponImgUrl()).isEqualTo("http://img.test.com/coupon.jpg");
         }
 
         @Test
-        @DisplayName("쿠폰 재전송 응답(camelCase)을 정상 파싱한다")
+        @DisplayName("쿠폰 재전송 응답(빈 record)을 정상 파싱한다")
         void shouldParseCouponResendResponseWithCamelCase() throws Exception {
             String json = """
                     {
@@ -207,14 +224,14 @@ class GiftishowResponseDtoMappingTest {
                     }
                     """;
 
+            // 빈 record + @JsonIgnoreProperties(ignoreUnknown=true)로 파싱 성공 (필드 없음)
             GiftishowCouponResendResponse response = objectMapper.readValue(json, GiftishowCouponResendResponse.class);
 
-            assertThat(response.trId()).isEqualTo("NTCASH_1_20260427000000");
-            assertThat(response.orderNo()).isEqualTo("ORD001");
+            assertThat(response).isNotNull();
         }
 
         @Test
-        @DisplayName("쿠폰 취소 응답(camelCase)을 정상 파싱한다")
+        @DisplayName("쿠폰 취소 응답(빈 record)을 정상 파싱한다")
         void shouldParseCouponCancelResponseWithCamelCase() throws Exception {
             String json = """
                     {
@@ -223,10 +240,10 @@ class GiftishowResponseDtoMappingTest {
                     }
                     """;
 
+            // 빈 record + @JsonIgnoreProperties(ignoreUnknown=true)로 파싱 성공 (필드 없음)
             GiftishowCouponCancelResponse response = objectMapper.readValue(json, GiftishowCouponCancelResponse.class);
 
-            assertThat(response.trId()).isEqualTo("NTCASH_1_20260427000000");
-            assertThat(response.orderNo()).isEqualTo("ORD001");
+            assertThat(response).isNotNull();
         }
 
         @Test
@@ -234,15 +251,17 @@ class GiftishowResponseDtoMappingTest {
         void shouldParseBizMoneyResponseWithCamelCase() throws Exception {
             String json = """
                     {
-                        "userId": "user1",
-                        "bizMoney": 500000
+                        "code": "0000",
+                        "message": "success",
+                        "balance": 500000
                     }
                     """;
 
             GiftishowBizMoneyResponse response = objectMapper.readValue(json, GiftishowBizMoneyResponse.class);
 
-            assertThat(response.userId()).isEqualTo("user1");
-            assertThat(response.bizMoney()).isEqualTo(500000L);
+            assertThat(response.code()).isEqualTo("0000");
+            assertThat(response.message()).isEqualTo("success");
+            assertThat(response.balance()).isEqualTo(500000L);
         }
 
         @Test
@@ -265,7 +284,7 @@ class GiftishowResponseDtoMappingTest {
                                     "category1Seq": "1",
                                     "salePrice": 10000,
                                     "realPrice": 12000,
-                                    "limitDay": 30,
+                                    "limitday": 30,
                                     "content": "상품 설명",
                                     "goodsStateCd": "SALE"
                                 }
@@ -353,21 +372,23 @@ class GiftishowResponseDtoMappingTest {
         void shouldNotMapSnakeCaseKeysForCouponSend() throws Exception {
             String json = """
                     {
-                        "tr_id": "TR001",
-                        "order_no": "ORD001",
-                        "pin_no": "1234",
-                        "coupon_img_url": "http://x",
-                        "valid_prd_end_dt": "20260527"
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "order_no": "ORD001",
+                            "pin_no": "1234",
+                            "coupon_img_url": "http://x"
+                        }
                     }
                     """;
 
             GiftishowCouponSendResponse response = objectMapper.readValue(json, GiftishowCouponSendResponse.class);
 
-            assertThat(response.trId()).isNull();
-            assertThat(response.orderNo()).isNull();
-            assertThat(response.pinNo()).isNull();
-            assertThat(response.couponImgUrl()).isNull();
-            assertThat(response.validPrdEndDt()).isNull();
+            assertThat(response.code()).isEqualTo("0000");
+            assertThat(response.result()).isNotNull();
+            assertThat(response.result().orderNo()).isNull();
+            assertThat(response.result().pinNo()).isNull();
+            assertThat(response.result().couponImgUrl()).isNull();
         }
 
         @Test
@@ -375,15 +396,15 @@ class GiftishowResponseDtoMappingTest {
         void shouldNotMapSnakeCaseKeysForBizMoney() throws Exception {
             String json = """
                     {
-                        "user_id": "user1",
+                        "code": "0000",
+                        "message": "success",
                         "biz_money": 500000
                     }
                     """;
 
             GiftishowBizMoneyResponse response = objectMapper.readValue(json, GiftishowBizMoneyResponse.class);
 
-            assertThat(response.userId()).isNull();
-            assertThat(response.bizMoney()).isZero();
+            assertThat(response.balance()).isZero();
         }
     }
 
@@ -453,7 +474,6 @@ class GiftishowResponseDtoMappingTest {
             assertThat(response.listNum()).isZero();
         }
     }
-
     @Nested
     @DisplayName("미지 필드 무시 (@JsonIgnoreProperties(ignoreUnknown = true) 보존 검증)")
     class IgnoreUnknownPropertiesTest {
@@ -463,19 +483,22 @@ class GiftishowResponseDtoMappingTest {
         void shouldIgnoreUnknownFieldsForBrandDetail() throws Exception {
             String json = """
                     {
-                        "brandCode": "B001",
-                        "brandName": "스타벅스",
-                        "brandIconImg": "http://img.test.com/brand.jpg",
-                        "category1Seq": "1",
-                        "category1Name": "카페/음료",
-                        "unknownFieldFromVendorFutureSpec": "ignored"
+                        "brandDetail": {
+                            "brandCode": "B001",
+                            "brandName": "스타벅스",
+                            "brandIconImg": "http://img.test.com/brand.jpg",
+                            "category1Seq": "1",
+                            "category1Name": "카페/음료",
+                            "unknownFieldFromVendorFutureSpec": "ignored"
+                        }
                     }
                     """;
 
             GiftishowBrandDetailResponse response = objectMapper.readValue(json, GiftishowBrandDetailResponse.class);
 
-            assertThat(response.brandCode()).isEqualTo("B001");
-            assertThat(response.category1Name()).isEqualTo("카페/음료");
+            GiftishowBrandDetailResponse.BrandDetail detail = response.brandDetail();
+            assertThat(detail.brandCode()).isEqualTo("B001");
+            assertThat(detail.category1Name()).isEqualTo("카페/음료");
         }
     }
 }

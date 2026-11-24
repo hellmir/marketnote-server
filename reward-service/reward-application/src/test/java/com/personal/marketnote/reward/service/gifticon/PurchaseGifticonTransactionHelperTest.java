@@ -98,7 +98,7 @@ class PurchaseGifticonTransactionHelperTest {
 
         // when
         DeductCashAndCreateOrderContext context = helper.deductCashAndCreateOrder(
-                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE
+                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
         );
 
         // then
@@ -119,7 +119,7 @@ class PurchaseGifticonTransactionHelperTest {
 
         // when & then
         assertThatThrownBy(() -> helper.deductCashAndCreateOrder(
-                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE
+                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
         ))
                 .isInstanceOf(GifticonInsufficientCashException.class)
                 .satisfies(ex -> {
@@ -154,7 +154,7 @@ class PurchaseGifticonTransactionHelperTest {
 
         // when
         helper.deductCashAndCreateOrder(
-                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE
+                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
         );
 
         // then
@@ -185,7 +185,7 @@ class PurchaseGifticonTransactionHelperTest {
 
         // when
         DeductCashAndCreateOrderContext context = helper.deductCashAndCreateOrder(
-                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE
+                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
         );
 
         // then
@@ -220,7 +220,7 @@ class PurchaseGifticonTransactionHelperTest {
 
         // when
         helper.deductCashAndCreateOrder(
-                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE
+                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
         );
 
         // then
@@ -242,14 +242,13 @@ class PurchaseGifticonTransactionHelperTest {
         when(encryptGifticonPinPort.encrypt("900343630367")).thenReturn("encryptedPin123");
 
         DeductCashAndCreateOrderContext context = new DeductCashAndCreateOrderContext(
-                1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID
+                1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID, 30
         );
         SendCouponResult sendResult = SendCouponResult.builder()
                 .success(true)
                 .orderNo("20260404000001")
                 .pinNo("900343630367")
                 .couponImageUrl("http://t.giftishow.co.kr/coupon_image.jpg")
-                .validEndDate("20260504")
                 .build();
 
         // when
@@ -275,14 +274,13 @@ class PurchaseGifticonTransactionHelperTest {
         when(encryptGifticonPinPort.encrypt("plainPin")).thenReturn("encryptedPin");
 
         DeductCashAndCreateOrderContext context = new DeductCashAndCreateOrderContext(
-                1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID
+                1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID, 30
         );
         SendCouponResult sendResult = SendCouponResult.builder()
                 .success(true)
                 .orderNo("20260404000001")
                 .pinNo("plainPin")
                 .couponImageUrl("http://example.com/coupon.jpg")
-                .validEndDate("20260504")
                 .build();
 
         // when
@@ -303,7 +301,7 @@ class PurchaseGifticonTransactionHelperTest {
         when(findGifticonOrderPort.findByTrId("NC100_260404210000")).thenReturn(Optional.of(pendingOrder));
 
         DeductCashAndCreateOrderContext context = new DeductCashAndCreateOrderContext(
-                1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID
+                1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID, 30
         );
 
         // when
@@ -327,7 +325,7 @@ class PurchaseGifticonTransactionHelperTest {
         when(findGifticonOrderPort.findByTrId("NC100_260404210000")).thenReturn(Optional.of(pendingOrder));
 
         DeductCashAndCreateOrderContext context = new DeductCashAndCreateOrderContext(
-                1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID
+                1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID, 30
         );
 
         // when

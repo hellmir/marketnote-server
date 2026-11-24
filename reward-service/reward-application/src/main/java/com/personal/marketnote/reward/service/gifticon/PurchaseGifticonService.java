@@ -71,7 +71,8 @@ public class PurchaseGifticonService implements PurchaseGifticonUseCase {
                         goods.getGoodsName(),
                         goods.getBrandName(),
                         goods.getImageUrl(),
-                        goods.getCashPrice().getValue()
+                        goods.getCashPrice().getValue(),
+                        goods.getValidDaysValue()
                 );
             } catch (DuplicateGifticonOrderException dgoe) {
                 lastException = dgoe;
@@ -90,8 +91,8 @@ public class PurchaseGifticonService implements PurchaseGifticonUseCase {
                     return new GifticonGoodsNotFoundException();
                 });
 
-        if (!goods.isExposed() || !goods.isSale()) {
-            log.warn("기프티콘 상품이 노출되지 않거나 판매 중이 아닙니다. goodsCode={}", goodsCode);
+        if (!goods.isExposed() || !goods.isSale() || !goods.hasValidDays()) {
+            log.warn("기프티콘 상품이 노출되지 않거나 판매 중이 아니거나 유효기간이 설정되지 않았습니다. goodsCode={}", goodsCode);
             throw new GifticonGoodsNotFoundException();
         }
 

@@ -57,10 +57,10 @@ class PurchaseGifticonUseCaseTest {
         when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
 
         DeductCashAndCreateOrderContext context = new DeductCashAndCreateOrderContext(
-                1L, "NC100_260404210000", GOODS_CODE, "테스트 기프티콘", 5000L, USER_ID
+                1L, "NC100_260404210000", GOODS_CODE, "테스트 기프티콘", 5000L, USER_ID, 30
         );
         when(transactionHelper.deductCashAndCreateOrder(
-                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
+                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L), eq(30)
         )).thenReturn(context);
 
         SendCouponResult sendResult = SendCouponResult.builder()
@@ -68,7 +68,6 @@ class PurchaseGifticonUseCaseTest {
                 .orderNo("20260404000001")
                 .pinNo("900343630367")
                 .couponImageUrl("http://t.giftishow.co.kr/coupon.jpg")
-                .validEndDate("20260504")
                 .build();
         when(sendGifticonCouponPort.sendCoupon("NC100_260404210000", GOODS_CODE, String.valueOf(USER_ID)))
                 .thenReturn(sendResult);
@@ -84,7 +83,7 @@ class PurchaseGifticonUseCaseTest {
         assertThat(result.cashAmount()).isEqualTo(5000L);
         assertThat(result.goodsName()).isEqualTo("테스트 기프티콘");
         verify(transactionHelper, times(1)).deductCashAndCreateOrder(
-                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
+                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L), eq(30)
         );
         verify(transactionHelper).commitSuccess(context, sendResult);
         verify(transactionHelper, never()).commitFailure(any());
@@ -101,7 +100,7 @@ class PurchaseGifticonUseCaseTest {
         assertThatThrownBy(() -> purchaseGifticonService.purchase(command))
                 .isInstanceOf(GifticonGoodsNotFoundException.class);
 
-        verify(transactionHelper, never()).deductCashAndCreateOrder(any(), any(), any(), any(), any(), any());
+        verify(transactionHelper, never()).deductCashAndCreateOrder(any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -116,7 +115,7 @@ class PurchaseGifticonUseCaseTest {
         assertThatThrownBy(() -> purchaseGifticonService.purchase(command))
                 .isInstanceOf(GifticonGoodsNotFoundException.class);
 
-        verify(transactionHelper, never()).deductCashAndCreateOrder(any(), any(), any(), any(), any(), any());
+        verify(transactionHelper, never()).deductCashAndCreateOrder(any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -131,7 +130,7 @@ class PurchaseGifticonUseCaseTest {
         assertThatThrownBy(() -> purchaseGifticonService.purchase(command))
                 .isInstanceOf(GifticonGoodsNotFoundException.class);
 
-        verify(transactionHelper, never()).deductCashAndCreateOrder(any(), any(), any(), any(), any(), any());
+        verify(transactionHelper, never()).deductCashAndCreateOrder(any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -142,10 +141,10 @@ class PurchaseGifticonUseCaseTest {
         when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
 
         DeductCashAndCreateOrderContext context = new DeductCashAndCreateOrderContext(
-                1L, "NC100_260404210000", GOODS_CODE, "테스트 기프티콘", 5000L, USER_ID
+                1L, "NC100_260404210000", GOODS_CODE, "테스트 기프티콘", 5000L, USER_ID, 30
         );
         when(transactionHelper.deductCashAndCreateOrder(
-                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
+                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L), eq(30)
         )).thenReturn(context);
 
         SendCouponResult failResult = SendCouponResult.builder()
@@ -175,10 +174,10 @@ class PurchaseGifticonUseCaseTest {
         when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
 
         DeductCashAndCreateOrderContext context = new DeductCashAndCreateOrderContext(
-                1L, "NC100_260404210000000000001", GOODS_CODE, "테스트 기프티콘", 5000L, USER_ID
+                1L, "NC100_260404210000000000001", GOODS_CODE, "테스트 기프티콘", 5000L, USER_ID, 30
         );
         when(transactionHelper.deductCashAndCreateOrder(
-                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
+                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L), eq(30)
         ))
                 .thenThrow(new DuplicateGifticonOrderException())
                 .thenReturn(context);
@@ -188,7 +187,6 @@ class PurchaseGifticonUseCaseTest {
                 .orderNo("20260404000001")
                 .pinNo("900343630367")
                 .couponImageUrl("http://t.giftishow.co.kr/coupon.jpg")
-                .validEndDate("20260504")
                 .build();
         when(sendGifticonCouponPort.sendCoupon(
                 "NC100_260404210000000000001", GOODS_CODE, String.valueOf(USER_ID)
@@ -203,7 +201,7 @@ class PurchaseGifticonUseCaseTest {
         assertThat(result.orderId()).isEqualTo(1L);
         assertThat(result.orderNo()).isEqualTo("20260404000001");
         verify(transactionHelper, times(2)).deductCashAndCreateOrder(
-                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
+                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L), eq(30)
         );
         verify(transactionHelper).commitSuccess(context, sendResult);
     }
@@ -216,7 +214,7 @@ class PurchaseGifticonUseCaseTest {
         when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
 
         when(transactionHelper.deductCashAndCreateOrder(
-                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
+                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L), eq(30)
         )).thenThrow(new DuplicateGifticonOrderException());
 
         PurchaseGifticonCommand command = new PurchaseGifticonCommand(USER_ID, GOODS_CODE);
@@ -226,7 +224,7 @@ class PurchaseGifticonUseCaseTest {
                 .isInstanceOf(DuplicateGifticonOrderException.class);
 
         verify(transactionHelper, times(3)).deductCashAndCreateOrder(
-                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
+                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L), eq(30)
         );
         verify(sendGifticonCouponPort, never()).sendCoupon(any(), any(), any());
         verify(transactionHelper, never()).commitSuccess(any(), any());
@@ -241,10 +239,10 @@ class PurchaseGifticonUseCaseTest {
         when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
 
         DeductCashAndCreateOrderContext context = new DeductCashAndCreateOrderContext(
-                1L, "NC100_260404210000", GOODS_CODE, "테스트 기프티콘", 5000L, USER_ID
+                1L, "NC100_260404210000", GOODS_CODE, "테스트 기프티콘", 5000L, USER_ID, 30
         );
         when(transactionHelper.deductCashAndCreateOrder(
-                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
+                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L), eq(30)
         )).thenReturn(context);
 
         SendCouponResult failResult = SendCouponResult.builder()
