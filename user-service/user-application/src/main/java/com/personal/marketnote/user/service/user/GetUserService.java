@@ -7,6 +7,7 @@ import com.personal.marketnote.user.domain.user.UserSearchTarget;
 import com.personal.marketnote.user.domain.user.UserSortProperty;
 import com.personal.marketnote.user.port.in.result.GetUserInfoResult;
 import com.personal.marketnote.user.port.in.result.GetUserResult;
+import com.personal.marketnote.user.port.in.result.ReferredUserCodeInputStatusResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.out.user.FindUserPort;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
@@ -111,6 +112,11 @@ public class GetUserService implements GetUserUseCase {
     @Override
     public boolean isReferredUserCodeRegistered(Long id) {
         return getUser(id).hasReferredUserCode();
+    }
+
+    @Override
+    public ReferredUserCodeInputStatusResult getReferredUserCodeInputStatus(Long id) {
+        return ReferredUserCodeInputStatusResult.from(getUser(id));
     }
 
     @Override

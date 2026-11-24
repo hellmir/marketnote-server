@@ -1,9 +1,12 @@
 package com.personal.marketnote.user.adapter.in.web.user.response;
 
+import com.personal.marketnote.user.port.in.result.ReferredUserCodeInputStatusResult;
+
 public record IsReferredUserCodeRegisteredResponse(
-        boolean isRegistered
+        boolean isRegistered,
+        boolean isSkipped
 ) {
-    public static IsReferredUserCodeRegisteredResponse of(boolean isRegistered) {
-        return new IsReferredUserCodeRegisteredResponse(isRegistered);
+    public static IsReferredUserCodeRegisteredResponse from(ReferredUserCodeInputStatusResult result) {
+        return new IsReferredUserCodeRegisteredResponse(result.isRegistered(), result.isSkipped());
     }
 }

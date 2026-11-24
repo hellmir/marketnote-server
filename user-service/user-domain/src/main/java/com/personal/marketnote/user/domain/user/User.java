@@ -10,6 +10,7 @@ import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.user.domain.authentication.Role;
 import com.personal.marketnote.user.exception.InvalidUserStatusTransitionException;
 import com.personal.marketnote.user.exception.ReferredUserCodeAlreadyExistsException;
+import com.personal.marketnote.user.exception.ReferredUserCodeInputAlreadySkippedException;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -42,6 +43,7 @@ public class User extends BaseDomain {
     private PhoneNumber phoneNumber;
     private ReferenceCode referenceCode;
     private ReferenceCode referredUserCode;
+    private LocalDateTime referredUserCodeSkippedAt;
     private Role role;
     private List<UserAuthProvider> userAuthProviders;
     private List<UserTerms> userTerms;
@@ -120,6 +122,7 @@ public class User extends BaseDomain {
                 .phoneNumber(toNullablePhoneNumber(state.getPhoneNumber()))
                 .referenceCode(state.getReferenceCode())
                 .referredUserCode(state.getReferredUserCode())
+                .referredUserCodeSkippedAt(state.getReferredUserCodeSkippedAt())
                 .role(state.getRole())
                 .userAuthProviders(state.getUserAuthProviders())
                 .userTerms(state.getUserTerms())
@@ -218,6 +221,9 @@ public class User extends BaseDomain {
     }
 
     public void registerReferredUserCode(ReferenceCode referredUserCode) {
+        if (isReferredUserCodeInputSkipped()) {
+            throw new ReferredUserCodeInputAlreadySkippedException();
+        }
         if (FormatValidator.hasValue(this.referredUserCode)) {
             throw new ReferredUserCodeAlreadyExistsException();
         }
@@ -225,8 +231,27 @@ public class User extends BaseDomain {
         this.referredUserCode = referredUserCode;
     }
 
+    public void skipReferredUserCodeInput(LocalDateTime now) {
+        if (FormatValidator.hasValue(referredUserCode)) {
+            throw new ReferredUserCodeAlreadyExistsException();
+        }
+        if (isReferredUserCodeInputSkipped()) {
+            throw new ReferredUserCodeInputAlreadySkippedException();
+        }
+
+        referredUserCodeSkippedAt = now;
+    }
+
     public boolean hasReferredUserCode() {
         return FormatValidator.hasValue(referredUserCode);
+    }
+
+    public boolean isReferredUserCodeInputSkipped() {
+        return FormatValidator.hasValue(referredUserCodeSkippedAt);
+    }
+
+    public boolean hasCompletedReferredUserCodeInput() {
+        return hasReferredUserCode() || isReferredUserCodeInputSkipped();
     }
 
     public void removeReferredUserCode() {

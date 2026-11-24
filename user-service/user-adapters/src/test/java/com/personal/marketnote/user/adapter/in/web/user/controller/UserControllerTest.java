@@ -7,6 +7,7 @@ import com.personal.marketnote.user.adapter.in.web.user.response.IsReferredUserC
 import com.personal.marketnote.user.adapter.in.web.user.response.IsReferredUserCodeRegisteredResponse;
 import com.personal.marketnote.user.domain.user.exception.InvalidReferenceCodeException;
 import com.personal.marketnote.user.domain.user.exception.ReferenceCodeNoValueException;
+import com.personal.marketnote.user.port.in.result.ReferredUserCodeInputStatusResult;
 import com.personal.marketnote.user.port.in.result.SignInResult;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.port.in.usecase.user.*;
@@ -53,6 +54,9 @@ class UserControllerTest {
 
     @Mock
     private RegisterReferredUserCodeUseCase registerReferredUserCodeUseCase;
+
+    @Mock
+    private SkipReferredUserCodeInputUseCase skipReferredUserCodeInputUseCase;
 
     @Mock
     private SignOutUseCase signOutUseCase;
@@ -311,16 +315,17 @@ class UserControllerTest {
     }
 
     @Nested
-    @DisplayName("isReferredUserCodeRegistered - 추천 회원 초대 코드 등록 여부 조회")
+    @DisplayName("isReferredUserCodeRegistered - 추천 회원 초대 코드 입력 상태 조회")
     class IsReferredUserCodeRegisteredTest {
 
         @Test
-        @DisplayName("추천 코드가 등록되어 있으면 isRegistered=true로 응답한다")
-        void shouldReturnTrueWhenRegistered() {
+        @DisplayName("추천 코드가 등록되어 있으면 (isRegistered=true, isSkipped=false)로 응답한다")
+        void shouldReturnRegisteredTrueWhenRegistered() {
             // given
             OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
             when(principal.getName()).thenReturn("42");
-            when(getUserUseCase.isReferredUserCodeRegistered(42L)).thenReturn(true);
+            when(getUserUseCase.getReferredUserCodeInputStatus(42L))
+                    .thenReturn(new ReferredUserCodeInputStatusResult(true, false));
 
             // when
             ResponseEntity<BaseResponse<IsReferredUserCodeRegisteredResponse>> response =
@@ -330,16 +335,18 @@ class UserControllerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().getContent().isRegistered()).isTrue();
-            verify(getUserUseCase).isReferredUserCodeRegistered(42L);
+            assertThat(response.getBody().getContent().isSkipped()).isFalse();
+            verify(getUserUseCase).getReferredUserCodeInputStatus(42L);
         }
 
         @Test
-        @DisplayName("추천 코드가 등록되어 있지 않으면 isRegistered=false로 응답한다")
-        void shouldReturnFalseWhenNotRegistered() {
+        @DisplayName("추천 코드 입력을 건너뛰었으면 (isRegistered=false, isSkipped=true)로 응답한다")
+        void shouldReturnSkippedTrueWhenSkipped() {
             // given
             OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
-            when(principal.getName()).thenReturn("7");
-            when(getUserUseCase.isReferredUserCodeRegistered(7L)).thenReturn(false);
+            when(principal.getName()).thenReturn("11");
+            when(getUserUseCase.getReferredUserCodeInputStatus(11L))
+                    .thenReturn(new ReferredUserCodeInputStatusResult(false, true));
 
             // when
             ResponseEntity<BaseResponse<IsReferredUserCodeRegisteredResponse>> response =
@@ -349,7 +356,29 @@ class UserControllerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().getContent().isRegistered()).isFalse();
-            verify(getUserUseCase).isReferredUserCodeRegistered(7L);
+            assertThat(response.getBody().getContent().isSkipped()).isTrue();
+            verify(getUserUseCase).getReferredUserCodeInputStatus(11L);
+        }
+
+        @Test
+        @DisplayName("추천 코드를 등록하지도 건너뛰지도 않았으면 (isRegistered=false, isSkipped=false)로 응답한다")
+        void shouldReturnBothFalseWhenPending() {
+            // given
+            OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
+            when(principal.getName()).thenReturn("7");
+            when(getUserUseCase.getReferredUserCodeInputStatus(7L))
+                    .thenReturn(new ReferredUserCodeInputStatusResult(false, false));
+
+            // when
+            ResponseEntity<BaseResponse<IsReferredUserCodeRegisteredResponse>> response =
+                    userController.isReferredUserCodeRegistered(principal);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getContent().isRegistered()).isFalse();
+            assertThat(response.getBody().getContent().isSkipped()).isFalse();
+            verify(getUserUseCase).getReferredUserCodeInputStatus(7L);
         }
     }
 
