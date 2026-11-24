@@ -19,8 +19,21 @@ public class KafkaMdcRecordInterceptor implements RecordInterceptor<String, Obje
     public ConsumerRecord<String, Object> intercept(
             @NonNull ConsumerRecord<String, Object> record, @NonNull Consumer<String, Object> consumer
     ) {
-        String traceId = resolveTraceId(record);
+        String traceId = TraceIdValidator.validateOrFallback(
+                resolveHeaderValue(record, TraceIdMdcFilter.TRACE_ID_HEADER)
+        );
         MDC.put(TraceIdMdcFilter.TRACE_ID_MDC_KEY, traceId);
+
+        String correlationCandidate = resolveHeaderValue(record, TraceIdMdcFilter.CORRELATION_ID_HEADER);
+        String correlationId = resolveCorrelationId(correlationCandidate, traceId);
+        MDC.put(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY, correlationId);
+
+        String causationId = resolveOptionalId(
+                resolveHeaderValue(record, TraceIdMdcFilter.CAUSATION_ID_HEADER)
+        );
+        if (FormatValidator.hasValue(causationId)) {
+            MDC.put(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY, causationId);
+        }
         return record;
     }
 
@@ -29,18 +42,39 @@ public class KafkaMdcRecordInterceptor implements RecordInterceptor<String, Obje
             @NonNull ConsumerRecord<String, Object> record, @NonNull Consumer<String, Object> consumer
     ) {
         MDC.remove(TraceIdMdcFilter.TRACE_ID_MDC_KEY);
+        MDC.remove(TraceIdMdcFilter.CORRELATION_ID_MDC_KEY);
+        MDC.remove(TraceIdMdcFilter.CAUSATION_ID_MDC_KEY);
     }
 
-    private static String resolveTraceId(ConsumerRecord<String, Object> record) {
-        Header header = record.headers().lastHeader(TraceIdMdcFilter.TRACE_ID_HEADER);
+    private static String resolveHeaderValue(ConsumerRecord<String, Object> record, String headerName) {
+        Header header = record.headers().lastHeader(headerName);
         if (FormatValidator.isNull(header)) {
-            return TraceIdValidator.validateOrFallback(null);
+            return null;
         }
         byte[] value = header.value();
         if (FormatValidator.isNull(value) || value.length == 0) {
-            return TraceIdValidator.validateOrFallback(null);
+            return null;
         }
-        String headerString = new String(value, StandardCharsets.UTF_8);
-        return TraceIdValidator.validateOrFallback(headerString);
+        return new String(value, StandardCharsets.UTF_8);
+    }
+
+    private static String resolveCorrelationId(String candidate, String traceId) {
+        if (FormatValidator.hasNoValue(candidate)) {
+            return traceId;
+        }
+        if (!TraceIdValidator.TRACE_ID_PATTERN.matcher(candidate).matches()) {
+            return traceId;
+        }
+        return candidate;
+    }
+
+    private static String resolveOptionalId(String candidate) {
+        if (FormatValidator.hasNoValue(candidate)) {
+            return null;
+        }
+        if (!TraceIdValidator.TRACE_ID_PATTERN.matcher(candidate).matches()) {
+            return null;
+        }
+        return candidate;
     }
 }
