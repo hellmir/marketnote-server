@@ -55,12 +55,13 @@ class GifticonCouponAdapterTest {
         @DisplayName("벤더 응답이 성공이면 핀번호와 발급 정보를 담은 SendCouponResult를 반환한다")
         void shouldReturnSuccessResultWhenVendorRespondsSuccess() {
             // given
-            GiftishowCouponSendResponse vendorResult = new GiftishowCouponSendResponse(
-                    TR_ID,
+            GiftishowCouponSendResponse.InnerResult inner = new GiftishowCouponSendResponse.InnerResult(
                     "ORD001",
                     "1234-5678-9012",
-                    "http://img.test.com/coupon.jpg",
-                    "20260503"
+                    "http://img.test.com/coupon.jpg"
+            );
+            GiftishowCouponSendResponse vendorResult = new GiftishowCouponSendResponse(
+                    "0000", "success", inner
             );
             given(giftishowApiClient.sendCoupon(
                     eq(TR_ID), eq(GOODS_CODE), eq(PHONE_NO), eq(USER_ID), eq(MMS_MSG), eq(MMS_TITLE), eq(null)
@@ -75,7 +76,6 @@ class GifticonCouponAdapterTest {
             assertThat(result.orderNo()).isEqualTo("ORD001");
             assertThat(result.pinNo()).isEqualTo("1234-5678-9012");
             assertThat(result.couponImageUrl()).isEqualTo("http://img.test.com/coupon.jpg");
-            assertThat(result.validEndDate()).isEqualTo("20260503");
             assertThat(result.errorCode()).isNull();
             assertThat(result.errorMessage()).isNull();
             verify(giftishowApiClient).sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, MMS_MSG, MMS_TITLE, null);
@@ -124,11 +124,12 @@ class GifticonCouponAdapterTest {
         @DisplayName("벤더 응답이 성공이면 핀 상태와 유효기간을 담은 CouponStatusResult를 반환한다")
         void shouldReturnSuccessResultWhenVendorRespondsSuccess() {
             // given
-            GiftishowCouponDetailResponse detail = new GiftishowCouponDetailResponse(
+            GiftishowCouponDetailResponse.CouponInfo info = new GiftishowCouponDetailResponse.CouponInfo(
                     TR_ID, "ORD001", "01", "발행", "20260503", GOODS_CODE, "테스트 상품"
             );
+            GiftishowCouponDetailResponse detail = new GiftishowCouponDetailResponse(java.util.List.of(info));
             given(giftishowApiClient.getCouponDetail(TR_ID))
-                    .willReturn(new GiftishowApiResponse<>("0000", "success", detail));
+                    .willReturn(new GiftishowApiResponse<>("0000", "success", java.util.List.of(detail)));
 
             // when
             CouponStatusResult result = adapter.queryStatus(TR_ID);

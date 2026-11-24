@@ -268,8 +268,10 @@ public class GiftishowApiClient {
 
     /**
      * 0201 - 쿠폰 상세 조회 (POST)
+     *
+     * <p>규격서(v1.04 P.21-23) 응답 구조: {@code result}는 List이고 각 항목 내부에 {@code couponInfoList[]}가 있음.</p>
      */
-    public GiftishowApiResponse<GiftishowCouponDetailResponse> getCouponDetail(String trId) {
+    public GiftishowApiResponse<java.util.List<GiftishowCouponDetailResponse>> getCouponDetail(String trId) {
         if (FormatValidator.hasNoValue(trId)) {
             throw new InvalidGiftishowTrIdException();
         }
@@ -361,6 +363,10 @@ public class GiftishowApiClient {
 
     /**
      * 0301 - 비즈머니 잔액 조회 (POST)
+     *
+     * <p>규격서(v1.04 P.29) 응답 구조: {@code {code, message, balance}} 최상위 — {@code result} wrapper 없음.
+     * 응답을 {@link GiftishowBizMoneyResponse}로 직접 매핑한 뒤
+     * {@link GiftishowApiResponse} 형태로 감싸 다른 API와 호출 인터페이스 통일.</p>
      */
     public GiftishowApiResponse<GiftishowBizMoneyResponse> getBizMoneyBalance(String userId) {
         if (FormatValidator.hasNoValue(userId)) {
@@ -378,12 +384,12 @@ public class GiftishowApiClient {
 
         return recordVendorCall(
                 path, OP_BIZMONEY_BALANCE, tags, params,
-                () -> executePost(
-                        path,
-                        params,
-                        new TypeReference<>() {
-                        }
-                )
+                () -> {
+                    GiftishowBizMoneyResponse raw = executePostFlat(
+                            path, params, GiftishowBizMoneyResponse.class
+                    );
+                    return new GiftishowApiResponse<>(raw.code(), raw.message(), raw);
+                }
         );
     }
 
@@ -446,6 +452,47 @@ public class GiftishowApiClient {
         }
 
         return parseResponse(rawResponse, path, typeReference);
+    }
+
+    private <T> T executePostFlat(
+            String path,
+            MultiValueMap<String, String> params,
+            Class<T> responseType
+    ) {
+        ResponseEntity<String> rawResponse;
+        try {
+            rawResponse = giftishowRestClient.post()
+                    .uri(path)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(params)
+                    .retrieve()
+                    .toEntity(String.class);
+        } catch (RestClientResponseException re) {
+            throw wrapHttpFailure(path, re);
+        }
+
+        String responseBody = rawResponse.getBody();
+        logApiResponse(path, rawResponse, responseBody);
+
+        if (FormatValidator.hasNoValue(responseBody)) {
+            throw new GiftishowCommunicationException(
+                    "기프티쇼 API 응답 본문이 비어 있습니다. path=" + path
+            );
+        }
+
+        try {
+            return objectMapper.readValue(responseBody, responseType);
+        } catch (JsonProcessingException e) {
+            logParseFailure(path, e);
+            if (isSensitivePath(path)) {
+                throw new GiftishowCommunicationException(
+                        "기프티쇼 API 응답 파싱 실패. path=" + path
+                );
+            }
+            throw new GiftishowCommunicationException(
+                    "기프티쇼 API 응답 파싱 실패. path=" + path, e
+            );
+        }
     }
 
     private <T> GiftishowApiResponse<T> executePostWithPathVariable(

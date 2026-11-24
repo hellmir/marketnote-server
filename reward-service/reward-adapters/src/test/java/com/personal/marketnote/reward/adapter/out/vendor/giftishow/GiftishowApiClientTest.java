@@ -159,7 +159,7 @@ class GiftishowApiClientTest {
                                             "category1Seq": "1",
                                             "salePrice": 10000,
                                             "realPrice": 12000,
-                                            "limitDay": 30,
+                                            "limitday": 30,
                                             "content": "테스트 상품 설명",
                                             "goodsStateCd": "SALE"
                                         }
@@ -184,7 +184,7 @@ class GiftishowApiClientTest {
             assertThat(item.goodsName()).isEqualTo("테스트 상품");
             assertThat(item.brandCode()).isEqualTo("B001");
             assertThat(item.salePrice()).isEqualTo(10000L);
-            assertThat(item.limitDay()).isEqualTo(30);
+            assertThat(item.limitday()).isEqualTo(30);
 
             mockServer.verify();
         }
@@ -245,18 +245,20 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "goodsCode": "G001",
-                                    "goodsName": "테스트 상품",
-                                    "goodsImgB": "http://img.test.com/goods.jpg",
-                                    "brandCode": "B001",
-                                    "brandName": "테스트 브랜드",
-                                    "brandIconImg": "http://img.test.com/brand.jpg",
-                                    "category1Seq": "1",
-                                    "salePrice": 10000,
-                                    "realPrice": 12000,
-                                    "limitDay": 30,
-                                    "content": "테스트 상품 설명",
-                                    "goodsStateCd": "SALE"
+                                    "goodsDetail": {
+                                        "goodsCode": "G001",
+                                        "goodsName": "테스트 상품",
+                                        "goodsImgB": "http://img.test.com/goods.jpg",
+                                        "brandCode": "B001",
+                                        "brandName": "테스트 브랜드",
+                                        "brandIconImg": "http://img.test.com/brand.jpg",
+                                        "categorySeq1": "1",
+                                        "salePrice": 10000,
+                                        "realPrice": 12000,
+                                        "limitday": 30,
+                                        "content": "테스트 상품 설명",
+                                        "goodsStateCd": "SALE"
+                                    }
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -267,9 +269,9 @@ class GiftishowApiClientTest {
 
             // then
             assertThat(response.isSuccess()).isTrue();
-            assertThat(response.result().goodsCode()).isEqualTo("G001");
-            assertThat(response.result().goodsName()).isEqualTo("테스트 상품");
-            assertThat(response.result().salePrice()).isEqualTo(10000L);
+            assertThat(response.result().goodsDetail().goodsCode()).isEqualTo("G001");
+            assertThat(response.result().goodsDetail().goodsName()).isEqualTo("테스트 상품");
+            assertThat(response.result().goodsDetail().salePrice()).isEqualTo(10000L);
 
             mockServer.verify();
         }
@@ -377,11 +379,13 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "brandCode": "B001",
-                                    "brandName": "테스트 브랜드",
-                                    "brandIconImg": "http://img.test.com/brand.jpg",
-                                    "category1Seq": "1",
-                                    "category1Name": "카페/음료"
+                                    "brandDetail": {
+                                        "brandCode": "B001",
+                                        "brandName": "테스트 브랜드",
+                                        "brandIconImg": "http://img.test.com/brand.jpg",
+                                        "category1Seq": "1",
+                                        "category1Name": "카페/음료"
+                                    }
                                 }
                             }
                             """, MediaType.APPLICATION_JSON));
@@ -392,8 +396,8 @@ class GiftishowApiClientTest {
 
             // then
             assertThat(response.isSuccess()).isTrue();
-            assertThat(response.result().brandCode()).isEqualTo("B001");
-            assertThat(response.result().category1Name()).isEqualTo("카페/음료");
+            assertThat(response.result().brandDetail().brandCode()).isEqualTo("B001");
+            assertThat(response.result().brandDetail().category1Name()).isEqualTo("카페/음료");
 
             mockServer.verify();
         }
@@ -430,14 +434,16 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001",
-                                    "pinNo": "1234-5678-9012",
-                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
-                                    "validPrdEndDt": "20260503"
+                                    "code": "0000",
+                                    "message": "success",
+                                    "result": {
+                                        "orderNo": "ORD001",
+                                        "pinNo": "1234-5678-9012",
+                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                    }
                                 }
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.sendCoupon(
@@ -466,14 +472,16 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001",
-                                    "pinNo": "1234-5678-9012",
-                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
-                                    "validPrdEndDt": "20260503"
+                                    "code": "0000",
+                                    "message": "success",
+                                    "result": {
+                                        "orderNo": "ORD001",
+                                        "pinNo": "1234-5678-9012",
+                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                    }
                                 }
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowCouponSendResponse> response =
@@ -489,11 +497,11 @@ class GiftishowApiClientTest {
 
             // then
             assertThat(response.isSuccess()).isTrue();
-            assertThat(response.result().trId()).isEqualTo("NTCASH_1_20260403120000");
-            assertThat(response.result().orderNo()).isEqualTo("ORD001");
-            assertThat(response.result().pinNo()).isEqualTo("1234-5678-9012");
-            assertThat(response.result().couponImgUrl()).isEqualTo("http://img.test.com/coupon.jpg");
-            assertThat(response.result().validPrdEndDt()).isEqualTo("20260503");
+            assertThat(response.result()).isNotNull();
+            assertThat(response.result().result()).isNotNull();
+            assertThat(response.result().result().orderNo()).isEqualTo("ORD001");
+            assertThat(response.result().result().pinNo()).isEqualTo("1234-5678-9012");
+            assertThat(response.result().result().couponImgUrl()).isEqualTo("http://img.test.com/coupon.jpg");
 
             mockServer.verify();
         }
@@ -528,14 +536,16 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001",
-                                    "pinNo": "1234-5678-9012",
-                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
-                                    "validPrdEndDt": "20260503"
+                                    "code": "0000",
+                                    "message": "success",
+                                    "result": {
+                                        "orderNo": "ORD001",
+                                        "pinNo": "1234-5678-9012",
+                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                    }
                                 }
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.sendCoupon(
@@ -577,14 +587,16 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001",
-                                    "pinNo": "1234-5678-9012",
-                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
-                                    "validPrdEndDt": "20260503"
+                                    "code": "0000",
+                                    "message": "success",
+                                    "result": {
+                                        "orderNo": "ORD001",
+                                        "pinNo": "1234-5678-9012",
+                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                    }
                                 }
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.sendCoupon(
@@ -610,14 +622,16 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001",
-                                    "pinNo": "1234-5678-9012",
-                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
-                                    "validPrdEndDt": "20260503"
+                                    "code": "0000",
+                                    "message": "success",
+                                    "result": {
+                                        "orderNo": "ORD001",
+                                        "pinNo": "1234-5678-9012",
+                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                    }
                                 }
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowCouponSendResponse> response =
@@ -659,14 +673,16 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD123456",
-                                    "pinNo": "1234-5678-9012",
-                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
-                                    "validPrdEndDt": "20260503"
+                                    "code": "0000",
+                                    "message": "success",
+                                    "result": {
+                                        "orderNo": "ORD123456",
+                                        "pinNo": "1234-5678-9012",
+                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                    }
                                 }
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.sendCoupon(
@@ -691,14 +707,16 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001",
-                                    "pinNo": "1234-5678-9012",
-                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
-                                    "validPrdEndDt": "20260503"
+                                    "code": "0000",
+                                    "message": "success",
+                                    "result": {
+                                        "orderNo": "ORD001",
+                                        "pinNo": "1234-5678-9012",
+                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                    }
                                 }
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.sendCoupon(
@@ -734,17 +752,23 @@ class GiftishowApiClientTest {
                             {
                                 "code": "0000",
                                 "message": "success",
-                                "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001",
-                                    "pinStatusCd": "01",
-                                    "pinStatusNm": "발행",
-                                    "validPrdEndDt": "20260503",
-                                    "goodsCode": "G001",
-                                    "goodsName": "테스트 상품"
-                                }
+                                "result": [
+                                    {
+                                        "couponInfoList": [
+                                            {
+                                                "trId": "NTCASH_1_20260403120000",
+                                                "orderNo": "ORD001",
+                                                "pinStatusCd": "01",
+                                                "pinStatusNm": "발행",
+                                                "validPrdEndDt": "20260503",
+                                                "goodsCd": "G001",
+                                                "goodsNm": "테스트 상품"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getCouponDetail("NTCASH_1_20260403120000");
@@ -763,27 +787,37 @@ class GiftishowApiClientTest {
                             {
                                 "code": "0000",
                                 "message": "success",
-                                "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001",
-                                    "pinStatusCd": "01",
-                                    "pinStatusNm": "발행",
-                                    "validPrdEndDt": "20260503",
-                                    "goodsCode": "G001",
-                                    "goodsName": "테스트 상품"
-                                }
+                                "result": [
+                                    {
+                                        "couponInfoList": [
+                                            {
+                                                "trId": "NTCASH_1_20260403120000",
+                                                "orderNo": "ORD001",
+                                                "pinStatusCd": "01",
+                                                "pinStatusNm": "발행",
+                                                "validPrdEndDt": "20260503",
+                                                "goodsCd": "G001",
+                                                "goodsNm": "테스트 상품"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
-            GiftishowApiResponse<GiftishowCouponDetailResponse> response =
+            GiftishowApiResponse<java.util.List<GiftishowCouponDetailResponse>> response =
                     giftishowApiClient.getCouponDetail("NTCASH_1_20260403120000");
 
             // then
             assertThat(response.isSuccess()).isTrue();
-            assertThat(response.result().pinStatusCd()).isEqualTo("01");
-            assertThat(response.result().pinStatusNm()).isEqualTo("발행");
-            assertThat(response.result().validPrdEndDt()).isEqualTo("20260503");
+            assertThat(response.result()).hasSize(1);
+            GiftishowCouponDetailResponse first = response.result().getFirst();
+            assertThat(first.couponInfoList()).hasSize(1);
+            GiftishowCouponDetailResponse.CouponInfo info = first.couponInfoList().getFirst();
+            assertThat(info.pinStatusCd()).isEqualTo("01");
+            assertThat(info.pinStatusNm()).isEqualTo("발행");
+            assertThat(info.validPrdEndDt()).isEqualTo("20260503");
 
             mockServer.verify();
         }
@@ -850,7 +884,7 @@ class GiftishowApiClientTest {
 
             // then
             assertThat(response.isSuccess()).isTrue();
-            assertThat(response.result().trId()).isEqualTo("NTCASH_1_20260403120000");
+            assertThat(response.result()).isNotNull();
 
             mockServer.verify();
         }
@@ -917,7 +951,7 @@ class GiftishowApiClientTest {
 
             // then
             assertThat(response.isSuccess()).isTrue();
-            assertThat(response.result().trId()).isEqualTo("NTCASH_1_20260403120000");
+            assertThat(response.result()).isNotNull();
 
             mockServer.verify();
         }
@@ -946,12 +980,9 @@ class GiftishowApiClientTest {
                             {
                                 "code": "0000",
                                 "message": "success",
-                                "result": {
-                                    "userId": "user1",
-                                    "bizMoney": 500000
-                                }
+                                "balance": 500000
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getBizMoneyBalance("user1");
@@ -970,12 +1001,9 @@ class GiftishowApiClientTest {
                             {
                                 "code": "0000",
                                 "message": "success",
-                                "result": {
-                                    "userId": "user1",
-                                    "bizMoney": 500000
-                                }
+                                "balance": 500000
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             GiftishowApiResponse<GiftishowBizMoneyResponse> response =
@@ -983,8 +1011,8 @@ class GiftishowApiClientTest {
 
             // then
             assertThat(response.isSuccess()).isTrue();
-            assertThat(response.result().userId()).isEqualTo("user1");
-            assertThat(response.result().bizMoney()).isEqualTo(500000L);
+            assertThat(response.result()).isNotNull();
+            assertThat(response.result().balance()).isEqualTo(500000L);
 
             mockServer.verify();
         }
@@ -1051,7 +1079,7 @@ class GiftishowApiClientTest {
 
             // then
             assertThat(response.isSuccess()).isTrue();
-            assertThat(response.result().trId()).isEqualTo("NTCASH_1_20260403120000");
+            assertThat(response.result()).isNotNull();
 
             mockServer.verify();
         }
@@ -1193,14 +1221,16 @@ class GiftishowApiClientTest {
                                 "code": "0000",
                                 "message": "success",
                                 "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001",
-                                    "pinNo": "1234-5678-9012",
-                                    "couponImgUrl": "http://img.test.com/coupon.jpg",
-                                    "validPrdEndDt": "20260503"
+                                    "code": "0000",
+                                    "message": "success",
+                                    "result": {
+                                        "orderNo": "ORD001",
+                                        "pinNo": "1234-5678-9012",
+                                        "couponImgUrl": "http://img.test.com/coupon.jpg"
+                                    }
                                 }
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.sendCoupon(
@@ -1228,17 +1258,23 @@ class GiftishowApiClientTest {
                             {
                                 "code": "0000",
                                 "message": "success",
-                                "result": {
-                                    "trId": "NTCASH_1_20260403120000",
-                                    "orderNo": "ORD001",
-                                    "pinStatusCd": "01",
-                                    "pinStatusNm": "발행",
-                                    "validPrdEndDt": "20260503",
-                                    "goodsCode": "G001",
-                                    "goodsName": "테스트 상품"
-                                }
+                                "result": [
+                                    {
+                                        "couponInfoList": [
+                                            {
+                                                "trId": "NTCASH_1_20260403120000",
+                                                "orderNo": "ORD001",
+                                                "pinStatusCd": "01",
+                                                "pinStatusNm": "발행",
+                                                "validPrdEndDt": "20260503",
+                                                "goodsCd": "G001",
+                                                "goodsNm": "테스트 상품"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getCouponDetail("NTCASH_1_20260403120000");
@@ -1358,10 +1394,7 @@ class GiftishowApiClientTest {
                             {
                                 "code": "9999",
                                 "message": "인증 실패",
-                                "result": {
-                                    "userId": "user1",
-                                    "bizMoney": 0
-                                }
+                                "balance": 0
                             }
                             """, MediaType.APPLICATION_JSON));
 
@@ -1395,12 +1428,9 @@ class GiftishowApiClientTest {
                             {
                                 "code": "0000",
                                 "message": "success",
-                                "result": {
-                                    "userId": "user1",
-                                    "bizMoney": 0
-                                }
+                                "balance": 0
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getBizMoneyBalance("user1");
@@ -1423,12 +1453,9 @@ class GiftishowApiClientTest {
                             {
                                 "code": "0000",
                                 "message": "success",
-                                "result": {
-                                    "userId": "user1",
-                                    "bizMoney": 0
-                                }
+                                "balance": 0
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getBizMoneyBalance("user1");
@@ -1450,12 +1477,9 @@ class GiftishowApiClientTest {
                             {
                                 "code": "0000",
                                 "message": "success",
-                                "result": {
-                                    "userId": "user1",
-                                    "bizMoney": 0
-                                }
+                                "balance": 0
                             }
-                            """, MediaType.APPLICATION_JSON));
+""", MediaType.APPLICATION_JSON));
 
             // when
             giftishowApiClient.getBizMoneyBalance("user1");

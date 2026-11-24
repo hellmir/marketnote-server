@@ -401,7 +401,7 @@ class GiftishowApiClientVendorCommunicationRecordTest {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/coupons"))
                     .andExpect(method(HttpMethod.POST))
                     .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"tr_id\":\"" + TR_ID + "\",\"order_no\":\"ORD001\",\"pin_status_cd\":\"01\",\"pin_status_nm\":\"발행\",\"valid_prd_end_dt\":\"20260503\",\"goods_code\":\"G001\",\"goods_name\":\"테스트\"}}",
+                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":[{\"couponInfoList\":[{\"trId\":\"" + TR_ID + "\",\"orderNo\":\"ORD001\",\"pinStatusCd\":\"01\",\"pinStatusNm\":\"발행\",\"validPrdEndDt\":\"20260503\",\"goodsCd\":\"G001\",\"goodsNm\":\"테스트\"}]}]}",
                             MediaType.APPLICATION_JSON
                     ));
 

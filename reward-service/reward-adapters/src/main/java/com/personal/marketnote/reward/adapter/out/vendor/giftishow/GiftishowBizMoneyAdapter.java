@@ -26,6 +26,6 @@ public class GiftishowBizMoneyAdapter implements FetchGifticonVendorBalancePort 
             return 0L;
         }
 
-        return response.result().bizMoney();
+        return response.result().balance();
     }
 }

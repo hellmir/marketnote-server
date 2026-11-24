@@ -11,7 +11,6 @@ public interface SendGifticonCouponPort {
             String orderNo,
             String pinNo,
             String couponImageUrl,
-            String validEndDate,
             String errorCode,
             String errorMessage
     ) {

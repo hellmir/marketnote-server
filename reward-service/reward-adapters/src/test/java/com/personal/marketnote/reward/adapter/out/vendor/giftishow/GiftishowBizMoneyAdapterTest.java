@@ -39,7 +39,7 @@ class GiftishowBizMoneyAdapterTest {
         // given
         given(giftishowApiClient.getBizMoneyBalance(VENDOR_USER_ID))
                 .willReturn(new GiftishowApiResponse<>("0000", "success",
-                        new GiftishowBizMoneyResponse(VENDOR_USER_ID, 500_000L)));
+                        new GiftishowBizMoneyResponse("0000", "success", 500_000L)));
 
         // when
         long balance = adapter.fetchBalance();

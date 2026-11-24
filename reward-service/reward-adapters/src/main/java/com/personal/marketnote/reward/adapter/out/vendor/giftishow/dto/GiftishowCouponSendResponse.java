@@ -4,10 +4,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record GiftishowCouponSendResponse(
-        String trId,
-        String orderNo,
-        String pinNo,
-        String couponImgUrl,
-        String validPrdEndDt
+        String code,
+        String message,
+        InnerResult result
 ) {
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record InnerResult(
+            String orderNo,
+            String pinNo,
+            String couponImgUrl
+    ) {
+    }
 }

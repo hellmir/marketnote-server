@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.adapter.out.vendor.giftishow;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.GiftishowApiResponse;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.GiftishowCouponDetailResponse;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.GiftishowCouponSendResponse;
@@ -10,6 +11,8 @@ import com.personal.marketnote.reward.port.out.gifticon.SendGifticonCouponPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -37,13 +40,21 @@ public class GifticonCouponAdapter implements SendGifticonCouponPort, CancelGift
                         .build();
             }
 
-            GiftishowCouponSendResponse result = response.result();
+            GiftishowCouponSendResponse outer = response.result();
+            if (FormatValidator.hasNoValue(outer) || FormatValidator.hasNoValue(outer.result())) {
+                log.error("기프티쇼 쿠폰 발송 응답 본문(inner result) 누락: trId={}", trId);
+                return SendCouponResult.builder()
+                        .success(false)
+                        .errorCode("RESPONSE_EMPTY")
+                        .errorMessage("기프티쇼 쿠폰 발송 응답 본문이 비어 있습니다.")
+                        .build();
+            }
+            GiftishowCouponSendResponse.InnerResult inner = outer.result();
             return SendCouponResult.builder()
                     .success(true)
-                    .orderNo(result.orderNo())
-                    .pinNo(result.pinNo())
-                    .couponImageUrl(result.couponImgUrl())
-                    .validEndDate(result.validPrdEndDt())
+                    .orderNo(inner.orderNo())
+                    .pinNo(inner.pinNo())
+                    .couponImageUrl(inner.couponImgUrl())
                     .build();
 
         } catch (Exception e) {
@@ -59,7 +70,8 @@ public class GifticonCouponAdapter implements SendGifticonCouponPort, CancelGift
     @Override
     public CouponStatusResult queryStatus(String trId) {
         try {
-            GiftishowApiResponse<GiftishowCouponDetailResponse> response = giftishowApiClient.getCouponDetail(trId);
+            GiftishowApiResponse<List<GiftishowCouponDetailResponse>> response =
+                    giftishowApiClient.getCouponDetail(trId);
 
             if (!response.isSuccess()) {
                 log.error("기프티쇼 쿠폰 상세 조회 실패: trId={}, code={}, message={}",
@@ -71,11 +83,19 @@ public class GifticonCouponAdapter implements SendGifticonCouponPort, CancelGift
                         .build();
             }
 
-            GiftishowCouponDetailResponse result = response.result();
+            GiftishowCouponDetailResponse.CouponInfo info = extractFirstCouponInfo(response.result());
+            if (FormatValidator.hasNoValue(info)) {
+                log.error("기프티쇼 쿠폰 상세 조회 응답 본문(couponInfoList) 누락: trId={}", trId);
+                return CouponStatusResult.builder()
+                        .success(false)
+                        .errorCode("RESPONSE_EMPTY")
+                        .errorMessage("기프티쇼 쿠폰 상세 조회 응답이 비어 있습니다.")
+                        .build();
+            }
             return CouponStatusResult.builder()
                     .success(true)
-                    .pinStatusCd(result.pinStatusCd())
-                    .validPrdEndDt(result.validPrdEndDt())
+                    .pinStatusCd(info.pinStatusCd())
+                    .validPrdEndDt(info.validPrdEndDt())
                     .build();
 
         } catch (Exception e) {
@@ -96,5 +116,19 @@ public class GifticonCouponAdapter implements SendGifticonCouponPort, CancelGift
         } catch (Exception e) {
             log.error("기프티쇼 발송실패 취소 API 호출 실패: trId={}, error={}", trId, e.getMessage(), e);
         }
+    }
+
+    private GiftishowCouponDetailResponse.CouponInfo extractFirstCouponInfo(
+            List<GiftishowCouponDetailResponse> result
+    ) {
+        if (FormatValidator.hasNoValue(result) || result.isEmpty()) {
+            return null;
+        }
+        GiftishowCouponDetailResponse first = result.getFirst();
+        if (FormatValidator.hasNoValue(first) || FormatValidator.hasNoValue(first.couponInfoList())
+                || first.couponInfoList().isEmpty()) {
+            return null;
+        }
+        return first.couponInfoList().getFirst();
     }
 }

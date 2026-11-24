@@ -45,7 +45,7 @@ public class GifticonGoodsFetchAdapter implements FetchGifticonGoodsPort {
                 item.category1Seq(),
                 item.salePrice(),
                 item.realPrice(),
-                item.limitDay(),
+                item.limitday(),
                 item.content(),
                 item.goodsStateCd()
         );
