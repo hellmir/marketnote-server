@@ -474,6 +474,306 @@ class GiftishowResponseDtoMappingTest {
             assertThat(response.listNum()).isZero();
         }
     }
+
+    @Nested
+    @DisplayName("응답 구조 매핑 라운드트립 (#5195/#5196 — 벤더 규격서 v1.04 정합)")
+    class StructureMappingRoundTripTest {
+
+        @Test
+        @DisplayName("ProductDetail: result.goodsDetail.{...} 2중 wrapper 구조를 정상 파싱한다")
+        void shouldParseProductDetailWithGoodsDetailWrapper() throws Exception {
+            String json = """
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "goodsDetail": {
+                                "goodsCode": "G001",
+                                "goodsName": "테스트 상품",
+                                "goodsImgB": "http://img.test.com/goods.jpg",
+                                "brandCode": "B001",
+                                "brandName": "스타벅스",
+                                "brandIconImg": "http://img.test.com/brand.jpg",
+                                "categorySeq1": "1",
+                                "salePrice": 10000,
+                                "realPrice": 12000,
+                                "limitday": 30,
+                                "content": "상품 설명",
+                                "goodsStateCd": "SALE"
+                            }
+                        }
+                    }
+                    """;
+
+            GiftishowApiResponse<GiftishowProductDetailResponse> response = objectMapper.readValue(
+                    json,
+                    new TypeReference<GiftishowApiResponse<GiftishowProductDetailResponse>>() {}
+            );
+
+            assertThat(response.isSuccess()).isTrue();
+            GiftishowProductDetailResponse.GoodsDetail detail = response.result().goodsDetail();
+            assertThat(detail).isNotNull();
+            assertThat(detail.goodsCode()).isEqualTo("G001");
+            assertThat(detail.categorySeq1()).isEqualTo("1");
+            assertThat(detail.limitday()).isEqualTo(30);
+            assertThat(detail.goodsStateCd()).isEqualTo("SALE");
+        }
+
+        @Test
+        @DisplayName("BrandDetail: result.brandDetail.{...} 2중 wrapper 구조를 정상 파싱한다")
+        void shouldParseBrandDetailWithBrandDetailWrapper() throws Exception {
+            String json = """
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "brandDetail": {
+                                "brandCode": "B001",
+                                "brandName": "스타벅스",
+                                "brandIconImg": "http://img.test.com/brand.jpg",
+                                "category1Seq": "1",
+                                "category1Name": "카페/음료"
+                            }
+                        }
+                    }
+                    """;
+
+            GiftishowApiResponse<GiftishowBrandDetailResponse> response = objectMapper.readValue(
+                    json,
+                    new TypeReference<GiftishowApiResponse<GiftishowBrandDetailResponse>>() {}
+            );
+
+            assertThat(response.isSuccess()).isTrue();
+            GiftishowBrandDetailResponse.BrandDetail detail = response.result().brandDetail();
+            assertThat(detail).isNotNull();
+            assertThat(detail.brandCode()).isEqualTo("B001");
+            assertThat(detail.category1Name()).isEqualTo("카페/음료");
+        }
+
+        @Test
+        @DisplayName("CouponSend (gubun=N MMS): 2중 wrapper 외곽 result.code/message + 내부 result.orderNo 추출")
+        void shouldParseCouponSendGubunNWithDoubleWrapper() throws Exception {
+            String json = """
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "code": "0000",
+                            "message": "success",
+                            "result": {
+                                "orderNo": "ORD001"
+                            }
+                        }
+                    }
+                    """;
+
+            GiftishowApiResponse<GiftishowCouponSendResponse> response = objectMapper.readValue(
+                    json,
+                    new TypeReference<GiftishowApiResponse<GiftishowCouponSendResponse>>() {}
+            );
+
+            assertThat(response.isSuccess()).isTrue();
+            GiftishowCouponSendResponse outer = response.result();
+            assertThat(outer.code()).isEqualTo("0000");
+            assertThat(outer.message()).isEqualTo("success");
+            GiftishowCouponSendResponse.InnerResult inner = outer.result();
+            assertThat(inner).isNotNull();
+            assertThat(inner.orderNo()).isEqualTo("ORD001");
+            assertThat(inner.pinNo()).isNull();
+            assertThat(inner.couponImgUrl()).isNull();
+        }
+
+        @Test
+        @DisplayName("CouponSend (gubun=Y 핀번호): 내부 result에서 orderNo + pinNo 추출")
+        void shouldParseCouponSendGubunYWithPinNo() throws Exception {
+            String json = """
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "code": "0000",
+                            "message": "success",
+                            "result": {
+                                "orderNo": "ORD002",
+                                "pinNo": "1234-5678-9012"
+                            }
+                        }
+                    }
+                    """;
+
+            GiftishowApiResponse<GiftishowCouponSendResponse> response = objectMapper.readValue(
+                    json,
+                    new TypeReference<GiftishowApiResponse<GiftishowCouponSendResponse>>() {}
+            );
+
+            GiftishowCouponSendResponse.InnerResult inner = response.result().result();
+            assertThat(inner.orderNo()).isEqualTo("ORD002");
+            assertThat(inner.pinNo()).isEqualTo("1234-5678-9012");
+            assertThat(inner.couponImgUrl()).isNull();
+        }
+
+        @Test
+        @DisplayName("CouponSend (gubun=I 바코드이미지): 내부 result에서 orderNo + pinNo + couponImgUrl 추출")
+        void shouldParseCouponSendGubunIWithCouponImgUrl() throws Exception {
+            String json = """
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": {
+                            "code": "0000",
+                            "message": "success",
+                            "result": {
+                                "orderNo": "ORD003",
+                                "pinNo": "9999-8888-7777",
+                                "couponImgUrl": "http://img.test.com/coupon.jpg"
+                            }
+                        }
+                    }
+                    """;
+
+            GiftishowApiResponse<GiftishowCouponSendResponse> response = objectMapper.readValue(
+                    json,
+                    new TypeReference<GiftishowApiResponse<GiftishowCouponSendResponse>>() {}
+            );
+
+            GiftishowCouponSendResponse.InnerResult inner = response.result().result();
+            assertThat(inner.orderNo()).isEqualTo("ORD003");
+            assertThat(inner.pinNo()).isEqualTo("9999-8888-7777");
+            assertThat(inner.couponImgUrl()).isEqualTo("http://img.test.com/coupon.jpg");
+        }
+
+        @Test
+        @DisplayName("CouponDetail: result 배열 + 각 항목 couponInfoList 구조를 정상 파싱한다")
+        void shouldParseCouponDetailWithListAndCouponInfoList() throws Exception {
+            String json = """
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "result": [
+                            {
+                                "couponInfoList": [
+                                    {
+                                        "trId": "NTCASH_1_20260427000000",
+                                        "orderNo": "ORD001",
+                                        "pinStatusCd": "01",
+                                        "pinStatusNm": "발행",
+                                        "validPrdEndDt": "20260527",
+                                        "goodsCd": "G001",
+                                        "goodsNm": "테스트 상품"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                    """;
+
+            GiftishowApiResponse<List<GiftishowCouponDetailResponse>> response = objectMapper.readValue(
+                    json,
+                    new TypeReference<GiftishowApiResponse<List<GiftishowCouponDetailResponse>>>() {}
+            );
+
+            assertThat(response.isSuccess()).isTrue();
+            assertThat(response.result()).hasSize(1);
+            List<GiftishowCouponDetailResponse.CouponInfo> infos = response.result().getFirst().couponInfoList();
+            assertThat(infos).hasSize(1);
+            GiftishowCouponDetailResponse.CouponInfo info = infos.getFirst();
+            assertThat(info.trId()).isEqualTo("NTCASH_1_20260427000000");
+            assertThat(info.orderNo()).isEqualTo("ORD001");
+            assertThat(info.pinStatusCd()).isEqualTo("01");
+            assertThat(info.validPrdEndDt()).isEqualTo("20260527");
+            assertThat(info.goodsCd()).isEqualTo("G001");
+            assertThat(info.goodsNm()).isEqualTo("테스트 상품");
+        }
+
+        @Test
+        @DisplayName("BizMoney: {code, message, balance} 최상위 평면 구조를 wrapper 미적용으로 정상 파싱한다")
+        void shouldParseBizMoneyWithoutWrapper() throws Exception {
+            String json = """
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "balance": 500000
+                    }
+                    """;
+
+            GiftishowBizMoneyResponse response = objectMapper.readValue(json, GiftishowBizMoneyResponse.class);
+
+            assertThat(response.isSuccess()).isTrue();
+            assertThat(response.code()).isEqualTo("0000");
+            assertThat(response.message()).isEqualTo("success");
+            assertThat(response.balance()).isEqualTo(500000L);
+        }
+    }
+
+    @Nested
+    @DisplayName("legacy 키 회귀 가드 (#5195 — 구 매핑 미적용 검증)")
+    class LegacyKeyRegressionGuardTest {
+
+        @Test
+        @DisplayName("CouponDetail은 goodsCd/goodsNm 키로만 파싱한다 (구 goodsCode/goodsName 미사용)")
+        void shouldNotMapLegacyGoodsCodeKeysForCouponDetail() throws Exception {
+            String json = """
+                    {
+                        "couponInfoList": [
+                            {
+                                "trId": "TR001",
+                                "goodsCode": "G001",
+                                "goodsName": "테스트 상품"
+                            }
+                        ]
+                    }
+                    """;
+
+            GiftishowCouponDetailResponse response = objectMapper.readValue(
+                    json, GiftishowCouponDetailResponse.class
+            );
+
+            GiftishowCouponDetailResponse.CouponInfo info = response.couponInfoList().getFirst();
+            assertThat(info.trId()).isEqualTo("TR001");
+            assertThat(info.goodsCd()).isNull();
+            assertThat(info.goodsNm()).isNull();
+        }
+
+        @Test
+        @DisplayName("BizMoney는 balance 키로만 파싱한다 (구 bizMoney 미사용)")
+        void shouldNotMapLegacyBizMoneyKey() throws Exception {
+            String json = """
+                    {
+                        "code": "0000",
+                        "message": "success",
+                        "bizMoney": 500000
+                    }
+                    """;
+
+            GiftishowBizMoneyResponse response = objectMapper.readValue(json, GiftishowBizMoneyResponse.class);
+
+            assertThat(response.balance()).isZero();
+        }
+
+        @Test
+        @DisplayName("ProductDetail은 categorySeq1/limitday 키로만 파싱한다 (구 category1Seq/limitDay 미사용)")
+        void shouldNotMapLegacyCategoryAndLimitDayKeysForProductDetail() throws Exception {
+            String json = """
+                    {
+                        "goodsDetail": {
+                            "goodsCode": "G001",
+                            "category1Seq": "1",
+                            "limitDay": 30
+                        }
+                    }
+                    """;
+
+            GiftishowProductDetailResponse response = objectMapper.readValue(
+                    json, GiftishowProductDetailResponse.class
+            );
+
+            GiftishowProductDetailResponse.GoodsDetail detail = response.goodsDetail();
+            assertThat(detail.goodsCode()).isEqualTo("G001");
+            assertThat(detail.categorySeq1()).isNull();
+            assertThat(detail.limitday()).isZero();
+        }
+    }
+
     @Nested
     @DisplayName("미지 필드 무시 (@JsonIgnoreProperties(ignoreUnknown = true) 보존 검증)")
     class IgnoreUnknownPropertiesTest {
