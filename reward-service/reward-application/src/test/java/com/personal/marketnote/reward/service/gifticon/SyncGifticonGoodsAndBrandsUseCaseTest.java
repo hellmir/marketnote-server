@@ -532,6 +532,50 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         }
     }
 
+    @Nested
+    @DisplayName("페이징 종료 분기 (#5191/#5192)")
+    class PaginationTerminationTest {
+
+        @Test
+        @DisplayName("응답 items가 비어있으면 totalCount가 남아도 페이징을 즉시 종료한다")
+        void shouldStopWhenItemsEmptyEvenIfTotalCountRemains() {
+            // given
+            stubEmptyBrandSync();
+            when(fetchGifticonGoodsPort.fetchProductList(1, 20))
+                    .thenReturn(new FetchGifticonGoodsResult(100, List.of()));
+            when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
+                    .thenReturn(List.of());
+
+            // when
+            syncGifticonGoodsAndBrandsService.syncAll();
+
+            // then
+            verify(fetchGifticonGoodsPort, times(1)).fetchProductList(1, 20);
+            verify(fetchGifticonGoodsPort, never()).fetchProductList(eq(21), anyInt());
+        }
+
+        @Test
+        @DisplayName("MAX_PAGES(500) 도달 시 totalCount 미도달이어도 페이징을 종료한다")
+        void shouldStopWhenMaxPagesReached() {
+            // given
+            stubEmptyBrandSync();
+            FetchedGifticonGoodsItem item = createGoodsItem(
+                    "GD_LOOP", "loop", "BR001", "스타벅스", "https://img.com/sb.png",
+                    "1", 5000L, 4500L, 30, "loop", "SALE"
+            );
+            when(fetchGifticonGoodsPort.fetchProductList(anyInt(), eq(20)))
+                    .thenReturn(new FetchGifticonGoodsResult(Integer.MAX_VALUE, List.of(item)));
+            when(findGifticonGoodsPort.findByGoodsCode("GD_LOOP")).thenReturn(Optional.empty());
+            when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
+
+            // when
+            syncGifticonGoodsAndBrandsService.syncAll();
+
+            // then
+            verify(fetchGifticonGoodsPort, times(500)).fetchProductList(anyInt(), eq(20));
+        }
+    }
+
     // --- Helper Methods ---
 
     private void stubEmptyBrandSync() {
