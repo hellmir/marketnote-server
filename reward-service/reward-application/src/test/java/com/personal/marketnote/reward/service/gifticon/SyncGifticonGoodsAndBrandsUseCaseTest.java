@@ -533,7 +533,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
     }
 
     @Nested
-    @DisplayName("페이징 종료 분기 (#5191/#5192)")
+    @DisplayName("페이징 종료 분기 (#5191/#5192/#5218/#5219)")
     class PaginationTerminationTest {
 
         @Test
@@ -551,7 +551,44 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
 
             // then
             verify(fetchGifticonGoodsPort, times(1)).fetchProductList(1, 20);
+            verify(fetchGifticonGoodsPort, never()).fetchProductList(eq(2), anyInt());
+        }
+
+        @Test
+        @DisplayName("fetchAllGoodsPages는 페이지 번호를 1, 2, 3, ... 순서로 호출한다 (offset 누적 1, 21, 41 호출 회귀 가드)")
+        void shouldCallProductListWithPageNumberSequence() {
+            // given
+            stubEmptyBrandSync();
+            FetchedGifticonGoodsItem item1 = createGoodsItem(
+                    "GD001", "1", "BR001", "스타벅스", "https://img.com/sb.png",
+                    "1", 5000L, 4500L, 30, "1", "SALE"
+            );
+            FetchedGifticonGoodsItem item2 = createGoodsItem(
+                    "GD002", "2", "BR001", "스타벅스", "https://img.com/sb.png",
+                    "1", 5000L, 4500L, 30, "2", "SALE"
+            );
+            FetchedGifticonGoodsItem item3 = createGoodsItem(
+                    "GD003", "3", "BR001", "스타벅스", "https://img.com/sb.png",
+                    "1", 5000L, 4500L, 30, "3", "SALE"
+            );
+            when(fetchGifticonGoodsPort.fetchProductList(1, 20))
+                    .thenReturn(new FetchGifticonGoodsResult(3, List.of(item1)));
+            when(fetchGifticonGoodsPort.fetchProductList(2, 20))
+                    .thenReturn(new FetchGifticonGoodsResult(3, List.of(item2)));
+            when(fetchGifticonGoodsPort.fetchProductList(3, 20))
+                    .thenReturn(new FetchGifticonGoodsResult(3, List.of(item3)));
+            when(findGifticonGoodsPort.findByGoodsCode(anyString())).thenReturn(Optional.empty());
+            when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
+
+            // when
+            syncGifticonGoodsAndBrandsService.syncAll();
+
+            // then
+            verify(fetchGifticonGoodsPort).fetchProductList(1, 20);
+            verify(fetchGifticonGoodsPort).fetchProductList(2, 20);
+            verify(fetchGifticonGoodsPort).fetchProductList(3, 20);
             verify(fetchGifticonGoodsPort, never()).fetchProductList(eq(21), anyInt());
+            verify(fetchGifticonGoodsPort, never()).fetchProductList(eq(41), anyInt());
         }
 
         @Test
