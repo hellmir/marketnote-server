@@ -81,9 +81,11 @@ dependencies {
     // micrometer (Kafka Consumer 메트릭 수집)
     implementation("io.micrometer:micrometer-core")
 
-    // Micrometer Tracing — W3C traceparent 분산 추적 (Brave bridge)
+    // Micrometer Tracing — W3C traceparent 분산 추적 (OpenTelemetry bridge)
     // Spring Boot 3.5 자동 설정으로 MDC traceId/spanId 키 자동 put + RestClient/WebClient/RestTemplate traceparent 헤더 부착
-    implementation("io.micrometer:micrometer-tracing-bridge-brave")
+    // OTLP exporter로 Tempo 등 분산 추적 백엔드 전송 (management.otlp.tracing.endpoint 미설정 시 no-op)
+    implementation("io.micrometer:micrometer-tracing-bridge-otel")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
 
     // ShedLock (분산 스케줄러 락 — desired ≥ 2 환경에서 @Scheduled 중복 실행 방지)
     // 7개 서비스 어댑터에서 @SchedulerLock 어노테이션 직접 사용하므로 api scope로 전파
