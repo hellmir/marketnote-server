@@ -286,6 +286,65 @@ class PiiMaskingConverterTest {
     }
 
     @Nested
+    @DisplayName("maskByKey 키 기반 마스킹 헬퍼")
+    class MaskByKey {
+
+        @Test
+        @DisplayName("email 키는 maskEmail 결과를 반환한다")
+        void maskByKeyEmail() {
+            assertThat(PiiMaskingConverter.maskByKey("email", "test@example.com"))
+                    .isEqualTo("t***@example.com");
+        }
+
+        @Test
+        @DisplayName("phone 키는 maskPhone 결과를 반환한다")
+        void maskByKeyPhone() {
+            assertThat(PiiMaskingConverter.maskByKey("phone", "010-1234-5678"))
+                    .isEqualTo("010-****-5678");
+        }
+
+        @Test
+        @DisplayName("nickname 키는 maskNickname 결과를 반환한다")
+        void maskByKeyNickname() {
+            assertThat(PiiMaskingConverter.maskByKey("nickname", "홍길동"))
+                    .isEqualTo("홍**");
+        }
+
+        @Test
+        @DisplayName("name 키는 maskName 결과를 반환한다")
+        void maskByKeyName() {
+            assertThat(PiiMaskingConverter.maskByKey("name", "홍길동"))
+                    .isEqualTo("홍**");
+        }
+
+        @Test
+        @DisplayName("화이트리스트 외 키(traceId/userId 등)는 원본을 그대로 반환한다")
+        void maskByKeyPassesThroughNonPii() {
+            assertThat(PiiMaskingConverter.maskByKey("traceId", "abc-123"))
+                    .isEqualTo("abc-123");
+            assertThat(PiiMaskingConverter.maskByKey("userId", "42"))
+                    .isEqualTo("42");
+        }
+
+        @Test
+        @DisplayName("허용 키 변형(userEmail/NAME/phoneNumber)은 마스킹하지 않고 원본을 반환한다")
+        void maskByKeyDoesNotMatchKeyVariants() {
+            assertThat(PiiMaskingConverter.maskByKey("userEmail", "test@example.com"))
+                    .isEqualTo("test@example.com");
+            assertThat(PiiMaskingConverter.maskByKey("NAME", "홍길동"))
+                    .isEqualTo("홍길동");
+            assertThat(PiiMaskingConverter.maskByKey("phoneNumber", "010-1234-5678"))
+                    .isEqualTo("010-1234-5678");
+        }
+
+        @Test
+        @DisplayName("null 값 입력 시 null을 반환한다")
+        void maskByKeyReturnsNullForNullValue() {
+            assertThat(PiiMaskingConverter.maskByKey("email", null)).isNull();
+        }
+    }
+
+    @Nested
     @DisplayName("자유 형식 raw value 마스킹 (cause.detailMessage 등)")
     class FreeFormMasking {
 

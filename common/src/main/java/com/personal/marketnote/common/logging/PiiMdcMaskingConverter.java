@@ -4,8 +4,6 @@ import ch.qos.logback.classic.pattern.ClassicConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.function.UnaryOperator;
 
 /**
  * Logback pattern layout converter for MDC value masking.
@@ -41,14 +39,12 @@ public class PiiMdcMaskingConverter extends ClassicConverter {
     /**
      * Allowed PII MDC keys — case-sensitive, lowercase single-word convention.
      *
-     * <p>MDC key naming rules:
-     * <ul>
-     *     <li>Lowercase only: {@code email}, {@code phone}, {@code nickname}, {@code name}</li>
-     *     <li>Variants pass through unchanged: {@code userEmail}, {@code user_email}, {@code phoneNumber}, {@code NAME}</li>
-     *     <li>Callers must use the canonical key to opt into masking</li>
-     * </ul>
+     * <p>Whitelist enforced by {@link PiiMaskingConverter#maskByKey(String, String)}:
+     * {@code email}, {@code phone}, {@code nickname}, {@code name}.
+     *
+     * <p>Variants pass through unchanged: {@code userEmail}, {@code user_email},
+     * {@code phoneNumber}, {@code NAME}. Callers must use the canonical key to opt into masking.
      */
-    private static final Set<String> ALLOWED_PII_KEYS = Set.of("email", "phone", "nickname", "name");
 
     @Override
     public String convert(ILoggingEvent event) {
@@ -64,25 +60,6 @@ public class PiiMdcMaskingConverter extends ClassicConverter {
         if (value == null) {
             return "";
         }
-        return resolveMasker(key).apply(value);
-    }
-
-    private UnaryOperator<String> resolveMasker(String key) {
-        if (!ALLOWED_PII_KEYS.contains(key)) {
-            return UnaryOperator.identity();
-        }
-        if ("email".equals(key)) {
-            return PiiMaskingConverter::maskEmail;
-        }
-        if ("phone".equals(key)) {
-            return PiiMaskingConverter::maskPhone;
-        }
-        if ("nickname".equals(key)) {
-            return PiiMaskingConverter::maskNickname;
-        }
-        if ("name".equals(key)) {
-            return PiiMaskingConverter::maskName;
-        }
-        return UnaryOperator.identity();
+        return PiiMaskingConverter.maskByKey(key, value);
     }
 }

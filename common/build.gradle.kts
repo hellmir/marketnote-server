@@ -72,6 +72,9 @@ dependencies {
     // UUID v7
     implementation("com.github.f4b6a3:uuid-creator:5.3.0")
 
+    // JSON 로그 인코더 (CloudWatch JSON 포맷)
+    implementation("net.logstash.logback:logstash-logback-encoder:8.0")
+
     // kafka
     implementation("org.springframework.kafka:spring-kafka")
 
