@@ -79,6 +79,27 @@ class RegisterPricePolicyUseCaseTest {
     }
 
     @Test
+    @DisplayName("가격 정책 등록 시 PricePolicyCreatedEvent에 상품의 productKey가 그대로 담겨 발행된다")
+    void registerPricePolicy_publishesEventWithProductKey() {
+        Long userId = 30L;
+        Long productId = 300L;
+        RegisterPricePolicyCommand command = buildCommand(productId, List.of());
+        Product product = buildProduct(productId, userId);
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(900L);
+
+        registerPricePolicyService.registerPricePolicy(userId, false, command);
+
+        ArgumentCaptor<PricePolicyCreatedEvent> captor = ArgumentCaptor.forClass(PricePolicyCreatedEvent.class);
+        verify(publishProductEventPort).publishPricePolicyCreatedEvent(captor.capture());
+        PricePolicyCreatedEvent published = captor.getValue();
+        assertThat(published.productKey()).isNotNull();
+        assertThat(published.productKey()).isEqualTo(product.getProductKey());
+    }
+
+    @Test
     @DisplayName("가격 정책 등록 시 판매자 요청이면 가격 정책을 저장하고 옵션에 할당한다")
     void registerPricePolicy_owner_withOptions_assignsOptions() {
         Long userId = 2L;

@@ -40,8 +40,12 @@ class PricePolicyEventKafkaListenerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long productId, Long pricePolicyId) {
+        return buildRecord(productId, UUID.randomUUID(), pricePolicyId);
+    }
+
+    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long productId, UUID productKey, Long pricePolicyId) {
         PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
-                productId, UUID.randomUUID(), pricePolicyId, null, null, null,
+                productId, productKey, pricePolicyId, null, null, null,
                 null, null, null, null,
                 java.util.List.of(), java.util.List.of()
         );
@@ -50,6 +54,45 @@ class PricePolicyEventKafkaListenerTest {
                 LocalDateTime.of(2026, 2, 27, 10, 0), event
         );
         return new ConsumerRecord<>("product.price-policy.created", 0, 0L, "key-1", envelope);
+    }
+
+    @Test
+    @DisplayName("정상 이벤트 수신 시 RegisterInventoryCommand에 payload의 productKey를 그대로 전달한다")
+    void handlePricePolicyCreatedEvent_passesProductKeyToCommand() {
+        // given
+        UUID productKey = UUID.randomUUID();
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, productKey, 2L);
+
+        // when
+        pricePolicyEventKafkaListener.handlePricePolicyCreatedEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<RegisterInventoryCommand> captor = ArgumentCaptor.forClass(RegisterInventoryCommand.class);
+        verify(registerInventoryUseCase).registerInventory(captor.capture());
+        RegisterInventoryCommand command = captor.getValue();
+        assertThat(command.productId()).isEqualTo(1L);
+        assertThat(command.productKey()).isEqualTo(productKey);
+        assertThat(command.pricePolicyId()).isEqualTo(2L);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("payload productKey가 null이면 graceful 처리하여 RegisterInventoryCommand에 null이 전달되고 acknowledge한다")
+    void handlePricePolicyCreatedEvent_nullProductKey_passesNullAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, null, 2L);
+
+        // when
+        pricePolicyEventKafkaListener.handlePricePolicyCreatedEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<RegisterInventoryCommand> captor = ArgumentCaptor.forClass(RegisterInventoryCommand.class);
+        verify(registerInventoryUseCase).registerInventory(captor.capture());
+        RegisterInventoryCommand command = captor.getValue();
+        assertThat(command.productId()).isEqualTo(1L);
+        assertThat(command.productKey()).isNull();
+        assertThat(command.pricePolicyId()).isEqualTo(2L);
+        verify(acknowledgment).acknowledge();
     }
 
     @Test
