@@ -241,7 +241,10 @@ def buildGrafanaTaskDefinition(env, taskSize) {
                 [name: "GF_SERVER_DOMAIN",                value: "${env.GRAFANA_DOMAIN}"],
                 [name: "GF_SERVER_ROOT_URL",              value: "${env.GRAFANA_ROOT_URL}"],
                 [name: "GF_SERVER_SERVE_FROM_SUB_PATH",   value: "${env.GRAFANA_SERVE_FROM_SUB_PATH?:'false'}"],
-                [name: "PROMETHEUS_URL",                  value: "${env.PROMETHEUS_URL}"]
+                [name: "PROMETHEUS_URL",                  value: "${env.PROMETHEUS_URL}"],
+                [name: "AWS_DEFAULT_REGION",              value: "${env.AWS_DEFAULT_REGION}"],
+                [name: "AWS_ACCOUNT_ID",                  value: "${env.AWS_ACCOUNT_ID}"],
+                [name: "CLOUDWATCH_LOG_GROUP",            value: "${env.CLOUDWATCH_LOG_GROUP}"]
             ],
             logConfiguration: [
                 logDriver: "awslogs",
@@ -985,6 +988,8 @@ pipeline {
 							string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_EXECUTION_ROLE_ARN",    variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
 							string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_ROLE_ARN",              variable: 'ECS_TASK_ROLE_ARN'),
 							string(credentialsId: "${env.ENV_PREFIX}_CLOUDWATCH_LOG_GROUP_GRAFANA",   variable: 'CLOUDWATCH_LOG_GROUP_GRAFANA'),
+							string(credentialsId: "${env.ENV_PREFIX}_CLOUDWATCH_LOG_GROUP",           variable: 'CLOUDWATCH_LOG_GROUP'),
+							string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",                 variable: 'AWS_ACCOUNT_ID'),
 							string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_ADMIN_PASSWORD",         variable: 'GRAFANA_ADMIN_PASSWORD'),
 							string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_DOMAIN",                 variable: 'GRAFANA_DOMAIN'),
 							string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_ROOT_URL",               variable: 'GRAFANA_ROOT_URL'),
