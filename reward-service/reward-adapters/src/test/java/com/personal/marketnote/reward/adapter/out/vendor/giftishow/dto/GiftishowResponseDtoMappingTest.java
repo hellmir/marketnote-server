@@ -66,7 +66,7 @@ class GiftishowResponseDtoMappingTest {
                                 "category1Seq": "1",
                                 "salePrice": 10000,
                                 "realPrice": 12000,
-                                "limitday": 30,
+                                "limitDay": 30,
                                 "content": "상품 설명",
                                 "goodsStateCd": "SALE"
                             }
@@ -88,7 +88,7 @@ class GiftishowResponseDtoMappingTest {
             assertThat(item.category1Seq()).isEqualTo("1");
             assertThat(item.salePrice()).isEqualTo(10000L);
             assertThat(item.realPrice()).isEqualTo(12000L);
-            assertThat(item.limitday()).isEqualTo(30);
+            assertThat(item.limitDay()).isEqualTo(30);
             assertThat(item.content()).isEqualTo("상품 설명");
             assertThat(item.goodsStateCd()).isEqualTo("SALE");
         }
@@ -108,7 +108,7 @@ class GiftishowResponseDtoMappingTest {
                             "categorySeq1": "1",
                             "salePrice": 10000,
                             "realPrice": 12000,
-                            "limitday": 30,
+                            "limitDay": 30,
                             "content": "상품 설명",
                             "goodsStateCd": "SALE"
                         }
@@ -127,7 +127,7 @@ class GiftishowResponseDtoMappingTest {
             assertThat(detail.categorySeq1()).isEqualTo("1");
             assertThat(detail.salePrice()).isEqualTo(10000L);
             assertThat(detail.realPrice()).isEqualTo(12000L);
-            assertThat(detail.limitday()).isEqualTo(30);
+            assertThat(detail.limitDay()).isEqualTo(30);
             assertThat(detail.content()).isEqualTo("상품 설명");
             assertThat(detail.goodsStateCd()).isEqualTo("SALE");
         }
@@ -284,7 +284,7 @@ class GiftishowResponseDtoMappingTest {
                                     "category1Seq": "1",
                                     "salePrice": 10000,
                                     "realPrice": 12000,
-                                    "limitday": 30,
+                                    "limitDay": 30,
                                     "content": "상품 설명",
                                     "goodsStateCd": "SALE"
                                 }
@@ -497,7 +497,7 @@ class GiftishowResponseDtoMappingTest {
                                 "categorySeq1": "1",
                                 "salePrice": 10000,
                                 "realPrice": 12000,
-                                "limitday": 30,
+                                "limitDay": 30,
                                 "content": "상품 설명",
                                 "goodsStateCd": "SALE"
                             }
@@ -515,7 +515,7 @@ class GiftishowResponseDtoMappingTest {
             assertThat(detail).isNotNull();
             assertThat(detail.goodsCode()).isEqualTo("G001");
             assertThat(detail.categorySeq1()).isEqualTo("1");
-            assertThat(detail.limitday()).isEqualTo(30);
+            assertThat(detail.limitDay()).isEqualTo(30);
             assertThat(detail.goodsStateCd()).isEqualTo("SALE");
         }
 
@@ -751,14 +751,14 @@ class GiftishowResponseDtoMappingTest {
         }
 
         @Test
-        @DisplayName("ProductDetail은 categorySeq1/limitday 키로만 파싱한다 (구 category1Seq/limitDay 미사용)")
+        @DisplayName("ProductDetail은 categorySeq1/limitDay 키로만 파싱한다 (구 category1Seq/limitday 미사용)")
         void shouldNotMapLegacyCategoryAndLimitDayKeysForProductDetail() throws Exception {
             String json = """
                     {
                         "goodsDetail": {
                             "goodsCode": "G001",
                             "category1Seq": "1",
-                            "limitDay": 30
+                            "limitday": 30
                         }
                     }
                     """;
@@ -770,7 +770,7 @@ class GiftishowResponseDtoMappingTest {
             GiftishowProductDetailResponse.GoodsDetail detail = response.goodsDetail();
             assertThat(detail.goodsCode()).isEqualTo("G001");
             assertThat(detail.categorySeq1()).isNull();
-            assertThat(detail.limitday()).isZero();
+            assertThat(detail.limitDay()).isZero();
         }
     }
 

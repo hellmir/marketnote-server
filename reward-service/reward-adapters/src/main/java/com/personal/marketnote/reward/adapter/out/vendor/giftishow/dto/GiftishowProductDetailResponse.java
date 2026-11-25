@@ -18,7 +18,7 @@ public record GiftishowProductDetailResponse(
             String categorySeq1,
             long salePrice,
             long realPrice,
-            int limitday,
+            int limitDay,
             String content,
             String goodsStateCd
     ) {
