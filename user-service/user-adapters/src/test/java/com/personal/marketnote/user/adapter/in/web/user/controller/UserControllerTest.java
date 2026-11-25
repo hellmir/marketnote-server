@@ -3,13 +3,21 @@ package com.personal.marketnote.user.adapter.in.web.user.controller;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignInRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignUpRequest;
+import com.personal.marketnote.user.adapter.in.web.user.request.UpdateUserInfoRequest;
+import com.personal.marketnote.user.adapter.in.web.user.response.CheckNicknameResponse;
+import com.personal.marketnote.user.adapter.in.web.user.response.GetUserInfoResponse;
+import com.personal.marketnote.user.adapter.in.web.user.response.GetUserKeyResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.IsReferredUserCodeExistsResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.IsReferredUserCodeRegisteredResponse;
+import com.personal.marketnote.user.adapter.in.web.user.response.WithdrawResponse;
 import com.personal.marketnote.user.domain.user.exception.InvalidReferenceCodeException;
 import com.personal.marketnote.user.domain.user.exception.ReferenceCodeNoValueException;
+import com.personal.marketnote.user.port.in.result.CheckNicknameResult;
+import com.personal.marketnote.user.port.in.result.GetUserInfoResult;
 import com.personal.marketnote.user.port.in.result.ReferredUserCodeInputStatusResult;
 import com.personal.marketnote.user.port.in.result.SignInResult;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
+import com.personal.marketnote.user.port.in.result.WithdrawResult;
 import com.personal.marketnote.user.port.in.usecase.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,12 +25,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.personal.marketnote.common.security.token.utility.TokenConstant.ISS_CLAIM_KEY;
 import static com.personal.marketnote.common.security.token.utility.TokenConstant.SUB_CLAIM_KEY;
@@ -556,6 +570,249 @@ class UserControllerTest {
 
             // then
             verify(signUpUseCase).signUp(any(), eq(AuthVendor.APPLE), eq("apple-sub-456"), any());
+        }
+
+        @Test
+        @DisplayName("알 수 없는 issuer면 NATIVE 벤더로 해석한다")
+        void shouldResolveNativeForUnknownIssuer() {
+            // given
+            SignUpRequest signUpRequest = mock(SignUpRequest.class);
+            when(signUpRequest.getEmail()).thenReturn("unknown@example.com");
+            when(signUpRequest.getPassword()).thenReturn(null);
+            when(signUpRequest.getVerificationCode()).thenReturn("123456");
+            when(signUpRequest.getNickname()).thenReturn(null);
+            when(signUpRequest.getFullName()).thenReturn(null);
+            when(signUpRequest.getPhoneNumber()).thenReturn(null);
+
+            OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
+            when(principal.getAttribute(SUB_CLAIM_KEY)).thenReturn("unknown-sub-789");
+            when(principal.getAttribute(ISS_CLAIM_KEY)).thenReturn("https://unknown.example.com");
+
+            HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+            when(httpServletRequest.getHeader("X-Forwarded-For")).thenReturn("10.0.0.1");
+
+            SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true, "access-token-value", "refresh-token-value");
+            when(signUpUseCase.signUp(any(), eq(AuthVendor.NATIVE), eq("unknown-sub-789"), any()))
+                    .thenReturn(signUpResult);
+
+            // when
+            userController.signUpUser(signUpRequest, principal, httpServletRequest);
+
+            // then
+            verify(signUpUseCase).signUp(any(), eq(AuthVendor.NATIVE), eq("unknown-sub-789"), any());
+        }
+    }
+
+    @Nested
+    @DisplayName("registerReferredUserCode - 추천인 초대 코드 등록")
+    class RegisterReferredUserCodeTest {
+
+        @Test
+        @DisplayName("추천 코드 등록에 성공하면 HTTP 200과 성공 메시지를 반환한다")
+        void shouldReturn200WhenRegisterSucceeds() {
+            // given
+            OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
+            when(principal.getName()).thenReturn("100");
+
+            // when
+            ResponseEntity<BaseResponse<Void>> response =
+                    userController.registerReferredUserCode("ABC123", principal);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("초대 코드 등록 성공");
+            verify(registerReferredUserCodeUseCase).registerReferredUserCode(100L, "ABC123");
+        }
+    }
+
+    @Nested
+    @DisplayName("checkNickname - 닉네임 중복 여부 조회")
+    class CheckNicknameTest {
+
+        @Test
+        @DisplayName("닉네임 조회 결과를 그대로 응답에 담아 HTTP 200으로 반환한다")
+        void shouldReturnNicknameCheckResult() {
+            // given
+            String nickname = "테스트닉";
+            when(checkNicknameUseCase.checkNickname(nickname))
+                    .thenReturn(CheckNicknameResult.of(true, false));
+
+            // when
+            ResponseEntity<BaseResponse<CheckNicknameResponse>> response =
+                    userController.checkNickname(nickname);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getContent().isDuplicated()).isTrue();
+            assertThat(response.getBody().getContent().containsProfanity()).isFalse();
+            verify(checkNicknameUseCase).checkNickname(nickname);
+        }
+    }
+
+    @Nested
+    @DisplayName("getMyKey - 자신의 회원 키 조회")
+    class GetMyKeyTest {
+
+        @Test
+        @DisplayName("회원 키 조회 결과를 응답에 담아 HTTP 200으로 반환한다")
+        void shouldReturnUserKey() {
+            // given
+            UUID userKey = UUID.randomUUID();
+            OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
+            when(principal.getName()).thenReturn("55");
+            when(getUserUseCase.getUserKey(55L)).thenReturn(userKey);
+
+            // when
+            ResponseEntity<BaseResponse<GetUserKeyResponse>> response =
+                    userController.getMyKey(principal);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getContent().userKey()).isEqualTo(userKey);
+            verify(getUserUseCase).getUserKey(55L);
+        }
+    }
+
+    @Nested
+    @DisplayName("getMyInfo - 자신의 정보 조회")
+    class GetMyInfoTest {
+
+        @Test
+        @DisplayName("회원 정보 조회 결과를 응답에 담아 HTTP 200으로 반환한다")
+        void shouldReturnMyInfo() {
+            // given
+            OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
+            when(principal.getName()).thenReturn("77");
+
+            GetUserInfoResult userInfoResult = mock(GetUserInfoResult.class);
+            when(getUserUseCase.getUserInfo(77L)).thenReturn(userInfoResult);
+
+            // when
+            ResponseEntity<BaseResponse<GetUserInfoResponse>> response =
+                    userController.getMyInfo(principal);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getContent().userInfo()).isSameAs(userInfoResult);
+            verify(getUserUseCase).getUserInfo(77L);
+        }
+    }
+
+    @Nested
+    @DisplayName("updateMyInfo - 자신의 정보 수정")
+    class UpdateMyInfoTest {
+
+        @Test
+        @DisplayName("관리자 여부는 false로 고정하고 회원 정보 수정 후 HTTP 200을 반환한다")
+        void shouldUpdateMyInfoWithIsAdminFalse() {
+            // given
+            OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
+            when(principal.getName()).thenReturn("88");
+
+            UpdateUserInfoRequest request = new UpdateUserInfoRequest();
+
+            // when
+            ResponseEntity<BaseResponse<Void>> response =
+                    userController.updateMyInfo(request, principal);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("자신의 정보 수정 성공");
+            verify(updateUserUseCase).updateUserInfo(eq(false), eq(88L), any());
+        }
+    }
+
+    @Nested
+    @DisplayName("signOutUser - 회원 로그아웃")
+    class SignOutUserTest {
+
+        @Test
+        @DisplayName("로그아웃 성공 시 SignOutUseCase가 반환한 헤더와 HTTP 200을 함께 반환한다")
+        void shouldReturn200WithSignOutHeaders() {
+            // given
+            HttpHeaders signOutHeaders = new HttpHeaders();
+            signOutHeaders.add("Set-Cookie", "refresh_token=; Max-Age=0");
+            when(signOutUseCase.signOut("refresh-token-value")).thenReturn(signOutHeaders);
+
+            // when
+            ResponseEntity<BaseResponse<Void>> response =
+                    userController.signOutUser("refresh-token-value");
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getHeaders().getFirst("Set-Cookie")).contains("Max-Age=0");
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("회원 로그아웃 성공");
+            verify(signOutUseCase).signOut("refresh-token-value");
+        }
+    }
+
+    @Nested
+    @DisplayName("withdrawUser - 회원 탈퇴")
+    class WithdrawUserTest {
+
+        @Test
+        @DisplayName("Google 액세스 토큰이 있으면 vendorCredentials에 GOOGLE 키로 담아 호출한다")
+        void shouldIncludeGoogleAccessTokenInVendorCredentials() {
+            // given
+            OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
+            when(principal.getName()).thenReturn("200");
+
+            Map<AuthVendor, Boolean> disconnectResults = new HashMap<>();
+            disconnectResults.put(AuthVendor.GOOGLE, true);
+            disconnectResults.put(AuthVendor.KAKAO, false);
+            disconnectResults.put(AuthVendor.APPLE, true);
+            WithdrawResult result = new WithdrawResult(disconnectResults);
+
+            ArgumentCaptor<Map<AuthVendor, String>> captor = ArgumentCaptor.forClass(Map.class);
+            when(withdrawUseCase.withdrawUser(eq(200L), captor.capture())).thenReturn(result);
+
+            // when
+            ResponseEntity<BaseResponse<WithdrawResponse>> response =
+                    userController.withdrawUser(principal, "google-access-token-value");
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getContent().isGoogleDisconnected()).isTrue();
+            assertThat(response.getBody().getContent().isKakaoDisconnected()).isFalse();
+            assertThat(response.getBody().getContent().isAppleDisconnected()).isTrue();
+
+            Map<AuthVendor, String> captured = captor.getValue();
+            assertThat(captured).containsEntry(AuthVendor.GOOGLE, "google-access-token-value");
+            assertThat(captured).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("Google 액세스 토큰이 없으면 vendorCredentials를 빈 맵으로 호출한다")
+        void shouldUseEmptyVendorCredentialsWhenNoGoogleToken() {
+            // given
+            OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
+            when(principal.getName()).thenReturn("201");
+
+            Map<AuthVendor, Boolean> disconnectResults = new HashMap<>();
+            WithdrawResult result = new WithdrawResult(disconnectResults);
+
+            ArgumentCaptor<Map<AuthVendor, String>> captor = ArgumentCaptor.forClass(Map.class);
+            when(withdrawUseCase.withdrawUser(eq(201L), captor.capture())).thenReturn(result);
+
+            // when
+            ResponseEntity<BaseResponse<WithdrawResponse>> response =
+                    userController.withdrawUser(principal, null);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(captor.getValue()).isEmpty();
+            // disconnectResults 비어있을 때 getOrDefault → 모두 true 기본값
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getContent().isKakaoDisconnected()).isTrue();
+            assertThat(response.getBody().getContent().isGoogleDisconnected()).isTrue();
+            assertThat(response.getBody().getContent().isAppleDisconnected()).isTrue();
         }
     }
 }
