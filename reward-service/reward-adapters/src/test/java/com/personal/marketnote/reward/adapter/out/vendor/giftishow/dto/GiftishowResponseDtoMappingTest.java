@@ -105,7 +105,7 @@ class GiftishowResponseDtoMappingTest {
                             "brandCode": "B001",
                             "brandName": "스타벅스",
                             "brandIconImg": "http://img.test.com/brand.jpg",
-                            "categorySeq1": "1",
+                            "category1Seq": "1",
                             "salePrice": 10000,
                             "realPrice": 12000,
                             "limitDay": 30,
@@ -124,7 +124,7 @@ class GiftishowResponseDtoMappingTest {
             assertThat(detail.brandCode()).isEqualTo("B001");
             assertThat(detail.brandName()).isEqualTo("스타벅스");
             assertThat(detail.brandIconImg()).isEqualTo("http://img.test.com/brand.jpg");
-            assertThat(detail.categorySeq1()).isEqualTo("1");
+            assertThat(detail.category1Seq()).isEqualTo("1");
             assertThat(detail.salePrice()).isEqualTo(10000L);
             assertThat(detail.realPrice()).isEqualTo(12000L);
             assertThat(detail.limitDay()).isEqualTo(30);
@@ -494,7 +494,7 @@ class GiftishowResponseDtoMappingTest {
                                 "brandCode": "B001",
                                 "brandName": "스타벅스",
                                 "brandIconImg": "http://img.test.com/brand.jpg",
-                                "categorySeq1": "1",
+                                "category1Seq": "1",
                                 "salePrice": 10000,
                                 "realPrice": 12000,
                                 "limitDay": 30,
@@ -514,7 +514,7 @@ class GiftishowResponseDtoMappingTest {
             GiftishowProductDetailResponse.GoodsDetail detail = response.result().goodsDetail();
             assertThat(detail).isNotNull();
             assertThat(detail.goodsCode()).isEqualTo("G001");
-            assertThat(detail.categorySeq1()).isEqualTo("1");
+            assertThat(detail.category1Seq()).isEqualTo("1");
             assertThat(detail.limitDay()).isEqualTo(30);
             assertThat(detail.goodsStateCd()).isEqualTo("SALE");
         }
@@ -751,13 +751,13 @@ class GiftishowResponseDtoMappingTest {
         }
 
         @Test
-        @DisplayName("ProductDetail은 categorySeq1/limitDay 키로만 파싱한다 (구 category1Seq/limitday 미사용)")
+        @DisplayName("ProductDetail은 category1Seq/limitDay 키로만 파싱한다 (구 categorySeq1/limitday 미사용)")
         void shouldNotMapLegacyCategoryAndLimitDayKeysForProductDetail() throws Exception {
             String json = """
                     {
                         "goodsDetail": {
                             "goodsCode": "G001",
-                            "category1Seq": "1",
+                            "categorySeq1": "1",
                             "limitday": 30
                         }
                     }
@@ -769,7 +769,7 @@ class GiftishowResponseDtoMappingTest {
 
             GiftishowProductDetailResponse.GoodsDetail detail = response.goodsDetail();
             assertThat(detail.goodsCode()).isEqualTo("G001");
-            assertThat(detail.categorySeq1()).isNull();
+            assertThat(detail.category1Seq()).isNull();
             assertThat(detail.limitDay()).isZero();
         }
     }

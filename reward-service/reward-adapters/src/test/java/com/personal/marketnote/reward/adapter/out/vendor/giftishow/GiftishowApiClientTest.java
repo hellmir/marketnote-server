@@ -252,7 +252,7 @@ class GiftishowApiClientTest {
                                         "brandCode": "B001",
                                         "brandName": "테스트 브랜드",
                                         "brandIconImg": "http://img.test.com/brand.jpg",
-                                        "categorySeq1": "1",
+                                        "category1Seq": "1",
                                         "salePrice": 10000,
                                         "realPrice": 12000,
                                         "limitDay": 30,

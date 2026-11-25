@@ -15,7 +15,7 @@ public record GiftishowProductDetailResponse(
             String brandCode,
             String brandName,
             String brandIconImg,
-            String categorySeq1,
+            String category1Seq,
             long salePrice,
             long realPrice,
             int limitDay,
