@@ -125,6 +125,32 @@ public class PiiMaskingConverter extends ClassicConverter {
         return builder.toString();
     }
 
+    /**
+     * Mask a bare value by its MDC/structured key. Allowed keys: email, phone, nickname, name.
+     * Keys outside the whitelist (e.g. userEmail, phoneNumber, NAME) pass through unchanged so
+     * callers must use the canonical lowercase key to opt into masking.
+     *
+     * <p>null value passes through as null (defensive — caller may not pre-filter MDC nulls).
+     */
+    public static String maskByKey(String key, String value) {
+        if (value == null) {
+            return null;
+        }
+        if ("email".equals(key)) {
+            return maskEmail(value);
+        }
+        if ("phone".equals(key)) {
+            return maskPhone(value);
+        }
+        if ("nickname".equals(key)) {
+            return maskNickname(value);
+        }
+        if ("name".equals(key)) {
+            return maskName(value);
+        }
+        return value;
+    }
+
     public static String maskEmail(String value) {
         if (isBlank(value)) {
             return value;
