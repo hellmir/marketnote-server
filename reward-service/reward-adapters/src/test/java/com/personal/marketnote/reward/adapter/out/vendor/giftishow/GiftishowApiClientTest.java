@@ -159,7 +159,7 @@ class GiftishowApiClientTest {
                                             "category1Seq": "1",
                                             "salePrice": 10000,
                                             "realPrice": 12000,
-                                            "limitday": 30,
+                                            "limitDay": 30,
                                             "content": "테스트 상품 설명",
                                             "goodsStateCd": "SALE"
                                         }
@@ -184,7 +184,7 @@ class GiftishowApiClientTest {
             assertThat(item.goodsName()).isEqualTo("테스트 상품");
             assertThat(item.brandCode()).isEqualTo("B001");
             assertThat(item.salePrice()).isEqualTo(10000L);
-            assertThat(item.limitday()).isEqualTo(30);
+            assertThat(item.limitDay()).isEqualTo(30);
 
             mockServer.verify();
         }
@@ -255,7 +255,7 @@ class GiftishowApiClientTest {
                                         "categorySeq1": "1",
                                         "salePrice": 10000,
                                         "realPrice": 12000,
-                                        "limitday": 30,
+                                        "limitDay": 30,
                                         "content": "테스트 상품 설명",
                                         "goodsStateCd": "SALE"
                                     }
