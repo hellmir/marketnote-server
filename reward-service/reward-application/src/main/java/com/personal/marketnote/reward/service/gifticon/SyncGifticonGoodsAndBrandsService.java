@@ -72,18 +72,18 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
 
     private List<FetchedGifticonGoodsItem> fetchAllGoodsPages() {
         List<FetchedGifticonGoodsItem> allItems = new ArrayList<>();
-        int start = 1;
+        int page = 1;
         int pageCount = 0;
 
         while (pageCount < MAX_PAGES) {
-            FetchGifticonGoodsResult page = fetchGifticonGoodsPort.fetchProductList(start, PAGE_SIZE);
-            allItems.addAll(page.items());
+            FetchGifticonGoodsResult result = fetchGifticonGoodsPort.fetchProductList(page, PAGE_SIZE);
+            allItems.addAll(result.items());
             pageCount++;
 
-            if (allItems.size() >= page.totalCount() || page.items().isEmpty()) {
+            if (allItems.size() >= result.totalCount() || result.items().isEmpty()) {
                 break;
             }
-            start += PAGE_SIZE;
+            page++;
         }
 
         return allItems;
