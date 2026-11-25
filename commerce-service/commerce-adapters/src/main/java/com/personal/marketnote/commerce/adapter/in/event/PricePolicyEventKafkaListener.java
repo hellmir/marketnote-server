@@ -8,6 +8,7 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -45,8 +46,8 @@ public class PricePolicyEventKafkaListener {
         try {
             PricePolicyCreatedEvent payload = envelope.getPayloadAs(PricePolicyCreatedEvent.class, objectMapper);
 
-            log.info("가격 정책 등록 이벤트 수신. eventId={}, productId={}, pricePolicyId={}",
-                    envelope.eventId(), payload.productId(), payload.pricePolicyId()
+            log.info("가격 정책 등록 이벤트 수신. eventId={}, productId={}, productKey={}, pricePolicyId={}",
+                    envelope.eventId(), payload.productId(), payload.productKey(), payload.pricePolicyId()
             );
 
             if (EventPayloadValidator.hasInvalidIds(
@@ -58,8 +59,14 @@ public class PricePolicyEventKafkaListener {
                 return;
             }
 
+            if (FormatValidator.hasNoValue(payload.productKey())) {
+                log.warn("가격 정책 등록 이벤트 productKey 누락. eventId={}, productId={}",
+                        envelope.eventId(), payload.productId()
+                );
+            }
+
             RegisterInventoryCommand command = RegisterInventoryCommand.of(
-                    payload.productId(), payload.pricePolicyId()
+                    payload.productId(), payload.productKey(), payload.pricePolicyId()
             );
             registerInventoryUseCase.registerInventory(command);
 

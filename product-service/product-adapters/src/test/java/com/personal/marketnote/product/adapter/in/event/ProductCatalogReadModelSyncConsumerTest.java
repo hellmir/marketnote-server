@@ -445,7 +445,7 @@ class ProductCatalogReadModelSyncConsumerTest {
         when(cacheManager.getCache("product:list:first")).thenReturn(cache);
         UUID eventId = UUID.randomUUID();
         PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
-                100L, 200L, 300L, "테스트 상품", "브랜드",
+                100L, UUID.randomUUID(), 200L, 300L, "테스트 상품", "브랜드",
                 10000L, 9000L, 100L, 0L,
                 List.of(new PricePolicyCreatedEvent.ProductTagSnapshot(1L, "NEW", 1L)),
                 List.of(new PricePolicyCreatedEvent.ProductOptionSnapshot(500L, "색상: 빨강"))
@@ -481,7 +481,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     @DisplayName("PricePolicyCreated 이벤트 productId 가 유효하지 않으면 UseCase와 캐시 삭제를 호출하지 않는다")
     void handlePricePolicyCreated_invalidProductId_acknowledges() {
         PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
-                null, 200L, 300L, "상품", "브랜드",
+                null, UUID.randomUUID(), 200L, 300L, "상품", "브랜드",
                 10000L, 9000L, 100L, 0L, List.of(), List.of()
         );
         EventEnvelope<PricePolicyCreatedEvent> envelope =
@@ -500,7 +500,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     @DisplayName("PricePolicyCreated 이벤트 pricePolicyId 가 유효하지 않으면 UseCase와 캐시 삭제를 호출하지 않는다")
     void handlePricePolicyCreated_invalidPricePolicyId_acknowledges() {
         PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
-                100L, null, 300L, "상품", "브랜드",
+                100L, UUID.randomUUID(), null, 300L, "상품", "브랜드",
                 10000L, 9000L, 100L, 0L, List.of(), List.of()
         );
         EventEnvelope<PricePolicyCreatedEvent> envelope =
@@ -519,7 +519,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     @DisplayName("PricePolicyCreated 이벤트 eventId 가 UUID 형식이 아니면 UseCase와 캐시 삭제를 호출하지 않는다")
     void handlePricePolicyCreated_invalidEventId_acknowledges() {
         PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
-                100L, 200L, 300L, "상품", "브랜드",
+                100L, UUID.randomUUID(), 200L, 300L, "상품", "브랜드",
                 10000L, 9000L, 100L, 0L, List.of(), List.of()
         );
         EventEnvelope<PricePolicyCreatedEvent> envelope = new EventEnvelope<>(
@@ -540,7 +540,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     @DisplayName("PricePolicyCreated 이벤트 productName 이 null 이면 UseCase와 ReadModel 수정 및 캐시 삭제를 호출하지 않는다")
     void handlePricePolicyCreated_nullProductName_acknowledgesAndSkips() {
         PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
-                100L, 200L, 300L, null, "브랜드",
+                100L, UUID.randomUUID(), 200L, 300L, null, "브랜드",
                 10000L, 9000L, 100L, 0L, List.of(), List.of()
         );
         EventEnvelope<PricePolicyCreatedEvent> envelope = new EventEnvelope<>(

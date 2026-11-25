@@ -3,10 +3,12 @@ package com.personal.marketnote.common.kafka.event;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
+import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record PricePolicyCreatedEvent(
         Long productId,
+        UUID productKey,
         Long pricePolicyId,
         Long sellerId,
         String productName,
