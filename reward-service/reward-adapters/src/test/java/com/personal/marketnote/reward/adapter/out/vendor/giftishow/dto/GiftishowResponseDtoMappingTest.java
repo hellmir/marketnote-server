@@ -775,6 +775,93 @@ class GiftishowResponseDtoMappingTest {
     }
 
     @Nested
+    @DisplayName("limitDay 키 회귀 가드 (#5211/#5212 — 운영 실 응답 키 정합)")
+    class LimitDayKeyRegressionGuardTest {
+
+        @Test
+        @DisplayName("ProductList.GiftishowProductItem: limitDay(camelCase) 키로 정상 파싱된다")
+        void shouldMapLimitDayKeyForProductListItem() throws Exception {
+            String json = """
+                    {
+                        "listNum": 1,
+                        "goodsList": [
+                            {
+                                "goodsCode": "G001",
+                                "limitDay": 30
+                            }
+                        ]
+                    }
+                    """;
+
+            GiftishowProductListResponse response = objectMapper.readValue(
+                    json, GiftishowProductListResponse.class
+            );
+
+            assertThat(response.goodsList().getFirst().limitDay()).isEqualTo(30);
+        }
+
+        @Test
+        @DisplayName("ProductList.GiftishowProductItem: legacy limitday(소문자) 키로 응답 시 limitDay는 0이다 (#5195 회귀 가드)")
+        void shouldNotMapLegacyLimitdayKeyForProductListItem() throws Exception {
+            String json = """
+                    {
+                        "listNum": 1,
+                        "goodsList": [
+                            {
+                                "goodsCode": "G001",
+                                "limitday": 30
+                            }
+                        ]
+                    }
+                    """;
+
+            GiftishowProductListResponse response = objectMapper.readValue(
+                    json, GiftishowProductListResponse.class
+            );
+
+            assertThat(response.goodsList().getFirst().limitDay()).isZero();
+        }
+
+        @Test
+        @DisplayName("ProductDetail.GoodsDetail: limitDay(camelCase) 키로 정상 파싱된다")
+        void shouldMapLimitDayKeyForProductDetail() throws Exception {
+            String json = """
+                    {
+                        "goodsDetail": {
+                            "goodsCode": "G001",
+                            "limitDay": 30
+                        }
+                    }
+                    """;
+
+            GiftishowProductDetailResponse response = objectMapper.readValue(
+                    json, GiftishowProductDetailResponse.class
+            );
+
+            assertThat(response.goodsDetail().limitDay()).isEqualTo(30);
+        }
+
+        @Test
+        @DisplayName("ProductDetail.GoodsDetail: legacy limitday(소문자) 키로 응답 시 limitDay는 0이다 (#5195 회귀 가드)")
+        void shouldNotMapLegacyLimitdayKeyForProductDetail() throws Exception {
+            String json = """
+                    {
+                        "goodsDetail": {
+                            "goodsCode": "G001",
+                            "limitday": 30
+                        }
+                    }
+                    """;
+
+            GiftishowProductDetailResponse response = objectMapper.readValue(
+                    json, GiftishowProductDetailResponse.class
+            );
+
+            assertThat(response.goodsDetail().limitDay()).isZero();
+        }
+    }
+
+    @Nested
     @DisplayName("미지 필드 무시 (@JsonIgnoreProperties(ignoreUnknown = true) 보존 검증)")
     class IgnoreUnknownPropertiesTest {
 
