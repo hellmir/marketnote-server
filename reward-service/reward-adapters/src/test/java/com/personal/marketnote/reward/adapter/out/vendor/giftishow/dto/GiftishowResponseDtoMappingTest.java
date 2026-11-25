@@ -775,6 +775,49 @@ class GiftishowResponseDtoMappingTest {
     }
 
     @Nested
+    @DisplayName("category1Seq 키 회귀 가드 (#5220/#5221 — ProductDetail 매핑 정정)")
+    class Category1SeqKeyRegressionGuardTest {
+
+        @Test
+        @DisplayName("ProductDetail.GoodsDetail: category1Seq 키로 정상 파싱된다")
+        void shouldMapCategory1SeqKeyForProductDetail() throws Exception {
+            String json = """
+                    {
+                        "goodsDetail": {
+                            "goodsCode": "G001",
+                            "category1Seq": "1"
+                        }
+                    }
+                    """;
+
+            GiftishowProductDetailResponse response = objectMapper.readValue(
+                    json, GiftishowProductDetailResponse.class
+            );
+
+            assertThat(response.goodsDetail().category1Seq()).isEqualTo("1");
+        }
+
+        @Test
+        @DisplayName("ProductDetail.GoodsDetail: legacy categorySeq1 키로 응답 시 category1Seq는 null이다 (#5195 회귀 가드)")
+        void shouldNotMapLegacyCategorySeq1KeyForProductDetail() throws Exception {
+            String json = """
+                    {
+                        "goodsDetail": {
+                            "goodsCode": "G001",
+                            "categorySeq1": "1"
+                        }
+                    }
+                    """;
+
+            GiftishowProductDetailResponse response = objectMapper.readValue(
+                    json, GiftishowProductDetailResponse.class
+            );
+
+            assertThat(response.goodsDetail().category1Seq()).isNull();
+        }
+    }
+
+    @Nested
     @DisplayName("limitDay 키 회귀 가드 (#5211/#5212 — 운영 실 응답 키 정합)")
     class LimitDayKeyRegressionGuardTest {
 
