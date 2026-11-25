@@ -1,0 +1,36 @@
+apiVersion: 1
+
+datasources:
+  - name: CloudWatch
+    type: cloudwatch
+    uid: cloudwatch
+    access: proxy
+    isDefault: false
+    editable: false
+    jsonData:
+      authType: default
+      defaultRegion: ${AWS_DEFAULT_REGION}
+      logGroups:
+        - name: ${CLOUDWATCH_LOG_GROUP}
+          arn: arn:aws:logs:${AWS_DEFAULT_REGION}:${AWS_ACCOUNT_ID}:log-group:${CLOUDWATCH_LOG_GROUP}:*
+      derivedFields:
+        - name: TraceID
+          matcherRegex: '"traceId":"([^"]+)"'
+          datasourceUid: cloudwatch
+          url: ''
+          urlDisplayLabel: 'Search same traceId'
+        - name: SpanID
+          matcherRegex: '"spanId":"([^"]+)"'
+          datasourceUid: cloudwatch
+          url: ''
+          urlDisplayLabel: 'Search same spanId'
+        - name: RequestID
+          matcherRegex: '"requestId":"([^"]+)"'
+          datasourceUid: cloudwatch
+          url: ''
+          urlDisplayLabel: 'Search same requestId'
+        - name: CorrelationID
+          matcherRegex: '"correlationId":"([^"]+)"'
+          datasourceUid: cloudwatch
+          url: ''
+          urlDisplayLabel: 'Search same correlationId'
