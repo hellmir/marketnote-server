@@ -200,7 +200,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
         void pricePolicyCreatedEvent_roundTrip_preservesAllFields() throws Exception {
             // given
             PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
-                    10L, 20L, 30L, "상품", "브랜드",
+                    10L, java.util.UUID.randomUUID(), 20L, 30L, "상품", "브랜드",
                     10000L, 9000L, 100L, 0L,
                     java.util.List.of(new PricePolicyCreatedEvent.ProductTagSnapshot(1L, "NEW", 1L)),
                     java.util.List.of(new PricePolicyCreatedEvent.ProductOptionSnapshot(50L, "색상: 빨강"))

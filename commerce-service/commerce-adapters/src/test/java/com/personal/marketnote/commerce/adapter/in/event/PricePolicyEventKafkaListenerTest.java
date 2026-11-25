@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,7 +41,7 @@ class PricePolicyEventKafkaListenerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long productId, Long pricePolicyId) {
         PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
-                productId, pricePolicyId, null, null, null,
+                productId, UUID.randomUUID(), pricePolicyId, null, null, null,
                 null, null, null, null,
                 java.util.List.of(), java.util.List.of()
         );
@@ -120,7 +121,7 @@ class PricePolicyEventKafkaListenerTest {
     void handlePricePolicyCreatedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
-                1L, 2L, null, null, null,
+                1L, UUID.randomUUID(), 2L, null, null, null,
                 null, null, null, null,
                 java.util.List.of(), java.util.List.of()
         );

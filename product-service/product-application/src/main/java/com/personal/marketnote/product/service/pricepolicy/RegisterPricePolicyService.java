@@ -76,7 +76,7 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
         // Outbox 이벤트 저장 (트랜잭션 내). 신규 가격 정책이므로 sales 는 0L.
         publishProductEventPort.publishPricePolicyCreatedEvent(
                 new PricePolicyCreatedEvent(
-                        productId, id,
+                        productId, product.getProductKey(), id,
                         product.getSellerId(),
                         product.getName(),
                         product.getBrandName(),

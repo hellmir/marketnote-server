@@ -107,7 +107,7 @@ class ProductEventKafkaProducerTest {
         // when
         productEventKafkaProducer.publishPricePolicyCreatedEvent(
                 new PricePolicyCreatedEvent(
-                        1L, 2L, 3L, "상품", "브랜드",
+                        1L, java.util.UUID.randomUUID(), 2L, 3L, "상품", "브랜드",
                         10000L, 9000L, 100L, 0L,
                         java.util.List.of(), java.util.List.of()
                 )
@@ -140,7 +140,7 @@ class ProductEventKafkaProducerTest {
         // when
         productEventKafkaProducer.publishPricePolicyCreatedEvent(
                 new PricePolicyCreatedEvent(
-                        10L, 20L, 30L, "상품명", "브랜드명",
+                        10L, java.util.UUID.randomUUID(), 20L, 30L, "상품명", "브랜드명",
                         20000L, 18000L, 200L, 0L,
                         tags, options
                 )
