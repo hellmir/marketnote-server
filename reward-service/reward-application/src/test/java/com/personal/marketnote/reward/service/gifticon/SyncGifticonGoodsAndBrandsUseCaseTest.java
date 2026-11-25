@@ -343,7 +343,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         );
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
                 .thenReturn(new FetchGifticonGoodsResult(2, List.of(item1)));
-        when(fetchGifticonGoodsPort.fetchProductList(21, 20))
+        when(fetchGifticonGoodsPort.fetchProductList(2, 20))
                 .thenReturn(new FetchGifticonGoodsResult(2, List.of(item2)));
         when(findGifticonGoodsPort.findByGoodsCode("GD001")).thenReturn(Optional.empty());
         when(findGifticonGoodsPort.findByGoodsCode("GD002")).thenReturn(Optional.empty());
@@ -354,7 +354,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
 
         // then
         verify(fetchGifticonGoodsPort).fetchProductList(1, 20);
-        verify(fetchGifticonGoodsPort).fetchProductList(21, 20);
+        verify(fetchGifticonGoodsPort).fetchProductList(2, 20);
         verify(saveGifticonGoodsPort, times(2)).save(any(GifticonGoods.class));
     }
 
