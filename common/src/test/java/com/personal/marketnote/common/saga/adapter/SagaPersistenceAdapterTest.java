@@ -15,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
@@ -363,6 +364,118 @@ class SagaPersistenceAdapterTest {
 
             verify(sagaStepJpaRepository).findById(1L);
             verifyNoMoreInteractions(sagaStepJpaRepository);
+        }
+    }
+
+    @Nested
+    @DisplayName("findTimedOutProcessingInstances")
+    class FindTimedOutProcessingInstances {
+
+        @Test
+        @DisplayName("PROCESSING 상태이면서 cutoff 이전에 수정된 SagaInstance 목록을 도메인으로 변환하여 반환한다")
+        void findTimedOutProcessingInstances_returnsDomainList() {
+            // given
+            LocalDateTime cutoff = FIXED_TIME.plusMinutes(10);
+            SagaInstanceJpaEntity entity1 = createSagaInstanceEntity(10L, "saga-010", "ORDER_PAYMENT",
+                    SagaStatus.PROCESSING, 1, "{\"orderId\":10}"
+            );
+            SagaInstanceJpaEntity entity2 = createSagaInstanceEntity(11L, "saga-011", "ORDER_PAYMENT",
+                    SagaStatus.PROCESSING, 2, "{\"orderId\":11}"
+            );
+
+            when(sagaInstanceJpaRepository.findByStatusAndModifiedAtBefore(
+                    SagaStatus.PROCESSING, cutoff, PageRequest.of(0, 100)
+            )).thenReturn(List.of(entity1, entity2));
+
+            // when
+            List<SagaInstance> result = sagaPersistenceAdapter.findTimedOutProcessingInstances(cutoff);
+
+            // then
+            assertThat(result).hasSize(2);
+            assertThat(result.get(0).getSagaId()).isEqualTo("saga-010");
+            assertThat(result.get(0).getStatus()).isEqualTo(SagaStatus.PROCESSING);
+            assertThat(result.get(1).getSagaId()).isEqualTo("saga-011");
+
+            verify(sagaInstanceJpaRepository).findByStatusAndModifiedAtBefore(
+                    SagaStatus.PROCESSING, cutoff, PageRequest.of(0, 100)
+            );
+            verifyNoMoreInteractions(sagaInstanceJpaRepository);
+            verifyNoInteractions(sagaStepJpaRepository);
+        }
+
+        @Test
+        @DisplayName("타임아웃 PROCESSING 인스턴스가 없으면 빈 목록을 반환한다")
+        void findTimedOutProcessingInstances_returnsEmptyWhenNone() {
+            // given
+            LocalDateTime cutoff = FIXED_TIME.plusMinutes(10);
+            when(sagaInstanceJpaRepository.findByStatusAndModifiedAtBefore(
+                    SagaStatus.PROCESSING, cutoff, PageRequest.of(0, 100)
+            )).thenReturn(List.of());
+
+            // when
+            List<SagaInstance> result = sagaPersistenceAdapter.findTimedOutProcessingInstances(cutoff);
+
+            // then
+            assertThat(result).isEmpty();
+
+            verify(sagaInstanceJpaRepository).findByStatusAndModifiedAtBefore(
+                    SagaStatus.PROCESSING, cutoff, PageRequest.of(0, 100)
+            );
+            verifyNoMoreInteractions(sagaInstanceJpaRepository);
+        }
+    }
+
+    @Nested
+    @DisplayName("findTimedOutCompensatingInstances")
+    class FindTimedOutCompensatingInstances {
+
+        @Test
+        @DisplayName("COMPENSATING 상태이면서 cutoff 이전에 수정된 SagaInstance 목록을 도메인으로 변환하여 반환한다")
+        void findTimedOutCompensatingInstances_returnsDomainList() {
+            // given
+            LocalDateTime cutoff = FIXED_TIME.plusMinutes(20);
+            SagaInstanceJpaEntity entity = createSagaInstanceEntity(20L, "saga-020", "ORDER_PAYMENT",
+                    SagaStatus.COMPENSATING, 3, "{\"orderId\":20}"
+            );
+
+            when(sagaInstanceJpaRepository.findByStatusAndModifiedAtBefore(
+                    SagaStatus.COMPENSATING, cutoff, PageRequest.of(0, 100)
+            )).thenReturn(List.of(entity));
+
+            // when
+            List<SagaInstance> result = sagaPersistenceAdapter.findTimedOutCompensatingInstances(cutoff);
+
+            // then
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getSagaId()).isEqualTo("saga-020");
+            assertThat(result.get(0).getStatus()).isEqualTo(SagaStatus.COMPENSATING);
+
+            verify(sagaInstanceJpaRepository).findByStatusAndModifiedAtBefore(
+                    SagaStatus.COMPENSATING, cutoff, PageRequest.of(0, 100)
+            );
+            verifyNoMoreInteractions(sagaInstanceJpaRepository);
+            verifyNoInteractions(sagaStepJpaRepository);
+        }
+
+        @Test
+        @DisplayName("타임아웃 COMPENSATING 인스턴스가 없으면 빈 목록을 반환한다")
+        void findTimedOutCompensatingInstances_returnsEmptyWhenNone() {
+            // given
+            LocalDateTime cutoff = FIXED_TIME.plusMinutes(20);
+            when(sagaInstanceJpaRepository.findByStatusAndModifiedAtBefore(
+                    SagaStatus.COMPENSATING, cutoff, PageRequest.of(0, 100)
+            )).thenReturn(List.of());
+
+            // when
+            List<SagaInstance> result = sagaPersistenceAdapter.findTimedOutCompensatingInstances(cutoff);
+
+            // then
+            assertThat(result).isEmpty();
+
+            verify(sagaInstanceJpaRepository).findByStatusAndModifiedAtBefore(
+                    SagaStatus.COMPENSATING, cutoff, PageRequest.of(0, 100)
+            );
+            verifyNoMoreInteractions(sagaInstanceJpaRepository);
         }
     }
 
