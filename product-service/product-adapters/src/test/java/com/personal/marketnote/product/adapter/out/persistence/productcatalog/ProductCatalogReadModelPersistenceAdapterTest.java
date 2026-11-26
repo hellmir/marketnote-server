@@ -149,6 +149,126 @@ class ProductCatalogReadModelPersistenceAdapterTest {
     }
 
     @Nested
+    @DisplayName("increaseSales")
+    class IncreaseSales {
+
+        @Test
+        @DisplayName("delta가 null이면 아무 동작도 하지 않는다")
+        void doesNothingWhenDeltaNull() {
+            adapter.upsertCatalog(
+                    1L, 100L, 200L, 10L, "상품", "브랜드",
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 5L, null, null);
+
+            adapter.increaseSales(1L, null);
+
+            assertThat(repository.findByPricePolicyId(1L).orElseThrow().getSales()).isEqualTo(5L);
+        }
+
+        @Test
+        @DisplayName("delta가 0 이하이면 아무 동작도 하지 않는다")
+        void doesNothingWhenDeltaNonPositive() {
+            adapter.upsertCatalog(
+                    1L, 100L, 200L, 10L, "상품", "브랜드",
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 5L, null, null);
+
+            adapter.increaseSales(1L, 0L);
+            adapter.increaseSales(1L, -3L);
+
+            assertThat(repository.findByPricePolicyId(1L).orElseThrow().getSales()).isEqualTo(5L);
+        }
+
+        @Test
+        @DisplayName("ReadModel이 존재하지 않으면 경고만 남기고 종료한다")
+        void doesNothingWhenMissing() {
+            adapter.increaseSales(999L, 3L);
+
+            assertThat(repository.findByPricePolicyId(999L)).isEmpty();
+        }
+
+        @Test
+        @DisplayName("기존 레코드의 판매량을 delta만큼 증가시킨다")
+        void increasesSales() {
+            adapter.upsertCatalog(
+                    1L, 100L, 200L, 10L, "상품", "브랜드",
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 5L, null, null);
+
+            adapter.increaseSales(1L, 3L);
+
+            assertThat(repository.findByPricePolicyId(1L).orElseThrow().getSales()).isEqualTo(8L);
+        }
+    }
+
+    @Nested
+    @DisplayName("upsertCatalog skip")
+    class UpsertCatalogSkip {
+
+        @Test
+        @DisplayName("신규 레코드인데 name이 null이면 저장하지 않는다")
+        void skipsWhenNameMissing() {
+            adapter.upsertCatalog(
+                    99L, 100L, 200L, 10L, null, "브랜드",
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+
+            assertThat(repository.findByPricePolicyId(99L)).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("updateProductTags")
+    class UpdateProductTags {
+
+        @Test
+        @DisplayName("동일 productId의 모든 ReadModel 레코드 태그 JSON을 갱신한다")
+        void updatesAllByProductId() {
+            adapter.upsertCatalog(
+                    1L, 100L, 200L, 10L, "상품", "브랜드",
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, "[\"old\"]", null);
+            adapter.upsertCatalog(
+                    2L, 100L, 200L, 10L, "상품", "브랜드",
+                    11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, "[\"old\"]", null);
+
+            adapter.updateProductTags(100L, "[\"new\"]");
+
+            assertThat(repository.findByPricePolicyId(1L).orElseThrow().getProductTags()).isEqualTo("[\"new\"]");
+            assertThat(repository.findByPricePolicyId(2L).orElseThrow().getProductTags()).isEqualTo("[\"new\"]");
+        }
+
+        @Test
+        @DisplayName("ReadModel이 존재하지 않으면 경고만 남기고 종료한다")
+        void doesNothingWhenMissing() {
+            adapter.updateProductTags(9999L, "[\"x\"]");
+
+            assertThat(repository.findAllByProductId(9999L)).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("updateRepresentativeImage missing")
+    class UpdateRepresentativeImageMissing {
+
+        @Test
+        @DisplayName("ReadModel이 존재하지 않으면 아무 동작도 하지 않는다")
+        void doesNothingWhenMissing() {
+            adapter.updateRepresentativeImage(9999L, "https://img.example/a.png", List.of("https://img.example/a-sm.png"));
+
+            assertThat(repository.findAllByProductId(9999L)).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("updateReviewAggregate missing")
+    class UpdateReviewAggregateMissing {
+
+        @Test
+        @DisplayName("ReadModel이 존재하지 않으면 아무 동작도 하지 않는다")
+        void doesNothingWhenMissing() {
+            adapter.updateReviewAggregate(9999L, 10, new BigDecimal("4.20"));
+
+            assertThat(repository.findAllByProductId(9999L)).isEmpty();
+        }
+    }
+
+    @Nested
     @DisplayName("updateStockQuantity")
     class UpdateStockQuantity {
 

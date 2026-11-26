@@ -163,6 +163,37 @@ class ProductPersistenceAdapterTest {
 
             assertThat(result).isEmpty();
         }
+
+        @Test
+        @DisplayName("hydrate된 상품을 도메인 리스트로 매핑하여 반환한다")
+        void returnsHydratedDomains() {
+            Product product = buildProductDomain(1L, "상품", EntityStatus.ACTIVE);
+            ProductJpaEntity baseEntity = buildEntityWithId(1L, product);
+            ProductJpaEntity hydratedEntity = buildEntityWithId(1L, product);
+
+            when(productJpaRepository.findAll()).thenReturn(List.of(baseEntity));
+            when(productJpaRepository.findAllWithTagsByIdIn(List.of(1L))).thenReturn(List.of(hydratedEntity));
+            when(productJpaRepository.findAllWithPricePoliciesByIdIn(List.of(1L))).thenReturn(List.of(hydratedEntity));
+
+            List<Product> result = adapter.findAll();
+
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getId()).isEqualTo(1L);
+        }
+
+        @Test
+        @DisplayName("hydrate 결과가 비면 빈 리스트를 반환한다")
+        void returnsEmptyListWhenHydratedEmpty() {
+            Product product = buildProductDomain(1L, "상품", EntityStatus.ACTIVE);
+            ProductJpaEntity baseEntity = buildEntityWithId(1L, product);
+
+            when(productJpaRepository.findAll()).thenReturn(List.of(baseEntity));
+            when(productJpaRepository.findAllWithTagsByIdIn(List.of(1L))).thenReturn(List.of());
+
+            List<Product> result = adapter.findAll();
+
+            assertThat(result).isEmpty();
+        }
     }
 
     @Nested
@@ -177,6 +208,55 @@ class ProductPersistenceAdapterTest {
             List<Product> result = adapter.findAllByCategoryId(1L);
 
             assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("카테고리 상품을 hydrate하여 도메인 리스트로 반환한다")
+        void returnsHydratedDomains() {
+            Product product = buildProductDomain(2L, "상품", EntityStatus.ACTIVE);
+            ProductJpaEntity baseEntity = buildEntityWithId(2L, product);
+            ProductJpaEntity hydratedEntity = buildEntityWithId(2L, product);
+
+            when(productJpaRepository.findAllByCategoryIdOrderByOrderNumAsc(7L)).thenReturn(List.of(baseEntity));
+            when(productJpaRepository.findAllWithTagsByIdIn(List.of(2L))).thenReturn(List.of(hydratedEntity));
+            when(productJpaRepository.findAllWithPricePoliciesByIdIn(List.of(2L))).thenReturn(List.of(hydratedEntity));
+
+            List<Product> result = adapter.findAllByCategoryId(7L);
+
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getId()).isEqualTo(2L);
+        }
+    }
+
+    @Nested
+    @DisplayName("findByPricePolicyIds")
+    class FindByPricePolicyIds {
+
+        @Test
+        @DisplayName("결과가 없으면 빈 리스트를 반환한다")
+        void returnsEmptyListWhenNoProducts() {
+            when(productJpaRepository.findByPricePolicyIds(List.of(10L))).thenReturn(List.of());
+
+            List<Product> result = adapter.findByPricePolicyIds(List.of(10L));
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("가격 정책 ID로 매칭된 상품을 hydrate하여 도메인 리스트로 반환한다")
+        void returnsHydratedDomains() {
+            Product product = buildProductDomain(3L, "상품", EntityStatus.ACTIVE);
+            ProductJpaEntity baseEntity = buildEntityWithId(3L, product);
+            ProductJpaEntity hydratedEntity = buildEntityWithId(3L, product);
+
+            when(productJpaRepository.findByPricePolicyIds(List.of(10L))).thenReturn(List.of(baseEntity));
+            when(productJpaRepository.findAllWithTagsByIdIn(List.of(3L))).thenReturn(List.of(hydratedEntity));
+            when(productJpaRepository.findAllWithPricePoliciesByIdIn(List.of(3L))).thenReturn(List.of(hydratedEntity));
+
+            List<Product> result = adapter.findByPricePolicyIds(List.of(10L));
+
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getId()).isEqualTo(3L);
         }
     }
 
