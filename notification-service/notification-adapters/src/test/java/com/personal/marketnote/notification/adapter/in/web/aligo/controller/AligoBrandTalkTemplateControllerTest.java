@@ -2,8 +2,10 @@ package com.personal.marketnote.notification.adapter.in.web.aligo.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.RegisterBrandTalkTemplateRequest;
+import com.personal.marketnote.notification.adapter.in.web.aligo.response.GetBrandTalkTemplateListResponse;
 import com.personal.marketnote.notification.adapter.in.web.aligo.response.RegisterBrandTalkTemplateResponse;
 import com.personal.marketnote.notification.port.in.command.RegisterBrandTalkTemplateCommand;
+import com.personal.marketnote.notification.port.in.result.aligo.GetBrandTalkTemplateListResult;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterBrandTalkTemplateResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.GetBrandTalkTemplateListUseCase;
 import com.personal.marketnote.notification.port.in.usecase.aligo.RegisterBrandTalkTemplateUseCase;
@@ -196,6 +198,134 @@ class AligoBrandTalkTemplateControllerTest {
             RegisterBrandTalkTemplateCommand command = captureCommand();
             assertThat(command.carouselItemImageFileNames()).isEmpty();
             assertThat(command.carouselItemImageFiles()).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("getTemplateList")
+    class GetTemplateListEndpoint {
+
+        @Test
+        @DisplayName("getTemplateList 호출 시 200 OK 와 BaseResponse 로 감싼 GetBrandTalkTemplateListResponse 를 반환한다")
+        void shouldReturnTemplateListResponse() {
+            // given
+            GetBrandTalkTemplateListResult.PageInfo pageInfo =
+                    new GetBrandTalkTemplateListResult.PageInfo(2, 5, 12);
+            GetBrandTalkTemplateListResult.BrandTalkTemplateItem item =
+                    new GetBrandTalkTemplateListResult.BrandTalkTemplateItem(
+                            "TPL001", "이름", "TEXT", "A", List.of("#{name}"), "2026-11-03"
+                    );
+            GetBrandTalkTemplateListResult result =
+                    new GetBrandTalkTemplateListResult(pageInfo, List.of(item));
+            when(getBrandTalkTemplateListUseCase.getTemplateList("SK", 2, 5))
+                    .thenReturn(result);
+
+            // when
+            ResponseEntity<BaseResponse<GetBrandTalkTemplateListResponse>> response =
+                    controller.getTemplateList("SK", 2, 5);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            GetBrandTalkTemplateListResponse body = response.getBody().getContent();
+            assertThat(body.pageInfo().currentPage()).isEqualTo(2);
+            assertThat(body.pageInfo().pageSize()).isEqualTo(5);
+            assertThat(body.pageInfo().total()).isEqualTo(12);
+            assertThat(body.data()).hasSize(1);
+            assertThat(body.data().get(0).templateCode()).isEqualTo("TPL001");
+            assertThat(body.data().get(0).sendVariable()).containsExactly("#{name}");
+            verify(getBrandTalkTemplateListUseCase).getTemplateList("SK", 2, 5);
+        }
+    }
+
+    @Nested
+    @DisplayName("registerTemplate - command 매핑")
+    class RegisterTemplateCommandMapping {
+
+        @Test
+        @DisplayName("buttons/coupon/wideItems/carousel/commerceInfo 가 모두 채워진 요청은 Command 의 모든 필드로 매핑된다")
+        void shouldMapAllOptionalFields() throws IOException {
+            // given
+            stubRegister();
+            RegisterBrandTalkTemplateRequest.ButtonRequest button =
+                    new RegisterBrandTalkTemplateRequest.ButtonRequest(
+                            "버튼", "WL", "https://m", "https://p", "i", "a"
+                    );
+            RegisterBrandTalkTemplateRequest.CouponRequest coupon =
+                    new RegisterBrandTalkTemplateRequest.CouponRequest(
+                            "쿠폰", "설명", "https://m", "https://p", "i", "a"
+                    );
+            RegisterBrandTalkTemplateRequest.WideItemRequest mainWide =
+                    new RegisterBrandTalkTemplateRequest.WideItemRequest(
+                            "메인", "https://img", "m", "p", "i", "a"
+                    );
+            RegisterBrandTalkTemplateRequest.WideItemRequest sub =
+                    new RegisterBrandTalkTemplateRequest.WideItemRequest(
+                            "서브", null, null, null, null, null
+                    );
+            RegisterBrandTalkTemplateRequest.CarouselItemRequest carouselItem =
+                    new RegisterBrandTalkTemplateRequest.CarouselItemRequest(
+                            "h", "c", List.of(button), coupon
+                    );
+            RegisterBrandTalkTemplateRequest.CarouselCommerceRequest commerce =
+                    new RegisterBrandTalkTemplateRequest.CarouselCommerceRequest(
+                            "상품", "10000", "8000", "20", "2000"
+                    );
+            RegisterBrandTalkTemplateRequest.CarouselTailRequest tail =
+                    new RegisterBrandTalkTemplateRequest.CarouselTailRequest("https://tail");
+            RegisterBrandTalkTemplateRequest.CommerceInfoRequest commerceInfo =
+                    new RegisterBrandTalkTemplateRequest.CommerceInfoRequest(
+                            "상품명", "10000", "8000", "20", null
+                    );
+
+            RegisterBrandTalkTemplateRequest request = new RegisterBrandTalkTemplateRequest(
+                    "sk-1", "CODE-1", "name", "BA", "본문", true,
+                    "https://link", List.of(button), coupon,
+                    "헤더", mainWide, List.of(sub, sub),
+                    "캐러셀헤더", List.of(carouselItem), List.of(commerce), tail,
+                    "https://video", "https://thumb", commerceInfo
+            );
+
+            // when
+            controller.registerTemplate(request, null, null);
+
+            // then
+            RegisterBrandTalkTemplateCommand command = captureCommand();
+            assertThat(command.buttons()).hasSize(1);
+            assertThat(command.coupon()).isNotNull();
+            assertThat(command.coupon().title()).isEqualTo("쿠폰");
+            assertThat(command.mainWideItem()).isNotNull();
+            assertThat(command.mainWideItem().title()).isEqualTo("메인");
+            assertThat(command.subWideItems()).hasSize(2);
+            assertThat(command.carouselItems()).hasSize(1);
+            assertThat(command.carouselItems().get(0).buttons()).hasSize(1);
+            assertThat(command.carouselItems().get(0).coupon()).isNotNull();
+            assertThat(command.carouselCommerces()).hasSize(1);
+            assertThat(command.carouselCommerces().get(0).regularPrice()).isEqualTo("10000");
+            assertThat(command.carouselTail()).isNotNull();
+            assertThat(command.carouselTail().linkM()).isEqualTo("https://tail");
+            assertThat(command.commerceInfo()).isNotNull();
+            assertThat(command.commerceInfo().title()).isEqualTo("상품명");
+        }
+
+        @Test
+        @DisplayName("buttons/coupon/mainWideItem/subWideItems/carouselItems/carouselCommerces/carouselTail/commerceInfo 가 null 이면 빈 리스트 또는 null 로 매핑된다")
+        void shouldMapNullOptionalsAsEmptyOrNull() throws IOException {
+            // given
+            stubRegister();
+
+            // when
+            controller.registerTemplate(buildRequest(), null, null);
+
+            // then
+            RegisterBrandTalkTemplateCommand command = captureCommand();
+            assertThat(command.buttons()).isEmpty();
+            assertThat(command.coupon()).isNull();
+            assertThat(command.mainWideItem()).isNull();
+            assertThat(command.subWideItems()).isEmpty();
+            assertThat(command.carouselItems()).isEmpty();
+            assertThat(command.carouselCommerces()).isEmpty();
+            assertThat(command.carouselTail()).isNull();
+            assertThat(command.commerceInfo()).isNull();
         }
     }
 }
