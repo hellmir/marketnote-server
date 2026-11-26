@@ -837,6 +837,371 @@ class FulfillmentWarehousingClientTest {
     }
 
     @Nested
+    @DisplayName("설정 검증 추가 분기")
+    class PropertyValidationExtra {
+
+        @Test
+        @DisplayName("warehousingPath가 누락되면 FulfillmentConfigurationException이 발생한다")
+        void shouldThrowWhenWarehousingPathMissing() {
+            // given
+            when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
+            when(properties.getWarehousingPath()).thenReturn(null);
+
+            // when & then
+            assertThatThrownBy(() -> client.registerWarehousing(buildValidRegisterCommand()))
+                    .isInstanceOf(FulfillmentConfigurationException.class);
+        }
+
+        @Test
+        @DisplayName("warehousingPath에 customerCode 플레이스홀더가 없으면 FulfillmentConfigurationException이 발생한다")
+        void shouldThrowWhenWarehousingPathMissesPlaceholder() {
+            // given
+            when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
+            when(properties.getWarehousingPath()).thenReturn("/warehousing");
+
+            // when & then
+            assertThatThrownBy(() -> client.registerWarehousing(buildValidRegisterCommand()))
+                    .isInstanceOf(FulfillmentConfigurationException.class);
+        }
+
+        @Test
+        @DisplayName("warehousingDetailPath에 slipNo 플레이스홀더가 없으면 FulfillmentConfigurationException이 발생한다")
+        void shouldThrowWhenDetailPathMissesSlipNoPlaceholder() {
+            // given
+            when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
+            when(properties.getWarehousingDetailPath()).thenReturn("/warehousing/detail/{customerCode}");
+
+            GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
+                    "CUST001", "valid-token", "SLIP001", null
+            );
+
+            // when & then
+            assertThatThrownBy(() -> client.getWarehousingDetail(command))
+                    .isInstanceOf(FulfillmentConfigurationException.class);
+        }
+
+        @Test
+        @DisplayName("warehousingInspecDetailPath에 whCd 플레이스홀더가 없으면 FulfillmentConfigurationException이 발생한다")
+        void shouldThrowWhenInspecDetailPathMissesWhCdPlaceholder() {
+            // given
+            when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
+            when(properties.getWarehousingInspecDetailPath())
+                    .thenReturn("/warehousing/inspec/{customerCode}/{slipNo}");
+
+            GetFulfillmentWarehousingInspecDetailCommand command = GetFulfillmentWarehousingInspecDetailCommand.of(
+                    "CUST001", "valid-token", "SLIP001", "WH01"
+            );
+
+            // when & then
+            assertThatThrownBy(() -> client.getWarehousingInspecDetail(command))
+                    .isInstanceOf(FulfillmentConfigurationException.class);
+        }
+
+        @Test
+        @DisplayName("warehousingAbnormalPath에 slipNo 플레이스홀더가 없으면 FulfillmentConfigurationException이 발생한다")
+        void shouldThrowWhenAbnormalPathMissesSlipNoPlaceholder() {
+            // given
+            when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
+            when(properties.getWarehousingAbnormalPath())
+                    .thenReturn("/warehousing/abnormal/{customerCode}/{whCd}");
+
+            GetFulfillmentWarehousingAbnormalCommand command = GetFulfillmentWarehousingAbnormalCommand.of(
+                    "CUST001", "valid-token", "WH01", "SLIP001"
+            );
+
+            // when & then
+            assertThatThrownBy(() -> client.getWarehousingAbnormal(command))
+                    .isInstanceOf(FulfillmentConfigurationException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("응답 본문 파싱 실패 분기")
+    class ResponseParseFallback {
+
+        @Test
+        @DisplayName("registerWarehousing 200 응답 본문이 깨진 JSON이면 재시도 후 RegisterFulfillmentWarehousingFailedException이 발생한다")
+        void shouldThrowWhenRegisterResponseBodyIsBrokenJson() {
+            // given
+            stubWarehousingMutationProperties();
+            stubPayloadGenerator();
+            stubMethodChain(ResponseEntity.ok("not-a-json"));
+
+            // when & then
+            assertThatThrownBy(() -> client.registerWarehousing(buildValidRegisterCommand()))
+                    .isInstanceOf(RegisterFulfillmentWarehousingFailedException.class);
+        }
+
+        @Test
+        @DisplayName("getWarehousing 200 응답 본문이 빈 문자열이면 재시도 후 GetFulfillmentWarehousingFailedException이 발생한다")
+        void shouldThrowWhenListResponseBodyIsEmpty() {
+            // given
+            stubWarehousingListProperties();
+            stubPayloadGenerator();
+            stubGetChain(ResponseEntity.ok(""));
+
+            GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
+                    "CUST001", "valid-token", "20260101", "20260131"
+            );
+
+            // when & then
+            assertThatThrownBy(() -> client.getWarehousing(command))
+                    .isInstanceOf(GetFulfillmentWarehousingFailedException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("응답 헤더 실패 분기")
+    class ResponseHeaderFailure {
+
+        @Test
+        @DisplayName("registerWarehousing 200 응답이지만 header.code가 200이 아니면 RegisterFulfillmentWarehousingFailedException이 발생한다")
+        void shouldThrowOnRegisterHeaderFailure() {
+            // given
+            stubWarehousingMutationProperties();
+            stubPayloadGenerator();
+            RegisterFulfillmentWarehousingResponse payload = new RegisterFulfillmentWarehousingResponse(
+                    new FulfillmentResponseHeader("500", "Vendor failure", 0),
+                    List.of(),
+                    null
+            );
+            stubMethodChain(ResponseEntity.ok(toJson(payload)));
+
+            // when & then
+            assertThatThrownBy(() -> client.registerWarehousing(buildValidRegisterCommand()))
+                    .isInstanceOf(RegisterFulfillmentWarehousingFailedException.class);
+        }
+
+        @Test
+        @DisplayName("getWarehousingDetail 200 응답이지만 header.code가 200이 아니면 GetFulfillmentWarehousingDetailFailedException이 발생한다")
+        void shouldThrowOnDetailHeaderFailure() {
+            // given
+            stubWarehousingDetailProperties();
+            stubPayloadGenerator();
+            FulfillmentWarehousingDetailListResponse payload = new FulfillmentWarehousingDetailListResponse(
+                    new FulfillmentResponseHeader("400", "Bad request", 0),
+                    List.of(),
+                    null
+            );
+            stubGetChain(ResponseEntity.ok(toJson(payload)));
+
+            GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
+                    "CUST001", "valid-token", "SLIP001", null
+            );
+
+            // when & then
+            assertThatThrownBy(() -> client.getWarehousingDetail(command))
+                    .isInstanceOf(GetFulfillmentWarehousingDetailFailedException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("getWarehousingAbnormalImage 분기")
+    class WarehousingAbnormalImage {
+
+        private void stubAbnormalImageProperties() {
+            when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
+            when(properties.getWarehousingAbnormalImagePath())
+                    .thenReturn("/warehousing/abnormal/image/{slipNo}/{godCd}/{goodsSerialNo}/{fileSeq}/{imgNo}");
+        }
+
+        private com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentWarehousingAbnormalImageCommand buildCommand() {
+            return com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentWarehousingAbnormalImageCommand.builder()
+                    .accessToken("valid-token")
+                    .slipNumber("SLIP001")
+                    .productCode("PROD01")
+                    .fasstoProductCode("GOD001")
+                    .goodsSerialNo("SERIAL001")
+                    .fileSeq("1")
+                    .imageNumber("1")
+                    .build();
+        }
+
+        @Test
+        @DisplayName("정상 응답 시 GetFulfillmentWarehousingAbnormalImageResult를 반환한다")
+        void shouldReturnAbnormalImageResultOnSuccess() {
+            // given
+            stubAbnormalImageProperties();
+            stubPayloadGenerator();
+            FulfillmentWarehousingAbnormalImageResponse payload = new FulfillmentWarehousingAbnormalImageResponse(
+                    new FulfillmentResponseHeader("200", "success", 1),
+                    Map.of("image", "base64-data"),
+                    null
+            );
+            stubGetChain(ResponseEntity.ok(toJson(payload)));
+
+            // when
+            GetFulfillmentWarehousingAbnormalImageResult result = client.getWarehousingAbnormalImage(buildCommand());
+
+            // then
+            assertThat(result.dataCount()).isEqualTo(1);
+            assertThat(result.data()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("baseUrl이 누락되면 FulfillmentConfigurationException이 발생한다")
+        void shouldThrowConfigExceptionWhenBaseUrlMissing() {
+            // given
+            when(properties.getBaseUrl()).thenReturn(null);
+
+            // when & then
+            assertThatThrownBy(() -> client.getWarehousingAbnormalImage(buildCommand()))
+                    .isInstanceOf(FulfillmentConfigurationException.class);
+        }
+
+        @Test
+        @DisplayName("abnormalImagePath에 godCd 플레이스홀더가 없으면 FulfillmentConfigurationException이 발생한다")
+        void shouldThrowConfigExceptionWhenGodCdPlaceholderMissing() {
+            // given
+            when(properties.getBaseUrl()).thenReturn("https://api.fassto.com");
+            when(properties.getWarehousingAbnormalImagePath())
+                    .thenReturn("/warehousing/abnormal/image/{slipNo}/{goodsSerialNo}/{fileSeq}/{imgNo}");
+
+            // when & then
+            assertThatThrownBy(() -> client.getWarehousingAbnormalImage(buildCommand()))
+                    .isInstanceOf(FulfillmentConfigurationException.class);
+        }
+
+        @Test
+        @DisplayName("모든 재시도 실패 시 GetFulfillmentWarehousingAbnormalImageFailedException이 발생한다")
+        void shouldThrowOnAllRetriesFail() {
+            // given
+            stubAbnormalImageProperties();
+            stubPayloadGenerator();
+            stubGetChainThrows(new ResourceAccessException("Connection refused"));
+
+            // when & then
+            assertThatThrownBy(() -> client.getWarehousingAbnormalImage(buildCommand()))
+                    .isInstanceOf(GetFulfillmentWarehousingAbnormalImageFailedException.class);
+        }
+
+        @Test
+        @DisplayName("4xx 응답 시 GetFulfillmentWarehousingAbnormalImageFailedException이 발생한다")
+        void shouldThrowOn4xx() {
+            // given
+            stubAbnormalImageProperties();
+            stubPayloadGenerator();
+            stubGetChainThrows(new org.springframework.web.client.HttpClientErrorException(
+                    HttpStatus.BAD_REQUEST,
+                    "Bad Request",
+                    "client error".getBytes(StandardCharsets.UTF_8),
+                    StandardCharsets.UTF_8
+            ));
+
+            // when & then
+            assertThatThrownBy(() -> client.getWarehousingAbnormalImage(buildCommand()))
+                    .isInstanceOf(GetFulfillmentWarehousingAbnormalImageFailedException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("vendor message 추출 분기")
+    class VendorMessageResolution {
+
+        @Test
+        @DisplayName("RestClientResponseException 본문에 errorInfo가 있으면 실패 메시지로 사용된다")
+        void shouldUseVendorMessageFromExceptionBody() {
+            // given
+            stubWarehousingMutationProperties();
+            stubPayloadGenerator();
+            String errorBody = "{\"errorInfo\":{\"errorCode\":\"E_VENDOR\",\"errorMessage\":\"vendor down\"}}";
+            stubMethodChainThrows(new org.springframework.web.client.HttpClientErrorException(
+                    HttpStatus.BAD_REQUEST,
+                    "Bad Request",
+                    errorBody.getBytes(StandardCharsets.UTF_8),
+                    StandardCharsets.UTF_8
+            ));
+
+            // when & then
+            assertThatThrownBy(() -> client.registerWarehousing(buildValidRegisterCommand()))
+                    .isInstanceOf(RegisterFulfillmentWarehousingFailedException.class)
+                    .hasMessageContaining("vendor down");
+        }
+
+        @Test
+        @DisplayName("정상 200이지만 header 실패 + errorInfo 메시지 존재 시 예외 메시지에 vendor 메시지를 포함한다")
+        void shouldIncludeVendorMessageOnHeaderFailureWithErrorInfo() {
+            // given
+            stubWarehousingListProperties();
+            stubPayloadGenerator();
+            FulfillmentWarehousingListResponse payload = new FulfillmentWarehousingListResponse(
+                    new FulfillmentResponseHeader("500", "fail", 0),
+                    List.of(),
+                    new FulfillmentErrorInfo("E_INTERNAL", "internal vendor error", null)
+            );
+            stubGetChain(ResponseEntity.ok(toJson(payload)));
+
+            GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
+                    "CUST001", "valid-token", "20260101", "20260131"
+            );
+
+            // when & then
+            assertThatThrownBy(() -> client.getWarehousing(command))
+                    .isInstanceOf(GetFulfillmentWarehousingFailedException.class)
+                    .hasMessageContaining("internal vendor error");
+        }
+    }
+
+    @Nested
+    @DisplayName("Query 옵션 파라미터 분기")
+    class QueryOptionalParams {
+
+        @Test
+        @DisplayName("getWarehousing 호출 시 inWay/ordNo/wrkStat 옵션 파라미터가 모두 있을 때 정상 응답을 반환한다")
+        void shouldHandleAllOptionalQueryParams() {
+            // given
+            stubWarehousingListProperties();
+            stubPayloadGenerator();
+            FulfillmentWarehousingListResponse payload = new FulfillmentWarehousingListResponse(
+                    new FulfillmentResponseHeader("200", "success", 0),
+                    List.of(),
+                    null
+            );
+            stubGetChain(ResponseEntity.ok(toJson(payload)));
+
+            GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("valid-token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .warehousingMethod("01")
+                    .orderNumber("ORD001")
+                    .workStatus("A")
+                    .build();
+
+            // when
+            GetFulfillmentWarehousingResult result = client.getWarehousing(command);
+
+            // then
+            assertThat(result.warehousing()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("getWarehousingDetail 호출 시 ordNo가 있으면 쿼리 파라미터로 추가된다")
+        void shouldAddOrdNoQueryParamToDetail() {
+            // given
+            stubWarehousingDetailProperties();
+            stubPayloadGenerator();
+            FulfillmentWarehousingDetailListResponse payload = new FulfillmentWarehousingDetailListResponse(
+                    new FulfillmentResponseHeader("200", "success", 0),
+                    List.of(),
+                    null
+            );
+            stubGetChain(ResponseEntity.ok(toJson(payload)));
+
+            GetFulfillmentWarehousingDetailCommand command = GetFulfillmentWarehousingDetailCommand.of(
+                    "CUST001", "valid-token", "SLIP001", "ORD001"
+            );
+
+            // when
+            GetFulfillmentWarehousingDetailResult result = client.getWarehousingDetail(command);
+
+            // then
+            assertThat(result.details()).isEmpty();
+        }
+    }
+
+    @Nested
     @DisplayName("sensitive path 분기")
     class SensitivePathDispatch {
 
