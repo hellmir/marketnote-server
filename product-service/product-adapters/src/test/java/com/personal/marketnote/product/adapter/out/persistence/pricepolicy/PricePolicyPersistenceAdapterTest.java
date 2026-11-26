@@ -1,10 +1,12 @@
 package com.personal.marketnote.product.adapter.out.persistence.pricepolicy;
 
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.pricepolicy.repository.PricePolicyJpaRepository;
 import com.personal.marketnote.product.adapter.out.persistence.product.entity.ProductJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.product.repository.ProductJpaRepository;
 import com.personal.marketnote.product.adapter.out.persistence.productoption.repository.ProductOptionPricePolicyJpaRepository;
+import com.personal.marketnote.product.adapter.out.persistence.productoption.repository.ProductOptionPricePolicyJpaRepository.PricePolicyOptionMapping;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
@@ -14,6 +16,7 @@ import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductSortProperty;
 import com.personal.marketnote.product.exception.PricePolicyNotFoundException;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -110,6 +113,18 @@ class PricePolicyPersistenceAdapterTest {
 
             assertThat(result).isEmpty();
         }
+
+        @Test
+        @DisplayName("엔티티가 존재하면 매핑된 도메인을 반환한다")
+        void returnsMappedDomainWhenEntityExists() {
+            PricePolicyJpaEntity entity = buildPricePolicyEntity(11L, buildProductEntity(100L));
+            when(pricePolicyJpaRepository.findById(11L)).thenReturn(Optional.of(entity));
+
+            Optional<PricePolicy> result = adapter.findById(11L);
+
+            assertThat(result).isPresent();
+            assertThat(result.get().getId()).isEqualTo(11L);
+        }
     }
 
     @Nested
@@ -155,6 +170,24 @@ class PricePolicyPersistenceAdapterTest {
 
             assertThat(result).isEmpty();
         }
+
+        @Test
+        @DisplayName("매칭 가격 정책의 상품이 요청 상품과 같으면 매핑된 도메인을 반환한다")
+        void returnsMappedDomainWhenProductMatches() {
+            List<Long> optionIds = List.of(1L, 2L);
+            ProductJpaEntity productEntity = buildProductEntity(100L);
+            PricePolicyJpaEntity entity = buildPricePolicyEntity(20L, productEntity);
+
+            when(productOptionPricePolicyJpaRepository.findExactMatchingPricePolicyIds(optionIds, 2))
+                    .thenReturn(List.of(20L));
+            when(pricePolicyJpaRepository.findAllById(List.of(20L))).thenReturn(List.of(entity));
+
+            Optional<PricePolicy> result = adapter.findByProductAndOptionIds(100L, optionIds);
+
+            assertThat(result).isPresent();
+            assertThat(result.get().getId()).isEqualTo(20L);
+            assertThat(result.get().getProduct().getId()).isEqualTo(100L);
+        }
     }
 
     @Nested
@@ -170,6 +203,19 @@ class PricePolicyPersistenceAdapterTest {
             Optional<PricePolicy> result = adapter.findByOptionIds(optionIds);
 
             assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("매칭되는 정책이 존재하면 매핑된 도메인을 반환한다")
+        void returnsMappedDomainWhenFound() {
+            List<Long> optionIds = List.of(1L, 2L);
+            PricePolicyJpaEntity entity = buildPricePolicyEntity(30L, buildProductEntity(100L));
+            when(pricePolicyJpaRepository.findOneByOptionIds(optionIds)).thenReturn(Optional.of(entity));
+
+            Optional<PricePolicy> result = adapter.findByOptionIds(optionIds);
+
+            assertThat(result).isPresent();
+            assertThat(result.get().getId()).isEqualTo(30L);
         }
     }
 
@@ -187,6 +233,26 @@ class PricePolicyPersistenceAdapterTest {
 
             assertThat(result).isEmpty();
             verify(pricePolicyJpaRepository, never()).findAllWithProductAndOptionMappingsByIdIn(any());
+        }
+
+        @Test
+        @DisplayName("hydrate된 가격 정책과 옵션 매핑을 결합하여 도메인 리스트를 반환한다")
+        void returnsHydratedPolicies() {
+            ProductJpaEntity productEntity = buildProductEntity(100L);
+            PricePolicyJpaEntity baseEntity = buildPricePolicyEntity(40L, productEntity);
+            PricePolicyJpaEntity hydratedEntity = buildPricePolicyEntity(40L, productEntity);
+
+            when(pricePolicyJpaRepository.findAllByProductJpaEntity_IdOrderByIdDesc(100L))
+                    .thenReturn(List.of(baseEntity));
+            when(pricePolicyJpaRepository.findAllWithProductAndOptionMappingsByIdIn(List.of(40L)))
+                    .thenReturn(List.of(hydratedEntity));
+            when(productOptionPricePolicyJpaRepository.findAllOptionIdsByPricePolicyIds(List.of(40L)))
+                    .thenReturn(List.of(buildMapping(40L, 7L)));
+
+            List<PricePolicy> result = adapter.findByProductId(100L);
+
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getId()).isEqualTo(40L);
         }
     }
 
@@ -212,6 +278,21 @@ class PricePolicyPersistenceAdapterTest {
             List<PricePolicy> result = adapter.findByIds(List.of(1L));
 
             assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("hydrated 엔티티를 ID 입력 순서대로 매핑하여 반환한다")
+        void returnsHydratedDomainsInInputOrder() {
+            ProductJpaEntity productEntity = buildProductEntity(100L);
+            PricePolicyJpaEntity entityA = buildPricePolicyEntity(50L, productEntity);
+            PricePolicyJpaEntity entityB = buildPricePolicyEntity(51L, productEntity);
+
+            when(pricePolicyJpaRepository.findAllWithProductAndOptionMappingsByIdIn(List.of(51L, 50L)))
+                    .thenReturn(List.of(entityA, entityB));
+
+            List<PricePolicy> result = adapter.findByIds(List.of(51L, 50L));
+
+            assertThat(result).extracting(PricePolicy::getId).containsExactly(51L, 50L);
         }
     }
 
@@ -354,6 +435,89 @@ class PricePolicyPersistenceAdapterTest {
 
             verify(pricePolicyJpaRepository).updateWeeklyPopularity(since);
         }
+    }
+
+    @Nested
+    @DisplayName("findPricePoliciesByOffset hydrated")
+    class FindPricePoliciesByOffsetHydrated {
+
+        @Test
+        @DisplayName("hydrate된 엔티티와 옵션 매핑을 결합한 도메인 리스트를 반환한다")
+        void returnsHydratedDomains() {
+            ProductJpaEntity productEntity = buildProductEntity(100L);
+            PricePolicyJpaEntity baseEntity = buildPricePolicyEntity(60L, productEntity);
+            PricePolicyJpaEntity hydratedEntity = buildPricePolicyEntity(60L, productEntity);
+
+            when(pricePolicyJpaRepository.findActivePricePoliciesByOffset(
+                    any(), anyInt(), anyInt(), anyBoolean(), any(), any(), any(), any()))
+                    .thenReturn(List.of(baseEntity));
+            when(pricePolicyJpaRepository.findAllWithProductAndOptionMappingsByIdIn(List.of(60L)))
+                    .thenReturn(List.of(hydratedEntity));
+            when(productOptionPricePolicyJpaRepository.findAllOptionIdsByPricePolicyIds(List.of(60L)))
+                    .thenReturn(List.of(buildMapping(60L, 9L)));
+
+            List<PricePolicy> result = adapter.findPricePoliciesByOffset(
+                    List.of(60L),
+                    0,
+                    10,
+                    Sort.Direction.ASC,
+                    ProductSortProperty.ACCUMULATED_POINT,
+                    ProductSearchTarget.NAME,
+                    null,
+                    null
+            );
+
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getId()).isEqualTo(60L);
+        }
+    }
+
+    private ProductJpaEntity buildProductEntity(Long id) {
+        UUID productKey = UUID.randomUUID();
+        Product domain = Product.from(
+                ProductSnapshotState.builder()
+                        .id(id)
+                        .productKey(productKey)
+                        .sellerId(1L)
+                        .name("테스트 상품")
+                        .brandName("브랜드")
+                        .detail("설명")
+                        .findAllOptionsYn(false)
+                        .productTags(List.of())
+                        .status(EntityStatus.ACTIVE)
+                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                        .build()
+        );
+        ProductJpaEntity entity = ProductJpaEntity.from(domain);
+        ReflectionTestUtils.setField(entity, "id", id);
+        ReflectionTestUtils.setField(entity, "status", EntityStatus.ACTIVE);
+        ReflectionTestUtils.setField(entity, "sales", 0);
+        ReflectionTestUtils.setField(entity, "viewCount", 0L);
+        ReflectionTestUtils.setField(entity, "popularity", 0L);
+        return entity;
+    }
+
+    private PricePolicyJpaEntity buildPricePolicyEntity(Long id, ProductJpaEntity productEntity) {
+        PricePolicyJpaEntity entity = PricePolicyJpaEntity.from(productEntity, pricePolicy);
+        ReflectionTestUtils.setField(entity, "id", id);
+        ReflectionTestUtils.setField(entity, "status", EntityStatus.ACTIVE);
+        ReflectionTestUtils.setField(entity, "popularity", 0L);
+        ReflectionTestUtils.setField(entity, "productOptionPricePolicyJpaEntities", List.of());
+        return entity;
+    }
+
+    private PricePolicyOptionMapping buildMapping(Long pricePolicyId, Long productOptionId) {
+        return new PricePolicyOptionMapping() {
+            @Override
+            public Long getPricePolicyId() {
+                return pricePolicyId;
+            }
+
+            @Override
+            public Long getProductOptionId() {
+                return productOptionId;
+            }
+        };
     }
 
 }
