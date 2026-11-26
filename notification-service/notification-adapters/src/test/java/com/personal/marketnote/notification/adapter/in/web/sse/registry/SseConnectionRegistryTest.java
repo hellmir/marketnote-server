@@ -158,4 +158,39 @@ class SseConnectionRegistryTest {
         assertThat(emitter).isNotNull();
         assertThat(limitedRegistry.getConnectionCount()).isEqualTo(2);
     }
+
+    @Test
+    @DisplayName("sendToUser 호출 시 emitter 가 이미 complete 된 상태(IllegalStateException)면 커넥션을 제거한다")
+    void shouldRemoveConnectionWhenSendToUserHitsIllegalState() {
+        // given
+        Long userId = 1L;
+        SseEmitter emitter = sseConnectionRegistry.register(userId, 30000L);
+        emitter.complete();
+
+        // when
+        sseConnectionRegistry.sendToUser(
+                userId, SseEmitter.event().name("test").data("data")
+        );
+
+        // then
+        assertThat(sseConnectionRegistry.getConnectionCount()).isZero();
+        assertThat(sseConnectionRegistry.getConnectedUserIds()).doesNotContain(userId);
+    }
+
+    @Test
+    @DisplayName("getConnectedUserIds 는 내부 상태에 영향받지 않는 불변 스냅샷을 반환한다")
+    void shouldReturnImmutableSnapshotOfConnectedUserIds() {
+        // given
+        sseConnectionRegistry.register(1L, 30000L);
+        sseConnectionRegistry.register(2L, 30000L);
+
+        // when
+        java.util.Set<Long> snapshot = sseConnectionRegistry.getConnectedUserIds();
+        sseConnectionRegistry.register(3L, 30000L);
+
+        // then
+        assertThat(snapshot).containsExactlyInAnyOrder(1L, 2L);
+        assertThat(sseConnectionRegistry.getConnectedUserIds()).containsExactlyInAnyOrder(1L, 2L, 3L);
+    }
+
 }
