@@ -359,5 +359,278 @@ class AligoBrandTalkTemplateExternalAdapterTest {
             assertThat(response.templates().get(0).sendVariable()).containsExactly("#{name}");
             mockServer.verify();
         }
+
+        @Test
+        @DisplayName("list가 null이면 빈 templates 리스트로 매핑한다")
+        void shouldMapEmptyTemplatesWhenListIsNull() {
+            // given
+            String responseBody = """
+                    {
+                        "result_code": 0,
+                        "message": "성공",
+                        "info": {
+                            "current_page": 1,
+                            "page_size": 10,
+                            "total": 0
+                        }
+                    }
+                    """;
+            mockServer.expect(requestTo("http://localhost/brandtalk/template/list/"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+            // when
+            GetBrandTalkTemplateListResult.ExternalListResponse response =
+                    adapter.getTemplateList("SK", 1, 10);
+
+            // then
+            assertThat(response.templates()).isEmpty();
+            assertThat(response.pageInfo().total()).isZero();
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("list 항목의 sendVariable이 null이면 빈 리스트로 매핑한다")
+        void shouldMapEmptySendVariableWhenNull() {
+            // given
+            String responseBody = """
+                    {
+                        "result_code": 0,
+                        "message": "성공",
+                        "info": {
+                            "current_page": 1,
+                            "page_size": 10,
+                            "total": 1
+                        },
+                        "list": [
+                            {
+                                "tpl_code": "TPL010",
+                                "tpl_name": "변수없음",
+                                "tpl_type": "TEXT",
+                                "tpl_status": "A",
+                                "create_at": "2026-11-03"
+                            }
+                        ]
+                    }
+                    """;
+            mockServer.expect(requestTo("http://localhost/brandtalk/template/list/"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+            // when
+            GetBrandTalkTemplateListResult.ExternalListResponse response =
+                    adapter.getTemplateList("SK", 1, 10);
+
+            // then
+            assertThat(response.templates()).hasSize(1);
+            assertThat(response.templates().get(0).sendVariable()).isEmpty();
+            mockServer.verify();
+        }
+    }
+
+    @Nested
+    @DisplayName("registerTemplate 추가 시나리오")
+    class RegisterTemplateAdditional {
+
+        @Test
+        @DisplayName("PREMIUM_VIDEO 템플릿은 template_video, template_video_thumb 가 multipart 파라미터로 전송된다")
+        void shouldAddPremiumVideoParams() {
+            // given
+            String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
+            mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+            AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
+                    AligoBrandTalkTemplateCreateState.builder()
+                            .senderKey("SK")
+                            .templateCode("TPL-VIDEO")
+                            .templateName("프리미엄동영상")
+                            .templateType(BrandTalkTemplateType.PREMIUM_VIDEO)
+                            .templateContent("본문")
+                            .videoUrl("https://video.example.com/v.mp4")
+                            .videoThumbnailUrl("https://video.example.com/thumb.jpg")
+                            .build()
+            );
+
+            // when
+            adapter.registerTemplate(template, null, null, List.of(), List.of());
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("쿠폰이 포함된 TEXT 템플릿은 tpl_coupon 으로 직렬화된다")
+        void shouldSerializeCouponWithLinkFields() {
+            // given
+            String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
+            mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+            BrandTalkCoupon coupon = BrandTalkCoupon.from(
+                    BrandTalkCouponCreateState.builder()
+                            .title("쿠폰제목")
+                            .description("설명")
+                            .linkM("https://m.example.com")
+                            .linkP("https://p.example.com")
+                            .linkI("ios://link")
+                            .linkA("android://link")
+                            .build()
+            );
+
+            AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
+                    AligoBrandTalkTemplateCreateState.builder()
+                            .senderKey("SK")
+                            .templateCode("TPL-COUPON")
+                            .templateName("쿠폰템플릿")
+                            .templateType(BrandTalkTemplateType.TEXT)
+                            .templateContent("본문")
+                            .coupon(coupon)
+                            .build()
+            );
+
+            // when
+            adapter.registerTemplate(template, null, null, List.of(), List.of());
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("CAROUSEL_COMMERCE 템플릿은 carousel_list_commerceN 와 carousel_tail 이 추가된다")
+        void shouldSerializeCarouselCommerceAndTail() {
+            // given
+            String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
+            mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+            BrandTalkButton itemButton = BrandTalkButton.from(
+                    BrandTalkButtonCreateState.builder()
+                            .name("자세히")
+                            .linkType(AligoTemplateButtonLinkType.WL)
+                            .linkM("https://m.example.com")
+                            .linkP("https://p.example.com")
+                            .build()
+            );
+            BrandTalkCarouselItem item1 = BrandTalkCarouselItem.from(
+                    BrandTalkCarouselItemCreateState.builder()
+                            .header("h1").content("c1").buttons(List.of(itemButton)).build()
+            );
+            BrandTalkCarouselItem item2 = BrandTalkCarouselItem.from(
+                    BrandTalkCarouselItemCreateState.builder()
+                            .header("h2").content("c2").buttons(List.of(itemButton)).build()
+            );
+            BrandTalkCarouselCommerce commerce1 = BrandTalkCarouselCommerce.from(
+                    BrandTalkCarouselCommerceCreateState.builder()
+                            .title("상품1").regularPrice("10000").discountPrice("8000")
+                            .discountRate("20").discountFixed("2000").build()
+            );
+            BrandTalkCarouselCommerce commerce2 = BrandTalkCarouselCommerce.from(
+                    BrandTalkCarouselCommerceCreateState.builder()
+                            .title("상품2").regularPrice("20000").build()
+            );
+            BrandTalkCarouselTail tail = BrandTalkCarouselTail.of("https://m.example.com/tail");
+
+            AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
+                    AligoBrandTalkTemplateCreateState.builder()
+                            .senderKey("SK")
+                            .templateCode("TPL-CC")
+                            .templateName("커머스캐러셀")
+                            .templateType(BrandTalkTemplateType.CAROUSEL_COMMERCE)
+                            .templateContent("본문")
+                            .carouselHeader("헤더")
+                            .carouselItems(List.of(item1, item2))
+                            .carouselCommerces(List.of(commerce1, commerce2))
+                            .carouselTail(tail)
+                            .build()
+            );
+
+            // when
+            adapter.registerTemplate(
+                    template,
+                    new byte[]{1, 2}, "header.png",
+                    List.of(new byte[]{3}, new byte[]{4}),
+                    List.of("item1.png", "item2.png")
+            );
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("캐러셀 아이템에 쿠폰이 있으면 carousel_list_couponN 으로 직렬화된다")
+        void shouldSerializeCarouselItemCoupon() {
+            // given
+            String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
+            mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+            BrandTalkCoupon coupon = BrandTalkCoupon.from(
+                    BrandTalkCouponCreateState.builder()
+                            .title("쿠폰")
+                            .linkM("https://m.example.com")
+                            .build()
+            );
+            BrandTalkButton btn = BrandTalkButton.from(
+                    BrandTalkButtonCreateState.builder()
+                            .name("자세히")
+                            .linkType(AligoTemplateButtonLinkType.WL)
+                            .linkM("https://m.example.com")
+                            .linkP("https://p.example.com")
+                            .build()
+            );
+            BrandTalkCarouselItem item = BrandTalkCarouselItem.from(
+                    BrandTalkCarouselItemCreateState.builder()
+                            .header("h").content("c").coupon(coupon).buttons(List.of(btn)).build()
+            );
+
+            AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
+                    AligoBrandTalkTemplateCreateState.builder()
+                            .senderKey("SK")
+                            .templateCode("TPL-CIC")
+                            .templateName("아이템쿠폰")
+                            .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
+                            .templateContent("본문")
+                            .carouselItems(List.of(item))
+                            .build()
+            );
+
+            // when
+            adapter.registerTemplate(template, null, null, List.of(), List.of());
+
+            // then
+            mockServer.verify();
+        }
+
+        @Test
+        @DisplayName("imageLink 가 설정된 IMAGE 템플릿은 image_link 가 multipart 파라미터로 전송된다")
+        void shouldSendImageLinkWhenPresent() {
+            // given
+            String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
+            mockServer.expect(requestTo("http://localhost/brandtalk/template/create/"))
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+            AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
+                    AligoBrandTalkTemplateCreateState.builder()
+                            .senderKey("SK")
+                            .templateCode("TPL-IL")
+                            .templateName("이미지링크")
+                            .templateType(BrandTalkTemplateType.IMAGE)
+                            .templateContent("본문")
+                            .imageLink("https://landing.example.com")
+                            .build()
+            );
+
+            // when
+            adapter.registerTemplate(template, new byte[]{9}, "img.jpg", List.of(), List.of());
+
+            // then
+            mockServer.verify();
+        }
     }
 }
