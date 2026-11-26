@@ -6,7 +6,9 @@ import com.personal.marketnote.common.utility.http.cookie.HttpCookieName;
 import com.personal.marketnote.common.utility.http.cookie.HttpCookieObject;
 import com.personal.marketnote.common.utility.http.cookie.HttpCookieUtils;
 import com.personal.marketnote.user.adapter.in.web.authentication.request.OAuth2LoginRequest;
+import com.personal.marketnote.user.adapter.in.web.authentication.response.OAuth2LoginResponse;
 import com.personal.marketnote.user.adapter.in.web.authentication.response.WebBasedTokenRefreshResponse;
+import com.personal.marketnote.user.port.in.result.LoginResult;
 import com.personal.marketnote.user.port.in.usecase.authentication.Oauth2LoginUseCase;
 import com.personal.marketnote.user.port.out.authentication.SaveRefreshTokenPort;
 import com.personal.marketnote.user.security.token.dto.GrantedTokenInfo;
@@ -252,6 +254,135 @@ class WebBasedAuthenticationServiceAdapterTest {
             // when & then
             assertThatThrownBy(() -> adapter.loginByOAuth2(loginRequest))
                     .isInstanceOf(InvalidRefreshTokenException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("loginByOAuth2 - OAuth2 로그인 응답 헤더 구성")
+    class LoginByOAuth2Test {
+
+        @Test
+        @DisplayName("로그인 성공 시 Set-Cookie 헤더에 refresh_token을 담고 Location은 클라이언트 redirection URL을 가진다")
+        void shouldReturnHeadersWithRefreshTokenCookieAndRedirectLocation() {
+            // given
+            HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+            when(servletRequest.getRequestURI()).thenReturn("/api/v1/oauth2/login");
+
+            OAuth2LoginRequest loginRequest = new OAuth2LoginRequest(
+                    "KAKAO", "auth-code", null, servletRequest
+            );
+
+            LoginResult loginResult = LoginResult.of(true, "access-token", "refresh-token", "테스터");
+            when(oauth2LoginUseCase.loginByOAuth2("auth-code", "https://api.example.com/api/v1/oauth2/login", AuthVendor.KAKAO))
+                    .thenReturn(loginResult);
+
+            HttpCookieObject cookieObject = mock(HttpCookieObject.class);
+            when(cookieObject.asSetCookieHeaderValue())
+                    .thenReturn("refresh_token=refresh-token; HttpOnly; Secure; Max-Age=2592000");
+            when(httpCookieUtils.generateHttpOnlyCookie(eq(HttpCookieName.REFRESH_TOKEN), eq("refresh-token"), anyLong()))
+                    .thenReturn(cookieObject);
+
+            // when
+            OAuth2LoginResponse response = adapter.loginByOAuth2(loginRequest);
+
+            // then
+            assertThat(response.headers().getFirst("Set-Cookie")).contains("refresh_token=refresh-token");
+            assertThat(response.headers().getFirst("Set-Cookie")).contains("HttpOnly");
+            String location = response.headers().getFirst("Location");
+            assertThat(location).isNotNull();
+            assertThat(location).contains("/redirection");
+            assertThat(location).contains("auth-vendor=KAKAO");
+            assertThat(location).contains("access-token=access-token");
+        }
+
+        @Test
+        @DisplayName("state로 유효한 클라이언트 URL이 전달되면 Location 헤더가 해당 origin을 사용한다")
+        void shouldUseStateOriginAsLocationWhenStateIsValidClientUrl() {
+            // given
+            HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+            when(servletRequest.getRequestURI()).thenReturn("/api/v1/oauth2/login");
+
+            OAuth2LoginRequest loginRequest = new OAuth2LoginRequest(
+                    "GOOGLE", "auth-code", "https://custom.example.com/path", servletRequest
+            );
+
+            LoginResult loginResult = LoginResult.of(false, "access-token", "refresh-token", null);
+            when(oauth2LoginUseCase.loginByOAuth2("auth-code", "https://api.example.com/api/v1/oauth2/login", AuthVendor.GOOGLE))
+                    .thenReturn(loginResult);
+
+            HttpCookieObject cookieObject = mock(HttpCookieObject.class);
+            when(cookieObject.asSetCookieHeaderValue())
+                    .thenReturn("refresh_token=refresh-token; HttpOnly; Secure");
+            when(httpCookieUtils.generateHttpOnlyCookie(eq(HttpCookieName.REFRESH_TOKEN), eq("refresh-token"), anyLong()))
+                    .thenReturn(cookieObject);
+
+            // when
+            OAuth2LoginResponse response = adapter.loginByOAuth2(loginRequest);
+
+            // then
+            String location = response.headers().getFirst("Location");
+            assertThat(location).isNotNull();
+            assertThat(location).startsWith("https://custom.example.com/redirection");
+        }
+
+        @Test
+        @DisplayName("state가 비어있으면 기본 클라이언트 origin을 Location 헤더로 사용한다")
+        void shouldFallbackToDefaultClientOriginWhenStateBlank() {
+            // given
+            HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+            when(servletRequest.getRequestURI()).thenReturn("/api/v1/oauth2/login");
+
+            OAuth2LoginRequest loginRequest = new OAuth2LoginRequest(
+                    "APPLE", "auth-code", "", servletRequest
+            );
+
+            LoginResult loginResult = LoginResult.of(true, "access-token", "refresh-token", "tester");
+            when(oauth2LoginUseCase.loginByOAuth2("auth-code", "https://api.example.com/api/v1/oauth2/login", AuthVendor.APPLE))
+                    .thenReturn(loginResult);
+
+            HttpCookieObject cookieObject = mock(HttpCookieObject.class);
+            when(cookieObject.asSetCookieHeaderValue())
+                    .thenReturn("refresh_token=refresh-token; HttpOnly; Secure");
+            when(httpCookieUtils.generateHttpOnlyCookie(eq(HttpCookieName.REFRESH_TOKEN), eq("refresh-token"), anyLong()))
+                    .thenReturn(cookieObject);
+
+            // when
+            OAuth2LoginResponse response = adapter.loginByOAuth2(loginRequest);
+
+            // then
+            String location = response.headers().getFirst("Location");
+            assertThat(location).isNotNull();
+            assertThat(location).startsWith("https://www.example.com/redirection");
+        }
+
+        @Test
+        @DisplayName("기존 회원 로그인이면 Location 헤더에 is-guest=false 파라미터가 포함된다")
+        void shouldIncludeIsGuestFalseParamWhenExistingUser() {
+            // given
+            HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+            when(servletRequest.getRequestURI()).thenReturn("/api/v1/oauth2/login");
+
+            OAuth2LoginRequest loginRequest = new OAuth2LoginRequest(
+                    "KAKAO", "auth-code", null, servletRequest
+            );
+
+            LoginResult loginResult = LoginResult.of(false, "access-token", "refresh-token", null);
+            when(oauth2LoginUseCase.loginByOAuth2(anyString(), anyString(), eq(AuthVendor.KAKAO)))
+                    .thenReturn(loginResult);
+
+            HttpCookieObject cookieObject = mock(HttpCookieObject.class);
+            when(cookieObject.asSetCookieHeaderValue())
+                    .thenReturn("refresh_token=refresh-token; HttpOnly; Secure");
+            when(httpCookieUtils.generateHttpOnlyCookie(eq(HttpCookieName.REFRESH_TOKEN), eq("refresh-token"), anyLong()))
+                    .thenReturn(cookieObject);
+
+            // when
+            OAuth2LoginResponse response = adapter.loginByOAuth2(loginRequest);
+
+            // then
+            String location = response.headers().getFirst("Location");
+            assertThat(location).isNotNull();
+            assertThat(location).contains("is-guest=false");
         }
     }
 }
