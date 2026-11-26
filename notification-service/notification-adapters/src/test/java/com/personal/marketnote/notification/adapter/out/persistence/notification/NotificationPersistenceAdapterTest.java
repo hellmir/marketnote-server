@@ -294,6 +294,119 @@ class NotificationPersistenceAdapterTest {
         }
     }
 
+    @Nested
+    @DisplayName("findScheduledNotificationsDue")
+    class FindScheduledNotificationsDue {
+
+        @Test
+        @DisplayName("SCHEDULED 상태이며 발송 시각이 도래한 알림 목록을 반환한다")
+        void returnsScheduledNotifications() {
+            // given
+            LocalDateTime now = LocalDateTime.of(2026, 4, 28, 12, 0);
+            NotificationJpaEntity entity = createMockEntity(1L);
+            when(notificationJpaRepository.findScheduledNotificationsDue(
+                    SendStatus.SCHEDULED, now, EntityStatus.ACTIVE
+            )).thenReturn(List.of(entity));
+
+            // when
+            List<Notification> result = adapter.findScheduledNotificationsDue(now);
+
+            // then
+            assertThat(result).hasSize(1);
+            verify(notificationJpaRepository).findScheduledNotificationsDue(
+                    SendStatus.SCHEDULED, now, EntityStatus.ACTIVE
+            );
+        }
+
+        @Test
+        @DisplayName("SCHEDULED 상태 알림이 없으면 빈 리스트를 반환한다")
+        void returnsEmptyWhenNoScheduledNotifications() {
+            // given
+            LocalDateTime now = LocalDateTime.of(2026, 4, 28, 12, 0);
+            when(notificationJpaRepository.findScheduledNotificationsDue(
+                    SendStatus.SCHEDULED, now, EntityStatus.ACTIVE
+            )).thenReturn(List.of());
+
+            // when
+            List<Notification> result = adapter.findScheduledNotificationsDue(now);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("saveAll")
+    class SaveAll {
+
+        @Test
+        @DisplayName("알림 목록을 일괄 저장하고 도메인 객체 목록을 반환한다")
+        @SuppressWarnings("unchecked")
+        void savesAllAndReturnsDomains() {
+            // given
+            List<Notification> notifications = List.of(
+                    createDomainNotification(),
+                    createDomainNotification()
+            );
+            List<NotificationJpaEntity> savedEntities = List.of(
+                    createMockEntity(1L), createMockEntity(2L)
+            );
+            when(notificationJpaRepository.saveAll(any(List.class))).thenReturn(savedEntities);
+
+            // when
+            List<Notification> result = adapter.saveAll(notifications);
+
+            // then
+            assertThat(result).hasSize(2);
+            verify(notificationJpaRepository).saveAll(any(List.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("updateAll")
+    class UpdateAll {
+
+        @Test
+        @DisplayName("ID 와 매칭되는 엔티티의 updateFrom 을 호출한다")
+        void updatesMatchingEntities() {
+            // given
+            Notification notification1 = createDomainNotificationWithId(1L);
+            Notification notification2 = createDomainNotificationWithId(2L);
+            NotificationJpaEntity entity1 = mock(NotificationJpaEntity.class);
+            NotificationJpaEntity entity2 = mock(NotificationJpaEntity.class);
+            when(entity1.getId()).thenReturn(1L);
+            when(entity2.getId()).thenReturn(2L);
+            when(notificationJpaRepository.findAllById(List.of(1L, 2L)))
+                    .thenReturn(List.of(entity1, entity2));
+
+            // when
+            adapter.updateAll(List.of(notification1, notification2));
+
+            // then
+            verify(entity1).updateFrom(notification1);
+            verify(entity2).updateFrom(notification2);
+        }
+
+        @Test
+        @DisplayName("매칭되는 엔티티가 없는 알림은 무시한다")
+        void skipsNonMatchingNotifications() {
+            // given
+            Notification notification1 = createDomainNotificationWithId(1L);
+            Notification notification2 = createDomainNotificationWithId(999L);
+            NotificationJpaEntity entity1 = mock(NotificationJpaEntity.class);
+            when(entity1.getId()).thenReturn(1L);
+            when(notificationJpaRepository.findAllById(List.of(1L, 999L)))
+                    .thenReturn(List.of(entity1));
+
+            // when
+            adapter.updateAll(List.of(notification1, notification2));
+
+            // then
+            verify(entity1).updateFrom(notification1);
+            verify(entity1, never()).updateFrom(notification2);
+        }
+    }
+
     private NotificationJpaEntity createMockEntity(Long id) {
         NotificationJpaEntity entity = mock(NotificationJpaEntity.class);
         when(entity.getId()).thenReturn(id);
