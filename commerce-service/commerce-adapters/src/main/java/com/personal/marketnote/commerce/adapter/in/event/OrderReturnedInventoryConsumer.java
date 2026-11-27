@@ -30,12 +30,12 @@ public class OrderReturnedInventoryConsumer {
     private final RestoreProductInventoryUseCase restoreProductInventoryUseCase;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_RETURNED,
-            groupId = "commerce-order-returned-inventory"
+        topics = KafkaTopicConstants.ORDER_RETURNED,
+        groupId = "commerce-order-returned-inventory"
     )
     public void handleOrderReturnedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -53,11 +53,11 @@ public class OrderReturnedInventoryConsumer {
             OrderReturnedEvent payload = envelope.getPayloadAs(OrderReturnedEvent.class, objectMapper);
 
             log.info("반품 완료 이벤트 수신 (재고 복구). eventId={}, orderId={}, isFullReturn={}",
-                    envelope.eventId(), payload.orderId(), payload.isFullReturn()
+                envelope.eventId(), payload.orderId(), payload.isFullReturn()
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                    envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
             )) {
                 acknowledgment.acknowledge();
                 return;
@@ -65,7 +65,7 @@ public class OrderReturnedInventoryConsumer {
 
             if (FormatValidator.hasNoValue(payload.returnProducts()) || payload.returnProducts().isEmpty()) {
                 log.warn("반품 완료인데 returnProducts가 없는 이벤트. eventId={}, orderId={}",
-                        envelope.eventId(), payload.orderId()
+                    envelope.eventId(), payload.orderId()
                 );
                 acknowledgment.acknowledge();
                 return;
@@ -83,14 +83,14 @@ public class OrderReturnedInventoryConsumer {
             restoreProductInventoryUseCase.restore(returnOrderProducts, payload.orderId(), reason);
 
             log.info("반품 완료 재고 복구 완료. orderId={}, returnProducts={}건",
-                    payload.orderId(), payload.returnProducts().size()
+                payload.orderId(), payload.returnProducts().size()
             );
         } catch (DuplicateInventoryRestorationException e) {
             log.info("이미 처리된 재고 복구 이벤트 (멱등 처리). eventId={}, message={}", envelope.eventId(), e.getMessage());
         } catch (Exception e) {
             // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수
             log.error("반품 완료 재고 복구 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e
+                envelope.eventId(), record.key(), e.getMessage(), e
             );
             throw e;
         }
@@ -100,10 +100,10 @@ public class OrderReturnedInventoryConsumer {
 
     private boolean hasInvalidReturnProductItem(List<OrderProductItem> items) {
         return items.stream()
-                .anyMatch(item -> FormatValidator.hasNoValue(item.pricePolicyId())
-                        || item.pricePolicyId() <= 0
-                        || FormatValidator.hasNoValue(item.quantity())
-                        || item.quantity() <= 0);
+            .anyMatch(item -> FormatValidator.hasNoValue(item.pricePolicyId())
+                || item.pricePolicyId() <= 0
+                || FormatValidator.hasNoValue(item.quantity())
+                || item.quantity() <= 0);
     }
 
     private String resolveReason(boolean isFullReturn) {
@@ -115,15 +115,15 @@ public class OrderReturnedInventoryConsumer {
 
     private List<OrderProduct> convertToOrderProducts(List<OrderProductItem> items) {
         return items.stream()
-                .map(item -> OrderProduct.from(
-                        OrderProductSnapshotState.builder()
-                                .pricePolicyId(item.pricePolicyId())
-                                .quantity(item.quantity())
-                                .unitAmount(item.unitAmount())
-                                .sharerKey(item.sharerKey())
-                                .accumulatedPoint(0L)
-                                .build()
-                ))
-                .toList();
+            .map(item -> OrderProduct.from(
+                OrderProductSnapshotState.builder()
+                    .pricePolicyId(item.pricePolicyId())
+                    .quantity(item.quantity())
+                    .unitAmount(item.unitAmount())
+                    .sharerKey(item.sharerKey())
+                    .accumulatedPoint(0L)
+                    .build()
+            ))
+            .toList();
     }
 }

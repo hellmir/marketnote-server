@@ -30,7 +30,7 @@ class HmacAuthenticationFilterTest {
     private static final String SECRET_KEY = "test-hmac-secret-key";
     private static final long FIXED_TIME_MILLIS = 1710000000000L;
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.ofEpochMilli(FIXED_TIME_MILLIS), ZoneId.of("Asia/Seoul"));
+        Instant.ofEpochMilli(FIXED_TIME_MILLIS), ZoneId.of("Asia/Seoul"));
 
     private HmacAuthenticationFilter hmacAuthenticationFilter;
 
@@ -91,8 +91,8 @@ class HmacAuthenticationFilterTest {
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
         assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("SERVICE");
         assertThat(SecurityContextHolder.getContext().getAuthentication().getAuthorities())
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactly("ROLE_SERVICE");
+            .extracting(GrantedAuthority::getAuthority)
+            .containsExactly("ROLE_SERVICE");
     }
 
     @Test
@@ -104,8 +104,8 @@ class HmacAuthenticationFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         assertThatThrownBy(() -> hmacAuthenticationFilter.doFilter(request, response, filterChain))
-                .isInstanceOf(HmacAuthenticationFailedException.class)
-                .hasMessageContaining("필수 헤더가 누락");
+            .isInstanceOf(HmacAuthenticationFailedException.class)
+            .hasMessageContaining("필수 헤더가 누락");
     }
 
     @Test
@@ -116,7 +116,7 @@ class HmacAuthenticationFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         assertThatThrownBy(() -> hmacAuthenticationFilter.doFilter(request, response, filterChain))
-                .isInstanceOf(HmacAuthenticationFailedException.class);
+            .isInstanceOf(HmacAuthenticationFailedException.class);
     }
 
     @Test
@@ -133,10 +133,10 @@ class HmacAuthenticationFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         doThrow(new HmacNonceValidationUnavailableException(nonce, new RuntimeException("Redis down")))
-                .when(hmacNonceValidator).validateAndStore(nonce);
+            .when(hmacNonceValidator).validateAndStore(nonce);
 
         assertThatThrownBy(() -> hmacAuthenticationFilter.doFilter(request, response, filterChain))
-                .isInstanceOf(HmacNonceValidationUnavailableException.class);
+            .isInstanceOf(HmacNonceValidationUnavailableException.class);
 
         verifyNoInteractions(filterChain);
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();

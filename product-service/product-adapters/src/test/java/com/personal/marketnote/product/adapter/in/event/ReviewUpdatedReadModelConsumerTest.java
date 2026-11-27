@@ -41,17 +41,17 @@ class ReviewUpdatedReadModelConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(EventEnvelope<?> envelope) {
         return new ConsumerRecord<>(
-                KafkaTopicConstants.REVIEW_UPDATED, 0, 0, "1", envelope
+            KafkaTopicConstants.REVIEW_UPDATED, 0, 0, "1", envelope
         );
     }
 
     private EventEnvelope<ReviewUpdatedEvent> createEnvelope(ReviewUpdatedEvent payload) {
         return new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.REVIEW_UPDATED,
-                "community-service",
-                LocalDateTime.now(Clock.fixed(Instant.parse("2026-03-31T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
-                payload
+            "test-event-id",
+            KafkaTopicConstants.REVIEW_UPDATED,
+            "community-service",
+            LocalDateTime.now(Clock.fixed(Instant.parse("2026-03-31T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
+            payload
         );
     }
 
@@ -76,7 +76,7 @@ class ReviewUpdatedReadModelConsumerTest {
     void handleReviewUpdatedEvent_nullEnvelope_acknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.REVIEW_UPDATED, 0, 0, "1", null
+            KafkaTopicConstants.REVIEW_UPDATED, 0, 0, "1", null
         );
 
         // when
@@ -93,11 +93,11 @@ class ReviewUpdatedReadModelConsumerTest {
         // given
         ReviewUpdatedEvent payload = new ReviewUpdatedEvent(1L, 50L, 10, new BigDecimal("4.50"));
         EventEnvelope<ReviewUpdatedEvent> envelope = new EventEnvelope<>(
-                "test-event-id",
-                "wrong.event.type",
-                "community-service",
-                LocalDateTime.now(),
-                payload
+            "test-event-id",
+            "wrong.event.type",
+            "community-service",
+            LocalDateTime.now(),
+            payload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 

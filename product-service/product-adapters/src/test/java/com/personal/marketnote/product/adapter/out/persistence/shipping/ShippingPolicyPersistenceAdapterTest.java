@@ -40,14 +40,14 @@ class ShippingPolicyPersistenceAdapterTest {
     @BeforeEach
     void setUp() {
         shippingPolicy = ShippingPolicy.from(
-                ShippingPolicyCreateState.builder()
-                        .sellerId(10L)
-                        .deliveryCompany("CJ")
-                        .shippingFee(3_000L)
-                        .freeShippingThreshold(30_000L)
-                        .jejuSurcharge(5_000L)
-                        .islandSurcharge(6_000L)
-                        .build()
+            ShippingPolicyCreateState.builder()
+                .sellerId(10L)
+                .deliveryCompany("CJ")
+                .shippingFee(3_000L)
+                .freeShippingThreshold(30_000L)
+                .jejuSurcharge(5_000L)
+                .islandSurcharge(6_000L)
+                .build()
         );
     }
 
@@ -79,10 +79,10 @@ class ShippingPolicyPersistenceAdapterTest {
         @DisplayName("DataIntegrityViolationException이 발생하면 ShippingPolicyAlreadyExistsException을 던진다")
         void throwsAlreadyExistsOnUniqueViolation() {
             when(shippingPolicyJpaRepository.save(any(ShippingPolicyJpaEntity.class)))
-                    .thenThrow(new DataIntegrityViolationException("unique constraint"));
+                .thenThrow(new DataIntegrityViolationException("unique constraint"));
 
             assertThatThrownBy(() -> adapter.save(shippingPolicy))
-                    .isInstanceOf(ShippingPolicyAlreadyExistsException.class);
+                .isInstanceOf(ShippingPolicyAlreadyExistsException.class);
         }
     }
 
@@ -94,7 +94,7 @@ class ShippingPolicyPersistenceAdapterTest {
         @DisplayName("활성 배송 정책이 없으면 empty를 반환한다")
         void returnsEmpty() {
             when(shippingPolicyJpaRepository.findBySellerIdAndStatus(10L, EntityStatus.ACTIVE))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             Optional<ShippingPolicy> result = adapter.findActiveBySellerId(10L);
 
@@ -110,7 +110,7 @@ class ShippingPolicyPersistenceAdapterTest {
         @DisplayName("활성 배송 정책이 없으면 빈 리스트를 반환한다")
         void returnsEmptyList() {
             when(shippingPolicyJpaRepository.findAllBySellerIdInAndStatus(List.of(10L, 20L), EntityStatus.ACTIVE))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             List<ShippingPolicy> result = adapter.findActiveBySellerIds(List.of(10L, 20L));
 
@@ -126,14 +126,14 @@ class ShippingPolicyPersistenceAdapterTest {
         @DisplayName("기존 엔티티가 있으면 엔티티 상태를 업데이트한다")
         void updatesExistingEntity() {
             ShippingPolicy updatedPolicy = ShippingPolicy.from(
-                    ShippingPolicyCreateState.builder()
-                            .sellerId(10L)
-                            .deliveryCompany("CJ")
-                            .shippingFee(4_000L)
-                            .freeShippingThreshold(50_000L)
-                            .jejuSurcharge(6_000L)
-                            .islandSurcharge(7_000L)
-                            .build()
+                ShippingPolicyCreateState.builder()
+                    .sellerId(10L)
+                    .deliveryCompany("CJ")
+                    .shippingFee(4_000L)
+                    .freeShippingThreshold(50_000L)
+                    .jejuSurcharge(6_000L)
+                    .islandSurcharge(7_000L)
+                    .build()
             );
             ShippingPolicyJpaEntity entity = mock(ShippingPolicyJpaEntity.class);
             when(shippingPolicyJpaRepository.findById(updatedPolicy.getId())).thenReturn(Optional.of(entity));
@@ -149,7 +149,7 @@ class ShippingPolicyPersistenceAdapterTest {
             when(shippingPolicyJpaRepository.findById(any())).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> adapter.update(shippingPolicy))
-                    .isInstanceOf(ShippingPolicyNotFoundException.class);
+                .isInstanceOf(ShippingPolicyNotFoundException.class);
             verify(shippingPolicyJpaRepository, never()).save(any(ShippingPolicyJpaEntity.class));
         }
     }

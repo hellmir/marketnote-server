@@ -39,13 +39,13 @@ public class AdminGiftishowBizMoneyController {
         GetGifticonVendorBalanceResult result = getGifticonVendorBalanceUseCase.getBalance();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetGiftishowBizMoneyBalanceResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티쇼 비즈머니 잔액 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetGiftishowBizMoneyBalanceResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티쇼 비즈머니 잔액 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

@@ -29,20 +29,20 @@ public class ShippingStatusEventOutboxAdapter implements PublishShippingStatusCh
         String topic = KafkaTopicConstants.SHIPPING_STATUS_CHANGED;
         String partitionKey = String.valueOf(event.orderId());
         EventEnvelope<ShippingStatusChangedEvent> envelope = EventEnvelope.of(
-                topic,
-                EVENT_SOURCE,
-                event,
-                clock
+            topic,
+            EVENT_SOURCE,
+            event,
+            clock
         );
         String payload = serialize(envelope, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(),
-                topic,
-                partitionKey,
-                ShippingStatusChangedEvent.class.getSimpleName(),
-                EVENT_SOURCE,
-                payload,
-                clock
+            envelope.eventId(),
+            topic,
+            partitionKey,
+            ShippingStatusChangedEvent.class.getSimpleName(),
+            EVENT_SOURCE,
+            payload,
+            clock
         );
         saveOutboxEventPort.save(outboxEvent);
     }
@@ -52,7 +52,7 @@ public class ShippingStatusEventOutboxAdapter implements PublishShippingStatusCh
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
             throw new ShippingStatusEventSerializationException(
-                    envelope.eventType(), partitionKey, envelope.eventId(), e
+                envelope.eventType(), partitionKey, envelope.eventId(), e
             );
         }
     }

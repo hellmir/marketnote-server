@@ -48,7 +48,7 @@ public class ExecuteSettlementService implements ExecuteSettlementUseCase {
     @Transactional(isolation = READ_COMMITTED)
     public void executeSettlement(ExecuteSettlementCommand command) {
         List<PaymentAllocation> unsettledAllocations = findPaymentAllocationPort.findUnsettledAllocations(
-                command.year(), command.month()
+            command.year(), command.month()
         );
 
         if (unsettledAllocations.isEmpty()) {
@@ -56,7 +56,7 @@ public class ExecuteSettlementService implements ExecuteSettlementUseCase {
         }
 
         Map<Long, List<PaymentAllocation>> allocationsBySeller = unsettledAllocations.stream()
-                .collect(Collectors.groupingBy(PaymentAllocation::getSellerId));
+            .collect(Collectors.groupingBy(PaymentAllocation::getSellerId));
 
         List<Long> sellerIds = allocationsBySeller.keySet().stream().toList();
         Map<Long, SettlementPolicy> policyMap = findSettlementPolicyPort.findActiveBySellerIdIn(sellerIds);
@@ -71,19 +71,19 @@ public class ExecuteSettlementService implements ExecuteSettlementUseCase {
 
             SettlementPolicy policy = policyMap.get(sellerId);
             Integer pgFeeRate =
-                    (FormatValidator.hasValue(policy)) ? policy.getPgFeeRate().getValue() : defaultPgFeeRate;
+                (FormatValidator.hasValue(policy)) ? policy.getPgFeeRate().getValue() : defaultPgFeeRate;
             Integer platformFeeRate =
-                    (FormatValidator.hasValue(policy)) ? policy.getPlatformFeeRate().getValue() : defaultPlatformFeeRate;
+                (FormatValidator.hasValue(policy)) ? policy.getPlatformFeeRate().getValue() : defaultPlatformFeeRate;
 
             try {
                 processSellerSettlementService.process(
-                        command, sellerId, sellerAllocations, pgFeeRate, platformFeeRate
+                    command, sellerId, sellerAllocations, pgFeeRate, platformFeeRate
                 );
             } catch (Exception e) {
                 // boundary swallow: 한 판매자 실패가 다른 판매자 정산에 영향 안 가도록 per-seller swallow + failedCount 누적
                 failedCount++;
                 log.error("판매자 정산 실패 - sellerId: {}, year: {}, month: {}, pgFeeRate: {}, platformFeeRate: {}, error: {}",
-                        sellerId, command.year(), command.month(), pgFeeRate, platformFeeRate, e.getMessage(), e
+                    sellerId, command.year(), command.month(), pgFeeRate, platformFeeRate, e.getMessage(), e
                 );
             }
         }

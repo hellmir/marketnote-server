@@ -6,11 +6,11 @@ import java.util.List;
 
 @Builder
 public record UpdateFilesCommand(
-        List<UpdateFileCommand> fileInfo,
-        String ownerType,
-        Long ownerId,
-        String ownerKey,
-        Long requesterId,
-        String requesterRole
+    List<UpdateFileCommand> fileInfo,
+    String ownerType,
+    Long ownerId,
+    String ownerKey,
+    Long requesterId,
+    String requesterRole
 ) {
 }

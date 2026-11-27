@@ -15,25 +15,25 @@ public class FulfillmentStockQuery {
     private String whCd;
 
     public static FulfillmentStockQuery of(
-            String customerCode,
-            String accessToken,
-            String outOfStockYn
+        String customerCode,
+        String accessToken,
+        String outOfStockYn
     ) {
         return FulfillmentStockQuery.of(customerCode, accessToken, outOfStockYn, null);
     }
 
     public static FulfillmentStockQuery of(
-            String customerCode,
-            String accessToken,
-            String outOfStockYn,
-            String whCd
+        String customerCode,
+        String accessToken,
+        String outOfStockYn,
+        String whCd
     ) {
         FulfillmentStockQuery query = FulfillmentStockQuery.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .outOfStockYn(outOfStockYn)
-                .whCd(whCd)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .outOfStockYn(outOfStockYn)
+            .whCd(whCd)
+            .build();
         query.validate();
         return query;
     }

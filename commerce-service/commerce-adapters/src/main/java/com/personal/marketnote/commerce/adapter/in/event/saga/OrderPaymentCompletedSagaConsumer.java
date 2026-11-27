@@ -32,12 +32,12 @@ public class OrderPaymentCompletedSagaConsumer {
     private final OrderPaymentCompletedSagaActionDispatcher actionDispatcher;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_COMPLETED,
-            groupId = "saga-order-payment-completed"
+        topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_COMPLETED,
+        groupId = "saga-order-payment-completed"
     )
     public void handlePaymentCompletedStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -63,7 +63,7 @@ public class OrderPaymentCompletedSagaConsumer {
     private void handleAction(SagaStepMessage stepMessage) {
         try {
             PaymentCompletedSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), PaymentCompletedSagaPayload.class);
+                stepMessage.payload(), PaymentCompletedSagaPayload.class);
 
             if (FormatValidator.hasNoValue(payload.orderId()) || FormatValidator.hasNoValue(payload.buyerId())) {
                 publishValidationFailure(stepMessage, "orderId 또는 buyerId 누락");
@@ -79,19 +79,19 @@ public class OrderPaymentCompletedSagaConsumer {
             actionDispatcher.dispatch(payload, orderProducts, toDownstreamContext(payload));
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true}"
             );
 
             log.info("SAGA 결제 완료 이벤트 발행 + 다운스트림 SAGA 시작 성공. sagaId={}, orderId={}",
-                    stepMessage.sagaId(), payload.orderId()
+                stepMessage.sagaId(), payload.orderId()
             );
         } catch (Exception e) {
             // boundary E: SAGA step boundary — UseCase 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 결제 완료 이벤트 발행 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "결제 완료 이벤트 발행 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "결제 완료 이벤트 발행 실패"
             );
         }
     }
@@ -99,34 +99,34 @@ public class OrderPaymentCompletedSagaConsumer {
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
         log.warn("SAGA 결제 완료 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
     }
 
     private OrderPaymentCompletedSagaContext toDownstreamContext(PaymentCompletedSagaPayload payload) {
         List<OrderPaymentCompletedSagaContext.OrderProductItem> downstreamProducts = payload.orderProducts().stream()
-                .map(this::toDownstreamProduct)
-                .toList();
+            .map(this::toDownstreamProduct)
+            .toList();
         return OrderPaymentCompletedSagaContext.builder()
-                .orderId(payload.orderId())
-                .buyerId(payload.buyerId())
-                .totalAmount(payload.totalAmount())
-                .pointAmount(payload.pointAmount())
-                .totalAccumulatedPoint(payload.totalAccumulatedPoint())
-                .recipientName(payload.recipientName())
-                .recipientPhoneNumber(payload.recipientPhoneNumber())
-                .zipCode(payload.zipCode())
-                .address(payload.address())
-                .addressDetail(payload.addressDetail())
-                .deliveryRequestMessage(payload.deliveryRequestMessage())
-                .orderProducts(downstreamProducts)
-                .build();
+            .orderId(payload.orderId())
+            .buyerId(payload.buyerId())
+            .totalAmount(payload.totalAmount())
+            .pointAmount(payload.pointAmount())
+            .totalAccumulatedPoint(payload.totalAccumulatedPoint())
+            .recipientName(payload.recipientName())
+            .recipientPhoneNumber(payload.recipientPhoneNumber())
+            .zipCode(payload.zipCode())
+            .address(payload.address())
+            .addressDetail(payload.addressDetail())
+            .deliveryRequestMessage(payload.deliveryRequestMessage())
+            .orderProducts(downstreamProducts)
+            .build();
     }
 
     private OrderPaymentCompletedSagaContext.OrderProductItem toDownstreamProduct(SagaOrderProductItem item) {
         return new OrderPaymentCompletedSagaContext.OrderProductItem(
-                item.pricePolicyId(), item.productId(), item.productKey(), item.sharerKey(), item.quantity(), item.unitAmount()
+            item.pricePolicyId(), item.productId(), item.productKey(), item.sharerKey(), item.quantity(), item.unitAmount()
         );
     }
 }

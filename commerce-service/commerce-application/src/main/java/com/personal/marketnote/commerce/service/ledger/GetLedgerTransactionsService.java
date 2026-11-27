@@ -32,21 +32,21 @@ public class GetLedgerTransactionsService implements GetLedgerTransactionsUseCas
     @Override
     public List<GetLedgerTransactionResult> getLedgerTransactions(GetLedgerTransactionsQuery query) {
         List<LedgerTransaction> transactions = findLedgerTransactionPort.findByFilters(
-                query.startDate(),
-                query.endDate(),
-                query.transactionType()
+            query.startDate(),
+            query.endDate(),
+            query.transactionType()
         );
 
         return transactions.stream()
-                .map(this::toResultWithEntries)
-                .toList();
+            .map(this::toResultWithEntries)
+            .toList();
     }
 
     private GetLedgerTransactionResult toResultWithEntries(LedgerTransaction transaction) {
         List<LedgerEntry> entries = findLedgerEntryPort.findByTransactionId(transaction.getId());
         List<GetLedgerEntryResult> entryResults = entries.stream()
-                .map(GetLedgerEntryResult::from)
-                .toList();
+            .map(GetLedgerEntryResult::from)
+            .toList();
         return GetLedgerTransactionResult.from(transaction, entryResults);
     }
 }

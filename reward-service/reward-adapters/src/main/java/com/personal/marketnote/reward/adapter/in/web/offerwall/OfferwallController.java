@@ -68,55 +68,55 @@ public class OfferwallController {
     @PostMapping(value = "/adpopcorn/callback")
     @AdpopcornCallbackApiDocs
     public ResponseEntity<String> handleAdpopcornCallback(
-            @RequestParam("reward_key") String rewardKey,
-            @RequestParam("usn") String userKey,
-            @RequestParam("user_device_type") UserDeviceType userDeviceType,
-            @RequestParam("campaign_key") String campaignKey,
-            @RequestParam(value = "campaign_type", required = false) Integer campaignType,
-            @RequestParam(value = "campaign_name", required = false) String campaignName,
-            @RequestParam(value = "quantity") Long quantity,
-            @RequestParam(value = "signed_value") String signedValue,
-            @RequestParam(value = "app_key", required = false) Integer appKey,
-            @RequestParam(value = "app_name", required = false) String appName,
-            @RequestParam(value = "adid", required = false) String adid,
-            @RequestParam(value = "idfa", required = false) String idfa,
-            @RequestParam(value = "time_stamp", required = false) String attendedAt
+        @RequestParam("reward_key") String rewardKey,
+        @RequestParam("usn") String userKey,
+        @RequestParam("user_device_type") UserDeviceType userDeviceType,
+        @RequestParam("campaign_key") String campaignKey,
+        @RequestParam(value = "campaign_type", required = false) Integer campaignType,
+        @RequestParam(value = "campaign_name", required = false) String campaignName,
+        @RequestParam(value = "quantity") Long quantity,
+        @RequestParam(value = "signed_value") String signedValue,
+        @RequestParam(value = "app_key", required = false) Integer appKey,
+        @RequestParam(value = "app_name", required = false) String appName,
+        @RequestParam(value = "adid", required = false) String adid,
+        @RequestParam(value = "idfa", required = false) String idfa,
+        @RequestParam(value = "time_stamp", required = false) String attendedAt
     ) {
         LocalDateTime parsedAttendedAt = FormatConverter.parseToLocalDateTime(attendedAt);
 
         JsonNode payloadJson = offerwallVendorCommunicationPayloadGenerator.buildAdpopcornPayloadJson(
-                rewardKey,
-                userKey,
-                userDeviceType,
-                campaignKey,
-                campaignType,
-                campaignName,
-                quantity,
-                signedValue,
-                appKey,
-                appName,
-                adid,
-                idfa,
-                attendedAt
+            rewardKey,
+            userKey,
+            userDeviceType,
+            campaignKey,
+            campaignType,
+            campaignName,
+            quantity,
+            signedValue,
+            appKey,
+            appName,
+            adid,
+            idfa,
+            attendedAt
         );
         String payloadString = payloadJson.toString();
 
         RegisterOfferwallRewardCommand command = RegisterOfferwallRewardCommand.builder()
-                .offerwallType(OfferwallType.ADPOPCORN)
-                .rewardKey(rewardKey)
-                .userKey(userKey)
-                .userDeviceType(userDeviceType)
-                .campaignKey(campaignKey)
-                .campaignType(campaignType)
-                .campaignName(campaignName)
-                .quantity(quantity)
-                .signedValue(signedValue)
-                .appKey(appKey)
-                .appName(appName)
-                .adid(adid)
-                .idfa(idfa)
-                .attendedAt(parsedAttendedAt)
-                .build();
+            .offerwallType(OfferwallType.ADPOPCORN)
+            .rewardKey(rewardKey)
+            .userKey(userKey)
+            .userDeviceType(userDeviceType)
+            .campaignKey(campaignKey)
+            .campaignType(campaignType)
+            .campaignName(campaignName)
+            .quantity(quantity)
+            .signedValue(signedValue)
+            .appKey(appKey)
+            .appName(appName)
+            .adid(adid)
+            .idfa(idfa)
+            .attendedAt(parsedAttendedAt)
+            .build();
 
         RewardVendorCommunicationTargetType targetType = OFFERWALL;
         RewardVendorName vendorName = RewardVendorName.ADPOPCORN;
@@ -124,49 +124,49 @@ public class OfferwallController {
         try {
             Long id = handleOfferwallRewardUseCase.handle(command);
             JsonNode successPayloadJson = offerwallVendorCommunicationPayloadGenerator.buildResponsePayloadJson(
-                    true, 1, "success"
+                true, 1, "success"
             );
             String successPayload = successPayloadJson.toString();
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    RewardVendorCommunicationType.REQUEST,
-                    RewardVendorCommunicationSenderType.VENDOR,
-                    String.valueOf(id),
-                    vendorName,
-                    payloadString,
-                    payloadJson
+                targetType,
+                RewardVendorCommunicationType.REQUEST,
+                RewardVendorCommunicationSenderType.VENDOR,
+                String.valueOf(id),
+                vendorName,
+                payloadString,
+                payloadJson
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    RewardVendorCommunicationType.RESPONSE,
-                    RewardVendorCommunicationSenderType.SERVER,
-                    String.valueOf(id),
-                    vendorName,
-                    successPayload,
-                    successPayloadJson
+                targetType,
+                RewardVendorCommunicationType.RESPONSE,
+                RewardVendorCommunicationSenderType.SERVER,
+                String.valueOf(id),
+                vendorName,
+                successPayload,
+                successPayloadJson
             );
 
             return ResponseEntity.ok(successPayload);
         } catch (VendorVerificationFailedException e) {
             // 서명 검증 실패
             return vendorCommunicationFailureHandler.handleFailure(
-                    targetType, vendorName, payloadString, payloadJson, e, 1100, "invalid signed value"
+                targetType, vendorName, payloadString, payloadJson, e, 1100, "invalid signed value"
             );
         } catch (UserNotFoundException e) {
             // 회원 포인트 도메인 정보 조회 실패
             return vendorCommunicationFailureHandler.handleFailure(
-                    targetType, vendorName, payloadString, payloadJson, e, 3200, "invalid user"
+                targetType, vendorName, payloadString, payloadJson, e, 3200, "invalid user"
             );
         } catch (DuplicateOfferwallRewardException e) {
             // 중복 리워드 지급 시도
             return vendorCommunicationFailureHandler.handleFailure(
-                    targetType, vendorName, payloadString, payloadJson, e, 3100, "duplicate transaction"
+                targetType, vendorName, payloadString, payloadJson, e, 3100, "duplicate transaction"
             );
         } catch (Exception e) {
             // 그 외
             return vendorCommunicationFailureHandler.handleFailure(
-                    targetType, vendorName, payloadString, payloadJson, e, 4000, "custom error message"
+                targetType, vendorName, payloadString, payloadJson, e, 4000, "custom error message"
             );
         }
     }
@@ -190,46 +190,46 @@ public class OfferwallController {
     @PostMapping(value = "/tnk/callback")
     @TnkCallbackApiDocs
     public ResponseEntity<BaseResponse<UpdateUserPointResponse>> handleTnkCallback(
-            @RequestParam("seq_id") String rewardKey,
-            @RequestParam("md_user_nm") String userKey,
-            @RequestParam("user_device_type") UserDeviceType userDeviceType,
-            @RequestParam(value = "actn_id", required = false) Integer campaignType,
-            @RequestParam(value = "pay_pnt") Long quantity,
-            @RequestParam(value = "md_chk") String signedValue,
-            @RequestParam(value = "app_nm", required = false) String appName,
-            @RequestParam(value = "app_id", required = false) String adid,
-            @RequestParam(value = "pay_dt", required = false) String attendedAt,
-            @RequestParam(value = "pay_amt", required = true) BigDecimal revenue
+        @RequestParam("seq_id") String rewardKey,
+        @RequestParam("md_user_nm") String userKey,
+        @RequestParam("user_device_type") UserDeviceType userDeviceType,
+        @RequestParam(value = "actn_id", required = false) Integer campaignType,
+        @RequestParam(value = "pay_pnt") Long quantity,
+        @RequestParam(value = "md_chk") String signedValue,
+        @RequestParam(value = "app_nm", required = false) String appName,
+        @RequestParam(value = "app_id", required = false) String adid,
+        @RequestParam(value = "pay_dt", required = false) String attendedAt,
+        @RequestParam(value = "pay_amt", required = true) BigDecimal revenue
     ) {
         LocalDateTime parsedAttendedAt = FormatConverter.parseToLocalDateTime(attendedAt);
 
         JsonNode payloadJson = offerwallVendorCommunicationPayloadGenerator.buildTnkPayloadJson(
-                rewardKey,
-                userKey,
-                userDeviceType,
-                campaignType,
-                quantity,
-                signedValue,
-                appName,
-                adid,
-                attendedAt,
-                revenue
+            rewardKey,
+            userKey,
+            userDeviceType,
+            campaignType,
+            quantity,
+            signedValue,
+            appName,
+            adid,
+            attendedAt,
+            revenue
         );
         String payloadString = payloadJson.toString();
 
         RegisterOfferwallRewardCommand command = RegisterOfferwallRewardCommand.builder()
-                .offerwallType(OfferwallType.TNK)
-                .rewardKey(rewardKey)
-                .userKey(userKey)
-                .userDeviceType(userDeviceType)
-                .campaignType(campaignType)
-                .quantity(quantity)
-                .signedValue(signedValue)
-                .appName(appName)
-                .adid(adid)
-                .idfa(adid)
-                .attendedAt(parsedAttendedAt)
-                .build();
+            .offerwallType(OfferwallType.TNK)
+            .rewardKey(rewardKey)
+            .userKey(userKey)
+            .userDeviceType(userDeviceType)
+            .campaignType(campaignType)
+            .quantity(quantity)
+            .signedValue(signedValue)
+            .appName(appName)
+            .adid(adid)
+            .idfa(adid)
+            .attendedAt(parsedAttendedAt)
+            .build();
 
         RewardVendorCommunicationTargetType targetType = OFFERWALL;
         RewardVendorName vendorName = RewardVendorName.TNK;
@@ -237,58 +237,58 @@ public class OfferwallController {
         try {
             Long id = handleOfferwallRewardUseCase.handle(command);
             JsonNode successPayloadJson = offerwallVendorCommunicationPayloadGenerator.buildResponsePayloadJson(
-                    true, 1, "success"
+                true, 1, "success"
             );
             String successPayload = successPayloadJson.toString();
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    RewardVendorCommunicationType.REQUEST,
-                    RewardVendorCommunicationSenderType.VENDOR,
-                    String.valueOf(id),
-                    vendorName,
-                    payloadString,
-                    payloadJson
+                targetType,
+                RewardVendorCommunicationType.REQUEST,
+                RewardVendorCommunicationSenderType.VENDOR,
+                String.valueOf(id),
+                vendorName,
+                payloadString,
+                payloadJson
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    RewardVendorCommunicationType.RESPONSE,
-                    RewardVendorCommunicationSenderType.SERVER,
-                    String.valueOf(id),
-                    vendorName,
-                    successPayload,
-                    successPayloadJson
+                targetType,
+                RewardVendorCommunicationType.RESPONSE,
+                RewardVendorCommunicationSenderType.SERVER,
+                String.valueOf(id),
+                vendorName,
+                successPayload,
+                successPayloadJson
             );
 
             return ResponseEntity.ok(
-                    BaseResponse.of(
-                            HttpStatus.OK,
-                            DEFAULT_SUCCESS_CODE,
-                            "TNK 리워드 포인트 지급 성공"
-                    )
+                BaseResponse.of(
+                    HttpStatus.OK,
+                    DEFAULT_SUCCESS_CODE,
+                    "TNK 리워드 포인트 지급 성공"
+                )
             );
         } catch (VendorVerificationFailedException e) {
             // 서명 검증 실패
             vendorCommunicationFailureHandler.handleFailure(
-                    targetType, vendorName, payloadString, payloadJson, e, 1100, "invalid signed value"
+                targetType, vendorName, payloadString, payloadJson, e, 1100, "invalid signed value"
             );
             throw e;
         } catch (UserNotFoundException e) {
             // 회원 포인트 도메인 정보 조회 실패
             vendorCommunicationFailureHandler.handleFailure(
-                    targetType, vendorName, payloadString, payloadJson, e, 3200, "invalid user"
+                targetType, vendorName, payloadString, payloadJson, e, 3200, "invalid user"
             );
             throw e;
         } catch (DuplicateOfferwallRewardException e) {
             // 중복 리워드 지급 시도
             vendorCommunicationFailureHandler.handleFailure(
-                    targetType, vendorName, payloadString, payloadJson, e, 3100, "duplicate transaction"
+                targetType, vendorName, payloadString, payloadJson, e, 3100, "duplicate transaction"
             );
             throw e;
         } catch (Exception e) {
             // 그 외
             vendorCommunicationFailureHandler.handleFailure(
-                    targetType, vendorName, payloadString, payloadJson, e, 4000, "custom error message"
+                targetType, vendorName, payloadString, payloadJson, e, 4000, "custom error message"
             );
             throw e;
         }
@@ -314,54 +314,54 @@ public class OfferwallController {
     @GetMapping(value = "/adiscope/callback")
     @AdiscopeCallbackApiDocs
     public ResponseEntity<BaseResponse<UpdateUserPointResponse>> handleAdiscopeCallback(
-            @RequestParam("transactionId") String rewardKey,
-            @RequestParam("userId") String userKey,
-            @RequestParam("userDeviceType") UserDeviceType userDeviceType,
-            @RequestParam(value = "unitId", required = false) String campaignKey,
-            @RequestParam(value = "shareAdType", required = false) String campaignType,
-            @RequestParam(value = "adname", required = false) String campaignName,
-            @RequestParam(value = "rewardUnit", required = false) String rewardUnit,
-            @RequestParam(value = "rewardAmount") Long quantity,
-            @RequestParam(value = "signature") String signedValue,
-            @RequestParam(value = "adid", required = false) String adid,
-            @RequestParam(value = "network", required = false) String network
+        @RequestParam("transactionId") String rewardKey,
+        @RequestParam("userId") String userKey,
+        @RequestParam("userDeviceType") UserDeviceType userDeviceType,
+        @RequestParam(value = "unitId", required = false) String campaignKey,
+        @RequestParam(value = "shareAdType", required = false) String campaignType,
+        @RequestParam(value = "adname", required = false) String campaignName,
+        @RequestParam(value = "rewardUnit", required = false) String rewardUnit,
+        @RequestParam(value = "rewardAmount") Long quantity,
+        @RequestParam(value = "signature") String signedValue,
+        @RequestParam(value = "adid", required = false) String adid,
+        @RequestParam(value = "network", required = false) String network
     ) {
         LocalDateTime attendedAt = LocalDateTime.now();
 
         JsonNode payloadJson = offerwallVendorCommunicationPayloadGenerator.buildAdiscopePayloadJson(
-                rewardKey,
-                userKey,
-                userDeviceType,
-                campaignKey,
-                campaignType,
-                campaignName,
-                rewardUnit,
-                quantity,
-                signedValue,
-                adid,
-                network
+            rewardKey,
+            userKey,
+            userDeviceType,
+            campaignKey,
+            campaignType,
+            campaignName,
+            rewardUnit,
+            quantity,
+            signedValue,
+            adid,
+            network
         );
         String payloadString = payloadJson.toString();
 
         RegisterOfferwallRewardCommand command = RegisterOfferwallRewardCommand.builder()
-                .offerwallType(OfferwallType.ADISCOPE)
-                .rewardUnit(rewardUnit)
-                .rewardKey(rewardKey)
-                .userKey(userKey)
-                .userDeviceType(userDeviceType)
-                .campaignKey(campaignKey)
-                .campaignType(
-                        FormatValidator.equals(campaignType, OFFERWALL.name())
-                                ? 0
-                                : 1
-                )
-                .campaignName(campaignName)
-                .quantity(quantity)
-                .signedValue(signedValue)
-                .adid(adid)
-                .idfa(adid)
-                .attendedAt(attendedAt)
-                .build();
+            .offerwallType(OfferwallType.ADISCOPE)
+            .rewardUnit(rewardUnit)
+            .rewardKey(rewardKey)
+            .userKey(userKey)
+            .userDeviceType(userDeviceType)
+            .campaignKey(campaignKey)
+            .campaignType(
+                FormatValidator.equals(campaignType, OFFERWALL.name())
+                    ? 0
+                    : 1
+            )
+            .campaignName(campaignName)
+            .quantity(quantity)
+            .signedValue(signedValue)
+            .adid(adid)
+            .idfa(adid)
+            .attendedAt(attendedAt)
+            .build();
 
         RewardVendorCommunicationTargetType targetType = OFFERWALL;
         RewardVendorName vendorName = RewardVendorName.ADISCOPE;
@@ -369,58 +369,58 @@ public class OfferwallController {
         try {
             Long id = handleOfferwallRewardUseCase.handle(command);
             JsonNode successPayloadJson = offerwallVendorCommunicationPayloadGenerator.buildResponsePayloadJson(
-                    true, 1, "success"
+                true, 1, "success"
             );
             String successPayload = successPayloadJson.toString();
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    RewardVendorCommunicationType.REQUEST,
-                    RewardVendorCommunicationSenderType.VENDOR,
-                    String.valueOf(id),
-                    vendorName,
-                    payloadString,
-                    payloadJson
+                targetType,
+                RewardVendorCommunicationType.REQUEST,
+                RewardVendorCommunicationSenderType.VENDOR,
+                String.valueOf(id),
+                vendorName,
+                payloadString,
+                payloadJson
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    RewardVendorCommunicationType.RESPONSE,
-                    RewardVendorCommunicationSenderType.SERVER,
-                    String.valueOf(id),
-                    vendorName,
-                    successPayload,
-                    successPayloadJson
+                targetType,
+                RewardVendorCommunicationType.RESPONSE,
+                RewardVendorCommunicationSenderType.SERVER,
+                String.valueOf(id),
+                vendorName,
+                successPayload,
+                successPayloadJson
             );
 
             return ResponseEntity.ok(
-                    BaseResponse.of(
-                            HttpStatus.OK,
-                            DEFAULT_SUCCESS_CODE,
-                            "애디스콥 리워드 포인트 지급 성공"
-                    )
+                BaseResponse.of(
+                    HttpStatus.OK,
+                    DEFAULT_SUCCESS_CODE,
+                    "애디스콥 리워드 포인트 지급 성공"
+                )
             );
         } catch (VendorVerificationFailedException e) {
             // 서명 검증 실패
             vendorCommunicationFailureHandler.handleFailure(
-                    targetType, vendorName, payloadString, payloadJson, e, 1100, "invalid signed value"
+                targetType, vendorName, payloadString, payloadJson, e, 1100, "invalid signed value"
             );
             throw e;
         } catch (UserNotFoundException e) {
             // 회원 포인트 도메인 정보 조회 실패
             vendorCommunicationFailureHandler.handleFailure(
-                    targetType, vendorName, payloadString, payloadJson, e, 3200, "invalid user"
+                targetType, vendorName, payloadString, payloadJson, e, 3200, "invalid user"
             );
             throw e;
         } catch (DuplicateOfferwallRewardException e) {
             // 중복 리워드 지급 시도
             vendorCommunicationFailureHandler.handleFailure(
-                    targetType, vendorName, payloadString, payloadJson, e, 3100, "duplicate transaction"
+                targetType, vendorName, payloadString, payloadJson, e, 3100, "duplicate transaction"
             );
             throw e;
         } catch (Exception e) {
             // 그 외
             vendorCommunicationFailureHandler.handleFailure(
-                    targetType, vendorName, payloadString, payloadJson, e, 4000, "custom error message"
+                targetType, vendorName, payloadString, payloadJson, e, 4000, "custom error message"
             );
             throw e;
         }

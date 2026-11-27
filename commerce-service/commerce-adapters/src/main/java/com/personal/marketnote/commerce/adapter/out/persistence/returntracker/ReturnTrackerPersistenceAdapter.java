@@ -29,14 +29,14 @@ public class ReturnTrackerPersistenceAdapter implements SaveReturnTrackerPort, F
     @Override
     public Optional<ReturnTracker> findByOrderId(Long orderId) {
         return returnTrackerJpaRepository.findByOrderId(orderId)
-                .map(ReturnTrackerJpaEntityToDomainMapper::toDomain);
+            .map(ReturnTrackerJpaEntityToDomainMapper::toDomain);
     }
 
     @Override
     public List<ReturnTracker> findByInspectionStatus(ReturnInspectionStatus inspectionStatus) {
         return returnTrackerJpaRepository.findByInspectionStatus(inspectionStatus).stream()
-                .map(ReturnTrackerJpaEntityToDomainMapper::toDomain)
-                .toList();
+            .map(ReturnTrackerJpaEntityToDomainMapper::toDomain)
+            .toList();
     }
 
     @Override

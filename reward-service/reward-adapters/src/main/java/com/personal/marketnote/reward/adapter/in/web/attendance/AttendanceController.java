@@ -52,23 +52,23 @@ public class AttendanceController {
     @RegisterAttendanceApiDocs
     @RateLimited(key = "attendance", maxRequests = 5, windowSeconds = 60)
     public ResponseEntity<BaseResponse<RegisterAttendanceResponse>> registerAttendance(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @Valid @RequestBody RegisterAttendanceRequest request
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @Valid @RequestBody RegisterAttendanceRequest request
     ) {
         RegisterAttendanceResult result = registerAttendanceUseCase.register(
-                AttendanceRequestToCommandMapper.mapToCommand(
-                        ElementExtractor.extractUserId(principal), request
-                )
+            AttendanceRequestToCommandMapper.mapToCommand(
+                ElementExtractor.extractUserId(principal), request
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterAttendanceResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 출석체크 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterAttendanceResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "회원 출석체크 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -84,19 +84,19 @@ public class AttendanceController {
     @GetMapping("/relay-status")
     @GetAttendanceRelayStatusApiDocs
     public ResponseEntity<BaseResponse<GetAttendanceRelayStatusResponse>> getAttendanceRelayStatus(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         GetAttendanceRelayStatusResult result = getAttendanceRelayStatusUseCase.getRelayStatus(
-                ElementExtractor.extractUserId(principal)
+            ElementExtractor.extractUserId(principal)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetAttendanceRelayStatusResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "출석 릴레이 현황 조회 성공"
-                )
+            BaseResponse.of(
+                GetAttendanceRelayStatusResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "출석 릴레이 현황 조회 성공"
+            )
         );
     }
 
@@ -114,25 +114,25 @@ public class AttendanceController {
     @GetMapping
     @GetMonthlyAttendanceApiDocs
     public ResponseEntity<BaseResponse<GetMonthlyAttendanceResponse>> getMonthlyAttendanceHistories(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @RequestParam(value = "year", required = false) Integer year,
-            @RequestParam(value = "month", required = false) Integer month
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @RequestParam(value = "year", required = false) Integer year,
+        @RequestParam(value = "month", required = false) Integer month
     ) {
         GetMonthlyAttendanceResult result = getMonthlyAttendanceUseCase.getMonthlyAttendanceHistories(
-                GetMonthlyAttendanceQuery.of(
-                        ElementExtractor.extractUserId(principal),
-                        year,
-                        month
-                )
+            GetMonthlyAttendanceQuery.of(
+                ElementExtractor.extractUserId(principal),
+                year,
+                month
+            )
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetMonthlyAttendanceResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "월별 출석 내역 조회 성공"
-                )
+            BaseResponse.of(
+                GetMonthlyAttendanceResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "월별 출석 내역 조회 성공"
+            )
         );
     }
 }

@@ -31,7 +31,7 @@ class AdminGiftishowBizMoneyControllerTest {
     @DisplayName("OK 상태로 비즈머니 잔액을 반환한다")
     void returnsOkWithBalance() {
         given(getGifticonVendorBalanceUseCase.getBalance())
-                .willReturn(GetGifticonVendorBalanceResult.of(1_234_567L));
+            .willReturn(GetGifticonVendorBalanceResult.of(1_234_567L));
 
         ResponseEntity<BaseResponse<GetGiftishowBizMoneyBalanceResponse>> response = controller.getBalance();
 

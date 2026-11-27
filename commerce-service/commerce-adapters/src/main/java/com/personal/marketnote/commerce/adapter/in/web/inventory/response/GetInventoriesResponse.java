@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetInventoriesResponse(
-        Set<GetInventoryResult> inventories
+    Set<GetInventoryResult> inventories
 ) {
     public static GetInventoriesResponse from(GetInventoriesResult getInventoriesResult) {
         return new GetInventoriesResponse(getInventoriesResult.inventories());

@@ -8,22 +8,22 @@ public record GetGifticonCategoriesResponse(List<GifticonCategoryItemResponse> c
 
     public static GetGifticonCategoriesResponse from(GetGifticonCategoriesResult result) {
         List<GifticonCategoryItemResponse> items = result.categories().stream()
-                .map(item -> new GifticonCategoryItemResponse(
-                        item.categoryCode(),
-                        item.displayName(),
-                        item.iconUrl(),
-                        item.orderNum()
-                ))
-                .toList();
+            .map(item -> new GifticonCategoryItemResponse(
+                item.categoryCode(),
+                item.displayName(),
+                item.iconUrl(),
+                item.orderNum()
+            ))
+            .toList();
 
         return new GetGifticonCategoriesResponse(items);
     }
 
     public record GifticonCategoryItemResponse(
-            String categoryCode,
-            String displayName,
-            String iconUrl,
-            Integer orderNum
+        String categoryCode,
+        String displayName,
+        String iconUrl,
+        Integer orderNum
     ) {
     }
 }

@@ -6,13 +6,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record GetMonthlyAttendanceResponse(
-        List<LocalDate> attendanceDates, int totalAttendanceDays, long totalRewardQuantity
+    List<LocalDate> attendanceDates, int totalAttendanceDays, long totalRewardQuantity
 ) {
     public static GetMonthlyAttendanceResponse from(GetMonthlyAttendanceResult result) {
         return new GetMonthlyAttendanceResponse(
-                result.attendanceDates(),
-                result.totalAttendanceDays(),
-                result.totalRewardQuantity()
+            result.attendanceDates(),
+            result.totalAttendanceDays(),
+            result.totalRewardQuantity()
         );
     }
 }

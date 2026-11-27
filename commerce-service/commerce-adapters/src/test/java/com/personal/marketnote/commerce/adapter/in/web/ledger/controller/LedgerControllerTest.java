@@ -53,28 +53,28 @@ class LedgerControllerTest {
             LocalDateTime start = LocalDateTime.of(2026, 1, 1, 0, 0);
             LocalDateTime end = LocalDateTime.of(2026, 1, 31, 23, 59);
             GetLedgerTransactionResult result = GetLedgerTransactionResult.builder()
-                    .id(1L)
-                    .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                    .targetType("PAYMENT")
-                    .targetId(100L)
-                    .description("결제 승인")
-                    .idempotencyKey("PAYMENT_APPROVAL:100")
-                    .createdAt(LocalDateTime.of(2026, 1, 15, 0, 0))
-                    .entries(List.of())
-                    .build();
+                .id(1L)
+                .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                .targetType("PAYMENT")
+                .targetId(100L)
+                .description("결제 승인")
+                .idempotencyKey("PAYMENT_APPROVAL:100")
+                .createdAt(LocalDateTime.of(2026, 1, 15, 0, 0))
+                .entries(List.of())
+                .build();
             when(getLedgerTransactionsUseCase.getLedgerTransactions(any(GetLedgerTransactionsQuery.class)))
-                    .thenReturn(List.of(result));
+                .thenReturn(List.of(result));
 
             // when
             ResponseEntity<BaseResponse<List<GetLedgerTransactionResponse>>> response =
-                    ledgerController.getLedgerTransactions(start, end, LedgerTransactionType.PAYMENT_APPROVAL);
+                ledgerController.getLedgerTransactions(start, end, LedgerTransactionType.PAYMENT_APPROVAL);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().getContent()).hasSize(1);
             ArgumentCaptor<GetLedgerTransactionsQuery> captor =
-                    ArgumentCaptor.forClass(GetLedgerTransactionsQuery.class);
+                ArgumentCaptor.forClass(GetLedgerTransactionsQuery.class);
             verify(getLedgerTransactionsUseCase).getLedgerTransactions(captor.capture());
             assertThat(captor.getValue().startDate()).isEqualTo(start);
             assertThat(captor.getValue().endDate()).isEqualTo(end);
@@ -92,18 +92,18 @@ class LedgerControllerTest {
             // given
             LocalDateTime asOf = LocalDateTime.of(2026, 2, 1, 0, 0);
             GetAccountBalanceResult result = GetAccountBalanceResult.builder()
-                    .accountId(1L)
-                    .accountName("현금")
-                    .accountType(AccountType.ASSET)
-                    .debitTotal(100_000L)
-                    .creditTotal(50_000L)
-                    .balance(50_000L)
-                    .build();
+                .accountId(1L)
+                .accountName("현금")
+                .accountType(AccountType.ASSET)
+                .debitTotal(100_000L)
+                .creditTotal(50_000L)
+                .balance(50_000L)
+                .build();
             when(getAccountBalanceUseCase.getAccountBalances(asOf)).thenReturn(List.of(result));
 
             // when
             ResponseEntity<BaseResponse<List<GetAccountBalanceResponse>>> response =
-                    ledgerController.getAccountBalances(asOf);
+                ledgerController.getAccountBalances(asOf);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -118,11 +118,11 @@ class LedgerControllerTest {
         void shouldUseCurrentTimeWhenAsOfNull() {
             // given
             when(getAccountBalanceUseCase.getAccountBalances(any(LocalDateTime.class)))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             // when
             ResponseEntity<BaseResponse<List<GetAccountBalanceResponse>>> response =
-                    ledgerController.getAccountBalances(null);
+                ledgerController.getAccountBalances(null);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

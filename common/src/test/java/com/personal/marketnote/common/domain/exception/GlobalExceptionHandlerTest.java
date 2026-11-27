@@ -88,7 +88,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("메시지 본문에 ::이 포함되어도 코드와 메시지가 올바르게 분리된다")
         void shouldHandleDoubleColonInMessageBody() {
             IllegalArgumentException exception =
-                    new IllegalArgumentException("ERR_TEST_02::값 A::B는 유효하지 않습니다");
+                new IllegalArgumentException("ERR_TEST_02::값 A::B는 유효하지 않습니다");
 
             ResponseEntity<ErrorResponse> response = handler.handleIllegalArgumentException(exception);
 
@@ -113,7 +113,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("DomainNotFoundException 핸들러는 404를 반환한다")
         void shouldReturn404ForDomainNotFoundException() {
             DomainNotFoundException exception =
-                    new DomainNotFoundException("ERR_ENTITY_01::엔티티를 찾을 수 없습니다");
+                new DomainNotFoundException("ERR_ENTITY_01::엔티티를 찾을 수 없습니다");
 
             ResponseEntity<ErrorResponse> response = handler.handleDomainNotFoundException(exception);
 
@@ -171,7 +171,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("NPE 핸들러는 500을 반환한다")
         void shouldReturn500ForNullPointerException() {
             NullPointerException exception =
-                    new NullPointerException("Cannot invoke \"com.personal.marketnote.commerce.domain.order.OrderStatus.isMe()\" because \"status\" is null");
+                new NullPointerException("Cannot invoke \"com.personal.marketnote.commerce.domain.order.OrderStatus.isMe()\" because \"status\" is null");
 
             ResponseEntity<ErrorResponse> response = handler.handleNullPointerException(exception);
 
@@ -182,7 +182,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("NPE 핸들러는 응답에 내부 패키지/클래스 정보를 노출하지 않는다")
         void shouldNotExposeInternalInfoInNpeResponse() {
             NullPointerException exception =
-                    new NullPointerException("Cannot invoke \"com.personal.marketnote.commerce.domain.order.OrderStatus.isMe()\" because \"status\" is null");
+                new NullPointerException("Cannot invoke \"com.personal.marketnote.commerce.domain.order.OrderStatus.isMe()\" because \"status\" is null");
 
             ResponseEntity<ErrorResponse> response = handler.handleNullPointerException(exception);
 
@@ -212,7 +212,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("NoHandlerFoundException 핸들러는 404를 반환한다")
         void shouldReturn404ForNoHandlerFoundException() {
             NoHandlerFoundException exception =
-                    new NoHandlerFoundException("GET", "/api/v1/nonexistent", null);
+                new NoHandlerFoundException("GET", "/api/v1/nonexistent", null);
 
             ResponseEntity<ErrorResponse> response = handler.handleNoHandlerFoundException(exception);
 
@@ -226,7 +226,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("NoHandlerFoundException 응답에 요청 경로가 노출되지 않는다")
         void shouldNotExposeRequestPathInNoHandlerResponse() {
             NoHandlerFoundException exception =
-                    new NoHandlerFoundException("GET", "/api/v1/internal/secret", null);
+                new NoHandlerFoundException("GET", "/api/v1/internal/secret", null);
 
             ResponseEntity<ErrorResponse> response = handler.handleNoHandlerFoundException(exception);
 
@@ -238,7 +238,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("NoResourceFoundException 핸들러는 404를 반환한다")
         void shouldReturn404ForNoResourceFoundException() {
             NoResourceFoundException exception =
-                    new NoResourceFoundException(HttpMethod.GET, "/static/missing.js");
+                new NoResourceFoundException(HttpMethod.GET, "/static/missing.js");
 
             ResponseEntity<ErrorResponse> response = handler.handleNoResourceFoundException(exception);
 
@@ -252,7 +252,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("NoResourceFoundException 응답에 리소스 경로가 노출되지 않는다")
         void shouldNotExposeResourcePathInNoResourceResponse() {
             NoResourceFoundException exception =
-                    new NoResourceFoundException(HttpMethod.GET, "/internal/config.json");
+                new NoResourceFoundException(HttpMethod.GET, "/internal/config.json");
 
             ResponseEntity<ErrorResponse> response = handler.handleNoResourceFoundException(exception);
 
@@ -296,7 +296,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("HttpRequestMethodNotSupportedException 핸들러는 고정 메시지를 반환한다")
         void shouldReturnFixedMessageForHttpRequestMethodNotSupportedException() {
             org.springframework.web.HttpRequestMethodNotSupportedException exception =
-                    new org.springframework.web.HttpRequestMethodNotSupportedException("DELETE", List.of("GET", "POST", "PUT"));
+                new org.springframework.web.HttpRequestMethodNotSupportedException("DELETE", List.of("GET", "POST", "PUT"));
 
             ResponseEntity<ErrorResponse> response = handler.handleHttpRequestMethodNotSupportedException(exception);
 
@@ -311,7 +311,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("HttpMediaTypeNotSupportedException 핸들러는 고정 메시지를 반환한다")
         void shouldReturnFixedMessageForHttpMediaTypeNotSupportedException() {
             org.springframework.web.HttpMediaTypeNotSupportedException exception =
-                    new org.springframework.web.HttpMediaTypeNotSupportedException("Content-Type 'text/xml' is not supported");
+                new org.springframework.web.HttpMediaTypeNotSupportedException("Content-Type 'text/xml' is not supported");
 
             ResponseEntity<ErrorResponse> response = handler.handleHttpMediaTypeNotSupportedException(exception);
 
@@ -337,7 +337,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("AuthenticationException 핸들러는 고정 메시지를 반환한다")
         void shouldReturnFixedMessageForAuthenticationException() {
             BadCredentialsException exception =
-                    new BadCredentialsException("Full authentication is required to access this resource at /api/v1/internal");
+                new BadCredentialsException("Full authentication is required to access this resource at /api/v1/internal");
 
             ResponseEntity<ErrorResponse> response = handler.handleAuthenticationException(exception);
 
@@ -351,7 +351,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("AccessDeniedException 핸들러는 고정 메시지를 반환한다")
         void shouldReturnFixedMessageForAccessDeniedException() {
             AccessDeniedException exception =
-                    new AccessDeniedException("Access denied for user 'admin' to resource /api/v1/admin/settings");
+                new AccessDeniedException("Access denied for user 'admin' to resource /api/v1/admin/settings");
 
             ResponseEntity<ErrorResponse> response = handler.handleAccessDeniedException(exception);
 
@@ -365,7 +365,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("DomainAlreadyExistsException 핸들러는 고정 메시지를 반환한다")
         void shouldReturnFixedMessageForDomainAlreadyExistsException() {
             DomainAlreadyExistsException exception =
-                    new DomainAlreadyExistsException("A different object with the same identifier value was already associated: [com.personal.marketnote.product.entity.ProductJpaEntity#123]");
+                new DomainAlreadyExistsException("A different object with the same identifier value was already associated: [com.personal.marketnote.product.entity.ProductJpaEntity#123]");
 
             ResponseEntity<ErrorResponse> response = handler.handleDomainAlreadyExistsException(exception);
 
@@ -379,7 +379,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("MailException 핸들러는 고정 메시지를 반환한다")
         void shouldReturnFixedMessageForMailException() {
             MailSendException exception =
-                    new MailSendException("Mail server connection failed; nested exception: javax.mail.MessagingException: Could not connect to SMTP host: smtp.internal.personal.com, port: 587");
+                new MailSendException("Mail server connection failed; nested exception: javax.mail.MessagingException: Could not connect to SMTP host: smtp.internal.personal.com, port: 587");
 
             ResponseEntity<ErrorResponse> response = handler.handleMailException(exception);
 
@@ -393,7 +393,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("MalformedJwtException 핸들러는 고정 메시지를 반환한다")
         void shouldReturnFixedMessageForMalformedJwtException() {
             MalformedJwtException exception =
-                    new MalformedJwtException("Unable to read JSON value: {\"alg\":\"HS256\",\"typ\":\"JWT\"}");
+                new MalformedJwtException("Unable to read JSON value: {\"alg\":\"HS256\",\"typ\":\"JWT\"}");
 
             ResponseEntity<ErrorResponse> response = handler.handleMalformedJwtException(exception);
 
@@ -407,7 +407,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("UnsupportedJwtException 핸들러는 고정 메시지를 반환한다")
         void shouldReturnFixedMessageForUnsupportedJwtException() {
             UnsupportedJwtException exception =
-                    new UnsupportedJwtException("Signed JWSs are not supported. Use unsigned JWTs instead.");
+                new UnsupportedJwtException("Signed JWSs are not supported. Use unsigned JWTs instead.");
 
             ResponseEntity<ErrorResponse> response = handler.handleUnsupportedJwtException(exception);
 
@@ -421,7 +421,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("UncheckedIOException 핸들러는 고정 메시지를 반환한다")
         void shouldReturnFixedMessageForUncheckedIOException() {
             UncheckedIOException exception =
-                    new UncheckedIOException(new IOException("Connection reset by peer: /10.0.1.5:8080"));
+                new UncheckedIOException(new IOException("Connection reset by peer: /10.0.1.5:8080"));
 
             ResponseEntity<ErrorResponse> response = handler.handleUncheckedIOException(exception);
 
@@ -435,7 +435,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("VendorOperationFailedException 핸들러는 502 BAD_GATEWAY와 고정 메시지를 반환한다")
         void shouldReturn502ForVendorOperationFailedException() {
             FakeVendorOperationFailedException exception =
-                    new FakeVendorOperationFailedException("Fassto cstGodCd length is invalid. reason=raw=GOD-1234567890");
+                new FakeVendorOperationFailedException("Fassto cstGodCd length is invalid. reason=raw=GOD-1234567890");
 
             ResponseEntity<ErrorResponse> response = handler.handleVendorOperationFailedException(exception);
 
@@ -449,7 +449,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("VendorOperationFailedException 응답 메시지에 vendor 원본 메시지가 노출되지 않는다")
         void shouldNotLeakVendorOriginalMessageInResponse() {
             FakeVendorOperationFailedException exception =
-                    new FakeVendorOperationFailedException("Fassto cstGodCd charset invalid: raw=SECRET-CODE-XYZ");
+                new FakeVendorOperationFailedException("Fassto cstGodCd charset invalid: raw=SECRET-CODE-XYZ");
 
             ResponseEntity<ErrorResponse> response = handler.handleVendorOperationFailedException(exception);
 
@@ -480,7 +480,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("미처리 예외 응답에 원본 예외 메시지를 노출하지 않고 고정 메시지를 반환한다")
         void shouldNotExposeOriginalMessageInCatchAllResponse() {
             Exception exception = new Exception(
-                    "org.hibernate.query.sqm.UnknownPathException: Could not resolve attribute 'accumulatedPointRate' of 'com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity'");
+                "org.hibernate.query.sqm.UnknownPathException: Could not resolve attribute 'accumulatedPointRate' of 'com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity'");
 
             ResponseEntity<ErrorResponse> response = handler.handleException(exception);
 
@@ -524,7 +524,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("AsyncRequestNotUsableException 핸들러는 204 No Content를 반환한다")
         void shouldReturn204ForAsyncRequestNotUsableException() {
             AsyncRequestNotUsableException exception =
-                    new AsyncRequestNotUsableException("ServletOutputStream failed to flush: java.io.IOException: Broken pipe");
+                new AsyncRequestNotUsableException("ServletOutputStream failed to flush: java.io.IOException: Broken pipe");
 
             ResponseEntity<Void> response = handler.handleAsyncRequestNotUsableException(exception);
 
@@ -535,7 +535,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("AsyncRequestNotUsableException 핸들러는 응답 본문 없이 반환한다")
         void shouldReturnEmptyBodyForAsyncRequestNotUsableException() {
             AsyncRequestNotUsableException exception =
-                    new AsyncRequestNotUsableException("ServletOutputStream failed to flush");
+                new AsyncRequestNotUsableException("ServletOutputStream failed to flush");
 
             ResponseEntity<Void> response = handler.handleAsyncRequestNotUsableException(exception);
 
@@ -554,15 +554,15 @@ class GlobalExceptionHandlerTest {
 
             try {
                 handler.handleAsyncRequestNotUsableException(
-                        new AsyncRequestNotUsableException("ServletOutputStream failed to flush")
+                    new AsyncRequestNotUsableException("ServletOutputStream failed to flush")
                 );
 
                 assertThat(appender.list)
-                        .hasSize(1)
-                        .allSatisfy(event -> {
-                            assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
-                            assertThat(event.getThrowableProxy()).isNull();
-                        });
+                    .hasSize(1)
+                    .allSatisfy(event -> {
+                        assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
+                        assertThat(event.getThrowableProxy()).isNull();
+                    });
             } finally {
                 logger.detachAppender(appender);
                 logger.setLevel(originalLevel);
@@ -577,7 +577,7 @@ class GlobalExceptionHandlerTest {
             double before = counter.count();
 
             handler.handleAsyncRequestNotUsableException(
-                    new AsyncRequestNotUsableException("ServletOutputStream failed to flush")
+                new AsyncRequestNotUsableException("ServletOutputStream failed to flush")
             );
 
             assertThat(counter.count()).isEqualTo(before + 1.0);
@@ -592,7 +592,7 @@ class GlobalExceptionHandlerTest {
 
             for (int i = 0; i < 3; i++) {
                 handler.handleAsyncRequestNotUsableException(
-                        new AsyncRequestNotUsableException("ServletOutputStream failed to flush")
+                    new AsyncRequestNotUsableException("ServletOutputStream failed to flush")
                 );
             }
 
@@ -731,15 +731,15 @@ class GlobalExceptionHandlerTest {
         @DisplayName("MethodArgumentNotValidException 처리 시 로그에 rejectedValue가 포함되지 않는다")
         void shouldNotIncludeRejectedValueInLogWhenHandlingMethodArgumentNotValidException() {
             FieldError phoneError = new FieldError(
-                    "target", "phoneNumber", "010-1234-abcd", false, null, null,
-                    "전화번호 형식이 올바르지 않습니다."
+                "target", "phoneNumber", "010-1234-abcd", false, null, null,
+                "전화번호 형식이 올바르지 않습니다."
             );
             FieldError emailError = new FieldError(
-                    "target", "email", "raw@example.com", false, null, null,
-                    "이메일 형식이 올바르지 않습니다."
+                "target", "email", "raw@example.com", false, null, null,
+                "이메일 형식이 올바르지 않습니다."
             );
             MethodArgumentNotValidException exception =
-                    buildMethodArgumentNotValidException(List.of(phoneError, emailError));
+                buildMethodArgumentNotValidException(List.of(phoneError, emailError));
 
             handler.handleMethodArgumentNotValidException(exception);
 
@@ -751,16 +751,16 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).contains("전화번호 형식이 올바르지 않습니다.");
             assertThat(logged).contains("이메일 형식이 올바르지 않습니다.");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("MethodArgumentNotValidException의 원본 getMessage는 로그에 포함되지 않는다")
         void shouldNotIncludeOriginalMessageInLogWhenHandlingMethodArgumentNotValidException() {
             FieldError error = new FieldError(
-                    "target", "password", "plaintext-password-1234!", false, null, null,
-                    "비밀번호 형식이 올바르지 않습니다."
+                "target", "password", "plaintext-password-1234!", false, null, null,
+                "비밀번호 형식이 올바르지 않습니다."
             );
             MethodArgumentNotValidException exception = buildMethodArgumentNotValidException(List.of(error));
 
@@ -791,15 +791,15 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).contains("전화번호 형식이 올바르지 않습니다.");
             assertThat(logged).contains("이메일 형식이 올바르지 않습니다.");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("MethodArgumentNotValidException 응답 바디는 기존 동작을 유지한다 - 필드 에러 defaultMessage 포함")
         void shouldPreserveResponseBodyWhenHandlingMethodArgumentNotValidException() {
             FieldError error = new FieldError(
-                    "target", "name", "", false, null, null, "이름은 필수입니다."
+                "target", "name", "", false, null, null, "이름은 필수입니다."
             );
             MethodArgumentNotValidException exception = buildMethodArgumentNotValidException(List.of(error));
 
@@ -814,7 +814,7 @@ class GlobalExceptionHandlerTest {
         @DisplayName("FieldError의 defaultMessage가 null이어도 로그에 'null' 리터럴이 포함되지 않는다")
         void shouldNotEmitNullLiteralWhenFieldErrorDefaultMessageIsNull() {
             FieldError error = new FieldError(
-                    "target", "phoneNumber", "010-1234-abcd", false, null, null, null
+                "target", "phoneNumber", "010-1234-abcd", false, null, null, null
             );
             MethodArgumentNotValidException exception = buildMethodArgumentNotValidException(List.of(error));
 
@@ -859,11 +859,11 @@ class GlobalExceptionHandlerTest {
 
                     if (index % 2 == 0) {
                         IllegalArgumentException exception =
-                                new IllegalArgumentException("ERR_ARG_" + index + "::인자 에러 " + index);
+                            new IllegalArgumentException("ERR_ARG_" + index + "::인자 에러 " + index);
                         return handler.handleIllegalArgumentException(exception);
                     }
                     IllegalStateException exception =
-                            new IllegalStateException("ERR_STATE_" + index + "::상태 에러 " + index);
+                        new IllegalStateException("ERR_STATE_" + index + "::상태 에러 " + index);
                     return handler.handleIllegalStateException(exception);
                 }));
             }
@@ -929,13 +929,13 @@ class GlobalExceptionHandlerTest {
         void shouldNotLogRawValueWhenHandlingHttpMessageNotReadableException() {
             MismatchedInputException mismatchedInputException = mock(MismatchedInputException.class);
             when(mismatchedInputException.getPath()).thenReturn(List.of(
-                    new JsonMappingException.Reference(null, "amount")
+                new JsonMappingException.Reference(null, "amount")
             ));
             HttpInputMessage httpInputMessage = mock(HttpInputMessage.class);
             HttpMessageNotReadableException exception = new HttpMessageNotReadableException(
-                    "JSON parse error: Cannot deserialize value of type `java.lang.Integer` from String \"SENSITIVE_CARD_1234\"",
-                    mismatchedInputException,
-                    httpInputMessage
+                "JSON parse error: Cannot deserialize value of type `java.lang.Integer` from String \"SENSITIVE_CARD_1234\"",
+                mismatchedInputException,
+                httpInputMessage
             );
 
             handler.handleHttpMessageNotReadableException(exception);
@@ -946,8 +946,8 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).contains("HttpMessageNotReadable");
             assertThat(logged).contains("amount");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
@@ -955,7 +955,7 @@ class GlobalExceptionHandlerTest {
         void shouldNotLogRawValueWhenHandlingMethodArgumentTypeMismatchException() {
             NumberFormatException cause = new NumberFormatException("For input string: \"SENSITIVE_CARD_1234\"");
             MethodArgumentTypeMismatchException exception = new MethodArgumentTypeMismatchException(
-                    "SENSITIVE_CARD_1234", Integer.class, "orderId", (MethodParameter) null, cause
+                "SENSITIVE_CARD_1234", Integer.class, "orderId", (MethodParameter) null, cause
             );
 
             handler.handleMethodArgumentTypeMismatchException(exception);
@@ -966,15 +966,15 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).contains("orderId");
             assertThat(logged).contains("Integer");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("MalformedJwtException 로그에 JWT 토큰 일부가 포함되지 않는다")
         void shouldNotLogJwtTokenWhenHandlingMalformedJwtException() {
             MalformedJwtException exception = new MalformedJwtException(
-                    "JWT strings must contain exactly 2 period characters. Found: 0 eyJhbGciOiJIUzI1"
+                "JWT strings must contain exactly 2 period characters. Found: 0 eyJhbGciOiJIUzI1"
             );
 
             handler.handleMalformedJwtException(exception);
@@ -985,15 +985,15 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("JWT strings must contain");
             assertThat(logged).contains("MalformedJwtException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("UnsupportedJwtException 로그에 JWT 토큰 일부가 포함되지 않는다")
         void shouldNotLogJwtTokenWhenHandlingUnsupportedJwtException() {
             UnsupportedJwtException exception = new UnsupportedJwtException(
-                    "Signed JWT rejected: Signed with RS256 eyJhbGciOiJIUzI1"
+                "Signed JWT rejected: Signed with RS256 eyJhbGciOiJIUzI1"
             );
 
             handler.handleUnsupportedJwtException(exception);
@@ -1004,8 +1004,8 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("Signed JWT rejected");
             assertThat(logged).contains("UnsupportedJwtException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
@@ -1013,8 +1013,8 @@ class GlobalExceptionHandlerTest {
         void shouldNotLogRawMessageWhenHttpMessageNotReadableCauseIsNull() {
             HttpInputMessage httpInputMessage = mock(HttpInputMessage.class);
             HttpMessageNotReadableException exception = new HttpMessageNotReadableException(
-                    "Required request body is missing: SENSITIVE_CARD_1234",
-                    httpInputMessage
+                "Required request body is missing: SENSITIVE_CARD_1234",
+                httpInputMessage
             );
 
             handler.handleHttpMessageNotReadableException(exception);
@@ -1025,22 +1025,22 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).contains("HttpMessageNotReadable");
             assertThat(logged).contains("cause=unknown");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("HttpMessageNotReadableException cause가 JsonParseException이어도 원본 본문이 로그에 포함되지 않는다")
         void shouldNotLogRawBodyWhenHttpMessageNotReadableCauseIsJsonParseException() {
             JsonParseException jsonParseException = new JsonParseException(
-                    null,
-                    "Unexpected character ('x' (code 120)) near SENSITIVE_CARD_1234"
+                null,
+                "Unexpected character ('x' (code 120)) near SENSITIVE_CARD_1234"
             );
             HttpInputMessage httpInputMessage = mock(HttpInputMessage.class);
             HttpMessageNotReadableException exception = new HttpMessageNotReadableException(
-                    "JSON parse error: Unexpected character ('x' (code 120)) near SENSITIVE_CARD_1234",
-                    jsonParseException,
-                    httpInputMessage
+                "JSON parse error: Unexpected character ('x' (code 120)) near SENSITIVE_CARD_1234",
+                jsonParseException,
+                httpInputMessage
             );
 
             handler.handleHttpMessageNotReadableException(exception);
@@ -1051,8 +1051,8 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).contains("HttpMessageNotReadable");
             assertThat(logged).contains("cause=JsonParseException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
@@ -1068,15 +1068,15 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("No such file");
             assertThat(logged).contains("type=IOException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("NullPointerException 처리 시 내부 클래스명이 로그에 포함되지 않는다")
         void shouldNotLogInternalClassNameWhenHandlingNullPointerException() {
             NullPointerException exception = new NullPointerException(
-                    "Cannot invoke \"com.personal.marketnote.commerce.domain.order.OrderStatus.isMe()\" because \"status\" is null"
+                "Cannot invoke \"com.personal.marketnote.commerce.domain.order.OrderStatus.isMe()\" because \"status\" is null"
             );
 
             handler.handleNullPointerException(exception);
@@ -1087,15 +1087,15 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("Cannot invoke");
             assertThat(logged).contains("type=NullPointerException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("NoHandlerFoundException 처리 시 요청 경로가 로그에 포함되지 않는다")
         void shouldNotLogRequestPathWhenHandlingNoHandlerFoundException() {
             NoHandlerFoundException exception =
-                    new NoHandlerFoundException("GET", "/api/v1/internal/secret", null);
+                new NoHandlerFoundException("GET", "/api/v1/internal/secret", null);
 
             handler.handleNoHandlerFoundException(exception);
 
@@ -1104,15 +1104,15 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("/api/v1");
             assertThat(logged).contains("type=NoHandlerFoundException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("NoResourceFoundException 처리 시 리소스 경로가 로그에 포함되지 않는다")
         void shouldNotLogResourcePathWhenHandlingNoResourceFoundException() {
             NoResourceFoundException exception =
-                    new NoResourceFoundException(HttpMethod.GET, "/internal/config.json");
+                new NoResourceFoundException(HttpMethod.GET, "/internal/config.json");
 
             handler.handleNoResourceFoundException(exception);
 
@@ -1121,15 +1121,15 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("/internal");
             assertThat(logged).contains("type=NoResourceFoundException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("AuthenticationException 처리 시 인증 상세가 로그에 포함되지 않는다")
         void shouldNotLogAuthenticationDetailWhenHandlingAuthenticationException() {
             BadCredentialsException exception = new BadCredentialsException(
-                    "Full authentication is required to access this resource at /api/v1/internal with user=admin"
+                "Full authentication is required to access this resource at /api/v1/internal with user=admin"
             );
 
             handler.handleAuthenticationException(exception);
@@ -1140,15 +1140,15 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("Full authentication");
             assertThat(logged).contains("type=BadCredentialsException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("AccessDeniedException 처리 시 사용자/리소스 상세가 로그에 포함되지 않는다")
         void shouldNotLogUserOrResourceDetailWhenHandlingAccessDeniedException() {
             AccessDeniedException exception = new AccessDeniedException(
-                    "Access denied for user 'admin' to resource /api/v1/admin/settings"
+                "Access denied for user 'admin' to resource /api/v1/admin/settings"
             );
 
             handler.handleAccessDeniedException(exception);
@@ -1159,8 +1159,8 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("Access denied for user");
             assertThat(logged).contains("type=AccessDeniedException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
@@ -1168,7 +1168,7 @@ class GlobalExceptionHandlerTest {
         void shouldNotLogRawValueWhenHandlingIllegalArgumentExceptionWithNumberFormatCause() {
             NumberFormatException cause = new NumberFormatException("For input string: \"SENSITIVE_CARD_1234\"");
             IllegalArgumentException exception =
-                    new IllegalArgumentException("Invalid input: SENSITIVE_CARD_1234", cause);
+                new IllegalArgumentException("Invalid input: SENSITIVE_CARD_1234", cause);
 
             handler.handleIllegalArgumentException(exception);
 
@@ -1179,15 +1179,15 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).contains("type=IllegalArgumentException");
             assertThat(logged).contains("cause=NumberFormatException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("IllegalStateException 처리 시 상태 상세가 로그에 포함되지 않는다")
         void shouldNotLogStateDetailWhenHandlingIllegalStateException() {
             IllegalStateException exception = new IllegalStateException(
-                    "Order with id=ORDER_SENSITIVE_9999 is already cancelled at /api/v1/orders"
+                "Order with id=ORDER_SENSITIVE_9999 is already cancelled at /api/v1/orders"
             );
 
             handler.handleIllegalStateException(exception);
@@ -1198,17 +1198,17 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("already cancelled");
             assertThat(logged).contains("type=IllegalStateException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("MailException 처리 시 메일 서버 호스트/수신자가 로그에 포함되지 않는다")
         void shouldNotLogMailServerHostOrRecipientWhenHandlingMailException() {
             MailSendException exception = new MailSendException(
-                    "Mail server connection failed; nested exception: javax.mail.MessagingException: "
-                            + "Could not connect to SMTP host: smtp.internal.personal.com, port: 587, "
-                            + "recipient: user-secret@example.com"
+                "Mail server connection failed; nested exception: javax.mail.MessagingException: "
+                    + "Could not connect to SMTP host: smtp.internal.personal.com, port: 587, "
+                    + "recipient: user-secret@example.com"
             );
 
             handler.handleMailException(exception);
@@ -1219,15 +1219,15 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("Mail server connection failed");
             assertThat(logged).contains("type=MailSendException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("UncheckedIOException 처리 시 네트워크 상세가 로그에 포함되지 않는다")
         void shouldNotLogNetworkDetailWhenHandlingUncheckedIOException() {
             UncheckedIOException exception =
-                    new UncheckedIOException(new IOException("Connection reset by peer: /10.0.1.5:8080"));
+                new UncheckedIOException(new IOException("Connection reset by peer: /10.0.1.5:8080"));
 
             handler.handleUncheckedIOException(exception);
 
@@ -1238,15 +1238,15 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).contains("type=UncheckedIOException");
             assertThat(logged).contains("cause=IOException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("VendorOperationFailedException 처리 시 vendor 원본 메시지가 로그에 포함되지 않는다")
         void shouldNotLogVendorOriginalMessageWhenHandlingVendorOperationFailedException() {
             FakeVendorOperationFailedException exception = new FakeVendorOperationFailedException(
-                    "Fassto cstGodCd length is invalid. reason=raw=SECRET-PRODUCT-KEY-1234567890"
+                "Fassto cstGodCd length is invalid. reason=raw=SECRET-PRODUCT-KEY-1234567890"
             );
 
             handler.handleVendorOperationFailedException(exception);
@@ -1257,17 +1257,17 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("Fassto");
             assertThat(logged).contains("type=FakeVendorOperationFailedException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("DataIntegrityViolationException 처리 시 SQL 쿼리/바인딩 값이 로그에 포함되지 않는다")
         void shouldNotLogSqlOrBindingValueWhenHandlingDataIntegrityViolationException() {
             DataIntegrityViolationException exception = new DataIntegrityViolationException(
-                    "could not execute statement [ERROR: duplicate key value violates unique constraint "
-                            + "\"uk_user_email\"  Detail: Key (email)=(leaked-pii@example.com) already exists.] "
-                            + "[INSERT INTO users (email, password) VALUES ('leaked-pii@example.com', 'plain-pw-1234')]"
+                "could not execute statement [ERROR: duplicate key value violates unique constraint "
+                    + "\"uk_user_email\"  Detail: Key (email)=(leaked-pii@example.com) already exists.] "
+                    + "[INSERT INTO users (email, password) VALUES ('leaked-pii@example.com', 'plain-pw-1234')]"
             );
 
             handler.handleDataIntegrityViolationException(exception);
@@ -1279,16 +1279,16 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("uk_user_email");
             assertThat(logged).contains("type=DataIntegrityViolationException");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
 
         @Test
         @DisplayName("Exception (catch-all) 처리 시 원본 메시지가 로그에 포함되지 않는다")
         void shouldNotLogOriginalMessageWhenHandlingCatchAllException() {
             Exception exception = new Exception(
-                    "org.hibernate.query.sqm.UnknownPathException: Could not resolve attribute "
-                            + "'accumulatedPointRate' of 'com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity'"
+                "org.hibernate.query.sqm.UnknownPathException: Could not resolve attribute "
+                    + "'accumulatedPointRate' of 'com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity'"
             );
 
             handler.handleException(exception);
@@ -1300,8 +1300,8 @@ class GlobalExceptionHandlerTest {
             assertThat(logged).doesNotContain("UnknownPathException");
             assertThat(logged).contains("type=Exception");
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+                .hasSize(1)
+                .allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
         }
     }
 
@@ -1365,128 +1365,128 @@ class GlobalExceptionHandlerTest {
         static Stream<Arguments> group_a_handlers() {
             HttpInputMessage httpInputMessage = mock(HttpInputMessage.class);
             return Stream.of(
-                    Arguments.of(
-                            "DomainNotFoundException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleDomainNotFoundException(
-                                    new DomainNotFoundException("ERR_E::not found")
-                            ),
-                            "DomainNotFoundException"
+                Arguments.of(
+                    "DomainNotFoundException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleDomainNotFoundException(
+                        new DomainNotFoundException("ERR_E::not found")
                     ),
-                    Arguments.of(
-                            "NoHandlerFoundException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleNoHandlerFoundException(
-                                    new NoHandlerFoundException("GET", "/x", null)
-                            ),
-                            "NoHandlerFoundException"
+                    "DomainNotFoundException"
+                ),
+                Arguments.of(
+                    "NoHandlerFoundException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleNoHandlerFoundException(
+                        new NoHandlerFoundException("GET", "/x", null)
                     ),
-                    Arguments.of(
-                            "NoResourceFoundException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleNoResourceFoundException(
-                                    new NoResourceFoundException(HttpMethod.GET, "/x")
-                            ),
-                            "NoResourceFoundException"
+                    "NoHandlerFoundException"
+                ),
+                Arguments.of(
+                    "NoResourceFoundException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleNoResourceFoundException(
+                        new NoResourceFoundException(HttpMethod.GET, "/x")
                     ),
-                    Arguments.of(
-                            "AuthenticationException(BadCredentialsException)",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleAuthenticationException(
-                                    new BadCredentialsException("auth fail")
-                            ),
-                            "BadCredentialsException"
+                    "NoResourceFoundException"
+                ),
+                Arguments.of(
+                    "AuthenticationException(BadCredentialsException)",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleAuthenticationException(
+                        new BadCredentialsException("auth fail")
                     ),
-                    Arguments.of(
-                            "AccessDeniedException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleAccessDeniedException(
-                                    new AccessDeniedException("denied")
-                            ),
-                            "AccessDeniedException"
+                    "BadCredentialsException"
+                ),
+                Arguments.of(
+                    "AccessDeniedException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleAccessDeniedException(
+                        new AccessDeniedException("denied")
                     ),
-                    Arguments.of(
-                            "BusinessSecurityException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleBusinessSecurityException(
-                                    new FakeBusinessSecurityException("ERR::biz")
-                            ),
-                            "BusinessSecurityException"
+                    "AccessDeniedException"
+                ),
+                Arguments.of(
+                    "BusinessSecurityException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleBusinessSecurityException(
+                        new FakeBusinessSecurityException("ERR::biz")
                     ),
-                    Arguments.of(
-                            "MethodArgumentNotValidException",
-                            (Consumer<GlobalExceptionHandler>) h -> {
-                                BindingResult br = new BeanPropertyBindingResult(new Object(), "target");
-                                br.addError(new FieldError(
-                                        "target", "name", null, false, null, null, "필수"
-                                ));
-                                // 실제 인스턴스 사용 시 MethodParameter null이면 생성자에서 NPE 발생.
-                                // SimpleName이 'MethodArgumentNotValidException'을 포함하는 익명 서브클래스로 우회.
-                                MethodArgumentNotValidException ex = new MethodArgumentNotValidExceptionStub(br);
-                                h.handleMethodArgumentNotValidException(ex);
-                            },
-                            "MethodArgumentNotValidExceptionStub"
+                    "BusinessSecurityException"
+                ),
+                Arguments.of(
+                    "MethodArgumentNotValidException",
+                    (Consumer<GlobalExceptionHandler>) h -> {
+                        BindingResult br = new BeanPropertyBindingResult(new Object(), "target");
+                        br.addError(new FieldError(
+                            "target", "name", null, false, null, null, "필수"
+                        ));
+                        // 실제 인스턴스 사용 시 MethodParameter null이면 생성자에서 NPE 발생.
+                        // SimpleName이 'MethodArgumentNotValidException'을 포함하는 익명 서브클래스로 우회.
+                        MethodArgumentNotValidException ex = new MethodArgumentNotValidExceptionStub(br);
+                        h.handleMethodArgumentNotValidException(ex);
+                    },
+                    "MethodArgumentNotValidExceptionStub"
+                ),
+                Arguments.of(
+                    "IllegalArgumentException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleIllegalArgumentException(
+                        new IllegalArgumentException("ERR::bad arg")
                     ),
-                    Arguments.of(
-                            "IllegalArgumentException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleIllegalArgumentException(
-                                    new IllegalArgumentException("ERR::bad arg")
-                            ),
-                            "IllegalArgumentException"
+                    "IllegalArgumentException"
+                ),
+                Arguments.of(
+                    "ConstraintViolationException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleConstraintViolationException(
+                        new ConstraintViolationException(new HashSet<>())
                     ),
-                    Arguments.of(
-                            "ConstraintViolationException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleConstraintViolationException(
-                                    new ConstraintViolationException(new HashSet<>())
-                            ),
-                            "ConstraintViolationException"
+                    "ConstraintViolationException"
+                ),
+                Arguments.of(
+                    "HttpMessageNotReadableException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleHttpMessageNotReadableException(
+                        new HttpMessageNotReadableException("JSON parse error", httpInputMessage)
                     ),
-                    Arguments.of(
-                            "HttpMessageNotReadableException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleHttpMessageNotReadableException(
-                                    new HttpMessageNotReadableException("JSON parse error", httpInputMessage)
-                            ),
-                            "HttpMessageNotReadableException"
+                    "HttpMessageNotReadableException"
+                ),
+                Arguments.of(
+                    "MalformedJwtException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleMalformedJwtException(
+                        new MalformedJwtException("malformed")
                     ),
-                    Arguments.of(
-                            "MalformedJwtException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleMalformedJwtException(
-                                    new MalformedJwtException("malformed")
-                            ),
-                            "MalformedJwtException"
+                    "MalformedJwtException"
+                ),
+                Arguments.of(
+                    "UnsupportedJwtException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleUnsupportedJwtException(
+                        new UnsupportedJwtException("unsupported")
                     ),
-                    Arguments.of(
-                            "UnsupportedJwtException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleUnsupportedJwtException(
-                                    new UnsupportedJwtException("unsupported")
-                            ),
-                            "UnsupportedJwtException"
+                    "UnsupportedJwtException"
+                ),
+                Arguments.of(
+                    "DomainAlreadyExistsException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleDomainAlreadyExistsException(
+                        new DomainAlreadyExistsException("dup")
                     ),
-                    Arguments.of(
-                            "DomainAlreadyExistsException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleDomainAlreadyExistsException(
-                                    new DomainAlreadyExistsException("dup")
-                            ),
-                            "DomainAlreadyExistsException"
+                    "DomainAlreadyExistsException"
+                ),
+                Arguments.of(
+                    "IllegalStateException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleIllegalStateException(
+                        new IllegalStateException("ERR::state")
                     ),
-                    Arguments.of(
-                            "IllegalStateException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleIllegalStateException(
-                                    new IllegalStateException("ERR::state")
-                            ),
-                            "IllegalStateException"
+                    "IllegalStateException"
+                ),
+                Arguments.of(
+                    "MethodArgumentTypeMismatchException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleMethodArgumentTypeMismatchException(
+                        new MethodArgumentTypeMismatchException(
+                            "v", Integer.class, "id", (MethodParameter) null,
+                            new NumberFormatException("nfe")
+                        )
                     ),
-                    Arguments.of(
-                            "MethodArgumentTypeMismatchException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleMethodArgumentTypeMismatchException(
-                                    new MethodArgumentTypeMismatchException(
-                                            "v", Integer.class, "id", (MethodParameter) null,
-                                            new NumberFormatException("nfe")
-                                    )
-                            ),
-                            "MethodArgumentTypeMismatchException"
+                    "MethodArgumentTypeMismatchException"
+                ),
+                Arguments.of(
+                    "RateLimitExceededException",
+                    (Consumer<GlobalExceptionHandler>) h -> h.handleRateLimitExceededException(
+                        new RateLimitExceededException("rate limited", 60L)
                     ),
-                    Arguments.of(
-                            "RateLimitExceededException",
-                            (Consumer<GlobalExceptionHandler>) h -> h.handleRateLimitExceededException(
-                                    new RateLimitExceededException("rate limited", 60L)
-                            ),
-                            "RateLimitExceededException"
-                    )
+                    "RateLimitExceededException"
+                )
             );
         }
 
@@ -1494,26 +1494,26 @@ class GlobalExceptionHandlerTest {
         @MethodSource("group_a_handlers")
         @DisplayName("DEBUG 비활성화 시 Group A 핸들러는 sanitized 로그만 남기고 stack trace를 기록하지 않는다")
         void shouldNotLogStackTraceWhenDebugDisabled(
-                String displayName, Consumer<GlobalExceptionHandler> invoker, String expectedSimpleName
+            String displayName, Consumer<GlobalExceptionHandler> invoker, String expectedSimpleName
         ) {
             logger.setLevel(Level.INFO);
 
             invoker.accept(handler);
 
             assertThat(appender.list)
-                    .as("[%s] DEBUG 비활성 시 sanitized 로그 1건만 캡처되어야 한다", displayName)
-                    .hasSize(1)
-                    .allSatisfy(event -> {
-                        assertThat(event.getLevel()).isNotEqualTo(Level.DEBUG);
-                        assertThat(event.getThrowableProxy()).isNull();
-                    });
+                .as("[%s] DEBUG 비활성 시 sanitized 로그 1건만 캡처되어야 한다", displayName)
+                .hasSize(1)
+                .allSatisfy(event -> {
+                    assertThat(event.getLevel()).isNotEqualTo(Level.DEBUG);
+                    assertThat(event.getThrowableProxy()).isNull();
+                });
         }
 
         @ParameterizedTest(name = "[{index}] {0} - DEBUG 활성화 시 stack trace 기록")
         @MethodSource("group_a_handlers")
         @DisplayName("DEBUG 활성화 시 Group A 핸들러는 sanitized + DEBUG stack trace를 마지막에 기록한다")
         void shouldLogStackTraceWhenDebugEnabled(
-                String displayName, Consumer<GlobalExceptionHandler> invoker, String expectedSimpleName
+            String displayName, Consumer<GlobalExceptionHandler> invoker, String expectedSimpleName
         ) {
             logger.setLevel(Level.DEBUG);
 
@@ -1522,19 +1522,19 @@ class GlobalExceptionHandlerTest {
             // MethodArgumentNotValid / ConstraintViolation 핸들러는 #4936으로 input 컨텍스트 DEBUG 로그가 추가되어
             // sanitized + input + stack trace 총 3건. 그 외는 sanitized + stack trace 2건.
             assertThat(appender.list)
-                    .as("[%s] DEBUG 활성 시 sanitized + (선택적 input) + DEBUG stack trace 가 캡처되어야 한다", displayName)
-                    .hasSizeGreaterThanOrEqualTo(2);
+                .as("[%s] DEBUG 활성 시 sanitized + (선택적 input) + DEBUG stack trace 가 캡처되어야 한다", displayName)
+                .hasSizeGreaterThanOrEqualTo(2);
             ILoggingEvent stackTraceEvent = appender.list.get(appender.list.size() - 1);
             assertThat(stackTraceEvent.getLevel())
-                    .as("[%s] 마지막 이벤트는 DEBUG 레벨이어야 한다", displayName)
-                    .isEqualTo(Level.DEBUG);
+                .as("[%s] 마지막 이벤트는 DEBUG 레벨이어야 한다", displayName)
+                .isEqualTo(Level.DEBUG);
             assertThat(stackTraceEvent.getThrowableProxy())
-                    .as("[%s] 마지막 DEBUG 이벤트는 stack trace(throwable)를 포함해야 한다", displayName)
-                    .isNotNull();
+                .as("[%s] 마지막 DEBUG 이벤트는 stack trace(throwable)를 포함해야 한다", displayName)
+                .isNotNull();
             assertThat(stackTraceEvent.getFormattedMessage())
-                    .as("[%s] 마지막 DEBUG 메시지는 '<SimpleName> stack trace' 형식이어야 한다", displayName)
-                    .endsWith(" stack trace")
-                    .contains(expectedSimpleName);
+                .as("[%s] 마지막 DEBUG 메시지는 '<SimpleName> stack trace' 형식이어야 한다", displayName)
+                .endsWith(" stack trace")
+                .contains(expectedSimpleName);
         }
     }
 
@@ -1583,8 +1583,8 @@ class GlobalExceptionHandlerTest {
             logger.setLevel(Level.DEBUG);
             BindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "target");
             bindingResult.addError(new FieldError(
-                    "target", "phoneNumber", "010-1234-abcd", false, null, null,
-                    "전화번호 형식이 올바르지 않습니다."
+                "target", "phoneNumber", "010-1234-abcd", false, null, null,
+                "전화번호 형식이 올바르지 않습니다."
             ));
             MethodArgumentNotValidException exception = new MethodArgumentNotValidExceptionStub(bindingResult);
 
@@ -1595,10 +1595,10 @@ class GlobalExceptionHandlerTest {
             ILoggingEvent inputEvent = appender.list.get(1);
             assertThat(inputEvent.getLevel()).isEqualTo(Level.DEBUG);
             assertThat(inputEvent.getFormattedMessage())
-                    .startsWith("MethodArgumentNotValidException input:")
-                    .contains("rejectedValue=010-1234-abcd")
-                    .contains("field=phoneNumber")
-                    .contains("constraint=전화번호 형식이 올바르지 않습니다.");
+                .startsWith("MethodArgumentNotValidException input:")
+                .contains("rejectedValue=010-1234-abcd")
+                .contains("field=phoneNumber")
+                .contains("constraint=전화번호 형식이 올바르지 않습니다.");
             assertThat(inputEvent.getThrowableProxy()).isNull();
 
             ILoggingEvent stackTraceEvent = appender.list.get(2);
@@ -1613,20 +1613,20 @@ class GlobalExceptionHandlerTest {
             logger.setLevel(Level.INFO);
             BindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "target");
             bindingResult.addError(new FieldError(
-                    "target", "phoneNumber", "010-1234-abcd", false, null, null,
-                    "전화번호 형식이 올바르지 않습니다."
+                "target", "phoneNumber", "010-1234-abcd", false, null, null,
+                "전화번호 형식이 올바르지 않습니다."
             ));
             MethodArgumentNotValidException exception = new MethodArgumentNotValidExceptionStub(bindingResult);
 
             handler.handleMethodArgumentNotValidException(exception);
 
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> {
-                        assertThat(event.getLevel()).isNotEqualTo(Level.DEBUG);
-                        assertThat(event.getFormattedMessage()).doesNotContain("rejectedValue");
-                        assertThat(event.getFormattedMessage()).doesNotContain("010-1234-abcd");
-                    });
+                .hasSize(1)
+                .allSatisfy(event -> {
+                    assertThat(event.getLevel()).isNotEqualTo(Level.DEBUG);
+                    assertThat(event.getFormattedMessage()).doesNotContain("rejectedValue");
+                    assertThat(event.getFormattedMessage()).doesNotContain("010-1234-abcd");
+                });
         }
 
         @Test
@@ -1644,10 +1644,10 @@ class GlobalExceptionHandlerTest {
             ILoggingEvent inputEvent = appender.list.get(1);
             assertThat(inputEvent.getLevel()).isEqualTo(Level.DEBUG);
             assertThat(inputEvent.getFormattedMessage())
-                    .startsWith("ConstraintViolationException input:")
-                    .contains("invalidValue=010-1234-abcd")
-                    .contains("field=phoneNumber")
-                    .contains("constraint=전화번호 형식이 올바르지 않습니다.");
+                .startsWith("ConstraintViolationException input:")
+                .contains("invalidValue=010-1234-abcd")
+                .contains("field=phoneNumber")
+                .contains("constraint=전화번호 형식이 올바르지 않습니다.");
             assertThat(inputEvent.getThrowableProxy()).isNull();
 
             ILoggingEvent stackTraceEvent = appender.list.get(2);
@@ -1667,12 +1667,12 @@ class GlobalExceptionHandlerTest {
             handler.handleConstraintViolationException(exception);
 
             assertThat(appender.list)
-                    .hasSize(1)
-                    .allSatisfy(event -> {
-                        assertThat(event.getLevel()).isNotEqualTo(Level.DEBUG);
-                        assertThat(event.getFormattedMessage()).doesNotContain("invalidValue");
-                        assertThat(event.getFormattedMessage()).doesNotContain("010-1234-abcd");
-                    });
+                .hasSize(1)
+                .allSatisfy(event -> {
+                    assertThat(event.getLevel()).isNotEqualTo(Level.DEBUG);
+                    assertThat(event.getFormattedMessage()).doesNotContain("invalidValue");
+                    assertThat(event.getFormattedMessage()).doesNotContain("010-1234-abcd");
+                });
         }
     }
 }

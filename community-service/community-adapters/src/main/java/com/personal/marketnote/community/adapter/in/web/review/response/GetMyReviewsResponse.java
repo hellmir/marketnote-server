@@ -6,18 +6,18 @@ import com.personal.marketnote.community.port.in.result.review.GetMyReviewsResul
 import java.util.stream.Collectors;
 
 public record GetMyReviewsResponse(
-        CursorResponse<MyReviewItemResponse> reviews
+    CursorResponse<MyReviewItemResponse> reviews
 ) {
     public static GetMyReviewsResponse from(GetMyReviewsResult result) {
         return new GetMyReviewsResponse(
-                new CursorResponse<>(
-                        result.totalElements(),
-                        result.hasNext(),
-                        result.nextCursor(),
-                        result.reviews().stream()
-                                .map(MyReviewItemResponse::from)
-                                .collect(Collectors.toList())
-                )
+            new CursorResponse<>(
+                result.totalElements(),
+                result.hasNext(),
+                result.nextCursor(),
+                result.reviews().stream()
+                    .map(MyReviewItemResponse::from)
+                    .collect(Collectors.toList())
+            )
         );
     }
 }

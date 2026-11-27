@@ -41,18 +41,18 @@ class RegisterFulfillmentGoodsUseCaseTest {
 
     private RegisterFulfillmentGoodsCommand buildCommand(UUID productKey) {
         RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
-                .productKey(productKey)
-                .fasstoProductCode("0000000000000000000001")
-                .productName("테스트 상품")
-                .productType("1")
-                .giftDivision("01")
-                .build();
+            .productKey(productKey)
+            .fasstoProductCode("0000000000000000000001")
+            .productName("테스트 상품")
+            .productType("1")
+            .giftDivision("01")
+            .build();
         return RegisterFulfillmentGoodsCommand.of("CUST001", "token", List.of(itemCommand));
     }
 
     private RegisterFulfillmentGoodsResult buildResult() {
         return RegisterFulfillmentGoodsResult.of(1, List.of(
-                RegisterFulfillmentGoodsItemResult.of("등록 성공", "200", "10")
+            RegisterFulfillmentGoodsItemResult.of("등록 성공", "200", "10")
         ));
     }
 
@@ -108,12 +108,12 @@ class RegisterFulfillmentGoodsUseCaseTest {
             UUID productKey = UUID.randomUUID();
             RegisterFulfillmentGoodsCommand command = buildCommand(productKey);
             doThrow(new FulfillmentGoodsAlreadyRegisteredException(productKey))
-                    .when(saveFulfillmentGoodsRegistrationPort).save(any());
+                .when(saveFulfillmentGoodsRegistrationPort).save(any());
 
             // when & then
             assertThatThrownBy(() -> registerFulfillmentGoodsService.registerGoodsIdempotent(command))
-                    .isInstanceOf(FulfillmentGoodsAlreadyRegisteredException.class)
-                    .hasMessageContaining("productKey=" + productKey);
+                .isInstanceOf(FulfillmentGoodsAlreadyRegisteredException.class)
+                .hasMessageContaining("productKey=" + productKey);
 
             verify(saveFulfillmentGoodsRegistrationPort).save(any());
             verifyNoInteractions(registerFulfillmentGoodsPort);
@@ -126,12 +126,12 @@ class RegisterFulfillmentGoodsUseCaseTest {
             UUID productKey = UUID.randomUUID();
             RegisterFulfillmentGoodsCommand command = buildCommand(productKey);
             when(registerFulfillmentGoodsPort.registerGoods(any()))
-                    .thenThrow(new RuntimeException("Fulfillment API 오류"));
+                .thenThrow(new RuntimeException("Fulfillment API 오류"));
 
             // when & then
             assertThatThrownBy(() -> registerFulfillmentGoodsService.registerGoodsIdempotent(command))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("Fulfillment API 오류");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Fulfillment API 오류");
 
             verify(saveFulfillmentGoodsRegistrationPort).save(any());
             verify(registerFulfillmentGoodsPort).registerGoods(any());
@@ -161,12 +161,12 @@ class RegisterFulfillmentGoodsUseCaseTest {
             // given
             UUID productKey = UUID.randomUUID();
             doThrow(new FulfillmentGoodsAlreadyRegisteredException(productKey))
-                    .when(saveFulfillmentGoodsRegistrationPort).save(any());
+                .when(saveFulfillmentGoodsRegistrationPort).save(any());
 
             // when & then
             assertThatThrownBy(() ->
-                    registerFulfillmentGoodsService.recordImportedGoodsRegistration(productKey, "VZL00001"))
-                    .isInstanceOf(FulfillmentGoodsAlreadyRegisteredException.class);
+                registerFulfillmentGoodsService.recordImportedGoodsRegistration(productKey, "VZL00001"))
+                .isInstanceOf(FulfillmentGoodsAlreadyRegisteredException.class);
         }
     }
 }

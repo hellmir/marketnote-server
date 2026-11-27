@@ -40,15 +40,15 @@ class UpdateSettlementPolicyUseCaseTest {
 
     private SettlementPolicy createPolicy() {
         return SettlementPolicy.from(SettlementPolicySnapshotState.builder()
-                .id(1L)
-                .sellerId(10L)
-                .pgFeeRate(FeeRate.of(300))
-                .platformFeeRate(FeeRate.of(500))
-                .settlementCycle(SettlementCycle.MONTHLY)
-                .minPayoutAmount(10000L)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .build());
+            .id(1L)
+            .sellerId(10L)
+            .pgFeeRate(FeeRate.of(300))
+            .platformFeeRate(FeeRate.of(500))
+            .settlementCycle(SettlementCycle.MONTHLY)
+            .minPayoutAmount(10000L)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .build());
     }
 
     @Test
@@ -58,15 +58,15 @@ class UpdateSettlementPolicyUseCaseTest {
         SettlementPolicy policy = createPolicy();
         when(findSettlementPolicyPort.findById(1L)).thenReturn(Optional.of(policy));
         when(updateSettlementPolicyPort.update(any(SettlementPolicy.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
         UpdateSettlementPolicyCommand command = UpdateSettlementPolicyCommand.builder()
-                .id(1L)
-                .pgFeeRate(200)
-                .platformFeeRate(400)
-                .settlementCycle("BIWEEKLY")
-                .minPayoutAmount(5000L)
-                .build();
+            .id(1L)
+            .pgFeeRate(200)
+            .platformFeeRate(400)
+            .settlementCycle("BIWEEKLY")
+            .minPayoutAmount(5000L)
+            .build();
 
         // when
         GetSettlementPolicyResult result = updateSettlementPolicyService.updatePolicy(command);
@@ -86,16 +86,16 @@ class UpdateSettlementPolicyUseCaseTest {
         when(findSettlementPolicyPort.findById(999L)).thenReturn(Optional.empty());
 
         UpdateSettlementPolicyCommand command = UpdateSettlementPolicyCommand.builder()
-                .id(999L)
-                .pgFeeRate(200)
-                .platformFeeRate(400)
-                .settlementCycle("MONTHLY")
-                .minPayoutAmount(5000L)
-                .build();
+            .id(999L)
+            .pgFeeRate(200)
+            .platformFeeRate(400)
+            .settlementCycle("MONTHLY")
+            .minPayoutAmount(5000L)
+            .build();
 
         // when & then
         assertThatThrownBy(() -> updateSettlementPolicyService.updatePolicy(command))
-                .isInstanceOf(SettlementPolicyNotFoundException.class);
+            .isInstanceOf(SettlementPolicyNotFoundException.class);
 
         verify(updateSettlementPolicyPort, never()).update(any());
     }
@@ -108,17 +108,17 @@ class UpdateSettlementPolicyUseCaseTest {
         when(findSettlementPolicyPort.findById(1L)).thenReturn(Optional.of(policy));
 
         UpdateSettlementPolicyCommand command = UpdateSettlementPolicyCommand.builder()
-                .id(1L)
-                .pgFeeRate(6000)
-                .platformFeeRate(5000)
-                .settlementCycle("MONTHLY")
-                .minPayoutAmount(0L)
-                .build();
+            .id(1L)
+            .pgFeeRate(6000)
+            .platformFeeRate(5000)
+            .settlementCycle("MONTHLY")
+            .minPayoutAmount(0L)
+            .build();
 
         // when & then
         assertThatThrownBy(() -> updateSettlementPolicyService.updatePolicy(command))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("100%");
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("100%");
 
         verify(updateSettlementPolicyPort, never()).update(any());
     }

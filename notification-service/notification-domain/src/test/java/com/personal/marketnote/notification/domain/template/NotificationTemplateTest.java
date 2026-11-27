@@ -21,13 +21,13 @@ class NotificationTemplateTest {
         void shouldCreateNotificationTemplateWithValidValues() {
             // given
             NotificationTemplateCreateState state = NotificationTemplateCreateState.builder()
-                    .templateCode("ORDER_PAYMENT_COMPLETED")
-                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                    .notificationCategory(NotificationCategory.INFORMATIONAL)
-                    .title("주문이 완료되었습니다")
-                    .bodyTemplate("{productName} 외 {count}건이 결제되었습니다.")
-                    .urlTemplate("/order/{orderId}")
-                    .build();
+                .templateCode("ORDER_PAYMENT_COMPLETED")
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .notificationCategory(NotificationCategory.INFORMATIONAL)
+                .title("주문이 완료되었습니다")
+                .bodyTemplate("{productName} 외 {count}건이 결제되었습니다.")
+                .urlTemplate("/order/{orderId}")
+                .build();
 
             // when
             NotificationTemplate template = NotificationTemplate.from(state);
@@ -47,17 +47,17 @@ class NotificationTemplateTest {
         void shouldThrowExceptionWhenTemplateCodeIsNull() {
             // given
             NotificationTemplateCreateState state = NotificationTemplateCreateState.builder()
-                    .templateCode(null)
-                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                    .notificationCategory(NotificationCategory.INFORMATIONAL)
-                    .title("주문이 완료되었습니다")
-                    .bodyTemplate("본문")
-                    .urlTemplate("/order/{orderId}")
-                    .build();
+                .templateCode(null)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .notificationCategory(NotificationCategory.INFORMATIONAL)
+                .title("주문이 완료되었습니다")
+                .bodyTemplate("본문")
+                .urlTemplate("/order/{orderId}")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> NotificationTemplate.from(state))
-                    .isInstanceOf(InvalidTemplateCodeException.class);
+                .isInstanceOf(InvalidTemplateCodeException.class);
         }
 
         @Test
@@ -65,17 +65,17 @@ class NotificationTemplateTest {
         void shouldThrowExceptionWhenTemplateCodeIsBlank() {
             // given
             NotificationTemplateCreateState state = NotificationTemplateCreateState.builder()
-                    .templateCode("   ")
-                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                    .notificationCategory(NotificationCategory.INFORMATIONAL)
-                    .title("주문이 완료되었습니다")
-                    .bodyTemplate("본문")
-                    .urlTemplate("/order/{orderId}")
-                    .build();
+                .templateCode("   ")
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .notificationCategory(NotificationCategory.INFORMATIONAL)
+                .title("주문이 완료되었습니다")
+                .bodyTemplate("본문")
+                .urlTemplate("/order/{orderId}")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> NotificationTemplate.from(state))
-                    .isInstanceOf(InvalidTemplateCodeException.class);
+                .isInstanceOf(InvalidTemplateCodeException.class);
         }
 
         @Test
@@ -83,13 +83,13 @@ class NotificationTemplateTest {
         void shouldCreateTemplateWithNullUrlTemplate() {
             // given
             NotificationTemplateCreateState state = NotificationTemplateCreateState.builder()
-                    .templateCode("POINT_ACCRUAL")
-                    .notificationType(NotificationType.POINT_ACCRUAL)
-                    .notificationCategory(NotificationCategory.INFORMATIONAL)
-                    .title("포인트가 적립되었습니다")
-                    .bodyTemplate("{amount}P가 적립되었습니다.")
-                    .urlTemplate(null)
-                    .build();
+                .templateCode("POINT_ACCRUAL")
+                .notificationType(NotificationType.POINT_ACCRUAL)
+                .notificationCategory(NotificationCategory.INFORMATIONAL)
+                .title("포인트가 적립되었습니다")
+                .bodyTemplate("{amount}P가 적립되었습니다.")
+                .urlTemplate(null)
+                .build();
 
             // when
             NotificationTemplate template = NotificationTemplate.from(state);
@@ -109,17 +109,17 @@ class NotificationTemplateTest {
             // given
             LocalDateTime now = LocalDateTime.of(2026, 4, 9, 12, 0);
             NotificationTemplateSnapshotState state = NotificationTemplateSnapshotState.builder()
-                    .id(1L)
-                    .templateCode("SHIPPING_STARTED")
-                    .notificationType(NotificationType.SHIPPING_STARTED)
-                    .notificationCategory(NotificationCategory.INFORMATIONAL)
-                    .title("배송이 시작되었습니다")
-                    .bodyTemplate("{productName} 상품이 발송되었습니다.")
-                    .urlTemplate("/order/{orderId}")
-                    .status(EntityStatus.ACTIVE)
-                    .createdAt(now)
-                    .modifiedAt(now)
-                    .build();
+                .id(1L)
+                .templateCode("SHIPPING_STARTED")
+                .notificationType(NotificationType.SHIPPING_STARTED)
+                .notificationCategory(NotificationCategory.INFORMATIONAL)
+                .title("배송이 시작되었습니다")
+                .bodyTemplate("{productName} 상품이 발송되었습니다.")
+                .urlTemplate("/order/{orderId}")
+                .status(EntityStatus.ACTIVE)
+                .createdAt(now)
+                .modifiedAt(now)
+                .build();
 
             // when
             NotificationTemplate template = NotificationTemplate.from(state);
@@ -143,17 +143,17 @@ class NotificationTemplateTest {
             // given
             LocalDateTime now = LocalDateTime.of(2026, 4, 9, 12, 0);
             NotificationTemplateSnapshotState state = NotificationTemplateSnapshotState.builder()
-                    .id(2L)
-                    .templateCode("OLD_TEMPLATE")
-                    .notificationType(NotificationType.NOTICE)
-                    .notificationCategory(NotificationCategory.PROMOTIONAL)
-                    .title("공지사항")
-                    .bodyTemplate("공지사항 본문")
-                    .urlTemplate("/notice/{postId}")
-                    .status(EntityStatus.INACTIVE)
-                    .createdAt(now)
-                    .modifiedAt(now)
-                    .build();
+                .id(2L)
+                .templateCode("OLD_TEMPLATE")
+                .notificationType(NotificationType.NOTICE)
+                .notificationCategory(NotificationCategory.PROMOTIONAL)
+                .title("공지사항")
+                .bodyTemplate("공지사항 본문")
+                .urlTemplate("/notice/{postId}")
+                .status(EntityStatus.INACTIVE)
+                .createdAt(now)
+                .modifiedAt(now)
+                .build();
 
             // when
             NotificationTemplate template = NotificationTemplate.from(state);
@@ -217,13 +217,13 @@ class NotificationTemplateTest {
 
     private NotificationTemplate createDefaultTemplate() {
         NotificationTemplateCreateState state = NotificationTemplateCreateState.builder()
-                .templateCode("ORDER_PAYMENT_COMPLETED")
-                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                .notificationCategory(NotificationCategory.INFORMATIONAL)
-                .title("주문이 완료되었습니다")
-                .bodyTemplate("{productName} 외 {count}건이 결제되었습니다.")
-                .urlTemplate("/order/{orderId}")
-                .build();
+            .templateCode("ORDER_PAYMENT_COMPLETED")
+            .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+            .notificationCategory(NotificationCategory.INFORMATIONAL)
+            .title("주문이 완료되었습니다")
+            .bodyTemplate("{productName} 외 {count}건이 결제되었습니다.")
+            .urlTemplate("/order/{orderId}")
+            .build();
         return NotificationTemplate.from(state);
     }
 }

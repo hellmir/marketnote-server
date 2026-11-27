@@ -3,11 +3,7 @@ package com.personal.marketnote.notification.mapper;
 import com.personal.marketnote.notification.domain.aligo.BrandTalkCarouselCommerce;
 import com.personal.marketnote.notification.domain.aligo.BrandTalkCarouselItem;
 import com.personal.marketnote.notification.domain.aligo.BrandTalkCarouselTail;
-import com.personal.marketnote.notification.port.in.command.BrandTalkButtonCommand;
-import com.personal.marketnote.notification.port.in.command.BrandTalkCarouselCommerceCommand;
-import com.personal.marketnote.notification.port.in.command.BrandTalkCarouselItemCommand;
-import com.personal.marketnote.notification.port.in.command.BrandTalkCarouselTailCommand;
-import com.personal.marketnote.notification.port.in.command.BrandTalkCouponCommand;
+import com.personal.marketnote.notification.port.in.command.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -21,9 +17,9 @@ class BrandTalkCarouselCommandToStateMapperTest {
     @DisplayName("캐러셀 아이템 Command는 버튼 매핑을 포함하여 도메인으로 매핑된다")
     void mapsCarouselItemCommand() {
         BrandTalkCarouselItemCommand command = new BrandTalkCarouselItemCommand(
-                "헤더", "컨텐츠",
-                List.of(new BrandTalkButtonCommand("버튼A", "AC", null, null, null, null)),
-                null
+            "헤더", "컨텐츠",
+            List.of(new BrandTalkButtonCommand("버튼A", "AC", null, null, null, null)),
+            null
         );
 
         BrandTalkCarouselItem item = BrandTalkCarouselCommandToStateMapper.mapCarouselItem(command);
@@ -39,16 +35,16 @@ class BrandTalkCarouselCommandToStateMapperTest {
     @DisplayName("캐러셀 아이템 Command 리스트는 도메인 리스트로 매핑된다")
     void mapsCarouselItemCommandList() {
         List<BrandTalkCarouselItemCommand> commands = List.of(
-                new BrandTalkCarouselItemCommand(
-                        "헤더1", "컨텐츠1",
-                        List.of(new BrandTalkButtonCommand("버튼A", "AC", null, null, null, null)),
-                        null
-                ),
-                new BrandTalkCarouselItemCommand(
-                        "헤더2", "컨텐츠2",
-                        List.of(new BrandTalkButtonCommand("버튼B", "AC", null, null, null, null)),
-                        null
-                )
+            new BrandTalkCarouselItemCommand(
+                "헤더1", "컨텐츠1",
+                List.of(new BrandTalkButtonCommand("버튼A", "AC", null, null, null, null)),
+                null
+            ),
+            new BrandTalkCarouselItemCommand(
+                "헤더2", "컨텐츠2",
+                List.of(new BrandTalkButtonCommand("버튼B", "AC", null, null, null, null)),
+                null
+            )
         );
 
         List<BrandTalkCarouselItem> items = BrandTalkCarouselCommandToStateMapper.mapCarouselItems(commands);
@@ -78,13 +74,13 @@ class BrandTalkCarouselCommandToStateMapperTest {
     @DisplayName("mapCarouselItem은 coupon이 설정되면 도메인 쿠폰을 매핑한다")
     void mapsCarouselItemWithCoupon() {
         BrandTalkCouponCommand couponCommand = new BrandTalkCouponCommand(
-                "쿠폰 타이틀", "쿠폰 설명",
-                "https://m.example.com", "https://pc.example.com", null, null
+            "쿠폰 타이틀", "쿠폰 설명",
+            "https://m.example.com", "https://pc.example.com", null, null
         );
         BrandTalkCarouselItemCommand command = new BrandTalkCarouselItemCommand(
-                "헤더", "컨텐츠",
-                List.of(new BrandTalkButtonCommand("버튼A", "AC", null, null, null, null)),
-                couponCommand
+            "헤더", "컨텐츠",
+            List.of(new BrandTalkButtonCommand("버튼A", "AC", null, null, null, null)),
+            couponCommand
         );
 
         BrandTalkCarouselItem item = BrandTalkCarouselCommandToStateMapper.mapCarouselItem(command);
@@ -100,7 +96,7 @@ class BrandTalkCarouselCommandToStateMapperTest {
     @DisplayName("캐러셀 커머스 Command는 도메인으로 매핑된다")
     void mapsCarouselCommerceCommand() {
         BrandTalkCarouselCommerceCommand command = new BrandTalkCarouselCommerceCommand(
-                "상품명", "10000", "8000", "20", null
+            "상품명", "10000", "8000", "20", null
         );
 
         BrandTalkCarouselCommerce commerce = BrandTalkCarouselCommandToStateMapper.mapCarouselCommerce(command);
@@ -116,8 +112,8 @@ class BrandTalkCarouselCommandToStateMapperTest {
     @DisplayName("캐러셀 커머스 Command 리스트는 도메인 리스트로 매핑된다")
     void mapsCarouselCommerceCommandList() {
         List<BrandTalkCarouselCommerceCommand> commands = List.of(
-                new BrandTalkCarouselCommerceCommand("A", "1000", null, null, null),
-                new BrandTalkCarouselCommerceCommand("B", "2000", null, null, null)
+            new BrandTalkCarouselCommerceCommand("A", "1000", null, null, null),
+            new BrandTalkCarouselCommerceCommand("B", "2000", null, null, null)
         );
 
         List<BrandTalkCarouselCommerce> list = BrandTalkCarouselCommandToStateMapper.mapCarouselCommerces(commands);

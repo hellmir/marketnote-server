@@ -50,13 +50,13 @@ public class CancelInternalFulfillmentDeliveryService implements CancelInternalF
         try {
             try {
                 cancelFulfillmentDeliveryPort.cancelDelivery(
-                        buildCancelCommand(customerCode, accessToken.getValue(), command.orderId(), command.productKeys())
+                    buildCancelCommand(customerCode, accessToken.getValue(), command.orderId(), command.productKeys())
                 );
             } catch (FulfillmentInvalidAccessException firstFailure) {
                 requestFulfillmentAuthUseCase.invalidateCache();
                 accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
                 cancelFulfillmentDeliveryPort.cancelDelivery(
-                        buildCancelCommand(customerCode, accessToken.getValue(), command.orderId(), command.productKeys())
+                    buildCancelCommand(customerCode, accessToken.getValue(), command.orderId(), command.productKeys())
                 );
             }
 
@@ -80,10 +80,10 @@ public class CancelInternalFulfillmentDeliveryService implements CancelInternalF
 
     private FulfillmentDeliveryRegistration findRegistration(Long orderId) {
         return findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)
-                .orElseThrow(() -> {
-                    log.warn("출고 등록을 찾을 수 없습니다. orderId={}", orderId);
-                    return new FulfillmentDeliveryRegistrationNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("출고 등록을 찾을 수 없습니다. orderId={}", orderId);
+                return new FulfillmentDeliveryRegistrationNotFoundException();
+            });
     }
 
     private void validateCancellable(FulfillmentDeliveryRegistration registration) {
@@ -93,7 +93,7 @@ public class CancelInternalFulfillmentDeliveryService implements CancelInternalF
     }
 
     private CancelFulfillmentDeliveryCommand buildCancelCommand(
-            String customerCode, String accessToken, Long orderId, List<String> productKeys
+        String customerCode, String accessToken, Long orderId, List<String> productKeys
     ) {
         String orderNumber = String.valueOf(orderId);
 
@@ -103,8 +103,8 @@ public class CancelInternalFulfillmentDeliveryService implements CancelInternalF
         }
 
         List<CancelFulfillmentDeliveryItemCommand> itemCommands = productKeys.stream()
-                .map(productKey -> CancelFulfillmentDeliveryItemCommand.of(orderNumber, orderNumber, productKey))
-                .toList();
+            .map(productKey -> CancelFulfillmentDeliveryItemCommand.of(orderNumber, orderNumber, productKey))
+            .toList();
         return CancelFulfillmentDeliveryCommand.of(customerCode, accessToken, itemCommands);
     }
 }

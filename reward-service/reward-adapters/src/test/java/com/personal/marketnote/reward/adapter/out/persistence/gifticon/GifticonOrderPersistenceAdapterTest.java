@@ -41,22 +41,22 @@ class GifticonOrderPersistenceAdapterTest {
 
     private GifticonOrderJpaEntity buildEntity(Long id, GifticonOrderStatus status, LocalDate validEndDate) {
         GifticonOrder restored = GifticonOrder.from(GifticonOrderSnapshotState.builder()
-                .id(id)
-                .userId(USER_ID)
-                .goodsCode("G001")
-                .goodsName("테스트 상품")
-                .brandName("테스트 브랜드")
-                .productImageUrl("http://img.test.com/p.jpg")
-                .trId(TR_ID + id)
-                .orderNo("ORD" + id)
-                .cashPrice(10_000L)
-                .orderStatus(status)
-                .couponImageUrl("http://img.test.com/c.jpg")
-                .pinNo("1234-5678-9012")
-                .validEndDate(validEndDate)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(id)
+            .userId(USER_ID)
+            .goodsCode("G001")
+            .goodsName("테스트 상품")
+            .brandName("테스트 브랜드")
+            .productImageUrl("http://img.test.com/p.jpg")
+            .trId(TR_ID + id)
+            .orderNo("ORD" + id)
+            .cashPrice(10_000L)
+            .orderStatus(status)
+            .couponImageUrl("http://img.test.com/c.jpg")
+            .pinNo("1234-5678-9012")
+            .validEndDate(validEndDate)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
         return GifticonOrderJpaEntity.from(restored);
     }
 
@@ -69,16 +69,16 @@ class GifticonOrderPersistenceAdapterTest {
         void shouldReturnDomainWhenSaveSucceeds() {
             // given
             GifticonOrder order = GifticonOrder.from(GifticonOrderCreateState.builder()
-                    .userId(USER_ID)
-                    .goodsCode("G001")
-                    .goodsName("테스트 상품")
-                    .brandName("테스트 브랜드")
-                    .productImageUrl("http://img.test.com/p.jpg")
-                    .trId(TR_ID)
-                    .cashPrice(10_000L)
-                    .build());
+                .userId(USER_ID)
+                .goodsCode("G001")
+                .goodsName("테스트 상품")
+                .brandName("테스트 브랜드")
+                .productImageUrl("http://img.test.com/p.jpg")
+                .trId(TR_ID)
+                .cashPrice(10_000L)
+                .build());
             given(repository.saveAndFlush(any(GifticonOrderJpaEntity.class)))
-                    .willAnswer(invocation -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
             GifticonOrder saved = adapter.save(order);
@@ -95,20 +95,20 @@ class GifticonOrderPersistenceAdapterTest {
         void shouldThrowDuplicateExceptionWhenDataIntegrityViolation() {
             // given
             GifticonOrder order = GifticonOrder.from(GifticonOrderCreateState.builder()
-                    .userId(USER_ID)
-                    .goodsCode("G001")
-                    .goodsName("테스트 상품")
-                    .brandName("테스트 브랜드")
-                    .productImageUrl("http://img.test.com/p.jpg")
-                    .trId(TR_ID)
-                    .cashPrice(10_000L)
-                    .build());
+                .userId(USER_ID)
+                .goodsCode("G001")
+                .goodsName("테스트 상품")
+                .brandName("테스트 브랜드")
+                .productImageUrl("http://img.test.com/p.jpg")
+                .trId(TR_ID)
+                .cashPrice(10_000L)
+                .build());
             given(repository.saveAndFlush(any(GifticonOrderJpaEntity.class)))
-                    .willThrow(new DataIntegrityViolationException("dup"));
+                .willThrow(new DataIntegrityViolationException("dup"));
 
             // when & then
             assertThatThrownBy(() -> adapter.save(order))
-                    .isInstanceOf(DuplicateGifticonOrderException.class);
+                .isInstanceOf(DuplicateGifticonOrderException.class);
         }
     }
 
@@ -144,7 +144,7 @@ class GifticonOrderPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.update(sample.toDomain()))
-                    .isInstanceOf(GifticonOrderNotFoundException.class);
+                .isInstanceOf(GifticonOrderNotFoundException.class);
         }
     }
 
@@ -157,7 +157,7 @@ class GifticonOrderPersistenceAdapterTest {
         void shouldReturnDomainWhenEntityExists() {
             // given
             given(repository.findByTrId(TR_ID))
-                    .willReturn(Optional.of(buildEntity(1L, GifticonOrderStatus.ISSUED, LocalDate.now().plusDays(30))));
+                .willReturn(Optional.of(buildEntity(1L, GifticonOrderStatus.ISSUED, LocalDate.now().plusDays(30))));
 
             // when
             Optional<GifticonOrder> result = adapter.findByTrId(TR_ID);
@@ -184,12 +184,12 @@ class GifticonOrderPersistenceAdapterTest {
         void shouldUsePurchaseLatestQuery() {
             // given
             given(repository.findByUserIdAndStatusesOrderByCreatedAtDesc(eq(USER_ID), anyList(), eq(-1L), any(Pageable.class)))
-                    .willReturn(List.of(buildEntity(1L, GifticonOrderStatus.ISSUED, null)));
+                .willReturn(List.of(buildEntity(1L, GifticonOrderStatus.ISSUED, null)));
 
             // when
             List<GifticonOrder> orders = adapter.findByUserIdAndStatuses(
-                    USER_ID, List.of(GifticonOrderStatus.ISSUED),
-                    GifticonOrderSortType.PURCHASE_LATEST, -1L, 10
+                USER_ID, List.of(GifticonOrderStatus.ISSUED),
+                GifticonOrderSortType.PURCHASE_LATEST, -1L, 10
             );
 
             // then
@@ -202,16 +202,16 @@ class GifticonOrderPersistenceAdapterTest {
         void shouldUseExpirySoonestQueryAndSkipByCursor() {
             // given
             given(repository.findByUserIdAndStatusesOrderByValidEndDateAsc(eq(USER_ID), anyList(), any(Pageable.class)))
-                    .willReturn(List.of(
-                            buildEntity(1L, GifticonOrderStatus.ISSUED, LocalDate.now().plusDays(1)),
-                            buildEntity(2L, GifticonOrderStatus.ISSUED, LocalDate.now().plusDays(2)),
-                            buildEntity(3L, GifticonOrderStatus.ISSUED, LocalDate.now().plusDays(3))
-                    ));
+                .willReturn(List.of(
+                    buildEntity(1L, GifticonOrderStatus.ISSUED, LocalDate.now().plusDays(1)),
+                    buildEntity(2L, GifticonOrderStatus.ISSUED, LocalDate.now().plusDays(2)),
+                    buildEntity(3L, GifticonOrderStatus.ISSUED, LocalDate.now().plusDays(3))
+                ));
 
             // when
             List<GifticonOrder> orders = adapter.findByUserIdAndStatuses(
-                    USER_ID, List.of(GifticonOrderStatus.ISSUED),
-                    GifticonOrderSortType.EXPIRY_SOONEST, 1L, 10
+                USER_ID, List.of(GifticonOrderStatus.ISSUED),
+                GifticonOrderSortType.EXPIRY_SOONEST, 1L, 10
             );
 
             // then
@@ -225,7 +225,7 @@ class GifticonOrderPersistenceAdapterTest {
     @DisplayName("findByIdAndUserId는 엔티티를 도메인으로 변환한다")
     void shouldFindByIdAndUserId() {
         given(repository.findByIdAndUserId(1L, USER_ID))
-                .willReturn(Optional.of(buildEntity(1L, GifticonOrderStatus.ISSUED, null)));
+            .willReturn(Optional.of(buildEntity(1L, GifticonOrderStatus.ISSUED, null)));
         Optional<GifticonOrder> result = adapter.findByIdAndUserId(1L, USER_ID);
         assertThat(result).isPresent();
         assertThat(result.get().getId()).isEqualTo(1L);
@@ -242,10 +242,10 @@ class GifticonOrderPersistenceAdapterTest {
     @DisplayName("findAllByOrderStatus는 모든 엔티티를 도메인 리스트로 반환한다")
     void shouldFindAllByOrderStatus() {
         given(repository.findAllByOrderStatus(GifticonOrderStatus.PENDING))
-                .willReturn(List.of(
-                        buildEntity(1L, GifticonOrderStatus.PENDING, null),
-                        buildEntity(2L, GifticonOrderStatus.PENDING, null)
-                ));
+            .willReturn(List.of(
+                buildEntity(1L, GifticonOrderStatus.PENDING, null),
+                buildEntity(2L, GifticonOrderStatus.PENDING, null)
+            ));
         List<GifticonOrder> result = adapter.findAllByOrderStatus(GifticonOrderStatus.PENDING);
         assertThat(result).hasSize(2);
         assertThat(result).allMatch(GifticonOrder::isPending);

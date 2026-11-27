@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "user_point_history",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_user_point_history_source",
-                columnNames = {"user_id", "source_type", "source_id", "reason"}
-        )
+    name = "user_point_history",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_user_point_history_source",
+        columnNames = {"user_id", "source_type", "source_id", "reason"}
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -61,33 +61,33 @@ public class UserPointHistoryJpaEntity {
         }
 
         return UserPointHistoryJpaEntity.builder()
-                .id(history.getId())
-                .userId(history.getUserId())
-                .changeType(history.getChangeType())
-                .amount(history.getAmountValue())
-                .isReflected(history.getIsReflected())
-                .sourceType(history.getSourceType())
-                .sourceId(history.getSourceId())
-                .reason(history.getReason())
-                .accumulatedAt(history.getAccumulatedAt())
-                .createdAt(history.getCreatedAt())
-                .build();
+            .id(history.getId())
+            .userId(history.getUserId())
+            .changeType(history.getChangeType())
+            .amount(history.getAmountValue())
+            .isReflected(history.getIsReflected())
+            .sourceType(history.getSourceType())
+            .sourceId(history.getSourceId())
+            .reason(history.getReason())
+            .accumulatedAt(history.getAccumulatedAt())
+            .createdAt(history.getCreatedAt())
+            .build();
     }
 
     public UserPointHistory toDomain() {
         return UserPointHistory.from(
-                UserPointHistorySnapshotState.builder()
-                        .id(id)
-                        .userId(userId)
-                        .changeType(changeType)
-                        .amount(PointAmount.of(amount))
-                        .isReflected(isReflected)
-                        .sourceType(sourceType)
-                        .sourceId(sourceId)
-                        .reason(reason)
-                        .accumulatedAt(accumulatedAt)
-                        .createdAt(createdAt)
-                        .build()
+            UserPointHistorySnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .changeType(changeType)
+                .amount(PointAmount.of(amount))
+                .isReflected(isReflected)
+                .sourceType(sourceType)
+                .sourceId(sourceId)
+                .reason(reason)
+                .accumulatedAt(accumulatedAt)
+                .createdAt(createdAt)
+                .build()
         );
     }
 }

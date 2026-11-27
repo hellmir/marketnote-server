@@ -19,12 +19,12 @@ public class SecurityPropertiesValidator {
     private static final Logger log = LoggerFactory.getLogger(SecurityPropertiesValidator.class);
 
     private static final Set<String> WEAK_DEFAULTS = Set.of(
-            "dev-secret-change-me", "dev-hmac-secret-change-me",
-            "dev-pin-key-change-me", "dev-pin-key-change-me-0123456789",
-            "dev-aligo-api-key-change-me", "dev-aligo-user-id-change-me",
-            "abc", "def", "ghi",
-            "change-me", "password", "root", "secret", "test",
-            "0000", "1234567890123456"
+        "dev-secret-change-me", "dev-hmac-secret-change-me",
+        "dev-pin-key-change-me", "dev-pin-key-change-me-0123456789",
+        "dev-aligo-api-key-change-me", "dev-aligo-user-id-change-me",
+        "abc", "def", "ghi",
+        "change-me", "password", "root", "secret", "test",
+        "0000", "1234567890123456"
     );
 
     private static final String REQUIRED_KAFKA_SASL_PROTOCOL = "SASL_SSL";
@@ -106,13 +106,13 @@ public class SecurityPropertiesValidator {
 
         if (oauth2AllowedAudiencesValidationEnabled) {
             validateAllowedAudiences(
-                    violations, "oauth2.kakao.allowed-audiences (KAKAO_ALLOWED_AUDIENCES)", kakaoAllowedAudiences
+                violations, "oauth2.kakao.allowed-audiences (KAKAO_ALLOWED_AUDIENCES)", kakaoAllowedAudiences
             );
             validateAllowedAudiences(
-                    violations, "oauth2.google.allowed-audiences (GOOGLE_ALLOWED_AUDIENCES)", googleAllowedAudiences
+                violations, "oauth2.google.allowed-audiences (GOOGLE_ALLOWED_AUDIENCES)", googleAllowedAudiences
             );
             validateAllowedAudiences(
-                    violations, "oauth2.apple.allowed-audiences (APPLE_ALLOWED_AUDIENCES)", appleAllowedAudiences
+                violations, "oauth2.apple.allowed-audiences (APPLE_ALLOWED_AUDIENCES)", appleAllowedAudiences
             );
         }
 
@@ -167,7 +167,7 @@ public class SecurityPropertiesValidator {
         String currentProtocol = FormatValidator.hasValue(kafkaSaslProtocol) ? kafkaSaslProtocol : "(미설정)";
         if (!REQUIRED_KAFKA_SASL_PROTOCOL.equals(kafkaSaslProtocol)) {
             violations.add("spring.kafka.sasl.protocol (KAFKA_SASL_PROTOCOL) 값이 " + REQUIRED_KAFKA_SASL_PROTOCOL
-                    + "이어야 합니다. 현재 값: " + currentProtocol
+                + "이어야 합니다. 현재 값: " + currentProtocol
             );
         }
         validateRequired(violations, "spring.kafka.sasl.username (KAFKA_SASL_USERNAME)", kafkaSaslUsername);

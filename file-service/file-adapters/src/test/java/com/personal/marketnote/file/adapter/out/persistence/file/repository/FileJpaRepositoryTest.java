@@ -57,12 +57,12 @@ class FileJpaRepositoryTest {
 
             // when
             List<FileJpaEntity> result = fileJpaRepository
-                    .findAllByOwnerTypeAndOwnerIdOrderByIdAsc(OwnerType.PRODUCT, 1L);
+                .findAllByOwnerTypeAndOwnerIdOrderByIdAsc(OwnerType.PRODUCT, 1L);
 
             // then
             assertThat(result)
-                    .extracting(FileJpaEntity::getId)
-                    .containsExactly(first.getId(), second.getId());
+                .extracting(FileJpaEntity::getId)
+                .containsExactly(first.getId(), second.getId());
         }
 
         @Test
@@ -76,13 +76,13 @@ class FileJpaRepositoryTest {
 
             // when
             List<FileJpaEntity> result = fileJpaRepository
-                    .findAllByOwnerTypeAndOwnerIdOrderByIdAsc(OwnerType.PRODUCT, 1L);
+                .findAllByOwnerTypeAndOwnerIdOrderByIdAsc(OwnerType.PRODUCT, 1L);
 
             // then
             assertThat(result)
-                    .hasSize(1)
-                    .extracting(FileJpaEntity::getOwnerType)
-                    .containsExactly(OwnerType.PRODUCT);
+                .hasSize(1)
+                .extracting(FileJpaEntity::getOwnerType)
+                .containsExactly(OwnerType.PRODUCT);
         }
 
         @Test
@@ -96,13 +96,13 @@ class FileJpaRepositoryTest {
 
             // when
             List<FileJpaEntity> result = fileJpaRepository
-                    .findAllByOwnerTypeAndOwnerIdOrderByIdAsc(OwnerType.PRODUCT, 1L);
+                .findAllByOwnerTypeAndOwnerIdOrderByIdAsc(OwnerType.PRODUCT, 1L);
 
             // then
             assertThat(result)
-                    .hasSize(1)
-                    .extracting(FileJpaEntity::getOwnerId)
-                    .containsExactly(1L);
+                .hasSize(1)
+                .extracting(FileJpaEntity::getOwnerId)
+                .containsExactly(1L);
         }
 
         @Test
@@ -116,12 +116,12 @@ class FileJpaRepositoryTest {
 
             // when
             List<FileJpaEntity> result = fileJpaRepository
-                    .findAllByOwnerTypeAndOwnerIdOrderByIdAsc(OwnerType.PRODUCT, 1L);
+                .findAllByOwnerTypeAndOwnerIdOrderByIdAsc(OwnerType.PRODUCT, 1L);
 
             // then
             assertThat(result)
-                    .extracting(FileJpaEntity::getId)
-                    .containsExactly(active.getId());
+                .extracting(FileJpaEntity::getId)
+                .containsExactly(active.getId());
         }
 
         @Test
@@ -133,7 +133,7 @@ class FileJpaRepositoryTest {
 
             // when
             List<FileJpaEntity> result = fileJpaRepository
-                    .findAllByOwnerTypeAndOwnerIdOrderByIdAsc(OwnerType.PRODUCT, 999L);
+                .findAllByOwnerTypeAndOwnerIdOrderByIdAsc(OwnerType.PRODUCT, 999L);
 
             // then
             assertThat(result).isEmpty();
@@ -149,26 +149,26 @@ class FileJpaRepositoryTest {
         void returnsFilesInOrderNumDescOrder() {
             // given
             FileJpaEntity lower = persistFileWithOrderNum(
-                    OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE, 10L
+                OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE, 10L
             );
             FileJpaEntity higher = persistFileWithOrderNum(
-                    OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE, 99L
+                OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE, 99L
             );
             entityManager.flush();
             entityManager.clear();
 
             // when
             List<FileJpaEntity> result = fileJpaRepository.findByOwnerTypeAndOwnerIdAndSort(
-                    OwnerType.PRODUCT,
-                    1L,
-                    FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(),
-                    PageRequest.of(0, 10)
+                OwnerType.PRODUCT,
+                1L,
+                FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(),
+                PageRequest.of(0, 10)
             );
 
             // then
             assertThat(result)
-                    .extracting(FileJpaEntity::getId)
-                    .containsExactly(higher.getId(), lower.getId());
+                .extracting(FileJpaEntity::getId)
+                .containsExactly(higher.getId(), lower.getId());
         }
 
         @Test
@@ -182,17 +182,17 @@ class FileJpaRepositoryTest {
 
             // when
             List<FileJpaEntity> result = fileJpaRepository.findByOwnerTypeAndOwnerIdAndSort(
-                    OwnerType.PRODUCT,
-                    1L,
-                    FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(),
-                    PageRequest.of(0, 10)
+                OwnerType.PRODUCT,
+                1L,
+                FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(),
+                PageRequest.of(0, 10)
             );
 
             // then
             assertThat(result)
-                    .hasSize(1)
-                    .extracting(FileJpaEntity::getSort)
-                    .containsExactly(FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name());
+                .hasSize(1)
+                .extracting(FileJpaEntity::getSort)
+                .containsExactly(FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name());
         }
 
         @Test
@@ -207,10 +207,10 @@ class FileJpaRepositoryTest {
 
             // when
             List<FileJpaEntity> result = fileJpaRepository.findByOwnerTypeAndOwnerIdAndSort(
-                    OwnerType.PRODUCT,
-                    1L,
-                    FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(),
-                    PageRequest.of(0, 2)
+                OwnerType.PRODUCT,
+                1L,
+                FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(),
+                PageRequest.of(0, 2)
             );
 
             // then
@@ -222,26 +222,26 @@ class FileJpaRepositoryTest {
         void excludesNonActiveStatus() {
             // given
             FileJpaEntity active = persistFileWithOrderNum(
-                    OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE, 50L
+                OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE, 50L
             );
             FileJpaEntity inactive = persistFileWithOrderNum(
-                    OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE, 60L
+                OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE, 60L
             );
             entityManager.flush();
             markStatus(inactive.getId(), EntityStatus.INACTIVE);
 
             // when
             List<FileJpaEntity> result = fileJpaRepository.findByOwnerTypeAndOwnerIdAndSort(
-                    OwnerType.PRODUCT,
-                    1L,
-                    FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(),
-                    PageRequest.of(0, 10)
+                OwnerType.PRODUCT,
+                1L,
+                FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(),
+                PageRequest.of(0, 10)
             );
 
             // then
             assertThat(result)
-                    .extracting(FileJpaEntity::getId)
-                    .containsExactly(active.getId());
+                .extracting(FileJpaEntity::getId)
+                .containsExactly(active.getId());
         }
     }
 
@@ -254,27 +254,27 @@ class FileJpaRepositoryTest {
         void returnsActiveFilesMatchingIds() {
             // given
             FileJpaEntity first = persistFileWithOrderNum(
-                    OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE, 10L
+                OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE, 10L
             );
             FileJpaEntity second = persistFileWithOrderNum(
-                    OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE, 20L
+                OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE, 20L
             );
             FileJpaEntity other = persistFileWithOrderNum(
-                    OwnerType.PRODUCT, 2L, FileSort.PRODUCT_CATALOG_IMAGE, 30L
+                OwnerType.PRODUCT, 2L, FileSort.PRODUCT_CATALOG_IMAGE, 30L
             );
             entityManager.flush();
             entityManager.clear();
 
             // when
             List<FileJpaEntity> result = fileJpaRepository.findByIds(
-                    List.of(first.getId(), second.getId())
+                List.of(first.getId(), second.getId())
             );
 
             // then
             assertThat(result)
-                    .extracting(FileJpaEntity::getId)
-                    .containsExactlyInAnyOrder(first.getId(), second.getId())
-                    .doesNotContain(other.getId());
+                .extracting(FileJpaEntity::getId)
+                .containsExactlyInAnyOrder(first.getId(), second.getId())
+                .doesNotContain(other.getId());
         }
 
         @Test
@@ -282,23 +282,23 @@ class FileJpaRepositoryTest {
         void returnsOrderedByOrderNumDesc() {
             // given
             FileJpaEntity low = persistFileWithOrderNum(
-                    OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE, 10L
+                OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE, 10L
             );
             FileJpaEntity high = persistFileWithOrderNum(
-                    OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE, 99L
+                OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE, 99L
             );
             entityManager.flush();
             entityManager.clear();
 
             // when
             List<FileJpaEntity> result = fileJpaRepository.findByIds(
-                    List.of(low.getId(), high.getId())
+                List.of(low.getId(), high.getId())
             );
 
             // then
             assertThat(result)
-                    .extracting(FileJpaEntity::getId)
-                    .containsExactly(high.getId(), low.getId());
+                .extracting(FileJpaEntity::getId)
+                .containsExactly(high.getId(), low.getId());
         }
 
         @Test
@@ -306,23 +306,23 @@ class FileJpaRepositoryTest {
         void excludesNonActiveStatus() {
             // given
             FileJpaEntity active = persistFileWithOrderNum(
-                    OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE, 10L
+                OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE, 10L
             );
             FileJpaEntity inactive = persistFileWithOrderNum(
-                    OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE, 20L
+                OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE, 20L
             );
             entityManager.flush();
             markStatus(inactive.getId(), EntityStatus.INACTIVE);
 
             // when
             List<FileJpaEntity> result = fileJpaRepository.findByIds(
-                    List.of(active.getId(), inactive.getId())
+                List.of(active.getId(), inactive.getId())
             );
 
             // then
             assertThat(result)
-                    .extracting(FileJpaEntity::getId)
-                    .containsExactly(active.getId());
+                .extracting(FileJpaEntity::getId)
+                .containsExactly(active.getId());
         }
     }
 
@@ -332,35 +332,35 @@ class FileJpaRepositoryTest {
 
     private FileJpaEntity persistFileWithOrderNum(OwnerType ownerType, Long ownerId, FileSort sort, Long orderNum) {
         FileDomain domain = FileDomain.from(FileDomainSnapshotState.builder()
-                .ownerType(ownerType)
-                .ownerId(ownerId)
-                .sort(sort)
-                .extension("jpg")
-                .name("test-image.jpg")
-                .storageUrl("https://bucket.s3.amazonaws.com/" + ownerType.name() + "/" + ownerId + "/" + orderNum + ".jpg")
-                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                .status(EntityStatus.ACTIVE)
-                .orderNum(orderNum)
-                .userId(100L)
-                .ownerKey("owner-key")
-                .build());
+            .ownerType(ownerType)
+            .ownerId(ownerId)
+            .sort(sort)
+            .extension("jpg")
+            .name("test-image.jpg")
+            .storageUrl("https://bucket.s3.amazonaws.com/" + ownerType.name() + "/" + ownerId + "/" + orderNum + ".jpg")
+            .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+            .status(EntityStatus.ACTIVE)
+            .orderNum(orderNum)
+            .userId(100L)
+            .ownerKey("owner-key")
+            .build());
         FileJpaEntity entity = FileJpaEntity.from(domain, domain.getStorageUrl());
         FileJpaEntity saved = fileJpaRepository.saveAndFlush(entity);
         saved.setIdToOrderNum();
         if (FormatValidator.hasValue(orderNum)) {
             entityManager.createNativeQuery("UPDATE files SET order_num = :orderNum WHERE id = :id")
-                    .setParameter("orderNum", orderNum)
-                    .setParameter("id", saved.getId())
-                    .executeUpdate();
+                .setParameter("orderNum", orderNum)
+                .setParameter("id", saved.getId())
+                .executeUpdate();
         }
         return saved;
     }
 
     private void markStatus(Long id, EntityStatus status) {
         entityManager.createNativeQuery("UPDATE files SET status = :status WHERE id = :id")
-                .setParameter("status", status.name())
-                .setParameter("id", id)
-                .executeUpdate();
+            .setParameter("status", status.name())
+            .setParameter("id", id)
+            .executeUpdate();
         entityManager.flush();
         entityManager.clear();
     }

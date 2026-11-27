@@ -17,16 +17,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FileRequestToCommandMapperTest {
 
     private UpdateFilesRequest createRequest(
-            List<MultipartFile> files, List<String> sorts, List<String> extensions, List<String> names
+        List<MultipartFile> files, List<String> sorts, List<String> extensions, List<String> names
     ) {
         return new UpdateFilesRequest(
-                files,
-                sorts,
-                extensions,
-                names,
-                "PRODUCT",
-                1L,
-                "owner-key-1"
+            files,
+            sorts,
+            extensions,
+            names,
+            "PRODUCT",
+            1L,
+            "owner-key-1"
         );
     }
 
@@ -72,10 +72,10 @@ class FileRequestToCommandMapperTest {
             MockMultipartFile file2 = new MockMultipartFile("file", "image2.jpg", "image/jpeg", "data2".getBytes());
 
             UpdateFilesRequest request = createRequest(
-                    List.of(file1, file2),
-                    List.of("PRODUCT_CATALOG_IMAGE", "PRODUCT_REPRESENTATIVE_IMAGE"),
-                    List.of("jpg", "png"),
-                    List.of("상품이미지1", "상품이미지2")
+                List.of(file1, file2),
+                List.of("PRODUCT_CATALOG_IMAGE", "PRODUCT_REPRESENTATIVE_IMAGE"),
+                List.of("jpg", "png"),
+                List.of("상품이미지1", "상품이미지2")
             );
 
             // when
@@ -105,10 +105,10 @@ class FileRequestToCommandMapperTest {
             MockMultipartFile file2 = new MockMultipartFile("file", "image2.jpg", "image/jpeg", "data2".getBytes());
 
             UpdateFilesRequest request = createRequest(
-                    List.of(file1, file2),
-                    List.of("PRODUCT_CATALOG_IMAGE"),
-                    List.of("jpg"),
-                    List.of("상품이미지1")
+                List.of(file1, file2),
+                List.of("PRODUCT_CATALOG_IMAGE"),
+                List.of("jpg"),
+                List.of("상품이미지1")
             );
 
             // when

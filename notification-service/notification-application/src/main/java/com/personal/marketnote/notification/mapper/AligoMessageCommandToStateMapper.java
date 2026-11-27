@@ -18,28 +18,28 @@ public class AligoMessageCommandToStateMapper {
     }
 
     public static AligoMessageCreateState mapToState(
-            SendAligoAlimTalkCommand command, AligoTemplate template,
-            String renderedContent, String buttonsJson, LocalDateTime requestedAt
+        SendAligoAlimTalkCommand command, AligoTemplate template,
+        String renderedContent, String buttonsJson, LocalDateTime requestedAt
     ) {
         List<AligoMessageRecipientCreateState> recipientStates = command.recipients().stream()
-                .map(AligoMessageCommandToStateMapper::mapToRecipientState)
-                .toList();
+            .map(AligoMessageCommandToStateMapper::mapToRecipientState)
+            .toList();
 
         AligoMessageCreateState.AligoMessageCreateStateBuilder builder = AligoMessageCreateState.builder()
-                .senderKey(template.getSenderKey())
-                .templateCode(template.getTemplateCode())
-                .sender(command.sender())
-                .messageType(AligoMessageType.AT)
-                .content(renderedContent)
-                .title(template.getTemplateName())
-                .buttons(buttonsJson)
-                .requestedAt(requestedAt)
-                .recipients(recipientStates);
+            .senderKey(template.getSenderKey())
+            .templateCode(template.getTemplateCode())
+            .sender(command.sender())
+            .messageType(AligoMessageType.AT)
+            .content(renderedContent)
+            .title(template.getTemplateName())
+            .buttons(buttonsJson)
+            .requestedAt(requestedAt)
+            .recipients(recipientStates);
 
         AligoFailoverCommand failover = command.failover();
         if (FormatValidator.hasValue(failover) && failover.enabled()) {
             builder.failoverSubject(failover.subject())
-                    .failoverMessageBody(failover.body());
+                .failoverMessageBody(failover.body());
         }
 
         return builder.build();
@@ -47,8 +47,8 @@ public class AligoMessageCommandToStateMapper {
 
     public static AligoMessageRecipientCreateState mapToRecipientState(AligoAlimTalkRecipientCommand command) {
         return AligoMessageRecipientCreateState.builder()
-                .receiver(command.receiver())
-                .recvName(command.recvName())
-                .build();
+            .receiver(command.receiver())
+            .recvName(command.recvName())
+            .build();
     }
 }

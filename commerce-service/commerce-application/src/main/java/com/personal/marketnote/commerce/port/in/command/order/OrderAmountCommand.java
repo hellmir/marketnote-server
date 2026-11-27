@@ -4,9 +4,9 @@ import lombok.Builder;
 
 @Builder
 public record OrderAmountCommand(
-        Long totalAmount,
-        Long couponAmount,
-        Long pointAmount,
-        Long shippingFee
+    Long totalAmount,
+    Long couponAmount,
+    Long pointAmount,
+    Long shippingFee
 ) {
 }

@@ -11,6 +11,6 @@ public interface ShippingAddressReadModelJpaRepository extends JpaRepository<Shi
     Optional<ShippingAddressReadModelJpaEntity> findByShippingAddressId(Long shippingAddressId);
 
     Optional<ShippingAddressReadModelJpaEntity> findByShippingAddressIdAndUserIdAndStatus(
-            Long shippingAddressId, Long userId, EntityStatus status
+        Long shippingAddressId, Long userId, EntityStatus status
     );
 }

@@ -28,7 +28,7 @@ public class GetAdminRefundsService implements GetAdminRefundsUseCase {
     public List<GetAdminRefundResult> getRefundsByOrderId(Long orderId) {
         List<Refund> refunds = findRefundPort.findByOrderId(orderId);
         return refunds.stream()
-                .map(GetAdminRefundResult::from)
-                .toList();
+            .map(GetAdminRefundResult::from)
+            .toList();
     }
 }

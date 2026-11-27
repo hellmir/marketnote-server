@@ -7,21 +7,21 @@ import lombok.Builder;
 
 @Builder
 public record ApproveQuickPaymentPortCommand(
-        String batchKey,
-        String groupId,
-        String orderKey,
-        String amount,
-        String goodName
+    String batchKey,
+    String groupId,
+    String orderKey,
+    String amount,
+    String goodName
 ) {
     public static ApproveQuickPaymentPortCommand of(
-            ApproveQuickPaymentCommand command, QuickPaymentCard card, Payment payment
+        ApproveQuickPaymentCommand command, QuickPaymentCard card, Payment payment
     ) {
         return new ApproveQuickPaymentPortCommand(
-                card.getBatchKey(),
-                card.getGroupId(),
-                command.orderKey(),
-                String.valueOf(payment.getPaymentAmount().getValue()),
-                command.goodName()
+            card.getBatchKey(),
+            card.getGroupId(),
+            command.orderKey(),
+            String.valueOf(payment.getPaymentAmount().getValue()),
+            command.goodName()
         );
     }
 }

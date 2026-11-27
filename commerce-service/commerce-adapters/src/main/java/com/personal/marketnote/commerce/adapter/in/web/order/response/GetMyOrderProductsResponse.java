@@ -6,7 +6,7 @@ import com.personal.marketnote.commerce.port.in.result.order.GetBuyerOrderProduc
 import java.util.List;
 
 public record GetMyOrderProductsResponse(
-        List<GetBuyerOrderProductResult> orderProducts
+    List<GetBuyerOrderProductResult> orderProducts
 ) {
     public static GetMyOrderProductsResponse from(GetBuyerOrderProductsResult result) {
         return new GetMyOrderProductsResponse(result.orderProducts());

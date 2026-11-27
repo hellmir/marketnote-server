@@ -16,15 +16,15 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, propagation = REQUIRES_NEW)
 public class RecordFulfillmentServiceCommunicationHistoryService
-        implements RecordFulfillmentServiceCommunicationHistoryUseCase {
+    implements RecordFulfillmentServiceCommunicationHistoryUseCase {
     private final SaveFulfillmentServiceCommunicationHistoryPort saveServiceCommunicationHistoryPort;
 
     @Override
     public FulfillmentServiceCommunicationHistory record(FulfillmentServiceCommunicationHistoryCommand command) {
         return saveServiceCommunicationHistoryPort.save(
-                FulfillmentServiceCommunicationHistory.from(
-                        FulfillmentServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command)
-                )
+            FulfillmentServiceCommunicationHistory.from(
+                FulfillmentServiceCommunicationHistoryCommandToStateMapper.mapToCreateState(command)
+            )
         );
     }
 }

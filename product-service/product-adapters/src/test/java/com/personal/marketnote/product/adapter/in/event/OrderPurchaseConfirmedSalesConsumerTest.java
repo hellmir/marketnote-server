@@ -41,13 +41,13 @@ class OrderPurchaseConfirmedSalesConsumerTest {
     private Acknowledgment acknowledgment;
 
     private static final LocalDateTime FIXED_TIME =
-            LocalDateTime.now(Clock.fixed(Instant.parse("2026-10-17T10:00:00Z"), ZoneId.of("Asia/Seoul")));
+        LocalDateTime.now(Clock.fixed(Instant.parse("2026-10-17T10:00:00Z"), ZoneId.of("Asia/Seoul")));
 
     @Test
     @DisplayName("envelope 이 null 이면 UseCase 를 호출하지 않고 ack 한다")
     void skipsOnNullEnvelope() {
         ConsumerRecord<String, EventEnvelope<?>> record =
-                new ConsumerRecord<>(KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED, 0, 0, "1", null);
+            new ConsumerRecord<>(KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED, 0, 0, "1", null);
 
         consumer.handleOrderPurchaseConfirmed(record, acknowledgment);
 
@@ -59,10 +59,10 @@ class OrderPurchaseConfirmedSalesConsumerTest {
     @DisplayName("이벤트 타입이 일치하지 않으면 UseCase 를 호출하지 않고 ack 한다")
     void skipsOnEventTypeMismatch() {
         EventEnvelope<Object> envelope = new EventEnvelope<>(
-                "evt-1", "wrong.event.type", "commerce-service", FIXED_TIME, null
+            "evt-1", "wrong.event.type", "commerce-service", FIXED_TIME, null
         );
         ConsumerRecord<String, EventEnvelope<?>> record =
-                new ConsumerRecord<>(KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED, 0, 0, "1", envelope);
+            new ConsumerRecord<>(KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED, 0, 0, "1", envelope);
 
         consumer.handleOrderPurchaseConfirmed(record, acknowledgment);
 
@@ -74,14 +74,14 @@ class OrderPurchaseConfirmedSalesConsumerTest {
     @DisplayName("payload 가 유효하면 UseCase.syncSales 를 호출하고 ack 한다")
     void invokesSyncSalesOnValidPayload() {
         OrderPurchaseConfirmedEvent payload = new OrderPurchaseConfirmedEvent(
-                100L, 10L, List.of(), false,
-                List.of(new OrderPurchaseConfirmedEvent.OrderProductItem(1L, 11L, 3))
+            100L, 10L, List.of(), false,
+            List.of(new OrderPurchaseConfirmedEvent.OrderProductItem(1L, 11L, 3))
         );
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
-                "evt-1", KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED, "commerce-service", FIXED_TIME, payload
+            "evt-1", KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED, "commerce-service", FIXED_TIME, payload
         );
         ConsumerRecord<String, EventEnvelope<?>> record =
-                new ConsumerRecord<>(KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED, 0, 0, "1", envelope);
+            new ConsumerRecord<>(KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED, 0, 0, "1", envelope);
 
         consumer.handleOrderPurchaseConfirmed(record, acknowledgment);
 
@@ -93,13 +93,13 @@ class OrderPurchaseConfirmedSalesConsumerTest {
     @DisplayName("orderId 가 null 이면 UseCase 를 호출하지 않고 ack 한다")
     void skipsOnInvalidOrderId() {
         OrderPurchaseConfirmedEvent payload = new OrderPurchaseConfirmedEvent(
-                null, 10L, List.of(), false, List.of()
+            null, 10L, List.of(), false, List.of()
         );
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
-                "evt-1", KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED, "commerce-service", FIXED_TIME, payload
+            "evt-1", KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED, "commerce-service", FIXED_TIME, payload
         );
         ConsumerRecord<String, EventEnvelope<?>> record =
-                new ConsumerRecord<>(KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED, 0, 0, "1", envelope);
+            new ConsumerRecord<>(KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED, 0, 0, "1", envelope);
 
         consumer.handleOrderPurchaseConfirmed(record, acknowledgment);
 

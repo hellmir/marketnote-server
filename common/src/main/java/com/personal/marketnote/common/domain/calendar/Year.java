@@ -29,9 +29,9 @@ public enum Year {
 
     public static Year from(int year) {
         return Arrays.stream(values())
-                .filter(it -> it.value == year)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 연도입니다. year: " + year));
+            .filter(it -> it.value == year)
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 연도입니다. year: " + year));
     }
 }
 

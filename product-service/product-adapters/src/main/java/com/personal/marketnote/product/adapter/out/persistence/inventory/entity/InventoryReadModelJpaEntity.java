@@ -9,8 +9,8 @@ import lombok.*;
 
 @Entity
 @Table(
-        name = "inventory_read_models",
-        uniqueConstraints = @UniqueConstraint(name = "uk_inventory_read_model_price_policy_id", columnNames = "pricePolicyId")
+    name = "inventory_read_models",
+    uniqueConstraints = @UniqueConstraint(name = "uk_inventory_read_model_price_policy_id", columnNames = "pricePolicyId")
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -29,10 +29,10 @@ public class InventoryReadModelJpaEntity extends BaseGeneralEntity {
 
     public static InventoryReadModelJpaEntity of(Long pricePolicyId, Long productId, Integer stockQuantity) {
         return InventoryReadModelJpaEntity.builder()
-                .pricePolicyId(pricePolicyId)
-                .productId(productId)
-                .stockQuantity(stockQuantity)
-                .build();
+            .pricePolicyId(pricePolicyId)
+            .productId(productId)
+            .stockQuantity(stockQuantity)
+            .build();
     }
 
     public void updateFrom(Integer stockQuantity) {

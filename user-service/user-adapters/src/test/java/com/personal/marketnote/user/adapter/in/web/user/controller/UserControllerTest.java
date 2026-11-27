@@ -4,20 +4,10 @@ import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignInRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignUpRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.UpdateUserInfoRequest;
-import com.personal.marketnote.user.adapter.in.web.user.response.CheckNicknameResponse;
-import com.personal.marketnote.user.adapter.in.web.user.response.GetUserInfoResponse;
-import com.personal.marketnote.user.adapter.in.web.user.response.GetUserKeyResponse;
-import com.personal.marketnote.user.adapter.in.web.user.response.IsReferredUserCodeExistsResponse;
-import com.personal.marketnote.user.adapter.in.web.user.response.IsReferredUserCodeRegisteredResponse;
-import com.personal.marketnote.user.adapter.in.web.user.response.WithdrawResponse;
+import com.personal.marketnote.user.adapter.in.web.user.response.*;
 import com.personal.marketnote.user.domain.user.exception.InvalidReferenceCodeException;
 import com.personal.marketnote.user.domain.user.exception.ReferenceCodeNoValueException;
-import com.personal.marketnote.user.port.in.result.CheckNicknameResult;
-import com.personal.marketnote.user.port.in.result.GetUserInfoResult;
-import com.personal.marketnote.user.port.in.result.ReferredUserCodeInputStatusResult;
-import com.personal.marketnote.user.port.in.result.SignInResult;
-import com.personal.marketnote.user.port.in.result.SignUpResult;
-import com.personal.marketnote.user.port.in.result.WithdrawResult;
+import com.personal.marketnote.user.port.in.result.*;
 import com.personal.marketnote.user.port.in.usecase.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import jakarta.servlet.http.HttpServletRequest;
@@ -99,7 +89,7 @@ class UserControllerTest {
 
             SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true, "access-token-value", "refresh-token-value");
             when(signUpUseCase.signUp(any(), eq(AuthVendor.NATIVE), isNull(), eq("192.168.1.1")))
-                    .thenReturn(signUpResult);
+                .thenReturn(signUpResult);
 
             // when
             ResponseEntity<?> response = userController.signUpUser(signUpRequest, null, httpServletRequest);
@@ -129,7 +119,7 @@ class UserControllerTest {
 
             SignUpResult signUpResult = new SignUpResult(2L, "ROLE_BUYER", false, "access-token-existing", "refresh-token-existing");
             when(signUpUseCase.signUp(any(), eq(AuthVendor.NATIVE), isNull(), eq("10.0.0.1")))
-                    .thenReturn(signUpResult);
+                .thenReturn(signUpResult);
 
             // when
             ResponseEntity<?> response = userController.signUpUser(signUpRequest, null, httpServletRequest);
@@ -159,7 +149,7 @@ class UserControllerTest {
 
             SignUpResult signUpResult = new SignUpResult(3L, "ROLE_BUYER", true, "access-token-kakao", "refresh-token-kakao");
             when(signUpUseCase.signUp(any(), eq(AuthVendor.KAKAO), eq("kakao-oidc-123"), eq("10.0.0.1")))
-                    .thenReturn(signUpResult);
+                .thenReturn(signUpResult);
 
             // when
             userController.signUpUser(signUpRequest, principal, httpServletRequest);
@@ -211,7 +201,7 @@ class UserControllerTest {
 
             SignInResult signInResult = new SignInResult(1L, "ROLE_BUYER", true, "access-token-signin", "refresh-token-signin");
             when(signInUseCase.signIn(any(), eq(AuthVendor.NATIVE), isNull(), eq("10.0.0.1")))
-                    .thenReturn(signInResult);
+                .thenReturn(signInResult);
 
             // when
             ResponseEntity<?> response = userController.signInUser(signInRequest, null, httpServletRequest);
@@ -339,11 +329,11 @@ class UserControllerTest {
             OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
             when(principal.getName()).thenReturn("42");
             when(getUserUseCase.getReferredUserCodeInputStatus(42L))
-                    .thenReturn(new ReferredUserCodeInputStatusResult(true, false));
+                .thenReturn(new ReferredUserCodeInputStatusResult(true, false));
 
             // when
             ResponseEntity<BaseResponse<IsReferredUserCodeRegisteredResponse>> response =
-                    userController.isReferredUserCodeRegistered(principal);
+                userController.isReferredUserCodeRegistered(principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -360,11 +350,11 @@ class UserControllerTest {
             OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
             when(principal.getName()).thenReturn("11");
             when(getUserUseCase.getReferredUserCodeInputStatus(11L))
-                    .thenReturn(new ReferredUserCodeInputStatusResult(false, true));
+                .thenReturn(new ReferredUserCodeInputStatusResult(false, true));
 
             // when
             ResponseEntity<BaseResponse<IsReferredUserCodeRegisteredResponse>> response =
-                    userController.isReferredUserCodeRegistered(principal);
+                userController.isReferredUserCodeRegistered(principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -381,11 +371,11 @@ class UserControllerTest {
             OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
             when(principal.getName()).thenReturn("7");
             when(getUserUseCase.getReferredUserCodeInputStatus(7L))
-                    .thenReturn(new ReferredUserCodeInputStatusResult(false, false));
+                .thenReturn(new ReferredUserCodeInputStatusResult(false, false));
 
             // when
             ResponseEntity<BaseResponse<IsReferredUserCodeRegisteredResponse>> response =
-                    userController.isReferredUserCodeRegistered(principal);
+                userController.isReferredUserCodeRegistered(principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -409,7 +399,7 @@ class UserControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    userController.skipReferredUserCodeInput(principal);
+                userController.skipReferredUserCodeInput(principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -432,7 +422,7 @@ class UserControllerTest {
 
             // when
             ResponseEntity<BaseResponse<IsReferredUserCodeExistsResponse>> response =
-                    userController.existsReferredUserCode(code);
+                userController.existsReferredUserCode(code);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -450,7 +440,7 @@ class UserControllerTest {
 
             // when
             ResponseEntity<BaseResponse<IsReferredUserCodeExistsResponse>> response =
-                    userController.existsReferredUserCode(code);
+                userController.existsReferredUserCode(code);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -467,7 +457,7 @@ class UserControllerTest {
 
             // when & then
             assertThatThrownBy(() -> userController.existsReferredUserCode(invalidCode))
-                    .isInstanceOf(InvalidReferenceCodeException.class);
+                .isInstanceOf(InvalidReferenceCodeException.class);
             verify(getUserUseCase, never()).existsUser(anyString());
         }
 
@@ -479,7 +469,7 @@ class UserControllerTest {
 
             // when & then
             assertThatThrownBy(() -> userController.existsReferredUserCode(invalidCode))
-                    .isInstanceOf(InvalidReferenceCodeException.class);
+                .isInstanceOf(InvalidReferenceCodeException.class);
             verify(getUserUseCase, never()).existsUser(anyString());
         }
 
@@ -491,7 +481,7 @@ class UserControllerTest {
 
             // when & then
             assertThatThrownBy(() -> userController.existsReferredUserCode(blankCode))
-                    .isInstanceOf(ReferenceCodeNoValueException.class);
+                .isInstanceOf(ReferenceCodeNoValueException.class);
             verify(getUserUseCase, never()).existsUser(anyString());
         }
 
@@ -503,7 +493,7 @@ class UserControllerTest {
 
             // when & then
             assertThatThrownBy(() -> userController.existsReferredUserCode(whitespaceCode))
-                    .isInstanceOf(ReferenceCodeNoValueException.class);
+                .isInstanceOf(ReferenceCodeNoValueException.class);
             verify(getUserUseCase, never()).existsUser(anyString());
         }
     }
@@ -533,7 +523,7 @@ class UserControllerTest {
 
             SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true, "access-token-value", "refresh-token-value");
             when(signUpUseCase.signUp(any(), eq(AuthVendor.GOOGLE), eq("google-sub-123"), any()))
-                    .thenReturn(signUpResult);
+                .thenReturn(signUpResult);
 
             // when
             userController.signUpUser(signUpRequest, principal, httpServletRequest);
@@ -563,7 +553,7 @@ class UserControllerTest {
 
             SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true, "access-token-value", "refresh-token-value");
             when(signUpUseCase.signUp(any(), eq(AuthVendor.APPLE), eq("apple-sub-456"), any()))
-                    .thenReturn(signUpResult);
+                .thenReturn(signUpResult);
 
             // when
             userController.signUpUser(signUpRequest, principal, httpServletRequest);
@@ -593,7 +583,7 @@ class UserControllerTest {
 
             SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true, "access-token-value", "refresh-token-value");
             when(signUpUseCase.signUp(any(), eq(AuthVendor.NATIVE), eq("unknown-sub-789"), any()))
-                    .thenReturn(signUpResult);
+                .thenReturn(signUpResult);
 
             // when
             userController.signUpUser(signUpRequest, principal, httpServletRequest);
@@ -616,7 +606,7 @@ class UserControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    userController.registerReferredUserCode("ABC123", principal);
+                userController.registerReferredUserCode("ABC123", principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -636,11 +626,11 @@ class UserControllerTest {
             // given
             String nickname = "테스트닉";
             when(checkNicknameUseCase.checkNickname(nickname))
-                    .thenReturn(CheckNicknameResult.of(true, false));
+                .thenReturn(CheckNicknameResult.of(true, false));
 
             // when
             ResponseEntity<BaseResponse<CheckNicknameResponse>> response =
-                    userController.checkNickname(nickname);
+                userController.checkNickname(nickname);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -666,7 +656,7 @@ class UserControllerTest {
 
             // when
             ResponseEntity<BaseResponse<GetUserKeyResponse>> response =
-                    userController.getMyKey(principal);
+                userController.getMyKey(principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -692,7 +682,7 @@ class UserControllerTest {
 
             // when
             ResponseEntity<BaseResponse<GetUserInfoResponse>> response =
-                    userController.getMyInfo(principal);
+                userController.getMyInfo(principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -717,7 +707,7 @@ class UserControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    userController.updateMyInfo(request, principal);
+                userController.updateMyInfo(request, principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -741,7 +731,7 @@ class UserControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    userController.signOutUser("refresh-token-value");
+                userController.signOutUser("refresh-token-value");
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -774,7 +764,7 @@ class UserControllerTest {
 
             // when
             ResponseEntity<BaseResponse<WithdrawResponse>> response =
-                    userController.withdrawUser(principal, "google-access-token-value");
+                userController.withdrawUser(principal, "google-access-token-value");
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -803,7 +793,7 @@ class UserControllerTest {
 
             // when
             ResponseEntity<BaseResponse<WithdrawResponse>> response =
-                    userController.withdrawUser(principal, null);
+                userController.withdrawUser(principal, null);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

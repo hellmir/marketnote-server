@@ -48,33 +48,33 @@ public class LikeController {
     @PutMapping
     @UpsertLikeApiDocs
     public ResponseEntity<BaseResponse<UpsertLikeResponse>> upsertLike(
-            @Valid @RequestBody UpsertLikeRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody UpsertLikeRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         UpsertLikeResult result = upsertLikeUseCase.upsertLike(
-                LikeRequestToCommandMapper.mapToCommand(request, ElementExtractor.extractUserId(principal))
+            LikeRequestToCommandMapper.mapToCommand(request, ElementExtractor.extractUserId(principal))
         );
 
         if (result.isNew()) {
             return new ResponseEntity<>(
-                    BaseResponse.of(
-                            UpsertLikeResponse.from(result),
-                            HttpStatus.CREATED,
-                            DEFAULT_SUCCESS_CODE,
-                            "좋아요 등록 성공"
-                    ),
-                    HttpStatus.CREATED
+                BaseResponse.of(
+                    UpsertLikeResponse.from(result),
+                    HttpStatus.CREATED,
+                    DEFAULT_SUCCESS_CODE,
+                    "좋아요 등록 성공"
+                ),
+                HttpStatus.CREATED
             );
         }
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        UpsertLikeResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "좋아요 활성화/비활성화 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                UpsertLikeResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "좋아요 활성화/비활성화 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

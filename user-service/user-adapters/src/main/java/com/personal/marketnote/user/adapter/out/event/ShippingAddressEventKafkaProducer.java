@@ -28,11 +28,11 @@ public class ShippingAddressEventKafkaProducer implements PublishShippingAddress
 
     @Override
     public void publishShippingAddressChangedEvent(
-            Long shippingAddressId, Long userId, String recipientName, String recipientPhoneNumber,
-            String address, String addressDetail, String regionType, ShippingAddressChangeAction action
+        Long shippingAddressId, Long userId, String recipientName, String recipientPhoneNumber,
+        String address, String addressDetail, String regionType, ShippingAddressChangeAction action
     ) {
         ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(
-                shippingAddressId, userId, recipientName, recipientPhoneNumber, address, addressDetail, regionType, action
+            shippingAddressId, userId, recipientName, recipientPhoneNumber, address, addressDetail, regionType, action
         );
         String topic = KafkaTopicConstants.SHIPPING_ADDRESS_CHANGED;
         EventEnvelope<ShippingAddressChangedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
@@ -43,8 +43,8 @@ public class ShippingAddressEventKafkaProducer implements PublishShippingAddress
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
         String payloadJson = serializePayload(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(), topic, partitionKey,
-                envelope.eventType(), SOURCE, payloadJson, clock
+            envelope.eventId(), topic, partitionKey,
+            envelope.eventType(), SOURCE, payloadJson, clock
         );
         saveOutboxEventPort.save(outboxEvent);
         log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());

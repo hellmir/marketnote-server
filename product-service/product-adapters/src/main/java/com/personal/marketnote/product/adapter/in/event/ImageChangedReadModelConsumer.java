@@ -27,12 +27,12 @@ public class ImageChangedReadModelConsumer {
     private final SaveImageReadModelPort saveImageReadModelPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.FILE_IMAGE_CHANGED,
-            groupId = "product-image-read-model"
+        topics = KafkaTopicConstants.FILE_IMAGE_CHANGED,
+        groupId = "product-image-read-model"
     )
     public void handleImageChangedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -49,13 +49,13 @@ public class ImageChangedReadModelConsumer {
         ImageChangedEvent payload = envelope.getPayloadAs(ImageChangedEvent.class, objectMapper);
 
         log.info("이미지 변경 이벤트 수신. eventId={}, imageId={}, targetId={}, targetType={}, action={}",
-                envelope.eventId(), payload.imageId(), payload.targetId(),
-                payload.targetType(), payload.action()
+            envelope.eventId(), payload.imageId(), payload.targetId(),
+            payload.targetType(), payload.action()
         );
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("imageId", payload.imageId()),
-                EventPayloadValidator.id("targetId", payload.targetId()))) {
+            EventPayloadValidator.id("imageId", payload.imageId()),
+            EventPayloadValidator.id("targetId", payload.targetId()))) {
             acknowledgment.acknowledge();
             return;
         }
@@ -69,8 +69,8 @@ public class ImageChangedReadModelConsumer {
         if (payload.action() == ImageChangeAction.CREATED) {
             List<SaveImageReadModelPort.ResizedImageInput> resizedInputs = toResizedInputs(payload);
             saveImageReadModelPort.upsert(
-                    payload.imageId(), payload.targetId(), payload.targetType(),
-                    payload.fileSort(), payload.imageUrl(), payload.sortOrder(), resizedInputs
+                payload.imageId(), payload.targetId(), payload.targetType(),
+                payload.fileSort(), payload.imageUrl(), payload.sortOrder(), resizedInputs
             );
             log.info("이미지 Read Model 저장 완료. imageId={}, targetId={}", payload.imageId(), payload.targetId());
         }
@@ -88,7 +88,7 @@ public class ImageChangedReadModelConsumer {
             return List.of();
         }
         return payload.resizedImages().stream()
-                .map(resized -> new SaveImageReadModelPort.ResizedImageInput(resized.size(), resized.storageUrl()))
-                .toList();
+            .map(resized -> new SaveImageReadModelPort.ResizedImageInput(resized.size(), resized.storageUrl()))
+            .toList();
     }
 }

@@ -25,38 +25,38 @@ public class ReviewUserQueryRepositoryImpl implements ReviewUserQueryRepository 
 
     @Override
     public List<ReviewJpaEntity> findUserReviewsByCursor(
-            Long userId,
-            Long cursor,
-            Pageable pageable,
-            String sortProperty,
-            Boolean isAsc
+        Long userId,
+        Long cursor,
+        Pageable pageable,
+        String sortProperty,
+        Boolean isAsc
     ) {
         return queryFactory
-                .selectFrom(review)
-                .where(
-                        review.reviewerId.eq(userId),
-                        review.status.eq(EntityStatus.ACTIVE),
-                        ReviewQueryExpressions.cursorCondition(cursor, sortProperty, isAsc, review)
-                )
-                .orderBy(ReviewQueryExpressions.orderSpecifiers(sortProperty, isAsc, review))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+            .selectFrom(review)
+            .where(
+                review.reviewerId.eq(userId),
+                review.status.eq(EntityStatus.ACTIVE),
+                ReviewQueryExpressions.cursorCondition(cursor, sortProperty, isAsc, review)
+            )
+            .orderBy(ReviewQueryExpressions.orderSpecifiers(sortProperty, isAsc, review))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
     }
 
     @Override
     public List<ReviewJpaEntity> findUserReviewsByOffset(Long reviewerId, Pageable pageable) {
         JPAQuery<ReviewJpaEntity> query = queryFactory
-                .selectFrom(review)
-                .where(
-                        review.reviewerId.eq(reviewerId),
-                        review.status.eq(EntityStatus.ACTIVE)
-                );
+            .selectFrom(review)
+            .where(
+                review.reviewerId.eq(reviewerId),
+                review.status.eq(EntityStatus.ACTIVE)
+            );
         applyPageableSort(query, pageable);
         return query
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
     }
 
     private void applyPageableSort(JPAQuery<ReviewJpaEntity> query, Pageable pageable) {

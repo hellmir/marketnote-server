@@ -27,8 +27,8 @@ public class DeleteFileService implements DeleteFileUseCase {
     public void delete(Long id) {
         FileDomain file = getFileUseCase.getFile(id);
         List<ResizedFile> activeResizedFiles = getFileUseCase.getResizedFiles(List.of(file)).stream()
-                .filter(ResizedFile::isActive)
-                .toList();
+            .filter(ResizedFile::isActive)
+            .toList();
         file.delete();
         updateFilePort.update(file);
 

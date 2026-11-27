@@ -26,15 +26,15 @@ public class InventoryEventKafkaProducer implements PublishInventoryEventPort {
 
     @Override
     public void publishInventoryChangedEvent(
-            Long pricePolicyId, Long productId, Integer stockQuantity,
-            InventoryChangeAction action
+        Long pricePolicyId, Long productId, Integer stockQuantity,
+        InventoryChangeAction action
     ) {
         InventoryChangedEvent payload = new InventoryChangedEvent(
-                pricePolicyId, productId, stockQuantity, action
+            pricePolicyId, productId, stockQuantity, action
         );
         String topic = KafkaTopicConstants.INVENTORY_CHANGED;
         EventEnvelope<InventoryChangedEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         saveToOutbox(envelope, topic, pricePolicyId.toString());
@@ -42,10 +42,10 @@ public class InventoryEventKafkaProducer implements PublishInventoryEventPort {
 
     @Override
     public void publishStockReservedEvent(
-            Long pricePolicyId, Long productId, Integer reservedQuantity, Long orderId
+        Long pricePolicyId, Long productId, Integer reservedQuantity, Long orderId
     ) {
         StockReservedEvent payload = new StockReservedEvent(
-                pricePolicyId, productId, reservedQuantity, orderId
+            pricePolicyId, productId, reservedQuantity, orderId
         );
         String topic = KafkaTopicConstants.STOCK_RESERVED;
         EventEnvelope<StockReservedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
@@ -55,11 +55,11 @@ public class InventoryEventKafkaProducer implements PublishInventoryEventPort {
 
     @Override
     public void publishStockReleasedEvent(
-            Long pricePolicyId, Long productId, Integer releasedQuantity,
-            String reason, Long orderId
+        Long pricePolicyId, Long productId, Integer releasedQuantity,
+        String reason, Long orderId
     ) {
         StockReleasedEvent payload = new StockReleasedEvent(
-                pricePolicyId, productId, releasedQuantity, reason, orderId
+            pricePolicyId, productId, releasedQuantity, reason, orderId
         );
         String topic = KafkaTopicConstants.STOCK_RELEASED;
         EventEnvelope<StockReleasedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
@@ -70,8 +70,8 @@ public class InventoryEventKafkaProducer implements PublishInventoryEventPort {
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
         String payloadJson = serializePayload(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(), topic, partitionKey,
-                envelope.eventType(), SOURCE, payloadJson, clock
+            envelope.eventId(), topic, partitionKey,
+            envelope.eventType(), SOURCE, payloadJson, clock
         );
         saveOutboxEventPort.save(outboxEvent);
         log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());

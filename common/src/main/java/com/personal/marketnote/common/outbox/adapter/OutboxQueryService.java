@@ -24,21 +24,21 @@ public class OutboxQueryService {
     public List<OutboxEventResponse> queryFailedEvents(String topic) {
         if (FormatValidator.hasNoValue(topic)) {
             return outboxEventJpaRepository.findByStatusOrderByCreatedAtAsc(OutboxEventStatus.FAILED)
-                    .stream()
-                    .map(OutboxEventResponse::from)
-                    .toList();
-        }
-        return outboxEventJpaRepository.findByStatusAndTopicOrderByCreatedAtAsc(OutboxEventStatus.FAILED, topic)
                 .stream()
                 .map(OutboxEventResponse::from)
                 .toList();
+        }
+        return outboxEventJpaRepository.findByStatusAndTopicOrderByCreatedAtAsc(OutboxEventStatus.FAILED, topic)
+            .stream()
+            .map(OutboxEventResponse::from)
+            .toList();
     }
 
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public List<OutboxTopicSummaryResponse> queryFailedSummary() {
         List<Object[]> rows = outboxEventJpaRepository.countByStatusGroupByTopic(OutboxEventStatus.FAILED);
         return rows.stream()
-                .map(row -> new OutboxTopicSummaryResponse((String) row[0], (Long) row[1]))
-                .toList();
+            .map(row -> new OutboxTopicSummaryResponse((String) row[0], (Long) row[1]))
+            .toList();
     }
 }

@@ -37,10 +37,10 @@ public class SlowRequestLoggingFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(SlowRequestLoggingFilter.class);
 
     private static final Set<String> SECRET_KEYS = Set.of(
-            "token", "password", "apikey", "api_key", "secret", "authorization", "auth"
+        "token", "password", "apikey", "api_key", "secret", "authorization", "auth"
     );
     private static final Pattern SECRET_KEY_PATTERN = Pattern.compile(
-            "(?i)(" + String.join("|", SECRET_KEYS) + ")=[^&]*"
+        "(?i)(" + String.join("|", SECRET_KEYS) + ")=[^&]*"
     );
 
     /**
@@ -66,7 +66,7 @@ public class SlowRequestLoggingFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain chain
+        HttpServletRequest request, HttpServletResponse response, FilterChain chain
     ) throws ServletException, IOException {
         long startNanos = System.nanoTime();
         try {
@@ -75,12 +75,12 @@ public class SlowRequestLoggingFilter extends OncePerRequestFilter {
             long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos);
             if (elapsedMs >= thresholdMs) {
                 log.warn(
-                        "Slow request: method={}, path={}, query={}, status={}, elapsedMs={}",
-                        sanitizeForLog(request.getMethod()),
-                        sanitizeForLog(request.getRequestURI()),
-                        sanitizeQuery(request.getQueryString()),
-                        response.getStatus(),
-                        elapsedMs
+                    "Slow request: method={}, path={}, query={}, status={}, elapsedMs={}",
+                    sanitizeForLog(request.getMethod()),
+                    sanitizeForLog(request.getRequestURI()),
+                    sanitizeQuery(request.getQueryString()),
+                    response.getStatus(),
+                    elapsedMs
                 );
             }
         }

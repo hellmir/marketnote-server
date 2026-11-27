@@ -50,13 +50,13 @@ public class AdminGifticonCategoryController {
         GetAdminGifticonCategoriesResult result = getAdminGifticonCategoriesUseCase.getAdminGifticonCategories();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetAdminGifticonCategoriesResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "관리자 기프티콘 카테고리 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetAdminGifticonCategoriesResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "관리자 기프티콘 카테고리 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -73,17 +73,17 @@ public class AdminGifticonCategoryController {
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdateGifticonCategoryApiDocs
     public ResponseEntity<BaseResponse<Void>> updateGifticonCategory(
-            @PathVariable("categoryId") Long categoryId,
-            @Valid @RequestBody UpdateGifticonCategoryRequest request
+        @PathVariable("categoryId") Long categoryId,
+        @Valid @RequestBody UpdateGifticonCategoryRequest request
     ) {
         updateGifticonCategoryUseCase.updateGifticonCategory(request.toCommand(categoryId));
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티콘 카테고리 수정 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티콘 카테고리 수정 성공"
+            )
         );
     }
 
@@ -99,16 +99,16 @@ public class AdminGifticonCategoryController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ManageGifticonCategoryExposureApiDocs
     public ResponseEntity<BaseResponse<Void>> manageGifticonCategoryExposure(
-            @Valid @RequestBody ManageGifticonCategoryExposureRequest request
+        @Valid @RequestBody ManageGifticonCategoryExposureRequest request
     ) {
         manageGifticonCategoryExposureUseCase.manageExposure(request.toCommand());
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티콘 카테고리 노출 관리 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티콘 카테고리 노출 관리 성공"
+            )
         );
     }
 
@@ -124,16 +124,16 @@ public class AdminGifticonCategoryController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ManageGifticonCategoryOrderApiDocs
     public ResponseEntity<BaseResponse<Void>> manageGifticonCategoryOrder(
-            @Valid @RequestBody ManageGifticonCategoryOrderRequest request
+        @Valid @RequestBody ManageGifticonCategoryOrderRequest request
     ) {
         manageGifticonCategoryOrderUseCase.manageOrder(request.toCommand());
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티콘 카테고리 노출 순서 관리 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티콘 카테고리 노출 순서 관리 성공"
+            )
         );
     }
 }

@@ -38,7 +38,7 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
     @Override
     public void pollPendingInspections() {
         List<ReturnTracker> pendingTrackers = findReturnTrackerPort.findByInspectionStatus(
-                ReturnInspectionStatus.PENDING
+            ReturnInspectionStatus.PENDING
         );
         if (pendingTrackers.isEmpty()) {
             return;
@@ -61,8 +61,8 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
 
     private List<ReturnTracker> filterTrackersWithSlipNumber(List<ReturnTracker> trackers) {
         List<ReturnTracker> withSlipNumber = trackers.stream()
-                .filter(tracker -> FormatValidator.hasValue(tracker.getReturnSlipNumber()))
-                .toList();
+            .filter(tracker -> FormatValidator.hasValue(tracker.getReturnSlipNumber()))
+            .toList();
 
         int skippedCount = trackers.size() - withSlipNumber.size();
         if (skippedCount > 0) {
@@ -73,8 +73,8 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
 
     private String buildReturnSlipNumbers(List<ReturnTracker> trackers) {
         return trackers.stream()
-                .map(ReturnTracker::getReturnSlipNumber)
-                .collect(Collectors.joining(","));
+            .map(ReturnTracker::getReturnSlipNumber)
+            .collect(Collectors.joining(","));
     }
 
     private ReturnInspectionResult fetchInspectionResults(String returnSlipNumbers) {
@@ -83,7 +83,7 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
         } catch (Exception e) {
             // 분류 C: 외부 fulfillment 조회 실패 시 폴링 라운드 스킵 (null fallback) — Adapter 가 다양한 예외를 던질 수 있어 광역 catch 유지
             log.warn("fallback applied: 반품 검수 상태 조회 실패 — 폴링 라운드 스킵 (null 반환). returnSlipNumbers={}",
-                    returnSlipNumbers, e
+                returnSlipNumbers, e
             );
             return null;
         }
@@ -91,19 +91,19 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
 
     private Map<String, ReturnTracker> buildTrackerByOrderIdMap(List<ReturnTracker> trackers) {
         return trackers.stream()
-                .collect(Collectors.toMap(
-                        tracker -> String.valueOf(tracker.getOrderId()),
-                        tracker -> tracker,
-                        (existing, duplicate) -> {
-                            log.warn("반품 검수 폴링: 중복 orderId 발견 - orderId: {}", existing.getOrderId());
-                            return existing;
-                        }
-                ));
+            .collect(Collectors.toMap(
+                tracker -> String.valueOf(tracker.getOrderId()),
+                tracker -> tracker,
+                (existing, duplicate) -> {
+                    log.warn("반품 검수 폴링: 중복 orderId 발견 - orderId: {}", existing.getOrderId());
+                    return existing;
+                }
+            ));
     }
 
     private void processInspectionResults(
-            List<ReturnInspectionResultItem> resultItems,
-            Map<String, ReturnTracker> trackerByOrderId
+        List<ReturnInspectionResultItem> resultItems,
+        Map<String, ReturnTracker> trackerByOrderId
     ) {
         for (ReturnInspectionResultItem resultItem : resultItems) {
             try {
@@ -111,15 +111,15 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
             } catch (Exception e) {
                 // boundary swallow: 한 result item 실패가 다른 result item 처리에 영향 안 가도록 per-item swallow
                 log.error("반품 검수 상태 업데이트 실패 - orderNumber={}",
-                        resultItem.orderNumber(), e
+                    resultItem.orderNumber(), e
                 );
             }
         }
     }
 
     private void processInspectionResult(
-            ReturnInspectionResultItem resultItem,
-            Map<String, ReturnTracker> trackerByOrderId
+        ReturnInspectionResultItem resultItem,
+        Map<String, ReturnTracker> trackerByOrderId
     ) {
         ReturnTracker tracker = trackerByOrderId.get(resultItem.orderNumber());
         if (FormatValidator.hasNoValue(tracker)) {
@@ -156,25 +156,25 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
         }
 
         boolean hasFailed = products.stream()
-                .anyMatch(goods -> INSPECTION_FAILED.equals(goods.returnProductCheckStatus()));
+            .anyMatch(goods -> INSPECTION_FAILED.equals(goods.returnProductCheckStatus()));
         if (hasFailed) {
             return INSPECTION_FAILED;
         }
 
         boolean hasOnHold = products.stream()
-                .anyMatch(goods -> INSPECTION_ON_HOLD.equals(goods.returnProductCheckStatus()));
+            .anyMatch(goods -> INSPECTION_ON_HOLD.equals(goods.returnProductCheckStatus()));
         if (hasOnHold) {
             return INSPECTION_ON_HOLD;
         }
 
         boolean allPassed = products.stream()
-                .allMatch(goods -> INSPECTION_PASSED.equals(goods.returnProductCheckStatus()));
+            .allMatch(goods -> INSPECTION_PASSED.equals(goods.returnProductCheckStatus()));
         if (allPassed) {
             return INSPECTION_PASSED;
         }
 
         log.warn("반품 검수 폴링: 분류 불가능한 상태 조합 - statuses: {}",
-                products.stream().map(ReturnInspectionGoodsItem::returnProductCheckStatus).toList()
+            products.stream().map(ReturnInspectionGoodsItem::returnProductCheckStatus).toList()
         );
         return null;
     }

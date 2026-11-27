@@ -35,13 +35,13 @@ public class IssueBatchKeyService implements IssueBatchKeyUseCase {
         }
 
         QuickPaymentCardCreateState createState = QuickPaymentCardCreateState.forIssued(
-                command.userId(),
-                portResult.batchKey(),
-                portResult.cardCode(),
-                portResult.cardName(),
-                MaskedCardNumber.fromNullable(command.maskedCardNumber()),
-                portResult.cardBinType01(),
-                portResult.cardBinType02()
+            command.userId(),
+            portResult.batchKey(),
+            portResult.cardCode(),
+            portResult.cardName(),
+            MaskedCardNumber.fromNullable(command.maskedCardNumber()),
+            portResult.cardBinType01(),
+            portResult.cardBinType02()
         );
 
         QuickPaymentCard savedCard = saveQuickPaymentCardPort.save(QuickPaymentCard.from(createState));

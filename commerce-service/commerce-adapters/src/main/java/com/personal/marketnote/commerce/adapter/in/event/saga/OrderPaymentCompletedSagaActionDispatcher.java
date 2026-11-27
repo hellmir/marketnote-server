@@ -33,14 +33,14 @@ public class OrderPaymentCompletedSagaActionDispatcher {
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void dispatch(
-            PaymentCompletedSagaPayload payload, List<OrderProduct> orderProducts,
-            OrderPaymentCompletedSagaContext downstreamContext
+        PaymentCompletedSagaPayload payload, List<OrderProduct> orderProducts,
+        OrderPaymentCompletedSagaContext downstreamContext
     ) {
         ShippingAddress shippingAddress = buildShippingAddress(payload);
 
         publishOrderEventPort.publishOrderPaymentCompletedEvent(
-                payload.orderId(), payload.buyerId(), payload.totalAmount(),
-                payload.pointAmount(), shippingAddress, orderProducts, payload.totalAccumulatedPoint()
+            payload.orderId(), payload.buyerId(), payload.totalAmount(),
+            payload.pointAmount(), shippingAddress, orderProducts, payload.totalAccumulatedPoint()
         );
 
         orderPaymentCompletedSagaStarter.start(downstreamContext);
@@ -48,19 +48,19 @@ public class OrderPaymentCompletedSagaActionDispatcher {
 
     private ShippingAddress buildShippingAddress(PaymentCompletedSagaPayload payload) {
         if (FormatValidator.hasNoValue(payload.recipientName())
-                && FormatValidator.hasNoValue(payload.address())) {
+            && FormatValidator.hasNoValue(payload.address())) {
             return null;
         }
         return ShippingAddress.from(
-                ShippingAddressCreateState.builder()
-                        .recipientName(payload.recipientName())
-                        .recipientPhoneNumber(payload.recipientPhoneNumber())
-                        .zipCode(payload.zipCode())
-                        .address(payload.address())
-                        .addressDetail(payload.addressDetail())
-                        .deliveryRequestType(null)
-                        .deliveryRequestMessage(payload.deliveryRequestMessage())
-                        .build()
+            ShippingAddressCreateState.builder()
+                .recipientName(payload.recipientName())
+                .recipientPhoneNumber(payload.recipientPhoneNumber())
+                .zipCode(payload.zipCode())
+                .address(payload.address())
+                .addressDetail(payload.addressDetail())
+                .deliveryRequestType(null)
+                .deliveryRequestMessage(payload.deliveryRequestMessage())
+                .build()
         );
     }
 }

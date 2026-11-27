@@ -33,33 +33,33 @@ public class GiftishowOperationTargetTypeResolver {
     static final String OP_BIZMONEY_BALANCE = "bizmoney.balance";
 
     private static final Set<String> KNOWN_OPERATIONS = Set.of(
-            OP_PRODUCT_LIST,
-            OP_PRODUCT_DETAIL,
-            OP_BRAND_LIST,
-            OP_BRAND_DETAIL,
-            OP_COUPON_SEND,
-            OP_COUPON_DETAIL,
-            OP_COUPON_CANCEL,
-            OP_COUPON_RESEND,
-            OP_COUPON_SEND_FAIL_CANCEL,
-            OP_BIZMONEY_BALANCE
+        OP_PRODUCT_LIST,
+        OP_PRODUCT_DETAIL,
+        OP_BRAND_LIST,
+        OP_BRAND_DETAIL,
+        OP_COUPON_SEND,
+        OP_COUPON_DETAIL,
+        OP_COUPON_CANCEL,
+        OP_COUPON_RESEND,
+        OP_COUPON_SEND_FAIL_CANCEL,
+        OP_BIZMONEY_BALANCE
     );
 
     private static final Map<String, RewardVendorCommunicationTargetType> OPERATION_TARGET_TYPE_MAP = Map.of(
-            OP_PRODUCT_LIST, RewardVendorCommunicationTargetType.COUPON,
-            OP_PRODUCT_DETAIL, RewardVendorCommunicationTargetType.COUPON,
-            OP_BRAND_LIST, RewardVendorCommunicationTargetType.COUPON,
-            OP_BRAND_DETAIL, RewardVendorCommunicationTargetType.COUPON,
-            OP_COUPON_SEND, RewardVendorCommunicationTargetType.COUPON,
-            OP_COUPON_DETAIL, RewardVendorCommunicationTargetType.COUPON,
-            OP_COUPON_CANCEL, RewardVendorCommunicationTargetType.COUPON,
-            OP_COUPON_RESEND, RewardVendorCommunicationTargetType.COUPON,
-            OP_COUPON_SEND_FAIL_CANCEL, RewardVendorCommunicationTargetType.COUPON,
-            OP_BIZMONEY_BALANCE, RewardVendorCommunicationTargetType.BIZMONEY
+        OP_PRODUCT_LIST, RewardVendorCommunicationTargetType.COUPON,
+        OP_PRODUCT_DETAIL, RewardVendorCommunicationTargetType.COUPON,
+        OP_BRAND_LIST, RewardVendorCommunicationTargetType.COUPON,
+        OP_BRAND_DETAIL, RewardVendorCommunicationTargetType.COUPON,
+        OP_COUPON_SEND, RewardVendorCommunicationTargetType.COUPON,
+        OP_COUPON_DETAIL, RewardVendorCommunicationTargetType.COUPON,
+        OP_COUPON_CANCEL, RewardVendorCommunicationTargetType.COUPON,
+        OP_COUPON_RESEND, RewardVendorCommunicationTargetType.COUPON,
+        OP_COUPON_SEND_FAIL_CANCEL, RewardVendorCommunicationTargetType.COUPON,
+        OP_BIZMONEY_BALANCE, RewardVendorCommunicationTargetType.BIZMONEY
     );
 
     private static final RewardVendorCommunicationTargetType DEFAULT_TARGET_TYPE =
-            RewardVendorCommunicationTargetType.COUPON;
+        RewardVendorCommunicationTargetType.COUPON;
 
     /**
      * operation에 대응되는 targetType을 반환한다. 매핑 누락 시 ERROR 로그를 남기고 기본값을 반환한다 (fail-open).
@@ -68,8 +68,8 @@ public class GiftishowOperationTargetTypeResolver {
         RewardVendorCommunicationTargetType resolved = OPERATION_TARGET_TYPE_MAP.get(operation);
         if (resolved == null) {
             log.error(
-                    "Giftishow operation 매핑 누락: operation={} — 기본값 {}으로 fail-open 처리",
-                    operation, DEFAULT_TARGET_TYPE
+                "Giftishow operation 매핑 누락: operation={} — 기본값 {}으로 fail-open 처리",
+                operation, DEFAULT_TARGET_TYPE
             );
             return DEFAULT_TARGET_TYPE;
         }
@@ -84,7 +84,7 @@ public class GiftishowOperationTargetTypeResolver {
         for (String operation : KNOWN_OPERATIONS) {
             if (!OPERATION_TARGET_TYPE_MAP.containsKey(operation)) {
                 throw new GiftishowOperationMappingException(
-                        "Giftishow operation 매핑 누락: operation=" + operation
+                    "Giftishow operation 매핑 누락: operation=" + operation
                 );
             }
         }

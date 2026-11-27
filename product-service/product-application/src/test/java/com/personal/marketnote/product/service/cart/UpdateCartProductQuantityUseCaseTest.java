@@ -44,7 +44,7 @@ class UpdateCartProductQuantityUseCaseTest {
         Short newQuantity = (short) 5;
 
         UpdateCartProductQuantityCommand command =
-                UpdateCartProductQuantityCommand.of(userId, pricePolicyId, newQuantity);
+            UpdateCartProductQuantityCommand.of(userId, pricePolicyId, newQuantity);
         CartProduct cartProduct = buildCartProduct(userId, pricePolicyId, originalQuantity);
 
         when(getCartProductUseCase.getCartProduct(userId, pricePolicyId)).thenReturn(cartProduct);
@@ -72,14 +72,14 @@ class UpdateCartProductQuantityUseCaseTest {
         Short newQuantity = (short) 3;
 
         UpdateCartProductQuantityCommand command =
-                UpdateCartProductQuantityCommand.of(userId, pricePolicyId, newQuantity);
+            UpdateCartProductQuantityCommand.of(userId, pricePolicyId, newQuantity);
         CartProductNotFoundException exception = new CartProductNotFoundException();
 
         when(getCartProductUseCase.getCartProduct(userId, pricePolicyId)).thenThrow(exception);
 
         // when & then
         assertThatThrownBy(() -> updateCartProductQuantityService.updateCartProductQuantity(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(updateCartProductPort);
     }
@@ -93,7 +93,7 @@ class UpdateCartProductQuantityUseCaseTest {
         Short newQuantity = (short) 5;
 
         UpdateCartProductQuantityCommand command =
-                UpdateCartProductQuantityCommand.of(userId, pricePolicyId, newQuantity);
+            UpdateCartProductQuantityCommand.of(userId, pricePolicyId, newQuantity);
         CartProduct cartProduct = buildCartProduct(userId, pricePolicyId, (short) 2);
         RuntimeException exception = new RuntimeException("update fail");
 
@@ -102,30 +102,30 @@ class UpdateCartProductQuantityUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> updateCartProductQuantityService.updateCartProductQuantity(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     private CartProduct buildCartProduct(Long userId, Long pricePolicyId, Short quantity) {
         PricePolicy pricePolicy = PricePolicy.from(
-                PricePolicySnapshotState.builder()
-                        .id(pricePolicyId)
-                        .price(10000L)
-                        .discountPrice(8000L)
-                        .discountRate(Rate.of(new BigDecimal("20.0")))
-                        .accumulatedPoint(200L)
-                        .accumulationRate(Rate.of(new BigDecimal("2.5")))
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            PricePolicySnapshotState.builder()
+                .id(pricePolicyId)
+                .price(10000L)
+                .discountPrice(8000L)
+                .discountRate(Rate.of(new BigDecimal("20.0")))
+                .accumulatedPoint(200L)
+                .accumulationRate(Rate.of(new BigDecimal("2.5")))
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
 
         return CartProduct.from(
-                CartProductSnapshotState.builder()
-                        .userId(userId)
-                        .pricePolicy(pricePolicy)
-                        .imageUrl("https://example.com/image.png")
-                        .quantity(quantity)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            CartProductSnapshotState.builder()
+                .userId(userId)
+                .pricePolicy(pricePolicy)
+                .imageUrl("https://example.com/image.png")
+                .quantity(quantity)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

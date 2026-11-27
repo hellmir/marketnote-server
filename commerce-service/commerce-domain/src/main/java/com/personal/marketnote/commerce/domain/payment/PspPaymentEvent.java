@@ -45,51 +45,51 @@ public class PspPaymentEvent {
 
     public static PspPaymentEvent createReady(Payment payment, String pgCompanyKey, String pgShopKey, String payType) {
         return PspPaymentEvent.builder()
-                .orderId(payment.getOrderId())
-                .orderKey(payment.getOrderKey().toString())
-                .pgCompanyKey(pgCompanyKey)
-                .pgShopKey(pgShopKey)
-                .poStatus(PaymentEventStatus.READY)
-                .method(payType)
-                .amount(payment.getPaymentAmount())
-                .build();
+            .orderId(payment.getOrderId())
+            .orderKey(payment.getOrderKey().toString())
+            .pgCompanyKey(pgCompanyKey)
+            .pgShopKey(pgShopKey)
+            .poStatus(PaymentEventStatus.READY)
+            .method(payType)
+            .amount(payment.getPaymentAmount())
+            .build();
     }
 
     public static PspPaymentEvent from(PspPaymentEventSnapshotState state) {
         return PspPaymentEvent.builder()
-                .id(state.getId())
-                .orderId(state.getOrderId())
-                .orderKey(state.getOrderKey())
-                .pgCompanyKey(state.getPgCompanyKey())
-                .pgShopKey(state.getPgShopKey())
-                .pgPaymentKey(state.getPgPaymentKey())
-                .pgApprovalResult(state.getPgApprovalResult())
-                .pgCancelApprovalResult(state.getPgCancelApprovalResult())
-                .shopTransactionId(state.getShopTransactionId())
-                .poStatus(state.getPoStatus())
-                .method(state.getMethod())
-                .amount(Money.of(state.getAmount()))
-                .vatAmount(state.getVatAmount())
-                .natAmount(state.getNatAmount())
-                .cardNumber(state.getCardNumber())
-                .approvalNumber(state.getApprovalNumber())
-                .installment(state.getInstallment())
-                .issueCompanyCode(state.getIssueCompanyCode())
-                .issueCompanyName(state.getIssueCompanyName())
-                .purchaseCompanyCode(state.getPurchaseCompanyCode())
-                .purchaseCompanyName(state.getPurchaseCompanyName())
-                .bankCode(state.getBankCode())
-                .bankName(state.getBankName())
-                .billNumber(state.getBillNumber())
-                .billSequenceNumber(state.getBillSequenceNumber())
-                .paymentInfo(state.getPaymentInfo())
-                .paymentSource(state.getPaymentSource())
-                .resultCode(state.getResultCode())
-                .resultMessage(state.getResultMessage())
-                .paidAt(state.getPaidAt())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .orderId(state.getOrderId())
+            .orderKey(state.getOrderKey())
+            .pgCompanyKey(state.getPgCompanyKey())
+            .pgShopKey(state.getPgShopKey())
+            .pgPaymentKey(state.getPgPaymentKey())
+            .pgApprovalResult(state.getPgApprovalResult())
+            .pgCancelApprovalResult(state.getPgCancelApprovalResult())
+            .shopTransactionId(state.getShopTransactionId())
+            .poStatus(state.getPoStatus())
+            .method(state.getMethod())
+            .amount(Money.of(state.getAmount()))
+            .vatAmount(state.getVatAmount())
+            .natAmount(state.getNatAmount())
+            .cardNumber(state.getCardNumber())
+            .approvalNumber(state.getApprovalNumber())
+            .installment(state.getInstallment())
+            .issueCompanyCode(state.getIssueCompanyCode())
+            .issueCompanyName(state.getIssueCompanyName())
+            .purchaseCompanyCode(state.getPurchaseCompanyCode())
+            .purchaseCompanyName(state.getPurchaseCompanyName())
+            .bankCode(state.getBankCode())
+            .bankName(state.getBankName())
+            .billNumber(state.getBillNumber())
+            .billSequenceNumber(state.getBillSequenceNumber())
+            .paymentInfo(state.getPaymentInfo())
+            .paymentSource(state.getPaymentSource())
+            .resultCode(state.getResultCode())
+            .resultMessage(state.getResultMessage())
+            .paidAt(state.getPaidAt())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public void startExecution() {
@@ -190,7 +190,7 @@ public class PspPaymentEvent {
     public void partialRefund(String pgCancelApprovalResult) {
         if (!poStatus.isRefundable()) {
             throw new InvalidPaymentStatusTransitionException(
-                    "COMPLETE 또는 PARTIALLY_REFUNDED 상태에서만 부분 환불할 수 있습니다.", poStatus
+                "COMPLETE 또는 PARTIALLY_REFUNDED 상태에서만 부분 환불할 수 있습니다.", poStatus
             );
         }
         poStatus = PaymentEventStatus.PARTIALLY_REFUNDED;
@@ -200,7 +200,7 @@ public class PspPaymentEvent {
     public void refund(String pgCancelApprovalResult) {
         if (!poStatus.isRefundable()) {
             throw new InvalidPaymentStatusTransitionException(
-                    "COMPLETE 또는 PARTIALLY_REFUNDED 상태에서만 환불할 수 있습니다.", poStatus
+                "COMPLETE 또는 PARTIALLY_REFUNDED 상태에서만 환불할 수 있습니다.", poStatus
             );
         }
         poStatus = PaymentEventStatus.REFUNDED;

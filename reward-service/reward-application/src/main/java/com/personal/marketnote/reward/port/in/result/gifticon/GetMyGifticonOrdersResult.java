@@ -4,24 +4,24 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record GetMyGifticonOrdersResult(
-        long availableCount,
-        long completedOrExpiredCount,
-        boolean hasNext,
-        Long nextCursor,
-        List<MyGifticonOrderItem> items
+    long availableCount,
+    long completedOrExpiredCount,
+    boolean hasNext,
+    Long nextCursor,
+    List<MyGifticonOrderItem> items
 ) {
 
     public record MyGifticonOrderItem(
-            Long orderId,
-            String goodsName,
-            String brandName,
-            String productImageUrl,
-            Long cashPrice,
-            String expiryDate,
-            Integer daysRemaining,
-            String statusLabel,
-            String orderStatus,
-            LocalDateTime createdAt
+        Long orderId,
+        String goodsName,
+        String brandName,
+        String productImageUrl,
+        Long cashPrice,
+        String expiryDate,
+        Integer daysRemaining,
+        String statusLabel,
+        String orderStatus,
+        LocalDateTime createdAt
     ) {
     }
 }

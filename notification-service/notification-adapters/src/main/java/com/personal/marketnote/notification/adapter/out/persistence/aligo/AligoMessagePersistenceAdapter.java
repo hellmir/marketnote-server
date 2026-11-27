@@ -25,23 +25,23 @@ import java.util.Optional;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class AligoMessagePersistenceAdapter
-        implements SaveAligoMessagePort, UpdateAligoMessagePort, FindAligoMessagePort,
-        FindPendingAligoMessagesPort, FindAligoMessageListPort {
+    implements SaveAligoMessagePort, UpdateAligoMessagePort, FindAligoMessagePort,
+    FindPendingAligoMessagesPort, FindAligoMessageListPort {
 
     private final AligoMessageJpaRepository aligoMessageJpaRepository;
 
     @Override
     public AligoMessage save(AligoMessage message) {
         List<AligoMessageRecipientJpaEntity> recipientEntities = message.getRecipients().stream()
-                .map(r -> AligoMessageRecipientJpaEntity.create(r.getReceiver(), r.getRecvName()))
-                .toList();
+            .map(r -> AligoMessageRecipientJpaEntity.create(r.getReceiver(), r.getRecvName()))
+            .toList();
 
         AligoMessageJpaEntity entity = AligoMessageJpaEntity.create(
-                message.getSenderKey(), message.getTemplateCode(), message.getSender(),
-                message.getMessageType(), message.getContent(), message.getTitle(),
-                message.getButtons(), message.getMessageStatus(),
-                message.getFailoverSubject(), message.getFailoverMessageBody(),
-                message.getRequestedAt(), message.getSendDate(), recipientEntities
+            message.getSenderKey(), message.getTemplateCode(), message.getSender(),
+            message.getMessageType(), message.getContent(), message.getTitle(),
+            message.getButtons(), message.getMessageStatus(),
+            message.getFailoverSubject(), message.getFailoverMessageBody(),
+            message.getRequestedAt(), message.getSendDate(), recipientEntities
         );
 
         AligoMessageJpaEntity saved = aligoMessageJpaRepository.save(entity);
@@ -52,17 +52,17 @@ public class AligoMessagePersistenceAdapter
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void update(AligoMessage message) {
         AligoMessageJpaEntity entity = aligoMessageJpaRepository.findByIdWithRecipients(message.getId())
-                .orElseThrow(() -> {
-                    log.warn("알림톡 메시지를 찾을 수 없습니다. aligoMessageId={}", message.getId());
-                    return new AligoMessageNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림톡 메시지를 찾을 수 없습니다. aligoMessageId={}", message.getId());
+                return new AligoMessageNotFoundException();
+            });
 
         syncRecipientResults(entity, message);
 
         if (message.isSent()) {
             entity.updateSendResult(
-                    message.getMessageStatus(), message.getAligoMid(),
-                    message.getSuccessCount(), message.getFailCount(), message.getSentAt()
+                message.getMessageStatus(), message.getAligoMid(),
+                message.getSuccessCount(), message.getFailCount(), message.getSentAt()
             );
             return;
         }
@@ -70,8 +70,8 @@ public class AligoMessagePersistenceAdapter
             List<AligoMessageRecipient> recipients = message.getRecipients();
             String smid = recipients.isEmpty() ? null : recipients.get(0).getSmid();
             entity.updateFailoverResult(
-                    message.getMessageStatus(), message.getAligoMid(), smid,
-                    message.getSuccessCount(), message.getFailCount(), message.getSentAt()
+                message.getMessageStatus(), message.getAligoMid(), smid,
+                message.getSuccessCount(), message.getFailCount(), message.getSentAt()
             );
             return;
         }
@@ -85,25 +85,25 @@ public class AligoMessagePersistenceAdapter
     @Override
     public Optional<AligoMessage> findById(Long id) {
         return aligoMessageJpaRepository.findByIdWithRecipients(id)
-                .map(AligoMessageJpaEntityToDomainMapper::mapToDomain);
+            .map(AligoMessageJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override
     public List<AligoMessage> findPendingMessages(LocalDateTime after) {
         return aligoMessageJpaRepository
-                .findByMessageStatusAndCreatedAtAfter(AligoMessageStatus.SENT, after)
-                .stream()
-                .map(AligoMessageJpaEntityToDomainMapper::mapToDomain)
-                .toList();
+            .findByMessageStatusAndCreatedAtAfter(AligoMessageStatus.SENT, after)
+            .stream()
+            .map(AligoMessageJpaEntityToDomainMapper::mapToDomain)
+            .toList();
     }
 
     @Override
     public List<AligoMessage> findMessages(LocalDateTime startDate, LocalDateTime endDate, int page, int limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
         return aligoMessageJpaRepository.findByCreatedAtBetween(startDate, endDate, pageable)
-                .stream()
-                .map(AligoMessageJpaEntityToDomainMapper::mapToDomainSummary)
-                .toList();
+            .stream()
+            .map(AligoMessageJpaEntityToDomainMapper::mapToDomainSummary)
+            .toList();
     }
 
     @Override
@@ -120,21 +120,21 @@ public class AligoMessagePersistenceAdapter
                 continue;
             }
             Optional<AligoMessageRecipientJpaEntity> matched = entity.getRecipients().stream()
-                    .filter(e -> e.getId().equals(domainRecipient.getId()))
-                    .findFirst();
+                .filter(e -> e.getId().equals(domainRecipient.getId()))
+                .findFirst();
             if (matched.isEmpty()) {
                 log.warn("수신자 엔티티 ID 불일치: messageId={}, recipientId={}",
-                        message.getId(), domainRecipient.getId());
+                    message.getId(), domainRecipient.getId());
                 continue;
             }
             matched.get().updatePollingResult(
-                    domainRecipient.getRecipientStatus(),
-                    domainRecipient.getMsgId(),
-                    domainRecipient.getRslt(),
-                    domainRecipient.getRsltMessage(),
-                    domainRecipient.getSentAt(),
-                    domainRecipient.getResultAt(),
-                    domainRecipient.getReportAt()
+                domainRecipient.getRecipientStatus(),
+                domainRecipient.getMsgId(),
+                domainRecipient.getRslt(),
+                domainRecipient.getRsltMessage(),
+                domainRecipient.getSentAt(),
+                domainRecipient.getResultAt(),
+                domainRecipient.getReportAt()
             );
         }
     }

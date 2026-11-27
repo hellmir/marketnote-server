@@ -25,13 +25,13 @@ public interface ValidateOfferwallSignaturePort {
      * @Description 오퍼월 벤더별 서명을 검증합니다.
      */
     void validateSignature(
-            OfferwallType offerwallType,
-            UserDeviceType userDeviceType,
-            String signedValue,
-            String userKey,
-            String rewardKey,
-            Long quantity,
-            String campaignKey,
-            String rewardUnit
+        OfferwallType offerwallType,
+        UserDeviceType userDeviceType,
+        String signedValue,
+        String userKey,
+        String rewardKey,
+        Long quantity,
+        String campaignKey,
+        String rewardUnit
     );
 }

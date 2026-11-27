@@ -16,12 +16,12 @@ class UserAttendanceTest {
     @DisplayName("UserAttendanceCreateState로 UserAttendance를 생성하면 모든 필드가 매핑된다")
     void shouldCreateUserAttendanceFromCreateState() {
         UserAttendanceCreateState state = UserAttendanceCreateState.builder()
-                .userId(1L)
-                .year(Year.Y2026)
-                .month(Month.APRIL)
-                .totalRewardQuantity(RewardQuantity.of(100L))
-                .histories(List.of())
-                .build();
+            .userId(1L)
+            .year(Year.Y2026)
+            .month(Month.APRIL)
+            .totalRewardQuantity(RewardQuantity.of(100L))
+            .histories(List.of())
+            .build();
 
         UserAttendance attendance = UserAttendance.from(state);
 
@@ -37,14 +37,14 @@ class UserAttendanceTest {
     void shouldRestoreUserAttendanceFromSnapshotState() {
         LocalDateTime createdAt = LocalDateTime.of(2026, 4, 1, 0, 0);
         UserAttendanceSnapshotState state = UserAttendanceSnapshotState.builder()
-                .id(10L)
-                .userId(1L)
-                .year(Year.Y2026)
-                .month(Month.APRIL)
-                .createdAt(createdAt)
-                .totalRewardQuantity(RewardQuantity.of(500L))
-                .histories(List.of())
-                .build();
+            .id(10L)
+            .userId(1L)
+            .year(Year.Y2026)
+            .month(Month.APRIL)
+            .createdAt(createdAt)
+            .totalRewardQuantity(RewardQuantity.of(500L))
+            .histories(List.of())
+            .build();
 
         UserAttendance attendance = UserAttendance.from(state);
 
@@ -73,14 +73,14 @@ class UserAttendanceTest {
         LocalDateTime createdAt = LocalDateTime.of(2026, 4, 1, 0, 0);
         List<UserAttendanceHistory> histories = List.of();
         UserAttendance original = UserAttendance.from(UserAttendanceSnapshotState.builder()
-                .id(10L)
-                .userId(1L)
-                .year(Year.Y2026)
-                .month(Month.APRIL)
-                .createdAt(createdAt)
-                .totalRewardQuantity(RewardQuantity.of(100L))
-                .histories(histories)
-                .build()
+            .id(10L)
+            .userId(1L)
+            .year(Year.Y2026)
+            .month(Month.APRIL)
+            .createdAt(createdAt)
+            .totalRewardQuantity(RewardQuantity.of(100L))
+            .histories(histories)
+            .build()
         );
 
         UserAttendance updated = original.withAddedReward(30L);
@@ -95,12 +95,12 @@ class UserAttendanceTest {
 
     private UserAttendance createAttendanceWithReward(long totalRewardQuantity) {
         return UserAttendance.from(UserAttendanceCreateState.builder()
-                .userId(1L)
-                .year(Year.Y2026)
-                .month(Month.APRIL)
-                .totalRewardQuantity(RewardQuantity.of(totalRewardQuantity))
-                .histories(List.of())
-                .build()
+            .userId(1L)
+            .year(Year.Y2026)
+            .month(Month.APRIL)
+            .totalRewardQuantity(RewardQuantity.of(totalRewardQuantity))
+            .histories(List.of())
+            .build()
         );
     }
 }

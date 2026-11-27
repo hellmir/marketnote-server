@@ -13,7 +13,7 @@ public class LoggingInterceptor implements HandlerInterceptor {
     private static final Logger log = LoggerFactory.getLogger(com.personal.marketnote.common.adapter.in.interception.LoggingInterceptor.class);
     private static final String REQUEST_RECEPTION = "Received request for '{}'";
     private static final String REQUEST_COMPLETION
-            = "Completed request for '{}', status code: {}, ";
+        = "Completed request for '{}', status code: {}, ";
     private static final String BEFORE_MEMORY = "beforeMemory";
     private static final String STARTED_AT = "startedAt";
 
@@ -38,8 +38,8 @@ public class LoggingInterceptor implements HandlerInterceptor {
         long memoryUsage = PerformanceMeasurer.computeUsedMemory(beforeMemory);
 
         log.info(
-                REQUEST_COMPLETION + PERFORMANCE_MEASUREMENT,
-                request.getRequestURI(), response.getStatus(), elapsedTime, memoryUsage
+            REQUEST_COMPLETION + PERFORMANCE_MEASUREMENT,
+            request.getRequestURI(), response.getStatus(), elapsedTime, memoryUsage
         );
     }
 }

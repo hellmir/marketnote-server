@@ -41,8 +41,8 @@ class SendConsentReminderUseCaseTest {
 
     @Spy
     private Clock clock = Clock.fixed(
-            Instant.parse("2026-09-03T00:00:00Z"),
-            ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-09-03T00:00:00Z"),
+        ZoneId.of("Asia/Seoul")
     );
 
     @Test
@@ -50,7 +50,7 @@ class SendConsentReminderUseCaseTest {
     void shouldReturnZeroWhenNoDueUsers() {
         // given
         when(findNotificationPreferencePort.findConsentReminderDue(any(LocalDateTime.class)))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         int result = sendConsentReminderService.sendConsentReminders();
@@ -65,13 +65,13 @@ class SendConsentReminderUseCaseTest {
     void shouldSendConsentReminderToDueUsers() {
         // given
         List<NotificationPreference> duePrefs = List.of(
-                createPreference(1L, 100L),
-                createPreference(2L, 200L)
+            createPreference(1L, 100L),
+            createPreference(2L, 200L)
         );
         when(findNotificationPreferencePort.findConsentReminderDue(any(LocalDateTime.class)))
-                .thenReturn(duePrefs);
+            .thenReturn(duePrefs);
         when(sendNotificationUseCase.sendNotification(any(SendNotificationCommand.class)))
-                .thenReturn(new SendNotificationResult(1L, "SENT"));
+            .thenReturn(new SendNotificationResult(1L, "SENT"));
 
         // when
         int result = sendConsentReminderService.sendConsentReminders();
@@ -86,7 +86,7 @@ class SendConsentReminderUseCaseTest {
     void shouldCalculateCorrectThreshold() {
         // given
         when(findNotificationPreferencePort.findConsentReminderDue(any(LocalDateTime.class)))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         sendConsentReminderService.sendConsentReminders();
@@ -106,9 +106,9 @@ class SendConsentReminderUseCaseTest {
         // given
         List<NotificationPreference> duePrefs = List.of(createPreference(1L, 100L));
         when(findNotificationPreferencePort.findConsentReminderDue(any(LocalDateTime.class)))
-                .thenReturn(duePrefs);
+            .thenReturn(duePrefs);
         when(sendNotificationUseCase.sendNotification(any(SendNotificationCommand.class)))
-                .thenReturn(new SendNotificationResult(1L, "SENT"));
+            .thenReturn(new SendNotificationResult(1L, "SENT"));
 
         // when
         sendConsentReminderService.sendConsentReminders();
@@ -128,14 +128,14 @@ class SendConsentReminderUseCaseTest {
     void shouldContinueOnIndividualFailure() {
         // given
         List<NotificationPreference> duePrefs = List.of(
-                createPreference(1L, 100L),
-                createPreference(2L, 200L)
+            createPreference(1L, 100L),
+            createPreference(2L, 200L)
         );
         when(findNotificationPreferencePort.findConsentReminderDue(any(LocalDateTime.class)))
-                .thenReturn(duePrefs);
+            .thenReturn(duePrefs);
         when(sendNotificationUseCase.sendNotification(any(SendNotificationCommand.class)))
-                .thenThrow(new RuntimeException("template not found"))
-                .thenReturn(new SendNotificationResult(2L, "SENT"));
+            .thenThrow(new RuntimeException("template not found"))
+            .thenReturn(new SendNotificationResult(2L, "SENT"));
 
         // when
         int result = sendConsentReminderService.sendConsentReminders();
@@ -147,16 +147,16 @@ class SendConsentReminderUseCaseTest {
 
     private NotificationPreference createPreference(Long id, Long userId) {
         return NotificationPreference.from(
-                NotificationPreferenceSnapshotState.builder()
-                        .id(id)
-                        .userId(userId)
-                        .notificationType(NotificationType.EVENT)
-                        .enabled(true)
-                        .consentedAt(LocalDateTime.of(2024, 4, 10, 9, 0))
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            NotificationPreferenceSnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .notificationType(NotificationType.EVENT)
+                .enabled(true)
+                .consentedAt(LocalDateTime.of(2024, 4, 10, 9, 0))
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 }

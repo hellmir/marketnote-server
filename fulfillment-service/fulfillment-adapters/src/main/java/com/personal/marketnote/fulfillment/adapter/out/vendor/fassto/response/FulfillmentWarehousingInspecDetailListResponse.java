@@ -7,9 +7,9 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FulfillmentWarehousingInspecDetailListResponse(
-        FulfillmentResponseHeader header,
-        List<FulfillmentWarehousingInspecDetailItemResponse> data,
-        FulfillmentErrorInfo errorInfo
+    FulfillmentResponseHeader header,
+    List<FulfillmentWarehousingInspecDetailItemResponse> data,
+    FulfillmentErrorInfo errorInfo
 ) implements FulfillmentApiResponse {
     public boolean isSuccess() {
         return FormatValidator.hasValue(header) && header.isSuccess();

@@ -33,14 +33,14 @@ public class ShippingAddressPersistenceAdapter implements FindShippingAddressPor
     @Override
     public boolean existsByUserIdAndAddressType(Long userId, ShippingAddressType addressType) {
         return shippingAddressJpaRepository.existsByUserIdAndAddressTypeAndStatus(
-                userId, addressType, EntityStatus.ACTIVE
+            userId, addressType, EntityStatus.ACTIVE
         );
     }
 
     @Override
     public long countByUserIdAndAddressType(Long userId, ShippingAddressType addressType) {
         return shippingAddressJpaRepository.countByUserIdAndAddressTypeAndStatus(
-                userId, addressType, EntityStatus.ACTIVE
+            userId, addressType, EntityStatus.ACTIVE
         );
     }
 
@@ -52,32 +52,32 @@ public class ShippingAddressPersistenceAdapter implements FindShippingAddressPor
     @Override
     public List<ShippingAddress> findAllByUserId(Long userId) {
         return shippingAddressJpaRepository.findAllByUserIdAndStatus(userId, EntityStatus.ACTIVE)
-                .stream()
-                .map(ShippingAddressJpaEntityToDomainMapper::mapToDomain)
-                .toList();
+            .stream()
+            .map(ShippingAddressJpaEntityToDomainMapper::mapToDomain)
+            .toList();
     }
 
     @Override
     public Optional<ShippingAddress> findByIdAndUserId(Long id, Long userId) {
         return shippingAddressJpaRepository.findByIdAndUserIdAndStatus(id, userId, EntityStatus.ACTIVE)
-                .map(ShippingAddressJpaEntityToDomainMapper::mapToDomain);
+            .map(ShippingAddressJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override
     public List<ShippingAddress> findDefaultsByUserId(Long userId) {
         return shippingAddressJpaRepository.findAllByUserIdAndIsDefaultAndStatus(userId, true, EntityStatus.ACTIVE)
-                .stream()
-                .map(ShippingAddressJpaEntityToDomainMapper::mapToDomain)
-                .toList();
+            .stream()
+            .map(ShippingAddressJpaEntityToDomainMapper::mapToDomain)
+            .toList();
     }
 
     @Override
     public void update(ShippingAddress shippingAddress) {
         ShippingAddressJpaEntity entity = shippingAddressJpaRepository.findById(shippingAddress.getId())
-                .orElseThrow(() -> {
-                    log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}", shippingAddress.getId());
-                    return new ShippingAddressNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}", shippingAddress.getId());
+                return new ShippingAddressNotFoundException();
+            });
 
         entity.updateFrom(shippingAddress);
     }

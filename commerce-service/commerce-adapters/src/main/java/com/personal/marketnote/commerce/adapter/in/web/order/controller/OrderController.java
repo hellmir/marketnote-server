@@ -75,25 +75,25 @@ public class OrderController {
     @PostMapping("/api/v1/orders")
     @RegisterOrderApiDocs
     public ResponseEntity<BaseResponse<RegisterOrderResponse>> registerOrder(
-            @Valid @RequestBody RegisterOrderRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody RegisterOrderRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
 
         RegisterOrderResult result = registerOrderUseCase.registerOrder(
-                OrderRequestToCommandMapper.mapToCommand(request, buyerId)
+            OrderRequestToCommandMapper.mapToCommand(request, buyerId)
         );
 
         updateDeliveryRequestIfPresent(request, buyerId);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterOrderResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "주문 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterOrderResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "주문 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -103,10 +103,10 @@ public class OrderController {
         }
 
         updateUserShippingAddressDeliveryRequestPort.updateDeliveryRequest(
-                request.getShippingAddressId(),
-                buyerId,
-                request.getDeliveryRequestType(),
-                request.getDeliveryRequestMessage()
+            request.getShippingAddressId(),
+            buyerId,
+            request.getDeliveryRequestType(),
+            request.getDeliveryRequestMessage()
         );
     }
 
@@ -123,20 +123,20 @@ public class OrderController {
     @GetMapping("/api/v1/orders/{id}/order-key")
     @GetOrderKeyApiDocs
     public ResponseEntity<BaseResponse<GetOrderKeyResponse>> getOrderKey(
-            @PathVariable("id") Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
         GetOrderKeyResult getOrderKeyResult = getOrderUseCase.getOrderKey(id, buyerId);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetOrderKeyResponse.from(getOrderKeyResult),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "주문 키 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetOrderKeyResponse.from(getOrderKeyResult),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "주문 키 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -154,21 +154,21 @@ public class OrderController {
     @GetMapping("/api/v1/orders/{orderId}/order-products/{pricePolicyId}/order-product-key")
     @GetOrderProductKeyApiDocs
     public ResponseEntity<BaseResponse<GetOrderProductKeyResponse>> getOrderProductKey(
-            @PathVariable("orderId") Long orderId,
-            @PathVariable("pricePolicyId") Long pricePolicyId,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("orderId") Long orderId,
+        @PathVariable("pricePolicyId") Long pricePolicyId,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
         GetOrderProductKeyResult result = getOrderUseCase.getOrderProductKey(orderId, pricePolicyId, buyerId);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetOrderProductKeyResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "주문 상품 키 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetOrderProductKeyResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "주문 상품 키 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -185,20 +185,20 @@ public class OrderController {
     @GetMapping("/api/v1/orders/{id}")
     @GetOrderInfoApiDocs
     public ResponseEntity<BaseResponse<GetOrderResponse>> getOrder(
-            @PathVariable("id") Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
         GetOrderResult getOrderResult = getOrderUseCase.getOrderAndOrderProducts(id, buyerId);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetOrderResponse.from(getOrderResult),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "주문 정보 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetOrderResponse.from(getOrderResult),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "주문 정보 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -214,32 +214,32 @@ public class OrderController {
     @GetMapping("/api/v1/orders/me")
     @GetOrdersApiDocs
     public ResponseEntity<BaseResponse<GetMyOrdersResponse>> getMyOrderHistory(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @RequestParam(value = "period", required = false) OrderPeriod period,
-            @RequestParam(value = "status", required = false) OrderStatusFilter statusFilter,
-            @RequestParam(value = "productName", required = false) String productName
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @RequestParam(value = "period", required = false) OrderPeriod period,
+        @RequestParam(value = "status", required = false) OrderStatusFilter statusFilter,
+        @RequestParam(value = "productName", required = false) String productName
     ) {
         GetBuyerOrdersResult getBuyerOrderResult = getOrderUseCase.getBuyerOrderHistory(
-                GetBuyerOrderHistoryQuery.of(
-                        ElementExtractor.extractUserId(principal),
-                        period,
-                        statusFilter,
-                        productName
-                )
+            GetBuyerOrderHistoryQuery.of(
+                ElementExtractor.extractUserId(principal),
+                period,
+                statusFilter,
+                productName
+            )
         );
         GetBuyerOrderHistoryResult getBuyerOrderHistoryResult = GetBuyerOrderHistoryResult.from(
-                getBuyerOrderResult.orders(),
-                getBuyerOrderResult.orderedProducts()
+            getBuyerOrderResult.orders(),
+            getBuyerOrderResult.orderedProducts()
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetMyOrdersResponse.from(getBuyerOrderHistoryResult),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "나의 주문 내역 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetMyOrdersResponse.from(getBuyerOrderHistoryResult),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "나의 주문 내역 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -255,28 +255,28 @@ public class OrderController {
     @GetMapping("/api/v1/orders/me/count")
     @GetOrdersCountApiDocs
     public ResponseEntity<BaseResponse<GetOrderCountResponse>> getMyOrderCount(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @RequestParam(value = "period", required = false) OrderPeriod period,
-            @RequestParam(value = "status", required = false) OrderStatusFilter statusFilter,
-            @RequestParam(value = "productName", required = false) String productName
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @RequestParam(value = "period", required = false) OrderPeriod period,
+        @RequestParam(value = "status", required = false) OrderStatusFilter statusFilter,
+        @RequestParam(value = "productName", required = false) String productName
     ) {
         GetOrderCountResult getOrderCountResult = getOrderUseCase.getBuyerOrderCount(
-                GetBuyerOrderHistoryQuery.of(
-                        ElementExtractor.extractUserId(principal),
-                        period,
-                        statusFilter,
-                        productName
-                )
+            GetBuyerOrderHistoryQuery.of(
+                ElementExtractor.extractUserId(principal),
+                period,
+                statusFilter,
+                productName
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetOrderCountResponse.from(getOrderCountResult),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "나의 주문 내역 개수 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetOrderCountResponse.from(getOrderCountResult),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "나의 주문 내역 개수 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -293,24 +293,24 @@ public class OrderController {
     @PostMapping("/api/v1/orders/{id}/cancel")
     @CancelOrderApiDocs
     public ResponseEntity<BaseResponse<Void>> cancelOrder(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody CancelOrderRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @Valid @RequestBody CancelOrderRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
 
         cancelOrderUseCase.cancelOrder(
-                OrderRequestToCommandMapper.mapToCancelCommand(id, request, buyerId)
+            OrderRequestToCommandMapper.mapToCancelCommand(id, request, buyerId)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "주문 취소 요청 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "주문 취소 요청 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -328,24 +328,24 @@ public class OrderController {
     @PostMapping("/api/v1/orders/{id}/return-request")
     @RequestReturnApiDocs
     public ResponseEntity<BaseResponse<Void>> requestReturn(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody RequestReturnRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @Valid @RequestBody RequestReturnRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
 
         requestReturnUseCase.requestReturn(
-                OrderRequestToCommandMapper.mapToReturnRequestCommand(id, request, buyerId)
+            OrderRequestToCommandMapper.mapToReturnRequestCommand(id, request, buyerId)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "반품 요청 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "반품 요청 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -362,21 +362,21 @@ public class OrderController {
     @RejectReturnApiDocs
     @PreAuthorize(ADMIN_OR_SELLER_PRINCIPAL_POINTCUT)
     public ResponseEntity<BaseResponse<Void>> rejectReturn(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody RejectReturnRequest request
+        @PathVariable("id") Long id,
+        @Valid @RequestBody RejectReturnRequest request
     ) {
         rejectReturnUseCase.rejectReturn(
-                OrderRequestToCommandMapper.mapToRejectReturnCommand(id, request)
+            OrderRequestToCommandMapper.mapToRejectReturnCommand(id, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "반품 불가 판정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "반품 불가 판정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -395,30 +395,30 @@ public class OrderController {
     @GetMapping("/api/v1/orders/{id}/return-refund-info")
     @GetReturnRefundInfoApiDocs
     public ResponseEntity<BaseResponse<GetReturnRefundInfoResponse>> getReturnRefundInfo(
-            @PathVariable("id") Long id,
-            @RequestParam("reason-category") OrderStatusReasonCategory reasonCategory,
-            @RequestParam(value = "return-price-policy-ids", required = false) List<Long> returnPricePolicyIds,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @RequestParam("reason-category") OrderStatusReasonCategory reasonCategory,
+        @RequestParam(value = "return-price-policy-ids", required = false) List<Long> returnPricePolicyIds,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
 
         GetReturnRefundInfoResult result = getReturnRefundInfoUseCase.getReturnRefundInfo(
-                GetReturnRefundInfoCommand.builder()
-                        .orderId(id)
-                        .buyerId(buyerId)
-                        .reasonCategory(reasonCategory)
-                        .returnPricePolicyIds(returnPricePolicyIds)
-                        .build()
+            GetReturnRefundInfoCommand.builder()
+                .orderId(id)
+                .buyerId(buyerId)
+                .reasonCategory(reasonCategory)
+                .returnPricePolicyIds(returnPricePolicyIds)
+                .build()
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetReturnRefundInfoResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "반품 환불 예정 정보 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetReturnRefundInfoResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "반품 환불 예정 정보 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -434,26 +434,26 @@ public class OrderController {
     @PostMapping("/api/v1/orders/{id}/confirm")
     @ConfirmOrderApiDocs
     public ResponseEntity<BaseResponse<Void>> confirmOrder(
-            @PathVariable("id") Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
 
         confirmOrderUseCase.confirmOrder(
-                ConfirmOrderCommand.builder()
-                        .id(id)
-                        .buyerId(buyerId)
-                        .build()
+            ConfirmOrderCommand.builder()
+                .id(id)
+                .buyerId(buyerId)
+                .build()
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "구매 확정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "구매 확정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -470,21 +470,21 @@ public class OrderController {
     @ChangeOrderStatusApiDocs
     @PreAuthorize(ADMIN_OR_SELLER_PRINCIPAL_POINTCUT)
     public ResponseEntity<BaseResponse<Void>> changeOrderStatus(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody ChangeOrderStatusRequest request
+        @PathVariable("id") Long id,
+        @Valid @RequestBody ChangeOrderStatusRequest request
     ) {
         changeOrderStatusUseCase.changeOrderStatus(
-                OrderRequestToCommandMapper.mapToCommand(id, request)
+            OrderRequestToCommandMapper.mapToCommand(id, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "주문 상태 변경 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "주문 상태 변경 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -502,22 +502,22 @@ public class OrderController {
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdateOrderProductReviewStatusApiDocs
     public ResponseEntity<BaseResponse<Void>> updateOrderProductReviewStatus(
-            @PathVariable("orderId") Long orderId,
-            @PathVariable("pricePolicyId") Long pricePolicyId,
-            @RequestParam Boolean isReviewed
+        @PathVariable("orderId") Long orderId,
+        @PathVariable("pricePolicyId") Long pricePolicyId,
+        @RequestParam Boolean isReviewed
     ) {
         updateOrderProductUseCase.updateReviewStatus(
-                UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, isReviewed)
+            UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, isReviewed)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "리뷰 작성 여부 업데이트 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "리뷰 작성 여부 업데이트 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -537,23 +537,23 @@ public class OrderController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetAdminOrdersApiDocs
     public ResponseEntity<BaseResponse<GetAdminOrdersResponse>> getAdminOrders(
-            @RequestParam(required = false) Long sellerId,
-            @RequestParam(required = false) LocalDateTime startDate,
-            @RequestParam(required = false) LocalDateTime endDate,
-            @RequestParam(required = false) OrderStatus orderStatus
+        @RequestParam(required = false) Long sellerId,
+        @RequestParam(required = false) LocalDateTime startDate,
+        @RequestParam(required = false) LocalDateTime endDate,
+        @RequestParam(required = false) OrderStatus orderStatus
     ) {
         GetAdminOrdersResult result = getAdminOrdersUseCase.getAdminOrders(
-                AdminOrderRequestToCommandMapper.mapToQuery(sellerId, startDate, endDate, orderStatus)
+            AdminOrderRequestToCommandMapper.mapToQuery(sellerId, startDate, endDate, orderStatus)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetAdminOrdersResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "관리자 주문 내역 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetAdminOrdersResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "관리자 주문 내역 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -570,18 +570,18 @@ public class OrderController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetOrderStatusHistoryApiDocs
     public ResponseEntity<BaseResponse<GetOrderStatusHistoryResponse>> getOrderStatusHistory(
-            @PathVariable("id") Long id
+        @PathVariable("id") Long id
     ) {
         GetOrderStatusHistoryResult result = getOrderStatusHistoryUseCase.getOrderStatusHistory(id);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetOrderStatusHistoryResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "주문 상태 이력 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetOrderStatusHistoryResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "주문 상태 이력 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 

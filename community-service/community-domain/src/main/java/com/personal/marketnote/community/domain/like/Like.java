@@ -20,22 +20,22 @@ public class Like {
 
     public static Like from(LikeCreateState state) {
         return Like.builder()
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .userId(state.getUserId())
-                .status(EntityStatus.ACTIVE)
-                .build();
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .userId(state.getUserId())
+            .status(EntityStatus.ACTIVE)
+            .build();
     }
 
     public static Like from(LikeSnapshotState state) {
         return Like.builder()
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .userId(state.getUserId())
-                .status(state.getStatus())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .userId(state.getUserId())
+            .status(state.getStatus())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public boolean isStatusChanged(boolean isLiked) {

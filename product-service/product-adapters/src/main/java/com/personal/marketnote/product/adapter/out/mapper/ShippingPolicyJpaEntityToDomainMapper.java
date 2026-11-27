@@ -13,19 +13,19 @@ public class ShippingPolicyJpaEntityToDomainMapper {
 
     public static Optional<ShippingPolicy> mapToDomain(ShippingPolicyJpaEntity entity) {
         return Optional.ofNullable(entity)
-                .map(e -> ShippingPolicy.from(
-                        ShippingPolicySnapshotState.builder()
-                                .id(e.getId())
-                                .sellerId(e.getSellerId())
-                                .deliveryCompany(e.getDeliveryCompany())
-                                .shippingFee(e.getShippingFee())
-                                .freeShippingThreshold(e.getFreeShippingThreshold())
-                                .jejuSurcharge(e.getJejuSurcharge())
-                                .islandSurcharge(e.getIslandSurcharge())
-                                .status(e.getStatus())
-                                .createdAt(e.getCreatedAt())
-                                .modifiedAt(e.getModifiedAt())
-                                .build()
-                ));
+            .map(e -> ShippingPolicy.from(
+                ShippingPolicySnapshotState.builder()
+                    .id(e.getId())
+                    .sellerId(e.getSellerId())
+                    .deliveryCompany(e.getDeliveryCompany())
+                    .shippingFee(e.getShippingFee())
+                    .freeShippingThreshold(e.getFreeShippingThreshold())
+                    .jejuSurcharge(e.getJejuSurcharge())
+                    .islandSurcharge(e.getIslandSurcharge())
+                    .status(e.getStatus())
+                    .createdAt(e.getCreatedAt())
+                    .modifiedAt(e.getModifiedAt())
+                    .build()
+            ));
     }
 }

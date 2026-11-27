@@ -33,7 +33,7 @@ class CancelFulfillmentDeliveryUseCaseTest {
         // given
         CancelFulfillmentDeliveryItemCommand itemCommand = CancelFulfillmentDeliveryItemCommand.of("SLIP001", "ORD001");
         CancelFulfillmentDeliveryCommand command = CancelFulfillmentDeliveryCommand.of(
-                "CUST001", "token", List.of(itemCommand)
+            "CUST001", "token", List.of(itemCommand)
         );
         CancelFulfillmentDeliveryResult expectedResult = CancelFulfillmentDeliveryResult.of(0, List.of());
         when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(expectedResult);

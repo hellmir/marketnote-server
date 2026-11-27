@@ -40,20 +40,20 @@ class GetTermsUseCaseTest {
     void getAllTerms_success_mapsResults() {
         // given
         Terms terms1 = TermsTestObjectFactory.createTerms(
-                1L,
-                "terms-1",
-                true,
-                LocalDateTime.of(2024, 1, 1, 0, 0),
-                LocalDateTime.of(2024, 1, 2, 0, 0),
-                EntityStatus.ACTIVE
+            1L,
+            "terms-1",
+            true,
+            LocalDateTime.of(2024, 1, 1, 0, 0),
+            LocalDateTime.of(2024, 1, 2, 0, 0),
+            EntityStatus.ACTIVE
         );
         Terms terms2 = TermsTestObjectFactory.createTerms(
-                2L,
-                "terms-2",
-                false,
-                LocalDateTime.of(2024, 2, 1, 0, 0),
-                LocalDateTime.of(2024, 2, 2, 0, 0),
-                EntityStatus.ACTIVE
+            2L,
+            "terms-2",
+            false,
+            LocalDateTime.of(2024, 2, 1, 0, 0),
+            LocalDateTime.of(2024, 2, 2, 0, 0),
+            EntityStatus.ACTIVE
         );
 
         when(findTermsPort.findAll()).thenReturn(List.of(terms1, terms2));
@@ -96,34 +96,34 @@ class GetTermsUseCaseTest {
         Long userId = 1L;
         User user = mock(User.class);
         Terms terms1 = TermsTestObjectFactory.createTerms(
-                1L,
-                "required-terms",
-                true,
-                LocalDateTime.of(2024, 3, 1, 0, 0),
-                LocalDateTime.of(2024, 3, 2, 0, 0),
-                EntityStatus.ACTIVE
+            1L,
+            "required-terms",
+            true,
+            LocalDateTime.of(2024, 3, 1, 0, 0),
+            LocalDateTime.of(2024, 3, 2, 0, 0),
+            EntityStatus.ACTIVE
         );
         Terms terms2 = TermsTestObjectFactory.createTerms(
-                2L,
-                "optional-terms",
-                false,
-                LocalDateTime.of(2024, 4, 1, 0, 0),
-                LocalDateTime.of(2024, 4, 2, 0, 0),
-                EntityStatus.ACTIVE
+            2L,
+            "optional-terms",
+            false,
+            LocalDateTime.of(2024, 4, 1, 0, 0),
+            LocalDateTime.of(2024, 4, 2, 0, 0),
+            EntityStatus.ACTIVE
         );
         UserTerms userTerms1 = TermsTestObjectFactory.createUserTerms(
-                user,
-                terms1,
-                true,
-                LocalDateTime.of(2024, 3, 1, 0, 0),
-                LocalDateTime.of(2024, 3, 2, 0, 0)
+            user,
+            terms1,
+            true,
+            LocalDateTime.of(2024, 3, 1, 0, 0),
+            LocalDateTime.of(2024, 3, 2, 0, 0)
         );
         UserTerms userTerms2 = TermsTestObjectFactory.createUserTerms(
-                user,
-                terms2,
-                false,
-                LocalDateTime.of(2024, 4, 1, 0, 0),
-                LocalDateTime.of(2024, 4, 2, 0, 0)
+            user,
+            terms2,
+            false,
+            LocalDateTime.of(2024, 4, 1, 0, 0),
+            LocalDateTime.of(2024, 4, 2, 0, 0)
         );
 
         when(findUserPort.findById(userId)).thenReturn(Optional.of(user));
@@ -177,8 +177,8 @@ class GetTermsUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> getTermsService.getUserTerms(userId))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, userId));
+            .isInstanceOf(UserNotFoundException.class)
+            .hasMessage(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, userId));
 
         verify(findUserPort).findById(userId);
         verifyNoMoreInteractions(findUserPort, findTermsPort);

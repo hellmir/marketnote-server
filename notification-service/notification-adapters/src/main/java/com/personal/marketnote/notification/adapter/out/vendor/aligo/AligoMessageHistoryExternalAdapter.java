@@ -32,8 +32,8 @@ public class AligoMessageHistoryExternalAdapter implements GetAligoMessageHistor
         }
 
         AligoMessageHistoryApiResponse response = aligoHttpClient.post(
-                GET_MESSAGE_HISTORY_OPERATION, aligoProperties.getApi().getHistoryListPath(),
-                params, AligoMessageHistoryApiResponse.class
+            GET_MESSAGE_HISTORY_OPERATION, aligoProperties.getApi().getHistoryListPath(),
+            params, AligoMessageHistoryApiResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.list())) {
@@ -41,11 +41,11 @@ public class AligoMessageHistoryExternalAdapter implements GetAligoMessageHistor
         }
 
         List<AligoMessageHistorySummary> summaries = response.list().stream()
-                .map(info -> new AligoMessageHistorySummary(
-                        info.mid(), info.type(), info.sender(), info.content(),
-                        info.scnt(), info.fcnt(), info.regDate()
-                ))
-                .toList();
+            .map(info -> new AligoMessageHistorySummary(
+                info.mid(), info.type(), info.sender(), info.content(),
+                info.scnt(), info.fcnt(), info.regDate()
+            ))
+            .toList();
 
         return new AligoMessageHistoryResult(response.totalCount(), summaries);
     }

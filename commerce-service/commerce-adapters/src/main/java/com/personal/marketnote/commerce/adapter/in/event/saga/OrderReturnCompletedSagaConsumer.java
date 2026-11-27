@@ -31,12 +31,12 @@ public class OrderReturnCompletedSagaConsumer {
     private final SagaResponsePublisher sagaResponsePublisher;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_RETURN_COMPLETED,
-            groupId = "saga-order-return-completed"
+        topics = KafkaTopicConstants.SAGA_ORDER_RETURN_COMPLETED,
+        groupId = "saga-order-return-completed"
     )
     public void handleReturnCompletedStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         try {
             EventEnvelope<?> envelope = record.value();
@@ -48,7 +48,7 @@ public class OrderReturnCompletedSagaConsumer {
             SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
 
             log.info("SAGA 반품 완료 이벤트 발행 스텝 수신. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType()
+                stepMessage.sagaId(), stepMessage.messageType()
             );
 
             if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
@@ -57,12 +57,12 @@ public class OrderReturnCompletedSagaConsumer {
             }
 
             log.warn("반품 완료 스텝은 보상이 없음. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType()
+                stepMessage.sagaId(), stepMessage.messageType()
             );
         } catch (Exception e) {
             // boundary E: @KafkaListener record-level boundary — 호출자 전파 불가 (finally ack), ERROR + cause 인자 필수
             log.error("SAGA 반품 완료 이벤트 발행 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
-                    record.topic(), record.partition(), record.offset(), e.getMessage(), e
+                record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
         } finally {
             acknowledgment.acknowledge();
@@ -72,7 +72,7 @@ public class OrderReturnCompletedSagaConsumer {
     private void handleAction(SagaStepMessage stepMessage) {
         try {
             ReturnCompletedSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), ReturnCompletedSagaPayload.class);
+                stepMessage.payload(), ReturnCompletedSagaPayload.class);
 
             if (FormatValidator.hasNoValue(payload.orderId()) || FormatValidator.hasNoValue(payload.buyerId())) {
                 publishValidationFailure(stepMessage, "orderId 또는 buyerId 누락");
@@ -82,15 +82,15 @@ public class OrderReturnCompletedSagaConsumer {
             List<OrderProduct> returnProducts = SagaOrderProductMapper.toOrderProducts(payload.returnProducts());
 
             publishOrderEventPort.publishOrderReturnedEvent(
-                    payload.orderId(), payload.orderKey(), payload.buyerId(),
-                    payload.returnAmount(), payload.paymentAmount(), payload.pointAmount(),
-                    payload.shippingFee(), payload.isFullReturn(), payload.returnShippingFee(),
-                    returnProducts, payload.returnId()
+                payload.orderId(), payload.orderKey(), payload.buyerId(),
+                payload.returnAmount(), payload.paymentAmount(), payload.pointAmount(),
+                payload.shippingFee(), payload.isFullReturn(), payload.returnShippingFee(),
+                returnProducts, payload.returnId()
             );
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true}"
             );
 
             log.info("SAGA 반품 완료 이벤트 발행 성공. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
@@ -98,8 +98,8 @@ public class OrderReturnCompletedSagaConsumer {
             // boundary E: SAGA step boundary — UseCase 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 반품 완료 이벤트 발행 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "반품 완료 이벤트 발행 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "반품 완료 이벤트 발행 실패"
             );
         }
     }
@@ -107,8 +107,8 @@ public class OrderReturnCompletedSagaConsumer {
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
         log.warn("SAGA 반품 완료 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
     }
 }

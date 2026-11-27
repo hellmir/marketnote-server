@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class EventEnvelopeTest {
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-02-27T10:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-02-27T10:00:00Z"), ZoneId.of("Asia/Seoul")
     );
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -61,7 +61,7 @@ class EventEnvelopeTest {
 
         // when
         EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(
-                "product.product.registered", "product-service", event, FIXED_CLOCK
+            "product.product.registered", "product-service", event, FIXED_CLOCK
         );
 
         // then
@@ -79,7 +79,7 @@ class EventEnvelopeTest {
         // given
         ProductRegisteredEvent event = new ProductRegisteredEvent(10L, null, 20L, 30L, "테스트", "2", "테스트 브랜드", 20000L, 15000L, 200L, 0L, null, null, "TESTFASSTOCODE00000002", false);
         EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(
-                "product.product.registered", "product-service", event, FIXED_CLOCK
+            "product.product.registered", "product-service", event, FIXED_CLOCK
         );
 
         // when
@@ -105,14 +105,14 @@ class EventEnvelopeTest {
         rawPayload.put("accumulatedPoint", 100L);
 
         EventEnvelope<Map<String, Object>> envelope = new EventEnvelope<>(
-                "test-event-id", "product.product.registered", "product-service",
-                LocalDateTime.now(FIXED_CLOCK), rawPayload
+            "test-event-id", "product.product.registered", "product-service",
+            LocalDateTime.now(FIXED_CLOCK), rawPayload
         );
 
         // when
         @SuppressWarnings("unchecked")
         ProductRegisteredEvent result = ((EventEnvelope<?>) envelope)
-                .getPayloadAs(ProductRegisteredEvent.class, OBJECT_MAPPER);
+            .getPayloadAs(ProductRegisteredEvent.class, OBJECT_MAPPER);
 
         // then
         assertThat(result.productId()).isEqualTo(100L);

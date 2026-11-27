@@ -5,21 +5,21 @@ import com.personal.marketnote.fulfillment.port.in.result.GetShippingStatusResul
 import java.time.LocalDateTime;
 
 public record GetShippingStatusResponse(
-        Long orderId,
-        String shippingStatus,
-        boolean cancellable,
-        String trackingNumber,
-        String carrierCode,
-        LocalDateTime lastPolledAt
+    Long orderId,
+    String shippingStatus,
+    boolean cancellable,
+    String trackingNumber,
+    String carrierCode,
+    LocalDateTime lastPolledAt
 ) {
     public static GetShippingStatusResponse from(GetShippingStatusResult result) {
         return new GetShippingStatusResponse(
-                result.orderId(),
-                result.shippingStatus(),
-                result.cancellable(),
-                result.trackingNumber(),
-                result.carrierCode(),
-                result.lastPolledAt()
+            result.orderId(),
+            result.shippingStatus(),
+            result.cancellable(),
+            result.trackingNumber(),
+            result.carrierCode(),
+            result.lastPolledAt()
         );
     }
 }

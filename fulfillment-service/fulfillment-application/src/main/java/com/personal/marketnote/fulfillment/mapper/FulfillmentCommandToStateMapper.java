@@ -11,23 +11,23 @@ public class FulfillmentCommandToStateMapper {
     }
 
     public static FulfillmentDeliveryRegistrationCreateState mapToDeliveryRegistrationCreateState(
-            RegisterFulfillmentDeliveryCommand command
+        RegisterFulfillmentDeliveryCommand command
     ) {
         Long orderId = Long.parseLong(command.deliveryRequests().getFirst().orderNumber());
 
         return FulfillmentDeliveryRegistrationCreateState.builder()
-                .orderId(orderId)
-                .build();
+            .orderId(orderId)
+            .build();
     }
 
     public static FulfillmentGoodsRegistrationCreateState mapToGoodsRegistrationCreateState(
-            RegisterFulfillmentGoodsCommand command
+        RegisterFulfillmentGoodsCommand command
     ) {
         RegisterFulfillmentGoodsItemCommand firstGoods = command.goods().getFirst();
 
         return FulfillmentGoodsRegistrationCreateState.builder()
-                .productKey(firstGoods.productKey())
-                .fasstoProductCode(firstGoods.fasstoProductCode())
-                .build();
+            .productKey(firstGoods.productKey())
+            .fasstoProductCode(firstGoods.fasstoProductCode())
+            .build();
     }
 }

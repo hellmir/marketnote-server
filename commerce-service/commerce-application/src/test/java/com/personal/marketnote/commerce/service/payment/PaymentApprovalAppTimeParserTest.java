@@ -15,7 +15,7 @@ class PaymentApprovalAppTimeParserTest {
 
     private static final ZoneId ZONE = ZoneId.of("Asia/Seoul");
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-11-21T03:00:00Z"), ZONE
+        Instant.parse("2026-11-21T03:00:00Z"), ZONE
     );
 
     private final PaymentApprovalAppTimeParser parser = new PaymentApprovalAppTimeParser(FIXED_CLOCK);

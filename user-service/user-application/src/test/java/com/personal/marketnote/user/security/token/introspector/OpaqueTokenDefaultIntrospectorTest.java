@@ -46,10 +46,10 @@ class OpaqueTokenDefaultIntrospectorTest {
     @BeforeEach
     void setUp() {
         Map<AuthVendor, List<String>> vendorIssuerMap = Map.of(
-                AuthVendor.KAKAO, List.of(KAKAO_ISSUER)
+            AuthVendor.KAKAO, List.of(KAKAO_ISSUER)
         );
         introspector = new OpaqueTokenDefaultIntrospector(
-                tokenSupport, findUserPort, vendorIssuerMap, vendorIdTokenVerifier
+            tokenSupport, findUserPort, vendorIssuerMap, vendorIdTokenVerifier
         );
     }
 
@@ -58,10 +58,10 @@ class OpaqueTokenDefaultIntrospectorTest {
     void introspectActiveUserReturnsUserPrincipal() {
         // given
         OAuth2AuthenticationInfo info = OAuth2AuthenticationInfo.builder()
-                .id(NATIVE_OIDC_ID)
-                .authVendor(AuthVendor.NATIVE)
-                .userId(1L)
-                .build();
+            .id(NATIVE_OIDC_ID)
+            .authVendor(AuthVendor.NATIVE)
+            .userId(1L)
+            .build();
         User activeUser = mock(User.class);
         when(activeUser.getId()).thenReturn(1L);
         when(activeUser.isActive()).thenReturn(true);
@@ -69,7 +69,7 @@ class OpaqueTokenDefaultIntrospectorTest {
 
         when(tokenSupport.authenticate(OPAQUE_TOKEN)).thenReturn(info);
         when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(AuthVendor.NATIVE, NATIVE_OIDC_ID))
-                .thenReturn(Optional.of(activeUser));
+            .thenReturn(Optional.of(activeUser));
 
         // when
         OAuth2AuthenticatedPrincipal principal = introspector.introspect(OPAQUE_TOKEN);
@@ -77,8 +77,8 @@ class OpaqueTokenDefaultIntrospectorTest {
         // then
         assertThat(principal.getName()).isEqualTo("1");
         assertThat(principal.getAuthorities())
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactly("ROLE_BUYER");
+            .extracting(GrantedAuthority::getAuthority)
+            .containsExactly("ROLE_BUYER");
     }
 
     @Test
@@ -86,16 +86,16 @@ class OpaqueTokenDefaultIntrospectorTest {
     void introspectInactiveUserReturnsAnonymousPrincipal() {
         // given
         OAuth2AuthenticationInfo info = OAuth2AuthenticationInfo.builder()
-                .id(NATIVE_OIDC_ID)
-                .authVendor(AuthVendor.NATIVE)
-                .userId(1L)
-                .build();
+            .id(NATIVE_OIDC_ID)
+            .authVendor(AuthVendor.NATIVE)
+            .userId(1L)
+            .build();
         User inactiveUser = mock(User.class);
         when(inactiveUser.isActive()).thenReturn(false);
 
         when(tokenSupport.authenticate(OPAQUE_TOKEN)).thenReturn(info);
         when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(AuthVendor.NATIVE, NATIVE_OIDC_ID))
-                .thenReturn(Optional.of(inactiveUser));
+            .thenReturn(Optional.of(inactiveUser));
 
         // when
         OAuth2AuthenticatedPrincipal principal = introspector.introspect(OPAQUE_TOKEN);
@@ -103,8 +103,8 @@ class OpaqueTokenDefaultIntrospectorTest {
         // then
         assertThat(principal.getName()).isEqualTo("-1");
         assertThat(principal.getAuthorities())
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
+            .extracting(GrantedAuthority::getAuthority)
+            .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
     }
 
     @Test
@@ -112,16 +112,16 @@ class OpaqueTokenDefaultIntrospectorTest {
     void introspectUnexposedUserReturnsAnonymousPrincipal() {
         // given
         OAuth2AuthenticationInfo info = OAuth2AuthenticationInfo.builder()
-                .id(NATIVE_OIDC_ID)
-                .authVendor(AuthVendor.NATIVE)
-                .userId(1L)
-                .build();
+            .id(NATIVE_OIDC_ID)
+            .authVendor(AuthVendor.NATIVE)
+            .userId(1L)
+            .build();
         User unexposedUser = mock(User.class);
         when(unexposedUser.isActive()).thenReturn(false);
 
         when(tokenSupport.authenticate(OPAQUE_TOKEN)).thenReturn(info);
         when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(AuthVendor.NATIVE, NATIVE_OIDC_ID))
-                .thenReturn(Optional.of(unexposedUser));
+            .thenReturn(Optional.of(unexposedUser));
 
         // when
         OAuth2AuthenticatedPrincipal principal = introspector.introspect(OPAQUE_TOKEN);
@@ -129,8 +129,8 @@ class OpaqueTokenDefaultIntrospectorTest {
         // then
         assertThat(principal.getName()).isEqualTo("-1");
         assertThat(principal.getAuthorities())
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
+            .extracting(GrantedAuthority::getAuthority)
+            .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
     }
 
     @Test
@@ -144,9 +144,9 @@ class OpaqueTokenDefaultIntrospectorTest {
         when(activeUser.getRole()).thenReturn(Role.getBuyer());
 
         when(vendorIdTokenVerifier.verifyAndExtractSubject(vendorToken, AuthVendor.KAKAO))
-                .thenReturn(KAKAO_OIDC_ID);
+            .thenReturn(KAKAO_OIDC_ID);
         when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(AuthVendor.KAKAO, KAKAO_OIDC_ID))
-                .thenReturn(Optional.of(activeUser));
+            .thenReturn(Optional.of(activeUser));
 
         // when
         OAuth2AuthenticatedPrincipal principal = introspector.introspect(vendorToken);
@@ -154,8 +154,8 @@ class OpaqueTokenDefaultIntrospectorTest {
         // then
         assertThat(principal.getName()).isEqualTo("2");
         assertThat(principal.getAuthorities())
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactly("ROLE_BUYER");
+            .extracting(GrantedAuthority::getAuthority)
+            .containsExactly("ROLE_BUYER");
     }
 
     @Test
@@ -167,9 +167,9 @@ class OpaqueTokenDefaultIntrospectorTest {
         when(inactiveUser.isActive()).thenReturn(false);
 
         when(vendorIdTokenVerifier.verifyAndExtractSubject(vendorToken, AuthVendor.KAKAO))
-                .thenReturn(KAKAO_OIDC_ID);
+            .thenReturn(KAKAO_OIDC_ID);
         when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(AuthVendor.KAKAO, KAKAO_OIDC_ID))
-                .thenReturn(Optional.of(inactiveUser));
+            .thenReturn(Optional.of(inactiveUser));
 
         // when
         OAuth2AuthenticatedPrincipal principal = introspector.introspect(vendorToken);
@@ -177,8 +177,8 @@ class OpaqueTokenDefaultIntrospectorTest {
         // then
         assertThat(principal.getName()).isEqualTo("-1");
         assertThat(principal.getAuthorities())
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
+            .extracting(GrantedAuthority::getAuthority)
+            .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
     }
 
     @Test
@@ -190,9 +190,9 @@ class OpaqueTokenDefaultIntrospectorTest {
         when(unexposedUser.isActive()).thenReturn(false);
 
         when(vendorIdTokenVerifier.verifyAndExtractSubject(vendorToken, AuthVendor.KAKAO))
-                .thenReturn(KAKAO_OIDC_ID);
+            .thenReturn(KAKAO_OIDC_ID);
         when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(AuthVendor.KAKAO, KAKAO_OIDC_ID))
-                .thenReturn(Optional.of(unexposedUser));
+            .thenReturn(Optional.of(unexposedUser));
 
         // when
         OAuth2AuthenticatedPrincipal principal = introspector.introspect(vendorToken);
@@ -200,8 +200,8 @@ class OpaqueTokenDefaultIntrospectorTest {
         // then
         assertThat(principal.getName()).isEqualTo("-1");
         assertThat(principal.getAuthorities())
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
+            .extracting(GrantedAuthority::getAuthority)
+            .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
     }
 
     @Test
@@ -209,14 +209,14 @@ class OpaqueTokenDefaultIntrospectorTest {
     void introspectUserNotFoundReturnsGuestPrincipal() {
         // given
         OAuth2AuthenticationInfo info = OAuth2AuthenticationInfo.builder()
-                .id("oidc-unknown")
-                .authVendor(AuthVendor.NATIVE)
-                .userId(99L)
-                .build();
+            .id("oidc-unknown")
+            .authVendor(AuthVendor.NATIVE)
+            .userId(99L)
+            .build();
 
         when(tokenSupport.authenticate(OPAQUE_TOKEN)).thenReturn(info);
         when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(AuthVendor.NATIVE, "oidc-unknown"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(findUserPort.findAllStatusUserById(99L)).thenReturn(Optional.empty());
 
         // when
@@ -225,8 +225,8 @@ class OpaqueTokenDefaultIntrospectorTest {
         // then
         assertThat(principal.getName()).isEqualTo("-1");
         assertThat(principal.getAuthorities())
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactly(PrimaryRole.ROLE_GUEST.name());
+            .extracting(GrantedAuthority::getAuthority)
+            .containsExactly(PrimaryRole.ROLE_GUEST.name());
     }
 
     @Test
@@ -234,7 +234,7 @@ class OpaqueTokenDefaultIntrospectorTest {
     void introspectInvalidTokenReturnsAnonymousPrincipal() {
         // given
         when(tokenSupport.authenticate(OPAQUE_TOKEN))
-                .thenThrow(new InvalidAccessTokenException("invalid"));
+            .thenThrow(new InvalidAccessTokenException("invalid"));
 
         // when
         OAuth2AuthenticatedPrincipal principal = introspector.introspect(OPAQUE_TOKEN);
@@ -242,8 +242,8 @@ class OpaqueTokenDefaultIntrospectorTest {
         // then
         assertThat(principal.getName()).isEqualTo("-1");
         assertThat(principal.getAuthorities())
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
+            .extracting(GrantedAuthority::getAuthority)
+            .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
     }
 
     @Test
@@ -253,7 +253,7 @@ class OpaqueTokenDefaultIntrospectorTest {
         String forgedToken = buildVendorIdToken(KAKAO_ISSUER, "victim-oidc-id");
 
         when(vendorIdTokenVerifier.verifyAndExtractSubject(forgedToken, AuthVendor.KAKAO))
-                .thenThrow(new JwtException("JWT signature verification failed"));
+            .thenThrow(new JwtException("JWT signature verification failed"));
 
         // when
         OAuth2AuthenticatedPrincipal principal = introspector.introspect(forgedToken);
@@ -261,8 +261,8 @@ class OpaqueTokenDefaultIntrospectorTest {
         // then
         assertThat(principal.getName()).isEqualTo("-1");
         assertThat(principal.getAuthorities())
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
+            .extracting(GrantedAuthority::getAuthority)
+            .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
     }
 
     @Test
@@ -272,7 +272,7 @@ class OpaqueTokenDefaultIntrospectorTest {
         String expiredToken = buildVendorIdToken(KAKAO_ISSUER, KAKAO_OIDC_ID);
 
         when(vendorIdTokenVerifier.verifyAndExtractSubject(expiredToken, AuthVendor.KAKAO))
-                .thenThrow(new JwtException("JWT expired"));
+            .thenThrow(new JwtException("JWT expired"));
 
         // when
         OAuth2AuthenticatedPrincipal principal = introspector.introspect(expiredToken);
@@ -280,14 +280,14 @@ class OpaqueTokenDefaultIntrospectorTest {
         // then
         assertThat(principal.getName()).isEqualTo("-1");
         assertThat(principal.getAuthorities())
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
+            .extracting(GrantedAuthority::getAuthority)
+            .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
     }
 
     private String buildVendorIdToken(String issuer, String subject) {
         String header = base64UrlEncode("{\"typ\":\"JWT\",\"alg\":\"RS256\"}");
         String payload = base64UrlEncode(
-                "{\"iss\":\"" + issuer + "\",\"sub\":\"" + subject + "\"}"
+            "{\"iss\":\"" + issuer + "\",\"sub\":\"" + subject + "\"}"
         );
         String signature = base64UrlEncode("fake-signature");
         return header + "." + payload + "." + signature;

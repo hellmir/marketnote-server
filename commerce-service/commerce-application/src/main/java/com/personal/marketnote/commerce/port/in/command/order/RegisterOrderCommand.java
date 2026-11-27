@@ -7,11 +7,11 @@ import java.util.List;
 
 @Builder
 public record RegisterOrderCommand(
-        Long buyerId,
-        OrderAmountCommand amount,
-        Long shippingAddressId,
-        DeliveryRequestType deliveryRequestType,
-        String deliveryRequestMessage,
-        List<OrderProductItemCommand> orderProducts
+    Long buyerId,
+    OrderAmountCommand amount,
+    Long shippingAddressId,
+    DeliveryRequestType deliveryRequestType,
+    String deliveryRequestMessage,
+    List<OrderProductItemCommand> orderProducts
 ) {
 }

@@ -49,8 +49,8 @@ class DeleteProductUseCaseTest {
         when(findProductPort.existsByIdAndSellerId(10L, userId)).thenReturn(false);
 
         assertThatThrownBy(() -> deleteProductService.delete(userId, false, command))
-                .isInstanceOf(NotProductOwnerException.class)
-                .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
+            .isInstanceOf(NotProductOwnerException.class)
+            .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(findProductPort).existsByIdAndSellerId(10L, userId);
         verifyNoInteractions(getProductUseCase, updateProductPort, publishProductEventPort);
@@ -105,7 +105,7 @@ class DeleteProductUseCaseTest {
         when(getProductUseCase.getProduct(30L)).thenThrow(exception);
 
         assertThatThrownBy(() -> deleteProductService.delete(1L, true, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(getProductUseCase).getProduct(30L);
         verifyNoInteractions(findProductPort, updateProductPort, publishProductEventPort);
@@ -124,7 +124,7 @@ class DeleteProductUseCaseTest {
         doThrow(exception).when(updateProductPort).update(product);
 
         assertThatThrownBy(() -> deleteProductService.delete(userId, false, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(updateProductPort).update(product);
         verifyNoInteractions(publishProductEventPort);
@@ -150,18 +150,18 @@ class DeleteProductUseCaseTest {
     private Product buildProduct(Long id) {
         UUID productKey = UUID.randomUUID();
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(id)
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name("상품-" + id)
-                        .brandName("브랜드-" + id)
-                        .detail("설명-" + id)
-                        .findAllOptionsYn(false)
-                        .productTags(java.util.List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(id)
+                .productKey(productKey)
+                .sellerId(1L)
+                .name("상품-" + id)
+                .brandName("브랜드-" + id)
+                .detail("설명-" + id)
+                .findAllOptionsYn(false)
+                .productTags(java.util.List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
     }
 }

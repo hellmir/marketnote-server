@@ -10,9 +10,9 @@ import java.util.Optional;
 public interface AligoBrandTalkMessageJpaRepository extends JpaRepository<AligoBrandTalkMessageJpaEntity, Long> {
 
     @Query("""
-            SELECT m FROM AligoBrandTalkMessageJpaEntity m
-            LEFT JOIN FETCH m.recipients
-            WHERE m.id = :id
-            """)
+        SELECT m FROM AligoBrandTalkMessageJpaEntity m
+        LEFT JOIN FETCH m.recipients
+        WHERE m.id = :id
+        """)
     Optional<AligoBrandTalkMessageJpaEntity> findByIdWithRecipients(@Param("id") Long id);
 }

@@ -40,11 +40,11 @@ public class GetUserReviewsService implements GetUserReviewsUseCase {
         boolean isDesc = Sort.Direction.DESC.equals(command.sortDirection());
 
         Reviews reviews = findReviewPort.findUserReviewsByOffset(
-                command.userId(),
-                command.page(),
-                command.pageSize(),
-                isDesc,
-                command.sortProperty()
+            command.userId(),
+            command.page(),
+            command.pageSize(),
+            isDesc,
+            command.sortProperty()
         );
 
         long totalElements = findReviewPort.countActive(command.userId());
@@ -58,26 +58,26 @@ public class GetUserReviewsService implements GetUserReviewsUseCase {
         Map<Long, ReviewProductInfoResult> productInfoByPricePolicyId = findReviewProductInfo(reviewList);
 
         List<UserReviewItemResult> reviewItems = reviewList.stream()
-                .map(review -> {
-                    ReviewProductInfoResult productInfo =
-                            ReviewProductInfoResult.resolveForReview(
-                                    review, productInfoByPricePolicyId
-                            );
-
-                    return UserReviewItemResult.from(
-                            review,
-                            reviewImagesByReviewId.get(review.getId()),
-                            productInfo
+            .map(review -> {
+                ReviewProductInfoResult productInfo =
+                    ReviewProductInfoResult.resolveForReview(
+                        review, productInfoByPricePolicyId
                     );
-                })
-                .toList();
+
+                return UserReviewItemResult.from(
+                    review,
+                    reviewImagesByReviewId.get(review.getId()),
+                    productInfo
+                );
+            })
+            .toList();
 
         return GetUserReviewsResult.of(
-                command.page(),
-                command.pageSize(),
-                totalElements,
-                totalPages,
-                reviewItems
+            command.page(),
+            command.pageSize(),
+            totalElements,
+            totalPages,
+            reviewItems
         );
     }
 
@@ -96,12 +96,12 @@ public class GetUserReviewsService implements GetUserReviewsUseCase {
         Map<Long, List<GetFileResult>> reviewImagesByReviewId = new ConcurrentHashMap<>();
 
         List<CompletableFuture<Void>> futures = reviews.stream()
-                .filter(review -> Boolean.TRUE.equals(review.getIsPhoto()))
-                .map(review -> CompletableFuture.runAsync(
-                        () -> findReviewImagesPort.findImagesByReviewIdAndSort(review.getId(), REVIEW_IMAGE)
-                                .ifPresent(result -> reviewImagesByReviewId.put(review.getId(), result.images()))
-                ))
-                .toList();
+            .filter(review -> Boolean.TRUE.equals(review.getIsPhoto()))
+            .map(review -> CompletableFuture.runAsync(
+                () -> findReviewImagesPort.findImagesByReviewIdAndSort(review.getId(), REVIEW_IMAGE)
+                    .ifPresent(result -> reviewImagesByReviewId.put(review.getId(), result.images()))
+            ))
+            .toList();
 
         if (FormatValidator.hasValue(futures)) {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
@@ -117,17 +117,17 @@ public class GetUserReviewsService implements GetUserReviewsUseCase {
         }
 
         Map<Long, ProductInfoResult> productInfoByPricePolicyId
-                = findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
+            = findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
         if (FormatValidator.hasNoValue(productInfoByPricePolicyId)) {
             return Map.of();
         }
 
         Map<Long, ReviewProductInfoResult> results = new HashMap<>();
         productInfoByPricePolicyId.forEach(
-                (pricePolicyId, productInfo) -> results.put(
-                        pricePolicyId,
-                        ReviewProductInfoResult.from(productInfo)
-                )
+            (pricePolicyId, productInfo) -> results.put(
+                pricePolicyId,
+                ReviewProductInfoResult.from(productInfo)
+            )
         );
 
         return results;
@@ -139,9 +139,9 @@ public class GetUserReviewsService implements GetUserReviewsUseCase {
         }
 
         return reviews.stream()
-                .map(Review::getPricePolicyId)
-                .filter(FormatValidator::hasValue)
-                .distinct()
-                .toList();
+            .map(Review::getPricePolicyId)
+            .filter(FormatValidator::hasValue)
+            .distinct()
+            .toList();
     }
 }

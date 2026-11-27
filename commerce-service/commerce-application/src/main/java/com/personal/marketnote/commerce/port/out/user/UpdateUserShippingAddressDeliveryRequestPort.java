@@ -20,7 +20,7 @@ public interface UpdateUserShippingAddressDeliveryRequestPort {
      * @Description 배송지의 배송 요청사항을 수정합니다.
      */
     void updateDeliveryRequest(
-            Long shippingAddressId, Long userId,
-            DeliveryRequestType deliveryRequestType, String deliveryRequestMessage
+        Long shippingAddressId, Long userId,
+        DeliveryRequestType deliveryRequestType, String deliveryRequestMessage
     );
 }

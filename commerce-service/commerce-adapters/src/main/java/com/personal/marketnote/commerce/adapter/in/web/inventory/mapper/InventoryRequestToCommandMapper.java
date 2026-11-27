@@ -10,17 +10,17 @@ import java.util.List;
 
 public class InventoryRequestToCommandMapper {
     public static RegisterInventoryCommand mapToCommand(
-            RegisterInventoryRequest request
+        RegisterInventoryRequest request
     ) {
         return RegisterInventoryCommand.of(request.getProductId(), request.getPricePolicyId());
     }
 
     public static SyncFulfillmentVendorInventoryCommand mapToCommand(
-            SyncFulfillmentVendorInventoryRequest request
+        SyncFulfillmentVendorInventoryRequest request
     ) {
         List<SyncFulfillmentVendorInventoryItemCommand> inventories = request.getInventories().stream()
-                .map(item -> SyncFulfillmentVendorInventoryItemCommand.of(item.getProductKey(), item.getStock()))
-                .toList();
+            .map(item -> SyncFulfillmentVendorInventoryItemCommand.of(item.getProductKey(), item.getStock()))
+            .toList();
 
         return SyncFulfillmentVendorInventoryCommand.of(inventories);
     }

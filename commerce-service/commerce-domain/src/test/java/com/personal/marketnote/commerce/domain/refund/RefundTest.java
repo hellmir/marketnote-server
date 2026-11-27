@@ -22,15 +22,15 @@ class RefundTest {
         void shouldCreateFullRefund() {
             // given
             RefundCreateState state = RefundCreateState.builder()
-                    .paymentId(1L)
-                    .orderId(10L)
-                    .refundType(RefundType.FULL_REFUND)
-                    .refundAmount(50000L)
-                    .cancelReason("고객 요청")
-                    .processedBy("SYSTEM")
-                    .pgRefundKey("tno_123")
-                    .pgRawResponse("{\"res_cd\":\"0000\"}")
-                    .build();
+                .paymentId(1L)
+                .orderId(10L)
+                .refundType(RefundType.FULL_REFUND)
+                .refundAmount(50000L)
+                .cancelReason("고객 요청")
+                .processedBy("SYSTEM")
+                .pgRefundKey("tno_123")
+                .pgRawResponse("{\"res_cd\":\"0000\"}")
+                .build();
 
             // when
             Refund refund = Refund.from(state);
@@ -51,13 +51,13 @@ class RefundTest {
         void shouldCreatePartialRefund() {
             // given
             RefundCreateState state = RefundCreateState.builder()
-                    .paymentId(1L)
-                    .orderId(10L)
-                    .refundType(RefundType.PARTIAL_REFUND)
-                    .refundAmount(20000L)
-                    .cancelReason("부분 취소")
-                    .processedBy("SYSTEM")
-                    .build();
+                .paymentId(1L)
+                .orderId(10L)
+                .refundType(RefundType.PARTIAL_REFUND)
+                .refundAmount(20000L)
+                .cancelReason("부분 취소")
+                .processedBy("SYSTEM")
+                .build();
 
             // when
             Refund refund = Refund.from(state);
@@ -77,16 +77,16 @@ class RefundTest {
         void shouldThrowWhenPaymentIdIsNull() {
             // given
             RefundCreateState state = RefundCreateState.builder()
-                    .paymentId(null)
-                    .orderId(10L)
-                    .refundType(RefundType.FULL_REFUND)
-                    .refundAmount(50000L)
-                    .build();
+                .paymentId(null)
+                .orderId(10L)
+                .refundType(RefundType.FULL_REFUND)
+                .refundAmount(50000L)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> Refund.from(state))
-                    .isInstanceOf(RefundPaymentIdNoValueException.class)
-                    .hasMessageContaining("결제 ID");
+                .isInstanceOf(RefundPaymentIdNoValueException.class)
+                .hasMessageContaining("결제 ID");
         }
 
         @Test
@@ -94,16 +94,16 @@ class RefundTest {
         void shouldThrowWhenOrderIdIsNull() {
             // given
             RefundCreateState state = RefundCreateState.builder()
-                    .paymentId(1L)
-                    .orderId(null)
-                    .refundType(RefundType.FULL_REFUND)
-                    .refundAmount(50000L)
-                    .build();
+                .paymentId(1L)
+                .orderId(null)
+                .refundType(RefundType.FULL_REFUND)
+                .refundAmount(50000L)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> Refund.from(state))
-                    .isInstanceOf(RefundOrderIdNoValueException.class)
-                    .hasMessageContaining("주문 ID");
+                .isInstanceOf(RefundOrderIdNoValueException.class)
+                .hasMessageContaining("주문 ID");
         }
 
         @Test
@@ -111,16 +111,16 @@ class RefundTest {
         void shouldThrowWhenRefundTypeIsNull() {
             // given
             RefundCreateState state = RefundCreateState.builder()
-                    .paymentId(1L)
-                    .orderId(10L)
-                    .refundType(null)
-                    .refundAmount(50000L)
-                    .build();
+                .paymentId(1L)
+                .orderId(10L)
+                .refundType(null)
+                .refundAmount(50000L)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> Refund.from(state))
-                    .isInstanceOf(RefundTypeNoValueException.class)
-                    .hasMessageContaining("환불 유형");
+                .isInstanceOf(RefundTypeNoValueException.class)
+                .hasMessageContaining("환불 유형");
         }
 
         @Test
@@ -128,16 +128,16 @@ class RefundTest {
         void shouldThrowWhenRefundAmountIsNull() {
             // given
             RefundCreateState state = RefundCreateState.builder()
-                    .paymentId(1L)
-                    .orderId(10L)
-                    .refundType(RefundType.FULL_REFUND)
-                    .refundAmount(null)
-                    .build();
+                .paymentId(1L)
+                .orderId(10L)
+                .refundType(RefundType.FULL_REFUND)
+                .refundAmount(null)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> Refund.from(state))
-                    .isInstanceOf(InvalidRefundAmountException.class)
-                    .hasMessageContaining("환불 금액");
+                .isInstanceOf(InvalidRefundAmountException.class)
+                .hasMessageContaining("환불 금액");
         }
 
         @Test
@@ -145,16 +145,16 @@ class RefundTest {
         void shouldThrowWhenRefundAmountIsZero() {
             // given
             RefundCreateState state = RefundCreateState.builder()
-                    .paymentId(1L)
-                    .orderId(10L)
-                    .refundType(RefundType.FULL_REFUND)
-                    .refundAmount(0L)
-                    .build();
+                .paymentId(1L)
+                .orderId(10L)
+                .refundType(RefundType.FULL_REFUND)
+                .refundAmount(0L)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> Refund.from(state))
-                    .isInstanceOf(InvalidRefundAmountException.class)
-                    .hasMessageContaining("환불 금액");
+                .isInstanceOf(InvalidRefundAmountException.class)
+                .hasMessageContaining("환불 금액");
         }
 
         @Test
@@ -162,16 +162,16 @@ class RefundTest {
         void shouldThrowWhenRefundAmountIsNegative() {
             // given
             RefundCreateState state = RefundCreateState.builder()
-                    .paymentId(1L)
-                    .orderId(10L)
-                    .refundType(RefundType.FULL_REFUND)
-                    .refundAmount(-1000L)
-                    .build();
+                .paymentId(1L)
+                .orderId(10L)
+                .refundType(RefundType.FULL_REFUND)
+                .refundAmount(-1000L)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> Refund.from(state))
-                    .isInstanceOf(InvalidRefundAmountException.class)
-                    .hasMessageContaining("환불 금액");
+                .isInstanceOf(InvalidRefundAmountException.class)
+                .hasMessageContaining("환불 금액");
         }
     }
 
@@ -185,17 +185,17 @@ class RefundTest {
             // given
             LocalDateTime createdAt = LocalDateTime.of(2026, 2, 24, 10, 0);
             RefundSnapshotState state = RefundSnapshotState.builder()
-                    .id(100L)
-                    .paymentId(1L)
-                    .orderId(10L)
-                    .refundType(RefundType.FULL_REFUND)
-                    .refundAmount(50000L)
-                    .cancelReason("고객 요청")
-                    .processedBy("SYSTEM")
-                    .pgRefundKey("tno_123")
-                    .pgRawResponse("{\"res_cd\":\"0000\"}")
-                    .createdAt(createdAt)
-                    .build();
+                .id(100L)
+                .paymentId(1L)
+                .orderId(10L)
+                .refundType(RefundType.FULL_REFUND)
+                .refundAmount(50000L)
+                .cancelReason("고객 요청")
+                .processedBy("SYSTEM")
+                .pgRefundKey("tno_123")
+                .pgRawResponse("{\"res_cd\":\"0000\"}")
+                .createdAt(createdAt)
+                .build();
 
             // when
             Refund refund = Refund.from(state);
@@ -236,13 +236,13 @@ class RefundTest {
 
     private Refund createRefund(RefundType refundType, Long amount) {
         RefundCreateState state = RefundCreateState.builder()
-                .paymentId(1L)
-                .orderId(10L)
-                .refundType(refundType)
-                .refundAmount(amount)
-                .cancelReason("테스트")
-                .processedBy("SYSTEM")
-                .build();
+            .paymentId(1L)
+            .orderId(10L)
+            .refundType(refundType)
+            .refundAmount(amount)
+            .cancelReason("테스트")
+            .processedBy("SYSTEM")
+            .build();
         return Refund.from(state);
     }
 }

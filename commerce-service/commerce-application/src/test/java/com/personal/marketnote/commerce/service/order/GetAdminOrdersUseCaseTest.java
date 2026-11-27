@@ -38,29 +38,29 @@ class GetAdminOrdersUseCaseTest {
 
     private Order createOrder(Long id, Long buyerId, OrderStatus status, Long pricePolicyId) {
         return Order.from(OrderSnapshotState.builder()
-                .id(id)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD" + id))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(95000L).couponAmount(3000L).pointAmount(2000L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of(
-                        OrderProductSnapshotState.builder()
-                                .orderId(id)
-                                .sellerId(10L)
-                                .pricePolicyId(pricePolicyId)
-                                .quantity(1)
-                                .unitAmount(50000L)
-                                .accumulatedPoint(0L)
-                                .imageUrl("https://example.com/image.jpg")
-                                .orderStatus(status)
-                                .isReviewed(false)
-                                .build()
-                ))
-                .createdAt(LocalDateTime.of(2026, 2, 20, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 2, 20, 10, 0))
-                .build());
+            .id(id)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD" + id))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(95000L).couponAmount(3000L).pointAmount(2000L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of(
+                OrderProductSnapshotState.builder()
+                    .orderId(id)
+                    .sellerId(10L)
+                    .pricePolicyId(pricePolicyId)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .imageUrl("https://example.com/image.jpg")
+                    .orderStatus(status)
+                    .isReviewed(false)
+                    .build()
+            ))
+            .createdAt(LocalDateTime.of(2026, 2, 20, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 2, 20, 10, 0))
+            .build());
     }
 
     private ProductInfoResult createProductInfo(Long id, String name, String brandName) {
@@ -75,9 +75,9 @@ class GetAdminOrdersUseCaseTest {
         Order order = createOrder(1L, 100L, OrderStatus.PAID, 30L);
 
         when(findOrderPort.findAllWithFilters(null, null, null, null))
-                .thenReturn(List.of(order));
+            .thenReturn(List.of(order));
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(30L)))
-                .thenReturn(Map.of(30L, createProductInfo(50L, "테스트 상품", "테스트 브랜드")));
+            .thenReturn(Map.of(30L, createProductInfo(50L, "테스트 상품", "테스트 브랜드")));
 
         // when
         GetAdminOrdersResult result = getAdminOrdersService.getAdminOrders(query);
@@ -102,12 +102,12 @@ class GetAdminOrdersUseCaseTest {
         Order order2 = createOrder(2L, 101L, OrderStatus.PREPARING, 31L);
 
         when(findOrderPort.findAllWithFilters(null, null, null, null))
-                .thenReturn(List.of(order1, order2));
+            .thenReturn(List.of(order1, order2));
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(30L, 31L)))
-                .thenReturn(Map.of(
-                        30L, createProductInfo(50L, "상품A", "브랜드A"),
-                        31L, createProductInfo(51L, "상품B", "브랜드B")
-                ));
+            .thenReturn(Map.of(
+                30L, createProductInfo(50L, "상품A", "브랜드A"),
+                31L, createProductInfo(51L, "상품B", "브랜드B")
+            ));
 
         // when
         GetAdminOrdersResult result = getAdminOrdersService.getAdminOrders(query);
@@ -125,7 +125,7 @@ class GetAdminOrdersUseCaseTest {
         GetAdminOrdersQuery query = GetAdminOrdersQuery.of(null, null, null, null);
 
         when(findOrderPort.findAllWithFilters(null, null, null, null))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         GetAdminOrdersResult result = getAdminOrdersService.getAdminOrders(query);
@@ -143,7 +143,7 @@ class GetAdminOrdersUseCaseTest {
         GetAdminOrdersQuery query = GetAdminOrdersQuery.of(null, null, null, null);
 
         when(findOrderPort.findAllWithFilters(null, null, null, null))
-                .thenReturn(null);
+            .thenReturn(null);
 
         // when
         GetAdminOrdersResult result = getAdminOrdersService.getAdminOrders(query);
@@ -161,7 +161,7 @@ class GetAdminOrdersUseCaseTest {
         GetAdminOrdersQuery query = GetAdminOrdersQuery.of(sellerId, null, null, null);
 
         when(findOrderPort.findAllWithFilters(sellerId, null, null, null))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         getAdminOrdersService.getAdminOrders(query);
@@ -179,7 +179,7 @@ class GetAdminOrdersUseCaseTest {
         GetAdminOrdersQuery query = GetAdminOrdersQuery.of(null, startDate, endDate, null);
 
         when(findOrderPort.findAllWithFilters(null, startDate, endDate, null))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         getAdminOrdersService.getAdminOrders(query);
@@ -195,7 +195,7 @@ class GetAdminOrdersUseCaseTest {
         GetAdminOrdersQuery query = GetAdminOrdersQuery.of(null, null, null, OrderStatus.PAID);
 
         when(findOrderPort.findAllWithFilters(null, null, null, OrderStatus.PAID))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         getAdminOrdersService.getAdminOrders(query);
@@ -215,7 +215,7 @@ class GetAdminOrdersUseCaseTest {
         GetAdminOrdersQuery query = GetAdminOrdersQuery.of(sellerId, startDate, endDate, status);
 
         when(findOrderPort.findAllWithFilters(sellerId, startDate, endDate, status))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         getAdminOrdersService.getAdminOrders(query);
@@ -231,7 +231,7 @@ class GetAdminOrdersUseCaseTest {
         GetAdminOrdersQuery query = GetAdminOrdersQuery.of(null, null, null, null);
 
         when(findOrderPort.findAllWithFilters(null, null, null, null))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         getAdminOrdersService.getAdminOrders(query);
@@ -248,9 +248,9 @@ class GetAdminOrdersUseCaseTest {
         Order order = createOrder(1L, 100L, OrderStatus.PAID, 30L);
 
         when(findOrderPort.findAllWithFilters(null, null, null, null))
-                .thenReturn(List.of(order));
+            .thenReturn(List.of(order));
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(30L)))
-                .thenReturn(null);
+            .thenReturn(null);
 
         // when
         GetAdminOrdersResult result = getAdminOrdersService.getAdminOrders(query);
@@ -266,20 +266,20 @@ class GetAdminOrdersUseCaseTest {
         // given
         GetAdminOrdersQuery query = GetAdminOrdersQuery.of(null, null, null, null);
         Order order = Order.from(OrderSnapshotState.builder()
-                .id(1L)
-                .buyerId(100L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD1"))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(95000L).couponAmount(3000L).pointAmount(2000L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of())
-                .createdAt(LocalDateTime.of(2026, 2, 20, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 2, 20, 10, 0))
-                .build());
+            .id(1L)
+            .buyerId(100L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD1"))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(95000L).couponAmount(3000L).pointAmount(2000L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of())
+            .createdAt(LocalDateTime.of(2026, 2, 20, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 2, 20, 10, 0))
+            .build());
 
         when(findOrderPort.findAllWithFilters(null, null, null, null))
-                .thenReturn(List.of(order));
+            .thenReturn(List.of(order));
 
         // when
         GetAdminOrdersResult result = getAdminOrdersService.getAdminOrders(query);
@@ -299,8 +299,8 @@ class GetAdminOrdersUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> GetAdminOrdersQuery.of(null, startDate, endDate, null))
-                .isInstanceOf(InvalidOrderDateRangeException.class)
-                .hasMessageContaining("종료일은 시작일 이후여야 합니다");
+            .isInstanceOf(InvalidOrderDateRangeException.class)
+            .hasMessageContaining("종료일은 시작일 이후여야 합니다");
     }
 
     @Test
@@ -312,9 +312,9 @@ class GetAdminOrdersUseCaseTest {
         Order order2 = createOrder(2L, 101L, OrderStatus.PAID, 30L);
 
         when(findOrderPort.findAllWithFilters(null, null, null, null))
-                .thenReturn(List.of(order1, order2));
+            .thenReturn(List.of(order1, order2));
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(30L)))
-                .thenReturn(Map.of(30L, createProductInfo(50L, "테스트 상품", "테스트 브랜드")));
+            .thenReturn(Map.of(30L, createProductInfo(50L, "테스트 상품", "테스트 브랜드")));
 
         // when
         GetAdminOrdersResult result = getAdminOrdersService.getAdminOrders(query);

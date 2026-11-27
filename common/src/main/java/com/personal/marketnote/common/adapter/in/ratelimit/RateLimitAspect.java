@@ -61,8 +61,8 @@ public class RateLimitAspect {
     private final CounterRegistryHelper counterRegistryHelper;
 
     public RateLimitAspect(
-            StringRedisTemplate redisTemplate,
-            @Autowired(required = false) @Nullable CounterRegistryHelper counterRegistryHelper
+        StringRedisTemplate redisTemplate,
+        @Autowired(required = false) @Nullable CounterRegistryHelper counterRegistryHelper
     ) {
         this.redisTemplate = redisTemplate;
         this.counterRegistryHelper = counterRegistryHelper;
@@ -98,7 +98,7 @@ public class RateLimitAspect {
             throw rlExceededException;
         } catch (Exception e) {
             log.warn("fallback applied: rate limiting check failed, request allowed. key={}, userId={}",
-                    rateLimited.key(), userId, e
+                rateLimited.key(), userId, e
             );
         }
 
@@ -124,9 +124,9 @@ public class RateLimitAspect {
             return;
         }
         counterRegistryHelper.increment(
-                "rate_limit.hit.total",
-                "RateLimited 적용 요청 건수 (키별, 초과/비초과 포함)",
-                "key", key
+            "rate_limit.hit.total",
+            "RateLimited 적용 요청 건수 (키별, 초과/비초과 포함)",
+            "key", key
         );
     }
 
@@ -135,9 +135,9 @@ public class RateLimitAspect {
             return;
         }
         counterRegistryHelper.increment(
-                "rate_limit.exceeded.total",
-                "RateLimited 초과 요청 건수 (키별)",
-                "key", key
+            "rate_limit.exceeded.total",
+            "RateLimited 초과 요청 건수 (키별)",
+            "key", key
         );
     }
 
@@ -146,9 +146,9 @@ public class RateLimitAspect {
             return;
         }
         counterRegistryHelper.increment(
-                "rate_limit.untracked.total",
-                "RateLimited 추적 실패 요청 건수 (Redis increment null 반환)",
-                "key", key
+            "rate_limit.untracked.total",
+            "RateLimited 추적 실패 요청 건수 (Redis increment null 반환)",
+            "key", key
         );
     }
 }

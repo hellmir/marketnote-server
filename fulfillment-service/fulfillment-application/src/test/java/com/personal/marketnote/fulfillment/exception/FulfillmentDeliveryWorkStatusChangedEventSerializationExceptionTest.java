@@ -15,16 +15,16 @@ class FulfillmentDeliveryWorkStatusChangedEventSerializationExceptionTest {
         };
 
         FulfillmentDeliveryWorkStatusChangedEventSerializationException ex =
-                new FulfillmentDeliveryWorkStatusChangedEventSerializationException(
-                        "fulfillment.delivery.work.status.changed", "1234", "evt-1", root
-                );
+            new FulfillmentDeliveryWorkStatusChangedEventSerializationException(
+                "fulfillment.delivery.work.status.changed", "1234", "evt-1", root
+            );
 
         assertThat(ex.getMessage())
-                .contains("ERR_FULFILLMENT_DELIVERY_WORK_STATUS_EVENT_01")
-                .contains("풀필먼트 배송 작업 상태 변경 이벤트")
-                .contains("topic=fulfillment.delivery.work.status.changed")
-                .contains("partitionKey=1234")
-                .contains("eventId=evt-1");
+            .contains("ERR_FULFILLMENT_DELIVERY_WORK_STATUS_EVENT_01")
+            .contains("풀필먼트 배송 작업 상태 변경 이벤트")
+            .contains("topic=fulfillment.delivery.work.status.changed")
+            .contains("partitionKey=1234")
+            .contains("eventId=evt-1");
         assertThat(ex.getCause()).isSameAs(root);
         assertThat(ex).hasCause(root);
         assertThat(ex).hasRootCause(root);

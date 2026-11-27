@@ -67,35 +67,35 @@ public class NotificationVendorCommunicationHistoryJpaEntity {
         }
 
         return NotificationVendorCommunicationHistoryJpaEntity.builder()
-                .id(history.getId())
-                .targetType(history.getTargetType())
-                .targetId(history.getTargetId())
-                .vendorName(history.getVendorName())
-                .communicationType(history.getCommunicationType())
-                .sender(history.getSender())
-                .exception(history.getException())
-                .payload(history.getPayload())
-                .payloadJson(history.getPayloadJson())
-                .attemptCount(history.getAttemptCount())
-                .createdAt(history.getCreatedAt())
-                .build();
+            .id(history.getId())
+            .targetType(history.getTargetType())
+            .targetId(history.getTargetId())
+            .vendorName(history.getVendorName())
+            .communicationType(history.getCommunicationType())
+            .sender(history.getSender())
+            .exception(history.getException())
+            .payload(history.getPayload())
+            .payloadJson(history.getPayloadJson())
+            .attemptCount(history.getAttemptCount())
+            .createdAt(history.getCreatedAt())
+            .build();
     }
 
     public NotificationVendorCommunicationHistory toDomain() {
         return NotificationVendorCommunicationHistory.from(
-                NotificationVendorCommunicationHistorySnapshotState.builder()
-                        .id(id)
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .vendorName(vendorName)
-                        .communicationType(communicationType)
-                        .sender(sender)
-                        .exception(exception)
-                        .payload(payload)
-                        .payloadJson(payloadJson)
-                        .attemptCount(attemptCount)
-                        .createdAt(createdAt)
-                        .build()
+            NotificationVendorCommunicationHistorySnapshotState.builder()
+                .id(id)
+                .targetType(targetType)
+                .targetId(targetId)
+                .vendorName(vendorName)
+                .communicationType(communicationType)
+                .sender(sender)
+                .exception(exception)
+                .payload(payload)
+                .payloadJson(payloadJson)
+                .attemptCount(attemptCount)
+                .createdAt(createdAt)
+                .build()
         );
     }
 }

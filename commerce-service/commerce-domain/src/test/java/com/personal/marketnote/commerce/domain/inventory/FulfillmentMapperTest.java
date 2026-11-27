@@ -12,11 +12,11 @@ class FulfillmentMapperTest {
     void shouldCreateFromCreateStateWithStockVo() {
         Stock stock = Stock.of("50");
         FulfillmentMapperCreateState state = FulfillmentMapperCreateState.builder()
-                .productId(1L)
-                .wmsKey("WMS_KEY_1")
-                .wmsProductKey("WMS_PRODUCT_KEY_1")
-                .stock(stock)
-                .build();
+            .productId(1L)
+            .wmsKey("WMS_KEY_1")
+            .wmsProductKey("WMS_PRODUCT_KEY_1")
+            .stock(stock)
+            .build();
 
         FulfillmentMapper mapper = FulfillmentMapper.from(state);
 
@@ -32,11 +32,11 @@ class FulfillmentMapperTest {
     void shouldCreateFromSnapshotStateWithStockVo() {
         Stock stock = Stock.of("100");
         FulfillmentMapperSnapshotState state = FulfillmentMapperSnapshotState.builder()
-                .productId(2L)
-                .wmsKey("WMS_KEY_2")
-                .wmsProductKey("WMS_PRODUCT_KEY_2")
-                .stock(stock)
-                .build();
+            .productId(2L)
+            .wmsKey("WMS_KEY_2")
+            .wmsProductKey("WMS_PRODUCT_KEY_2")
+            .stock(stock)
+            .build();
 
         FulfillmentMapper mapper = FulfillmentMapper.from(state);
 
@@ -52,11 +52,11 @@ class FulfillmentMapperTest {
     void shouldCreateWithZeroStock() {
         Stock stock = Stock.of("0");
         FulfillmentMapperCreateState state = FulfillmentMapperCreateState.builder()
-                .productId(3L)
-                .wmsKey("WMS_KEY_3")
-                .wmsProductKey("WMS_PRODUCT_KEY_3")
-                .stock(stock)
-                .build();
+            .productId(3L)
+            .wmsKey("WMS_KEY_3")
+            .wmsProductKey("WMS_PRODUCT_KEY_3")
+            .stock(stock)
+            .build();
 
         FulfillmentMapper mapper = FulfillmentMapper.from(state);
 

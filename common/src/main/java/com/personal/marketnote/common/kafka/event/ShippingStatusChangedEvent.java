@@ -6,13 +6,13 @@ import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ShippingStatusChangedEvent(
-        Long orderId,
-        Long buyerId,
-        String shippingStatus,
-        String trackingNumber,
-        String carrierCode,
-        LocalDateTime occurredAt,
-        String buyerPhoneNumber,
-        String buyerName
+    Long orderId,
+    Long buyerId,
+    String shippingStatus,
+    String trackingNumber,
+    String carrierCode,
+    LocalDateTime occurredAt,
+    String buyerPhoneNumber,
+    String buyerName
 ) {
 }

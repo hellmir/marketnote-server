@@ -54,23 +54,23 @@ public class FileController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @UpdateFilesApiDocs
     public ResponseEntity<BaseResponse<Void>> updateFiles(
-            @Parameter(hidden = true) @Valid @ModelAttribute UpdateFilesRequest updateFilesRequest,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Parameter(hidden = true) @Valid @ModelAttribute UpdateFilesRequest updateFilesRequest,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long requesterId = ElementExtractor.extractUserId(principal);
         String requesterRole = ElementExtractor.extractRole(principal);
         updateFileUseCase.updateFiles(
-                FileRequestToCommandMapper.mapToCommand(updateFilesRequest, requesterId, requesterRole)
+            FileRequestToCommandMapper.mapToCommand(updateFilesRequest, requesterId, requesterRole)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "파일 추가 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                null,
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "파일 추가 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -87,20 +87,20 @@ public class FileController {
     @GetMapping
     @GetFilesApiDocs
     public ResponseEntity<BaseResponse<GetFilesResult>> getFiles(
-            @RequestParam("ownerType") String ownerType,
-            @RequestParam("ownerId") Long ownerId,
-            @RequestParam(value = "sort", required = false) String sort
+        @RequestParam("ownerType") String ownerType,
+        @RequestParam("ownerId") Long ownerId,
+        @RequestParam(value = "sort", required = false) String sort
     ) {
         GetFilesResult result = getFileUseCase.getFiles(ownerType, ownerId, sort);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        result,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파일 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                result,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파일 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -119,12 +119,12 @@ public class FileController {
         deleteFileUseCase.delete(id);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파일 삭제 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파일 삭제 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

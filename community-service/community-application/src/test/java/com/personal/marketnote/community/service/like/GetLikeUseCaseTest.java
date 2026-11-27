@@ -37,7 +37,7 @@ class GetLikeUseCaseTest {
         Long userId = 1L;
         Like like = buildLike(targetType, targetId, userId, EntityStatus.ACTIVE);
         when(findLikePort.findByTargetAndUser(targetType, targetId, userId))
-                .thenReturn(Optional.of(like));
+            .thenReturn(Optional.of(like));
 
         Like result = getLikeService.getLike(targetType, targetId, userId);
 
@@ -56,20 +56,20 @@ class GetLikeUseCaseTest {
         Long targetId = 2L;
         Long userId = 3L;
         when(findLikePort.findByTargetAndUser(targetType, targetId, userId))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> getLikeService.getLike(targetType, targetId, userId))
-                .isInstanceOf(LikeNotFoundException.class);
+            .isInstanceOf(LikeNotFoundException.class);
     }
 
     private Like buildLike(LikeTargetType targetType, Long targetId, Long userId, EntityStatus status) {
         return Like.from(LikeSnapshotState.builder()
-                .targetType(targetType)
-                .targetId(targetId)
-                .userId(userId)
-                .status(status)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .targetType(targetType)
+            .targetId(targetId)
+            .userId(userId)
+            .status(status)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 }

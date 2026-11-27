@@ -23,7 +23,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class AligoBrandTalkMessagePersistenceAdapter
-        implements SaveBrandTalkMessagePort, UpdateBrandTalkMessagePort, FindBrandTalkMessagePort {
+    implements SaveBrandTalkMessagePort, UpdateBrandTalkMessagePort, FindBrandTalkMessagePort {
 
     private final AligoBrandTalkMessageJpaRepository repository;
 
@@ -31,14 +31,14 @@ public class AligoBrandTalkMessagePersistenceAdapter
     @Transactional(isolation = READ_COMMITTED)
     public AligoBrandTalkMessage save(AligoBrandTalkMessage message) {
         List<AligoBrandTalkMessageRecipientJpaEntity> recipientEntities = message.getRecipients().stream()
-                .map(this::toRecipientEntity)
-                .toList();
+            .map(this::toRecipientEntity)
+            .toList();
 
         AligoBrandTalkMessageJpaEntity entity = AligoBrandTalkMessageJpaEntity.create(
-                message.getSenderKey(), message.getSender(), message.getKakaoTarget(),
-                message.isAdvertYn(), message.getTemplateCode(),
-                message.isFailoverEnabled(), message.getFailoverSubject(), message.getFailoverType(),
-                message.getRequestedAt(), recipientEntities
+            message.getSenderKey(), message.getSender(), message.getKakaoTarget(),
+            message.isAdvertYn(), message.getTemplateCode(),
+            message.isFailoverEnabled(), message.getFailoverSubject(), message.getFailoverType(),
+            message.getRequestedAt(), recipientEntities
         );
 
         AligoBrandTalkMessageJpaEntity saved = repository.save(entity);
@@ -49,17 +49,17 @@ public class AligoBrandTalkMessagePersistenceAdapter
     @Transactional(isolation = READ_COMMITTED)
     public void update(AligoBrandTalkMessage message) {
         AligoBrandTalkMessageJpaEntity entity = repository.findByIdWithRecipients(message.getId())
-                .orElseThrow(() -> {
-                    log.warn("브랜드메시지를 찾을 수 없습니다. brandTalkMessageId={}", message.getId());
-                    return new AligoBrandTalkMessageNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("브랜드메시지를 찾을 수 없습니다. brandTalkMessageId={}", message.getId());
+                return new AligoBrandTalkMessageNotFoundException();
+            });
 
         if (message.isSent()) {
             entity.updateSendResult(
-                    message.getAligoMid(), message.getCostType(),
-                    message.getUnitCost(), message.getTotalCost(),
-                    message.getSuccessCount(), message.getFailCount(),
-                    message.getMessageStatus(), message.getSentAt()
+                message.getAligoMid(), message.getCostType(),
+                message.getUnitCost(), message.getTotalCost(),
+                message.getSuccessCount(), message.getFailCount(),
+                message.getMessageStatus(), message.getSentAt()
             );
             return;
         }
@@ -70,7 +70,7 @@ public class AligoBrandTalkMessagePersistenceAdapter
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public Optional<AligoBrandTalkMessage> findById(Long id) {
         return repository.findByIdWithRecipients(id)
-                .map(AligoBrandTalkMessageJpaEntityToDomainMapper::mapToDomain);
+            .map(AligoBrandTalkMessageJpaEntityToDomainMapper::mapToDomain);
     }
 
     private AligoBrandTalkMessageRecipientJpaEntity toRecipientEntity(AligoBrandTalkMessageRecipient recipient) {

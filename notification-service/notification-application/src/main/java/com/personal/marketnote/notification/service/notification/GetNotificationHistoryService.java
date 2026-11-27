@@ -25,13 +25,13 @@ public class GetNotificationHistoryService implements GetNotificationHistoryUseC
     public GetNotificationHistoryResult getNotificationHistory(GetNotificationHistoryCommand command) {
         int fetchSize = command.pageSize() + 1;
         List<Notification> notifications = findNotificationPort.findByUserId(
-                command.userId(), command.cursor(), fetchSize, command.category()
+            command.userId(), command.cursor(), fetchSize, command.category()
         );
 
         boolean hasNext = notifications.size() > command.pageSize();
         List<Notification> pagedNotifications = hasNext
-                ? notifications.subList(0, command.pageSize())
-                : notifications;
+            ? notifications.subList(0, command.pageSize())
+            : notifications;
 
         Long nextCursor = pagedNotifications.isEmpty() ? null : pagedNotifications.getLast().getId();
 

@@ -26,11 +26,11 @@ public class GetAdminGifticonGoodsService implements GetAdminGifticonGoodsUseCas
         String keyword = FormatValidator.hasValue(command.keyword()) ? command.keyword() : "";
 
         FindAllForAdminResult portResult = findGifticonGoodsPort.findAllForAdmin(
-                command.page(),
-                command.pageSize(),
-                goodsStatus,
-                command.exposed(),
-                keyword
+            command.page(),
+            command.pageSize(),
+            goodsStatus,
+            command.exposed(),
+            keyword
         );
 
         return GetAdminGifticonGoodsResult.from(command.page(), command.pageSize(), portResult);

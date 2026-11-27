@@ -55,7 +55,7 @@ class RefreshTokenParserAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.extractUserId(invalidToken))
-                    .isInstanceOf(InvalidRefreshTokenException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
         }
 
         @Test
@@ -67,7 +67,7 @@ class RefreshTokenParserAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.extractUserId(token))
-                    .isInstanceOf(InvalidRefreshTokenException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
         }
     }
 }

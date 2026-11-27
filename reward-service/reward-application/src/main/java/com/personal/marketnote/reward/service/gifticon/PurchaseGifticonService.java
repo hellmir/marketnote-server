@@ -35,7 +35,7 @@ public class PurchaseGifticonService implements PurchaseGifticonUseCase {
         DeductCashAndCreateOrderContext context = deductWithRetry(command.userId(), goods);
 
         SendCouponResult sendResult = sendGifticonCouponPort.sendCoupon(
-                context.trId(), context.goodsCode(), String.valueOf(command.userId())
+            context.trId(), context.goodsCode(), String.valueOf(command.userId())
         );
 
         if (!sendResult.success()) {
@@ -47,15 +47,15 @@ public class PurchaseGifticonService implements PurchaseGifticonUseCase {
             transactionHelper.commitSuccess(context, sendResult);
         } catch (Exception e) {
             log.error("commitSuccess 실패 — 쿠폰은 발행되었으나 DB 저장 실패. 수동 복구 필요. trId={}, orderNo={}, error={}",
-                    context.trId(), sendResult.orderNo(), e.getMessage(), e);
+                context.trId(), sendResult.orderNo(), e.getMessage(), e);
             throw e;
         }
 
         return new PurchaseGifticonResult(
-                context.orderId(),
-                sendResult.orderNo(),
-                context.cashPrice(),
-                context.goodsName()
+            context.orderId(),
+            sendResult.orderNo(),
+            context.cashPrice(),
+            context.goodsName()
         );
     }
 
@@ -66,18 +66,18 @@ public class PurchaseGifticonService implements PurchaseGifticonUseCase {
         for (int attempt = 1; attempt <= MAX_TR_ID_RETRY; attempt++) {
             try {
                 return transactionHelper.deductCashAndCreateOrder(
-                        userId,
-                        goods.getGoodsCode().getValue(),
-                        goods.getGoodsName(),
-                        goods.getBrandName(),
-                        goods.getImageUrl(),
-                        goods.getCashPrice().getValue(),
-                        goods.getValidDaysValue()
+                    userId,
+                    goods.getGoodsCode().getValue(),
+                    goods.getGoodsName(),
+                    goods.getBrandName(),
+                    goods.getImageUrl(),
+                    goods.getCashPrice().getValue(),
+                    goods.getValidDaysValue()
                 );
             } catch (DuplicateGifticonOrderException dgoe) {
                 lastException = dgoe;
                 log.warn("trId 중복 발생 — 재시도 {}/{}: userId={}, message={}",
-                        attempt, MAX_TR_ID_RETRY, userId, dgoe.getMessage());
+                    attempt, MAX_TR_ID_RETRY, userId, dgoe.getMessage());
             }
         }
         log.error("trId 중복이 {}회 연속 발생하여 기프티콘 구매를 중단합니다. userId={}", MAX_TR_ID_RETRY, userId);
@@ -86,10 +86,10 @@ public class PurchaseGifticonService implements PurchaseGifticonUseCase {
 
     private GifticonGoods findAndValidateGoods(String goodsCode) {
         GifticonGoods goods = findGifticonGoodsPort.findByGoodsCode(goodsCode)
-                .orElseThrow(() -> {
-                    log.warn("기프티콘 상품을 찾을 수 없습니다. goodsCode={}", goodsCode);
-                    return new GifticonGoodsNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("기프티콘 상품을 찾을 수 없습니다. goodsCode={}", goodsCode);
+                return new GifticonGoodsNotFoundException();
+            });
 
         if (!goods.isExposed() || !goods.isSale() || !goods.hasValidDays()) {
             log.warn("기프티콘 상품이 노출되지 않거나 판매 중이 아니거나 유효기간이 설정되지 않았습니다. goodsCode={}", goodsCode);

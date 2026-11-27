@@ -51,48 +51,48 @@ class ModifyUserPointUseCaseTest {
 
     private UserPoint createUserPoint(Long amount) {
         return UserPoint.from(UserPointSnapshotState.builder()
-                .userId(USER_ID)
-                .userKey(USER_KEY)
-                .amount(PointAmount.of(amount))
-                .addExpectedAmount(PointAmount.zero())
-                .expireExpectedAmount(PointAmount.zero())
-                .createdAt(NOW)
-                .modifiedAt(NOW)
-                .build()
+            .userId(USER_ID)
+            .userKey(USER_KEY)
+            .amount(PointAmount.of(amount))
+            .addExpectedAmount(PointAmount.zero())
+            .expireExpectedAmount(PointAmount.zero())
+            .createdAt(NOW)
+            .modifiedAt(NOW)
+            .build()
         );
     }
 
     private ModifyUserPointCommand createAccrualCommandWithUserId(Long amount) {
         return ModifyUserPointCommand.builder()
-                .userId(USER_ID)
-                .changeType(UserPointChangeType.ACCRUAL)
-                .amount(amount)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(100L)
-                .reason("상품 구매 적립")
-                .build();
+            .userId(USER_ID)
+            .changeType(UserPointChangeType.ACCRUAL)
+            .amount(amount)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(100L)
+            .reason("상품 구매 적립")
+            .build();
     }
 
     private ModifyUserPointCommand createDeductionCommandWithUserId(Long amount) {
         return ModifyUserPointCommand.builder()
-                .userId(USER_ID)
-                .changeType(UserPointChangeType.DEDUCTION)
-                .amount(amount)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(100L)
-                .reason("포인트 사용")
-                .build();
+            .userId(USER_ID)
+            .changeType(UserPointChangeType.DEDUCTION)
+            .amount(amount)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(100L)
+            .reason("포인트 사용")
+            .build();
     }
 
     private ModifyUserPointCommand createAccrualCommandWithUserKey(Long amount) {
         return ModifyUserPointCommand.builder()
-                .userKey(USER_KEY)
-                .changeType(UserPointChangeType.ACCRUAL)
-                .amount(amount)
-                .sourceType(UserPointSourceType.ATTENDENCE)
-                .sourceId(200L)
-                .reason("출석 보상")
-                .build();
+            .userKey(USER_KEY)
+            .changeType(UserPointChangeType.ACCRUAL)
+            .amount(amount)
+            .sourceType(UserPointSourceType.ATTENDENCE)
+            .sourceId(200L)
+            .reason("출석 보상")
+            .build();
     }
 
     @Nested
@@ -108,9 +108,9 @@ class ModifyUserPointUseCaseTest {
 
             when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
             when(updateUserPointPort.update(any(UserPoint.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
             when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             UpdateUserPointResult result = modifyUserPointService.modify(command);
@@ -133,9 +133,9 @@ class ModifyUserPointUseCaseTest {
 
             when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
             when(updateUserPointPort.update(any(UserPoint.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
             when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             modifyUserPointService.modify(command);
@@ -154,9 +154,9 @@ class ModifyUserPointUseCaseTest {
 
             when(getUserPointUseCase.getUserPoint(USER_KEY)).thenReturn(userPoint);
             when(updateUserPointPort.update(any(UserPoint.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
             when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             UpdateUserPointResult result = modifyUserPointService.modify(command);
@@ -182,9 +182,9 @@ class ModifyUserPointUseCaseTest {
 
             when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
             when(updateUserPointPort.update(any(UserPoint.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
             when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             UpdateUserPointResult result = modifyUserPointService.modify(command);
@@ -202,9 +202,9 @@ class ModifyUserPointUseCaseTest {
 
             when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
             when(updateUserPointPort.update(any(UserPoint.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
             when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             modifyUserPointService.modify(command);
@@ -224,7 +224,7 @@ class ModifyUserPointUseCaseTest {
 
             // expect
             assertThatThrownBy(() -> modifyUserPointService.modify(command))
-                    .isInstanceOf(UserPointNotFoundException.class);
+                .isInstanceOf(UserPointNotFoundException.class);
 
             verify(findUserPointPort).findByUserIdForUpdate(USER_ID);
             verifyNoInteractions(getUserPointUseCase);
@@ -246,9 +246,9 @@ class ModifyUserPointUseCaseTest {
 
             when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
             when(updateUserPointPort.update(any(UserPoint.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
             when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             modifyUserPointService.modify(command);
@@ -272,9 +272,9 @@ class ModifyUserPointUseCaseTest {
 
             when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
             when(updateUserPointPort.update(any(UserPoint.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
             when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             modifyUserPointService.modify(command);
@@ -300,11 +300,11 @@ class ModifyUserPointUseCaseTest {
             ModifyUserPointCommand command = createAccrualCommandWithUserId(500L);
 
             when(getUserPointUseCase.getUserPoint(USER_ID))
-                    .thenThrow(new UserNotFoundException());
+                .thenThrow(new UserNotFoundException());
 
             // expect
             assertThatThrownBy(() -> modifyUserPointService.modify(command))
-                    .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(UserNotFoundException.class);
 
             verify(updateUserPointPort, never()).update(any());
             verify(saveUserPointHistoryPort, never()).save(any());
@@ -317,11 +317,11 @@ class ModifyUserPointUseCaseTest {
             ModifyUserPointCommand command = createAccrualCommandWithUserKey(500L);
 
             when(getUserPointUseCase.getUserPoint(USER_KEY))
-                    .thenThrow(new UserNotFoundException());
+                .thenThrow(new UserNotFoundException());
 
             // expect
             assertThatThrownBy(() -> modifyUserPointService.modify(command))
-                    .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(UserNotFoundException.class);
 
             verify(updateUserPointPort, never()).update(any());
             verify(saveUserPointHistoryPort, never()).save(any());
@@ -336,14 +336,14 @@ class ModifyUserPointUseCaseTest {
 
             when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
             when(updateUserPointPort.update(any(UserPoint.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
             when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                    .thenThrow(new DuplicateUserPointHistoryException());
+                .thenThrow(new DuplicateUserPointHistoryException());
 
             // expect
             assertThatThrownBy(() -> modifyUserPointService.modify(command))
-                    .isInstanceOf(DuplicateUserPointHistoryException.class)
-                    .hasMessageContaining("이미 처리된 포인트 변경입니다");
+                .isInstanceOf(DuplicateUserPointHistoryException.class)
+                .hasMessageContaining("이미 처리된 포인트 변경입니다");
 
             verify(getUserPointUseCase).getUserPoint(USER_ID);
             verify(updateUserPointPort).update(any(UserPoint.class));

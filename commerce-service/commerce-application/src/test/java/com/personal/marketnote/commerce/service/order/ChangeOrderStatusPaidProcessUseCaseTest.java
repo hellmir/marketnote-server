@@ -66,9 +66,9 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -88,14 +88,14 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             Long pricePolicyId2 = 20L;
 
             Order order = createOrderWithMultipleProducts(
-                    orderId, buyerId, pricePolicyId1, 2, 500L, pricePolicyId2, 3, 300L
+                orderId, buyerId, pricePolicyId1, 2, 500L, pricePolicyId2, 3, 300L
             );
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -116,14 +116,14 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             Long pricePolicyId2 = 20L;
 
             Order order = createOrderWithMultipleProducts(
-                    orderId, buyerId, pricePolicyId1, 1, 500L, pricePolicyId2, 1, 0L
+                orderId, buyerId, pricePolicyId1, 1, 500L, pricePolicyId2, 1, 0L
             );
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -143,14 +143,14 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             Long pricePolicyId2 = 20L;
 
             Order order = createOrderWithMultipleProducts(
-                    orderId, buyerId, pricePolicyId1, 1, 500L, pricePolicyId2, 1, 0L
+                orderId, buyerId, pricePolicyId1, 1, 500L, pricePolicyId2, 1, 0L
             );
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -172,9 +172,9 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .build();
 
             // when
             changeOrderStatusService.changeOrderStatus(command);
@@ -195,16 +195,16 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             Order order = createOrderWithoutSharer(orderId, buyerId, pricePolicyId, 500L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
             doThrow(new RuntimeException("리워드 서비스 요청 실패"))
-                    .when(modifyUserPointPort).addPendingProductAccumulationPoints(anyLong(), anyLong(), anyLong());
+                .when(modifyUserPointPort).addPendingProductAccumulationPoints(anyLong(), anyLong(), anyLong());
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PAID)
+                .build();
 
             // when & then
             assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
     }
 
@@ -221,33 +221,33 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
     }
 
     private Order createOrderWithSharer(
-            Long orderId, Long buyerId, UUID sharerKey, Long pricePolicyId, Long totalAmount
+        Long orderId, Long buyerId, UUID sharerKey, Long pricePolicyId, Long totalAmount
     ) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId)
-                        .sharerKey(sharerKey)
-                        .quantity(1)
-                        .unitAmount(totalAmount)
-                        .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId)
+                .sharerKey(sharerKey)
+                .quantity(1)
+                .unitAmount(totalAmount)
+                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                .accumulatedPoint(0L)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithoutSharer(Long orderId, Long buyerId, Long pricePolicyId) {
@@ -256,78 +256,78 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
 
     private Order createOrderWithoutSharer(Long orderId, Long buyerId, Long pricePolicyId, Long accumulatedPoint) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                        .accumulatedPoint(accumulatedPoint)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                .accumulatedPoint(accumulatedPoint)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithMultipleProducts(
-            Long orderId, Long buyerId,
-            Long pricePolicyId1, int quantity1,
-            Long pricePolicyId2, int quantity2
+        Long orderId, Long buyerId,
+        Long pricePolicyId1, int quantity1,
+        Long pricePolicyId2, int quantity2
     ) {
         return createOrderWithMultipleProducts(
-                orderId, buyerId, pricePolicyId1, quantity1, 0L, pricePolicyId2, quantity2, 0L
+            orderId, buyerId, pricePolicyId1, quantity1, 0L, pricePolicyId2, quantity2, 0L
         );
     }
 
     private Order createOrderWithMultipleProducts(
-            Long orderId, Long buyerId,
-            Long pricePolicyId1, int quantity1, Long accPoint1,
-            Long pricePolicyId2, int quantity2, Long accPoint2
+        Long orderId, Long buyerId,
+        Long pricePolicyId1, int quantity1, Long accPoint1,
+        Long pricePolicyId2, int quantity2, Long accPoint2
     ) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId1)
-                        .quantity(quantity1)
-                        .unitAmount(50000L)
-                        .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                        .accumulatedPoint(accPoint1)
-                        .build(),
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId2)
-                        .quantity(quantity2)
-                        .unitAmount(30000L)
-                        .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                        .accumulatedPoint(accPoint2)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId1)
+                .quantity(quantity1)
+                .unitAmount(50000L)
+                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                .accumulatedPoint(accPoint1)
+                .build(),
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId2)
+                .quantity(quantity2)
+                .unitAmount(30000L)
+                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                .accumulatedPoint(accPoint2)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(130000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(130000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 }

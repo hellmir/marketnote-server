@@ -43,14 +43,14 @@ public class DltResolveService {
         String dltTopic = DltTopicRegistry.toDltTopic(command.originalTopic());
 
         Optional<DltMessageResolutionJpaEntity> existing =
-                resolutionRepository.findByDltTopicAndPartitionNumberAndOffsetNumber(
-                        dltTopic, command.partition(), command.offset()
-                );
+            resolutionRepository.findByDltTopicAndPartitionNumberAndOffsetNumber(
+                dltTopic, command.partition(), command.offset()
+            );
 
         if (existing.isPresent()) {
             dltAuditLogger.logResolveAlreadyResolved(
-                    command.originalTopic(), command.partition(), command.offset(),
-                    existing.get().getResolution().name(), operatorInfo
+                command.originalTopic(), command.partition(), command.offset(),
+                existing.get().getResolution().name(), operatorInfo
             );
             return new DltResolveResult(existing.get().getResolution(), true);
         }
@@ -63,17 +63,17 @@ public class DltResolveService {
             }
 
             DltResolveResult duplicateResult = saveResolution(command.originalTopic(), dltTopic,
-                    command.partition(), command.offset(), resolution, command.reason(), operatorInfo
+                command.partition(), command.offset(), resolution, command.reason(), operatorInfo
             );
             if (FormatValidator.hasValue(duplicateResult)) {
                 return duplicateResult;
             }
 
             dltAuditLogger.logResolve(command.originalTopic(), command.partition(), command.offset(),
-                    command.action().name(), command.reason(), operatorInfo
+                command.action().name(), command.reason(), operatorInfo
             );
             dltMetricsCollector.incrementDltResolveCount(
-                    command.originalTopic(), command.action().name().toLowerCase()
+                command.originalTopic(), command.action().name().toLowerCase()
             );
 
             return new DltResolveResult(resolution, false);
@@ -81,10 +81,10 @@ public class DltResolveService {
             throw e;
         } catch (Exception e) {
             dltAuditLogger.logResolveError(command.originalTopic(), command.partition(), command.offset(),
-                    command.action().name(), operatorInfo, e
+                command.action().name(), operatorInfo, e
             );
             throw new DltResolveFailedException(
-                    command.originalTopic(), command.partition(), command.offset(), e
+                command.originalTopic(), command.partition(), command.offset(), e
             );
         }
     }
@@ -92,7 +92,7 @@ public class DltResolveService {
     private void retryMessage(String originalTopic, String dltTopic, int partition, long offset) throws Exception {
         ConsumerRecord<String, Object> record = readDltMessage(dltTopic, partition, offset);
         kafkaTemplate.send(originalTopic, record.key(), record.value())
-                .get(SEND_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            .get(SEND_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     private ConsumerRecord<String, Object> readDltMessage(String dltTopic, int partition, long offset) {
@@ -114,23 +114,23 @@ public class DltResolveService {
     }
 
     private DltResolveResult saveResolution(
-            String originalTopic, String dltTopic,
-            int partition, long offset,
-            DltResolutionStatus resolution, String reason,
-            String operatorInfo
+        String originalTopic, String dltTopic,
+        int partition, long offset,
+        DltResolutionStatus resolution, String reason,
+        String operatorInfo
     ) {
         DltMessageResolutionJpaEntity entity = DltMessageResolutionJpaEntity.of(
-                originalTopic, dltTopic, partition, offset,
-                resolution, operatorInfo, LocalDateTime.now(), reason
+            originalTopic, dltTopic, partition, offset,
+            resolution, operatorInfo, LocalDateTime.now(), reason
         );
         try {
             resolutionRepository.save(entity);
         } catch (DataIntegrityViolationException dive) {
             log.info("동시 요청에 의한 DLT resolution 중복 저장. dltTopic={}, partition={}, offset={}",
-                    dltTopic, partition, offset
+                dltTopic, partition, offset
             );
             Optional<DltMessageResolutionJpaEntity> existing =
-                    resolutionRepository.findByDltTopicAndPartitionNumberAndOffsetNumber(dltTopic, partition, offset);
+                resolutionRepository.findByDltTopicAndPartitionNumberAndOffsetNumber(dltTopic, partition, offset);
             if (existing.isPresent()) {
                 return new DltResolveResult(existing.get().getResolution(), true);
             }

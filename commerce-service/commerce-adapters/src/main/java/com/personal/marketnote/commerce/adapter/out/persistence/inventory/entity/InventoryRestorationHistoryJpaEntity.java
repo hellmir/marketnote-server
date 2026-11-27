@@ -13,11 +13,11 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(
-        name = "inventory_restoration_history",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_inventory_restoration_order_policy",
-                columnNames = {"order_id", "price_policy_id"}
-        )
+    name = "inventory_restoration_history",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_inventory_restoration_order_policy",
+        columnNames = {"order_id", "price_policy_id"}
+    )
 )
 @DynamicInsert
 @DynamicUpdate
@@ -45,11 +45,11 @@ public class InventoryRestorationHistoryJpaEntity extends BaseEntity {
     private String reason;
 
     private InventoryRestorationHistoryJpaEntity(
-            Long productId,
-            Long pricePolicyId,
-            Long orderId,
-            Integer stock,
-            String reason
+        Long productId,
+        Long pricePolicyId,
+        Long orderId,
+        Integer stock,
+        String reason
     ) {
         this.productId = productId;
         this.pricePolicyId = pricePolicyId;
@@ -60,11 +60,11 @@ public class InventoryRestorationHistoryJpaEntity extends BaseEntity {
 
     public static InventoryRestorationHistoryJpaEntity from(InventoryRestorationHistory inventoryRestorationHistory) {
         return new InventoryRestorationHistoryJpaEntity(
-                inventoryRestorationHistory.getProductId(),
-                inventoryRestorationHistory.getPricePolicyId(),
-                inventoryRestorationHistory.getOrderId(),
-                inventoryRestorationHistory.getStockValue(),
-                inventoryRestorationHistory.getReason()
+            inventoryRestorationHistory.getProductId(),
+            inventoryRestorationHistory.getPricePolicyId(),
+            inventoryRestorationHistory.getOrderId(),
+            inventoryRestorationHistory.getStockValue(),
+            inventoryRestorationHistory.getReason()
         );
     }
 }

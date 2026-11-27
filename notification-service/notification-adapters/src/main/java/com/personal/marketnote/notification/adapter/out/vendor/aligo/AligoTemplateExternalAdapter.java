@@ -18,9 +18,9 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class AligoTemplateExternalAdapter
-        implements RegisterAligoTemplateExternalPort, UpdateAligoTemplateExternalPort,
-        DeleteAligoTemplateExternalPort, GetAligoTemplateListExternalPort,
-        RequestAligoTemplateInspectionExternalPort {
+    implements RegisterAligoTemplateExternalPort, UpdateAligoTemplateExternalPort,
+    DeleteAligoTemplateExternalPort, GetAligoTemplateListExternalPort,
+    RequestAligoTemplateInspectionExternalPort {
 
     private static final String REGISTER_TEMPLATE_OPERATION = "registerTemplate";
     private static final String UPDATE_TEMPLATE_OPERATION = "updateTemplate";
@@ -36,8 +36,8 @@ public class AligoTemplateExternalAdapter
     public void registerTemplate(AligoTemplate template) {
         MultiValueMap<String, String> params = buildTemplateParams(template);
         aligoHttpClient.post(
-                REGISTER_TEMPLATE_OPERATION, aligoProperties.getApi().getTemplateAddPath(),
-                params, AligoApiResponse.class
+            REGISTER_TEMPLATE_OPERATION, aligoProperties.getApi().getTemplateAddPath(),
+            params, AligoApiResponse.class
         );
     }
 
@@ -45,8 +45,8 @@ public class AligoTemplateExternalAdapter
     public void updateTemplate(AligoTemplate template) {
         MultiValueMap<String, String> params = buildTemplateParams(template);
         aligoHttpClient.post(
-                UPDATE_TEMPLATE_OPERATION, aligoProperties.getApi().getTemplateModifyPath(),
-                params, AligoApiResponse.class
+            UPDATE_TEMPLATE_OPERATION, aligoProperties.getApi().getTemplateModifyPath(),
+            params, AligoApiResponse.class
         );
     }
 
@@ -56,8 +56,8 @@ public class AligoTemplateExternalAdapter
         params.add("senderkey", senderKey);
 
         AligoTemplateListApiResponse response = aligoHttpClient.post(
-                GET_TEMPLATE_LIST_OPERATION, aligoProperties.getApi().getTemplateListPath(),
-                params, AligoTemplateListApiResponse.class
+            GET_TEMPLATE_LIST_OPERATION, aligoProperties.getApi().getTemplateListPath(),
+            params, AligoTemplateListApiResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.list())) {
@@ -65,8 +65,8 @@ public class AligoTemplateExternalAdapter
         }
 
         return response.list().stream()
-                .map(this::toTemplateDomain)
-                .toList();
+            .map(this::toTemplateDomain)
+            .toList();
     }
 
     @Override
@@ -75,8 +75,8 @@ public class AligoTemplateExternalAdapter
         params.add("senderkey", senderKey);
         params.add("tpl_code", templateCode);
         aligoHttpClient.post(
-                REQUEST_TEMPLATE_INSPECTION_OPERATION, aligoProperties.getApi().getTemplateRequestPath(),
-                params, AligoApiResponse.class
+            REQUEST_TEMPLATE_INSPECTION_OPERATION, aligoProperties.getApi().getTemplateRequestPath(),
+            params, AligoApiResponse.class
         );
     }
 
@@ -86,8 +86,8 @@ public class AligoTemplateExternalAdapter
         params.add("senderkey", senderKey);
         params.add("tpl_code", templateCode);
         aligoHttpClient.post(
-                DELETE_TEMPLATE_OPERATION, aligoProperties.getApi().getTemplateDelPath(),
-                params, AligoApiResponse.class
+            DELETE_TEMPLATE_OPERATION, aligoProperties.getApi().getTemplateDelPath(),
+            params, AligoApiResponse.class
         );
     }
 
@@ -126,8 +126,8 @@ public class AligoTemplateExternalAdapter
 
     private String serializeButtons(List<AligoTemplateButton> buttons) {
         List<Map<String, String>> buttonList = buttons.stream()
-                .map(this::buttonToMap)
-                .toList();
+            .map(this::buttonToMap)
+            .toList();
 
         try {
             return objectMapper.writeValueAsString(Map.of("button", buttonList));
@@ -138,18 +138,18 @@ public class AligoTemplateExternalAdapter
 
     private AligoTemplate toTemplateDomain(AligoTemplateListApiResponse.TemplateItem item) {
         return AligoTemplate.from(
-                AligoTemplateExternalState.builder()
-                        .senderKey(item.senderkey())
-                        .templateCode(item.templtCode())
-                        .templateName(item.templtName())
-                        .templateContent(item.templtContent())
-                        .templateType(AligoTemplateType.from(item.templateType()))
-                        .templateEmType(resolveEmType(item.templateEmphasizeType()))
-                        .inspStatus(item.inspStatus())
-                        .templateStatus(AligoTemplateStatus.from(item.status()))
-                        .comments(item.comments())
-                        .buttons(List.of())
-                        .build()
+            AligoTemplateExternalState.builder()
+                .senderKey(item.senderkey())
+                .templateCode(item.templtCode())
+                .templateName(item.templtName())
+                .templateContent(item.templtContent())
+                .templateType(AligoTemplateType.from(item.templateType()))
+                .templateEmType(resolveEmType(item.templateEmphasizeType()))
+                .inspStatus(item.inspStatus())
+                .templateStatus(AligoTemplateStatus.from(item.status()))
+                .comments(item.comments())
+                .buttons(List.of())
+                .build()
         );
     }
 

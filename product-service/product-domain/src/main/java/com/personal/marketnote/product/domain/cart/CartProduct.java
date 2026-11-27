@@ -20,12 +20,12 @@ public class CartProduct extends BaseDomain {
 
     public static CartProduct from(CartProductCreateState state) {
         CartProduct cartProduct = CartProduct.builder()
-                .userId(state.getUserId())
-                .sharerKey(state.getSharerKey())
-                .pricePolicy(state.getPricePolicy())
-                .imageUrl(state.getImageUrl())
-                .quantity(Quantity.of((int) state.getQuantity()))
-                .build();
+            .userId(state.getUserId())
+            .sharerKey(state.getSharerKey())
+            .pricePolicy(state.getPricePolicy())
+            .imageUrl(state.getImageUrl())
+            .quantity(Quantity.of((int) state.getQuantity()))
+            .build();
         cartProduct.activate();
 
         return cartProduct;
@@ -33,12 +33,12 @@ public class CartProduct extends BaseDomain {
 
     public static CartProduct from(CartProductSnapshotState state) {
         CartProduct cartProduct = CartProduct.builder()
-                .userId(state.getUserId())
-                .sharerKey(state.getSharerKey())
-                .pricePolicy(state.getPricePolicy())
-                .imageUrl(state.getImageUrl())
-                .quantity(Quantity.of((int) state.getQuantity()))
-                .build();
+            .userId(state.getUserId())
+            .sharerKey(state.getSharerKey())
+            .pricePolicy(state.getPricePolicy())
+            .imageUrl(state.getImageUrl())
+            .quantity(Quantity.of((int) state.getQuantity()))
+            .build();
         cartProduct.status = state.getStatus();
 
         return cartProduct;

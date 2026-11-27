@@ -3,11 +3,11 @@ package com.personal.marketnote.notification.service.notification;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.notification.domain.notification.*;
 import com.personal.marketnote.notification.domain.preference.NotificationPreference;
-import com.personal.marketnote.notification.mapper.NotificationCommandToStateMapper;
 import com.personal.marketnote.notification.domain.template.NotificationCategory;
 import com.personal.marketnote.notification.domain.template.NotificationTemplate;
 import com.personal.marketnote.notification.domain.template.NotificationTemplateNotFoundException;
 import com.personal.marketnote.notification.domain.template.TemplateRenderer;
+import com.personal.marketnote.notification.mapper.NotificationCommandToStateMapper;
 import com.personal.marketnote.notification.port.in.command.SendNotificationCommand;
 import com.personal.marketnote.notification.port.in.event.PushNotificationRequestedEvent;
 import com.personal.marketnote.notification.port.in.result.notification.SendNotificationResult;
@@ -66,12 +66,12 @@ public class SendNotificationService implements SendNotificationUseCase {
 
         LocalDateTime now = LocalDateTime.now(clock);
         LocalDateTime scheduledAt = NightTimeNotificationPolicy.resolveScheduledAt(
-                category, now, command.scheduledAt()
+            category, now, command.scheduledAt()
         );
 
         DeliveryChannel deliveryChannel = DeliveryChannel.valueOf(command.deliveryChannel());
         Notification notification = createAndSaveNotification(
-                command, template, title, body, landingUrl, deliveryChannel, scheduledAt
+            command, template, title, body, landingUrl, deliveryChannel, scheduledAt
         );
 
         if (!notification.getSendStatus().isPending()) {
@@ -85,7 +85,7 @@ public class SendNotificationService implements SendNotificationUseCase {
         }
 
         applicationEventPublisher.publishEvent(new PushNotificationRequestedEvent(
-                notification.getId(), command.userId(), title, body, landingUrl
+            notification.getId(), command.userId(), title, body, landingUrl
         ));
 
         return toResult(notification);
@@ -93,10 +93,10 @@ public class SendNotificationService implements SendNotificationUseCase {
 
     private NotificationTemplate findTemplate(String templateCode) {
         return findNotificationTemplatePort.findActiveByTemplateCode(templateCode)
-                .orElseThrow(() -> {
-                    log.warn("알림 템플릿을 찾을 수 없습니다. templateCode={}", templateCode);
-                    return new NotificationTemplateNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림 템플릿을 찾을 수 없습니다. templateCode={}", templateCode);
+                return new NotificationTemplateNotFoundException();
+            });
     }
 
     private boolean shouldSkipByConsent(NotificationCategory category, Long userId, NotificationTemplate template) {
@@ -104,18 +104,18 @@ public class SendNotificationService implements SendNotificationUseCase {
             return false;
         }
         Optional<NotificationPreference> preference =
-                findNotificationPreferencePort.findByUserIdAndNotificationType(
-                        userId, template.getNotificationType()
-                );
+            findNotificationPreferencePort.findByUserIdAndNotificationType(
+                userId, template.getNotificationType()
+            );
         return preference.isEmpty() || !preference.get().isEnabled();
     }
 
     private SendNotificationResult saveSkippedNotification(
-            SendNotificationCommand command, NotificationTemplate template
+        SendNotificationCommand command, NotificationTemplate template
     ) {
         DeliveryChannel deliveryChannel = DeliveryChannel.valueOf(command.deliveryChannel());
         NotificationCreateState state = NotificationCommandToStateMapper.mapToSkippedState(
-                command, template, deliveryChannel
+            command, template, deliveryChannel
         );
 
         Notification notification = Notification.from(state);
@@ -126,12 +126,12 @@ public class SendNotificationService implements SendNotificationUseCase {
     }
 
     private Notification createAndSaveNotification(
-            SendNotificationCommand command, NotificationTemplate template,
-            String title, String body, String landingUrl,
-            DeliveryChannel deliveryChannel, LocalDateTime scheduledAt
+        SendNotificationCommand command, NotificationTemplate template,
+        String title, String body, String landingUrl,
+        DeliveryChannel deliveryChannel, LocalDateTime scheduledAt
     ) {
         NotificationCreateState state = NotificationCommandToStateMapper.mapToState(
-                command, template, title, body, landingUrl, deliveryChannel, scheduledAt
+            command, template, title, body, landingUrl, deliveryChannel, scheduledAt
         );
 
         Notification notification = Notification.from(state);
@@ -141,9 +141,9 @@ public class SendNotificationService implements SendNotificationUseCase {
     private void publishUnreadCountChangedEvent(Long userId) {
         long unreadCount = findNotificationPort.countUnreadByUserId(userId);
         publishSseEventPort.publish(
-                userId,
-                NotificationSseEventType.UNREAD_COUNT_CHANGED,
-                UnreadCountChangedPayload.of(unreadCount)
+            userId,
+            NotificationSseEventType.UNREAD_COUNT_CHANGED,
+            UnreadCountChangedPayload.of(unreadCount)
         );
     }
 

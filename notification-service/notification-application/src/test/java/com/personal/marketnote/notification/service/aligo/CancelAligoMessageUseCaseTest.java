@@ -98,7 +98,7 @@ class CancelAligoMessageUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> cancelAligoMessageService.cancelMessage(messageId))
-                .isInstanceOf(AligoCancelDeadlineExceededException.class);
+            .isInstanceOf(AligoCancelDeadlineExceededException.class);
 
         verifyNoInteractions(cancelAligoMessageExternalPort);
         verifyNoInteractions(updateAligoMessagePort);
@@ -115,7 +115,7 @@ class CancelAligoMessageUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> cancelAligoMessageService.cancelMessage(messageId))
-                .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
+            .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
 
         verifyNoInteractions(cancelAligoMessageExternalPort);
         verifyNoInteractions(updateAligoMessagePort);
@@ -130,7 +130,7 @@ class CancelAligoMessageUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> cancelAligoMessageService.cancelMessage(messageId))
-                .isInstanceOf(AligoMessageNotFoundException.class);
+            .isInstanceOf(AligoMessageNotFoundException.class);
 
         verifyNoInteractions(cancelAligoMessageExternalPort);
         verifyNoInteractions(updateAligoMessagePort);
@@ -147,50 +147,50 @@ class CancelAligoMessageUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> cancelAligoMessageService.cancelMessage(messageId))
-                .isInstanceOf(AligoCancelDeadlineExceededException.class);
+            .isInstanceOf(AligoCancelDeadlineExceededException.class);
 
         verifyNoInteractions(cancelAligoMessageExternalPort);
     }
 
     private AligoMessage createRequestedMessage(Long id, String aligoMid, LocalDateTime sendDate) {
         return AligoMessage.from(AligoMessageSnapshotState.builder()
-                .id(id)
-                .senderKey("test-sender-key")
-                .templateCode("TPL_TEST")
-                .sender("01012345678")
-                .messageType(AligoMessageType.AT)
-                .content("테스트 메시지")
-                .title("테스트")
-                .messageStatus(AligoMessageStatus.REQUESTED)
-                .aligoMid(aligoMid)
-                .successCount(0)
-                .failCount(0)
-                .requestedAt(NOW.minusMinutes(10))
-                .sendDate(sendDate)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(NOW.minusMinutes(10))
-                .modifiedAt(NOW.minusMinutes(10))
-                .build());
+            .id(id)
+            .senderKey("test-sender-key")
+            .templateCode("TPL_TEST")
+            .sender("01012345678")
+            .messageType(AligoMessageType.AT)
+            .content("테스트 메시지")
+            .title("테스트")
+            .messageStatus(AligoMessageStatus.REQUESTED)
+            .aligoMid(aligoMid)
+            .successCount(0)
+            .failCount(0)
+            .requestedAt(NOW.minusMinutes(10))
+            .sendDate(sendDate)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(NOW.minusMinutes(10))
+            .modifiedAt(NOW.minusMinutes(10))
+            .build());
     }
 
     private AligoMessage createDeliveredMessage(Long id) {
         return AligoMessage.from(AligoMessageSnapshotState.builder()
-                .id(id)
-                .senderKey("test-sender-key")
-                .templateCode("TPL_TEST")
-                .sender("01012345678")
-                .messageType(AligoMessageType.AT)
-                .content("테스트 메시지")
-                .title("테스트")
-                .messageStatus(AligoMessageStatus.DELIVERED)
-                .aligoMid("MID_DELIVERED")
-                .successCount(1)
-                .failCount(0)
-                .requestedAt(NOW.minusHours(1))
-                .sentAt(NOW.minusMinutes(55))
-                .status(EntityStatus.ACTIVE)
-                .createdAt(NOW.minusHours(1))
-                .modifiedAt(NOW.minusHours(1))
-                .build());
+            .id(id)
+            .senderKey("test-sender-key")
+            .templateCode("TPL_TEST")
+            .sender("01012345678")
+            .messageType(AligoMessageType.AT)
+            .content("테스트 메시지")
+            .title("테스트")
+            .messageStatus(AligoMessageStatus.DELIVERED)
+            .aligoMid("MID_DELIVERED")
+            .successCount(1)
+            .failCount(0)
+            .requestedAt(NOW.minusHours(1))
+            .sentAt(NOW.minusMinutes(55))
+            .status(EntityStatus.ACTIVE)
+            .createdAt(NOW.minusHours(1))
+            .modifiedAt(NOW.minusHours(1))
+            .build());
     }
 }

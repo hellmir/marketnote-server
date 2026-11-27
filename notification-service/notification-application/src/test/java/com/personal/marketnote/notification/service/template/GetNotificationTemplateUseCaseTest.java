@@ -32,11 +32,11 @@ class GetNotificationTemplateUseCaseTest {
     void shouldGetNotificationTemplateById() {
         // given
         NotificationTemplate template = createTemplate(
-                "ORDER_PAYMENT_COMPLETED", NotificationType.ORDER_PAYMENT_COMPLETED, "주문이 완료되었습니다"
+            "ORDER_PAYMENT_COMPLETED", NotificationType.ORDER_PAYMENT_COMPLETED, "주문이 완료되었습니다"
         );
 
         when(findNotificationTemplatePort.findActiveById(1L))
-                .thenReturn(Optional.of(template));
+            .thenReturn(Optional.of(template));
 
         // when
         GetNotificationTemplateResult result = getNotificationTemplateService.getNotificationTemplate(1L);
@@ -53,11 +53,11 @@ class GetNotificationTemplateUseCaseTest {
     void shouldThrowExceptionWhenTemplateNotFound() {
         // given
         when(findNotificationTemplatePort.findActiveById(999L))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> getNotificationTemplateService.getNotificationTemplate(999L))
-                .isInstanceOf(NotificationTemplateNotFoundException.class);
+            .isInstanceOf(NotificationTemplateNotFoundException.class);
     }
 
     @Test
@@ -65,14 +65,14 @@ class GetNotificationTemplateUseCaseTest {
     void shouldGetAllNotificationTemplates() {
         // given
         NotificationTemplate template1 = createTemplate(
-                "ORDER_PAYMENT_COMPLETED", NotificationType.ORDER_PAYMENT_COMPLETED, "주문이 완료되었습니다"
+            "ORDER_PAYMENT_COMPLETED", NotificationType.ORDER_PAYMENT_COMPLETED, "주문이 완료되었습니다"
         );
         NotificationTemplate template2 = createTemplate(
-                "SHIPPING_STARTED", NotificationType.SHIPPING_STARTED, "배송이 시작되었습니다"
+            "SHIPPING_STARTED", NotificationType.SHIPPING_STARTED, "배송이 시작되었습니다"
         );
 
         when(findNotificationTemplatePort.findAllActive())
-                .thenReturn(List.of(template1, template2));
+            .thenReturn(List.of(template1, template2));
 
         // when
         List<GetNotificationTemplateResult> results = getNotificationTemplateService.getNotificationTemplates();
@@ -89,7 +89,7 @@ class GetNotificationTemplateUseCaseTest {
     void shouldReturnEmptyListWhenNoTemplates() {
         // given
         when(findNotificationTemplatePort.findAllActive())
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         List<GetNotificationTemplateResult> results = getNotificationTemplateService.getNotificationTemplates();
@@ -100,12 +100,12 @@ class GetNotificationTemplateUseCaseTest {
 
     private NotificationTemplate createTemplate(String templateCode, NotificationType type, String title) {
         return NotificationTemplate.from(NotificationTemplateCreateState.builder()
-                .templateCode(templateCode)
-                .notificationType(type)
-                .notificationCategory(NotificationCategory.INFORMATIONAL)
-                .title(title)
-                .bodyTemplate("본문")
-                .urlTemplate("/order/{orderId}")
-                .build());
+            .templateCode(templateCode)
+            .notificationType(type)
+            .notificationCategory(NotificationCategory.INFORMATIONAL)
+            .title(title)
+            .bodyTemplate("본문")
+            .urlTemplate("/order/{orderId}")
+            .build());
     }
 }

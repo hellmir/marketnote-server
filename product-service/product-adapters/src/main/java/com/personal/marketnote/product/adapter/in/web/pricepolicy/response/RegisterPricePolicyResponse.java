@@ -14,8 +14,8 @@ public class RegisterPricePolicyResponse {
 
     public static RegisterPricePolicyResponse from(RegisterPricePolicyResult result) {
         return RegisterPricePolicyResponse.builder()
-                .id(result.id())
-                .build();
+            .id(result.id())
+            .build();
     }
 }
 

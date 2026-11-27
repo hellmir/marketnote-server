@@ -12,21 +12,21 @@ import java.time.LocalDateTime;
 @Builder(access = AccessLevel.PRIVATE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record EventEnvelope<T>(
-        String eventId,
-        String eventType,
-        String source,
-        LocalDateTime timestamp,
-        T payload
+    String eventId,
+    String eventType,
+    String source,
+    LocalDateTime timestamp,
+    T payload
 ) {
 
     public static <T> EventEnvelope<T> of(String eventType, String source, T payload, Clock clock) {
         return EventEnvelope.<T>builder()
-                .eventId(UuidCreator.getTimeOrderedEpoch().toString())
-                .eventType(eventType)
-                .source(source)
-                .timestamp(LocalDateTime.now(clock))
-                .payload(payload)
-                .build();
+            .eventId(UuidCreator.getTimeOrderedEpoch().toString())
+            .eventType(eventType)
+            .source(source)
+            .timestamp(LocalDateTime.now(clock))
+            .payload(payload)
+            .build();
     }
 
     @SuppressWarnings("unchecked")

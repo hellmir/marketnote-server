@@ -6,15 +6,15 @@ import com.personal.marketnote.product.port.in.command.AddCartProductCommand;
 
 public class CartProductCommandToStateMapper {
     public static CartProductCreateState mapToState(
-            AddCartProductCommand addCartProductCommand, PricePolicy pricePolicy
+        AddCartProductCommand addCartProductCommand, PricePolicy pricePolicy
     ) {
         return
-                CartProductCreateState.builder()
-                        .userId(addCartProductCommand.userId())
-                        .sharerKey(addCartProductCommand.sharerKey())
-                        .pricePolicy(pricePolicy)
-                        .imageUrl(addCartProductCommand.imageUrl())
-                        .quantity(addCartProductCommand.quantity())
-                        .build();
+            CartProductCreateState.builder()
+                .userId(addCartProductCommand.userId())
+                .sharerKey(addCartProductCommand.sharerKey())
+                .pricePolicy(pricePolicy)
+                .imageUrl(addCartProductCommand.imageUrl())
+                .quantity(addCartProductCommand.quantity())
+                .build();
     }
 }

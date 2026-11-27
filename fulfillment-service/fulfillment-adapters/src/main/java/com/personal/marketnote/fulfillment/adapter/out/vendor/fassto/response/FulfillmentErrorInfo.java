@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FulfillmentErrorInfo(
-        String errorCode,
-        String errorMessage,
-        Object errorData
+    String errorCode,
+    String errorMessage,
+    Object errorData
 ) {
 }

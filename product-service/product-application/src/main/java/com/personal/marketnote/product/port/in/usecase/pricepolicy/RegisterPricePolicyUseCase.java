@@ -21,6 +21,6 @@ public interface RegisterPricePolicyUseCase {
      * @Description 가격 정책을 등록합니다.
      */
     RegisterPricePolicyResult registerPricePolicy(
-            Long userId, boolean isAdmin, RegisterPricePolicyCommand command
+        Long userId, boolean isAdmin, RegisterPricePolicyCommand command
     );
 }

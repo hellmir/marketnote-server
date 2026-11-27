@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record UserReferralCompletedEvent(
-        Long requestUserId,
-        Long referredUserId
+    Long requestUserId,
+    Long referredUserId
 ) {
 }

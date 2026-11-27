@@ -7,23 +7,23 @@ import java.util.List;
 
 @Builder
 public record RegisterFulfillmentReturnDeliveryItemCommand(
-        String orderDate,
-        String orderNumber,
-        String courierCode,
-        String invoiceNumber,
-        String recipientName,
-        String recipientPhoneNumber,
-        String recipientAddress,
-        String returnReceiverName,
-        String returnReceiverPhoneNumber,
-        String returnZipCode,
-        String returnAddress1,
-        String returnAddress2,
-        String returnType,
-        String returnReason,
-        String returnDetailReason,
-        String returnShippingRequest,
-        List<RegisterFulfillmentDeliveryGoodsCommand> products
+    String orderDate,
+    String orderNumber,
+    String courierCode,
+    String invoiceNumber,
+    String recipientName,
+    String recipientPhoneNumber,
+    String recipientAddress,
+    String returnReceiverName,
+    String returnReceiverPhoneNumber,
+    String returnZipCode,
+    String returnAddress1,
+    String returnAddress2,
+    String returnType,
+    String returnReason,
+    String returnDetailReason,
+    String returnShippingRequest,
+    List<RegisterFulfillmentDeliveryGoodsCommand> products
 ) {
     /**
      * Fassto 벤더 스펙 상수.
@@ -37,27 +37,27 @@ public record RegisterFulfillmentReturnDeliveryItemCommand(
     private static final String INVOICE_NUMBER_EMPTY = "";
 
     public static RegisterFulfillmentReturnDeliveryItemCommand from(
-            RegisterInternalReturnDeliveryCommand command,
-            List<RegisterFulfillmentDeliveryGoodsCommand> goods
+        RegisterInternalReturnDeliveryCommand command,
+        List<RegisterFulfillmentDeliveryGoodsCommand> goods
     ) {
         return RegisterFulfillmentReturnDeliveryItemCommand.builder()
-                .orderDate(command.orderDate())
-                .orderNumber(String.valueOf(command.orderId()))
-                .courierCode(COURIER_CODE_EMPTY)
-                .invoiceNumber(INVOICE_NUMBER_EMPTY)
-                .recipientName(command.recipientName())
-                .recipientPhoneNumber(command.recipientPhoneNumber())
-                .recipientAddress(command.recipientAddress())
-                .returnReceiverName(command.pickupRecipientName())
-                .returnReceiverPhoneNumber(command.pickupRecipientPhoneNumber())
-                .returnZipCode(command.pickupZipCode())
-                .returnAddress1(command.pickupAddress())
-                .returnAddress2(command.pickupAddressDetail())
-                .returnType(RETURN_TYPE_NORMAL)
-                .returnReason(command.returnReason())
-                .returnDetailReason(command.returnDetailReason())
-                .returnShippingRequest(command.returnShippingRequest())
-                .products(goods)
-                .build();
+            .orderDate(command.orderDate())
+            .orderNumber(String.valueOf(command.orderId()))
+            .courierCode(COURIER_CODE_EMPTY)
+            .invoiceNumber(INVOICE_NUMBER_EMPTY)
+            .recipientName(command.recipientName())
+            .recipientPhoneNumber(command.recipientPhoneNumber())
+            .recipientAddress(command.recipientAddress())
+            .returnReceiverName(command.pickupRecipientName())
+            .returnReceiverPhoneNumber(command.pickupRecipientPhoneNumber())
+            .returnZipCode(command.pickupZipCode())
+            .returnAddress1(command.pickupAddress())
+            .returnAddress2(command.pickupAddressDetail())
+            .returnType(RETURN_TYPE_NORMAL)
+            .returnReason(command.returnReason())
+            .returnDetailReason(command.returnDetailReason())
+            .returnShippingRequest(command.returnShippingRequest())
+            .products(goods)
+            .build();
     }
 }

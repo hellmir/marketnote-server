@@ -29,45 +29,45 @@ public class AligoSenderProfile extends BaseDomain {
     public static AligoSenderProfile from(AligoSenderProfileCreateState state) {
         validate(state);
         AligoSenderProfile profile = AligoSenderProfile.builder()
-                .senderKey(state.getSenderKey())
-                .plusId(state.getPlusId())
-                .phoneNumber(state.getPhoneNumber())
-                .categoryCode(state.getCategoryCode())
-                .name(state.getName())
-                .licenseNum(state.getLicenseNum())
-                .profileInspectionStatus(state.getProfileInspectionStatus())
-                .senderProfileStatus(state.getSenderProfileStatus())
-                .alimUseYn(state.isAlimUseYn())
-                .uuid(state.getUuid())
-                .build();
+            .senderKey(state.getSenderKey())
+            .plusId(state.getPlusId())
+            .phoneNumber(state.getPhoneNumber())
+            .categoryCode(state.getCategoryCode())
+            .name(state.getName())
+            .licenseNum(state.getLicenseNum())
+            .profileInspectionStatus(state.getProfileInspectionStatus())
+            .senderProfileStatus(state.getSenderProfileStatus())
+            .alimUseYn(state.isAlimUseYn())
+            .uuid(state.getUuid())
+            .build();
         profile.activate();
         return profile;
     }
 
     public static AligoSenderProfile from(AligoSenderProfileSnapshotState state) {
         AligoSenderProfile profile = AligoSenderProfile.builder()
-                .id(state.getId())
-                .senderKey(state.getSenderKey())
-                .plusId(state.getPlusId())
-                .phoneNumber(state.getPhoneNumber())
-                .categoryCode(state.getCategoryCode())
-                .name(state.getName())
-                .licenseNum(state.getLicenseNum())
-                .profileInspectionStatus(state.getProfileInspectionStatus())
-                .senderProfileStatus(state.getSenderProfileStatus())
-                .alimUseYn(state.isAlimUseYn())
-                .uuid(state.getUuid())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .senderKey(state.getSenderKey())
+            .plusId(state.getPlusId())
+            .phoneNumber(state.getPhoneNumber())
+            .categoryCode(state.getCategoryCode())
+            .name(state.getName())
+            .licenseNum(state.getLicenseNum())
+            .profileInspectionStatus(state.getProfileInspectionStatus())
+            .senderProfileStatus(state.getSenderProfileStatus())
+            .alimUseYn(state.isAlimUseYn())
+            .uuid(state.getUuid())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
         profile.status = state.getStatus();
         return profile;
     }
 
     public void updateFromExternal(
-            AligoProfileInspectionStatus profileInspectionStatus,
-            AligoSenderProfileStatus senderProfileStatus,
-            boolean alimUseYn
+        AligoProfileInspectionStatus profileInspectionStatus,
+        AligoSenderProfileStatus senderProfileStatus,
+        boolean alimUseYn
     ) {
         this.profileInspectionStatus = profileInspectionStatus;
         this.senderProfileStatus = senderProfileStatus;

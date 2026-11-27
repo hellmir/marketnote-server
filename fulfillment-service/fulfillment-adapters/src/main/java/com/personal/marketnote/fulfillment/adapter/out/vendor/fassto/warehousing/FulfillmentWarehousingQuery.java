@@ -18,32 +18,32 @@ public class FulfillmentWarehousingQuery {
     private String wrkStat;
 
     public static FulfillmentWarehousingQuery of(
-            String customerCode,
-            String accessToken,
-            String startDate,
-            String endDate
+        String customerCode,
+        String accessToken,
+        String startDate,
+        String endDate
     ) {
         return FulfillmentWarehousingQuery.of(customerCode, accessToken, startDate, endDate, null, null, null);
     }
 
     public static FulfillmentWarehousingQuery of(
-            String customerCode,
-            String accessToken,
-            String startDate,
-            String endDate,
-            String inWay,
-            String ordNo,
-            String wrkStat
+        String customerCode,
+        String accessToken,
+        String startDate,
+        String endDate,
+        String inWay,
+        String ordNo,
+        String wrkStat
     ) {
         FulfillmentWarehousingQuery query = FulfillmentWarehousingQuery.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .startDate(startDate)
-                .endDate(endDate)
-                .inWay(inWay)
-                .ordNo(ordNo)
-                .wrkStat(wrkStat)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .startDate(startDate)
+            .endDate(endDate)
+            .inWay(inWay)
+            .ordNo(ordNo)
+            .wrkStat(wrkStat)
+            .build();
         query.validate();
         return query;
     }

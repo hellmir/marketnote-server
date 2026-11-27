@@ -58,8 +58,8 @@ class GetFilesOwnerTypeUseCaseTest {
 
     private FileDomain buildFile(Long id) {
         return FileDomain.from(FileDomainSnapshotState.builder()
-                .id(id).ownerType(OwnerType.PRODUCT).ownerId(100L).sort(FileSort.PRODUCT_CATALOG_IMAGE)
-                .extension("jpg").name("test-file.jpg").storageUrl("https://example.com/test-file.jpg")
-                .createdAt(LocalDateTime.now()).status(EntityStatus.ACTIVE).orderNum(1L).build());
+            .id(id).ownerType(OwnerType.PRODUCT).ownerId(100L).sort(FileSort.PRODUCT_CATALOG_IMAGE)
+            .extension("jpg").name("test-file.jpg").storageUrl("https://example.com/test-file.jpg")
+            .createdAt(LocalDateTime.now()).status(EntityStatus.ACTIVE).orderNum(1L).build());
     }
 }

@@ -24,15 +24,15 @@ public class GetGifticonBrandsService implements GetGifticonBrandsUseCase {
     @Override
     public GetGifticonBrandsResult getBrands(GetGifticonBrandsCommand command) {
         List<GifticonGoodsBrandProjection> projections =
-                findGifticonGoodsPort.findDistinctBrandsByCategoryCode(command.categoryCode());
+            findGifticonGoodsPort.findDistinctBrandsByCategoryCode(command.categoryCode());
 
         List<GifticonBrandItem> items = projections.stream()
-                .map(projection -> new GifticonBrandItem(
-                        projection.brandCode(),
-                        projection.brandName(),
-                        projection.brandImageUrl()
-                ))
-                .toList();
+            .map(projection -> new GifticonBrandItem(
+                projection.brandCode(),
+                projection.brandName(),
+                projection.brandImageUrl()
+            ))
+            .toList();
 
         return new GetGifticonBrandsResult(items);
     }

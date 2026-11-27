@@ -22,12 +22,12 @@ class OrderProductTest {
         void shouldGenerateOrderProductKeyAsUuidV7FromCreateState() {
             // given
             OrderProductCreateState state = OrderProductCreateState.builder()
-                    .sellerId(10L)
-                    .pricePolicyId(100L)
-                    .quantity(1)
-                    .unitAmount(50000L)
-                    .accumulatedPoint(0L)
-                    .build();
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .build();
 
             // when
             OrderProduct orderProduct = OrderProduct.from(state);
@@ -43,12 +43,12 @@ class OrderProductTest {
         void shouldGenerateDifferentOrderProductKeysForEachCreation() {
             // given
             OrderProductCreateState state = OrderProductCreateState.builder()
-                    .sellerId(10L)
-                    .pricePolicyId(100L)
-                    .quantity(1)
-                    .unitAmount(50000L)
-                    .accumulatedPoint(0L)
-                    .build();
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .build();
 
             // when
             OrderProduct first = OrderProduct.from(state);
@@ -64,15 +64,15 @@ class OrderProductTest {
             // given
             UUID expectedKey = UUID.fromString("018f0000-0000-7000-8000-000000000001");
             OrderProductSnapshotState state = OrderProductSnapshotState.builder()
-                    .orderId(1L)
-                    .sellerId(10L)
-                    .pricePolicyId(100L)
-                    .orderProductKey(expectedKey)
-                    .quantity(1)
-                    .unitAmount(50000L)
-                    .accumulatedPoint(0L)
-                    .orderStatus(OrderStatus.PAYMENT_PENDING)
-                    .build();
+                .orderId(1L)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .orderProductKey(expectedKey)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .orderStatus(OrderStatus.PAYMENT_PENDING)
+                .build();
 
             // when
             OrderProduct orderProduct = OrderProduct.from(state);
@@ -91,13 +91,13 @@ class OrderProductTest {
         void shouldMapProductIdFromCreateState() {
             // given
             OrderProductCreateState state = OrderProductCreateState.builder()
-                    .productId(42L)
-                    .sellerId(10L)
-                    .pricePolicyId(100L)
-                    .quantity(1)
-                    .unitAmount(50000L)
-                    .accumulatedPoint(0L)
-                    .build();
+                .productId(42L)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .build();
 
             // when
             OrderProduct orderProduct = OrderProduct.from(state);
@@ -111,15 +111,15 @@ class OrderProductTest {
         void shouldMapProductIdFromSnapshotState() {
             // given
             OrderProductSnapshotState state = OrderProductSnapshotState.builder()
-                    .orderId(1L)
-                    .productId(42L)
-                    .sellerId(10L)
-                    .pricePolicyId(100L)
-                    .quantity(1)
-                    .unitAmount(50000L)
-                    .accumulatedPoint(0L)
-                    .orderStatus(OrderStatus.PAYMENT_PENDING)
-                    .build();
+                .orderId(1L)
+                .productId(42L)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .orderStatus(OrderStatus.PAYMENT_PENDING)
+                .build();
 
             // when
             OrderProduct orderProduct = OrderProduct.from(state);
@@ -133,12 +133,12 @@ class OrderProductTest {
         void shouldMapNullProductIdFromCreateState() {
             // given
             OrderProductCreateState state = OrderProductCreateState.builder()
-                    .sellerId(10L)
-                    .pricePolicyId(100L)
-                    .quantity(1)
-                    .unitAmount(50000L)
-                    .accumulatedPoint(0L)
-                    .build();
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .build();
 
             // when
             OrderProduct orderProduct = OrderProduct.from(state);
@@ -185,15 +185,15 @@ class OrderProductTest {
             // given
             LocalDateTime deliveredTime = LocalDateTime.of(2026, 4, 1, 10, 0, 0);
             OrderProductSnapshotState state = OrderProductSnapshotState.builder()
-                    .orderId(1L)
-                    .sellerId(10L)
-                    .pricePolicyId(100L)
-                    .quantity(1)
-                    .unitAmount(50000L)
-                    .accumulatedPoint(0L)
-                    .orderStatus(OrderStatus.DELIVERED)
-                    .deliveredAt(deliveredTime)
-                    .build();
+                .orderId(1L)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .orderStatus(OrderStatus.DELIVERED)
+                .deliveredAt(deliveredTime)
+                .build();
 
             // when
             OrderProduct orderProduct = OrderProduct.from(state);
@@ -255,16 +255,16 @@ class OrderProductTest {
             LocalDateTime deliveredTime = LocalDateTime.of(2026, 4, 1, 10, 0, 0);
             LocalDateTime scheduledAt = deliveredTime.plusDays(7L);
             OrderProduct orderProduct = OrderProduct.from(OrderProductSnapshotState.builder()
-                    .orderId(1L)
-                    .sellerId(10L)
-                    .pricePolicyId(100L)
-                    .quantity(1)
-                    .unitAmount(50000L)
-                    .accumulatedPoint(0L)
-                    .orderStatus(OrderStatus.DELIVERED)
-                    .deliveredAt(deliveredTime)
-                    .scheduledAutoConfirmAt(scheduledAt)
-                    .build());
+                .orderId(1L)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .orderStatus(OrderStatus.DELIVERED)
+                .deliveredAt(deliveredTime)
+                .scheduledAutoConfirmAt(scheduledAt)
+                .build());
 
             // when
             orderProduct.changeOrderStatus(OrderStatus.CONFIRMED, NOW, 7L);
@@ -280,16 +280,16 @@ class OrderProductTest {
             LocalDateTime deliveredTime = LocalDateTime.of(2026, 4, 1, 10, 0, 0);
             LocalDateTime scheduledAt = deliveredTime.plusDays(7L);
             OrderProductSnapshotState state = OrderProductSnapshotState.builder()
-                    .orderId(1L)
-                    .sellerId(10L)
-                    .pricePolicyId(100L)
-                    .quantity(1)
-                    .unitAmount(50000L)
-                    .accumulatedPoint(0L)
-                    .orderStatus(OrderStatus.DELIVERED)
-                    .deliveredAt(deliveredTime)
-                    .scheduledAutoConfirmAt(scheduledAt)
-                    .build();
+                .orderId(1L)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .orderStatus(OrderStatus.DELIVERED)
+                .deliveredAt(deliveredTime)
+                .scheduledAutoConfirmAt(scheduledAt)
+                .build();
 
             // when
             OrderProduct orderProduct = OrderProduct.from(state);
@@ -301,26 +301,26 @@ class OrderProductTest {
 
     private OrderProduct createOrderProduct(OrderStatus status) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(10L)
-                .pricePolicyId(100L)
-                .quantity(1)
-                .unitAmount(50000L)
-                .accumulatedPoint(0L)
-                .orderStatus(status)
-                .build());
+            .orderId(1L)
+            .sellerId(10L)
+            .pricePolicyId(100L)
+            .quantity(1)
+            .unitAmount(50000L)
+            .accumulatedPoint(0L)
+            .orderStatus(status)
+            .build());
     }
 
     private OrderProduct createOrderProductWithDeliveredAt(LocalDateTime deliveredAt) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
-                .orderId(1L)
-                .sellerId(10L)
-                .pricePolicyId(100L)
-                .quantity(1)
-                .unitAmount(50000L)
-                .accumulatedPoint(0L)
-                .orderStatus(OrderStatus.DELIVERED)
-                .deliveredAt(deliveredAt)
-                .build());
+            .orderId(1L)
+            .sellerId(10L)
+            .pricePolicyId(100L)
+            .quantity(1)
+            .unitAmount(50000L)
+            .accumulatedPoint(0L)
+            .orderStatus(OrderStatus.DELIVERED)
+            .deliveredAt(deliveredAt)
+            .build());
     }
 }

@@ -14,15 +14,15 @@ public class FulfillmentGoodsDetailQuery {
     private String godNm;
 
     public static FulfillmentGoodsDetailQuery of(
-            String customerCode,
-            String accessToken,
-            String godNm
+        String customerCode,
+        String accessToken,
+        String godNm
     ) {
         FulfillmentGoodsDetailQuery query = FulfillmentGoodsDetailQuery.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .godNm(godNm)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .godNm(godNm)
+            .build();
         query.validate();
         return query;
     }

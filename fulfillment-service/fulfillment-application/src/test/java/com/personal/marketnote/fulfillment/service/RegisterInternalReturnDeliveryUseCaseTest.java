@@ -128,7 +128,7 @@ class RegisterInternalReturnDeliveryUseCaseTest {
         when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
         when(registerFulfillmentReturnDeliveryPort.registerReturnDelivery(any()))
-                .thenReturn(RegisterFulfillmentDeliveryResult.of(0, Collections.emptyList()));
+            .thenReturn(RegisterFulfillmentDeliveryResult.of(0, Collections.emptyList()));
 
         // when
         RegisterInternalReturnDeliveryResult result = registerInternalReturnDeliveryService.registerReturnDelivery(command);
@@ -145,47 +145,47 @@ class RegisterInternalReturnDeliveryUseCaseTest {
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         RegisterFulfillmentDeliveryResult fasstoResult = RegisterFulfillmentDeliveryResult.of(1, List.of(
-                RegisterFulfillmentDeliveryItemResult.builder()
-                        .fulfillmentSlipNumber("RETURN001")
-                        .orderNumber(String.valueOf(orderId))
-                        .message("성공")
-                        .code("00")
-                        .build()
+            RegisterFulfillmentDeliveryItemResult.builder()
+                .fulfillmentSlipNumber("RETURN001")
+                .orderNumber(String.valueOf(orderId))
+                .message("성공")
+                .code("00")
+                .build()
         ));
         when(registerFulfillmentReturnDeliveryPort.registerReturnDelivery(any())).thenReturn(fasstoResult);
     }
 
     private RegisterInternalReturnDeliveryCommand createCommand(Long orderId) {
         return RegisterInternalReturnDeliveryCommand.builder()
-                .orderId(orderId)
-                .orderDate("20260401")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .recipientAddress("서울시 강남구")
-                .pickupRecipientName("홍길동")
-                .pickupRecipientPhoneNumber("01012345678")
-                .pickupZipCode("06000")
-                .pickupAddress("서울시 강남구")
-                .pickupAddressDetail("123")
-                .returnReason("단순 변심")
-                .returnDetailReason("색상 마음에 안 듦")
-                .returnShippingRequest("문 앞")
-                .products(List.of(
-                        RegisterInternalReturnDeliveryProductCommand.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 1)
-                ))
-                .build();
+            .orderId(orderId)
+            .orderDate("20260401")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .recipientAddress("서울시 강남구")
+            .pickupRecipientName("홍길동")
+            .pickupRecipientPhoneNumber("01012345678")
+            .pickupZipCode("06000")
+            .pickupAddress("서울시 강남구")
+            .pickupAddressDetail("123")
+            .returnReason("단순 변심")
+            .returnDetailReason("색상 마음에 안 듦")
+            .returnShippingRequest("문 앞")
+            .products(List.of(
+                RegisterInternalReturnDeliveryProductCommand.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 1)
+            ))
+            .build();
     }
 
     private ShippingTracker createTracker(Long orderId, ShippingStatus status) {
         return ShippingTracker.from(ShippingTrackerSnapshotState.builder()
-                .id(1L)
-                .orderId(orderId)
-                .trackingNumber(TrackingNumber.of("INV001"))
-                .carrierCode(CarrierCode.of("CJ"))
-                .shippingStatus(status)
-                .pollingActive(!status.isTerminal())
-                .createdAt(LocalDateTime.of(2026, 4, 7, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 7, 10, 0))
-                .build());
+            .id(1L)
+            .orderId(orderId)
+            .trackingNumber(TrackingNumber.of("INV001"))
+            .carrierCode(CarrierCode.of("CJ"))
+            .shippingStatus(status)
+            .pollingActive(!status.isTerminal())
+            .createdAt(LocalDateTime.of(2026, 4, 7, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 7, 10, 0))
+            .build());
     }
 }

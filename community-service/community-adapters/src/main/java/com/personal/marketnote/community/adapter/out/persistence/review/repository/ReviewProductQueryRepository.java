@@ -8,18 +8,18 @@ import java.util.List;
 public interface ReviewProductQueryRepository {
 
     List<ReviewJpaEntity> findProductReviewsByCursor(
-            Long productId,
-            Long cursor,
-            Pageable pageable,
-            String sortProperty,
-            Boolean isAsc
+        Long productId,
+        Long cursor,
+        Pageable pageable,
+        String sortProperty,
+        Boolean isAsc
     );
 
     List<ReviewJpaEntity> findProductPhotoReviewsByCursor(
-            Long productId,
-            Long cursor,
-            Pageable pageable,
-            String sortProperty,
-            Boolean isAsc
+        Long productId,
+        Long cursor,
+        Pageable pageable,
+        String sortProperty,
+        Boolean isAsc
     );
 }

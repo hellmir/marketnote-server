@@ -11,10 +11,10 @@ public class UserFingerprintEventToStateMapper {
 
     public static UserFingerprintCreateState mapToCreateState(UserFingerprintSavedEvent event, LocalDateTime firstSeenAt) {
         return UserFingerprintCreateState.builder()
-                .userId(event.userId())
-                .fingerprint(event.fingerprint())
-                .source(event.source())
-                .firstSeenAt(firstSeenAt)
-                .build();
+            .userId(event.userId())
+            .fingerprint(event.fingerprint())
+            .source(event.source())
+            .firstSeenAt(firstSeenAt)
+            .build();
     }
 }

@@ -39,13 +39,13 @@ class SseEventRedisSubscriberTest {
     void shouldDeliverEventWithJsonObjectPayloadToSseConnectionRegistry() throws Exception {
         // given
         String messageBody = "{\"userId\":1,\"eventType\":\""
-                + NotificationSseEventType.UNREAD_COUNT_CHANGED.name()
-                + "\",\"payload\":{\"unreadCount\":5}}";
+            + NotificationSseEventType.UNREAD_COUNT_CHANGED.name()
+            + "\",\"payload\":{\"unreadCount\":5}}";
         Message message = new DefaultMessage("sse:notification-events".getBytes(), messageBody.getBytes());
         Map<String, Object> payloadMap = new LinkedHashMap<>();
         payloadMap.put("unreadCount", 5);
         SseEventMessage sseEventMessage = new SseEventMessage(
-                1L, NotificationSseEventType.UNREAD_COUNT_CHANGED.name(), payloadMap
+            1L, NotificationSseEventType.UNREAD_COUNT_CHANGED.name(), payloadMap
         );
 
         when(objectMapper.readValue(messageBody, SseEventMessage.class)).thenReturn(sseEventMessage);
@@ -65,8 +65,8 @@ class SseEventRedisSubscriberTest {
         Message message = new DefaultMessage("sse:notification-events".getBytes(), invalidMessage.getBytes());
 
         when(objectMapper.readValue(invalidMessage, SseEventMessage.class))
-                .thenThrow(new JsonProcessingException("parse error") {
-                });
+            .thenThrow(new JsonProcessingException("parse error") {
+            });
 
         // when
         sseEventRedisSubscriber.onMessage(message, null);
@@ -80,13 +80,13 @@ class SseEventRedisSubscriberTest {
     void shouldInvokeSendToUserEvenWhenNoConnection() throws Exception {
         // given
         String messageBody = "{\"userId\":999,\"eventType\":\""
-                + NotificationSseEventType.UNREAD_COUNT_CHANGED.name()
-                + "\",\"payload\":{\"unreadCount\":0}}";
+            + NotificationSseEventType.UNREAD_COUNT_CHANGED.name()
+            + "\",\"payload\":{\"unreadCount\":0}}";
         Message message = new DefaultMessage("sse:notification-events".getBytes(), messageBody.getBytes());
         Map<String, Object> payloadMap = new LinkedHashMap<>();
         payloadMap.put("unreadCount", 0);
         SseEventMessage sseEventMessage = new SseEventMessage(
-                999L, NotificationSseEventType.UNREAD_COUNT_CHANGED.name(), payloadMap
+            999L, NotificationSseEventType.UNREAD_COUNT_CHANGED.name(), payloadMap
         );
 
         when(objectMapper.readValue(messageBody, SseEventMessage.class)).thenReturn(sseEventMessage);

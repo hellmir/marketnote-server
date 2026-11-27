@@ -70,33 +70,33 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
     private Long unitAmount;
 
     @Formula("""
-            (
-                SELECT count(l.user_id)
-                FROM likes l
-                WHERE l.target_type = 'REVIEW'
-                  AND l.target_id = id
-                  AND l.status = 'ACTIVE'
-            )
-            """)
+        (
+            SELECT count(l.user_id)
+            FROM likes l
+            WHERE l.target_type = 'REVIEW'
+              AND l.target_id = id
+              AND l.status = 'ACTIVE'
+        )
+        """)
     private Integer likeCount;
 
     public static ReviewJpaEntity from(Review review) {
         return ReviewJpaEntity.builder()
-                .reviewKey(review.getReviewKey())
-                .reviewerId(review.getReviewerId())
-                .orderId(review.getOrderId())
-                .productId(review.getProductId())
-                .pricePolicyId(review.getPricePolicyId())
-                .productImageUrl(review.getProductImageUrl())
-                .selectedOptions(review.getSelectedOptions())
-                .quantity(FormatValidator.hasValue(review.getQuantity()) ? review.getQuantity().getValue() : null)
-                .reviewerName(review.getReviewerName())
-                .maskedReviewerName(review.getMaskedReviewerName())
-                .rating((float) review.getRating().getValue())
-                .content(review.getContent())
-                .isPhoto(review.getIsPhoto())
-                .unitAmount(review.hasUnitAmount() ? review.getUnitAmount().getValue() : null)
-                .build();
+            .reviewKey(review.getReviewKey())
+            .reviewerId(review.getReviewerId())
+            .orderId(review.getOrderId())
+            .productId(review.getProductId())
+            .pricePolicyId(review.getPricePolicyId())
+            .productImageUrl(review.getProductImageUrl())
+            .selectedOptions(review.getSelectedOptions())
+            .quantity(FormatValidator.hasValue(review.getQuantity()) ? review.getQuantity().getValue() : null)
+            .reviewerName(review.getReviewerName())
+            .maskedReviewerName(review.getMaskedReviewerName())
+            .rating((float) review.getRating().getValue())
+            .content(review.getContent())
+            .isPhoto(review.getIsPhoto())
+            .unitAmount(review.hasUnitAmount() ? review.getUnitAmount().getValue() : null)
+            .build();
     }
 
     public void updateFrom(Review review) {

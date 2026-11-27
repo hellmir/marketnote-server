@@ -69,33 +69,33 @@ public class RewardVendorCommunicationHistoryJpaEntity {
         }
 
         return RewardVendorCommunicationHistoryJpaEntity.builder()
-                .id(history.getId())
-                .targetType(history.getTargetType())
-                .targetId(history.getTargetId())
-                .vendorName(history.getVendorName())
-                .communicationType(history.getCommunicationType())
-                .sender(history.getSender())
-                .exception(history.getException())
-                .payload(history.getPayload())
-                .payloadJson(history.getPayloadJson())
-                .createdAt(history.getCreatedAt())
-                .build();
+            .id(history.getId())
+            .targetType(history.getTargetType())
+            .targetId(history.getTargetId())
+            .vendorName(history.getVendorName())
+            .communicationType(history.getCommunicationType())
+            .sender(history.getSender())
+            .exception(history.getException())
+            .payload(history.getPayload())
+            .payloadJson(history.getPayloadJson())
+            .createdAt(history.getCreatedAt())
+            .build();
     }
 
     public RewardVendorCommunicationHistory toDomain() {
         return RewardVendorCommunicationHistory.from(
-                RewardVendorCommunicationHistorySnapshotState.builder()
-                        .id(id)
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .vendorName(vendorName)
-                        .communicationType(communicationType)
-                        .sender(sender)
-                        .exception(exception)
-                        .payload(payload)
-                        .payloadJson(payloadJson)
-                        .createdAt(createdAt)
-                        .build()
+            RewardVendorCommunicationHistorySnapshotState.builder()
+                .id(id)
+                .targetType(targetType)
+                .targetId(targetId)
+                .vendorName(vendorName)
+                .communicationType(communicationType)
+                .sender(sender)
+                .exception(exception)
+                .payload(payload)
+                .payloadJson(payloadJson)
+                .createdAt(createdAt)
+                .build()
         );
     }
 }

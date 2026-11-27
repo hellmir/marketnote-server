@@ -37,7 +37,7 @@ import static org.mockito.Mockito.*;
 class FulfillmentInventorySyncedConsumerTest {
 
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-09-03T00:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-09-03T00:00:00Z"), ZoneId.of("Asia/Seoul")
     );
 
     @InjectMocks
@@ -54,10 +54,10 @@ class FulfillmentInventorySyncedConsumerTest {
 
     private EventEnvelope<FulfillmentInventorySyncedEvent> createEnvelope(FulfillmentInventorySyncedEvent payload) {
         return EventEnvelope.of(
-                KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED,
-                "fulfillment-service",
-                payload,
-                FIXED_CLOCK
+            KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED,
+            "fulfillment-service",
+            payload,
+            FIXED_CLOCK
         );
     }
 
@@ -70,16 +70,16 @@ class FulfillmentInventorySyncedConsumerTest {
         void shouldSyncInventoriesWhenValidEventReceived() {
             // given
             FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
-                    List.of(
-                            new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 100),
-                            new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 50)
-                    )
+                List.of(
+                    new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 100),
+                    new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 50)
+                )
             );
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
-                    "fulfillment-inventory-sync", envelope
+                KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                "fulfillment-inventory-sync", envelope
             );
 
             // when
@@ -87,7 +87,7 @@ class FulfillmentInventorySyncedConsumerTest {
 
             // then
             verify(syncFulfillmentVendorInventoryUseCase).syncInventories(
-                    any(SyncFulfillmentVendorInventoryCommand.class)
+                any(SyncFulfillmentVendorInventoryCommand.class)
             );
             verify(acknowledgment).acknowledge();
         }
@@ -103,13 +103,13 @@ class FulfillmentInventorySyncedConsumerTest {
             // given
             UUID productKey = UUID.randomUUID();
             FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
-                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(productKey, 100))
+                List.of(new FulfillmentInventorySyncedEvent.InventoryItem(productKey, 100))
             );
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
-                    "fulfillment-inventory-sync", envelope
+                KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                "fulfillment-inventory-sync", envelope
             );
 
             // when
@@ -117,7 +117,7 @@ class FulfillmentInventorySyncedConsumerTest {
 
             // then
             ArgumentCaptor<SyncFulfillmentVendorInventoryCommand> captor =
-                    ArgumentCaptor.forClass(SyncFulfillmentVendorInventoryCommand.class);
+                ArgumentCaptor.forClass(SyncFulfillmentVendorInventoryCommand.class);
             verify(syncFulfillmentVendorInventoryUseCase).syncInventories(captor.capture());
             List<SyncFulfillmentVendorInventoryItemCommand> items = captor.getValue().inventories();
             assertThat(items).hasSize(1);
@@ -133,16 +133,16 @@ class FulfillmentInventorySyncedConsumerTest {
             UUID productKey1 = UUID.randomUUID();
             UUID productKey2 = UUID.randomUUID();
             FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
-                    List.of(
-                            new FulfillmentInventorySyncedEvent.InventoryItem(productKey1, 100),
-                            new FulfillmentInventorySyncedEvent.InventoryItem(productKey2, 50)
-                    )
+                List.of(
+                    new FulfillmentInventorySyncedEvent.InventoryItem(productKey1, 100),
+                    new FulfillmentInventorySyncedEvent.InventoryItem(productKey2, 50)
+                )
             );
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
-                    "fulfillment-inventory-sync", envelope
+                KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                "fulfillment-inventory-sync", envelope
             );
 
             // when
@@ -150,12 +150,12 @@ class FulfillmentInventorySyncedConsumerTest {
 
             // then
             ArgumentCaptor<SyncFulfillmentVendorInventoryCommand> captor =
-                    ArgumentCaptor.forClass(SyncFulfillmentVendorInventoryCommand.class);
+                ArgumentCaptor.forClass(SyncFulfillmentVendorInventoryCommand.class);
             verify(syncFulfillmentVendorInventoryUseCase).syncInventories(captor.capture());
             List<SyncFulfillmentVendorInventoryItemCommand> items = captor.getValue().inventories();
             assertThat(items).hasSize(2);
             assertThat(items).extracting(SyncFulfillmentVendorInventoryItemCommand::productKey)
-                    .containsExactlyInAnyOrder(productKey1, productKey2);
+                .containsExactlyInAnyOrder(productKey1, productKey2);
         }
     }
 
@@ -168,8 +168,8 @@ class FulfillmentInventorySyncedConsumerTest {
         void shouldAcknowledgeWhenEnvelopeIsNull() {
             // given
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
-                    "key", null
+                KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                "key", null
             );
 
             // when
@@ -185,15 +185,15 @@ class FulfillmentInventorySyncedConsumerTest {
         void shouldAcknowledgeWhenEventTypeMismatch() {
             // given
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = EventEnvelope.of(
-                    "wrong.event.type",
-                    "fulfillment-service",
-                    new FulfillmentInventorySyncedEvent(List.of()),
-                    FIXED_CLOCK
+                "wrong.event.type",
+                "fulfillment-service",
+                new FulfillmentInventorySyncedEvent(List.of()),
+                FIXED_CLOCK
             );
 
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
-                    "key", envelope
+                KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                "key", envelope
             );
 
             // when
@@ -221,8 +221,8 @@ class FulfillmentInventorySyncedConsumerTest {
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
-                    "key", envelope
+                KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                "key", envelope
             );
 
             // when
@@ -245,8 +245,8 @@ class FulfillmentInventorySyncedConsumerTest {
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
-                    "key", envelope
+                KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                "key", envelope
             );
 
             // when
@@ -268,17 +268,17 @@ class FulfillmentInventorySyncedConsumerTest {
             // given
             UUID missingProductKey = UUID.randomUUID();
             FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
-                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(missingProductKey, 100))
+                List.of(new FulfillmentInventorySyncedEvent.InventoryItem(missingProductKey, 100))
             );
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
-                    "key", envelope
+                KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                "key", envelope
             );
 
             doThrow(new InventoryProductNotFoundException())
-                    .when(syncFulfillmentVendorInventoryUseCase).syncInventories(any());
+                .when(syncFulfillmentVendorInventoryUseCase).syncInventories(any());
 
             // when
             consumer.handleFulfillmentInventorySyncedEvent(record, acknowledgment);
@@ -295,12 +295,12 @@ class FulfillmentInventorySyncedConsumerTest {
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
-                    "key", envelope
+                KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                "key", envelope
             );
 
             doThrow(new InvalidFulfillmentSyncCommandException())
-                    .when(syncFulfillmentVendorInventoryUseCase).syncInventories(any());
+                .when(syncFulfillmentVendorInventoryUseCase).syncInventories(any());
 
             // when
             consumer.handleFulfillmentInventorySyncedEvent(record, acknowledgment);
@@ -319,22 +319,22 @@ class FulfillmentInventorySyncedConsumerTest {
         void shouldRethrowUnexpectedException() {
             // given
             FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
-                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 100))
+                List.of(new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 100))
             );
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
-                    "key", envelope
+                KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                "key", envelope
             );
 
             doThrow(new RuntimeException("DB 연결 실패"))
-                    .when(syncFulfillmentVendorInventoryUseCase).syncInventories(any());
+                .when(syncFulfillmentVendorInventoryUseCase).syncInventories(any());
 
             // when & then
             assertThatThrownBy(() -> consumer.handleFulfillmentInventorySyncedEvent(record, acknowledgment))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("DB 연결 실패");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("DB 연결 실패");
         }
     }
 }

@@ -12,8 +12,8 @@ class ImageReadModelJpaEntityTest {
 
     private ImageReadModelJpaEntity newEntity() {
         return ImageReadModelJpaEntity.of(
-                100L, 200L, "PRODUCT",
-                "MAIN", "https://img.example/a.png", 0
+            100L, 200L, "PRODUCT",
+            "MAIN", "https://img.example/a.png", 0
         );
     }
 

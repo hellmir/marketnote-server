@@ -23,8 +23,8 @@ public class RequestFulfillmentAuthService implements RequestFulfillmentAuthUseC
     private final ReentrantLock issuanceLock = new ReentrantLock();
 
     public RequestFulfillmentAuthService(
-            RequestFulfillmentAuthPort requestFulfillmentAuthPort,
-            Clock clock
+        RequestFulfillmentAuthPort requestFulfillmentAuthPort,
+        Clock clock
     ) {
         this.requestFulfillmentAuthPort = requestFulfillmentAuthPort;
         this.clock = clock;

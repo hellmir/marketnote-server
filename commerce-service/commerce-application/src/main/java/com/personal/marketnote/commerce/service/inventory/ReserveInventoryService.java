@@ -38,10 +38,10 @@ public class ReserveInventoryService implements ReserveInventoryUseCase {
     @Override
     public void reserveInventory(ReserveInventoryCommand command) {
         Map<Long, Integer> quantitiesByPricePolicyId = command.orderProducts().stream()
-                .collect(Collectors.groupingBy(
-                        ReserveInventoryCommand.OrderProductItem::pricePolicyId,
-                        Collectors.summingInt(ReserveInventoryCommand.OrderProductItem::quantity)
-                ));
+            .collect(Collectors.groupingBy(
+                ReserveInventoryCommand.OrderProductItem::pricePolicyId,
+                Collectors.summingInt(ReserveInventoryCommand.OrderProductItem::quantity)
+            ));
 
         inventoryLockPort.executeWithLock(quantitiesByPricePolicyId.keySet(), () -> {
             Set<Inventory> inventories = findInventoryPort.findByPricePolicyIds(quantitiesByPricePolicyId.keySet());
@@ -49,23 +49,23 @@ public class ReserveInventoryService implements ReserveInventoryUseCase {
             validateAllInventoriesFound(inventories, quantitiesByPricePolicyId.keySet());
 
             inventories.forEach(inventory ->
-                    inventory.reserve(quantitiesByPricePolicyId.get(inventory.getPricePolicyId()))
+                inventory.reserve(quantitiesByPricePolicyId.get(inventory.getPricePolicyId()))
             );
 
             updateInventoryPort.update(inventories);
 
             List<InventoryReservation> reservations = createReservations(
-                    command.orderId(), quantitiesByPricePolicyId
+                command.orderId(), quantitiesByPricePolicyId
             );
             saveInventoryReservationPort.save(reservations);
 
             saveCacheStockPort.save(inventories);
 
             inventories.forEach(inventory ->
-                    publishInventoryEventPort.publishStockReservedEvent(
-                            inventory.getPricePolicyId(), inventory.getProductId(),
-                            quantitiesByPricePolicyId.get(inventory.getPricePolicyId()), command.orderId()
-                    )
+                publishInventoryEventPort.publishStockReservedEvent(
+                    inventory.getPricePolicyId(), inventory.getProductId(),
+                    quantitiesByPricePolicyId.get(inventory.getPricePolicyId()), command.orderId()
+                )
             );
         });
     }
@@ -75,12 +75,12 @@ public class ReserveInventoryService implements ReserveInventoryUseCase {
             return;
         }
         Set<Long> foundPricePolicyIds = inventories.stream()
-                .map(Inventory::getPricePolicyId)
-                .collect(Collectors.toSet());
+            .map(Inventory::getPricePolicyId)
+            .collect(Collectors.toSet());
         Long missingPricePolicyId = requestedPricePolicyIds.stream()
-                .filter(id -> !foundPricePolicyIds.contains(id))
-                .findFirst()
-                .orElseThrow();
+            .filter(id -> !foundPricePolicyIds.contains(id))
+            .findFirst()
+            .orElseThrow();
         log.warn("재고를 찾을 수 없습니다. pricePolicyId={}", missingPricePolicyId);
         throw new InventoryNotFoundException();
     }
@@ -88,9 +88,9 @@ public class ReserveInventoryService implements ReserveInventoryUseCase {
     private List<InventoryReservation> createReservations(Long orderId, Map<Long, Integer> quantitiesByPricePolicyId) {
         LocalDateTime reservedAt = LocalDateTime.now(clock);
         return quantitiesByPricePolicyId.entrySet().stream()
-                .map(entry -> InventoryReservation.from(InventoryReservationCreateState.of(
-                        orderId, entry.getKey(), entry.getValue(), reservedAt
-                )))
-                .toList();
+            .map(entry -> InventoryReservation.from(InventoryReservationCreateState.of(
+                orderId, entry.getKey(), entry.getValue(), reservedAt
+            )))
+            .toList();
     }
 }

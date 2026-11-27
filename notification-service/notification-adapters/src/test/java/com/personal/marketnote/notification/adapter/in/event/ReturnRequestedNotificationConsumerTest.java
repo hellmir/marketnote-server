@@ -40,8 +40,8 @@ class ReturnRequestedNotificationConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId) {
         ReturnRequestedEvent event = new ReturnRequestedEvent(orderId, buyerId);
         EventEnvelope<ReturnRequestedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.return-requested", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 15, 0), event
+            "test-event-id", "commerce.order.return-requested", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 15, 0), event
         );
         return new ConsumerRecord<>("commerce.order.return-requested", 0, 0L, "key-1", envelope);
     }
@@ -74,7 +74,7 @@ class ReturnRequestedNotificationConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.return-requested", 0, 0L, "1", null
+            "commerce.order.return-requested", 0, 0L, "1", null
         );
 
         // when
@@ -91,11 +91,11 @@ class ReturnRequestedNotificationConsumerTest {
         // given
         ReturnRequestedEvent event = new ReturnRequestedEvent(100L, 1L);
         EventEnvelope<ReturnRequestedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 15, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 15, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.return-requested", 0, 0L, "key-1", envelope
+            "commerce.order.return-requested", 0, 0L, "key-1", envelope
         );
 
         // when

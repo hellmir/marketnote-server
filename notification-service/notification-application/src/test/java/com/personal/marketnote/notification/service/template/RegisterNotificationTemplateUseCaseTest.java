@@ -36,22 +36,22 @@ class RegisterNotificationTemplateUseCaseTest {
     void shouldRegisterNotificationTemplate() {
         // given
         RegisterNotificationTemplateCommand command = new RegisterNotificationTemplateCommand(
-                "ORDER_PAYMENT_COMPLETED",
-                "ORDER_PAYMENT_COMPLETED",
-                "INFORMATIONAL",
-                "주문이 완료되었습니다",
-                "{productName} 외 {count}건이 결제되었습니다.",
-                "/order/{orderId}"
+            "ORDER_PAYMENT_COMPLETED",
+            "ORDER_PAYMENT_COMPLETED",
+            "INFORMATIONAL",
+            "주문이 완료되었습니다",
+            "{productName} 외 {count}건이 결제되었습니다.",
+            "/order/{orderId}"
         );
 
         when(findNotificationTemplatePort.findActiveByTemplateCode("ORDER_PAYMENT_COMPLETED"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(saveNotificationTemplatePort.save(any(NotificationTemplate.class)))
-                .thenReturn(1L);
+            .thenReturn(1L);
 
         // when
         RegisterNotificationTemplateResult result = registerNotificationTemplateService.registerNotificationTemplate(
-                command
+            command
         );
 
         // then
@@ -65,29 +65,29 @@ class RegisterNotificationTemplateUseCaseTest {
     void shouldThrowExceptionWhenDuplicateTemplateCode() {
         // given
         RegisterNotificationTemplateCommand command = new RegisterNotificationTemplateCommand(
-                "ORDER_PAYMENT_COMPLETED",
-                "ORDER_PAYMENT_COMPLETED",
-                "INFORMATIONAL",
-                "주문이 완료되었습니다",
-                "본문",
-                "/order/{orderId}"
+            "ORDER_PAYMENT_COMPLETED",
+            "ORDER_PAYMENT_COMPLETED",
+            "INFORMATIONAL",
+            "주문이 완료되었습니다",
+            "본문",
+            "/order/{orderId}"
         );
 
         NotificationTemplate existing = NotificationTemplate.from(NotificationTemplateCreateState.builder()
-                .templateCode("ORDER_PAYMENT_COMPLETED")
-                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                .notificationCategory(NotificationCategory.INFORMATIONAL)
-                .title("기존 제목")
-                .bodyTemplate("기존 본문")
-                .urlTemplate("/order/{orderId}")
-                .build());
+            .templateCode("ORDER_PAYMENT_COMPLETED")
+            .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+            .notificationCategory(NotificationCategory.INFORMATIONAL)
+            .title("기존 제목")
+            .bodyTemplate("기존 본문")
+            .urlTemplate("/order/{orderId}")
+            .build());
 
         when(findNotificationTemplatePort.findActiveByTemplateCode("ORDER_PAYMENT_COMPLETED"))
-                .thenReturn(Optional.of(existing));
+            .thenReturn(Optional.of(existing));
 
         // when & then
         assertThatThrownBy(() -> registerNotificationTemplateService.registerNotificationTemplate(command))
-                .isInstanceOf(DuplicateNotificationTemplateException.class);
+            .isInstanceOf(DuplicateNotificationTemplateException.class);
         verify(saveNotificationTemplatePort, never()).save(any());
     }
 }

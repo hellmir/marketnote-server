@@ -22,20 +22,20 @@ public class ProductReviewAggregateResult {
     private BigDecimal averageRating = new BigDecimal("0.00");
 
     public static ProductReviewAggregateResult from(
-            ProductReviewAggregate productReviewAggregate
+        ProductReviewAggregate productReviewAggregate
     ) {
         if (FormatValidator.hasNoValue(productReviewAggregate)) {
             return new ProductReviewAggregateResult();
         }
 
         return new ProductReviewAggregateResult(
-                productReviewAggregate.getTotalCount(),
-                productReviewAggregate.getFivePointCount(),
-                productReviewAggregate.getFourPointCount(),
-                productReviewAggregate.getThreePointCount(),
-                productReviewAggregate.getTwoPointCount(),
-                productReviewAggregate.getOnePointCount(),
-                productReviewAggregate.getAverageRating()
+            productReviewAggregate.getTotalCount(),
+            productReviewAggregate.getFivePointCount(),
+            productReviewAggregate.getFourPointCount(),
+            productReviewAggregate.getThreePointCount(),
+            productReviewAggregate.getTwoPointCount(),
+            productReviewAggregate.getOnePointCount(),
+            productReviewAggregate.getAverageRating()
         );
     }
 }

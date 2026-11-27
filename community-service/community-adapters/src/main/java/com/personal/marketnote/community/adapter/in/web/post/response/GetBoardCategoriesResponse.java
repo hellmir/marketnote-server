@@ -6,7 +6,7 @@ import com.personal.marketnote.community.port.in.result.board.GetBoardCategories
 import java.util.List;
 
 public record GetBoardCategoriesResponse(
-        List<BoardCategoryItemResult> categories
+    List<BoardCategoryItemResult> categories
 ) {
     public static GetBoardCategoriesResponse from(GetBoardCategoriesResult getBoardCategoriesResult) {
         return new GetBoardCategoriesResponse(getBoardCategoriesResult.categories());

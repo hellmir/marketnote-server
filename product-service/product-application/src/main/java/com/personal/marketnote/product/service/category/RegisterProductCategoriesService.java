@@ -34,7 +34,7 @@ public class RegisterProductCategoriesService implements RegisterProductCategori
 
     @Override
     public RegisterProductCategoriesResult registerProductCategories(
-            Long userId, boolean isAdmin, RegisterProductCategoriesCommand command
+        Long userId, boolean isAdmin, RegisterProductCategoriesCommand command
     ) {
         Long productId = command.productId();
         Product product = getProductUseCase.getProduct(productId);

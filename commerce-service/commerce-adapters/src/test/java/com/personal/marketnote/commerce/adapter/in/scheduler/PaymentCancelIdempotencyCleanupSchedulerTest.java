@@ -76,10 +76,10 @@ class PaymentCancelIdempotencyCleanupSchedulerTest {
         when(properties.getTtlHours()).thenReturn(24L);
         LocalDateTime expected = LocalDateTime.now(commerceClock).minusHours(24L);
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(deletePort).deleteOlderThan(expected);
+            .when(deletePort).deleteOlderThan(expected);
 
         // when & then
         assertThatCode(() -> scheduler.cleanupExpiredIdempotencyRecords())
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 }

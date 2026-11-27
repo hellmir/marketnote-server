@@ -173,11 +173,11 @@ class FailReturnInspectionUseCaseTest {
 
     private ReturnTracker createPendingTracker(Long id, Long orderId) {
         return ReturnTracker.from(ReturnTrackerSnapshotState.builder()
-                .id(id)
-                .orderId(orderId)
-                .returnSlipNumber("RS-001")
-                .inspectionStatus(ReturnInspectionStatus.PENDING)
-                .refundStatus(ReturnRefundStatus.PENDING)
-                .build());
+            .id(id)
+            .orderId(orderId)
+            .returnSlipNumber("RS-001")
+            .inspectionStatus(ReturnInspectionStatus.PENDING)
+            .refundStatus(ReturnRefundStatus.PENDING)
+            .build());
     }
 }

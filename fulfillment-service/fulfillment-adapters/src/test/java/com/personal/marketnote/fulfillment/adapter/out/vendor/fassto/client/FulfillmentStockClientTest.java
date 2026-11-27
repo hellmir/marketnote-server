@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentStockDetailFailedException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentStocksFailedException;
@@ -39,9 +39,7 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -76,20 +74,20 @@ class FulfillmentStockClientTest {
         externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
 
         client = new FulfillmentStockClient(
-                builder,
-                objectMapper,
-                properties,
-                vendorCommunicationRecorder,
-                vendorCommunicationPayloadGenerator,
-                vendorCommunicationFailureHandler,
-                externalCallLogger,
-                new NoOpSleeper()
+            builder,
+            objectMapper,
+            properties,
+            vendorCommunicationRecorder,
+            vendorCommunicationPayloadGenerator,
+            vendorCommunicationFailureHandler,
+            externalCallLogger,
+            new NoOpSleeper()
         );
     }
 
     private void stubPayloadGenerator() {
         lenient().when(vendorCommunicationPayloadGenerator.buildPayloadJson(any()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
     }
 
     private void stubStockProperties() {
@@ -139,7 +137,7 @@ class FulfillmentStockClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getStocks(command))
-                    .isInstanceOf(GetFulfillmentStocksFailedException.class);
+                .isInstanceOf(GetFulfillmentStocksFailedException.class);
         }
     }
 
@@ -156,12 +154,12 @@ class FulfillmentStockClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentStockDetailCommand command = GetFulfillmentStockDetailCommand.of(
-                    "CUST001", "valid-token", "GOD001", null
+                "CUST001", "valid-token", "GOD001", null
             );
 
             // when & then
             assertThatThrownBy(() -> client.getStockDetail(command))
-                    .isInstanceOf(GetFulfillmentStockDetailFailedException.class);
+                .isInstanceOf(GetFulfillmentStockDetailFailedException.class);
         }
     }
 
@@ -183,14 +181,14 @@ class FulfillmentStockClientTest {
 
             // when
             assertThatThrownBy(() -> client.getStocks(command))
-                    .isInstanceOf(GetFulfillmentStocksFailedException.class);
+                .isInstanceOf(GetFulfillmentStocksFailedException.class);
 
             // then
             verify(externalCallLogger).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("getStocks"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getStocks"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).record(
-                    eq(ExternalSystem.FASSTO), eq("getStocks"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getStocks"), any(Map.class), any(Supplier.class)
             );
         }
 
@@ -207,14 +205,14 @@ class FulfillmentStockClientTest {
 
             // when
             assertThatThrownBy(() -> client.getStocks(command))
-                    .isInstanceOf(GetFulfillmentStocksFailedException.class);
+                .isInstanceOf(GetFulfillmentStocksFailedException.class);
 
             // then
             verify(externalCallLogger).record(
-                    eq(ExternalSystem.FASSTO), eq("getStocks"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getStocks"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("getStocks"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getStocks"), any(Map.class), any(Supplier.class)
             );
         }
     }
@@ -233,7 +231,7 @@ class FulfillmentStockClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getStocks(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -253,16 +251,16 @@ class FulfillmentStockClientTest {
             stubStockProperties();
             stubPayloadGenerator();
             String body = String.format("""
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{
-                        "whCd": "WH01",
-                        "godCd": "GOD001",
-                        "cstGodCd": "%s",
-                        "godNm": "테스트 상품"
-                      }]
-                    }
-                    """, TEST_ENCODED_CST_GOD_CD);
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{
+                    "whCd": "WH01",
+                    "godCd": "GOD001",
+                    "cstGodCd": "%s",
+                    "godNm": "테스트 상품"
+                  }]
+                }
+                """, TEST_ENCODED_CST_GOD_CD);
             stubGetChainReturns(new ResponseEntity<>(body, HttpStatus.OK));
 
             GetFulfillmentStocksCommand command = GetFulfillmentStocksCommand.of("CUST001", "valid-token");
@@ -282,16 +280,16 @@ class FulfillmentStockClientTest {
             stubStockProperties();
             stubPayloadGenerator();
             String body = String.format("""
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{
-                        "whCd": "WH01",
-                        "godCd": "GOD001",
-                        "cstGodCd": "%s",
-                        "godNm": "테스트 상품"
-                      }]
-                    }
-                    """, FALLBACK_PRODUCT_CODE);
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{
+                    "whCd": "WH01",
+                    "godCd": "GOD001",
+                    "cstGodCd": "%s",
+                    "godNm": "테스트 상품"
+                  }]
+                }
+                """, FALLBACK_PRODUCT_CODE);
             stubGetChainReturns(new ResponseEntity<>(body, HttpStatus.OK));
 
             GetFulfillmentStocksCommand command = GetFulfillmentStocksCommand.of("CUST001", "valid-token");
@@ -310,16 +308,16 @@ class FulfillmentStockClientTest {
             stubStockProperties();
             stubPayloadGenerator();
             String body = String.format("""
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{
-                        "whCd": "WH01",
-                        "godCd": "GOD001",
-                        "cstGodCd": "%s",
-                        "godNm": "테스트 상품"
-                      }]
-                    }
-                    """, LEGACY_UUID_RAW);
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{
+                    "whCd": "WH01",
+                    "godCd": "GOD001",
+                    "cstGodCd": "%s",
+                    "godNm": "테스트 상품"
+                  }]
+                }
+                """, LEGACY_UUID_RAW);
             stubGetChainReturns(new ResponseEntity<>(body, HttpStatus.OK));
 
             GetFulfillmentStocksCommand command = GetFulfillmentStocksCommand.of("CUST001", "valid-token");
@@ -340,8 +338,8 @@ class FulfillmentStockClientTest {
 
         private String successBody() {
             return """
-                    {"header": {"code": "200", "msg": "OK", "dataCount": 0}, "data": [], "meta": null}
-                    """;
+                {"header": {"code": "200", "msg": "OK", "dataCount": 0}, "data": [], "meta": null}
+                """;
         }
 
         @Test
@@ -354,7 +352,7 @@ class FulfillmentStockClientTest {
 
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(TEST_PRODUCT_KEY);
             GetFulfillmentStockDetailCommand command = GetFulfillmentStockDetailCommand.forProductKey(
-                    "CUST001", "valid-token", TEST_PRODUCT_KEY, encoded, null
+                "CUST001", "valid-token", TEST_PRODUCT_KEY, encoded, null
             );
 
             // when
@@ -364,24 +362,24 @@ class FulfillmentStockClientTest {
             // caller가 채운 fasstoProductCode가 cstGodCd로 송신되며 targetId에도 그대로 사용된다
             String expectedTargetId = encoded;
             verify(vendorCommunicationRecorder).record(
-                    eq(FulfillmentVendorCommunicationTargetType.STOCK),
-                    eq(FulfillmentVendorCommunicationType.REQUEST),
-                    eq(FulfillmentVendorCommunicationSenderType.SERVER),
-                    eq(expectedTargetId),
-                    eq(FulfillmentVendorName.FASSTO),
-                    any(String.class),
-                    any(),
-                    isNull()
+                eq(FulfillmentVendorCommunicationTargetType.STOCK),
+                eq(FulfillmentVendorCommunicationType.REQUEST),
+                eq(FulfillmentVendorCommunicationSenderType.SERVER),
+                eq(expectedTargetId),
+                eq(FulfillmentVendorName.FASSTO),
+                any(String.class),
+                any(),
+                isNull()
             );
             verify(vendorCommunicationRecorder).record(
-                    eq(FulfillmentVendorCommunicationTargetType.STOCK),
-                    eq(FulfillmentVendorCommunicationType.RESPONSE),
-                    eq(FulfillmentVendorCommunicationSenderType.VENDOR),
-                    eq(expectedTargetId),
-                    eq(FulfillmentVendorName.FASSTO),
-                    any(String.class),
-                    any(),
-                    isNull()
+                eq(FulfillmentVendorCommunicationTargetType.STOCK),
+                eq(FulfillmentVendorCommunicationType.RESPONSE),
+                eq(FulfillmentVendorCommunicationSenderType.VENDOR),
+                eq(expectedTargetId),
+                eq(FulfillmentVendorName.FASSTO),
+                any(String.class),
+                any(),
+                isNull()
             );
         }
 
@@ -395,7 +393,7 @@ class FulfillmentStockClientTest {
             stubGetChainReturns(new ResponseEntity<>(successBody(), HttpStatus.OK));
 
             GetFulfillmentStockDetailCommand command = GetFulfillmentStockDetailCommand.of(
-                    "CUST001", "valid-token", encoded, null
+                "CUST001", "valid-token", encoded, null
             );
 
             // when
@@ -403,14 +401,14 @@ class FulfillmentStockClientTest {
 
             // then
             verify(vendorCommunicationRecorder, times(2)).record(
-                    eq(FulfillmentVendorCommunicationTargetType.STOCK),
-                    any(FulfillmentVendorCommunicationType.class),
-                    any(FulfillmentVendorCommunicationSenderType.class),
-                    eq(encoded),
-                    eq(FulfillmentVendorName.FASSTO),
-                    any(String.class),
-                    any(),
-                    isNull()
+                eq(FulfillmentVendorCommunicationTargetType.STOCK),
+                any(FulfillmentVendorCommunicationType.class),
+                any(FulfillmentVendorCommunicationSenderType.class),
+                eq(encoded),
+                eq(FulfillmentVendorName.FASSTO),
+                any(String.class),
+                any(),
+                isNull()
             );
         }
 
@@ -429,14 +427,14 @@ class FulfillmentStockClientTest {
 
             // then
             verify(vendorCommunicationRecorder, times(2)).record(
-                    eq(FulfillmentVendorCommunicationTargetType.STOCK),
-                    any(FulfillmentVendorCommunicationType.class),
-                    any(FulfillmentVendorCommunicationSenderType.class),
-                    isNull(),
-                    eq(FulfillmentVendorName.FASSTO),
-                    any(String.class),
-                    any(),
-                    isNull()
+                eq(FulfillmentVendorCommunicationTargetType.STOCK),
+                any(FulfillmentVendorCommunicationType.class),
+                any(FulfillmentVendorCommunicationSenderType.class),
+                isNull(),
+                eq(FulfillmentVendorName.FASSTO),
+                any(String.class),
+                any(),
+                isNull()
             );
         }
     }

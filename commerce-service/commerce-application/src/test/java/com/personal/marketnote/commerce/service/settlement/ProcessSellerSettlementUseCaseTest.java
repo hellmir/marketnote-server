@@ -62,36 +62,36 @@ class ProcessSellerSettlementUseCaseTest {
 
     private PaymentAllocation createAllocation(Long id, Long sellerId, Long allocatedAmount, Long shippingFee) {
         return PaymentAllocation.from(PaymentAllocationSnapshotState.builder()
-                .id(id)
-                .orderId(100L)
-                .sellerId(sellerId)
-                .allocatedAmount(allocatedAmount)
-                .shippingFee(shippingFee)
-                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                .targetType(PaymentAllocationTargetType.ORDER)
-                .idempotencyKey(IdempotencyKey.of("TEST:" + id))
-                .createdAt(LocalDateTime.of(2026, 2, 15, 10, 0))
-                .build());
+            .id(id)
+            .orderId(100L)
+            .sellerId(sellerId)
+            .allocatedAmount(allocatedAmount)
+            .shippingFee(shippingFee)
+            .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+            .targetType(PaymentAllocationTargetType.ORDER)
+            .idempotencyKey(IdempotencyKey.of("TEST:" + id))
+            .createdAt(LocalDateTime.of(2026, 2, 15, 10, 0))
+            .build());
     }
 
     private Settlement createSavedSettlement(Long id, Long sellerId, Integer year, Integer month,
                                              Long totalAllocatedAmount, Long pgFeeAmount,
                                              Long platformFeeAmount, Long sellerPayoutAmount) {
         return Settlement.from(SettlementSnapshotState.builder()
-                .id(id)
-                .sellerId(sellerId)
-                .year(year)
-                .month(month)
-                .totalAllocatedAmount(totalAllocatedAmount)
-                .pgFeeAmount(pgFeeAmount)
-                .platformFeeAmount(platformFeeAmount)
-                .sellerPayoutAmount(sellerPayoutAmount)
-                .status(SettlementStatus.PENDING)
-                .version(0L)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .shippingFee(0L)
-                .build());
+            .id(id)
+            .sellerId(sellerId)
+            .year(year)
+            .month(month)
+            .totalAllocatedAmount(totalAllocatedAmount)
+            .pgFeeAmount(pgFeeAmount)
+            .platformFeeAmount(platformFeeAmount)
+            .sellerPayoutAmount(sellerPayoutAmount)
+            .status(SettlementStatus.PENDING)
+            .version(0L)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .shippingFee(0L)
+            .build());
     }
 
     @Nested
@@ -106,19 +106,19 @@ class ProcessSellerSettlementUseCaseTest {
             PaymentAllocation allocation2 = createAllocation(2L, 10L, 3000L);
 
             when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
-                    .thenReturn(false);
+                .thenReturn(false);
             when(saveSettlementPort.save(any(Settlement.class)))
-                    .thenAnswer(invocation -> {
-                        Settlement s = invocation.getArgument(0);
-                        return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
-                                s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
-                    });
+                .thenAnswer(invocation -> {
+                    Settlement s = invocation.getArgument(0);
+                    return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
+                        s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
+                        s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
+                });
             when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).build();
+                .year(2026).month(2).build();
 
             // when
             processSellerSettlementService.process(command, 10L, List.of(allocation1, allocation2), 300, 500);
@@ -146,19 +146,19 @@ class ProcessSellerSettlementUseCaseTest {
             PaymentAllocation allocation = createAllocation(1L, 10L, 10000L);
 
             when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
-                    .thenReturn(false);
+                .thenReturn(false);
             when(saveSettlementPort.save(any(Settlement.class)))
-                    .thenAnswer(invocation -> {
-                        Settlement s = invocation.getArgument(0);
-                        return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
-                                s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
-                    });
+                .thenAnswer(invocation -> {
+                    Settlement s = invocation.getArgument(0);
+                    return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
+                        s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
+                        s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
+                });
             when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).build();
+                .year(2026).month(2).build();
 
             // when
             processSellerSettlementService.process(command, 10L, List.of(allocation), 0, 500);
@@ -178,19 +178,19 @@ class ProcessSellerSettlementUseCaseTest {
             PaymentAllocation allocation = createAllocation(1L, 10L, 5000L, 3000L);
 
             when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
-                    .thenReturn(false);
+                .thenReturn(false);
             when(saveSettlementPort.save(any(Settlement.class)))
-                    .thenAnswer(invocation -> {
-                        Settlement s = invocation.getArgument(0);
-                        return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
-                                s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
-                    });
+                .thenAnswer(invocation -> {
+                    Settlement s = invocation.getArgument(0);
+                    return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
+                        s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
+                        s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
+                });
             when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).build();
+                .year(2026).month(2).build();
 
             // when
             // pgFeeRate=300 (3%), platformFeeRate=500 (5%)
@@ -219,31 +219,31 @@ class ProcessSellerSettlementUseCaseTest {
             // net: allocated=7000, shipping=2000, feeBase=9000
             PaymentAllocation orderAllocation = createAllocation(1L, 10L, 10000L, 2000L);
             PaymentAllocation cancelAllocation = PaymentAllocation.from(PaymentAllocationSnapshotState.builder()
-                    .id(2L)
-                    .orderId(100L)
-                    .sellerId(10L)
-                    .allocatedAmount(3000L)
-                    .shippingFee(0L)
-                    .transactionType(PaymentAllocationTransactionType.CANCELLATION)
-                    .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey(IdempotencyKey.of("CANCEL:2"))
-                    .createdAt(LocalDateTime.of(2026, 2, 15, 10, 0))
-                    .build());
+                .id(2L)
+                .orderId(100L)
+                .sellerId(10L)
+                .allocatedAmount(3000L)
+                .shippingFee(0L)
+                .transactionType(PaymentAllocationTransactionType.CANCELLATION)
+                .targetType(PaymentAllocationTargetType.ORDER)
+                .idempotencyKey(IdempotencyKey.of("CANCEL:2"))
+                .createdAt(LocalDateTime.of(2026, 2, 15, 10, 0))
+                .build());
 
             when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
-                    .thenReturn(false);
+                .thenReturn(false);
             when(saveSettlementPort.save(any(Settlement.class)))
-                    .thenAnswer(invocation -> {
-                        Settlement s = invocation.getArgument(0);
-                        return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
-                                s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
-                    });
+                .thenAnswer(invocation -> {
+                    Settlement s = invocation.getArgument(0);
+                    return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
+                        s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
+                        s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
+                });
             when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).build();
+                .year(2026).month(2).build();
 
             // when
             // feeBase = 7000 + 2000 = 9000
@@ -251,7 +251,7 @@ class ProcessSellerSettlementUseCaseTest {
             // platformFee = 9000 * 500 / 10000 = 450
             // sellerPayout = 9000 - 270 - 450 = 8280
             processSellerSettlementService.process(
-                    command, 10L, List.of(orderAllocation, cancelAllocation), 300, 500);
+                command, 10L, List.of(orderAllocation, cancelAllocation), 300, 500);
 
             // then
             verify(saveSettlementPort).save(settlementCaptor.capture());
@@ -270,19 +270,19 @@ class ProcessSellerSettlementUseCaseTest {
             PaymentAllocation allocation = createAllocation(1L, 10L, 10001L);
 
             when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
-                    .thenReturn(false);
+                .thenReturn(false);
             when(saveSettlementPort.save(any(Settlement.class)))
-                    .thenAnswer(invocation -> {
-                        Settlement s = invocation.getArgument(0);
-                        return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
-                                s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
-                    });
+                .thenAnswer(invocation -> {
+                    Settlement s = invocation.getArgument(0);
+                    return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
+                        s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
+                        s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
+                });
             when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).build();
+                .year(2026).month(2).build();
 
             // when
             processSellerSettlementService.process(command, 10L, List.of(allocation), 300, 500);
@@ -311,15 +311,15 @@ class ProcessSellerSettlementUseCaseTest {
             PaymentAllocation allocation = createAllocation(1L, 10L, 10000L);
 
             when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
-                    .thenReturn(true);
+                .thenReturn(true);
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).build();
+                .year(2026).month(2).build();
 
             // when & then
             assertThatThrownBy(() -> processSellerSettlementService.process(
-                    command, 10L, List.of(allocation), 300, 500))
-                    .isInstanceOf(SettlementAlreadyExistsException.class);
+                command, 10L, List.of(allocation), 300, 500))
+                .isInstanceOf(SettlementAlreadyExistsException.class);
 
             verify(saveSettlementPort, never()).save(any());
         }

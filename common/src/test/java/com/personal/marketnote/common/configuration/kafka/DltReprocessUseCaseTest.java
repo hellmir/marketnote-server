@@ -69,13 +69,13 @@ class DltReprocessUseCaseTest {
         ConsumerRecord<String, Object> record1 = new ConsumerRecord<>(dltTopic, 0, 0L, "key-1", "value-1");
         ConsumerRecord<String, Object> record2 = new ConsumerRecord<>(dltTopic, 0, 1L, "key-2", "value-2");
         ConsumerRecords<String, Object> records = new ConsumerRecords<>(
-                Map.of(topicPartition, List.of(record1, record2))
+            Map.of(topicPartition, List.of(record1, record2))
         );
         ConsumerRecords<String, Object> emptyRecords = new ConsumerRecords<>(Collections.emptyMap());
 
         when(consumer.poll(any(Duration.class)))
-                .thenReturn(records)
-                .thenReturn(emptyRecords);
+            .thenReturn(records)
+            .thenReturn(emptyRecords);
 
         CompletableFuture<SendResult<String, Object>> future = CompletableFuture.completedFuture(null);
         when(kafkaTemplate.send(anyString(), anyString(), any())).thenReturn(future);
@@ -158,8 +158,8 @@ class DltReprocessUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> dltReprocessService.reprocess(invalidTopic, OPERATOR))
-                .isInstanceOf(InvalidDltTopicException.class)
-                .hasMessageContaining(invalidTopic);
+            .isInstanceOf(InvalidDltTopicException.class)
+            .hasMessageContaining(invalidTopic);
     }
 
     @Test
@@ -177,13 +177,13 @@ class DltReprocessUseCaseTest {
         TopicPartition topicPartition = new TopicPartition(dltTopic, 0);
         ConsumerRecord<String, Object> record = new ConsumerRecord<>(dltTopic, 0, 0L, "key-1", "value-1");
         ConsumerRecords<String, Object> records = new ConsumerRecords<>(
-                Map.of(topicPartition, List.of(record))
+            Map.of(topicPartition, List.of(record))
         );
         ConsumerRecords<String, Object> emptyRecords = new ConsumerRecords<>(Collections.emptyMap());
 
         when(consumer.poll(any(Duration.class)))
-                .thenReturn(records)
-                .thenReturn(emptyRecords);
+            .thenReturn(records)
+            .thenReturn(emptyRecords);
 
         CompletableFuture<SendResult<String, Object>> failedFuture = new CompletableFuture<>();
         failedFuture.completeExceptionally(new RuntimeException("전송 실패"));
@@ -221,20 +221,20 @@ class DltReprocessUseCaseTest {
         ConsumerRecord<String, Object> record2 = new ConsumerRecord<>(dltTopic, 0, 1L, "key-2", "value-2");
         ConsumerRecord<String, Object> record3 = new ConsumerRecord<>(dltTopic, 0, 2L, "key-3", "value-3");
         ConsumerRecords<String, Object> records = new ConsumerRecords<>(
-                Map.of(topicPartition, List.of(record1, record2, record3))
+            Map.of(topicPartition, List.of(record1, record2, record3))
         );
         ConsumerRecords<String, Object> emptyRecords = new ConsumerRecords<>(Collections.emptyMap());
 
         when(consumer.poll(any(Duration.class)))
-                .thenReturn(records)
-                .thenReturn(emptyRecords);
+            .thenReturn(records)
+            .thenReturn(emptyRecords);
 
         CompletableFuture<SendResult<String, Object>> future = CompletableFuture.completedFuture(null);
         when(kafkaTemplate.send(anyString(), anyString(), any())).thenReturn(future);
 
         DltMessageResolutionJpaEntity resolvedEntity = DltMessageResolutionJpaEntity.of(
-                originalTopic, dltTopic, 0, 0L,
-                DltResolutionStatus.RETRIED, OPERATOR, LocalDateTime.now(), null
+            originalTopic, dltTopic, 0, 0L,
+            DltResolutionStatus.RETRIED, OPERATOR, LocalDateTime.now(), null
         );
         when(resolutionRepository.findByOriginalTopic(originalTopic)).thenReturn(List.of(resolvedEntity));
 
@@ -267,24 +267,24 @@ class DltReprocessUseCaseTest {
         ConsumerRecord<String, Object> record1 = new ConsumerRecord<>(dltTopic, 0, 0L, "key-1", "value-1");
         ConsumerRecord<String, Object> record2 = new ConsumerRecord<>(dltTopic, 0, 1L, "key-2", "value-2");
         ConsumerRecords<String, Object> records = new ConsumerRecords<>(
-                Map.of(topicPartition, List.of(record1, record2))
+            Map.of(topicPartition, List.of(record1, record2))
         );
         ConsumerRecords<String, Object> emptyRecords = new ConsumerRecords<>(Collections.emptyMap());
 
         when(consumer.poll(any(Duration.class)))
-                .thenReturn(records)
-                .thenReturn(emptyRecords);
+            .thenReturn(records)
+            .thenReturn(emptyRecords);
 
         DltMessageResolutionJpaEntity resolved1 = DltMessageResolutionJpaEntity.of(
-                originalTopic, dltTopic, 0, 0L,
-                DltResolutionStatus.RETRIED, OPERATOR, LocalDateTime.now(), null
+            originalTopic, dltTopic, 0, 0L,
+            DltResolutionStatus.RETRIED, OPERATOR, LocalDateTime.now(), null
         );
         DltMessageResolutionJpaEntity resolved2 = DltMessageResolutionJpaEntity.of(
-                originalTopic, dltTopic, 0, 1L,
-                DltResolutionStatus.DISCARDED, OPERATOR, LocalDateTime.now(), null
+            originalTopic, dltTopic, 0, 1L,
+            DltResolutionStatus.DISCARDED, OPERATOR, LocalDateTime.now(), null
         );
         when(resolutionRepository.findByOriginalTopic(originalTopic))
-                .thenReturn(List.of(resolved1, resolved2));
+            .thenReturn(List.of(resolved1, resolved2));
 
         // when
         DltReprocessResult result = dltReprocessService.reprocess(originalTopic, OPERATOR);

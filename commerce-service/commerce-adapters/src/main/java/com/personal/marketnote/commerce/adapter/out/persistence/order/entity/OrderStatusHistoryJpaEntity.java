@@ -42,22 +42,22 @@ public class OrderStatusHistoryJpaEntity extends BaseEntity {
         OrderStatus orderStatus = orderJpaEntity.getOrderStatus();
 
         return OrderStatusHistoryJpaEntity.builder()
-                .orderJpaEntity(orderJpaEntity)
-                .orderStatus(orderStatus)
-                .reason(orderStatus.getDescription())
-                .build();
+            .orderJpaEntity(orderJpaEntity)
+            .orderStatus(orderStatus)
+            .reason(orderStatus.getDescription())
+            .build();
     }
 
     public static OrderStatusHistoryJpaEntity from(
-            OrderStatusHistory orderStatusHistory,
-            OrderJpaEntity orderJpaEntity
+        OrderStatusHistory orderStatusHistory,
+        OrderJpaEntity orderJpaEntity
     ) {
         return OrderStatusHistoryJpaEntity.builder()
-                .orderJpaEntity(orderJpaEntity)
-                .orderStatus(orderStatusHistory.getOrderStatus())
-                .reasonCategory(orderStatusHistory.getReasonCategory())
-                .reason(orderStatusHistory.getReason())
-                .build();
+            .orderJpaEntity(orderJpaEntity)
+            .orderStatus(orderStatusHistory.getOrderStatus())
+            .reasonCategory(orderStatusHistory.getReasonCategory())
+            .reason(orderStatusHistory.getReason())
+            .build();
     }
 }
 

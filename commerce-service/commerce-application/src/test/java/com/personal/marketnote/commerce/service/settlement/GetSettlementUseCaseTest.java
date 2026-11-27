@@ -39,20 +39,20 @@ class GetSettlementUseCaseTest {
                                         Long totalAllocated, Long pgFee, Long platformFee,
                                         Long sellerPayout, SettlementStatus status) {
         return Settlement.from(SettlementSnapshotState.builder()
-                .id(id)
-                .sellerId(sellerId)
-                .year(year)
-                .month(month)
-                .totalAllocatedAmount(totalAllocated)
-                .pgFeeAmount(pgFee)
-                .platformFeeAmount(platformFee)
-                .sellerPayoutAmount(sellerPayout)
-                .status(status)
-                .version(0L)
-                .createdAt(LocalDateTime.of(2026, 2, 16, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 2, 16, 10, 0))
-                .shippingFee(0L)
-                .build());
+            .id(id)
+            .sellerId(sellerId)
+            .year(year)
+            .month(month)
+            .totalAllocatedAmount(totalAllocated)
+            .pgFeeAmount(pgFee)
+            .platformFeeAmount(platformFee)
+            .sellerPayoutAmount(sellerPayout)
+            .status(status)
+            .version(0L)
+            .createdAt(LocalDateTime.of(2026, 2, 16, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 2, 16, 10, 0))
+            .shippingFee(0L)
+            .build());
     }
 
     @Nested
@@ -64,7 +64,7 @@ class GetSettlementUseCaseTest {
         void shouldReturnCompletedSettlementById() {
             // given
             Settlement settlement = createSettlement(1L, 10L, 2026, 2,
-                    100000L, 3000L, 5000L, 92000L, SettlementStatus.COMPLETED);
+                100000L, 3000L, 5000L, 92000L, SettlementStatus.COMPLETED);
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(settlement));
 
             // when
@@ -90,7 +90,7 @@ class GetSettlementUseCaseTest {
         void shouldReturnPendingSettlement() {
             // given
             Settlement settlement = createSettlement(2L, 20L, 2026, 1,
-                    50000L, 1500L, 2500L, 46000L, SettlementStatus.PENDING);
+                50000L, 1500L, 2500L, 46000L, SettlementStatus.PENDING);
             when(findSettlementPort.findById(2L)).thenReturn(Optional.of(settlement));
 
             // when
@@ -107,7 +107,7 @@ class GetSettlementUseCaseTest {
         void shouldReturnFailedSettlement() {
             // given
             Settlement settlement = createSettlement(3L, 30L, 2026, 1,
-                    80000L, 2400L, 4000L, 73600L, SettlementStatus.FAILED);
+                80000L, 2400L, 4000L, 73600L, SettlementStatus.FAILED);
             when(findSettlementPort.findById(3L)).thenReturn(Optional.of(settlement));
 
             // when
@@ -126,7 +126,7 @@ class GetSettlementUseCaseTest {
 
             // when & then
             assertThatThrownBy(() -> getSettlementService.getSettlement(999L))
-                    .isInstanceOf(SettlementNotFoundException.class);
+                .isInstanceOf(SettlementNotFoundException.class);
             verify(findSettlementPort).findById(999L);
         }
     }
@@ -140,12 +140,12 @@ class GetSettlementUseCaseTest {
         void shouldReturnSettlementsByYearAndMonth() {
             // given
             Settlement settlement1 = createSettlement(1L, 10L, 2026, 2,
-                    100000L, 3000L, 5000L, 92000L, SettlementStatus.COMPLETED);
+                100000L, 3000L, 5000L, 92000L, SettlementStatus.COMPLETED);
             Settlement settlement2 = createSettlement(2L, 20L, 2026, 2,
-                    200000L, 6000L, 10000L, 184000L, SettlementStatus.COMPLETED);
+                200000L, 6000L, 10000L, 184000L, SettlementStatus.COMPLETED);
 
             when(findSettlementPort.findAllByYearAndMonth(2026, 2))
-                    .thenReturn(List.of(settlement1, settlement2));
+                .thenReturn(List.of(settlement1, settlement2));
 
             GetSettlementsQuery query = GetSettlementsQuery.of(2026, 2);
 
@@ -164,7 +164,7 @@ class GetSettlementUseCaseTest {
         void shouldReturnEmptyListWhenNoSettlements() {
             // given
             when(findSettlementPort.findAllByYearAndMonth(2025, 12))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             GetSettlementsQuery query = GetSettlementsQuery.of(2025, 12);
 
@@ -181,10 +181,10 @@ class GetSettlementUseCaseTest {
         void shouldReturnSingleSettlement() {
             // given
             Settlement settlement = createSettlement(1L, 10L, 2026, 1,
-                    50000L, 1500L, 2500L, 46000L, SettlementStatus.COMPLETED);
+                50000L, 1500L, 2500L, 46000L, SettlementStatus.COMPLETED);
 
             when(findSettlementPort.findAllByYearAndMonth(2026, 1))
-                    .thenReturn(List.of(settlement));
+                .thenReturn(List.of(settlement));
 
             GetSettlementsQuery query = GetSettlementsQuery.of(2026, 1);
 
@@ -202,10 +202,10 @@ class GetSettlementUseCaseTest {
         void shouldMapAllFieldsCorrectly() {
             // given
             Settlement settlement = createSettlement(5L, 15L, 2026, 3,
-                    150000L, 4500L, 7500L, 138000L, SettlementStatus.COMPLETED);
+                150000L, 4500L, 7500L, 138000L, SettlementStatus.COMPLETED);
 
             when(findSettlementPort.findAllByYearAndMonth(2026, 3))
-                    .thenReturn(List.of(settlement));
+                .thenReturn(List.of(settlement));
 
             GetSettlementsQuery query = GetSettlementsQuery.of(2026, 3);
 

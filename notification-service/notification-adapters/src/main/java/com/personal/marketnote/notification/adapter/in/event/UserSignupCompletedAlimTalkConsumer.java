@@ -31,12 +31,12 @@ public class UserSignupCompletedAlimTalkConsumer {
     private final AligoProperties aligoProperties;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.USER_SIGNUP_COMPLETED,
-            groupId = "notification-alimtalk-user"
+        topics = KafkaTopicConstants.USER_SIGNUP_COMPLETED,
+        groupId = "notification-alimtalk-user"
     )
     public void handleUserSignupCompletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -53,38 +53,38 @@ public class UserSignupCompletedAlimTalkConsumer {
         UserSignupCompletedEvent payload = envelope.getPayloadAs(UserSignupCompletedEvent.class, objectMapper);
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("userId", payload.userId()))) {
+            EventPayloadValidator.id("userId", payload.userId()))) {
             acknowledgment.acknowledge();
             return;
         }
 
         if (FormatValidator.hasNoValue(payload.phoneNumber())) {
             log.warn("회원가입 완료 알림톡 발송 생략: 전화번호 없음. eventId={}, userId={}",
-                    envelope.eventId(), payload.userId());
+                envelope.eventId(), payload.userId());
             acknowledgment.acknowledge();
             return;
         }
 
         log.info("회원가입 완료 이벤트 수신 (알림톡 발송). eventId={}, userId={}",
-                envelope.eventId(), payload.userId());
+            envelope.eventId(), payload.userId());
 
         try {
             SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                    AligoTemplateCodes.USER_SIGNUP,
-                    aligoProperties.getSender(),
-                    Map.of("user_name", FormatValidator.hasValue(payload.userName())
-                            ? payload.userName() : ""),
-                    List.of(new AligoAlimTalkRecipientCommand(
-                            payload.phoneNumber(), payload.userName()
-                    )),
-                    null
+                AligoTemplateCodes.USER_SIGNUP,
+                aligoProperties.getSender(),
+                Map.of("user_name", FormatValidator.hasValue(payload.userName())
+                    ? payload.userName() : ""),
+                List.of(new AligoAlimTalkRecipientCommand(
+                    payload.phoneNumber(), payload.userName()
+                )),
+                null
             );
             sendAligoAlimTalkUseCase.sendAlimTalk(command);
 
             log.info("회원가입 완료 알림톡 발송 완료. userId={}", payload.userId());
         } catch (Exception e) {
             log.error("회원가입 완료 알림톡 발송 실패. eventId={}, userId={}, error={}",
-                    envelope.eventId(), payload.userId(), e.getMessage(), e);
+                envelope.eventId(), payload.userId(), e.getMessage(), e);
         }
 
         acknowledgment.acknowledge();

@@ -71,20 +71,20 @@ public class ProductJpaEntity extends BaseOrderedGeneralEntity {
 
     public static ProductJpaEntity from(Product product) {
         ProductJpaEntity productJpaEntity = ProductJpaEntity.builder()
-                .productKey(product.getProductKey())
-                .sellerId(product.getSellerId())
-                .name(product.getName())
-                .brandName(product.getBrandName())
-                .detail(product.getDetail())
-                .findAllOptionsYn(product.isFindAllOptionsYn())
-                .fasstoProductCode(product.getFasstoProductCode())
-                .build();
+            .productKey(product.getProductKey())
+            .sellerId(product.getSellerId())
+            .name(product.getName())
+            .brandName(product.getBrandName())
+            .detail(product.getDetail())
+            .findAllOptionsYn(product.isFindAllOptionsYn())
+            .fasstoProductCode(product.getFasstoProductCode())
+            .build();
 
         productJpaEntity.productTagJpaEntities = (
-                product.getProductTags()
-                        .stream()
-                        .map(tag -> ProductTagJpaEntity.from(productJpaEntity, tag))
-                        .collect(Collectors.toList())
+            product.getProductTags()
+                .stream()
+                .map(tag -> ProductTagJpaEntity.from(productJpaEntity, tag))
+                .collect(Collectors.toList())
         );
 
         return productJpaEntity;
@@ -122,8 +122,8 @@ public class ProductJpaEntity extends BaseOrderedGeneralEntity {
     public PricePolicyJpaEntity getDefaultPricePolicy() {
         if (FormatValidator.hasValue(pricePolicyJpaEntities)) {
             return pricePolicyJpaEntities.stream()
-                    .max(Comparator.comparing(PricePolicyJpaEntity::getId))
-                    .orElse(null);
+                .max(Comparator.comparing(PricePolicyJpaEntity::getId))
+                .orElse(null);
         }
 
         return null;

@@ -26,9 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({
-        AuditConfig.class,
-        QuerydslConfig.class,
-        ProductCatalogReadModelQueryRepositoryImpl.class
+    AuditConfig.class,
+    QuerydslConfig.class,
+    ProductCatalogReadModelQueryRepositoryImpl.class
 })
 class ProductCatalogReadModelQueryRepositoryImplTest {
 
@@ -45,34 +45,34 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
     }
 
     private ProductCatalogReadModelJpaEntity buildEntity(
-            Long pricePolicyId,
-            Long productId,
-            Long primaryCategoryId,
-            String name,
-            String brandName,
-            Long discountPrice,
-            Long orderNum,
-            Long popularity,
-            Long accumulatedPoint,
-            BigDecimal accumulatedPointRate
+        Long pricePolicyId,
+        Long productId,
+        Long primaryCategoryId,
+        String name,
+        String brandName,
+        Long discountPrice,
+        Long orderNum,
+        Long popularity,
+        Long accumulatedPoint,
+        BigDecimal accumulatedPointRate
     ) {
         return ProductCatalogReadModelJpaEntity.of(
-                pricePolicyId,
-                productId,
-                200L,
-                primaryCategoryId,
-                name,
-                brandName,
-                discountPrice + 1000L,
-                discountPrice,
-                BigDecimal.valueOf(10.0),
-                accumulatedPoint,
-                accumulatedPointRate,
-                orderNum,
-                popularity,
-                0L,
-                null,
-                null
+            pricePolicyId,
+            productId,
+            200L,
+            primaryCategoryId,
+            name,
+            brandName,
+            discountPrice + 1000L,
+            discountPrice,
+            BigDecimal.valueOf(10.0),
+            accumulatedPoint,
+            accumulatedPointRate,
+            orderNum,
+            popularity,
+            0L,
+            null,
+            null
         );
     }
 
@@ -88,11 +88,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "C", null, 9000L, 20L, 0L, 0L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
+                null, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getOrderNum)
-                    .containsExactly(10L, 20L, 30L);
+                .containsExactly(10L, 20L, 30L);
         }
 
         @Test
@@ -103,11 +103,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "C", null, 9000L, 20L, 0L, 0L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 10, false, ProductSortProperty.ORDER_NUM, null, null
+                null, null, null, 10, false, ProductSortProperty.ORDER_NUM, null, null
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getOrderNum)
-                    .containsExactly(30L, 20L, 10L);
+                .containsExactly(30L, 20L, 10L);
         }
 
         @Test
@@ -118,11 +118,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "C", null, 9000L, 0L, 80L, 0L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 10, true, ProductSortProperty.POPULARITY, null, null
+                null, null, null, 10, true, ProductSortProperty.POPULARITY, null, null
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getPopularity)
-                    .containsExactly(10L, 50L, 80L);
+                .containsExactly(10L, 50L, 80L);
         }
 
         @Test
@@ -133,11 +133,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "C", null, 9000L, 0L, 80L, 0L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 10, false, ProductSortProperty.POPULARITY, null, null
+                null, null, null, 10, false, ProductSortProperty.POPULARITY, null, null
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getPopularity)
-                    .containsExactly(80L, 50L, 10L);
+                .containsExactly(80L, 50L, 10L);
         }
 
         @Test
@@ -148,11 +148,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "C", null, 9000L, 0L, 0L, 200L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 10, true, ProductSortProperty.ACCUMULATED_POINT, null, null
+                null, null, null, 10, true, ProductSortProperty.ACCUMULATED_POINT, null, null
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getAccumulatedPoint)
-                    .containsExactly(100L, 200L, 300L);
+                .containsExactly(100L, 200L, 300L);
         }
 
         @Test
@@ -163,11 +163,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "C", null, 9000L, 0L, 0L, 200L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 10, false, ProductSortProperty.ACCUMULATED_POINT, null, null
+                null, null, null, 10, false, ProductSortProperty.ACCUMULATED_POINT, null, null
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getAccumulatedPoint)
-                    .containsExactly(300L, 200L, 100L);
+                .containsExactly(300L, 200L, 100L);
         }
 
         @Test
@@ -178,11 +178,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "C", null, 9000L, 0L, 0L, 0L, BigDecimal.valueOf(2.0)));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 10, true, ProductSortProperty.ACCUMULATED_POINT_RATE, null, null
+                null, null, null, 10, true, ProductSortProperty.ACCUMULATED_POINT_RATE, null, null
             );
 
             assertThat(results).extracting(r -> r.getAccumulatedPointRate().doubleValue())
-                    .containsExactly(1.0, 2.0, 3.0);
+                .containsExactly(1.0, 2.0, 3.0);
         }
 
         @Test
@@ -193,11 +193,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "C", null, 9000L, 0L, 0L, 0L, BigDecimal.valueOf(2.0)));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 10, false, ProductSortProperty.ACCUMULATED_POINT_RATE, null, null
+                null, null, null, 10, false, ProductSortProperty.ACCUMULATED_POINT_RATE, null, null
             );
 
             assertThat(results).extracting(r -> r.getAccumulatedPointRate().doubleValue())
-                    .containsExactly(3.0, 2.0, 1.0);
+                .containsExactly(3.0, 2.0, 1.0);
         }
 
         @Test
@@ -208,11 +208,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "C", null, 12000L, 0L, 0L, 0L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
+                null, null, null, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getDiscountPrice)
-                    .containsExactly(7000L, 9000L, 12000L);
+                .containsExactly(7000L, 9000L, 12000L);
         }
 
         @Test
@@ -223,11 +223,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "C", null, 12000L, 0L, 0L, 0L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 10, false, ProductSortProperty.DISCOUNT_PRICE, null, null
+                null, null, null, 10, false, ProductSortProperty.DISCOUNT_PRICE, null, null
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getDiscountPrice)
-                    .containsExactly(12000L, 9000L, 7000L);
+                .containsExactly(12000L, 9000L, 7000L);
         }
     }
 
@@ -243,12 +243,12 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "사과파이", "브랜드C", 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 10, true, ProductSortProperty.ORDER_NUM,
-                    ProductSearchTarget.NAME, "사과"
+                null, null, null, 10, true, ProductSortProperty.ORDER_NUM,
+                ProductSearchTarget.NAME, "사과"
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getName)
-                    .containsExactlyInAnyOrder("사과주스", "사과파이");
+                .containsExactlyInAnyOrder("사과주스", "사과파이");
         }
 
         @Test
@@ -259,12 +259,12 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "상품3", "나이키스포츠", 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 10, true, ProductSortProperty.ORDER_NUM,
-                    ProductSearchTarget.BRAND_NAME, "나이키"
+                null, null, null, 10, true, ProductSortProperty.ORDER_NUM,
+                ProductSearchTarget.BRAND_NAME, "나이키"
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getBrandName)
-                    .containsExactlyInAnyOrder("나이키", "나이키스포츠");
+                .containsExactlyInAnyOrder("나이키", "나이키스포츠");
         }
     }
 
@@ -280,11 +280,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "C", null, 12000L, 0L, 0L, 0L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, 2L, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
+                null, null, 2L, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getPricePolicyId)
-                    .containsExactly(3L);
+                .containsExactly(3L);
         }
 
         @Test
@@ -294,7 +294,7 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(2L, 101L, null, "B", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, 999L, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
+                null, null, 999L, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
             );
 
             assertThat(results).isEmpty();
@@ -307,10 +307,10 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(2L, 101L, null, "B", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> nullCursor = repository.findCatalogItems(
-                    null, null, null, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
+                null, null, null, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
             );
             List<ProductCatalogReadModelJpaEntity> zeroCursor = repository.findCatalogItems(
-                    null, null, 0L, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
+                null, null, 0L, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
             );
 
             assertThat(nullCursor).hasSize(2);
@@ -325,7 +325,7 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "C", null, 12000L, 0L, 0L, 0L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 2, true, ProductSortProperty.DISCOUNT_PRICE, null, null
+                null, null, null, 2, true, ProductSortProperty.DISCOUNT_PRICE, null, null
             );
 
             assertThat(results).hasSize(2);
@@ -347,11 +347,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             productCategoryRepository.save(ProductCategoryJpaEntity.of(102L, 10L));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    10L, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
+                10L, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getPricePolicyId)
-                    .containsExactlyInAnyOrder(1L, 3L);
+                .containsExactlyInAnyOrder(1L, 3L);
         }
 
         @Test
@@ -362,7 +362,7 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             // product_category 미삽입
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    10L, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
+                10L, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
             );
 
             assertThat(results).isEmpty();
@@ -376,16 +376,16 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             productCategoryRepository.save(ProductCategoryJpaEntity.of(100L, 20L));
 
             List<ProductCatalogReadModelJpaEntity> resultsForCat10 = repository.findCatalogItems(
-                    10L, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
+                10L, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
             );
             List<ProductCatalogReadModelJpaEntity> resultsForCat20 = repository.findCatalogItems(
-                    20L, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
+                20L, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
             );
 
             assertThat(resultsForCat10).extracting(ProductCatalogReadModelJpaEntity::getPricePolicyId)
-                    .containsExactly(1L);
+                .containsExactly(1L);
             assertThat(resultsForCat20).extracting(ProductCatalogReadModelJpaEntity::getPricePolicyId)
-                    .containsExactly(1L);
+                .containsExactly(1L);
         }
 
         @Test
@@ -396,11 +396,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(buildEntity(3L, 102L, null, "C", null, 9000L, 0L, 0L, 0L, BigDecimal.ZERO));
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, List.of(1L, 3L), null, 10, true, ProductSortProperty.ORDER_NUM, null, null
+                null, List.of(1L, 3L), null, 10, true, ProductSortProperty.ORDER_NUM, null, null
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getPricePolicyId)
-                    .containsExactlyInAnyOrder(1L, 3L);
+                .containsExactlyInAnyOrder(1L, 3L);
         }
 
         @Test
@@ -413,11 +413,11 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             repository.save(inactive);
 
             List<ProductCatalogReadModelJpaEntity> results = repository.findCatalogItems(
-                    null, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
+                null, null, null, 10, true, ProductSortProperty.ORDER_NUM, null, null
             );
 
             assertThat(results).extracting(ProductCatalogReadModelJpaEntity::getPricePolicyId)
-                    .containsExactly(1L);
+                .containsExactly(1L);
         }
     }
 
@@ -487,8 +487,8 @@ class ProductCatalogReadModelQueryRepositoryImplTest {
             productCategoryRepository.save(ProductCategoryJpaEntity.of(102L, 20L));
 
             List<ProductCatalogReadModelJpaEntity> findResults = repository.findCatalogItems(
-                    10L, null, null, 100, true, ProductSortProperty.ORDER_NUM,
-                    ProductSearchTarget.NAME, "사과"
+                10L, null, null, 100, true, ProductSortProperty.ORDER_NUM,
+                ProductSearchTarget.NAME, "사과"
             );
             long count = repository.countCatalogItems(10L, ProductSearchTarget.NAME, "사과");
 

@@ -4,12 +4,12 @@ import lombok.Builder;
 
 @Builder
 public record ResolveUnknownPaymentCommand(
-        String orderKey,
-        String resolvedStatus,
-        String resultCode,
-        String resultMessage,
-        String pgPaymentKey,
-        String approvalNumber,
-        String appTime
+    String orderKey,
+    String resolvedStatus,
+    String resultCode,
+    String resultMessage,
+    String pgPaymentKey,
+    String approvalNumber,
+    String appTime
 ) {
 }

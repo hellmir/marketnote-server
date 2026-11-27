@@ -13,31 +13,31 @@ import java.util.Map;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetUserPointHistoryResult(
-        Long totalElements,
-        boolean hasNext,
-        Long nextCursor,
-        List<UserPointHistoryByDateResult> histories
+    Long totalElements,
+    boolean hasNext,
+    Long nextCursor,
+    List<UserPointHistoryByDateResult> histories
 ) {
     public static GetUserPointHistoryResult from(
-            Long totalElements, boolean hasNext, Long nextCursor, List<UserPointHistory> histories
+        Long totalElements, boolean hasNext, Long nextCursor, List<UserPointHistory> histories
     ) {
         Map<LocalDate, List<UserPointHistory>> historiesByDate = new LinkedHashMap<>();
 
         for (UserPointHistory history : histories) {
             LocalDate date = FormatValidator.hasValue(history.getAccumulatedAt())
-                    ? history.getAccumulatedAt().toLocalDate()
-                    : LocalDate.now();
+                ? history.getAccumulatedAt().toLocalDate()
+                : LocalDate.now();
 
             historiesByDate.computeIfAbsent(date, key -> new ArrayList<>())
-                    .add(history);
+                .add(history);
         }
 
         List<UserPointHistoryByDateResult> groupedHistories = historiesByDate.entrySet().stream()
-                .map(entry -> UserPointHistoryByDateResult.of(
-                        entry.getKey(),
-                        entry.getValue()
-                ))
-                .toList();
+            .map(entry -> UserPointHistoryByDateResult.of(
+                entry.getKey(),
+                entry.getValue()
+            ))
+            .toList();
 
         return new GetUserPointHistoryResult(totalElements, hasNext, nextCursor, groupedHistories);
     }

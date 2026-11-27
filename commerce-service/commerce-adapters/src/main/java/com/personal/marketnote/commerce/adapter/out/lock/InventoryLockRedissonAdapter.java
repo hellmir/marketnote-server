@@ -26,8 +26,8 @@ public class InventoryLockRedissonAdapter implements InventoryLockPort {
     public void executeWithLock(Set<Long> pricePolicyIds, Runnable task) {
         List<RLock> acquiredLocks = new ArrayList<>();
         List<Long> sortedIds = pricePolicyIds.stream()
-                .sorted()
-                .toList();
+            .sorted()
+            .toList();
 
         try {
             for (Long pricePolicyId : sortedIds) {

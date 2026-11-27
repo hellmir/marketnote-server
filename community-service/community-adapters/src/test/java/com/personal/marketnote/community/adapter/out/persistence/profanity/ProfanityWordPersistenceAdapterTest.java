@@ -31,11 +31,11 @@ class ProfanityWordPersistenceAdapterTest {
     @BeforeEach
     void setUp() {
         when(profanityWordJpaRepository.findAllByStatus(EntityStatus.ACTIVE))
-                .thenReturn(List.of(
-                        ProfanityWordJpaEntity.of("Bad"),
-                        ProfanityWordJpaEntity.of("욕설"),
-                        ProfanityWordJpaEntity.of("hate")
-                ));
+            .thenReturn(List.of(
+                ProfanityWordJpaEntity.of("Bad"),
+                ProfanityWordJpaEntity.of("욕설"),
+                ProfanityWordJpaEntity.of("hate")
+            ));
         adapter.init();
     }
 
@@ -56,7 +56,7 @@ class ProfanityWordPersistenceAdapterTest {
         @DisplayName("reload는 욕설 사전을 다시 적재한다")
         void reloadRefreshesDictionary() {
             when(profanityWordJpaRepository.findAllByStatus(EntityStatus.ACTIVE))
-                    .thenReturn(List.of(ProfanityWordJpaEntity.of("new")));
+                .thenReturn(List.of(ProfanityWordJpaEntity.of("new")));
 
             adapter.reload();
 

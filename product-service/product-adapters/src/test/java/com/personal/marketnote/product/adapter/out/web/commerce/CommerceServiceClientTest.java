@@ -51,20 +51,20 @@ class CommerceServiceClientTest {
     @BeforeEach
     void setUp() {
         RestClient.Builder builder = RestClient.builder()
-                .defaultStatusHandler(RestClientErrorHandler::isError, RestClientErrorHandler.noOpErrorHandler());
+            .defaultStatusHandler(RestClientErrorHandler::isError, RestClientErrorHandler.noOpErrorHandler());
         mockServer = MockRestServiceServer.bindTo(builder).build();
         commerceServiceClient = new CommerceServiceClient(
-                builder,
-                BASE_URL,
-                hmacServiceAuthHeaderBuilder,
-                serviceCommunicationRecorder,
-                serviceCommunicationPayloadGenerator
+            builder,
+            BASE_URL,
+            hmacServiceAuthHeaderBuilder,
+            serviceCommunicationRecorder,
+            serviceCommunicationPayloadGenerator
         );
 
         lenient().when(serviceCommunicationPayloadGenerator.buildRequestPayloadJson(any(), any(), any(), anyInt()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
         lenient().when(serviceCommunicationPayloadGenerator.buildErrorPayloadJson(anyString(), any(), anyInt()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
     }
 
     @Nested
@@ -75,9 +75,9 @@ class CommerceServiceClientTest {
         @DisplayName("재고 등록 요청이 성공하면 정상적으로 완료된다")
         void shouldCompleteSuccessfullyWhenRequestSucceeds() {
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/inventories"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andRespond(withSuccess());
 
             commerceServiceClient.registerInventory(1L, 100L);
 
@@ -89,12 +89,12 @@ class CommerceServiceClientTest {
         void shouldThrowExceptionWhenAllRetriesFail() {
             for (int i = 0; i < 5; i++) {
                 mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/inventories"))
-                        .andExpect(method(HttpMethod.POST))
-                        .andRespond(withServerError());
+                    .andExpect(method(HttpMethod.POST))
+                    .andRespond(withServerError());
             }
 
             assertThatThrownBy(() -> commerceServiceClient.registerInventory(1L, 100L))
-                    .isInstanceOf(CommerceServiceRequestFailedException.class);
+                .isInstanceOf(CommerceServiceRequestFailedException.class);
 
             mockServer.verify();
         }
@@ -103,11 +103,11 @@ class CommerceServiceClientTest {
         @DisplayName("HMAC 서명 생성 실패가 5회 반복되면 retry 후 CommerceServiceRequestFailedException으로 wrap되어 전파된다")
         void shouldRetryOnHmacSignatureGenerationFailedException() {
             doThrow(new HmacSignatureGenerationFailedException(new GeneralSecurityException("test")))
-                    .when(hmacServiceAuthHeaderBuilder)
-                    .applyHeaders(any(HttpHeaders.class), eq("POST"), anyString());
+                .when(hmacServiceAuthHeaderBuilder)
+                .applyHeaders(any(HttpHeaders.class), eq("POST"), anyString());
 
             assertThatThrownBy(() -> commerceServiceClient.registerInventory(1L, 100L))
-                    .isInstanceOf(CommerceServiceRequestFailedException.class);
+                .isInstanceOf(CommerceServiceRequestFailedException.class);
 
             mockServer.verify();
         }
@@ -116,11 +116,11 @@ class CommerceServiceClientTest {
         @DisplayName("retry 대상이 아닌 RuntimeException(NPE)은 retry 없이 즉시 호출자에게 전파된다")
         void shouldNotRetryOnUnexpectedRuntimeException() {
             doThrow(new NullPointerException("unexpected"))
-                    .when(hmacServiceAuthHeaderBuilder)
-                    .applyHeaders(any(HttpHeaders.class), eq("POST"), anyString());
+                .when(hmacServiceAuthHeaderBuilder)
+                .applyHeaders(any(HttpHeaders.class), eq("POST"), anyString());
 
             assertThatThrownBy(() -> commerceServiceClient.registerInventory(1L, 100L))
-                    .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(NullPointerException.class);
 
             mockServer.verify();
         }

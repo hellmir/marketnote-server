@@ -65,13 +65,13 @@ class KcpQuickPaymentAdapterTest {
             when(kcpProperties.getSiteCd()).thenReturn(SITE_CD);
             when(kcpProperties.getRetUrl()).thenReturn("http://return");
             KcpTradeRegisterResponse response = new KcpTradeRegisterResponse(
-                    "0000", "OK", "APR_KEY", "http://pay", "TR_001", "CARD"
+                "0000", "OK", "APR_KEY", "http://pay", "TR_001", "CARD"
             );
             when(kcpApiClient.registerTrade(any())).thenReturn(response);
 
             // when
             RegisterQuickPaymentTransactionPortResult result = adapter.registerTransaction(
-                    RegisterQuickPaymentTransactionPortCommand.builder().transactionId("TX_001").build()
+                RegisterQuickPaymentTransactionPortCommand.builder().transactionId("TX_001").build()
             );
 
             // then
@@ -87,13 +87,13 @@ class KcpQuickPaymentAdapterTest {
             when(kcpProperties.getSiteCd()).thenReturn(SITE_CD);
             when(kcpProperties.getRetUrl()).thenReturn("http://return");
             KcpTradeRegisterResponse response = new KcpTradeRegisterResponse(
-                    "9999", "FAIL", null, null, null, null
+                "9999", "FAIL", null, null, null, null
             );
             when(kcpApiClient.registerTrade(any())).thenReturn(response);
 
             // when
             RegisterQuickPaymentTransactionPortResult result = adapter.registerTransaction(
-                    RegisterQuickPaymentTransactionPortCommand.builder().transactionId("TX_001").build()
+                RegisterQuickPaymentTransactionPortCommand.builder().transactionId("TX_001").build()
             );
 
             // then
@@ -111,7 +111,7 @@ class KcpQuickPaymentAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.registerTransaction(
-                    RegisterQuickPaymentTransactionPortCommand.builder().transactionId("TX_001").build()
+                RegisterQuickPaymentTransactionPortCommand.builder().transactionId("TX_001").build()
             )).isInstanceOf(KcpCommunicationException.class);
         }
     }
@@ -131,7 +131,7 @@ class KcpQuickPaymentAdapterTest {
 
             // when
             IssueBatchKeyPortResult result = adapter.issueBatchKey(
-                    IssueBatchKeyPortCommand.builder().encData("ED").encInfo("EI").build()
+                IssueBatchKeyPortCommand.builder().encData("ED").encInfo("EI").build()
             );
 
             // then
@@ -170,13 +170,13 @@ class KcpQuickPaymentAdapterTest {
             when(kcpCertificateLoader.loadCertInfo()).thenReturn(CERT_INFO);
             stubRetryConfig();
             ResourceAccessException connectError = new ResourceAccessException(
-                    "Connection refused", new ConnectException("Connection refused")
+                "Connection refused", new ConnectException("Connection refused")
             );
             when(kcpApiClient.approveBatchPayment(any())).thenThrow(connectError);
 
             // when & then
             assertThatThrownBy(() -> adapter.approvePayment(buildApprovalCommand()))
-                    .isInstanceOf(PaymentVendorConnectionFailedException.class);
+                .isInstanceOf(PaymentVendorConnectionFailedException.class);
             verify(kcpApiClient, times(3)).approveBatchPayment(any());
         }
     }
@@ -196,7 +196,7 @@ class KcpQuickPaymentAdapterTest {
 
             // when
             DeleteBatchKeyPortResult result = adapter.deleteBatchKey(
-                    DeleteBatchKeyPortCommand.builder().batchKey("BK_001").groupId("GROUP").build()
+                DeleteBatchKeyPortCommand.builder().batchKey("BK_001").groupId("GROUP").build()
             );
 
             // then
@@ -215,12 +215,12 @@ class KcpQuickPaymentAdapterTest {
 
     private ApproveQuickPaymentPortCommand buildApprovalCommand() {
         return ApproveQuickPaymentPortCommand.builder()
-                .batchKey("BK_001")
-                .groupId("GROUP")
-                .orderKey("ORDER_001")
-                .amount("10000")
-                .goodName("상품")
-                .build();
+            .batchKey("BK_001")
+            .groupId("GROUP")
+            .orderKey("ORDER_001")
+            .amount("10000")
+            .goodName("상품")
+            .build();
     }
 
     private KcpBatchKeyIssuanceResponse mockBatchKeyResponse(String resCd, String resMsg, String batchKey) {
@@ -229,9 +229,9 @@ class KcpQuickPaymentAdapterTest {
 
     private KcpBatchPaymentApprovalResponse mockBatchApprovalResponse(String resCd) {
         return new KcpBatchPaymentApprovalResponse(
-                resCd, "OK", "CARD", "TNO_001", "10000", "00", "10000", "카드",
-                "1234-****-5678", "APP_001", "20260101120000", "00", "ACQU", "ACQU_NAME",
-                "N", "01", "02"
+            resCd, "OK", "CARD", "TNO_001", "10000", "00", "10000", "카드",
+            "1234-****-5678", "APP_001", "20260101120000", "00", "ACQU", "ACQU_NAME",
+            "N", "01", "02"
         );
     }
 

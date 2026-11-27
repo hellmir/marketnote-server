@@ -85,7 +85,7 @@ class ReportControllerTest {
             ArgumentCaptor<ReportCommand> captor = ArgumentCaptor.forClass(ReportCommand.class);
 
             ResponseEntity<BaseResponse<Void>> response =
-                    controller.reportProductInqueryPost(200L, request, principal);
+                controller.reportProductInqueryPost(200L, request, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             verify(registerReportUseCase).report(captor.capture());
@@ -106,15 +106,15 @@ class ReportControllerTest {
         void returnsReviewReports() {
             LocalDateTime now = LocalDateTime.now();
             Report sampleReport = Report.from(ReportCreateState.builder()
-                    .targetType(ReportTargetType.REVIEW)
-                    .targetId(100L)
-                    .reporterId(10L)
-                    .reason("광고성")
-                    .createdAt(now)
-                    .build()
+                .targetType(ReportTargetType.REVIEW)
+                .targetId(100L)
+                .reporterId(10L)
+                .reason("광고성")
+                .createdAt(now)
+                .build()
             );
             when(getReportUseCase.getReports(ReportTargetType.REVIEW, 100L))
-                    .thenReturn(List.of(sampleReport));
+                .thenReturn(List.of(sampleReport));
 
             ResponseEntity<BaseResponse<GetReportsResponse>> response = controller.getReviewReports(100L);
 
@@ -132,7 +132,7 @@ class ReportControllerTest {
         @DisplayName("게시글 ID로 신고 내역을 조회해 OK 응답을 반환한다")
         void returnsPostReports() {
             when(getReportUseCase.getReports(ReportTargetType.POST, 200L))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             ResponseEntity<BaseResponse<GetReportsResponse>> response = controller.getPostReports(200L);
 
@@ -149,11 +149,11 @@ class ReportControllerTest {
         @DisplayName("isVisible=true이면 노출 상태로 전환하고 응답 body에 true를 포함한다")
         void updatesToVisibleAndEchoesState() {
             UpdateTargetStatusRequest request = new UpdateTargetStatusRequest(
-                    ReportTargetType.REVIEW, 100L, true
+                ReportTargetType.REVIEW, 100L, true
             );
 
             ResponseEntity<BaseResponse<UpdateTargetStatusResponse>> response =
-                    controller.updateTargetStatus(request);
+                controller.updateTargetStatus(request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
@@ -165,11 +165,11 @@ class ReportControllerTest {
         @DisplayName("isVisible=false이면 숨기기 상태로 전환하고 응답 body에 false를 포함한다")
         void updatesToHiddenAndEchoesState() {
             UpdateTargetStatusRequest request = new UpdateTargetStatusRequest(
-                    ReportTargetType.POST, 200L, false
+                ReportTargetType.POST, 200L, false
             );
 
             ResponseEntity<BaseResponse<UpdateTargetStatusResponse>> response =
-                    controller.updateTargetStatus(request);
+                controller.updateTargetStatus(request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent().isVisible()).isFalse();
@@ -185,7 +185,7 @@ class ReportControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
+            String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
         );
     }
 

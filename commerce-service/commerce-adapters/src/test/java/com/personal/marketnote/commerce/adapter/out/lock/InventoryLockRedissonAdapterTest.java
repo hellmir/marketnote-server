@@ -78,7 +78,7 @@ class InventoryLockRedissonAdapterTest {
 
         // when & then
         assertThatThrownBy(() -> adapter.executeWithLock(Set.of(1L), () -> executed.set(true)))
-                .isInstanceOf(InventoryLockAcquisitionException.class);
+            .isInstanceOf(InventoryLockAcquisitionException.class);
         assertThat(executed.get()).isFalse();
     }
 
@@ -92,7 +92,7 @@ class InventoryLockRedissonAdapterTest {
         // when & then
         assertThatThrownBy(() -> adapter.executeWithLock(Set.of(1L), () -> {
         }))
-                .isInstanceOf(InventoryLockInterruptedException.class);
+            .isInstanceOf(InventoryLockInterruptedException.class);
         Thread.interrupted();
     }
 
@@ -109,7 +109,7 @@ class InventoryLockRedissonAdapterTest {
         // when & then
         assertThatThrownBy(() -> adapter.executeWithLock(Set.of(1L, 2L), () -> {
         }))
-                .isInstanceOf(InventoryLockAcquisitionException.class);
+            .isInstanceOf(InventoryLockAcquisitionException.class);
         verify(lock1).unlock();
         verify(lock2, times(0)).unlock();
     }

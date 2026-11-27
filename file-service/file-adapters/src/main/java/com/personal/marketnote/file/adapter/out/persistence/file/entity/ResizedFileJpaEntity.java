@@ -32,17 +32,17 @@ public class ResizedFileJpaEntity extends BaseGeneralEntity {
 
     public static ResizedFileJpaEntity of(FileJpaEntity file, String size) {
         return ResizedFileJpaEntity.builder()
-                .file(file)
-                .size(size)
-                .build();
+            .file(file)
+            .size(size)
+            .build();
     }
 
     public static ResizedFileJpaEntity of(FileJpaEntity file, String size, String storageUrl) {
         return ResizedFileJpaEntity.builder()
-                .file(file)
-                .size(size)
-                .storageUrl(storageUrl)
-                .build();
+            .file(file)
+            .size(size)
+            .storageUrl(storageUrl)
+            .build();
     }
 
     public void updateFrom(ResizedFile resizedFile) {

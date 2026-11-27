@@ -39,9 +39,9 @@ public class RegisterOfferwallRewardService implements RegisterOfferwallRewardUs
 
     @Override
     @Retryable(
-            retryFor = ObjectOptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
+        retryFor = ObjectOptimisticLockingFailureException.class,
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
     )
     public Long register(RegisterOfferwallRewardCommand command) {
         validateSignature(command);
@@ -51,7 +51,7 @@ public class RegisterOfferwallRewardService implements RegisterOfferwallRewardUs
         OfferwallMapper offerwallMapper;
         try {
             offerwallMapper = saveOfferwallMapperPort.save(
-                    OfferwallMapper.from(RewardCommandToStateMapper.mapToOfferwallMapperCreateState(command, true))
+                OfferwallMapper.from(RewardCommandToStateMapper.mapToOfferwallMapperCreateState(command, true))
             );
         } catch (DataIntegrityViolationException e) {
             // 동시성 이슈로 인해 유효성 검사에 실패하여 리워드 키 유니크 제약 조건에 위배되는 경우, DuplicateOfferwallRewardException 예외로 변환
@@ -64,7 +64,7 @@ public class RegisterOfferwallRewardService implements RegisterOfferwallRewardUs
         }
 
         modifyUserPointUseCase.modify(
-                ModifyUserPointCommand.forOfferwallReward(command, offerwallMapper)
+            ModifyUserPointCommand.forOfferwallReward(command, offerwallMapper)
         );
 
         return offerwallMapper.getId();
@@ -72,14 +72,14 @@ public class RegisterOfferwallRewardService implements RegisterOfferwallRewardUs
 
     private void validateSignature(RegisterOfferwallRewardCommand command) {
         validateOfferwallSignaturePort.validateSignature(
-                command.offerwallType(),
-                command.userDeviceType(),
-                command.signedValue(),
-                command.userKey(),
-                command.rewardKey(),
-                command.quantity(),
-                command.campaignKey(),
-                command.rewardUnit()
+            command.offerwallType(),
+            command.userDeviceType(),
+            command.signedValue(),
+            command.userKey(),
+            command.rewardKey(),
+            command.quantity(),
+            command.campaignKey(),
+            command.rewardUnit()
         );
     }
 
@@ -93,8 +93,8 @@ public class RegisterOfferwallRewardService implements RegisterOfferwallRewardUs
 
     private void validateDuplicate(RegisterOfferwallRewardCommand command) {
         if (getOfferwallMapperUseCase.existsSucceededOfferwallMapper(
-                command.offerwallType(),
-                command.rewardKey()
+            command.offerwallType(),
+            command.rewardKey()
         )) {
             log.warn("이미 해당 캠페인에 대한 리워드가 지급되었습니다. rewardKey={}", command.rewardKey());
             throw new DuplicateOfferwallRewardException();

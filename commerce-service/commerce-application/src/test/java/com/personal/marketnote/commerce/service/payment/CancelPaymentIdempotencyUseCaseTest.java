@@ -58,12 +58,12 @@ class CancelPaymentIdempotencyUseCaseTest {
     @BeforeEach
     void setUpIdempotency() {
         org.mockito.Mockito.lenient().when(
-                idempotencyHelper.findOrCreate(org.mockito.ArgumentMatchers.anyString(),
-                        org.mockito.ArgumentMatchers.anyString(),
-                        org.mockito.ArgumentMatchers.anyLong())
+            idempotencyHelper.findOrCreate(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyLong())
         ).thenReturn(PaymentCancelIdempotencyResolution.newlyCreated());
         org.mockito.Mockito.lenient().when(resultSerializer.serialize(org.mockito.ArgumentMatchers.any()))
-                .thenReturn("{}");
+            .thenReturn("{}");
     }
 
     @Test
@@ -72,7 +72,7 @@ class CancelPaymentIdempotencyUseCaseTest {
         CancelPaymentCommand command = createFullCancelCommand();
         org.mockito.Mockito.reset(idempotencyHelper);
         when(idempotencyHelper.findOrCreate(IDEMPOTENCY_KEY, ORDER_KEY_STR, BUYER_ID))
-                .thenReturn(PaymentCancelIdempotencyResolution.cached("{\"ok\":true}"));
+            .thenReturn(PaymentCancelIdempotencyResolution.cached("{\"ok\":true}"));
 
         cancelPaymentService.cancel(command);
 
@@ -94,7 +94,7 @@ class CancelPaymentIdempotencyUseCaseTest {
         cancelPaymentService.cancel(command);
 
         verify(idempotencyHelper).markCompleted(org.mockito.ArgumentMatchers.eq(IDEMPOTENCY_KEY),
-                org.mockito.ArgumentMatchers.anyString());
+            org.mockito.ArgumentMatchers.anyString());
         verify(idempotencyHelper, never()).markFailed(any(), any());
     }
 
@@ -103,13 +103,13 @@ class CancelPaymentIdempotencyUseCaseTest {
     void shouldMarkFailedWhenBusinessThrows() {
         CancelPaymentCommand command = createFullCancelCommand();
         when(txHelper.prepareCancel(command))
-                .thenThrow(new com.personal.marketnote.commerce.exception.PaymentNotFoundException());
+            .thenThrow(new com.personal.marketnote.commerce.exception.PaymentNotFoundException());
 
         assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                .isInstanceOf(com.personal.marketnote.commerce.exception.PaymentNotFoundException.class);
+            .isInstanceOf(com.personal.marketnote.commerce.exception.PaymentNotFoundException.class);
 
         verify(idempotencyHelper).markFailed(org.mockito.ArgumentMatchers.eq(IDEMPOTENCY_KEY),
-                org.mockito.ArgumentMatchers.anyString());
+            org.mockito.ArgumentMatchers.anyString());
         verify(idempotencyHelper, never()).markCompleted(any(), any());
     }
 
@@ -122,11 +122,11 @@ class CancelPaymentIdempotencyUseCaseTest {
         when(txHelper.prepareCancel(command)).thenReturn(context);
         when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
         when(resultSerializer.serialize(any()))
-                .thenThrow(new RuntimeException("직렬화 실패"));
+            .thenThrow(new RuntimeException("직렬화 실패"));
 
         assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("직렬화 실패");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("직렬화 실패");
 
         verify(idempotencyHelper, never()).markFailed(any(), any());
         verify(idempotencyHelper, never()).markCompleted(any(), any());
@@ -141,11 +141,11 @@ class CancelPaymentIdempotencyUseCaseTest {
         when(txHelper.prepareCancel(command)).thenReturn(context);
         when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
         org.mockito.Mockito.doThrow(new RuntimeException("멱등 레코드 갱신 실패"))
-                .when(idempotencyHelper).markCompleted(eq(IDEMPOTENCY_KEY), org.mockito.ArgumentMatchers.anyString());
+            .when(idempotencyHelper).markCompleted(eq(IDEMPOTENCY_KEY), org.mockito.ArgumentMatchers.anyString());
 
         assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("멱등 레코드 갱신 실패");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("멱등 레코드 갱신 실패");
 
         verify(idempotencyHelper, never()).markFailed(any(), any());
     }
@@ -156,10 +156,10 @@ class CancelPaymentIdempotencyUseCaseTest {
         CancelPaymentCommand command = createFullCancelCommand();
         org.mockito.Mockito.reset(idempotencyHelper);
         when(idempotencyHelper.findOrCreate(IDEMPOTENCY_KEY, ORDER_KEY_STR, BUYER_ID))
-                .thenThrow(new com.personal.marketnote.commerce.exception.IdempotencyKeyInProgressException(IDEMPOTENCY_KEY));
+            .thenThrow(new com.personal.marketnote.commerce.exception.IdempotencyKeyInProgressException(IDEMPOTENCY_KEY));
 
         assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                .isInstanceOf(com.personal.marketnote.commerce.exception.IdempotencyKeyInProgressException.class);
+            .isInstanceOf(com.personal.marketnote.commerce.exception.IdempotencyKeyInProgressException.class);
 
         verify(txHelper, never()).prepareCancel(any());
     }
@@ -171,30 +171,30 @@ class CancelPaymentIdempotencyUseCaseTest {
         boolean fullFlag = isFullCancel;
         String modType = fullFlag ? "STSC" : "STPC";
         return PaymentCancelContext.builder()
-                .payment(payment)
-                .event(event)
-                .order(order)
-                .cancelAmount(50000L)
-                .adjustedCancelAmount(adjustedCancelAmount)
-                .remainAmount(50000L - adjustedCancelAmount)
-                .alreadyRefunded(0L)
-                .shippingFeeDeduction(shippingFeeDeduction)
-                .isFullCancel(fullFlag)
-                .cancelReason("고객 요청")
-                .adjustedCancelReason("고객 요청")
-                .cancelId(fullFlag ? null : UUID.randomUUID().toString())
-                .transactionNumber("tno_123")
-                .modType(modType)
-                .originalCommand(createFullCancelCommand())
-                .build();
+            .payment(payment)
+            .event(event)
+            .order(order)
+            .cancelAmount(50000L)
+            .adjustedCancelAmount(adjustedCancelAmount)
+            .remainAmount(50000L - adjustedCancelAmount)
+            .alreadyRefunded(0L)
+            .shippingFeeDeduction(shippingFeeDeduction)
+            .isFullCancel(fullFlag)
+            .cancelReason("고객 요청")
+            .adjustedCancelReason("고객 요청")
+            .cancelId(fullFlag ? null : UUID.randomUUID().toString())
+            .transactionNumber("tno_123")
+            .modType(modType)
+            .originalCommand(createFullCancelCommand())
+            .build();
     }
 
     private Payment createSuccessPayment() {
         PaymentCreateState state = PaymentCreateState.builder()
-                .orderId(1L)
-                .orderKey(ORDER_KEY)
-                .paymentAmount(50000L)
-                .build();
+            .orderId(1L)
+            .orderKey(ORDER_KEY)
+            .paymentAmount(50000L)
+            .build();
         Payment payment = Payment.from(state);
         payment.markAsSuccess("tno_123");
         return payment;
@@ -202,58 +202,58 @@ class CancelPaymentIdempotencyUseCaseTest {
 
     private PspPaymentEvent createCompleteEvent() {
         PspPaymentEventSnapshotState state = PspPaymentEventSnapshotState.builder()
-                .id(1L)
-                .orderId(1L)
-                .orderKey(ORDER_KEY_STR)
-                .pgCompanyKey("NHN_KCP")
-                .pgPaymentKey("tno_123")
-                .poStatus(PaymentEventStatus.COMPLETE)
-                .method("CARD")
-                .amount(50000L)
-                .resultCode("0000")
-                .resultMessage("승인 성공")
-                .paidAt(LocalDateTime.of(2026, 2, 10, 15, 30, 0))
-                .build();
+            .id(1L)
+            .orderId(1L)
+            .orderKey(ORDER_KEY_STR)
+            .pgCompanyKey("NHN_KCP")
+            .pgPaymentKey("tno_123")
+            .poStatus(PaymentEventStatus.COMPLETE)
+            .method("CARD")
+            .amount(50000L)
+            .resultCode("0000")
+            .resultMessage("승인 성공")
+            .paidAt(LocalDateTime.of(2026, 2, 10, 15, 30, 0))
+            .build();
         return PspPaymentEvent.from(state);
     }
 
     private Order createOrder() {
         OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
-                .pricePolicyId(100L)
-                .quantity(2)
-                .sellerId(10L)
-                .unitAmount(25000L)
-                .accumulatedPoint(0L)
-                .build();
+            .pricePolicyId(100L)
+            .quantity(2)
+            .sellerId(10L)
+            .unitAmount(25000L)
+            .accumulatedPoint(0L)
+            .build();
         OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(1L)
-                .buyerId(BUYER_ID)
-                .orderKey(ORDER_KEY)
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of(productState))
-                .build();
+            .id(1L)
+            .buyerId(BUYER_ID)
+            .orderKey(ORDER_KEY)
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of(productState))
+            .build();
         return Order.from(state);
     }
 
     private CancelPaymentCommand createFullCancelCommand() {
         return CancelPaymentCommand.builder()
-                .buyerId(BUYER_ID)
-                .orderKey(ORDER_KEY_STR)
-                .cancelType(CancelPaymentCommand.CancelType.FULL)
-                .cancelReason("고객 요청")
-                .idempotencyKey(IDEMPOTENCY_KEY)
-                .build();
+            .buyerId(BUYER_ID)
+            .orderKey(ORDER_KEY_STR)
+            .cancelType(CancelPaymentCommand.CancelType.FULL)
+            .cancelReason("고객 요청")
+            .idempotencyKey(IDEMPOTENCY_KEY)
+            .build();
     }
 
     private PaymentCancelVendorResult createSuccessVendorResult() {
         return PaymentCancelVendorResult.builder()
-                .success(true)
-                .resultCode("0000")
-                .resultMessage("취소 성공")
-                .amount("50000")
-                .rawResponse("{\"res_cd\":\"0000\"}")
-                .build();
+            .success(true)
+            .resultCode("0000")
+            .resultMessage("취소 성공")
+            .amount("50000")
+            .rawResponse("{\"res_cd\":\"0000\"}")
+            .build();
     }
 }

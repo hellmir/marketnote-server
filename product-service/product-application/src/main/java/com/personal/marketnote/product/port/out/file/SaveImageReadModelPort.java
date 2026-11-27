@@ -5,8 +5,8 @@ import java.util.List;
 public interface SaveImageReadModelPort {
 
     void upsert(
-            Long imageId, Long targetId, String targetType, String fileSort,
-            String imageUrl, Integer sortOrder, List<ResizedImageInput> resizedImages
+        Long imageId, Long targetId, String targetType, String fileSort,
+        String imageUrl, Integer sortOrder, List<ResizedImageInput> resizedImages
     );
 
     void deactivateByImageId(Long imageId);

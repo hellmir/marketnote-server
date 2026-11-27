@@ -61,14 +61,14 @@ class OrderJpaEntityToDomainMapperProductIdTest {
 
     private OrderProduct createOrderProductDomain(Long productId) {
         com.personal.marketnote.commerce.domain.order.OrderProductCreateState state =
-                com.personal.marketnote.commerce.domain.order.OrderProductCreateState.builder()
-                        .productId(productId)
-                        .sellerId(10L)
-                        .pricePolicyId(100L)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .accumulatedPoint(0L)
-                        .build();
+            com.personal.marketnote.commerce.domain.order.OrderProductCreateState.builder()
+                .productId(productId)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .build();
         return OrderProduct.from(state);
     }
 

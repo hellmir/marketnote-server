@@ -42,11 +42,11 @@ class ManageGifticonGoodsOrderUseCaseTest {
         // given
         GifticonGoods goods = createGoods("G00001", true, null);
         ManageGifticonGoodsOrderCommand command = new ManageGifticonGoodsOrderCommand(
-                List.of(new OrderItem("G00001", 1))
+            List.of(new OrderItem("G00001", 1))
         );
 
         when(findGifticonGoodsPort.findByGoodsCode("G00001"))
-                .thenReturn(Optional.of(goods));
+            .thenReturn(Optional.of(goods));
 
         // when
         manageGifticonGoodsOrderService.manageOrder(command);
@@ -62,15 +62,15 @@ class ManageGifticonGoodsOrderUseCaseTest {
         // given
         GifticonGoods goods = createGoods("G00001", false, null);
         ManageGifticonGoodsOrderCommand command = new ManageGifticonGoodsOrderCommand(
-                List.of(new OrderItem("G00001", 1))
+            List.of(new OrderItem("G00001", 1))
         );
 
         when(findGifticonGoodsPort.findByGoodsCode("G00001"))
-                .thenReturn(Optional.of(goods));
+            .thenReturn(Optional.of(goods));
 
         // when & then
         assertThatThrownBy(() -> manageGifticonGoodsOrderService.manageOrder(command))
-                .isInstanceOf(GifticonGoodsNotExposedException.class);
+            .isInstanceOf(GifticonGoodsNotExposedException.class);
         verify(updateGifticonGoodsPort, never()).update(any());
     }
 
@@ -79,15 +79,15 @@ class ManageGifticonGoodsOrderUseCaseTest {
     void shouldThrowExceptionWhenGoodsNotFound() {
         // given
         ManageGifticonGoodsOrderCommand command = new ManageGifticonGoodsOrderCommand(
-                List.of(new OrderItem("G99999", 1))
+            List.of(new OrderItem("G99999", 1))
         );
 
         when(findGifticonGoodsPort.findByGoodsCode("G99999"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> manageGifticonGoodsOrderService.manageOrder(command))
-                .isInstanceOf(GifticonGoodsNotFoundException.class);
+            .isInstanceOf(GifticonGoodsNotFoundException.class);
         verify(updateGifticonGoodsPort, never()).update(any());
     }
 
@@ -98,16 +98,16 @@ class ManageGifticonGoodsOrderUseCaseTest {
         GifticonGoods goods1 = createGoods("G00001", true, null);
         GifticonGoods goods2 = createGoods("G00002", true, 5);
         ManageGifticonGoodsOrderCommand command = new ManageGifticonGoodsOrderCommand(
-                List.of(
-                        new OrderItem("G00001", 1),
-                        new OrderItem("G00002", 2)
-                )
+            List.of(
+                new OrderItem("G00001", 1),
+                new OrderItem("G00002", 2)
+            )
         );
 
         when(findGifticonGoodsPort.findByGoodsCode("G00001"))
-                .thenReturn(Optional.of(goods1));
+            .thenReturn(Optional.of(goods1));
         when(findGifticonGoodsPort.findByGoodsCode("G00002"))
-                .thenReturn(Optional.of(goods2));
+            .thenReturn(Optional.of(goods2));
 
         // when
         manageGifticonGoodsOrderService.manageOrder(command);
@@ -125,11 +125,11 @@ class ManageGifticonGoodsOrderUseCaseTest {
         // given
         GifticonGoods goods = createGoods("G00001", true, 3);
         ManageGifticonGoodsOrderCommand command = new ManageGifticonGoodsOrderCommand(
-                List.of(new OrderItem("G00001", null))
+            List.of(new OrderItem("G00001", null))
         );
 
         when(findGifticonGoodsPort.findByGoodsCode("G00001"))
-                .thenReturn(Optional.of(goods));
+            .thenReturn(Optional.of(goods));
 
         // when
         manageGifticonGoodsOrderService.manageOrder(command);
@@ -143,25 +143,25 @@ class ManageGifticonGoodsOrderUseCaseTest {
 
     private GifticonGoods createGoods(String goodsCode, boolean exposed, Integer orderNum) {
         return GifticonGoods.from(GifticonGoodsSnapshotState.builder()
-                .id(1L)
-                .goodsCode(goodsCode)
-                .goodsName("테스트 상품")
-                .brandCode("BR001")
-                .brandName("스타벅스")
-                .brandImageUrl("https://img.com/brand.png")
-                .categoryCode("1")
-                .realPrice(5000L)
-                .salePrice(4500L)
-                .cashPrice(3500L)
-                .imageUrl("https://img.com/goods.png")
-                .description("설명")
-                .validDays(30)
-                .goodsStatus(GoodsStatus.SALE)
-                .exposed(exposed)
-                .orderNum(orderNum)
-                .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .build()
+            .id(1L)
+            .goodsCode(goodsCode)
+            .goodsName("테스트 상품")
+            .brandCode("BR001")
+            .brandName("스타벅스")
+            .brandImageUrl("https://img.com/brand.png")
+            .categoryCode("1")
+            .realPrice(5000L)
+            .salePrice(4500L)
+            .cashPrice(3500L)
+            .imageUrl("https://img.com/goods.png")
+            .description("설명")
+            .validDays(30)
+            .goodsStatus(GoodsStatus.SALE)
+            .exposed(exposed)
+            .orderNum(orderNum)
+            .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
+            .build()
         );
     }
 }

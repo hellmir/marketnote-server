@@ -28,9 +28,9 @@ public class FulfillmentAccessToken {
         }
 
         return FulfillmentAccessToken.builder()
-                .value(value)
-                .expiresAt(parseExpiration(expreDatetime))
-                .build();
+            .value(value)
+            .expiresAt(parseExpiration(expreDatetime))
+            .build();
     }
 
     public boolean isExpired(LocalDateTime now) {

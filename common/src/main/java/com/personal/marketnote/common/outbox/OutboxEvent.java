@@ -33,22 +33,22 @@ public class OutboxEvent {
     private LocalDateTime discardedAt;
 
     public static OutboxEvent of(
-            String eventId, String topic, String partitionKey,
-            String eventType, String source, String payload,
-            Clock clock
+        String eventId, String topic, String partitionKey,
+        String eventType, String source, String payload,
+        Clock clock
     ) {
         return OutboxEvent.builder()
-                .eventId(eventId)
-                .topic(topic)
-                .partitionKey(partitionKey)
-                .eventType(eventType)
-                .source(source)
-                .payload(payload)
-                .status(OutboxEventStatus.PENDING)
-                .retryCount(0)
-                .maxRetries(DEFAULT_MAX_RETRIES)
-                .createdAt(LocalDateTime.now(clock))
-                .build();
+            .eventId(eventId)
+            .topic(topic)
+            .partitionKey(partitionKey)
+            .eventType(eventType)
+            .source(source)
+            .payload(payload)
+            .status(OutboxEventStatus.PENDING)
+            .retryCount(0)
+            .maxRetries(DEFAULT_MAX_RETRIES)
+            .createdAt(LocalDateTime.now(clock))
+            .build();
     }
 
     public void markPublished(Clock clock) {

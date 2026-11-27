@@ -33,8 +33,8 @@ class DeleteProductImageUseCaseTest {
         when(findProductPort.existsByIdAndSellerId(10L, userId)).thenReturn(false);
 
         assertThatThrownBy(() -> deleteProductImageService.delete(userId, false, command))
-                .isInstanceOf(NotProductOwnerException.class)
-                .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
+            .isInstanceOf(NotProductOwnerException.class)
+            .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(findProductPort).existsByIdAndSellerId(10L, userId);
         verifyNoInteractions(deleteProductImagesPort);
@@ -76,7 +76,7 @@ class DeleteProductImageUseCaseTest {
         doThrow(exception).when(deleteProductImagesPort).delete(301L);
 
         assertThatThrownBy(() -> deleteProductImageService.delete(userId, false, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(findProductPort).existsByIdAndSellerId(30L, userId);
         verify(deleteProductImagesPort).delete(301L);

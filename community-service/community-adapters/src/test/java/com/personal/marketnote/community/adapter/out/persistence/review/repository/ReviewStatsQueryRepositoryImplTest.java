@@ -22,10 +22,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @ActiveProfiles("test")
 @Import({
-        AuditConfig.class, QuerydslConfig.class,
-        ReviewProductQueryRepositoryImpl.class,
-        ReviewUserQueryRepositoryImpl.class,
-        ReviewStatsQueryRepositoryImpl.class
+    AuditConfig.class, QuerydslConfig.class,
+    ReviewProductQueryRepositoryImpl.class,
+    ReviewUserQueryRepositoryImpl.class,
+    ReviewStatsQueryRepositoryImpl.class
 })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ReviewStatsQueryRepositoryImplTest {
@@ -132,18 +132,18 @@ class ReviewStatsQueryRepositoryImplTest {
         Long orderId = System.nanoTime();
         Long pricePolicyId = System.nanoTime();
         Review review = Review.from(ReviewCreateState.builder()
-                .reviewerId(reviewerId)
-                .orderId(orderId)
-                .productId(productId)
-                .pricePolicyId(pricePolicyId)
-                .productImageUrl("https://example.com/image.jpg")
-                .selectedOptions("옵션")
-                .quantity(1)
-                .reviewerName("테스트사용자")
-                .rating(Rating.of(rating))
-                .content("테스트 리뷰 내용입니다")
-                .isPhoto(isPhoto)
-                .build());
+            .reviewerId(reviewerId)
+            .orderId(orderId)
+            .productId(productId)
+            .pricePolicyId(pricePolicyId)
+            .productImageUrl("https://example.com/image.jpg")
+            .selectedOptions("옵션")
+            .quantity(1)
+            .reviewerName("테스트사용자")
+            .rating(Rating.of(rating))
+            .content("테스트 리뷰 내용입니다")
+            .isPhoto(isPhoto)
+            .build());
         ReviewJpaEntity saved = reviewRepository.save(ReviewJpaEntity.from(review));
         saved.setIdToOrderNum();
         return saved;
@@ -151,9 +151,9 @@ class ReviewStatsQueryRepositoryImplTest {
 
     private void deactivate(Long reviewId) {
         entityManager.createQuery("UPDATE ReviewJpaEntity r SET r.status = :status WHERE r.id = :id")
-                .setParameter("status", EntityStatus.INACTIVE)
-                .setParameter("id", reviewId)
-                .executeUpdate();
+            .setParameter("status", EntityStatus.INACTIVE)
+            .setParameter("id", reviewId)
+            .executeUpdate();
     }
 
     private void flushAndClear() {

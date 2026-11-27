@@ -14,11 +14,11 @@ public interface GifticonCategoryJpaRepository extends JpaRepository<GifticonCat
     List<GifticonCategoryJpaEntity> findAllByOrderByOrderNumAsc();
 
     @Query("""
-            SELECT c FROM GifticonCategoryJpaEntity c
-            WHERE c.exposed = true
-            ORDER BY
-                CASE WHEN c.orderNum IS NULL THEN 1 ELSE 0 END,
-                c.orderNum ASC
-            """)
+        SELECT c FROM GifticonCategoryJpaEntity c
+        WHERE c.exposed = true
+        ORDER BY
+            CASE WHEN c.orderNum IS NULL THEN 1 ELSE 0 END,
+            c.orderNum ASC
+        """)
     List<GifticonCategoryJpaEntity> findAllExposed();
 }

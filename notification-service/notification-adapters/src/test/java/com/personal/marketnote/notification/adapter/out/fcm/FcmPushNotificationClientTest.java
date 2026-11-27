@@ -1,11 +1,6 @@
 package com.personal.marketnote.notification.adapter.out.fcm;
 
-import com.google.firebase.messaging.BatchResponse;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.MessagingErrorCode;
-import com.google.firebase.messaging.SendResponse;
+import com.google.firebase.messaging.*;
 import com.personal.marketnote.notification.domain.device.Platform;
 import com.personal.marketnote.notification.domain.notification.FcmSendFailedException;
 import com.personal.marketnote.notification.port.out.command.SendPushNotificationCommand;
@@ -25,10 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class FcmPushNotificationClientTest {
@@ -48,8 +40,8 @@ class FcmPushNotificationClientTest {
         void shouldReturnMessageIdForAndroidDevice() throws Exception {
             // given
             SendPushNotificationCommand command = new SendPushNotificationCommand(
-                    "fcm-token-android", "[배송 시작]", "요청하신 상품이 배송 시작되었습니다.",
-                    "/order/12345", Platform.ANDROID
+                "fcm-token-android", "[배송 시작]", "요청하신 상품이 배송 시작되었습니다.",
+                "/order/12345", Platform.ANDROID
             );
             when(firebaseMessaging.send(any(Message.class))).thenReturn("projects/test/messages/12345");
 
@@ -68,8 +60,8 @@ class FcmPushNotificationClientTest {
         void shouldReturnMessageIdForIosDevice() throws Exception {
             // given
             SendPushNotificationCommand command = new SendPushNotificationCommand(
-                    "fcm-token-ios", "[주문 완료]", "주문이 완료되었습니다.",
-                    "/order/67890", Platform.IOS
+                "fcm-token-ios", "[주문 완료]", "주문이 완료되었습니다.",
+                "/order/67890", Platform.IOS
             );
             when(firebaseMessaging.send(any(Message.class))).thenReturn("projects/test/messages/67890");
 
@@ -109,7 +101,7 @@ class FcmPushNotificationClientTest {
             // given
             SendPushNotificationCommand command = createDefaultCommand();
             FirebaseMessagingException exception = createFirebaseMessagingException(
-                    MessagingErrorCode.INVALID_ARGUMENT
+                MessagingErrorCode.INVALID_ARGUMENT
             );
             when(firebaseMessaging.send(any(Message.class))).thenThrow(exception);
 
@@ -153,14 +145,14 @@ class FcmPushNotificationClientTest {
 
             // when & then
             assertThatThrownBy(() -> fcmPushNotificationClient.send(command))
-                    .isInstanceOf(FcmSendFailedException.class);
+                .isInstanceOf(FcmSendFailedException.class);
         }
     }
 
     private SendPushNotificationCommand createDefaultCommand() {
         return new SendPushNotificationCommand(
-                "fcm-token-test", "[알림]", "테스트 알림입니다.",
-                "/test/123", Platform.ANDROID
+            "fcm-token-test", "[알림]", "테스트 알림입니다.",
+            "/test/123", Platform.ANDROID
         );
     }
 
@@ -179,8 +171,8 @@ class FcmPushNotificationClientTest {
         void shouldReturnAllSuccess() throws Exception {
             // given
             List<SendPushNotificationCommand> commands = List.of(
-                    createCommand("token-1"),
-                    createCommand("token-2")
+                createCommand("token-1"),
+                createCommand("token-2")
             );
             BatchResponse batchResponse = mock(BatchResponse.class);
             SendResponse ok1 = mock(SendResponse.class);
@@ -206,8 +198,8 @@ class FcmPushNotificationClientTest {
         void shouldCollectFailedTokens() throws Exception {
             // given
             List<SendPushNotificationCommand> commands = List.of(
-                    createCommand("token-A"),
-                    createCommand("token-B")
+                createCommand("token-A"),
+                createCommand("token-B")
             );
             BatchResponse batchResponse = mock(BatchResponse.class);
             SendResponse ok = mock(SendResponse.class);
@@ -261,8 +253,8 @@ class FcmPushNotificationClientTest {
         void shouldFailEntireChunkWhenNonRetriableException() throws Exception {
             // given
             List<SendPushNotificationCommand> commands = List.of(
-                    createCommand("token-1"),
-                    createCommand("token-2")
+                createCommand("token-1"),
+                createCommand("token-2")
             );
             FirebaseMessagingException fme = createFirebaseMessagingException(MessagingErrorCode.INTERNAL);
             when(firebaseMessaging.sendEach(anyList())).thenThrow(fme);
@@ -275,8 +267,8 @@ class FcmPushNotificationClientTest {
             assertThat(result.failureCount()).isEqualTo(2);
             assertThat(result.failedTokens()).hasSize(2);
             assertThat(result.failedTokens())
-                    .extracting(SendBatchPushNotificationResult.FailedToken::errorCode)
-                    .containsOnly("BATCH_SEND_FAILED");
+                .extracting(SendBatchPushNotificationResult.FailedToken::errorCode)
+                .containsOnly("BATCH_SEND_FAILED");
             verify(firebaseMessaging, times(1)).sendEach(anyList());
         }
 
@@ -293,8 +285,8 @@ class FcmPushNotificationClientTest {
             when(success.getFailureCount()).thenReturn(0);
             when(success.getResponses()).thenReturn(List.of(ok));
             when(firebaseMessaging.sendEach(anyList()))
-                    .thenThrow(quota)
-                    .thenReturn(success);
+                .thenThrow(quota)
+                .thenReturn(success);
 
             // when
             SendBatchPushNotificationResult result = fcmPushNotificationClient.sendBatch(commands);
@@ -338,7 +330,7 @@ class FcmPushNotificationClientTest {
 
     private SendPushNotificationCommand createCommand(String deviceToken) {
         return new SendPushNotificationCommand(
-                deviceToken, "[알림]", "테스트", "/test", Platform.ANDROID
+            deviceToken, "[알림]", "테스트", "/test", Platform.ANDROID
         );
     }
 }

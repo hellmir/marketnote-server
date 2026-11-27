@@ -49,13 +49,13 @@ class SettlementPolicyPersistenceAdapterTest {
 
     private SettlementPolicy createPolicy(Long sellerId) {
         return SettlementPolicy.from(
-                SettlementPolicyCreateState.builder()
-                        .sellerId(sellerId)
-                        .pgFeeRate(FeeRate.of(300))
-                        .platformFeeRate(FeeRate.of(500))
-                        .settlementCycle(SettlementCycle.MONTHLY)
-                        .minPayoutAmount(10000L)
-                        .build()
+            SettlementPolicyCreateState.builder()
+                .sellerId(sellerId)
+                .pgFeeRate(FeeRate.of(300))
+                .platformFeeRate(FeeRate.of(500))
+                .settlementCycle(SettlementCycle.MONTHLY)
+                .minPayoutAmount(10000L)
+                .build()
         );
     }
 

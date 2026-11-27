@@ -37,7 +37,7 @@ public class FailReturnInspectionService {
 
         if (!order.getOrderStatus().canTransitionTo(TARGET_STATUS)) {
             log.warn("반품 검수 불합격이나 주문 상태 전이 불가. orderId={}, currentStatus={}",
-                    tracker.getOrderId(), order.getOrderStatus()
+                tracker.getOrderId(), order.getOrderStatus()
             );
             return;
         }
@@ -50,7 +50,7 @@ public class FailReturnInspectionService {
         order.changeProductsStatus(returnRequestedPricePolicyIds, TARGET_STATUS, now, 0L);
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.of(tracker.getOrderId(), order.getOrderStatus(), null, "반품 검수 불합격")
+            OrderStatusHistoryCreateState.of(tracker.getOrderId(), order.getOrderStatus(), null, "반품 검수 불합격")
         );
 
         updateOrderPort.update(order, orderStatusHistory);
@@ -61,8 +61,8 @@ public class FailReturnInspectionService {
 
     private List<Long> collectReturnRequestedPricePolicyIds(Order order) {
         return order.getOrderProducts().stream()
-                .filter(op -> op.getOrderStatus().isReturnRequested())
-                .map(OrderProduct::getPricePolicyId)
-                .toList();
+            .filter(op -> op.getOrderStatus().isReturnRequested())
+            .map(OrderProduct::getPricePolicyId)
+            .toList();
     }
 }

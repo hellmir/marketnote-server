@@ -68,16 +68,16 @@ class ReturnTrackerEventKafkaProducerTest {
     void shouldWrapJsonProcessingException() throws JsonProcessingException {
         // given
         when(objectMapper.writeValueAsString(org.mockito.ArgumentMatchers.any()))
-                .thenThrow(new JsonProcessingException("test error") {
-                });
+            .thenThrow(new JsonProcessingException("test error") {
+            });
 
         // when & then
         assertThatThrownBy(() -> producer.publishReturnInspectionCompletedEvent(42L))
-                .isInstanceOf(ReturnTrackerEventSerializationException.class)
-                .hasMessageContaining("ERR_RETURN_TRACKER_EVENT_01")
-                .hasMessageContaining("반품 추적 이벤트")
-                .hasMessageContaining("partitionKey=42")
-                .hasMessageContaining("eventId=");
+            .isInstanceOf(ReturnTrackerEventSerializationException.class)
+            .hasMessageContaining("ERR_RETURN_TRACKER_EVENT_01")
+            .hasMessageContaining("반품 추적 이벤트")
+            .hasMessageContaining("partitionKey=42")
+            .hasMessageContaining("eventId=");
 
         verifyNoInteractions(saveOutboxEventPort);
     }

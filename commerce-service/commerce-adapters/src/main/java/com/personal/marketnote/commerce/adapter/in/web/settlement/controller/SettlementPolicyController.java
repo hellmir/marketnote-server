@@ -47,20 +47,20 @@ public class SettlementPolicyController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RegisterSettlementPolicyApiDocs
     public ResponseEntity<BaseResponse<GetSettlementPolicyResponse>> registerPolicy(
-            @Valid @RequestBody RegisterSettlementPolicyRequest request
+        @Valid @RequestBody RegisterSettlementPolicyRequest request
     ) {
         GetSettlementPolicyResult result = registerSettlementPolicyUseCase.registerPolicy(
-                SettlementPolicyRequestToCommandMapper.mapToRegisterCommand(request)
+            SettlementPolicyRequestToCommandMapper.mapToRegisterCommand(request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetSettlementPolicyResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "정산 정책 등록 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetSettlementPolicyResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "정산 정책 등록 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -70,17 +70,17 @@ public class SettlementPolicyController {
     public ResponseEntity<BaseResponse<List<GetSettlementPolicyResponse>>> getAllPolicies() {
         List<GetSettlementPolicyResult> results = getSettlementPolicyUseCase.getAllPolicies();
         List<GetSettlementPolicyResponse> responses = results.stream()
-                .map(GetSettlementPolicyResponse::from)
-                .toList();
+            .map(GetSettlementPolicyResponse::from)
+            .toList();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        responses,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "정산 정책 전체 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                responses,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "정산 정책 전체 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -88,18 +88,18 @@ public class SettlementPolicyController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetSettlementPolicyApiDocs
     public ResponseEntity<BaseResponse<GetSettlementPolicyResponse>> getPolicy(
-            @PathVariable("id") Long id
+        @PathVariable("id") Long id
     ) {
         GetSettlementPolicyResult result = getSettlementPolicyUseCase.getPolicy(id);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetSettlementPolicyResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "정산 정책 단건 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetSettlementPolicyResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "정산 정책 단건 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -107,21 +107,21 @@ public class SettlementPolicyController {
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdateSettlementPolicyApiDocs
     public ResponseEntity<BaseResponse<GetSettlementPolicyResponse>> updatePolicy(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody UpdateSettlementPolicyRequest request
+        @PathVariable("id") Long id,
+        @Valid @RequestBody UpdateSettlementPolicyRequest request
     ) {
         GetSettlementPolicyResult result = updateSettlementPolicyUseCase.updatePolicy(
-                SettlementPolicyRequestToCommandMapper.mapToUpdateCommand(id, request)
+            SettlementPolicyRequestToCommandMapper.mapToUpdateCommand(id, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetSettlementPolicyResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "정산 정책 수정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetSettlementPolicyResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "정산 정책 수정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -129,18 +129,18 @@ public class SettlementPolicyController {
     @PreAuthorize(ADMIN_POINTCUT)
     @DeleteSettlementPolicyApiDocs
     public ResponseEntity<BaseResponse<Void>> deletePolicy(
-            @PathVariable("id") Long id
+        @PathVariable("id") Long id
     ) {
         deleteSettlementPolicyUseCase.deletePolicy(id);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "정산 정책 삭제 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "정산 정책 삭제 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

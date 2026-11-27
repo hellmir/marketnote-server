@@ -4,10 +4,10 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillment
 
 public class FulfillmentSettlementRequestToCommandMapper {
     public static GetFulfillmentSettlementDailyCostsCommand mapToDailyCostsCommand(
-            String yearMonth,
-            String warehouseCode,
-            String customerCode,
-            String accessToken
+        String yearMonth,
+        String warehouseCode,
+        String customerCode,
+        String accessToken
     ) {
         return GetFulfillmentSettlementDailyCostsCommand.of(yearMonth, warehouseCode, customerCode, accessToken);
     }

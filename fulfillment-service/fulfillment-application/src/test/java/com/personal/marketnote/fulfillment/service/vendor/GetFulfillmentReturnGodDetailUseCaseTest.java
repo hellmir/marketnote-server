@@ -31,13 +31,13 @@ class GetFulfillmentReturnGodDetailUseCaseTest {
     void shouldReturnReturnGodDetailResultFromPort() {
         // given
         GetFulfillmentReturnGodDetailCommand command = GetFulfillmentReturnGodDetailCommand.builder()
-                .customerCode("CUST001")
-                .accessToken("token")
-                .startDate("2026-01-01")
-                .endDate("2026-01-31")
-                .returnSlipNumbers("RTN001")
-                .warehouseCode("WH001")
-                .build();
+            .customerCode("CUST001")
+            .accessToken("token")
+            .startDate("2026-01-01")
+            .endDate("2026-01-31")
+            .returnSlipNumbers("RTN001")
+            .warehouseCode("WH001")
+            .build();
         GetFulfillmentReturnGodDetailResult expectedResult = GetFulfillmentReturnGodDetailResult.of(0, List.of());
         when(getFulfillmentReturnGodDetailPort.getReturnGodDetail(any())).thenReturn(expectedResult);
 

@@ -44,19 +44,19 @@ class FilePersistenceAdapterTest {
 
     private FileDomain createFileDomain(Long id, OwnerType ownerType, Long ownerId, FileSort sort) {
         return FileDomain.from(FileDomainSnapshotState.builder()
-                .id(id)
-                .ownerType(ownerType)
-                .ownerId(ownerId)
-                .sort(sort)
-                .extension("jpg")
-                .name("test-image.jpg")
-                .storageUrl("https://bucket.s3.amazonaws.com/product/1/test.jpg")
-                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                .status(EntityStatus.ACTIVE)
-                .orderNum(id)
-                .userId(100L)
-                .ownerKey("owner-key-1")
-                .build());
+            .id(id)
+            .ownerType(ownerType)
+            .ownerId(ownerId)
+            .sort(sort)
+            .extension("jpg")
+            .name("test-image.jpg")
+            .storageUrl("https://bucket.s3.amazonaws.com/product/1/test.jpg")
+            .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+            .status(EntityStatus.ACTIVE)
+            .orderNum(id)
+            .userId(100L)
+            .ownerKey("owner-key-1")
+            .build());
     }
 
     private FileJpaEntity createFileJpaEntity(Long id) {
@@ -109,7 +109,7 @@ class FilePersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> filePersistenceAdapter.saveAll(List.of(file), null))
-                    .isInstanceOf(InvalidFileStorageUrlsSizeException.class);
+                .isInstanceOf(InvalidFileStorageUrlsSizeException.class);
         }
 
         @Test
@@ -121,7 +121,7 @@ class FilePersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> filePersistenceAdapter.saveAll(List.of(file1, file2), List.of("url1")))
-                    .isInstanceOf(InvalidFileStorageUrlsSizeException.class);
+                .isInstanceOf(InvalidFileStorageUrlsSizeException.class);
         }
 
         @Test
@@ -186,7 +186,7 @@ class FilePersistenceAdapterTest {
             // given
             FileJpaEntity entity = createFileJpaEntity(1L);
             when(fileJpaRepository.findAllByOwnerTypeAndOwnerIdOrderByIdAsc(OwnerType.PRODUCT, 1L))
-                    .thenReturn(List.of(entity));
+                .thenReturn(List.of(entity));
 
             // when
             List<FileDomain> result = filePersistenceAdapter.findByOwner(OwnerType.PRODUCT, 1L);
@@ -201,7 +201,7 @@ class FilePersistenceAdapterTest {
         void returnsEmptyListWhenNoFilesForOwner() {
             // given
             when(fileJpaRepository.findAllByOwnerTypeAndOwnerIdOrderByIdAsc(OwnerType.PRODUCT, 999L))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             // when
             List<FileDomain> result = filePersistenceAdapter.findByOwner(OwnerType.PRODUCT, 999L);
@@ -220,20 +220,20 @@ class FilePersistenceAdapterTest {
             // given
             FileJpaEntity entity = createFileJpaEntity(1L);
             when(fileJpaRepository.findByOwnerTypeAndOwnerIdAndSort(
-                    OwnerType.PRODUCT, 1L, "PRODUCT_REPRESENTATIVE_IMAGE",
-                    PageRequest.of(0, 8)
+                OwnerType.PRODUCT, 1L, "PRODUCT_REPRESENTATIVE_IMAGE",
+                PageRequest.of(0, 8)
             )).thenReturn(List.of(entity));
 
             // when
             List<FileDomain> result = filePersistenceAdapter.findByOwnerAndSort(
-                    OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE
+                OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE
             );
 
             // then
             assertThat(result).hasSize(1);
             verify(fileJpaRepository).findByOwnerTypeAndOwnerIdAndSort(
-                    OwnerType.PRODUCT, 1L, "PRODUCT_REPRESENTATIVE_IMAGE",
-                    PageRequest.of(0, 8)
+                OwnerType.PRODUCT, 1L, "PRODUCT_REPRESENTATIVE_IMAGE",
+                PageRequest.of(0, 8)
             );
         }
     }
@@ -265,7 +265,7 @@ class FilePersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> filePersistenceAdapter.update(file))
-                    .isInstanceOf(FileNotFoundException.class);
+                .isInstanceOf(FileNotFoundException.class);
         }
     }
 
@@ -278,13 +278,13 @@ class FilePersistenceAdapterTest {
             // given
             FileDomain file = createFileDomain(1L, OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE);
             ResizedFile resizedFile = ResizedFile.from(ResizedFileSnapshotState.builder()
-                    .id(10L)
-                    .fileId(1L)
-                    .size("THUMBNAIL")
-                    .storageUrl("https://bucket.s3.amazonaws.com/resized/thumb.jpg")
-                    .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                    .status(EntityStatus.ACTIVE)
-                    .build());
+                .id(10L)
+                .fileId(1L)
+                .size("THUMBNAIL")
+                .storageUrl("https://bucket.s3.amazonaws.com/resized/thumb.jpg")
+                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+                .status(EntityStatus.ACTIVE)
+                .build());
 
             FileJpaEntity fileEntity = mock(FileJpaEntity.class);
             ResizedFileJpaEntity resizedEntity = mock(ResizedFileJpaEntity.class);

@@ -3,11 +3,7 @@ package com.personal.marketnote.user.domain.user;
 import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -20,15 +16,15 @@ public class UserAuthProvider {
 
     static UserAuthProvider of(AuthVendor authVendor) {
         return UserAuthProvider.builder()
-                .authVendor(authVendor)
-                .build();
+            .authVendor(authVendor)
+            .build();
     }
 
     public static UserAuthProvider of(AuthVendor authVendor, String oidcId) {
         return UserAuthProvider.builder()
-                .authVendor(authVendor)
-                .oidcId(oidcId)
-                .build();
+            .authVendor(authVendor)
+            .oidcId(oidcId)
+            .build();
     }
 
     public void addUser(User user) {

@@ -72,15 +72,15 @@ class SagaOrchestratorTest {
     @BeforeEach
     void setUp() throws Exception {
         clock = Clock.fixed(
-                Instant.parse("2026-03-16T01:00:00Z"),
-                ZoneId.of("Asia/Seoul")
+            Instant.parse("2026-03-16T01:00:00Z"),
+            ZoneId.of("Asia/Seoul")
         );
         testDefinition = new TestSagaDefinition();
         testContext = new TestContext(1L, 10L, 5);
         sagaOrchestrator = new SagaOrchestrator(
-                saveSagaPort, findSagaPort, updateSagaPort,
-                saveOutboxEventPort, objectMapper, clock,
-                List.of(testDefinition), sendSagaFailureAlertPort
+            saveSagaPort, findSagaPort, updateSagaPort,
+            saveOutboxEventPort, objectMapper, clock,
+            List.of(testDefinition), sendSagaFailureAlertPort
         );
 
         lenient().when(objectMapper.writeValueAsString(any())).thenReturn(PAYLOAD_JSON);
@@ -105,15 +105,15 @@ class SagaOrchestratorTest {
         @Override
         public List<SagaStepDefinition<TestContext>> getSteps() {
             return List.of(
-                    new SagaStepDefinition<>(STEP_1_NAME, TOPIC_1,
-                            ctx -> "{\"productId\":" + ctx.productId() + ",\"quantity\":" + ctx.quantity() + "}",
-                            ctx -> "{\"productId\":" + ctx.productId() + ",\"quantity\":" + ctx.quantity() + "}"),
-                    new SagaStepDefinition<>(STEP_2_NAME, TOPIC_2,
-                            ctx -> "{\"orderId\":" + ctx.orderId() + ",\"amount\":5000}",
-                            ctx -> "{\"orderId\":" + ctx.orderId() + ",\"refundAmount\":5000}"),
-                    new SagaStepDefinition<>(STEP_3_NAME, TOPIC_3,
-                            ctx -> "{\"orderId\":" + ctx.orderId() + ",\"message\":\"completed\"}",
-                            null)
+                new SagaStepDefinition<>(STEP_1_NAME, TOPIC_1,
+                    ctx -> "{\"productId\":" + ctx.productId() + ",\"quantity\":" + ctx.quantity() + "}",
+                    ctx -> "{\"productId\":" + ctx.productId() + ",\"quantity\":" + ctx.quantity() + "}"),
+                new SagaStepDefinition<>(STEP_2_NAME, TOPIC_2,
+                    ctx -> "{\"orderId\":" + ctx.orderId() + ",\"amount\":5000}",
+                    ctx -> "{\"orderId\":" + ctx.orderId() + ",\"refundAmount\":5000}"),
+                new SagaStepDefinition<>(STEP_3_NAME, TOPIC_3,
+                    ctx -> "{\"orderId\":" + ctx.orderId() + ",\"message\":\"completed\"}",
+                    null)
             );
         }
     }
@@ -184,7 +184,7 @@ class SagaOrchestratorTest {
             // given
             SagaInstance instance = createProcessingInstance(0);
             SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                    SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
+                SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
             );
 
             when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
@@ -219,7 +219,7 @@ class SagaOrchestratorTest {
             // given
             SagaInstance instance = createProcessingInstance(2);
             SagaStep step2 = createSagaStep(30L, 1L, STEP_3_NAME, 2,
-                    SagaStepStatus.PROCESSING, "{\"message\":\"test\"}", null, null, null
+                SagaStepStatus.PROCESSING, "{\"message\":\"test\"}", null, null, null
             );
 
             when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
@@ -249,10 +249,10 @@ class SagaOrchestratorTest {
             try {
                 SagaInstance instance = createProcessingInstance(1);
                 SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                        SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}", null, null
+                    SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}", null, null
                 );
                 SagaStep step1 = createSagaStep(20L, 1L, STEP_2_NAME, 1,
-                        SagaStepStatus.PROCESSING, "{\"amount\":5000}", null, null, null
+                    SagaStepStatus.PROCESSING, "{\"amount\":5000}", null, null, null
                 );
 
                 when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
@@ -286,7 +286,7 @@ class SagaOrchestratorTest {
             try {
                 SagaInstance instance = createProcessingInstance(0);
                 SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                        SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
+                    SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
                 );
 
                 when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
@@ -317,11 +317,11 @@ class SagaOrchestratorTest {
             // given
             SagaInstance instance = createCompensatingInstance();
             SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                    SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
-                    "{\"rollback\":true}", null
+                SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
+                "{\"rollback\":true}", null
             );
             SagaStep step1 = createSagaStep(20L, 1L, STEP_2_NAME, 1,
-                    SagaStepStatus.FAILED, "{\"amount\":5000}", "{\"error\":\"fail\"}", null, null
+                SagaStepStatus.FAILED, "{\"amount\":5000}", "{\"error\":\"fail\"}", null, null
             );
 
             when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
@@ -347,8 +347,8 @@ class SagaOrchestratorTest {
             try {
                 SagaInstance instance = createCompensatingInstance();
                 SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                        SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
-                        "{\"rollback\":true}", null
+                    SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
+                    "{\"rollback\":true}", null
                 );
 
                 when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
@@ -381,8 +381,8 @@ class SagaOrchestratorTest {
 
             // when & then
             assertThatThrownBy(() ->
-                    sagaOrchestrator.handleStepResponse("non-existent", STEP_1_NAME, true, "{}"))
-                    .isInstanceOf(SagaInstanceNotFoundException.class);
+                sagaOrchestrator.handleStepResponse("non-existent", STEP_1_NAME, true, "{}"))
+                .isInstanceOf(SagaInstanceNotFoundException.class);
 
             verifyNoInteractions(updateSagaPort);
             verifyNoInteractions(saveOutboxEventPort);
@@ -393,7 +393,7 @@ class SagaOrchestratorTest {
         void shouldIgnoreResponseForTerminalSaga() throws Exception {
             // given
             SagaInstance instance = createSagaInstance(1L, SAGA_ID, SAGA_TYPE,
-                    SagaStatus.SUCCEEDED, 2, PAYLOAD_JSON, FIXED_TIME
+                SagaStatus.SUCCEEDED, 2, PAYLOAD_JSON, FIXED_TIME
             );
 
             when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
@@ -420,7 +420,7 @@ class SagaOrchestratorTest {
             try {
                 SagaInstance instance = createProcessingInstance(0);
                 SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                        SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
+                    SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
                 );
 
                 when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
@@ -435,7 +435,7 @@ class SagaOrchestratorTest {
                 synchronizations.forEach(TransactionSynchronization::afterCommit);
 
                 verify(sendSagaFailureAlertPort).sendFailureAlert(
-                        eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_1_NAME), eq("TIMEOUT"), any(LocalDateTime.class)
+                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_1_NAME), eq("TIMEOUT"), any(LocalDateTime.class)
                 );
             } finally {
                 TransactionSynchronizationManager.clearSynchronization();
@@ -450,8 +450,8 @@ class SagaOrchestratorTest {
             try {
                 SagaInstance instance = createCompensatingInstance();
                 SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                        SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
-                        "{\"rollback\":true}", null
+                    SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
+                    "{\"rollback\":true}", null
                 );
 
                 when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
@@ -466,7 +466,7 @@ class SagaOrchestratorTest {
                 synchronizations.forEach(TransactionSynchronization::afterCommit);
 
                 verify(sendSagaFailureAlertPort).sendFailureAlert(
-                        eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_1_NAME), eq("COMPENSATION_TIMEOUT"), any(LocalDateTime.class)
+                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_1_NAME), eq("COMPENSATION_TIMEOUT"), any(LocalDateTime.class)
                 );
             } finally {
                 TransactionSynchronizationManager.clearSynchronization();
@@ -481,8 +481,8 @@ class SagaOrchestratorTest {
             try {
                 SagaInstance instance = createCompensatingInstance();
                 SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                        SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
-                        "{\"rollback\":true}", null
+                    SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
+                    "{\"rollback\":true}", null
                 );
 
                 when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
@@ -497,7 +497,7 @@ class SagaOrchestratorTest {
                 synchronizations.forEach(TransactionSynchronization::afterCommit);
 
                 verify(sendSagaFailureAlertPort).sendFailureAlert(
-                        eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_1_NAME), eq("{\"error\":\"rollback failed\"}"), any(LocalDateTime.class)
+                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_1_NAME), eq("{\"error\":\"rollback failed\"}"), any(LocalDateTime.class)
                 );
             } finally {
                 TransactionSynchronizationManager.clearSynchronization();
@@ -512,10 +512,10 @@ class SagaOrchestratorTest {
             try {
                 SagaInstance instance = createProcessingInstance(1);
                 SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                        SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}", null, null
+                    SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}", null, null
                 );
                 SagaStep step1 = createSagaStep(20L, 1L, STEP_2_NAME, 1,
-                        SagaStepStatus.PROCESSING, "{\"amount\":5000}", null, null, null
+                    SagaStepStatus.PROCESSING, "{\"amount\":5000}", null, null, null
                 );
 
                 when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
@@ -530,8 +530,8 @@ class SagaOrchestratorTest {
                 synchronizations.forEach(TransactionSynchronization::afterCommit);
 
                 verify(sendSagaFailureAlertPort).sendFailureAlert(
-                        eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_2_NAME),
-                        eq("{\"error\":\"insufficient funds\"}"), any(LocalDateTime.class)
+                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_2_NAME),
+                    eq("{\"error\":\"insufficient funds\"}"), any(LocalDateTime.class)
                 );
             } finally {
                 TransactionSynchronizationManager.clearSynchronization();
@@ -546,7 +546,7 @@ class SagaOrchestratorTest {
             try {
                 SagaInstance instance = createProcessingInstance(0);
                 SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                        SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
+                    SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
                 );
 
                 when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
@@ -561,8 +561,8 @@ class SagaOrchestratorTest {
                 synchronizations.forEach(TransactionSynchronization::afterCommit);
 
                 verify(sendSagaFailureAlertPort).sendFailureAlert(
-                        eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_1_NAME),
-                        eq("{\"error\":\"out of stock\"}"), any(LocalDateTime.class)
+                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_1_NAME),
+                    eq("{\"error\":\"out of stock\"}"), any(LocalDateTime.class)
                 );
             } finally {
                 TransactionSynchronizationManager.clearSynchronization();
@@ -577,7 +577,7 @@ class SagaOrchestratorTest {
             try {
                 SagaInstance instance = createProcessingInstance(2);
                 SagaStep step2 = createSagaStep(30L, 1L, STEP_3_NAME, 2,
-                        SagaStepStatus.PROCESSING, "{\"message\":\"test\"}", null, null, null
+                    SagaStepStatus.PROCESSING, "{\"message\":\"test\"}", null, null, null
                 );
 
                 when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
@@ -602,9 +602,9 @@ class SagaOrchestratorTest {
         when(saveSagaPort.save(any(SagaInstance.class))).thenAnswer(invocation -> {
             SagaInstance instance = invocation.getArgument(0);
             return SagaInstance.from(new SagaInstanceSnapshotState(
-                    1L, instance.getSagaId(), instance.getSagaType(), instance.getStatus(),
-                    instance.getCurrentStepIndex(), instance.getPayload(),
-                    instance.getCreatedAt(), instance.getModifiedAt(), instance.getCompletedAt()
+                1L, instance.getSagaId(), instance.getSagaType(), instance.getStatus(),
+                instance.getCurrentStepIndex(), instance.getPayload(),
+                instance.getCreatedAt(), instance.getModifiedAt(), instance.getCompletedAt()
             ));
         });
     }
@@ -613,10 +613,10 @@ class SagaOrchestratorTest {
         when(saveSagaPort.saveStep(any(SagaStep.class))).thenAnswer(invocation -> {
             SagaStep step = invocation.getArgument(0);
             return SagaStep.from(new SagaStepSnapshotState(
-                    100L, step.getSagaInstanceId(), step.getStepName(), step.getStepIndex(),
-                    step.getStatus(), step.getRequest(), step.getResponse(),
-                    step.getCompensationRequest(), step.getCompensationResponse(),
-                    step.getCreatedAt(), step.getModifiedAt()
+                100L, step.getSagaInstanceId(), step.getStepName(), step.getStepIndex(),
+                step.getStatus(), step.getRequest(), step.getResponse(),
+                step.getCompensationRequest(), step.getCompensationResponse(),
+                step.getCreatedAt(), step.getModifiedAt()
             ));
         });
     }
@@ -633,8 +633,8 @@ class SagaOrchestratorTest {
                                             SagaStatus status, int currentStepIndex,
                                             String payload, LocalDateTime completedAt) {
         return SagaInstance.from(new SagaInstanceSnapshotState(
-                id, sagaId, sagaType, status, currentStepIndex, payload,
-                FIXED_TIME, FIXED_TIME, completedAt
+            id, sagaId, sagaType, status, currentStepIndex, payload,
+            FIXED_TIME, FIXED_TIME, completedAt
         ));
     }
 
@@ -643,9 +643,9 @@ class SagaOrchestratorTest {
                                     String response, String compensationRequest,
                                     String compensationResponse) {
         return SagaStep.from(new SagaStepSnapshotState(
-                id, sagaInstanceId, stepName, stepIndex, status, request,
-                response, compensationRequest, compensationResponse,
-                FIXED_TIME, FIXED_TIME
+            id, sagaInstanceId, stepName, stepIndex, status, request,
+            response, compensationRequest, compensationResponse,
+            FIXED_TIME, FIXED_TIME
         ));
     }
 }

@@ -28,35 +28,35 @@ class IdempotencyKeyTest {
     @DisplayName("빈 문자열로 생성 시 IdempotencyKeyNoValueException을 던진다")
     void shouldThrowWhenValueIsBlank() {
         assertThatThrownBy(() -> IdempotencyKey.of(""))
-                .isInstanceOf(IdempotencyKeyNoValueException.class);
+            .isInstanceOf(IdempotencyKeyNoValueException.class);
     }
 
     @Test
     @DisplayName("공백만 있는 문자열로 생성 시 IdempotencyKeyNoValueException을 던진다")
     void shouldThrowWhenValueIsWhitespaceOnly() {
         assertThatThrownBy(() -> IdempotencyKey.of("   "))
-                .isInstanceOf(IdempotencyKeyNoValueException.class);
+            .isInstanceOf(IdempotencyKeyNoValueException.class);
     }
 
     @Test
     @DisplayName("null로 생성 시 IdempotencyKeyNoValueException을 던진다")
     void shouldThrowWhenValueIsNull() {
         assertThatThrownBy(() -> IdempotencyKey.of(null))
-                .isInstanceOf(IdempotencyKeyNoValueException.class);
+            .isInstanceOf(IdempotencyKeyNoValueException.class);
     }
 
     @Test
     @DisplayName("generate 호출 시 type이 null이면 IdempotencyKeyNoValueException을 던진다")
     void shouldThrowWhenGenerateTypeIsNull() {
         assertThatThrownBy(() -> IdempotencyKey.generate(null, 100L))
-                .isInstanceOf(IdempotencyKeyNoValueException.class);
+            .isInstanceOf(IdempotencyKeyNoValueException.class);
     }
 
     @Test
     @DisplayName("generate 호출 시 id가 null이면 IdempotencyKeyNoValueException을 던진다")
     void shouldThrowWhenGenerateIdIsNull() {
         assertThatThrownBy(() -> IdempotencyKey.generate("PG_SETTLEMENT", null))
-                .isInstanceOf(IdempotencyKeyNoValueException.class);
+            .isInstanceOf(IdempotencyKeyNoValueException.class);
     }
 
     @Test

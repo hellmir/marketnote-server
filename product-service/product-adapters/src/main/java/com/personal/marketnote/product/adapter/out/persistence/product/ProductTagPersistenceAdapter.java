@@ -21,7 +21,7 @@ public class ProductTagPersistenceAdapter implements UpdateProductTagPort {
     @CacheEvict(value = "product:detail", key = "#productId")
     public void updateOrderNums(Long productId, Map<Long, Long> tagIdToOrderNumMap) {
         List<ProductTagJpaEntity> tagEntities = productTagJpaRepository
-                .findAllByProductJpaEntityIdAndIdIn(productId, new ArrayList<>(tagIdToOrderNumMap.keySet()));
+            .findAllByProductJpaEntityIdAndIdIn(productId, new ArrayList<>(tagIdToOrderNumMap.keySet()));
 
         for (ProductTagJpaEntity tagEntity : tagEntities) {
             Long newOrderNum = tagIdToOrderNumMap.get(tagEntity.getId());

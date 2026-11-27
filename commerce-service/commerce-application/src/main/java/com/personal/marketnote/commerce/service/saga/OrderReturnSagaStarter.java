@@ -22,7 +22,7 @@ public class OrderReturnSagaStarter {
         String sagaId = SAGA_ID_PREFIX + context.orderId();
 
         log.info("OrderReturn SAGA 시작. sagaId={}, orderId={}, isFullReturn={}",
-                sagaId, context.orderId(), context.isFullReturn()
+            sagaId, context.orderId(), context.isFullReturn()
         );
 
         sagaOrchestrator.start(orderReturnSagaDefinition, sagaId, context);

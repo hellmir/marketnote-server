@@ -46,10 +46,10 @@ class JwtUtilTest {
         @DisplayName("유효한 파라미터로 액세스 토큰을 생성한다")
         void shouldGenerateAccessTokenWithValidParameters() {
             String token = jwtUtil.generateAccessToken(
-                    "user-subject",
-                    42L,
-                    List.of("ROLE_USER"),
-                    AuthVendor.NATIVE
+                "user-subject",
+                42L,
+                List.of("ROLE_USER"),
+                AuthVendor.NATIVE
             );
 
             assertThat(token).isNotBlank();
@@ -65,10 +65,10 @@ class JwtUtilTest {
         @DisplayName("userId가 null이어도 액세스 토큰을 생성한다")
         void shouldGenerateAccessTokenWhenUserIdIsNull() {
             String token = jwtUtil.generateAccessToken(
-                    "user-subject",
-                    null,
-                    List.of("ROLE_USER"),
-                    AuthVendor.NATIVE
+                "user-subject",
+                null,
+                List.of("ROLE_USER"),
+                AuthVendor.NATIVE
             );
 
             TokenClaims claims = jwtUtil.parseAccessToken(token);
@@ -79,54 +79,54 @@ class JwtUtilTest {
         @DisplayName("id가 null이면 InvalidJwtGenerationParametersException을 던진다")
         void shouldThrowInvalidJwtGenerationParametersExceptionWhenIdIsNull() {
             assertThatThrownBy(() -> jwtUtil.generateAccessToken(
-                    null,
-                    42L,
-                    List.of("ROLE_USER"),
-                    AuthVendor.NATIVE
+                null,
+                42L,
+                List.of("ROLE_USER"),
+                AuthVendor.NATIVE
             ))
-                    .isInstanceOf(InvalidJwtGenerationParametersException.class)
-                    .hasMessageContaining("memberId cannot be null");
+                .isInstanceOf(InvalidJwtGenerationParametersException.class)
+                .hasMessageContaining("memberId cannot be null");
         }
 
         @Test
         @DisplayName("roleIds가 비어있으면 InvalidJwtGenerationParametersException을 던진다")
         void shouldThrowInvalidJwtGenerationParametersExceptionWhenRoleIdsIsEmpty() {
             assertThatThrownBy(() -> jwtUtil.generateAccessToken(
-                    "user-subject",
-                    42L,
-                    List.of(),
-                    AuthVendor.NATIVE
+                "user-subject",
+                42L,
+                List.of(),
+                AuthVendor.NATIVE
             ))
-                    .isInstanceOf(InvalidJwtGenerationParametersException.class)
-                    .hasMessageContaining("roleIds cannot be empty");
+                .isInstanceOf(InvalidJwtGenerationParametersException.class)
+                .hasMessageContaining("roleIds cannot be empty");
         }
 
         @Test
         @DisplayName("authVendor가 null이면 InvalidJwtGenerationParametersException을 던진다")
         void shouldThrowInvalidJwtGenerationParametersExceptionWhenAuthVendorIsNull() {
             assertThatThrownBy(() -> jwtUtil.generateAccessToken(
-                    "user-subject",
-                    42L,
-                    List.of("ROLE_USER"),
-                    null
+                "user-subject",
+                42L,
+                List.of("ROLE_USER"),
+                null
             ))
-                    .isInstanceOf(InvalidJwtGenerationParametersException.class)
-                    .hasMessageContaining("authVendor cannot be null");
+                .isInstanceOf(InvalidJwtGenerationParametersException.class)
+                .hasMessageContaining("authVendor cannot be null");
         }
 
         @Test
         @DisplayName("여러 파라미터가 동시에 null이면 모든 에러 메시지를 포함한다")
         void shouldIncludeAllMessagesWhenMultipleParametersInvalid() {
             assertThatThrownBy(() -> jwtUtil.generateAccessToken(
-                    null,
-                    null,
-                    List.of(),
-                    null
+                null,
+                null,
+                List.of(),
+                null
             ))
-                    .isInstanceOf(InvalidJwtGenerationParametersException.class)
-                    .hasMessageContaining("memberId cannot be null")
-                    .hasMessageContaining("roleIds cannot be empty")
-                    .hasMessageContaining("authVendor cannot be null");
+                .isInstanceOf(InvalidJwtGenerationParametersException.class)
+                .hasMessageContaining("memberId cannot be null")
+                .hasMessageContaining("roleIds cannot be empty")
+                .hasMessageContaining("authVendor cannot be null");
         }
     }
 
@@ -138,9 +138,9 @@ class JwtUtilTest {
         @DisplayName("userId 없이 리프레시 토큰을 생성한다")
         void shouldGenerateRefreshTokenWithoutUserId() {
             String token = jwtUtil.generateRefreshToken(
-                    "user-subject",
-                    List.of("ROLE_USER"),
-                    AuthVendor.KAKAO
+                "user-subject",
+                List.of("ROLE_USER"),
+                AuthVendor.KAKAO
             );
 
             assertThat(token).isNotBlank();
@@ -155,10 +155,10 @@ class JwtUtilTest {
         @DisplayName("userId 포함하여 리프레시 토큰을 생성한다")
         void shouldGenerateRefreshTokenWithUserId() {
             String token = jwtUtil.generateRefreshToken(
-                    "user-subject",
-                    99L,
-                    List.of("ROLE_USER"),
-                    AuthVendor.GOOGLE
+                "user-subject",
+                99L,
+                List.of("ROLE_USER"),
+                AuthVendor.GOOGLE
             );
 
             assertThat(token).isNotBlank();
@@ -177,10 +177,10 @@ class JwtUtilTest {
         void shouldParseValidAccessToken() {
             LocalDateTime beforeGeneration = LocalDateTime.now().minusSeconds(1);
             String token = jwtUtil.generateAccessToken(
-                    "user-subject",
-                    42L,
-                    List.of("ROLE_USER", "ROLE_ADMIN"),
-                    AuthVendor.NATIVE
+                "user-subject",
+                42L,
+                List.of("ROLE_USER", "ROLE_ADMIN"),
+                AuthVendor.NATIVE
             );
             LocalDateTime afterGeneration = LocalDateTime.now().plusSeconds(1);
 
@@ -199,16 +199,16 @@ class JwtUtilTest {
         @DisplayName("리프레시 토큰을 액세스 토큰으로 파싱하면 InvalidJwtTokenTypeException을 던진다")
         void shouldThrowInvalidJwtTokenTypeExceptionWhenRefreshTokenParsedAsAccessToken() {
             String refreshToken = jwtUtil.generateRefreshToken(
-                    "user-subject",
-                    42L,
-                    List.of("ROLE_USER"),
-                    AuthVendor.NATIVE
+                "user-subject",
+                42L,
+                List.of("ROLE_USER"),
+                AuthVendor.NATIVE
             );
 
             assertThatThrownBy(() -> jwtUtil.parseAccessToken(refreshToken))
-                    .isInstanceOf(InvalidJwtTokenTypeException.class)
-                    .hasMessageContaining("ACCESS_TOKEN")
-                    .hasMessageContaining("REFRESH_TOKEN");
+                .isInstanceOf(InvalidJwtTokenTypeException.class)
+                .hasMessageContaining("ACCESS_TOKEN")
+                .hasMessageContaining("REFRESH_TOKEN");
         }
 
         @Test
@@ -217,7 +217,7 @@ class JwtUtilTest {
             String expiredToken = buildExpiredToken(JwtTokenType.ACCESS_TOKEN);
 
             assertThatThrownBy(() -> jwtUtil.parseAccessToken(expiredToken))
-                    .isInstanceOf(ExpiredJwtException.class);
+                .isInstanceOf(ExpiredJwtException.class);
         }
 
         @Test
@@ -225,14 +225,14 @@ class JwtUtilTest {
         void shouldThrowJwtExceptionWhenAccessTokenSignatureInvalid() {
             JwtUtil otherJwtUtil = new JwtUtil(OTHER_SECRET, ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL);
             String tokenFromOtherSecret = otherJwtUtil.generateAccessToken(
-                    "user-subject",
-                    42L,
-                    List.of("ROLE_USER"),
-                    AuthVendor.NATIVE
+                "user-subject",
+                42L,
+                List.of("ROLE_USER"),
+                AuthVendor.NATIVE
             );
 
             assertThatThrownBy(() -> jwtUtil.parseAccessToken(tokenFromOtherSecret))
-                    .isInstanceOf(JwtException.class);
+                .isInstanceOf(JwtException.class);
         }
     }
 
@@ -244,10 +244,10 @@ class JwtUtilTest {
         @DisplayName("유효한 리프레시 토큰을 파싱하여 TokenClaims를 반환한다")
         void shouldParseValidRefreshToken() {
             String token = jwtUtil.generateRefreshToken(
-                    "user-subject",
-                    99L,
-                    List.of("ROLE_USER"),
-                    AuthVendor.APPLE
+                "user-subject",
+                99L,
+                List.of("ROLE_USER"),
+                AuthVendor.APPLE
             );
 
             TokenClaims claims = jwtUtil.parseRefreshToken(token);
@@ -262,9 +262,9 @@ class JwtUtilTest {
         @DisplayName("userId 없는 리프레시 토큰을 파싱하면 userId가 null이다")
         void shouldReturnNullUserIdWhenRefreshTokenHasNoUserId() {
             String token = jwtUtil.generateRefreshToken(
-                    "user-subject",
-                    List.of("ROLE_USER"),
-                    AuthVendor.NATIVE
+                "user-subject",
+                List.of("ROLE_USER"),
+                AuthVendor.NATIVE
             );
 
             TokenClaims claims = jwtUtil.parseRefreshToken(token);
@@ -276,16 +276,16 @@ class JwtUtilTest {
         @DisplayName("액세스 토큰을 리프레시 토큰으로 파싱하면 InvalidJwtTokenTypeException을 던진다")
         void shouldThrowInvalidJwtTokenTypeExceptionWhenAccessTokenParsedAsRefreshToken() {
             String accessToken = jwtUtil.generateAccessToken(
-                    "user-subject",
-                    42L,
-                    List.of("ROLE_USER"),
-                    AuthVendor.NATIVE
+                "user-subject",
+                42L,
+                List.of("ROLE_USER"),
+                AuthVendor.NATIVE
             );
 
             assertThatThrownBy(() -> jwtUtil.parseRefreshToken(accessToken))
-                    .isInstanceOf(InvalidJwtTokenTypeException.class)
-                    .hasMessageContaining("REFRESH_TOKEN")
-                    .hasMessageContaining("ACCESS_TOKEN");
+                .isInstanceOf(InvalidJwtTokenTypeException.class)
+                .hasMessageContaining("REFRESH_TOKEN")
+                .hasMessageContaining("ACCESS_TOKEN");
         }
 
         @Test
@@ -294,7 +294,7 @@ class JwtUtilTest {
             String expiredToken = buildExpiredToken(JwtTokenType.REFRESH_TOKEN);
 
             assertThatThrownBy(() -> jwtUtil.parseRefreshToken(expiredToken))
-                    .isInstanceOf(ExpiredJwtException.class);
+                .isInstanceOf(ExpiredJwtException.class);
         }
 
         @Test
@@ -302,14 +302,14 @@ class JwtUtilTest {
         void shouldThrowJwtExceptionWhenRefreshTokenSignatureInvalid() {
             JwtUtil otherJwtUtil = new JwtUtil(OTHER_SECRET, ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL);
             String tokenFromOtherSecret = otherJwtUtil.generateRefreshToken(
-                    "user-subject",
-                    99L,
-                    List.of("ROLE_USER"),
-                    AuthVendor.NATIVE
+                "user-subject",
+                99L,
+                List.of("ROLE_USER"),
+                AuthVendor.NATIVE
             );
 
             assertThatThrownBy(() -> jwtUtil.parseRefreshToken(tokenFromOtherSecret))
-                    .isInstanceOf(JwtException.class);
+                .isInstanceOf(JwtException.class);
         }
     }
 
@@ -353,8 +353,8 @@ class JwtUtilTest {
             String token = buildTokenWithoutAuthVendor("https://unknown-issuer.example.com");
 
             assertThatThrownBy(() -> jwtUtil.parseAccessToken(token))
-                    .isInstanceOf(InvalidOAuth2VendorException.class)
-                    .hasMessageContaining("unknown-issuer");
+                .isInstanceOf(InvalidOAuth2VendorException.class)
+                .hasMessageContaining("unknown-issuer");
         }
     }
 
@@ -366,17 +366,17 @@ class JwtUtilTest {
         @DisplayName("토큰을 폐기하면 만료된 새 토큰을 반환한다")
         void shouldReturnExpiredTokenWhenRevoked() {
             String validToken = jwtUtil.generateAccessToken(
-                    "user-subject",
-                    42L,
-                    List.of("ROLE_USER"),
-                    AuthVendor.NATIVE
+                "user-subject",
+                42L,
+                List.of("ROLE_USER"),
+                AuthVendor.NATIVE
             );
 
             String revokedToken = jwtUtil.revokeToken(validToken);
 
             assertThat(revokedToken).isNotBlank().isNotEqualTo(validToken);
             assertThatThrownBy(() -> jwtUtil.parseAccessToken(revokedToken))
-                    .isInstanceOf(ExpiredJwtException.class);
+                .isInstanceOf(ExpiredJwtException.class);
         }
     }
 
@@ -384,35 +384,35 @@ class JwtUtilTest {
         SecretKey key = signingKey(JWT_SECRET);
         long now = System.currentTimeMillis();
         return Jwts.builder()
-                .claim("tokenType", tokenType.name())
-                .issuedAt(new Date(now - 10_000L))
-                .expiration(new Date(now - 1_000L))
-                .subject("user-subject")
-                .claim("roleIds", List.of("ROLE_USER"))
-                .claim("userId", 42L)
-                .claim("authVendor", AuthVendor.NATIVE.name())
-                .signWith(key)
-                .compact();
+            .claim("tokenType", tokenType.name())
+            .issuedAt(new Date(now - 10_000L))
+            .expiration(new Date(now - 1_000L))
+            .subject("user-subject")
+            .claim("roleIds", List.of("ROLE_USER"))
+            .claim("userId", 42L)
+            .claim("authVendor", AuthVendor.NATIVE.name())
+            .signWith(key)
+            .compact();
     }
 
     private String buildTokenWithoutAuthVendor(String iss) {
         SecretKey key = signingKey(JWT_SECRET);
         return Jwts.builder()
-                .claim("tokenType", JwtTokenType.ACCESS_TOKEN.name())
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_TTL))
-                .subject("user-subject")
-                .claim("roleIds", List.of("ROLE_USER"))
-                .claim("userId", 42L)
-                .issuer(iss)
-                .signWith(key)
-                .compact();
+            .claim("tokenType", JwtTokenType.ACCESS_TOKEN.name())
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_TTL))
+            .subject("user-subject")
+            .claim("roleIds", List.of("ROLE_USER"))
+            .claim("userId", 42L)
+            .issuer(iss)
+            .signWith(key)
+            .compact();
     }
 
     private static SecretKey signingKey(String secret) {
         return new SecretKeySpec(
-                secret.getBytes(StandardCharsets.UTF_8),
-                Jwts.SIG.HS256.key().build().getAlgorithm()
+            secret.getBytes(StandardCharsets.UTF_8),
+            Jwts.SIG.HS256.key().build().getAlgorithm()
         );
     }
 }

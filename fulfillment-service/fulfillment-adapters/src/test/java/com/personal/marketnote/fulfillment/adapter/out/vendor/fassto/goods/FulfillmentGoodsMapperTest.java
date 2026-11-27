@@ -36,7 +36,7 @@ class FulfillmentGoodsMapperTest {
             UUID productKey = UUID.randomUUID();
             lenient().when(firstItem.getCstGodCd()).thenReturn(productKey.toString());
             FulfillmentGoodsMapper mapper = FulfillmentGoodsMapper.register(
-                    "CUST001", "token", List.of(firstItem)
+                "CUST001", "token", List.of(firstItem)
             );
 
             // when
@@ -55,7 +55,7 @@ class FulfillmentGoodsMapperTest {
             lenient().when(firstItem.getCstGodCd()).thenReturn(firstKey.toString());
             lenient().when(secondItem.getCstGodCd()).thenReturn(secondKey.toString());
             FulfillmentGoodsMapper mapper = FulfillmentGoodsMapper.register(
-                    "CUST001", "token", List.of(firstItem, secondItem)
+                "CUST001", "token", List.of(firstItem, secondItem)
             );
 
             // when
@@ -75,21 +75,21 @@ class FulfillmentGoodsMapperTest {
         @DisplayName("customerCode가 null이면 FulfillmentQueryParameterNoValueException을 던진다")
         void throwsWhenCustomerCodeIsNull() {
             assertThatThrownBy(() -> FulfillmentGoodsMapper.register(null, "token", List.of(firstItem)))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
         @DisplayName("accessToken이 null이면 FulfillmentQueryParameterNoValueException을 던진다")
         void throwsWhenAccessTokenIsNull() {
             assertThatThrownBy(() -> FulfillmentGoodsMapper.register("CUST001", null, List.of(firstItem)))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
         @DisplayName("goods가 비어있으면 FulfillmentQueryParameterNoValueException을 던진다")
         void throwsWhenGoodsIsEmpty() {
             assertThatThrownBy(() -> FulfillmentGoodsMapper.register("CUST001", "token", List.of()))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
     }
 }

@@ -67,18 +67,18 @@ class GetReturnRefundInfoUseCaseTest {
             Order order = createOrder(OrderStatus.DELIVERED, 50000L, 0L, 0L);
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             ))
-                    .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
+                .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY.toString()))
-                    .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
+                .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
 
             GetReturnRefundInfoCommand command = GetReturnRefundInfoCommand.builder()
-                    .orderId(ORDER_ID)
-                    .buyerId(BUYER_ID)
-                    .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
-                    .returnPricePolicyIds(null)
-                    .build();
+                .orderId(ORDER_ID)
+                .buyerId(BUYER_ID)
+                .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
+                .returnPricePolicyIds(null)
+                .build();
 
             // when
             GetReturnRefundInfoResult result = service.getReturnRefundInfo(command);
@@ -98,11 +98,11 @@ class GetReturnRefundInfoUseCaseTest {
             Order order = createOrder(OrderStatus.DELIVERED, 30000L, 0L, 0L);
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             ))
-                    .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(6000L).build());
+                .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(6000L).build());
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY.toString()))
-                    .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
+                .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
 
             GetReturnRefundInfoCommand command = createCommand(null);
 
@@ -122,11 +122,11 @@ class GetReturnRefundInfoUseCaseTest {
             Order order = createOrder(OrderStatus.DELIVERED, 50000L, 0L, 10000L);
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             ))
-                    .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
+                .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY.toString()))
-                    .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
+                .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
 
             GetReturnRefundInfoCommand command = createCommand(null);
 
@@ -143,18 +143,18 @@ class GetReturnRefundInfoUseCaseTest {
         void shouldCalculatePointRefundProportionallyForPartialReturn() {
             // given
             Order order = createOrderWithTwoProducts(
-                    OrderStatus.DELIVERED,
-                    PRICE_POLICY_ID_1, 30000L, 1,
-                    PRICE_POLICY_ID_2, 20000L, 1,
-                    0L, 10000L
+                OrderStatus.DELIVERED,
+                PRICE_POLICY_ID_1, 30000L, 1,
+                PRICE_POLICY_ID_2, 20000L, 1,
+                0L, 10000L
             );
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             ))
-                    .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
+                .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY.toString()))
-                    .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
+                .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
 
             GetReturnRefundInfoCommand command = createCommand(List.of(PRICE_POLICY_ID_1));
 
@@ -177,11 +177,11 @@ class GetReturnRefundInfoUseCaseTest {
             Order order = createOrder(OrderStatus.DELIVERED, 5000L, 0L, 3000L);
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             ))
-                    .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(6000L).build());
+                .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(6000L).build());
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY.toString()))
-                    .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
+                .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
 
             GetReturnRefundInfoCommand command = createCommand(null);
 
@@ -207,14 +207,14 @@ class GetReturnRefundInfoUseCaseTest {
 
             Long wrongBuyerId = 999L;
             GetReturnRefundInfoCommand command = GetReturnRefundInfoCommand.builder()
-                    .orderId(ORDER_ID)
-                    .buyerId(wrongBuyerId)
-                    .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
-                    .build();
+                .orderId(ORDER_ID)
+                .buyerId(wrongBuyerId)
+                .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> service.getReturnRefundInfo(command))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
 
             verifyNoInteractions(calculateReturnShippingFeeUseCase);
             verifyNoInteractions(findPspPaymentEventPort);
@@ -231,7 +231,7 @@ class GetReturnRefundInfoUseCaseTest {
 
             // when & then
             assertThatThrownBy(() -> service.getReturnRefundInfo(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(calculateReturnShippingFeeUseCase);
             verifyNoInteractions(findPspPaymentEventPort);
@@ -245,14 +245,14 @@ class GetReturnRefundInfoUseCaseTest {
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
 
             GetReturnRefundInfoCommand command = GetReturnRefundInfoCommand.builder()
-                    .orderId(ORDER_ID)
-                    .buyerId(BUYER_ID)
-                    .reasonCategory(null)
-                    .build();
+                .orderId(ORDER_ID)
+                .buyerId(BUYER_ID)
+                .reasonCategory(null)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> service.getReturnRefundInfo(command))
-                    .isInstanceOf(ReasonCategoryNoValueException.class);
+                .isInstanceOf(ReasonCategoryNoValueException.class);
 
             verifyNoInteractions(calculateReturnShippingFeeUseCase);
             verifyNoInteractions(findPspPaymentEventPort);
@@ -266,14 +266,14 @@ class GetReturnRefundInfoUseCaseTest {
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
 
             GetReturnRefundInfoCommand command = GetReturnRefundInfoCommand.builder()
-                    .orderId(ORDER_ID)
-                    .buyerId(BUYER_ID)
-                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                    .build();
+                .orderId(ORDER_ID)
+                .buyerId(BUYER_ID)
+                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> service.getReturnRefundInfo(command))
-                    .isInstanceOf(InvalidReasonCategoryException.class);
+                .isInstanceOf(InvalidReasonCategoryException.class);
 
             verifyNoInteractions(calculateReturnShippingFeeUseCase);
             verifyNoInteractions(findPspPaymentEventPort);
@@ -286,17 +286,17 @@ class GetReturnRefundInfoUseCaseTest {
             Order order = createOrder(OrderStatus.DELIVERED, 50000L, 0L, 0L);
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             ))
-                    .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
+                .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY.toString()))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             GetReturnRefundInfoCommand command = createCommand(null);
 
             // when & then
             assertThatThrownBy(() -> service.getReturnRefundInfo(command))
-                    .isInstanceOf(PaymentEventNotFoundException.class);
+                .isInstanceOf(PaymentEventNotFoundException.class);
         }
     }
 
@@ -306,81 +306,81 @@ class GetReturnRefundInfoUseCaseTest {
 
     private GetReturnRefundInfoCommand createCommand(List<Long> returnPricePolicyIds) {
         return GetReturnRefundInfoCommand.builder()
-                .orderId(ORDER_ID)
-                .buyerId(BUYER_ID)
-                .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
-                .returnPricePolicyIds(returnPricePolicyIds)
-                .build();
+            .orderId(ORDER_ID)
+            .buyerId(BUYER_ID)
+            .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
+            .returnPricePolicyIds(returnPricePolicyIds)
+            .build();
     }
 
     private Order createOrder(OrderStatus status, long totalProductAmount, long couponAmount, long pointAmount) {
         return Order.from(OrderSnapshotState.builder()
-                .id(ORDER_ID)
-                .buyerId(BUYER_ID)
-                .orderKey(ORDER_KEY)
-                .orderNumber(OrderNumber.of("ORD-" + ORDER_ID))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalProductAmount).paidAmount(null).couponAmount(couponAmount).pointAmount(pointAmount).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of(
-                        OrderProductSnapshotState.builder()
-                                .orderId(ORDER_ID)
-                                .sellerId(SELLER_ID)
-                                .pricePolicyId(PRICE_POLICY_ID_1)
-                                .unitAmount(totalProductAmount)
-                                .quantity(1)
-                                .orderStatus(status)
-                                .accumulatedPoint(0L)
-                                .build()
-                ))
-                .build());
+            .id(ORDER_ID)
+            .buyerId(BUYER_ID)
+            .orderKey(ORDER_KEY)
+            .orderNumber(OrderNumber.of("ORD-" + ORDER_ID))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalProductAmount).paidAmount(null).couponAmount(couponAmount).pointAmount(pointAmount).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of(
+                OrderProductSnapshotState.builder()
+                    .orderId(ORDER_ID)
+                    .sellerId(SELLER_ID)
+                    .pricePolicyId(PRICE_POLICY_ID_1)
+                    .unitAmount(totalProductAmount)
+                    .quantity(1)
+                    .orderStatus(status)
+                    .accumulatedPoint(0L)
+                    .build()
+            ))
+            .build());
     }
 
     private Order createOrderWithTwoProducts(
-            OrderStatus status,
-            Long pricePolicyId1, long unitAmount1, int quantity1,
-            Long pricePolicyId2, long unitAmount2, int quantity2,
-            long couponAmount, long pointAmount
+        OrderStatus status,
+        Long pricePolicyId1, long unitAmount1, int quantity1,
+        Long pricePolicyId2, long unitAmount2, int quantity2,
+        long couponAmount, long pointAmount
     ) {
         long totalAmount = unitAmount1 * quantity1 + unitAmount2 * quantity2;
         return Order.from(OrderSnapshotState.builder()
-                .id(ORDER_ID)
-                .buyerId(BUYER_ID)
-                .orderKey(ORDER_KEY)
-                .orderNumber(OrderNumber.of("ORD-" + ORDER_ID))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(null).couponAmount(couponAmount).pointAmount(pointAmount).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of(
-                        OrderProductSnapshotState.builder()
-                                .orderId(ORDER_ID)
-                                .sellerId(SELLER_ID)
-                                .pricePolicyId(pricePolicyId1)
-                                .unitAmount(unitAmount1)
-                                .quantity(quantity1)
-                                .orderStatus(status)
-                                .accumulatedPoint(0L)
-                                .build(),
-                        OrderProductSnapshotState.builder()
-                                .orderId(ORDER_ID)
-                                .sellerId(SELLER_ID)
-                                .pricePolicyId(pricePolicyId2)
-                                .unitAmount(unitAmount2)
-                                .quantity(quantity2)
-                                .orderStatus(status)
-                                .accumulatedPoint(0L)
-                                .build()
-                ))
-                .build());
+            .id(ORDER_ID)
+            .buyerId(BUYER_ID)
+            .orderKey(ORDER_KEY)
+            .orderNumber(OrderNumber.of("ORD-" + ORDER_ID))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(null).couponAmount(couponAmount).pointAmount(pointAmount).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of(
+                OrderProductSnapshotState.builder()
+                    .orderId(ORDER_ID)
+                    .sellerId(SELLER_ID)
+                    .pricePolicyId(pricePolicyId1)
+                    .unitAmount(unitAmount1)
+                    .quantity(quantity1)
+                    .orderStatus(status)
+                    .accumulatedPoint(0L)
+                    .build(),
+                OrderProductSnapshotState.builder()
+                    .orderId(ORDER_ID)
+                    .sellerId(SELLER_ID)
+                    .pricePolicyId(pricePolicyId2)
+                    .unitAmount(unitAmount2)
+                    .quantity(quantity2)
+                    .orderStatus(status)
+                    .accumulatedPoint(0L)
+                    .build()
+            ))
+            .build());
     }
 
     private PspPaymentEvent createPspPaymentEvent(String method) {
         return PspPaymentEvent.from(PspPaymentEventSnapshotState.builder()
-                .id(1L)
-                .orderId(ORDER_ID)
-                .orderKey(ORDER_KEY.toString())
-                .method(method)
-                .amount(50000L)
-                .build());
+            .id(1L)
+            .orderId(ORDER_ID)
+            .orderKey(ORDER_KEY.toString())
+            .method(method)
+            .amount(50000L)
+            .build());
     }
 }

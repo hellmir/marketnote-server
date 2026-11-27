@@ -33,12 +33,12 @@ public class ShippingStartedAlimTalkConsumer {
     private final AligoProperties aligoProperties;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SHIPPING_STATUS_CHANGED,
-            groupId = "notification-alimtalk-shipping"
+        topics = KafkaTopicConstants.SHIPPING_STATUS_CHANGED,
+        groupId = "notification-alimtalk-shipping"
     )
     public void handleShippingStatusChangedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -60,43 +60,43 @@ public class ShippingStartedAlimTalkConsumer {
         }
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()),
-                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+            EventPayloadValidator.id("orderId", payload.orderId()),
+            EventPayloadValidator.id("buyerId", payload.buyerId()))) {
             acknowledgment.acknowledge();
             return;
         }
 
         if (FormatValidator.hasNoValue(payload.buyerPhoneNumber())) {
             log.warn("배송 시작 알림톡 발송 생략: 구매자 전화번호 없음. eventId={}, orderId={}",
-                    envelope.eventId(), payload.orderId());
+                envelope.eventId(), payload.orderId());
             acknowledgment.acknowledge();
             return;
         }
 
         log.info("배송 시작 이벤트 수신 (알림톡 발송). eventId={}, orderId={}, buyerId={}",
-                envelope.eventId(), payload.orderId(), payload.buyerId());
+            envelope.eventId(), payload.orderId(), payload.buyerId());
 
         try {
             SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                    AligoTemplateCodes.SHIPPING_STARTED,
-                    aligoProperties.getSender(),
-                    Map.of(
-                            "order_id", String.valueOf(payload.orderId()),
-                            "tracking_number", FormatValidator.hasValue(payload.trackingNumber())
-                                    ? payload.trackingNumber() : ""
-                    ),
-                    List.of(new AligoAlimTalkRecipientCommand(
-                            payload.buyerPhoneNumber(), payload.buyerName()
-                    )),
-                    null
+                AligoTemplateCodes.SHIPPING_STARTED,
+                aligoProperties.getSender(),
+                Map.of(
+                    "order_id", String.valueOf(payload.orderId()),
+                    "tracking_number", FormatValidator.hasValue(payload.trackingNumber())
+                        ? payload.trackingNumber() : ""
+                ),
+                List.of(new AligoAlimTalkRecipientCommand(
+                    payload.buyerPhoneNumber(), payload.buyerName()
+                )),
+                null
             );
             sendAligoAlimTalkUseCase.sendAlimTalk(command);
 
             log.info("배송 시작 알림톡 발송 완료. orderId={}, buyerId={}",
-                    payload.orderId(), payload.buyerId());
+                payload.orderId(), payload.buyerId());
         } catch (Exception e) {
             log.error("배송 시작 알림톡 발송 실패. eventId={}, orderId={}, buyerId={}, error={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId(), e.getMessage(), e);
+                envelope.eventId(), payload.orderId(), payload.buyerId(), e.getMessage(), e);
         }
 
         acknowledgment.acknowledge();

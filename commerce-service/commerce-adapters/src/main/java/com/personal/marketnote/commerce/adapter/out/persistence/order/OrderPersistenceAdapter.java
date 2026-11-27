@@ -38,7 +38,7 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
         if (FormatValidator.hasValue(order.getOrderProducts())) {
             order.getOrderProducts().forEach(orderProduct -> {
                 OrderProductJpaEntity orderProductEntity = OrderProductJpaEntity.from(
-                        orderProduct, savedOrderEntity
+                    orderProduct, savedOrderEntity
                 );
                 savedOrderEntity.addOrderProduct(orderProductEntity);
             });
@@ -56,7 +56,7 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
 
     private Optional<Order> mapWithLatestStatusHistory(OrderJpaEntity orderJpaEntity) {
         OrderStatusHistoryJpaEntity orderStatusInfo =
-                orderHistoryJpaRepository.findTopByOrderJpaEntityIdOrderByIdDesc(orderJpaEntity.getId());
+            orderHistoryJpaRepository.findTopByOrderJpaEntityIdOrderByIdDesc(orderJpaEntity.getId());
         if (FormatValidator.hasValue(orderStatusInfo)) {
             return OrderJpaEntityToDomainMapper.mapToDomainWithStatusInfo(orderJpaEntity, orderStatusInfo);
         }
@@ -65,22 +65,22 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
 
     @Override
     public List<Order> findByBuyerId(
-            Long buyerId,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            List<OrderStatus> statuses
+        Long buyerId,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        List<OrderStatus> statuses
     ) {
         List<String> statusNames = FormatValidator.hasValue(statuses)
-                ? statuses.stream().map(Enum::name).toList()
-                : List.of();
+            ? statuses.stream().map(Enum::name).toList()
+            : List.of();
         List<String> statusParam = statusNames.isEmpty() ? List.of("IGNORED") : statusNames;
 
         List<Long> orderIds = orderJpaRepository.findIdsByBuyerIdWithFilters(
-                buyerId,
-                startDate,
-                endDate,
-                statusParam,
-                statusNames.size()
+            buyerId,
+            startDate,
+            endDate,
+            statusParam,
+            statusNames.size()
         );
 
         if (FormatValidator.hasNoValue(orderIds)) {
@@ -95,32 +95,32 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
         }
 
         return entities.stream()
-                .sorted(Comparator.comparingInt(
-                        entity -> orderIndex.getOrDefault(entity.getId(), Integer.MAX_VALUE))
-                )
-                .map(OrderJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .filter(order -> !order.isPaymentPending() && !order.isFailed())
-                .toList();
+            .sorted(Comparator.comparingInt(
+                entity -> orderIndex.getOrDefault(entity.getId(), Integer.MAX_VALUE))
+            )
+            .map(OrderJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .filter(order -> !order.isPaymentPending() && !order.isFailed())
+            .toList();
     }
 
     @Override
     public List<Order> findAllWithFilters(
-            Long sellerId,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            OrderStatus orderStatus
+        Long sellerId,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        OrderStatus orderStatus
     ) {
         String orderStatusParam = FormatValidator.hasValue(orderStatus)
-                ? orderStatus.name()
-                : "";
+            ? orderStatus.name()
+            : "";
 
         List<Long> orderIds = orderJpaRepository.findIdsByAdminFilters(
-                sellerId,
-                startDate,
-                endDate,
-                orderStatusParam
+            sellerId,
+            startDate,
+            endDate,
+            orderStatusParam
         );
 
         if (FormatValidator.hasNoValue(orderIds)) {
@@ -135,13 +135,13 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
         }
 
         return entities.stream()
-                .sorted(Comparator.comparingInt(
-                        entity -> orderIndex.getOrDefault(entity.getId(), Integer.MAX_VALUE))
-                )
-                .map(OrderJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+            .sorted(Comparator.comparingInt(
+                entity -> orderIndex.getOrDefault(entity.getId(), Integer.MAX_VALUE))
+            )
+            .map(OrderJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
     }
 
     @Override
@@ -153,38 +153,38 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
 
     private OrderJpaEntity findEntityById(Long id) throws OrderNotFoundException {
         return orderJpaRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("주문을 찾을 수 없습니다. orderId={}", id);
-                    return new OrderNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("주문을 찾을 수 없습니다. orderId={}", id);
+                return new OrderNotFoundException();
+            });
     }
 
     @Override
     public Optional<OrderProduct> findByOrderIdAndPricePolicyId(Long orderId, Long pricePolicyId) {
         return OrderJpaEntityToDomainMapper.mapToOrderProductDomain(
-                orderProductJpaRepository.findByOrderIdAndPricePolicyId(orderId, pricePolicyId).orElse(null)
+            orderProductJpaRepository.findByOrderIdAndPricePolicyId(orderId, pricePolicyId).orElse(null)
         );
     }
 
     @Override
     public void update(OrderProduct orderProduct) throws OrderProductNotFoundException {
         OrderProductJpaEntity orderProductJpaEntity
-                = findEntityByOrderIdAndPricePolicyId(orderProduct.getOrderId(), orderProduct.getPricePolicyId());
+            = findEntityByOrderIdAndPricePolicyId(orderProduct.getOrderId(), orderProduct.getPricePolicyId());
         orderProductJpaEntity.updateFrom(orderProduct);
     }
 
     @Override
     public List<OrderStatusHistory> findAllByOrderId(Long orderId) {
         List<OrderStatusHistoryJpaEntity> entities
-                = orderHistoryJpaRepository.findAllByOrderJpaEntityIdOrderByCreatedAtAsc(orderId);
+            = orderHistoryJpaRepository.findAllByOrderJpaEntityIdOrderByCreatedAtAsc(orderId);
 
         if (FormatValidator.hasNoValue(entities)) {
             return List.of();
         }
 
         return entities.stream()
-                .map(OrderJpaEntityToDomainMapper::mapToOrderStatusHistoryDomain)
-                .toList();
+            .map(OrderJpaEntityToDomainMapper::mapToOrderStatusHistoryDomain)
+            .toList();
     }
 
     @Override
@@ -193,12 +193,12 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
     }
 
     private OrderProductJpaEntity findEntityByOrderIdAndPricePolicyId(
-            Long orderId, Long pricePolicyId
+        Long orderId, Long pricePolicyId
     ) throws OrderProductNotFoundException {
         return orderProductJpaRepository.findByOrderIdAndPricePolicyId(orderId, pricePolicyId)
-                .orElseThrow(() -> {
-                    log.warn("주문 상품을 찾을 수 없습니다. orderId={}, pricePolicyId={}", orderId, pricePolicyId);
-                    return new OrderProductNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("주문 상품을 찾을 수 없습니다. orderId={}, pricePolicyId={}", orderId, pricePolicyId);
+                return new OrderProductNotFoundException();
+            });
     }
 }

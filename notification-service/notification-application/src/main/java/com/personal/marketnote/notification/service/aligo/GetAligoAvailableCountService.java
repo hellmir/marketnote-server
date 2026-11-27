@@ -20,7 +20,7 @@ public class GetAligoAvailableCountService implements GetAligoAvailableCountUseC
     public GetAligoAvailableCountResult getAvailableCount() {
         AligoHeartInfoResult heartInfo = getAligoHeartInfoExternalPort.getHeartInfo();
         return new GetAligoAvailableCountResult(
-                heartInfo.smsCnt(), heartInfo.lmsCnt(), heartInfo.mmsCnt(), heartInfo.altCnt()
+            heartInfo.smsCnt(), heartInfo.lmsCnt(), heartInfo.mmsCnt(), heartInfo.altCnt()
         );
     }
 }

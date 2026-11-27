@@ -33,20 +33,20 @@ public class UpdateShippingAddressService implements UpdateShippingAddressUseCas
     @Override
     public void updateShippingAddress(Long shippingAddressId, Long userId, UpdateShippingAddressCommand command) {
         ShippingAddress shippingAddress = findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId)
-                .orElseThrow(() -> {
-                    log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}, userId={}", shippingAddressId, userId);
-                    return new ShippingAddressNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}, userId={}", shippingAddressId, userId);
+                return new ShippingAddressNotFoundException();
+            });
 
         shippingAddress.update(
-                command.address(),
-                command.addressDetail(),
-                command.companyName(),
-                command.addressAlias(),
-                RecipientName.of(command.recipientName()),
-                PhoneNumber.of(command.recipientPhoneNumber()),
-                command.deliveryRequestType(),
-                command.deliveryRequestMessage()
+            command.address(),
+            command.addressDetail(),
+            command.companyName(),
+            command.addressAlias(),
+            RecipientName.of(command.recipientName()),
+            PhoneNumber.of(command.recipientPhoneNumber()),
+            command.deliveryRequestType(),
+            command.deliveryRequestMessage()
         );
 
         ShippingAddressRegionType regionType = classifyShippingAddressRegionPort.classify(command.address());
@@ -58,11 +58,11 @@ public class UpdateShippingAddressService implements UpdateShippingAddressUseCas
         updateShippingAddressPort.update(shippingAddress);
 
         publishShippingAddressEventPort.publishShippingAddressChangedEvent(
-                shippingAddressId, userId,
-                shippingAddress.getRecipientName().getValue(), shippingAddress.getRecipientPhoneNumber().getValue(),
-                shippingAddress.getAddress(), shippingAddress.getAddressDetail(),
-                regionType.name(),
-                ShippingAddressChangeAction.UPDATED
+            shippingAddressId, userId,
+            shippingAddress.getRecipientName().getValue(), shippingAddress.getRecipientPhoneNumber().getValue(),
+            shippingAddress.getAddress(), shippingAddress.getAddressDetail(),
+            regionType.name(),
+            ShippingAddressChangeAction.UPDATED
         );
     }
 }

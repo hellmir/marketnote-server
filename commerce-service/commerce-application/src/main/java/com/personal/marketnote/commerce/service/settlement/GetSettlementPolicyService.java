@@ -30,10 +30,10 @@ public class GetSettlementPolicyService implements GetSettlementPolicyUseCase {
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public GetSettlementPolicyResult getPolicy(Long id) {
         SettlementPolicy policy = findSettlementPolicyPort.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("정산 정책을 찾을 수 없습니다. settlementPolicyId={}", id);
-                    return new SettlementPolicyNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("정산 정책을 찾을 수 없습니다. settlementPolicyId={}", id);
+                return new SettlementPolicyNotFoundException();
+            });
 
         return GetSettlementPolicyResult.from(policy);
     }
@@ -42,10 +42,10 @@ public class GetSettlementPolicyService implements GetSettlementPolicyUseCase {
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public GetSettlementPolicyResult getPolicyBySellerId(Long sellerId) {
         SettlementPolicy policy = findSettlementPolicyPort.findActiveBySellerId(sellerId)
-                .orElseThrow(() -> {
-                    log.warn("정산 정책을 찾을 수 없습니다. sellerId={}", sellerId);
-                    return new SettlementPolicyNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("정산 정책을 찾을 수 없습니다. sellerId={}", sellerId);
+                return new SettlementPolicyNotFoundException();
+            });
 
         return GetSettlementPolicyResult.from(policy);
     }
@@ -54,7 +54,7 @@ public class GetSettlementPolicyService implements GetSettlementPolicyUseCase {
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public List<GetSettlementPolicyResult> getAllPolicies() {
         return findSettlementPolicyPort.findAll().stream()
-                .map(GetSettlementPolicyResult::from)
-                .toList();
+            .map(GetSettlementPolicyResult::from)
+            .toList();
     }
 }

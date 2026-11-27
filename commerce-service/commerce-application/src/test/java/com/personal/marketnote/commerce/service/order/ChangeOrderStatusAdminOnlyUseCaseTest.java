@@ -67,12 +67,12 @@ class ChangeOrderStatusAdminOnlyUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PREPARING)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PREPARING)
+                .build();
 
             assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
         }
@@ -85,12 +85,12 @@ class ChangeOrderStatusAdminOnlyUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.SHIPPING)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.SHIPPING)
+                .build();
 
             assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
         }
@@ -103,12 +103,12 @@ class ChangeOrderStatusAdminOnlyUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.DELIVERED)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.DELIVERED)
+                .build();
 
             assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
         }
@@ -121,12 +121,12 @@ class ChangeOrderStatusAdminOnlyUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.CANCELLED)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.CANCELLED)
+                .build();
 
             assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
         }
@@ -148,12 +148,12 @@ class ChangeOrderStatusAdminOnlyUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.SHIPPING)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.SHIPPING)
+                .build();
 
             assertThatThrownBy(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
         }
@@ -166,12 +166,12 @@ class ChangeOrderStatusAdminOnlyUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PREPARING)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PREPARING)
+                .build();
 
             assertThatThrownBy(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
         }
@@ -193,12 +193,12 @@ class ChangeOrderStatusAdminOnlyUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PREPARING)
-                    .build();
+                .id(orderId)
+                .orderStatus(OrderStatus.PREPARING)
+                .build();
 
             assertThatThrownBy(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .isInstanceOf(OrderStatusAlreadyChangedException.class);
+                .isInstanceOf(OrderStatusAlreadyChangedException.class);
 
             verifyNoInteractions(updateOrderPort);
         }
@@ -216,13 +216,13 @@ class ChangeOrderStatusAdminOnlyUseCaseTest {
         @DisplayName("ChangeOrderStatusCommand는 id, orderStatus, pricePolicyIds, reasonCategory, reason, skipSubsequentProcesses만 포함한다")
         void command_only_has_admin_fields() {
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(1L)
-                    .orderStatus(OrderStatus.PREPARING)
-                    .pricePolicyIds(List.of(10L, 20L))
-                    .reasonCategory(OrderStatusReasonCategory.ETC)
-                    .reason("관리자 상태 변경")
-                    .skipSubsequentProcesses(false)
-                    .build();
+                .id(1L)
+                .orderStatus(OrderStatus.PREPARING)
+                .pricePolicyIds(List.of(10L, 20L))
+                .reasonCategory(OrderStatusReasonCategory.ETC)
+                .reason("관리자 상태 변경")
+                .skipSubsequentProcesses(false)
+                .build();
 
             assertThatCode(() -> {
                 command.id();
@@ -240,10 +240,10 @@ class ChangeOrderStatusAdminOnlyUseCaseTest {
         @DisplayName("isPartialProductChange는 pricePolicyIds가 있으면 true를 반환한다")
         void isPartialProductChange_returns_true_when_pricePolicyIds_present() {
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(1L)
-                    .orderStatus(OrderStatus.CONFIRMED)
-                    .pricePolicyIds(List.of(10L))
-                    .build();
+                .id(1L)
+                .orderStatus(OrderStatus.CONFIRMED)
+                .pricePolicyIds(List.of(10L))
+                .build();
 
             assertThatCode(() -> command.isPartialProductChange()).doesNotThrowAnyException();
         }
@@ -252,10 +252,10 @@ class ChangeOrderStatusAdminOnlyUseCaseTest {
         @DisplayName("shouldSkipSubsequentProcesses는 skipSubsequentProcesses가 true이면 true를 반환한다")
         void shouldSkipSubsequentProcesses_returns_true_when_flag_set() {
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(1L)
-                    .orderStatus(OrderStatus.PAID)
-                    .skipSubsequentProcesses(true)
-                    .build();
+                .id(1L)
+                .orderStatus(OrderStatus.PAID)
+                .skipSubsequentProcesses(true)
+                .build();
 
             assertThatCode(() -> command.shouldSkipSubsequentProcesses()).doesNotThrowAnyException();
         }
@@ -267,28 +267,28 @@ class ChangeOrderStatusAdminOnlyUseCaseTest {
 
     private Order createOrder(Long orderId, OrderStatus status) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(100L)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(status)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(status)
+                .accumulatedPoint(0L)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(1L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(1L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 }

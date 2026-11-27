@@ -21,17 +21,17 @@ public class UserFingerprintPersistenceAdapter implements SaveUserFingerprintPor
     @Override
     public void save(UserFingerprint userFingerprint) {
         Optional<UserFingerprintJpaEntity> existing = userFingerprintJpaRepository
-                .findByUserIdAndFingerprint(userFingerprint.getUserId(), userFingerprint.getFingerprint());
+            .findByUserIdAndFingerprint(userFingerprint.getUserId(), userFingerprint.getFingerprint());
         if (existing.isPresent()) {
             existing.get().updateLastSeenAt(userFingerprint.getLastSeenAt());
             return;
         }
 
         UserFingerprintJpaEntity entity = UserFingerprintJpaEntity.of(
-                userFingerprint.getUserId(),
-                userFingerprint.getFingerprint(),
-                userFingerprint.getSource(),
-                userFingerprint.getFirstSeenAt()
+            userFingerprint.getUserId(),
+            userFingerprint.getFingerprint(),
+            userFingerprint.getSource(),
+            userFingerprint.getFirstSeenAt()
         );
         userFingerprintJpaRepository.save(entity);
     }
@@ -39,26 +39,26 @@ public class UserFingerprintPersistenceAdapter implements SaveUserFingerprintPor
     @Override
     public Optional<UserFingerprint> findByUserIdAndFingerprint(Long userId, String fingerprint) {
         return userFingerprintJpaRepository.findByUserIdAndFingerprint(userId, fingerprint)
-                .map(this::mapToDomain);
+            .map(this::mapToDomain);
     }
 
     @Override
     public List<UserFingerprint> findByUserId(Long userId) {
         return userFingerprintJpaRepository.findByUserId(userId).stream()
-                .map(this::mapToDomain)
-                .collect(Collectors.toList());
+            .map(this::mapToDomain)
+            .collect(Collectors.toList());
     }
 
     private UserFingerprint mapToDomain(UserFingerprintJpaEntity entity) {
         return UserFingerprint.from(
-                UserFingerprintSnapshotState.builder()
-                        .id(entity.getId())
-                        .userId(entity.getUserId())
-                        .fingerprint(entity.getFingerprint())
-                        .source(entity.getSource())
-                        .firstSeenAt(entity.getFirstSeenAt())
-                        .lastSeenAt(entity.getLastSeenAt())
-                        .build()
+            UserFingerprintSnapshotState.builder()
+                .id(entity.getId())
+                .userId(entity.getUserId())
+                .fingerprint(entity.getFingerprint())
+                .source(entity.getSource())
+                .firstSeenAt(entity.getFirstSeenAt())
+                .lastSeenAt(entity.getLastSeenAt())
+                .build()
         );
     }
 }

@@ -24,10 +24,10 @@ public class DeleteRemoteAreaService implements DeleteRemoteAreaUseCase {
     @Transactional(isolation = READ_COMMITTED)
     public void deleteRemoteArea(Long id) {
         RemoteArea remoteArea = findRemoteAreaPort.findActiveById(id)
-                .orElseThrow(() -> {
-                    log.warn("도서산간 지역을 찾을 수 없습니다. remoteAreaId={}", id);
-                    return new RemoteAreaNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("도서산간 지역을 찾을 수 없습니다. remoteAreaId={}", id);
+                return new RemoteAreaNotFoundException();
+            });
 
         remoteArea.deactivate();
         deleteRemoteAreaPort.deactivate(remoteArea);

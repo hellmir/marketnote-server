@@ -53,11 +53,11 @@ class FulfillmentWarehousingPollingSchedulerTest {
         taskScheduler = new RecordingTaskScheduler();
         clock = new MutableClock(parseInstant("2026-02-08T08:00:00"));
         scheduler = new FulfillmentWarehousingPollingScheduler(
-                taskScheduler,
-                clock,
-                fulfillmentAuthenticatedCaller,
-                getFulfillmentWarehousingUseCase,
-                syncFulfillmentAllStockUseCase
+            taskScheduler,
+            clock,
+            fulfillmentAuthenticatedCaller,
+            getFulfillmentWarehousingUseCase,
+            syncFulfillmentAllStockUseCase
         );
     }
 
@@ -78,7 +78,7 @@ class FulfillmentWarehousingPollingSchedulerTest {
 
         assertThat(taskScheduler.tasks()).hasSize(1);
         assertThat(taskScheduler.tasks().get(0).scheduledAt())
-                .isEqualTo(parseInstant("2026-02-08T09:30:00"));
+            .isEqualTo(parseInstant("2026-02-08T09:30:00"));
     }
 
     @Test
@@ -100,27 +100,27 @@ class FulfillmentWarehousingPollingSchedulerTest {
         FulfillmentWarehousingInfoResult item = buildWarehousingInfo("ORD-1", "WH1", "4");
         GetFulfillmentWarehousingResult result = GetFulfillmentWarehousingResult.of(1, List.of(item));
         when(getFulfillmentWarehousingUseCase.getWarehousing(
-                argThat(command -> FormatValidator.hasValue(command) && "4".equals(command.workStatus()))
+            argThat(command -> FormatValidator.hasValue(command) && "4".equals(command.workStatus()))
         ))
-                .thenReturn(result);
+            .thenReturn(result);
         scheduler.schedule(buildCommand("ORD-1"));
         taskScheduler.tasks().get(0).runnable().run();
 
         ArgumentCaptor<SyncFulfillmentAllStockCommand> syncCaptor =
-                ArgumentCaptor.forClass(SyncFulfillmentAllStockCommand.class);
+            ArgumentCaptor.forClass(SyncFulfillmentAllStockCommand.class);
         verify(syncFulfillmentAllStockUseCase).syncAll(syncCaptor.capture());
         assertThat(syncCaptor.getValue().customerCode()).isEqualTo("CUST");
         assertThat(syncCaptor.getValue().warehouseCode()).isEqualTo("WH1");
 
         ArgumentCaptor<GetFulfillmentWarehousingCommand> commandCaptor =
-                ArgumentCaptor.forClass(GetFulfillmentWarehousingCommand.class);
+            ArgumentCaptor.forClass(GetFulfillmentWarehousingCommand.class);
         verify(getFulfillmentWarehousingUseCase).getWarehousing(commandCaptor.capture());
         assertThat(commandCaptor.getValue().startDate()).isEqualTo("20260116");
         assertThat(commandCaptor.getValue().endDate()).isEqualTo("20260116");
         assertThat(commandCaptor.getValue().workStatus()).isEqualTo("4");
 
         verify(getFulfillmentWarehousingUseCase, never())
-                .getWarehousing(argThat(command -> "5".equals(command.workStatus())));
+            .getWarehousing(argThat(command -> "5".equals(command.workStatus())));
     }
 
     @Test
@@ -132,29 +132,29 @@ class FulfillmentWarehousingPollingSchedulerTest {
         FulfillmentWarehousingInfoResult completed = buildWarehousingInfo("ORD-3", "WH2", "5");
 
         when(getFulfillmentWarehousingUseCase.getWarehousing(any()))
-                .thenAnswer(invocation -> {
-                    GetFulfillmentWarehousingCommand command = invocation.getArgument(0);
-                    if ("4".equals(command.workStatus())) {
-                        return GetFulfillmentWarehousingResult.of(0, List.of());
-                    }
-                    return GetFulfillmentWarehousingResult.of(1, List.of(completed));
-                });
+            .thenAnswer(invocation -> {
+                GetFulfillmentWarehousingCommand command = invocation.getArgument(0);
+                if ("4".equals(command.workStatus())) {
+                    return GetFulfillmentWarehousingResult.of(0, List.of());
+                }
+                return GetFulfillmentWarehousingResult.of(1, List.of(completed));
+            });
 
         scheduler.schedule(buildCommand("ORD-3"));
         taskScheduler.tasks().get(0).runnable().run();
 
         ArgumentCaptor<SyncFulfillmentAllStockCommand> syncCaptor =
-                ArgumentCaptor.forClass(SyncFulfillmentAllStockCommand.class);
+            ArgumentCaptor.forClass(SyncFulfillmentAllStockCommand.class);
         verify(syncFulfillmentAllStockUseCase).syncAll(syncCaptor.capture());
         assertThat(syncCaptor.getValue().warehouseCode()).isEqualTo("WH2");
 
         ArgumentCaptor<GetFulfillmentWarehousingCommand> commandCaptor =
-                ArgumentCaptor.forClass(GetFulfillmentWarehousingCommand.class);
+            ArgumentCaptor.forClass(GetFulfillmentWarehousingCommand.class);
         verify(getFulfillmentWarehousingUseCase, org.mockito.Mockito.times(2))
-                .getWarehousing(commandCaptor.capture());
+            .getWarehousing(commandCaptor.capture());
         assertThat(commandCaptor.getAllValues())
-                .extracting(GetFulfillmentWarehousingCommand::workStatus)
-                .containsExactly("4", "5");
+            .extracting(GetFulfillmentWarehousingCommand::workStatus)
+            .containsExactly("4", "5");
     }
 
     private ScheduleFulfillmentWarehousingPollingCommand buildCommand(String orderNumber) {
@@ -163,12 +163,12 @@ class FulfillmentWarehousingPollingSchedulerTest {
 
     private FulfillmentWarehousingInfoResult buildWarehousingInfo(String orderNumber, String warehouseCode, String workStatus) {
         return FulfillmentWarehousingInfoResult.builder()
-                .orderDate("20260116")
-                .warehouseCode(warehouseCode)
-                .orderNumber(orderNumber)
-                .workStatus(workStatus)
-                .goodsSerialNo(List.of())
-                .build();
+            .orderDate("20260116")
+            .warehouseCode(warehouseCode)
+            .orderNumber(orderNumber)
+            .workStatus(workStatus)
+            .goodsSerialNo(List.of())
+            .build();
     }
 
     private Instant parseInstant(String localDateTime) {

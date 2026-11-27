@@ -97,12 +97,12 @@ class RegisterPostUseCaseTest {
         Long sellerId = 3L;
         Long pricePolicyId = 500L;
         RegisterPostCommand command = buildReplyCommand(sellerId, 10L, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post savedPost = buildSavedPost(300L, command);
 
         ProductInfoResult productInfo = buildProductInfo(sellerId);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
+            .thenReturn(Map.of(pricePolicyId, productInfo));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
         RegisterPostResult result = registerPostService.registerPost(true, command);
@@ -119,15 +119,15 @@ class RegisterPostUseCaseTest {
         Long otherSellerId = 999L;
         Long pricePolicyId = 600L;
         RegisterPostCommand command = buildReplyCommand(sellerId, 20L, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
 
         ProductInfoResult otherProduct = buildProductInfo(otherSellerId);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, otherProduct));
+            .thenReturn(Map.of(pricePolicyId, otherProduct));
 
         assertThatThrownBy(() -> registerPostService.registerPost(true, command))
-                .isInstanceOf(NotProductSellerException.class)
-                .hasMessageContaining(String.valueOf(pricePolicyId));
+            .isInstanceOf(NotProductSellerException.class)
+            .hasMessageContaining(String.valueOf(pricePolicyId));
 
         verifyNoInteractions(savePostPort);
     }
@@ -137,14 +137,14 @@ class RegisterPostUseCaseTest {
     void registerPost_sellerReplyProductNotFound_throwsNotProductSellerException() {
         Long pricePolicyId = 700L;
         RegisterPostCommand command = buildReplyCommand(5L, 30L, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
 
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of());
+            .thenReturn(Map.of());
 
         assertThatThrownBy(() -> registerPostService.registerPost(true, command))
-                .isInstanceOf(NotProductSellerException.class)
-                .hasMessageContaining(String.valueOf(pricePolicyId));
+            .isInstanceOf(NotProductSellerException.class)
+            .hasMessageContaining(String.valueOf(pricePolicyId));
 
         verifyNoInteractions(savePostPort);
     }
@@ -165,7 +165,7 @@ class RegisterPostUseCaseTest {
     @DisplayName("일반 사용자가 답글을 등록해도 상품 소유권 검증이 실행되지 않는다")
     void registerPost_normalUserReply_skipsOwnershipValidation() {
         RegisterPostCommand command = buildReplyCommand(7L, 40L, 800L,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post savedPost = buildSavedPost(500L, command);
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
@@ -181,12 +181,12 @@ class RegisterPostUseCaseTest {
         Long pricePolicyId = 900L;
         Long sellerId = 8L;
         RegisterPostCommand command = buildReplyCommand(sellerId, 50L, pricePolicyId,
-                Board.PRODUCT_INQUERY, "SHIPPING");
+            Board.PRODUCT_INQUERY, "SHIPPING");
         Post savedPost = buildSavedPost(600L, command);
 
         ProductInfoResult productInfo = buildProductInfo(sellerId);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
+            .thenReturn(Map.of(pricePolicyId, productInfo));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
         registerPostService.registerPost(true, command);
@@ -201,21 +201,21 @@ class RegisterPostUseCaseTest {
     void registerPost_commandFieldsMappedToPost() {
         Long userId = 9L;
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(userId)
-                .parentId(null)
-                .board(Board.PRODUCT_INQUERY)
-                .category("RESTOCK")
-                .targetGroupType(PostTargetGroupType.PRODUCT)
-                .targetGroupId(77L)
-                .targetType(PostTargetType.PRICE_POLICY)
-                .targetId(88L)
-                .productImageUrl("https://example.com/img.jpg")
-                .writerName("테스트유저")
-                .title("문의합니다")
-                .content("재입고 예정이 있나요?")
-                .isPrivate(true)
-                .isPhoto(false)
-                .build();
+            .userId(userId)
+            .parentId(null)
+            .board(Board.PRODUCT_INQUERY)
+            .category("RESTOCK")
+            .targetGroupType(PostTargetGroupType.PRODUCT)
+            .targetGroupId(77L)
+            .targetType(PostTargetType.PRICE_POLICY)
+            .targetId(88L)
+            .productImageUrl("https://example.com/img.jpg")
+            .writerName("테스트유저")
+            .title("문의합니다")
+            .content("재입고 예정이 있나요?")
+            .isPrivate(true)
+            .isPhoto(false)
+            .build();
 
         Post savedPost = buildSavedPost(700L, command);
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
@@ -250,7 +250,7 @@ class RegisterPostUseCaseTest {
         when(savePostPort.save(any(Post.class))).thenThrow(exception);
 
         assertThatThrownBy(() -> registerPostService.registerPost(false, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     @Test
@@ -258,14 +258,14 @@ class RegisterPostUseCaseTest {
     void registerPost_productPortFails_propagatesException() {
         Long pricePolicyId = 1000L;
         RegisterPostCommand command = buildReplyCommand(11L, 60L, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         RuntimeException exception = new RuntimeException("product port failed");
 
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenThrow(exception);
+            .thenThrow(exception);
 
         assertThatThrownBy(() -> registerPostService.registerPost(true, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(savePostPort);
     }
@@ -275,28 +275,28 @@ class RegisterPostUseCaseTest {
     void registerPost_notProductSeller_exceptionContainsPricePolicyId() {
         Long pricePolicyId = 1100L;
         RegisterPostCommand command = buildReplyCommand(12L, 70L, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
 
         ProductInfoResult otherProduct = buildProductInfo(999L);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, otherProduct));
+            .thenReturn(Map.of(pricePolicyId, otherProduct));
 
         assertThatThrownBy(() -> registerPostService.registerPost(true, command))
-                .isInstanceOf(NotProductSellerException.class)
-                .hasMessageContaining("1100");
+            .isInstanceOf(NotProductSellerException.class)
+            .hasMessageContaining("1100");
     }
 
     @Test
     @DisplayName("1:1 문의 등록 시 maskedWriterName에 마스킹 없이 원본 작성자명이 저장된다")
     void registerPost_oneOnOneInquery_maskedWriterNameIsOriginal() {
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(14L)
-                .parentId(null)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .writerName("테스트유저")
-                .content("1:1 문의 내용입니다")
-                .build();
+            .userId(14L)
+            .parentId(null)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .writerName("테스트유저")
+            .content("1:1 문의 내용입니다")
+            .build();
         Post savedPost = buildSavedPost(900L, command);
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
@@ -313,13 +313,13 @@ class RegisterPostUseCaseTest {
     @DisplayName("상품 문의 등록 시 maskedWriterName에 마스킹된 작성자명이 저장된다")
     void registerPost_productInquery_maskedWriterNameIsMasked() {
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(15L)
-                .parentId(null)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("테스트유저")
-                .content("상품 문의 내용입니다")
-                .build();
+            .userId(15L)
+            .parentId(null)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("테스트유저")
+            .content("상품 문의 내용입니다")
+            .build();
         Post savedPost = buildSavedPost(1000L, command);
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
@@ -336,13 +336,13 @@ class RegisterPostUseCaseTest {
     @DisplayName("parentId가 null이면 판매자여도 상품 소유권 검증을 건너뛴다")
     void registerPost_sellerNullParentId_skipsValidation() {
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(13L)
-                .parentId(null)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("판매자")
-                .content("답변입니다")
-                .build();
+            .userId(13L)
+            .parentId(null)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("판매자")
+            .content("답변입니다")
+            .build();
         Post savedPost = buildSavedPost(800L, command);
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
@@ -358,17 +358,17 @@ class RegisterPostUseCaseTest {
     @DisplayName("상품 문의글 등록 시 제목에 욕설이 포함되면 InvalidPostContentContainsProfanityException이 발생한다")
     void registerPost_productInquiryWithProfanityInTitle_throwsException() {
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(1L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("작성자")
-                .title("욕설제목")
-                .content("정상 내용")
-                .build();
+            .userId(1L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("작성자")
+            .title("욕설제목")
+            .content("정상 내용")
+            .build();
         when(findProfanityWordPort.containsProfanity("욕설제목")).thenReturn(true);
 
         assertThatThrownBy(() -> registerPostService.registerPost(false, command))
-                .isInstanceOf(InvalidPostContentContainsProfanityException.class);
+            .isInstanceOf(InvalidPostContentContainsProfanityException.class);
 
         verifyNoInteractions(savePostPort);
     }
@@ -377,18 +377,18 @@ class RegisterPostUseCaseTest {
     @DisplayName("상품 문의글 등록 시 내용에 욕설이 포함되면 InvalidPostContentContainsProfanityException이 발생한다")
     void registerPost_productInquiryWithProfanityInContent_throwsException() {
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(1L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("작성자")
-                .title("정상 제목")
-                .content("욕설내용")
-                .build();
+            .userId(1L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("작성자")
+            .title("정상 제목")
+            .content("욕설내용")
+            .build();
         when(findProfanityWordPort.containsProfanity("정상 제목")).thenReturn(false);
         when(findProfanityWordPort.containsProfanity("욕설내용")).thenReturn(true);
 
         assertThatThrownBy(() -> registerPostService.registerPost(false, command))
-                .isInstanceOf(InvalidPostContentContainsProfanityException.class);
+            .isInstanceOf(InvalidPostContentContainsProfanityException.class);
 
         verifyNoInteractions(savePostPort);
     }
@@ -397,13 +397,13 @@ class RegisterPostUseCaseTest {
     @DisplayName("상품 문의글 등록 시 제목과 내용에 욕설이 없으면 정상 등록된다")
     void registerPost_productInquiryWithoutProfanity_succeeds() {
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(1L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("작성자")
-                .title("정상 제목")
-                .content("정상 내용")
-                .build();
+            .userId(1L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("작성자")
+            .title("정상 제목")
+            .content("정상 내용")
+            .build();
         Post savedPost = buildSavedPost(1100L, command);
         when(findProfanityWordPort.containsProfanity("정상 제목")).thenReturn(false);
         when(findProfanityWordPort.containsProfanity("정상 내용")).thenReturn(false);
@@ -422,12 +422,12 @@ class RegisterPostUseCaseTest {
         Long sellerId = 1L;
         Long pricePolicyId = 100L;
         RegisterPostCommand command = buildReplyCommand(sellerId, 10L, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post savedPost = buildSavedPost(1200L, command);
 
         ProductInfoResult productInfo = buildProductInfo(sellerId);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
+            .thenReturn(Map.of(pricePolicyId, productInfo));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
         RegisterPostResult result = registerPostService.registerPost(true, command);
@@ -440,13 +440,13 @@ class RegisterPostUseCaseTest {
     @DisplayName("1:1 문의글 등록 시 욕설 검증이 실행되지 않는다")
     void registerPost_oneOnOneInquiry_skipsProfanityValidation() {
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(1L)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .writerName("작성자")
-                .title("욕설포함제목")
-                .content("욕설포함내용")
-                .build();
+            .userId(1L)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .writerName("작성자")
+            .title("욕설포함제목")
+            .content("욕설포함내용")
+            .build();
         Post savedPost = buildSavedPost(1300L, command);
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
@@ -463,9 +463,9 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 50L;
         Long pricePolicyId = 500L;
         RegisterPostCommand command = buildReplyCommand(20L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                "재입고 문의합니다", PostTargetType.PRICE_POLICY, pricePolicyId);
+            "재입고 문의합니다", PostTargetType.PRICE_POLICY, pricePolicyId);
         Post savedPost = buildSavedPost(1400L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
@@ -473,7 +473,7 @@ class RegisterPostUseCaseTest {
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, "재입고 문의합니다", "PRODUCT_INQUERY"
+            parentOwnerId, parentId, "재입고 문의합니다", "PRODUCT_INQUERY"
         );
         verifyNoInteractions(findProductByPricePolicyPort);
     }
@@ -485,19 +485,19 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 51L;
         Long pricePolicyId = 501L;
         RegisterPostCommand command = buildReplyCommand(21L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+            null, PostTargetType.PRICE_POLICY, pricePolicyId);
         Post savedPost = buildSavedPost(1401L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, "유기농 사과 1kg")));
+            .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, "유기농 사과 1kg")));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, "유기농 사과 1kg", "PRODUCT_INQUERY"
+            parentOwnerId, parentId, "유기농 사과 1kg", "PRODUCT_INQUERY"
         );
     }
 
@@ -508,19 +508,19 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 52L;
         Long pricePolicyId = 502L;
         RegisterPostCommand command = buildReplyCommand(22L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                "   ", PostTargetType.PRICE_POLICY, pricePolicyId);
+            "   ", PostTargetType.PRICE_POLICY, pricePolicyId);
         Post savedPost = buildSavedPost(1402L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, "테스트 상품")));
+            .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, "테스트 상품")));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, "테스트 상품", "PRODUCT_INQUERY"
+            parentOwnerId, parentId, "테스트 상품", "PRODUCT_INQUERY"
         );
     }
 
@@ -531,19 +531,19 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 53L;
         Long pricePolicyId = 503L;
         RegisterPostCommand command = buildReplyCommand(23L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+            null, PostTargetType.PRICE_POLICY, pricePolicyId);
         Post savedPost = buildSavedPost(1403L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of());
+            .thenReturn(Map.of());
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
+            parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
         );
     }
 
@@ -554,19 +554,19 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 54L;
         Long pricePolicyId = 504L;
         RegisterPostCommand command = buildReplyCommand(24L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+            null, PostTargetType.PRICE_POLICY, pricePolicyId);
         Post savedPost = buildSavedPost(1404L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, null)));
+            .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, null)));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
+            parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
         );
     }
 
@@ -577,19 +577,19 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 55L;
         Long pricePolicyId = 505L;
         RegisterPostCommand command = buildReplyCommand(25L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+            null, PostTargetType.PRICE_POLICY, pricePolicyId);
         Post savedPost = buildSavedPost(1405L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, "  ")));
+            .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, "  ")));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
+            parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
         );
     }
 
@@ -600,9 +600,9 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 56L;
         Long pricePolicyId = 506L;
         RegisterPostCommand command = buildReplyCommand(26L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                null, PostTargetType.PRICE_POLICY, null);
+            null, PostTargetType.PRICE_POLICY, null);
         Post savedPost = buildSavedPost(1406L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
@@ -610,7 +610,7 @@ class RegisterPostUseCaseTest {
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
+            parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
         );
         verifyNoInteractions(findProductByPricePolicyPort);
     }
@@ -622,9 +622,9 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 57L;
         Long pricePolicyId = 507L;
         RegisterPostCommand command = buildReplyCommand(27L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                null, null, pricePolicyId);
+            null, null, pricePolicyId);
         Post savedPost = buildSavedPost(1407L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
@@ -632,7 +632,7 @@ class RegisterPostUseCaseTest {
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
+            parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
         );
         verifyNoInteractions(findProductByPricePolicyPort);
     }
@@ -643,15 +643,15 @@ class RegisterPostUseCaseTest {
         Long parentId = 4000L;
         Long parentOwnerId = 91L;
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(90L)
-                .parentId(parentId)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .writerName("답변자")
-                .content("답변 내용")
-                .build();
+            .userId(90L)
+            .parentId(parentId)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .writerName("답변자")
+            .content("답변 내용")
+            .build();
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.ONE_ON_ONE_INQUERY,
-                "문의 제목", null, null);
+            "문의 제목", null, null);
         Post savedPost = buildSavedPost(2001L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
@@ -669,26 +669,26 @@ class RegisterPostUseCaseTest {
         Long parentId = 4001L;
         Long parentOwnerId = 92L;
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(91L)
-                .parentId(parentId)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .writerName("답변자")
-                .content("두번째 답변 내용")
-                .build();
+            .userId(91L)
+            .parentId(parentId)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .writerName("답변자")
+            .content("두번째 답변 내용")
+            .build();
         Post parentPost = Post.from(PostSnapshotState.builder()
-                .id(parentId)
-                .userId(parentOwnerId)
-                .postKey(UUID.randomUUID())
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .writerName("작성자")
-                .maskedWriterName("작성자")
-                .title("문의 제목")
-                .content("문의 내용")
-                .hasReply(true)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(parentId)
+            .userId(parentOwnerId)
+            .postKey(UUID.randomUUID())
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .writerName("작성자")
+            .maskedWriterName("작성자")
+            .title("문의 제목")
+            .content("문의 내용")
+            .hasReply(true)
+            .status(EntityStatus.ACTIVE)
+            .build());
         Post savedPost = buildSavedPost(2002L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
@@ -703,13 +703,13 @@ class RegisterPostUseCaseTest {
     void registerPost_reply_parentNotFound_skipsUpdate() {
         Long parentId = 4002L;
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(92L)
-                .parentId(parentId)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .writerName("답변자")
-                .content("답변 내용")
-                .build();
+            .userId(92L)
+            .parentId(parentId)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .writerName("답변자")
+            .content("답변 내용")
+            .build();
         Post savedPost = buildSavedPost(2003L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.empty());
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
@@ -737,15 +737,15 @@ class RegisterPostUseCaseTest {
         Long parentId = 2008L;
         Long parentOwnerId = 58L;
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(28L)
-                .parentId(parentId)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .writerName("작성자")
-                .content("답변 내용입니다")
-                .build();
+            .userId(28L)
+            .parentId(parentId)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .writerName("작성자")
+            .content("답변 내용입니다")
+            .build();
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.ONE_ON_ONE_INQUERY,
-                null, null, null);
+            null, null, null);
         Post savedPost = buildSavedPost(1408L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
@@ -753,7 +753,7 @@ class RegisterPostUseCaseTest {
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, null, "ONE_ON_ONE_INQUERY"
+            parentOwnerId, parentId, null, "ONE_ON_ONE_INQUERY"
         );
         verifyNoInteractions(findProductByPricePolicyPort);
     }
@@ -765,9 +765,9 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 59L;
         Long pricePolicyId = 509L;
         RegisterPostCommand command = buildReplyCommand(29L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                "정상 제목", PostTargetType.PRICE_POLICY, pricePolicyId);
+            "정상 제목", PostTargetType.PRICE_POLICY, pricePolicyId);
         Post savedPost = buildSavedPost(1409L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
@@ -775,7 +775,7 @@ class RegisterPostUseCaseTest {
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, "정상 제목", "PRODUCT_INQUERY"
+            parentOwnerId, parentId, "정상 제목", "PRODUCT_INQUERY"
         );
     }
 
@@ -786,9 +786,9 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 80L;
         Long pricePolicyId = 600L;
         RegisterPostCommand command = buildReplyCommand(45L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.ONE_ON_ONE_INQUERY,
-                "1:1 문의 제목", null, null);
+            "1:1 문의 제목", null, null);
         Post savedPost = buildSavedPost(1600L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
@@ -796,7 +796,7 @@ class RegisterPostUseCaseTest {
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort, never()).publishInquiryAnsweredEvent(
-                any(), any(), any(), any()
+            any(), any(), any(), any()
         );
         verifyNoInteractions(findProductByPricePolicyPort);
     }
@@ -807,15 +807,15 @@ class RegisterPostUseCaseTest {
         Long parentId = 3001L;
         Long parentOwnerId = 81L;
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(46L)
-                .parentId(parentId)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .writerName("작성자")
-                .content("답변 내용")
-                .build();
+            .userId(46L)
+            .parentId(parentId)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .writerName("작성자")
+            .content("답변 내용")
+            .build();
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                "상품 문의 제목", PostTargetType.PRICE_POLICY, 700L);
+            "상품 문의 제목", PostTargetType.PRICE_POLICY, 700L);
         Post savedPost = buildSavedPost(1601L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
@@ -823,7 +823,7 @@ class RegisterPostUseCaseTest {
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort, never()).publishInquiryAnsweredEvent(
-                any(), any(), any(), any()
+            any(), any(), any(), any()
         );
         verifyNoInteractions(findProductByPricePolicyPort);
     }
@@ -834,7 +834,7 @@ class RegisterPostUseCaseTest {
         Long parentId = 2010L;
         Long pricePolicyId = 510L;
         RegisterPostCommand command = buildReplyCommand(30L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post savedPost = buildSavedPost(1410L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.empty());
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
@@ -852,19 +852,19 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 70L;
         Long pricePolicyId = 520L;
         RegisterPostCommand command = buildReplyCommand(40L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+            null, PostTargetType.PRICE_POLICY, pricePolicyId);
         Post savedPost = buildSavedPost(1500L, command);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, "유기농 사과 {post_id}")));
+            .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, "유기농 사과 {post_id}")));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, "유기농 사과 post_id", "PRODUCT_INQUERY"
+            parentOwnerId, parentId, "유기농 사과 post_id", "PRODUCT_INQUERY"
         );
     }
 
@@ -875,21 +875,21 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 71L;
         Long pricePolicyId = 521L;
         RegisterPostCommand command = buildReplyCommand(41L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+            null, PostTargetType.PRICE_POLICY, pricePolicyId);
         Post savedPost = buildSavedPost(1501L, command);
         String longName = "가".repeat(250);
         String expectedTitle = "가".repeat(200);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, longName)));
+            .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, longName)));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, expectedTitle, "PRODUCT_INQUERY"
+            parentOwnerId, parentId, expectedTitle, "PRODUCT_INQUERY"
         );
     }
 
@@ -900,20 +900,20 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 72L;
         Long pricePolicyId = 522L;
         RegisterPostCommand command = buildReplyCommand(42L, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+            null, PostTargetType.PRICE_POLICY, pricePolicyId);
         Post savedPost = buildSavedPost(1502L, command);
         String exactName = "나".repeat(200);
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, exactName)));
+            .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, exactName)));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
         registerPostService.registerPost(false, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, exactName, "PRODUCT_INQUERY"
+            parentOwnerId, parentId, exactName, "PRODUCT_INQUERY"
         );
     }
 
@@ -925,22 +925,22 @@ class RegisterPostUseCaseTest {
         Long parentOwnerId = 61L;
         Long pricePolicyId = 511L;
         RegisterPostCommand command = buildReplyCommand(sellerId, parentId, pricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+            null, PostTargetType.PRICE_POLICY, pricePolicyId);
         Post savedPost = buildSavedPost(1411L, command);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, buildProductInfo(sellerId, "판매자상품")));
+            .thenReturn(Map.of(pricePolicyId, buildProductInfo(sellerId, "판매자상품")));
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
         registerPostService.registerPost(true, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, "판매자상품", "PRODUCT_INQUERY"
+            parentOwnerId, parentId, "판매자상품", "PRODUCT_INQUERY"
         );
         verify(findProductByPricePolicyPort, times(1))
-                .findByPricePolicyIds(List.of(pricePolicyId));
+            .findByPricePolicyIds(List.of(pricePolicyId));
     }
 
     @Test
@@ -952,21 +952,21 @@ class RegisterPostUseCaseTest {
         Long sellerPricePolicyId = 530L;
         Long parentPricePolicyId = 531L;
         RegisterPostCommand command = buildReplyCommand(sellerId, parentId, sellerPricePolicyId,
-                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+            Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
         Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
-                null, PostTargetType.PRICE_POLICY, parentPricePolicyId);
+            null, PostTargetType.PRICE_POLICY, parentPricePolicyId);
         Post savedPost = buildSavedPost(1700L, command);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(sellerPricePolicyId)))
-                .thenReturn(Map.of(sellerPricePolicyId, buildProductInfo(sellerId, "판매자상품")));
+            .thenReturn(Map.of(sellerPricePolicyId, buildProductInfo(sellerId, "판매자상품")));
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(parentPricePolicyId)))
-                .thenReturn(Map.of(parentPricePolicyId, buildProductInfo(999L, "부모상품")));
+            .thenReturn(Map.of(parentPricePolicyId, buildProductInfo(999L, "부모상품")));
         when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
         registerPostService.registerPost(true, command);
 
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
-                parentOwnerId, parentId, "부모상품", "PRODUCT_INQUERY"
+            parentOwnerId, parentId, "부모상품", "PRODUCT_INQUERY"
         );
         verify(findProductByPricePolicyPort).findByPricePolicyIds(List.of(sellerPricePolicyId));
         verify(findProductByPricePolicyPort).findByPricePolicyIds(List.of(parentPricePolicyId));
@@ -976,14 +976,14 @@ class RegisterPostUseCaseTest {
     @DisplayName("공지 게시글 등록 시 isImportant=true 요청이 이벤트 payload에 그대로 포함된다")
     void registerPost_noticeAnnouncementWithImportantTrue_publishesEventWithIsImportantTrue() {
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(50L)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .writerName("관리자")
-                .title("중요 공지")
-                .content("중요 공지 내용")
-                .isImportant(true)
-                .build();
+            .userId(50L)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .writerName("관리자")
+            .title("중요 공지")
+            .content("중요 공지 내용")
+            .isImportant(true)
+            .build();
         Post savedPost = buildSavedPost(3000L, command);
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
@@ -996,14 +996,14 @@ class RegisterPostUseCaseTest {
     @DisplayName("공지 게시글 등록 시 isImportant=false 요청이 이벤트 payload에 그대로 포함된다")
     void registerPost_noticeAnnouncementWithImportantFalse_publishesEventWithIsImportantFalse() {
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(51L)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .writerName("관리자")
-                .title("일반 공지")
-                .content("일반 공지 내용")
-                .isImportant(false)
-                .build();
+            .userId(51L)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .writerName("관리자")
+            .title("일반 공지")
+            .content("일반 공지 내용")
+            .isImportant(false)
+            .build();
         Post savedPost = buildSavedPost(3001L, command);
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
@@ -1016,14 +1016,14 @@ class RegisterPostUseCaseTest {
     @DisplayName("PRODUCT_INQUERY 게시글 등록 시 isImportant=true 요청은 무시되고 Post의 isImportant가 false로 저장된다")
     void registerPost_productInqueryWithImportantTrue_forcesIsImportantFalse() {
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(52L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("작성자")
-                .title("상품 문의")
-                .content("상품 문의 내용")
-                .isImportant(true)
-                .build();
+            .userId(52L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("작성자")
+            .title("상품 문의")
+            .content("상품 문의 내용")
+            .isImportant(true)
+            .build();
         Post savedPost = buildSavedPost(3002L, command);
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
@@ -1039,13 +1039,13 @@ class RegisterPostUseCaseTest {
     @DisplayName("ONE_ON_ONE_INQUERY 게시글 등록 시 isImportant=true 요청은 무시되고 false로 저장된다")
     void registerPost_oneOnOneInqueryWithImportantTrue_forcesIsImportantFalse() {
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(53L)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .writerName("작성자")
-                .content("1:1 문의")
-                .isImportant(true)
-                .build();
+            .userId(53L)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .writerName("작성자")
+            .content("1:1 문의")
+            .isImportant(true)
+            .build();
         Post savedPost = buildSavedPost(3003L, command);
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
@@ -1061,14 +1061,14 @@ class RegisterPostUseCaseTest {
     @DisplayName("FAQ 게시글 등록 시 isImportant=true 요청은 무시되고 false로 저장된다")
     void registerPost_faqWithImportantTrue_forcesIsImportantFalse() {
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(54L)
-                .board(Board.FAQ)
-                .category("ORDER_DELIVERY")
-                .writerName("관리자")
-                .title("FAQ 제목")
-                .content("FAQ 내용")
-                .isImportant(true)
-                .build();
+            .userId(54L)
+            .board(Board.FAQ)
+            .category("ORDER_DELIVERY")
+            .writerName("관리자")
+            .title("FAQ 제목")
+            .content("FAQ 내용")
+            .isImportant(true)
+            .build();
         Post savedPost = buildSavedPost(3004L, command);
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
@@ -1084,14 +1084,14 @@ class RegisterPostUseCaseTest {
     @DisplayName("NOTICE + EVENT 카테고리 게시글 등록 시 isImportant=true 요청은 무시되고 NoticeRegisteredEvent는 발행되지 않는다")
     void registerPost_noticeEventWithImportantTrue_doesNotPublishNoticeRegisteredEvent() {
         RegisterPostCommand command = RegisterPostCommand.builder()
-                .userId(55L)
-                .board(Board.NOTICE)
-                .category("EVENT")
-                .writerName("관리자")
-                .title("이벤트")
-                .content("이벤트 내용")
-                .isImportant(true)
-                .build();
+            .userId(55L)
+            .board(Board.NOTICE)
+            .category("EVENT")
+            .writerName("관리자")
+            .title("이벤트")
+            .content("이벤트 내용")
+            .isImportant(true)
+            .build();
         Post savedPost = buildSavedPost(3005L, command);
         when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
 
@@ -1105,33 +1105,33 @@ class RegisterPostUseCaseTest {
     }
 
     private RegisterPostCommand buildCommand(
-            Long userId, Long parentId, Board board, String category
+        Long userId, Long parentId, Board board, String category
     ) {
         return RegisterPostCommand.builder()
-                .userId(userId)
-                .parentId(parentId)
-                .board(board)
-                .category(category)
-                .writerName("작성자")
-                .content("게시글 내용입니다")
-                .build();
+            .userId(userId)
+            .parentId(parentId)
+            .board(board)
+            .category(category)
+            .writerName("작성자")
+            .content("게시글 내용입니다")
+            .build();
     }
 
     private RegisterPostCommand buildReplyCommand(
-            Long userId, Long parentId, Long targetId, Board board, String category
+        Long userId, Long parentId, Long targetId, Board board, String category
     ) {
         return RegisterPostCommand.builder()
-                .userId(userId)
-                .parentId(parentId)
-                .board(board)
-                .category(category)
-                .targetGroupType(PostTargetGroupType.PRODUCT)
-                .targetGroupId(1L)
-                .targetType(PostTargetType.PRICE_POLICY)
-                .targetId(targetId)
-                .writerName("작성자")
-                .content("답글 내용입니다")
-                .build();
+            .userId(userId)
+            .parentId(parentId)
+            .board(board)
+            .category(category)
+            .targetGroupType(PostTargetGroupType.PRODUCT)
+            .targetGroupId(1L)
+            .targetType(PostTargetType.PRICE_POLICY)
+            .targetId(targetId)
+            .writerName("작성자")
+            .content("답글 내용입니다")
+            .build();
     }
 
     private Post buildSavedPost(Long id, RegisterPostCommand command) {
@@ -1140,36 +1140,36 @@ class RegisterPostUseCaseTest {
 
     private Post buildSavedPost(Long id, RegisterPostCommand command, UUID postKey) {
         String maskedName = command.board().requiresWriterMasking()
-                ? ValueMasker.mask(command.writerName())
-                : command.writerName();
+            ? ValueMasker.mask(command.writerName())
+            : command.writerName();
         boolean effectiveIsImportant = command.board().isNotice()
-                && NoticePostCategory.ANNOUNCEMENT.isMe(command.category())
-                && command.isImportant();
+            && NoticePostCategory.ANNOUNCEMENT.isMe(command.category())
+            && command.isImportant();
         return Post.from(
-                PostSnapshotState.builder()
-                        .id(id)
-                        .userId(command.userId())
-                        .postKey(postKey)
-                        .parentId(command.parentId())
-                        .board(command.board())
-                        .category(command.category())
-                        .targetGroupType(command.targetGroupType())
-                        .targetGroupId(command.targetGroupId())
-                        .targetType(command.targetType())
-                        .targetId(command.targetId())
-                        .productImageUrl(command.productImageUrl())
-                        .writerName(command.writerName())
-                        .maskedWriterName(maskedName)
-                        .title(command.title())
-                        .content(command.content())
-                        .isPrivate(command.isPrivate())
-                        .isPhoto(command.isPhoto())
-                        .isImportant(effectiveIsImportant)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .orderNum(id)
-                        .build()
+            PostSnapshotState.builder()
+                .id(id)
+                .userId(command.userId())
+                .postKey(postKey)
+                .parentId(command.parentId())
+                .board(command.board())
+                .category(command.category())
+                .targetGroupType(command.targetGroupType())
+                .targetGroupId(command.targetGroupId())
+                .targetType(command.targetType())
+                .targetId(command.targetId())
+                .productImageUrl(command.productImageUrl())
+                .writerName(command.writerName())
+                .maskedWriterName(maskedName)
+                .title(command.title())
+                .content(command.content())
+                .isPrivate(command.isPrivate())
+                .isPhoto(command.isPhoto())
+                .isImportant(effectiveIsImportant)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .build()
         );
     }
 
@@ -1182,30 +1182,30 @@ class RegisterPostUseCaseTest {
     }
 
     private Post buildParentPost(
-            Long id, Long userId, Board board, String title,
-            PostTargetType targetType, Long targetId
+        Long id, Long userId, Board board, String title,
+        PostTargetType targetType, Long targetId
     ) {
         String category = board.isOneOnOneInquery() ? "ORDER_PAYMENT" : "PRODUCT_QUESTION";
         return Post.from(
-                PostSnapshotState.builder()
-                        .id(id)
-                        .userId(userId)
-                        .postKey(UUID.randomUUID())
-                        .board(board)
-                        .category(category)
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .writerName("부모작성자")
-                        .maskedWriterName("부모작성자")
-                        .title(title)
-                        .content("부모 게시글 내용")
-                        .isPrivate(false)
-                        .isPhoto(false)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .orderNum(id)
-                        .build()
+            PostSnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .postKey(UUID.randomUUID())
+                .board(board)
+                .category(category)
+                .targetType(targetType)
+                .targetId(targetId)
+                .writerName("부모작성자")
+                .maskedWriterName("부모작성자")
+                .title(title)
+                .content("부모 게시글 내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .build()
         );
     }
 }

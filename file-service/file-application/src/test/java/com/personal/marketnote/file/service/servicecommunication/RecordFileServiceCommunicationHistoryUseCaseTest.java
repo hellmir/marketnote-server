@@ -30,11 +30,11 @@ class RecordFileServiceCommunicationHistoryUseCaseTest {
     @DisplayName("통신 기록 저장 시 Command를 CreateState로 매핑하여 저장하고 결과를 반환한다")
     void shouldRecordCommunicationHistorySuccessfully() {
         FileServiceCommunicationHistoryCommand command = FileServiceCommunicationHistoryCommand.builder()
-                .targetType(FileServiceCommunicationTargetType.GENERAL).targetId("file-123")
-                .communicationType(FileServiceCommunicationType.REQUEST).sender(FileServiceCommunicationSenderType.COMMUNITY)
-                .payload("{\"fileId\": 123}").build();
+            .targetType(FileServiceCommunicationTargetType.GENERAL).targetId("file-123")
+            .communicationType(FileServiceCommunicationType.REQUEST).sender(FileServiceCommunicationSenderType.COMMUNITY)
+            .payload("{\"fileId\": 123}").build();
         when(saveServiceCommunicationHistoryPort.save(any(FileServiceCommunicationHistory.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenAnswer(invocation -> invocation.getArgument(0));
         FileServiceCommunicationHistory result = recordService.record(command);
         assertThat(result.getTargetType()).isEqualTo(FileServiceCommunicationTargetType.GENERAL);
         assertThat(result.getTargetId()).isEqualTo("file-123");

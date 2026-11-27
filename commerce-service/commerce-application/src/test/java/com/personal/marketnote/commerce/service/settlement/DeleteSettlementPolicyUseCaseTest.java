@@ -39,15 +39,15 @@ class DeleteSettlementPolicyUseCaseTest {
 
     private SettlementPolicy createPolicy() {
         return SettlementPolicy.from(SettlementPolicySnapshotState.builder()
-                .id(1L)
-                .sellerId(10L)
-                .pgFeeRate(FeeRate.of(300))
-                .platformFeeRate(FeeRate.of(500))
-                .settlementCycle(SettlementCycle.MONTHLY)
-                .minPayoutAmount(10000L)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .build());
+            .id(1L)
+            .sellerId(10L)
+            .pgFeeRate(FeeRate.of(300))
+            .platformFeeRate(FeeRate.of(500))
+            .settlementCycle(SettlementCycle.MONTHLY)
+            .minPayoutAmount(10000L)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .build());
     }
 
     @Test
@@ -57,7 +57,7 @@ class DeleteSettlementPolicyUseCaseTest {
         SettlementPolicy policy = createPolicy();
         when(findSettlementPolicyPort.findById(1L)).thenReturn(Optional.of(policy));
         when(updateSettlementPolicyPort.update(any(SettlementPolicy.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
         deleteSettlementPolicyService.deletePolicy(1L);
@@ -76,7 +76,7 @@ class DeleteSettlementPolicyUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> deleteSettlementPolicyService.deletePolicy(999L))
-                .isInstanceOf(SettlementPolicyNotFoundException.class);
+            .isInstanceOf(SettlementPolicyNotFoundException.class);
 
         verify(updateSettlementPolicyPort, never()).update(any());
     }

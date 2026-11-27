@@ -20,8 +20,8 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class AligoSenderProfileExternalAdapter
-        implements RequestAligoSenderAuthenticationPort, RegisterAligoSenderProfileExternalPort,
-        GetAligoSenderProfileListExternalPort {
+    implements RequestAligoSenderAuthenticationPort, RegisterAligoSenderProfileExternalPort,
+    GetAligoSenderProfileListExternalPort {
 
     private static final String REQUEST_SENDER_AUTHENTICATION_OPERATION = "requestSenderAuthentication";
     private static final String REGISTER_SENDER_PROFILE_OPERATION = "registerSenderProfile";
@@ -37,8 +37,8 @@ public class AligoSenderProfileExternalAdapter
         params.add("phonenumber", phoneNumber);
 
         AligoAuthResponse response = aligoHttpClient.post(
-                REQUEST_SENDER_AUTHENTICATION_OPERATION, aligoProperties.getApi().getProfileAuthPath(),
-                params, AligoAuthResponse.class
+            REQUEST_SENDER_AUTHENTICATION_OPERATION, aligoProperties.getApi().getProfileAuthPath(),
+            params, AligoAuthResponse.class
         );
         return response.senderKey();
     }
@@ -50,8 +50,8 @@ public class AligoSenderProfileExternalAdapter
         params.add("categorycode", categoryCode);
 
         aligoHttpClient.post(
-                REGISTER_SENDER_PROFILE_OPERATION, aligoProperties.getApi().getProfileAddPath(),
-                params, AligoApiResponse.class
+            REGISTER_SENDER_PROFILE_OPERATION, aligoProperties.getApi().getProfileAddPath(),
+            params, AligoApiResponse.class
         );
     }
 
@@ -60,8 +60,8 @@ public class AligoSenderProfileExternalAdapter
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         AligoProfileListResponse response = aligoHttpClient.post(
-                GET_SENDER_PROFILE_LIST_OPERATION, aligoProperties.getApi().getProfileListPath(),
-                params, AligoProfileListResponse.class
+            GET_SENDER_PROFILE_LIST_OPERATION, aligoProperties.getApi().getProfileListPath(),
+            params, AligoProfileListResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.list())) {
@@ -69,46 +69,46 @@ public class AligoSenderProfileExternalAdapter
         }
 
         return response.list().stream()
-                .map(this::toDomain)
-                .toList();
+            .map(this::toDomain)
+            .toList();
     }
 
     private AligoSenderProfile toDomain(AligoProfileListResponse.ProfileItem item) {
         return AligoSenderProfile.from(
-                AligoSenderProfileCreateState.builder()
-                        .senderKey(item.senderKey())
-                        .plusId(item.plusId())
-                        .name(item.name())
-                        .categoryCode(item.categoryCode())
-                        .profileInspectionStatus(AligoProfileInspectionStatus.from(item.profileInspectionStatus()))
-                        .senderProfileStatus(AligoSenderProfileStatus.from(item.senderProfileStatus()))
-                        .alimUseYn("Y".equals(item.alimUseYn()))
-                        .uuid(item.uuid())
-                        .build()
+            AligoSenderProfileCreateState.builder()
+                .senderKey(item.senderKey())
+                .plusId(item.plusId())
+                .name(item.name())
+                .categoryCode(item.categoryCode())
+                .profileInspectionStatus(AligoProfileInspectionStatus.from(item.profileInspectionStatus()))
+                .senderProfileStatus(AligoSenderProfileStatus.from(item.senderProfileStatus()))
+                .alimUseYn("Y".equals(item.alimUseYn()))
+                .uuid(item.uuid())
+                .build()
         );
     }
 
     record AligoAuthResponse(
-            @JsonProperty("result_code") int resultCode,
-            String message,
-            @JsonProperty("senderkey") String senderKey
+        @JsonProperty("result_code") int resultCode,
+        String message,
+        @JsonProperty("senderkey") String senderKey
     ) {
     }
 
     record AligoProfileListResponse(
-            @JsonProperty("result_code") int resultCode,
-            String message,
-            List<ProfileItem> list
+        @JsonProperty("result_code") int resultCode,
+        String message,
+        List<ProfileItem> list
     ) {
         record ProfileItem(
-                @JsonProperty("senderkey") String senderKey,
-                @JsonProperty("plusid") String plusId,
-                String name,
-                @JsonProperty("categorycode") String categoryCode,
-                @JsonProperty("profileInspectionStatus") String profileInspectionStatus,
-                @JsonProperty("senderProfileStatus") String senderProfileStatus,
-                @JsonProperty("alim_use_yn") String alimUseYn,
-                String uuid
+            @JsonProperty("senderkey") String senderKey,
+            @JsonProperty("plusid") String plusId,
+            String name,
+            @JsonProperty("categorycode") String categoryCode,
+            @JsonProperty("profileInspectionStatus") String profileInspectionStatus,
+            @JsonProperty("senderProfileStatus") String senderProfileStatus,
+            @JsonProperty("alim_use_yn") String alimUseYn,
+            String uuid
         ) {
         }
     }

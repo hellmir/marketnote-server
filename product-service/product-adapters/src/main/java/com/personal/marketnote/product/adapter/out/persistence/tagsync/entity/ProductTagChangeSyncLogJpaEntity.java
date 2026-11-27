@@ -11,11 +11,11 @@ import java.util.UUID;
 
 @Entity
 @Table(
-        name = "product_tag_change_sync_log",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_product_tag_change_sync_log_event_id",
-                columnNames = "event_id"
-        )
+    name = "product_tag_change_sync_log",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_product_tag_change_sync_log_event_id",
+        columnNames = "event_id"
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -28,7 +28,7 @@ public class ProductTagChangeSyncLogJpaEntity extends BaseGeneralEntity {
 
     public static ProductTagChangeSyncLogJpaEntity of(UUID eventId) {
         return ProductTagChangeSyncLogJpaEntity.builder()
-                .eventId(eventId)
-                .build();
+            .eventId(eventId)
+            .build();
     }
 }

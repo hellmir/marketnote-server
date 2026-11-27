@@ -33,17 +33,17 @@ class UpdateFulfillmentDeliveryUseCaseTest {
     void shouldReturnUpdateDeliveryResultFromPort() {
         // given
         UpdateFulfillmentDeliveryItemCommand itemCommand = UpdateFulfillmentDeliveryItemCommand.builder()
-                .orderDate("20260402")
-                .orderNumber("ORD001")
-                .slipNumber("SLIP001")
-                .recipientName("테스트고객")
-                .recipientPhoneNumber("01012345678")
-                .recipientAddress("서울시 강남구")
-                .releaseMethod("01")
-                .products(List.of(RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", "20260430", 1)))
-                .build();
+            .orderDate("20260402")
+            .orderNumber("ORD001")
+            .slipNumber("SLIP001")
+            .recipientName("테스트고객")
+            .recipientPhoneNumber("01012345678")
+            .recipientAddress("서울시 강남구")
+            .releaseMethod("01")
+            .products(List.of(RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", "20260430", 1)))
+            .build();
         UpdateFulfillmentDeliveryCommand command = UpdateFulfillmentDeliveryCommand.of(
-                "CUST001", "token", List.of(itemCommand)
+            "CUST001", "token", List.of(itemCommand)
         );
         RegisterFulfillmentDeliveryResult expectedResult = RegisterFulfillmentDeliveryResult.of(0, List.of());
         when(updateFulfillmentDeliveryPort.updateDelivery(any())).thenReturn(expectedResult);

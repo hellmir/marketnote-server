@@ -6,8 +6,8 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.UpdateFulfillme
 import java.util.List;
 
 public record UpdateFulfillmentWarehousingResponse(
-        Integer dataCount,
-        List<UpdateFulfillmentWarehousingItemResult> warehousing
+    Integer dataCount,
+    List<UpdateFulfillmentWarehousingItemResult> warehousing
 ) {
     public static UpdateFulfillmentWarehousingResponse from(UpdateFulfillmentWarehousingResult result) {
         return new UpdateFulfillmentWarehousingResponse(result.dataCount(), result.warehousing());

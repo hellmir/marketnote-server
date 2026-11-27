@@ -24,10 +24,10 @@ public class RequestAligoTemplateInspectionService implements RequestAligoTempla
     @Override
     public RequestAligoTemplateInspectionResult requestInspection(String templateCode) {
         AligoTemplate template = findAligoTemplatePort.findByTemplateCode(templateCode)
-                .orElseThrow(() -> {
-                    log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", templateCode);
-                    return new AligoTemplateNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", templateCode);
+                return new AligoTemplateNotFoundException();
+            });
 
         if (!template.canRequestInspection()) {
             throw new InvalidAligoTemplateTransitionException(template.getInspStatus(), "REQ");

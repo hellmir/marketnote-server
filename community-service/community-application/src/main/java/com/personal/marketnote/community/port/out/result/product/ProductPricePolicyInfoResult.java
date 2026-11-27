@@ -6,10 +6,10 @@ import java.math.BigDecimal;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ProductPricePolicyInfoResult(
-        Long id,
-        Long price,
-        Long discountPrice,
-        BigDecimal discountRate,
-        Long accumulatedPoint
+    Long id,
+    Long price,
+    Long discountPrice,
+    BigDecimal discountRate,
+    Long accumulatedPoint
 ) {
 }

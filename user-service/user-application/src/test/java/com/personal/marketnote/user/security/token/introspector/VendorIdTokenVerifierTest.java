@@ -47,12 +47,12 @@ class VendorIdTokenVerifierTest {
     @BeforeEach
     void setUp() throws Exception {
         rsaKey = new RSAKeyGenerator(2048)
-                .keyID("test-rsa-key")
-                .generate();
+            .keyID("test-rsa-key")
+            .generate();
 
         ecKey = new ECKeyGenerator(Curve.P_256)
-                .keyID("test-ec-key")
-                .generate();
+            .keyID("test-ec-key")
+            .generate();
 
         mockWebServer = new MockWebServer();
     }
@@ -71,7 +71,7 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
+            AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
         );
 
         String token = buildRs256Token(KAKAO_ISSUER, KAKAO_REST_AUDIENCE, "kakao-subject-123", rsaKey);
@@ -92,7 +92,7 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.APPLE, jwksUri, List.of(APPLE_ISSUER), List.of(APPLE_AUDIENCE)
+            AuthVendor.APPLE, jwksUri, List.of(APPLE_ISSUER), List.of(APPLE_AUDIENCE)
         );
 
         String token = buildEs256Token(APPLE_ISSUER, APPLE_AUDIENCE, "apple-subject-456");
@@ -113,7 +113,7 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
+            AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
         );
 
         RSAKey differentKey = new RSAKeyGenerator(2048).keyID("test-rsa-key").generate();
@@ -121,7 +121,7 @@ class VendorIdTokenVerifierTest {
 
         // when & then
         assertThatThrownBy(() -> verifier.verifyAndExtractSubject(forgedToken, AuthVendor.KAKAO))
-                .isInstanceOf(JwtException.class);
+            .isInstanceOf(JwtException.class);
     }
 
     @Test
@@ -133,17 +133,17 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
+            AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
         );
 
         String expiredToken = buildRs256TokenWithExpiry(
-                KAKAO_ISSUER, KAKAO_REST_AUDIENCE, "kakao-subject",
-                Date.from(Instant.now().minusSeconds(3600))
+            KAKAO_ISSUER, KAKAO_REST_AUDIENCE, "kakao-subject",
+            Date.from(Instant.now().minusSeconds(3600))
         );
 
         // when & then
         assertThatThrownBy(() -> verifier.verifyAndExtractSubject(expiredToken, AuthVendor.KAKAO))
-                .isInstanceOf(JwtException.class);
+            .isInstanceOf(JwtException.class);
     }
 
     @Test
@@ -155,14 +155,14 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
+            AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
         );
 
         String wrongIssuerToken = buildRs256Token("https://evil.com", KAKAO_REST_AUDIENCE, "subject", rsaKey);
 
         // when & then
         assertThatThrownBy(() -> verifier.verifyAndExtractSubject(wrongIssuerToken, AuthVendor.KAKAO))
-                .isInstanceOf(JwtException.class);
+            .isInstanceOf(JwtException.class);
     }
 
     @Test
@@ -174,14 +174,14 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
+            AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
         );
 
         String wrongAudienceToken = buildRs256Token(KAKAO_ISSUER, "wrong-audience", "subject", rsaKey);
 
         // when & then
         assertThatThrownBy(() -> verifier.verifyAndExtractSubject(wrongAudienceToken, AuthVendor.KAKAO))
-                .isInstanceOf(JwtException.class);
+            .isInstanceOf(JwtException.class);
     }
 
     @Test
@@ -193,15 +193,15 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
+            AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
         );
 
         String noSubToken = buildRs256TokenWithoutSubject(KAKAO_ISSUER, KAKAO_REST_AUDIENCE);
 
         // when & then
         assertThatThrownBy(() -> verifier.verifyAndExtractSubject(noSubToken, AuthVendor.KAKAO))
-                .isInstanceOf(JwtException.class)
-                .hasMessageContaining("sub claim");
+            .isInstanceOf(JwtException.class)
+            .hasMessageContaining("sub claim");
     }
 
     @Test
@@ -213,14 +213,14 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO,
-                jwksUri,
-                List.of(KAKAO_ISSUER),
-                List.of(KAKAO_REST_AUDIENCE, KAKAO_NATIVE_AUDIENCE)
+            AuthVendor.KAKAO,
+            jwksUri,
+            List.of(KAKAO_ISSUER),
+            List.of(KAKAO_REST_AUDIENCE, KAKAO_NATIVE_AUDIENCE)
         );
 
         String nativeToken = buildRs256Token(
-                KAKAO_ISSUER, KAKAO_NATIVE_AUDIENCE, "kakao-native-subject", rsaKey
+            KAKAO_ISSUER, KAKAO_NATIVE_AUDIENCE, "kakao-native-subject", rsaKey
         );
 
         // when
@@ -239,16 +239,16 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO,
-                jwksUri,
-                List.of(KAKAO_ISSUER),
-                List.of(KAKAO_REST_AUDIENCE, KAKAO_NATIVE_AUDIENCE)
+            AuthVendor.KAKAO,
+            jwksUri,
+            List.of(KAKAO_ISSUER),
+            List.of(KAKAO_REST_AUDIENCE, KAKAO_NATIVE_AUDIENCE)
         );
 
         String arrayAudienceToken = buildRs256TokenWithAudienceList(
-                KAKAO_ISSUER,
-                List.of("other-aud", KAKAO_NATIVE_AUDIENCE),
-                "kakao-array-subject"
+            KAKAO_ISSUER,
+            List.of("other-aud", KAKAO_NATIVE_AUDIENCE),
+            "kakao-array-subject"
         );
 
         // when
@@ -267,21 +267,21 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO,
-                jwksUri,
-                List.of(KAKAO_ISSUER),
-                List.of(KAKAO_REST_AUDIENCE, KAKAO_NATIVE_AUDIENCE)
+            AuthVendor.KAKAO,
+            jwksUri,
+            List.of(KAKAO_ISSUER),
+            List.of(KAKAO_REST_AUDIENCE, KAKAO_NATIVE_AUDIENCE)
         );
 
         String arrayAudienceToken = buildRs256TokenWithAudienceList(
-                KAKAO_ISSUER,
-                List.of("foreign-aud-1", "foreign-aud-2"),
-                "kakao-subject"
+            KAKAO_ISSUER,
+            List.of("foreign-aud-1", "foreign-aud-2"),
+            "kakao-subject"
         );
 
         // when & then
         assertThatThrownBy(() -> verifier.verifyAndExtractSubject(arrayAudienceToken, AuthVendor.KAKAO))
-                .isInstanceOf(JwtException.class);
+            .isInstanceOf(JwtException.class);
     }
 
     @Test
@@ -292,14 +292,14 @@ class VendorIdTokenVerifierTest {
 
         // when & then
         assertThatThrownBy(() -> verifier.verifyAndExtractSubject("any-token", AuthVendor.GOOGLE))
-                .isInstanceOf(JwtException.class);
+            .isInstanceOf(JwtException.class);
     }
 
     private VendorIdTokenVerifier buildVerifier(
-            AuthVendor vendor, String jwksUri, List<String> issuers, List<String> allowedAudiences
+        AuthVendor vendor, String jwksUri, List<String> issuers, List<String> allowedAudiences
     ) {
         VendorJwtConfig config = new VendorJwtConfig(
-                jwksUri, issuers, new LinkedHashSet<>(allowedAudiences)
+            jwksUri, issuers, new LinkedHashSet<>(allowedAudiences)
         );
         return new VendorIdTokenVerifier(Map.of(vendor, config));
     }
@@ -310,67 +310,67 @@ class VendorIdTokenVerifierTest {
             @Override
             public MockResponse dispatch(RecordedRequest request) {
                 return new MockResponse()
-                        .setBody(jwksBody)
-                        .addHeader("Content-Type", "application/json");
+                    .setBody(jwksBody)
+                    .addHeader("Content-Type", "application/json");
             }
         });
     }
 
     private String buildRs256Token(
-            String issuer, String audience, String subject, RSAKey signingKey
+        String issuer, String audience, String subject, RSAKey signingKey
     ) throws Exception {
         JWSSigner signer = new RSASSASigner(signingKey);
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
-                .issuer(issuer)
-                .audience(audience)
-                .subject(subject)
-                .expirationTime(Date.from(Instant.now().plusSeconds(3600)))
-                .issueTime(new Date())
-                .build();
+            .issuer(issuer)
+            .audience(audience)
+            .subject(subject)
+            .expirationTime(Date.from(Instant.now().plusSeconds(3600)))
+            .issueTime(new Date())
+            .build();
 
         SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(signingKey.getKeyID()).build(),
-                claims
+            new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(signingKey.getKeyID()).build(),
+            claims
         );
         signedJWT.sign(signer);
         return signedJWT.serialize();
     }
 
     private String buildRs256TokenWithAudienceList(
-            String issuer, List<String> audiences, String subject
+        String issuer, List<String> audiences, String subject
     ) throws Exception {
         JWSSigner signer = new RSASSASigner(rsaKey);
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
-                .issuer(issuer)
-                .audience(audiences)
-                .subject(subject)
-                .expirationTime(Date.from(Instant.now().plusSeconds(3600)))
-                .issueTime(new Date())
-                .build();
+            .issuer(issuer)
+            .audience(audiences)
+            .subject(subject)
+            .expirationTime(Date.from(Instant.now().plusSeconds(3600)))
+            .issueTime(new Date())
+            .build();
 
         SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaKey.getKeyID()).build(),
-                claims
+            new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaKey.getKeyID()).build(),
+            claims
         );
         signedJWT.sign(signer);
         return signedJWT.serialize();
     }
 
     private String buildRs256TokenWithExpiry(
-            String issuer, String audience, String subject, Date expiry
+        String issuer, String audience, String subject, Date expiry
     ) throws Exception {
         JWSSigner signer = new RSASSASigner(rsaKey);
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
-                .issuer(issuer)
-                .audience(audience)
-                .subject(subject)
-                .expirationTime(expiry)
-                .issueTime(new Date())
-                .build();
+            .issuer(issuer)
+            .audience(audience)
+            .subject(subject)
+            .expirationTime(expiry)
+            .issueTime(new Date())
+            .build();
 
         SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaKey.getKeyID()).build(),
-                claims
+            new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaKey.getKeyID()).build(),
+            claims
         );
         signedJWT.sign(signer);
         return signedJWT.serialize();
@@ -379,15 +379,15 @@ class VendorIdTokenVerifierTest {
     private String buildRs256TokenWithoutSubject(String issuer, String audience) throws Exception {
         JWSSigner signer = new RSASSASigner(rsaKey);
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
-                .issuer(issuer)
-                .audience(audience)
-                .expirationTime(Date.from(Instant.now().plusSeconds(3600)))
-                .issueTime(new Date())
-                .build();
+            .issuer(issuer)
+            .audience(audience)
+            .expirationTime(Date.from(Instant.now().plusSeconds(3600)))
+            .issueTime(new Date())
+            .build();
 
         SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaKey.getKeyID()).build(),
-                claims
+            new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaKey.getKeyID()).build(),
+            claims
         );
         signedJWT.sign(signer);
         return signedJWT.serialize();
@@ -396,16 +396,16 @@ class VendorIdTokenVerifierTest {
     private String buildEs256Token(String issuer, String audience, String subject) throws Exception {
         JWSSigner signer = new ECDSASigner(ecKey);
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
-                .issuer(issuer)
-                .audience(audience)
-                .subject(subject)
-                .expirationTime(Date.from(Instant.now().plusSeconds(3600)))
-                .issueTime(new Date())
-                .build();
+            .issuer(issuer)
+            .audience(audience)
+            .subject(subject)
+            .expirationTime(Date.from(Instant.now().plusSeconds(3600)))
+            .issueTime(new Date())
+            .build();
 
         SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.ES256).keyID(ecKey.getKeyID()).build(),
-                claims
+            new JWSHeader.Builder(JWSAlgorithm.ES256).keyID(ecKey.getKeyID()).build(),
+            claims
         );
         signedJWT.sign(signer);
         return signedJWT.serialize();

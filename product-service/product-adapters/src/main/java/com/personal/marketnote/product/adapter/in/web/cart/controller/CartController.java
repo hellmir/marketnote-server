@@ -54,21 +54,21 @@ public class CartController {
     @PostMapping("/products")
     @AddCartProductApiDocs
     public ResponseEntity<BaseResponse<Void>> addCartProduct(
-            @Valid @RequestBody AddCartProductRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody AddCartProductRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         addCartProductUseCase.addCartProduct(
-                CartRequestToCommandMapper.mapToCommand(ElementExtractor.extractUserId(principal), request)
+            CartRequestToCommandMapper.mapToCommand(ElementExtractor.extractUserId(principal), request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "장바구니 상품 추가 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                null,
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "장바구니 상품 추가 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -84,20 +84,20 @@ public class CartController {
     @GetMapping("/products")
     @GetMyCartProductsApiDocs
     public ResponseEntity<BaseResponse<GetMyCartProductsResponse>> getMyCartProducts(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         GetMyCartProductsResult result = getCartProductUseCase.getMyCartProducts(
-                ElementExtractor.extractUserId(principal)
+            ElementExtractor.extractUserId(principal)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetMyCartProductsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 장바구니 상품 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetMyCartProductsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 장바구니 상품 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -114,21 +114,21 @@ public class CartController {
     @PatchMapping("/products/quantity")
     @UpdateCartProductQuantityApiDocs
     public ResponseEntity<BaseResponse<Void>> updateCartProductQuantity(
-            @Valid @RequestBody UpdateCartProductQuantityRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody UpdateCartProductQuantityRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         updateCartProductQuantityUseCase.updateCartProductQuantity(
-                CartRequestToCommandMapper.mapToCommand(ElementExtractor.extractUserId(principal), request)
+            CartRequestToCommandMapper.mapToCommand(ElementExtractor.extractUserId(principal), request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "장바구니 상품 수량 변경 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "장바구니 상품 수량 변경 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -148,21 +148,21 @@ public class CartController {
     @PatchMapping("/products/options")
     @UpdateCartProductOptionApiDocs
     public ResponseEntity<BaseResponse<Void>> updateCartProductOptions(
-            @Valid @RequestBody UpdateCartProductOptionsRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody UpdateCartProductOptionsRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         updateCartProductOptionsUseCase.updateCartProductOptions(
-                CartRequestToCommandMapper.mapToCommand(ElementExtractor.extractUserId(principal), request)
+            CartRequestToCommandMapper.mapToCommand(ElementExtractor.extractUserId(principal), request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "장바구니 상품 옵션 변경 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "장바구니 상품 옵션 변경 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -178,21 +178,21 @@ public class CartController {
     @DeleteMapping("/products")
     @DeleteCartProductApiDocs
     public ResponseEntity<BaseResponse<Void>> deleteCartProducts(
-            @Valid @RequestParam List<Long> pricePolicyIds,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestParam List<Long> pricePolicyIds,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         deleteCartProductsUseCase.deleteCartProducts(
-                CartRequestToCommandMapper.mapToCommand(ElementExtractor.extractUserId(principal), pricePolicyIds)
+            CartRequestToCommandMapper.mapToCommand(ElementExtractor.extractUserId(principal), pricePolicyIds)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "장바구니 상품 삭제 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "장바구니 상품 삭제 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -207,18 +207,18 @@ public class CartController {
     @DeleteMapping
     @DeleteAllCartProductsApiDocs
     public ResponseEntity<BaseResponse<Void>> deleteAllCartProducts(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         deleteCartProductsUseCase.deleteAllCartProducts(ElementExtractor.extractUserId(principal));
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "장바구니 비우기 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "장바구니 비우기 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

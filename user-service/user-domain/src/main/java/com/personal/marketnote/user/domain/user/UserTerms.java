@@ -1,10 +1,6 @@
 package com.personal.marketnote.user.domain.user;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -21,22 +17,22 @@ public class UserTerms {
 
     public static UserTerms from(UserTermsCreateState state) {
         return UserTerms.builder()
-                .user(state.getUser())
-                .terms(state.getTerms())
-                .agreementYn(state.getAgreementYn())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .user(state.getUser())
+            .terms(state.getTerms())
+            .agreementYn(state.getAgreementYn())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public static UserTerms from(UserTermsSnapshotState state) {
         return UserTerms.builder()
-                .user(state.getUser())
-                .terms(state.getTerms())
-                .agreementYn(state.getAgreementYn())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .user(state.getUser())
+            .terms(state.getTerms())
+            .agreementYn(state.getAgreementYn())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public void acceptOrCancel() {

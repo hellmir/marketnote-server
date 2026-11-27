@@ -43,18 +43,18 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserOneOnOneInquiryPostsCommand command = new GetUserOneOnOneInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         Posts posts = Posts.from(List.of(
-                buildOneOnOneInquiryPost(1L, userId),
-                buildOneOnOneInquiryPost(2L, userId)
+            buildOneOnOneInquiryPost(1L, userId),
+            buildOneOnOneInquiryPost(2L, userId)
         ));
         mockFindUserPostsByOffset(posts);
         when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(2L);
 
         // when
         GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(
-                command
+            command
         );
 
         // then
@@ -70,14 +70,14 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
     void getUserOneOnOneInquiryPosts_emptyResult_returnsEmptyListAndZeroPages() {
         // given
         GetUserOneOnOneInquiryPostsCommand command = new GetUserOneOnOneInquiryPostsCommand(
-                1L, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            1L, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
         when(findPostPort.countUserPosts(1L, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(0L);
 
         // when
         GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(
-                command
+            command
         );
 
         // then
@@ -93,19 +93,19 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
     void getUserOneOnOneInquiryPosts_totalPagesComputedCorrectly() {
         // given
         GetUserOneOnOneInquiryPostsCommand command = new GetUserOneOnOneInquiryPostsCommand(
-                1L, 1, 3, Sort.Direction.DESC, PostSortProperty.ID
+            1L, 1, 3, Sort.Direction.DESC, PostSortProperty.ID
         );
         Posts posts = Posts.from(List.of(
-                buildOneOnOneInquiryPost(1L, 1L),
-                buildOneOnOneInquiryPost(2L, 1L),
-                buildOneOnOneInquiryPost(3L, 1L)
+            buildOneOnOneInquiryPost(1L, 1L),
+            buildOneOnOneInquiryPost(2L, 1L),
+            buildOneOnOneInquiryPost(3L, 1L)
         ));
         mockFindUserPostsByOffset(posts);
         when(findPostPort.countUserPosts(1L, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(7L);
 
         // when
         GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(
-                command
+            command
         );
 
         // then
@@ -117,14 +117,14 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
     void getUserOneOnOneInquiryPosts_pageAndPageSizeReflected() {
         // given
         GetUserOneOnOneInquiryPostsCommand command = new GetUserOneOnOneInquiryPostsCommand(
-                1L, 2, 5, Sort.Direction.ASC, PostSortProperty.ID
+            1L, 2, 5, Sort.Direction.ASC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
         when(findPostPort.countUserPosts(1L, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(10L);
 
         // when
         GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(
-                command
+            command
         );
 
         // then
@@ -141,7 +141,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserOneOnOneInquiryPostsCommand command = new GetUserOneOnOneInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
         when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(0L);
@@ -151,7 +151,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
 
         // then
         verify(findPostPort).findUserPostsByOffset(
-                userId, Board.ONE_ON_ONE_INQUERY, 1, 10, true, PostSortProperty.ID
+            userId, Board.ONE_ON_ONE_INQUERY, 1, 10, true, PostSortProperty.ID
         );
     }
 
@@ -161,7 +161,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserOneOnOneInquiryPostsCommand command = new GetUserOneOnOneInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
         when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(0L);
@@ -181,21 +181,21 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserOneOnOneInquiryPostsCommand command = new GetUserOneOnOneInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         Post photoPost = buildPhotoOneOnOneInquiryPost(1L, userId);
         Posts posts = Posts.from(List.of(photoPost));
         mockFindUserPostsByOffset(posts);
         when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(1L);
         GetFileResult fileResult = new GetFileResult(
-                1L, "POST_IMAGE", "jpg", "image.jpg", "https://s3/image.jpg", List.of(), 1L
+            1L, "POST_IMAGE", "jpg", "image.jpg", "https://s3/image.jpg", List.of(), 1L
         );
         when(findPostImagesPort.findImagesByPostIdAndSort(1L, POST_IMAGE))
-                .thenReturn(Optional.of(new GetFilesResult(List.of(fileResult))));
+            .thenReturn(Optional.of(new GetFilesResult(List.of(fileResult))));
 
         // when
         GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(
-                command
+            command
         );
 
         // then
@@ -209,7 +209,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserOneOnOneInquiryPostsCommand command = new GetUserOneOnOneInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         Posts posts = Posts.from(List.of(buildOneOnOneInquiryPost(1L, userId)));
         mockFindUserPostsByOffset(posts);
@@ -230,7 +230,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserOneOnOneInquiryPostsCommand command = new GetUserOneOnOneInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         Post parentPost = buildOneOnOneInquiryPost(1L, userId);
         Post replyPost = buildOneOnOneInquiryPost(2L, userId);
@@ -241,7 +241,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
 
         // when
         GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(
-                command
+            command
         );
 
         // then
@@ -258,7 +258,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserOneOnOneInquiryPostsCommand command = new GetUserOneOnOneInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.ASC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.ASC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
         when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(0L);
@@ -268,7 +268,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
 
         // then
         verify(findPostPort).findUserPostsByOffset(
-                userId, Board.ONE_ON_ONE_INQUERY, 1, 10, false, PostSortProperty.ID
+            userId, Board.ONE_ON_ONE_INQUERY, 1, 10, false, PostSortProperty.ID
         );
     }
 
@@ -276,33 +276,33 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
 
     private Post buildOneOnOneInquiryPost(Long id, Long userId) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(userId)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .title("1:1 문의 제목")
-                .content("1:1 문의 내용")
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(userId)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .title("1:1 문의 제목")
+            .content("1:1 문의 내용")
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildPhotoOneOnOneInquiryPost(Long id, Long userId) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(userId)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .title("사진 1:1 문의")
-                .content("내용")
-                .isPhoto(true)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(userId)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .title("사진 1:1 문의")
+            .content("내용")
+            .isPhoto(true)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     // ========== Mock Helpers ==========
@@ -313,7 +313,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
 
     private void mockFindUserPostsByOffset(Posts posts) {
         when(findPostPort.findUserPostsByOffset(
-                anyLong(), any(Board.class), anyInt(), anyInt(), anyBoolean(), any(PostSortProperty.class)
+            anyLong(), any(Board.class), anyInt(), anyInt(), anyBoolean(), any(PostSortProperty.class)
         )).thenReturn(posts);
     }
 }

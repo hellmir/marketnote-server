@@ -6,8 +6,8 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.CancelFulfillme
 import java.util.List;
 
 public record CancelFulfillmentDeliveryResponse(
-        Integer dataCount,
-        List<CancelFulfillmentDeliveryItemResult> deliveries
+    Integer dataCount,
+    List<CancelFulfillmentDeliveryItemResult> deliveries
 ) {
     public static CancelFulfillmentDeliveryResponse from(CancelFulfillmentDeliveryResult result) {
         return new CancelFulfillmentDeliveryResponse(result.dataCount(), result.deliveries());

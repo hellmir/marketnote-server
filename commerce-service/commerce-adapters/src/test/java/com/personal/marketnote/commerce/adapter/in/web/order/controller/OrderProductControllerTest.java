@@ -37,7 +37,7 @@ class OrderProductControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
+            String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
         );
     }
 
@@ -52,11 +52,11 @@ class OrderProductControllerTest {
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
             GetBuyerOrderProductsResult result = GetBuyerOrderProductsResult.of(List.of());
             when(getOrderUseCase.getBuyerOrderProducts(GetBuyerOrderProductsQuery.of(200L, null)))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetMyOrderProductsResponse>> response =
-                    orderProductController.getMyOrderProducts(principal, null);
+                orderProductController.getMyOrderProducts(principal, null);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -72,16 +72,16 @@ class OrderProductControllerTest {
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
             GetBuyerOrderProductsResult result = GetBuyerOrderProductsResult.of(List.of());
             when(getOrderUseCase.getBuyerOrderProducts(GetBuyerOrderProductsQuery.of(200L, Boolean.TRUE)))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetMyOrderProductsResponse>> response =
-                    orderProductController.getMyOrderProducts(principal, Boolean.TRUE);
+                orderProductController.getMyOrderProducts(principal, Boolean.TRUE);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<GetBuyerOrderProductsQuery> captor =
-                    ArgumentCaptor.forClass(GetBuyerOrderProductsQuery.class);
+                ArgumentCaptor.forClass(GetBuyerOrderProductsQuery.class);
             verify(getOrderUseCase).getBuyerOrderProducts(captor.capture());
             assertThat(captor.getValue().isReviewed()).isTrue();
             assertThat(captor.getValue().buyerId()).isEqualTo(200L);

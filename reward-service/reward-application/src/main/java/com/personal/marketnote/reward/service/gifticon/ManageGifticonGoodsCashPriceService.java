@@ -28,10 +28,10 @@ public class ManageGifticonGoodsCashPriceService implements ManageGifticonGoodsC
     public void manageCashPrice(ManageGifticonGoodsCashPriceCommand command) {
         for (CashPriceItem item : command.items()) {
             GifticonGoods goods = findGifticonGoodsPort.findByGoodsCode(item.goodsCode())
-                    .orElseThrow(() -> {
-                        log.warn("기프티콘 상품을 찾을 수 없습니다. goodsCode={}", item.goodsCode());
-                        return new GifticonGoodsNotFoundException();
-                    });
+                .orElseThrow(() -> {
+                    log.warn("기프티콘 상품을 찾을 수 없습니다. goodsCode={}", item.goodsCode());
+                    return new GifticonGoodsNotFoundException();
+                });
 
             goods.changeCashPrice(Money.of(item.cashPrice()));
             updateGifticonGoodsPort.update(goods);

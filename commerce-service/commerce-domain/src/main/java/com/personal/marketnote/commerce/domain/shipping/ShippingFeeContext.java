@@ -14,10 +14,10 @@ public class ShippingFeeContext {
 
     public static ShippingFeeContext of(Money sellerAmount, Money shippingFee, Money freeShippingThreshold) {
         return ShippingFeeContext.builder()
-                .sellerAmount(sellerAmount)
-                .shippingFee(shippingFee)
-                .freeShippingThreshold(freeShippingThreshold)
-                .build();
+            .sellerAmount(sellerAmount)
+            .shippingFee(shippingFee)
+            .freeShippingThreshold(freeShippingThreshold)
+            .build();
     }
 
     public boolean isBelowFreeShippingThreshold() {

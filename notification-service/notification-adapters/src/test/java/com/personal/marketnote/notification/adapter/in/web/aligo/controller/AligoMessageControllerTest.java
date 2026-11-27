@@ -63,21 +63,21 @@ class AligoMessageControllerTest {
             LocalDateTime end = LocalDateTime.of(2026, 4, 30, 23, 59);
 
             GetAligoMessageListResult result = new GetAligoMessageListResult(
-                    List.of(new GetAligoMessageListResult.AligoMessageSummary(
-                            1L, "CODE-1", "01012345678",
-                            AligoMessageType.AT, AligoMessageStatus.SENT,
-                            "MID-1", 1, 0, false,
-                            start, start.plusMinutes(1), start
-                    )),
-                    1L, 1, 1
+                List.of(new GetAligoMessageListResult.AligoMessageSummary(
+                    1L, "CODE-1", "01012345678",
+                    AligoMessageType.AT, AligoMessageStatus.SENT,
+                    "MID-1", 1, 0, false,
+                    start, start.plusMinutes(1), start
+                )),
+                1L, 1, 1
             );
             when(getAligoMessageListUseCase.getMessageList(
-                    new GetAligoMessageListCommand(2, 50, start, end)
+                new GetAligoMessageListCommand(2, 50, start, end)
             )).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetAligoMessageListResponse>> response =
-                    controller.getMessageList(2, 50, start, end);
+                controller.getMessageList(2, 50, start, end);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -87,7 +87,7 @@ class AligoMessageControllerTest {
             assertThat(body.currentPage()).isEqualTo(1);
 
             ArgumentCaptor<GetAligoMessageListCommand> captor =
-                    ArgumentCaptor.forClass(GetAligoMessageListCommand.class);
+                ArgumentCaptor.forClass(GetAligoMessageListCommand.class);
             verify(getAligoMessageListUseCase).getMessageList(captor.capture());
             GetAligoMessageListCommand command = captor.getValue();
             assertThat(command.page()).isEqualTo(2);
@@ -107,29 +107,29 @@ class AligoMessageControllerTest {
             // given
             LocalDateTime now = LocalDateTime.of(2026, 4, 20, 10, 0);
             GetAligoMessageRecipientListResult result = new GetAligoMessageRecipientListResult(
-                    100L,
-                    List.of(
-                            new GetAligoMessageRecipientListResult.RecipientDetail(
-                                    1L, "01011112222", "홍길동",
-                                    "msg-1", "smid-1",
-                                    AligoMessageRecipientStatus.SUCCESS,
-                                    "1", "정상전송",
-                                    now, now.plusSeconds(1), now.plusSeconds(2)
-                            ),
-                            new GetAligoMessageRecipientListResult.RecipientDetail(
-                                    2L, "01033334444", "김철수",
-                                    "msg-2", "smid-2",
-                                    AligoMessageRecipientStatus.FAILED,
-                                    "0", "실패",
-                                    now, now.plusSeconds(1), now.plusSeconds(2)
-                            )
+                100L,
+                List.of(
+                    new GetAligoMessageRecipientListResult.RecipientDetail(
+                        1L, "01011112222", "홍길동",
+                        "msg-1", "smid-1",
+                        AligoMessageRecipientStatus.SUCCESS,
+                        "1", "정상전송",
+                        now, now.plusSeconds(1), now.plusSeconds(2)
+                    ),
+                    new GetAligoMessageRecipientListResult.RecipientDetail(
+                        2L, "01033334444", "김철수",
+                        "msg-2", "smid-2",
+                        AligoMessageRecipientStatus.FAILED,
+                        "0", "실패",
+                        now, now.plusSeconds(1), now.plusSeconds(2)
                     )
+                )
             );
             when(getAligoMessageRecipientListUseCase.getRecipientList(100L)).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetAligoMessageRecipientListResponse>> response =
-                    controller.getRecipientList(100L);
+                controller.getRecipientList(100L);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -173,11 +173,11 @@ class AligoMessageControllerTest {
                 }
                 PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
                 assertThat(annotation)
-                        .as("메서드 %s 에 @PreAuthorize가 부착되어야 한다", method.getName())
-                        .isNotNull();
+                    .as("메서드 %s 에 @PreAuthorize가 부착되어야 한다", method.getName())
+                    .isNotNull();
                 assertThat(annotation.value())
-                        .as("메서드 %s 의 @PreAuthorize 값은 ADMIN_POINTCUT이어야 한다", method.getName())
-                        .isEqualTo(expected);
+                    .as("메서드 %s 의 @PreAuthorize 값은 ADMIN_POINTCUT이어야 한다", method.getName())
+                    .isEqualTo(expected);
             }
         }
     }
@@ -190,7 +190,7 @@ class AligoMessageControllerTest {
         @DisplayName("getMessageList의 page 파라미터에 @Min(1)이 부착되어 있다")
         void getMessageListPageHasMin1() throws NoSuchMethodException {
             Method method = AligoMessageController.class.getMethod(
-                    "getMessageList", int.class, int.class, LocalDateTime.class, LocalDateTime.class
+                "getMessageList", int.class, int.class, LocalDateTime.class, LocalDateTime.class
             );
             Parameter pageParam = method.getParameters()[0];
             Min min = findAnnotation(pageParam, Min.class);
@@ -202,7 +202,7 @@ class AligoMessageControllerTest {
         @DisplayName("getMessageList의 limit 파라미터에 @Min(1), @Max(100)이 부착되어 있다")
         void getMessageListLimitHasMinAndMax() throws NoSuchMethodException {
             Method method = AligoMessageController.class.getMethod(
-                    "getMessageList", int.class, int.class, LocalDateTime.class, LocalDateTime.class
+                "getMessageList", int.class, int.class, LocalDateTime.class, LocalDateTime.class
             );
             Parameter limitParam = method.getParameters()[1];
             Min min = findAnnotation(limitParam, Min.class);

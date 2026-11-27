@@ -21,9 +21,9 @@ class ReturnTrackerTest {
         void shouldCreateWithPendingStatuses() {
             // given
             ReturnTrackerCreateState state = ReturnTrackerCreateState.builder()
-                    .orderId(1L)
-                    .returnSlipNumber("RTN20260409001")
-                    .build();
+                .orderId(1L)
+                .returnSlipNumber("RTN20260409001")
+                .build();
 
             // when
             ReturnTracker tracker = ReturnTracker.from(state);
@@ -42,12 +42,12 @@ class ReturnTrackerTest {
         void shouldThrowWhenOrderIdIsNull() {
             // given
             ReturnTrackerCreateState state = ReturnTrackerCreateState.builder()
-                    .returnSlipNumber("RTN20260409001")
-                    .build();
+                .returnSlipNumber("RTN20260409001")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> ReturnTracker.from(state))
-                    .isInstanceOf(ReturnTrackerOrderIdNoValueException.class);
+                .isInstanceOf(ReturnTrackerOrderIdNoValueException.class);
         }
 
         @Test
@@ -55,8 +55,8 @@ class ReturnTrackerTest {
         void shouldCreateWithNullReturnSlipNumber() {
             // given
             ReturnTrackerCreateState state = ReturnTrackerCreateState.builder()
-                    .orderId(1L)
-                    .build();
+                .orderId(1L)
+                .build();
 
             // when
             ReturnTracker tracker = ReturnTracker.from(state);
@@ -82,16 +82,16 @@ class ReturnTrackerTest {
             LocalDateTime modifiedAt = LocalDateTime.of(2026, 4, 9, 15, 0);
 
             ReturnTrackerSnapshotState state = ReturnTrackerSnapshotState.builder()
-                    .id(100L)
-                    .orderId(1L)
-                    .returnSlipNumber("RTN20260409001")
-                    .inspectionStatus(ReturnInspectionStatus.PASSED)
-                    .refundStatus(ReturnRefundStatus.COMPLETED)
-                    .inspectedAt(inspectedAt)
-                    .refundedAt(refundedAt)
-                    .createdAt(createdAt)
-                    .modifiedAt(modifiedAt)
-                    .build();
+                .id(100L)
+                .orderId(1L)
+                .returnSlipNumber("RTN20260409001")
+                .inspectionStatus(ReturnInspectionStatus.PASSED)
+                .refundStatus(ReturnRefundStatus.COMPLETED)
+                .inspectedAt(inspectedAt)
+                .refundedAt(refundedAt)
+                .createdAt(createdAt)
+                .modifiedAt(modifiedAt)
+                .build();
 
             // when
             ReturnTracker tracker = ReturnTracker.from(state);
@@ -168,7 +168,7 @@ class ReturnTrackerTest {
 
             // when & then
             assertThatThrownBy(() -> tracker.passInspection(now))
-                    .isInstanceOf(InvalidReturnInspectionStatusTransitionException.class);
+                .isInstanceOf(InvalidReturnInspectionStatusTransitionException.class);
         }
 
         @Test
@@ -181,7 +181,7 @@ class ReturnTrackerTest {
 
             // when & then
             assertThatThrownBy(() -> tracker.failInspection(now))
-                    .isInstanceOf(InvalidReturnInspectionStatusTransitionException.class);
+                .isInstanceOf(InvalidReturnInspectionStatusTransitionException.class);
         }
 
         @Test
@@ -193,7 +193,7 @@ class ReturnTrackerTest {
 
             // when & then
             assertThatThrownBy(tracker::holdInspection)
-                    .isInstanceOf(InvalidReturnInspectionStatusTransitionException.class);
+                .isInstanceOf(InvalidReturnInspectionStatusTransitionException.class);
         }
     }
 
@@ -257,7 +257,7 @@ class ReturnTrackerTest {
 
             // when & then
             assertThatThrownBy(() -> tracker.completeRefund(now))
-                    .isInstanceOf(InvalidReturnRefundStatusTransitionException.class);
+                .isInstanceOf(InvalidReturnRefundStatusTransitionException.class);
         }
 
         @Test
@@ -270,7 +270,7 @@ class ReturnTrackerTest {
 
             // when & then
             assertThatThrownBy(tracker::failRefund)
-                    .isInstanceOf(InvalidReturnRefundStatusTransitionException.class);
+                .isInstanceOf(InvalidReturnRefundStatusTransitionException.class);
         }
 
         @Test
@@ -283,7 +283,7 @@ class ReturnTrackerTest {
 
             // when & then
             assertThatThrownBy(tracker::retryRefund)
-                    .isInstanceOf(InvalidReturnRefundStatusTransitionException.class);
+                .isInstanceOf(InvalidReturnRefundStatusTransitionException.class);
         }
 
         @Test
@@ -294,7 +294,7 @@ class ReturnTrackerTest {
 
             // when & then
             assertThatThrownBy(tracker::retryRefund)
-                    .isInstanceOf(InvalidReturnRefundStatusTransitionException.class);
+                .isInstanceOf(InvalidReturnRefundStatusTransitionException.class);
         }
     }
 
@@ -433,10 +433,10 @@ class ReturnTrackerTest {
 
     private ReturnTracker createPendingTracker() {
         return ReturnTracker.from(
-                ReturnTrackerCreateState.builder()
-                        .orderId(1L)
-                        .returnSlipNumber("RTN20260409001")
-                        .build()
+            ReturnTrackerCreateState.builder()
+                .orderId(1L)
+                .returnSlipNumber("RTN20260409001")
+                .build()
         );
     }
 }

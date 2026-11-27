@@ -14,16 +14,16 @@ public interface ShippingTrackerJpaRepository extends JpaRepository<ShippingTrac
     Optional<ShippingTrackerJpaEntity> findByOrderId(Long orderId);
 
     @Query("""
-            SELECT s FROM ShippingTrackerJpaEntity s
-            WHERE s.pollingActive = true
-              AND s.id > :lastId
-            ORDER BY s.id ASC
-            """)
+        SELECT s FROM ShippingTrackerJpaEntity s
+        WHERE s.pollingActive = true
+          AND s.id > :lastId
+        ORDER BY s.id ASC
+        """)
     List<ShippingTrackerJpaEntity> findPollingActiveChunk(@Param("lastId") Long lastId, Pageable pageable);
 
     @Query("""
-            SELECT MIN(s.createdAt) FROM ShippingTrackerJpaEntity s
-            WHERE s.pollingActive = true
-            """)
+        SELECT MIN(s.createdAt) FROM ShippingTrackerJpaEntity s
+        WHERE s.pollingActive = true
+        """)
     Optional<LocalDateTime> findMinCreatedAtOfPollingActive();
 }

@@ -10,6 +10,6 @@ public interface FulfillmentGoodsReadModelJpaRepository extends JpaRepository<Fu
     Optional<FulfillmentGoodsReadModelJpaEntity> findByCustomerGoodsCode(String customerGoodsCode);
 
     Optional<FulfillmentGoodsReadModelJpaEntity> findByCustomerGoodsCodeAndStatus(
-            String customerGoodsCode, EntityStatus status
+        String customerGoodsCode, EntityStatus status
     );
 }

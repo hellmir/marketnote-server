@@ -8,11 +8,11 @@ import com.personal.marketnote.community.port.out.result.product.ProductInfoResu
 import java.util.Map;
 
 public record ReviewProductInfoResult(
-        String name,
-        String brandName,
-        ReviewProductPricePolicyResult pricePolicy,
-        GetFileResult catalogImage,
-        Long unitAmount
+    String name,
+    String brandName,
+    ReviewProductPricePolicyResult pricePolicy,
+    GetFileResult catalogImage,
+    Long unitAmount
 ) {
     public static ReviewProductInfoResult from(ProductInfoResult productInfo) {
         if (FormatValidator.hasNoValue(productInfo)) {
@@ -20,11 +20,11 @@ public record ReviewProductInfoResult(
         }
 
         return new ReviewProductInfoResult(
-                productInfo.name(),
-                productInfo.brandName(),
-                ReviewProductPricePolicyResult.from(productInfo.pricePolicy()),
-                productInfo.catalogImage(),
-                null
+            productInfo.name(),
+            productInfo.brandName(),
+            ReviewProductPricePolicyResult.from(productInfo.pricePolicy()),
+            productInfo.catalogImage(),
+            null
         );
     }
 
@@ -34,11 +34,11 @@ public record ReviewProductInfoResult(
         }
 
         return new ReviewProductInfoResult(
-                productInfo.name(),
-                productInfo.brandName(),
-                ReviewProductPricePolicyResult.from(productInfo.pricePolicy()),
-                productInfo.catalogImage(),
-                unitAmount
+            productInfo.name(),
+            productInfo.brandName(),
+            ReviewProductPricePolicyResult.from(productInfo.pricePolicy()),
+            productInfo.catalogImage(),
+            unitAmount
         );
     }
 
@@ -47,7 +47,7 @@ public record ReviewProductInfoResult(
     }
 
     public static ReviewProductInfoResult resolveForReview(
-            Review review, Map<Long, ReviewProductInfoResult> productInfoByPricePolicyId
+        Review review, Map<Long, ReviewProductInfoResult> productInfoByPricePolicyId
     ) {
         Long pricePolicyId = review.getPricePolicyId();
         if (FormatValidator.hasNoValue(pricePolicyId)) {

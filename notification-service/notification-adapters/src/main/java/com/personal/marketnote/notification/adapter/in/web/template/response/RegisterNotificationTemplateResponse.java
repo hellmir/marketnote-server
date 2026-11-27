@@ -4,8 +4,8 @@ import com.personal.marketnote.notification.port.in.result.template.RegisterNoti
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record RegisterNotificationTemplateResponse(
-        @Schema(description = "생성된 템플릿 ID", example = "1")
-        Long id
+    @Schema(description = "생성된 템플릿 ID", example = "1")
+    Long id
 ) {
 
     public static RegisterNotificationTemplateResponse from(RegisterNotificationTemplateResult result) {

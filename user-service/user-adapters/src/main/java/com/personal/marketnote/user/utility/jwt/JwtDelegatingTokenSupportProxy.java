@@ -34,7 +34,7 @@ public class JwtDelegatingTokenSupportProxy extends DelegatingTokenSupport {
     private final FindUserPort findUserPort;
 
     public JwtDelegatingTokenSupportProxy(
-            List<TokenProcessor> processors, JwtUtil jwtUtil, FindUserPort findUserPort
+        List<TokenProcessor> processors, JwtUtil jwtUtil, FindUserPort findUserPort
     ) {
         super(processors);
         this.jwtUtil = jwtUtil;
@@ -46,32 +46,32 @@ public class JwtDelegatingTokenSupportProxy extends DelegatingTokenSupport {
         GrantedTokenInfo tokenFrom3rdParty = super.grantToken(code, redirectUri, authVendor);
         String oidcId = tokenFrom3rdParty.id();
         User user = findUserPort.findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId)
-                .orElse(User.from(
-                        UserCreateState.builder()
-                                .authVendor(authVendor)
-                                .oidcId(oidcId)
-                                .guest(true)
-                                .build()
-                ));
+            .orElse(User.from(
+                UserCreateState.builder()
+                    .authVendor(authVendor)
+                    .oidcId(oidcId)
+                    .guest(true)
+                    .build()
+            ));
 
         if (!user.isGuest() && !user.isActive()) {
             throw new UserNotActiveException(FIRST_ERROR_CODE, authVendor);
         }
 
         OAuth2UserInfo userInfo = user.isGuest()
-                ? retrieveUserInfo(tokenFrom3rdParty.accessToken())
-                : null;
+            ? retrieveUserInfo(tokenFrom3rdParty.accessToken())
+            : null;
 
         String accessToken = jwtUtil.generateAccessToken(oidcId, user.getId(), List.of(user.getRole().getId()), authVendor);
         String refreshToken = jwtUtil.generateRefreshToken(oidcId, List.of(user.getRole().getId()), authVendor);
 
         return GrantedTokenInfo.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .authVendor(authVendor)
-                .id(oidcId)
-                .userInfo(userInfo)
-                .build();
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .authVendor(authVendor)
+            .id(oidcId)
+            .userInfo(userInfo)
+            .build();
     }
 
     @Override
@@ -80,10 +80,10 @@ public class JwtDelegatingTokenSupportProxy extends DelegatingTokenSupport {
             TokenClaims claims = jwtUtil.parseAccessToken(accessToken);
 
             return OAuth2AuthenticationInfo.builder()
-                    .id(claims.getId())
-                    .authVendor(claims.getAuthVendor())
-                    .userId(claims.getUserId())
-                    .build();
+                .id(claims.getId())
+                .authVendor(claims.getAuthVendor())
+                .userId(claims.getUserId())
+                .build();
         } catch (JwtException | IllegalArgumentException | ClassCastException ignored) {
             // 자체 발급 JWT 가 아닌 경우 (외부 OAuth2 토큰 등) — 상위 DelegatingTokenSupport 에 fallback
             return super.authenticate(accessToken);
@@ -97,11 +97,11 @@ public class JwtDelegatingTokenSupportProxy extends DelegatingTokenSupport {
             String id = tokenClaims.getId();
 
             return GrantedTokenInfo.builder()
-                    .accessToken(jwtUtil.generateAccessToken(id, FormatConverter.parseToLong(id), tokenClaims.getRoleIds(), tokenClaims.getAuthVendor()))
-                    .refreshToken(jwtUtil.generateRefreshToken(tokenClaims.getId(), tokenClaims.getRoleIds(), tokenClaims.getAuthVendor()))
-                    .id(tokenClaims.getId())
-                    .authVendor(tokenClaims.getAuthVendor())
-                    .build();
+                .accessToken(jwtUtil.generateAccessToken(id, FormatConverter.parseToLong(id), tokenClaims.getRoleIds(), tokenClaims.getAuthVendor()))
+                .refreshToken(jwtUtil.generateRefreshToken(tokenClaims.getId(), tokenClaims.getRoleIds(), tokenClaims.getAuthVendor()))
+                .id(tokenClaims.getId())
+                .authVendor(tokenClaims.getAuthVendor())
+                .build();
         } catch (JwtException e) {
             throw new InvalidRefreshTokenException("Invalid refresh token", e);
         }

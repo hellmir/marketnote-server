@@ -41,19 +41,19 @@ public class AdminOutboxController {
     @PreAuthorize(ADMIN_POINTCUT)
     @QueryOutboxFailedEventsApiDocs
     public ResponseEntity<BaseResponse<List<OutboxEventResponse>>> queryFailedEvents(
-            @RequestParam(value = "topic", required = false) String topic,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @RequestParam(value = "topic", required = false) String topic,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         List<OutboxEventResponse> events = outboxQueryService.queryFailedEvents(topic);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        events,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "Outbox FAILED 이벤트 조회 완료"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                events,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "Outbox FAILED 이벤트 조회 완료"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -61,20 +61,20 @@ public class AdminOutboxController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ResolveOutboxApiDocs
     public ResponseEntity<BaseResponse<ResolveOutboxResponse>> resolveFailedEvent(
-            @Valid @RequestBody ResolveOutboxRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody ResolveOutboxRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         OutboxResolveCommand command = new OutboxResolveCommand(request.id(), request.action(), request.reason());
         OutboxResolveResult result = outboxResolveService.resolve(command);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        ResolveOutboxResponse.from(command, result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "Outbox FAILED 이벤트 해결 완료"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                ResolveOutboxResponse.from(command, result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "Outbox FAILED 이벤트 해결 완료"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -82,18 +82,18 @@ public class AdminOutboxController {
     @PreAuthorize(ADMIN_POINTCUT)
     @QueryOutboxFailedSummaryApiDocs
     public ResponseEntity<BaseResponse<List<OutboxTopicSummaryResponse>>> queryFailedSummary(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         List<OutboxTopicSummaryResponse> summaries = outboxQueryService.queryFailedSummary();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        summaries,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "Outbox FAILED 토픽별 요약 조회 완료"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                summaries,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "Outbox FAILED 토픽별 요약 조회 완료"
+            ),
+            HttpStatus.OK
         );
     }
 }

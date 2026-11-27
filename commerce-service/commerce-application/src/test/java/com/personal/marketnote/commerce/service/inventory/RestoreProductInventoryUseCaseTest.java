@@ -68,8 +68,8 @@ class RestoreProductInventoryUseCaseTest {
         @DisplayName("서로 다른 가격 정책의 복수 주문 상품 재고 복구 시 각각의 재고가 올바르게 증가한다")
         void restore_differentPolicies_restoresEachInventory() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 5)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 5)
             );
             Inventory inventory1 = buildInventory(1L, 100L, 8);
             Inventory inventory2 = buildInventory(2L, 200L, 15);
@@ -87,8 +87,8 @@ class RestoreProductInventoryUseCaseTest {
         @DisplayName("동일 가격 정책의 복수 주문 상품 재고 복구 시 수량을 합산하여 복구한다")
         void restore_samePolicyMultipleProducts_sumsQuantityAndRestores() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(100L, 3)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(100L, 3)
             );
             Inventory inventory = buildInventory(1L, 100L, 5);
 
@@ -105,14 +105,14 @@ class RestoreProductInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void restore_success_passesCorrectPricePolicyIdsToLock() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 3)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 3)
             );
 
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventory(1L, 100L, 8),
-                    buildInventory(2L, 200L, 17)
+                buildInventory(1L, 100L, 8),
+                buildInventory(2L, 200L, 17)
             ));
 
             restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소");
@@ -135,7 +135,7 @@ class RestoreProductInventoryUseCaseTest {
             restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소");
 
             InOrder inOrder = inOrder(findInventoryPort, updateInventoryPort,
-                    saveInventoryRestorationHistoryPort, saveCacheStockPort);
+                saveInventoryRestorationHistoryPort, saveCacheStockPort);
             inOrder.verify(findInventoryPort).findByPricePolicyIds(any());
             inOrder.verify(updateInventoryPort).update(any());
             inOrder.verify(saveInventoryRestorationHistoryPort).save(any(InventoryRestorationHistories.class));
@@ -167,7 +167,7 @@ class RestoreProductInventoryUseCaseTest {
             when(findInventoryPort.findByPricePolicyIds(any())).thenThrow(exception);
 
             assertThatThrownBy(() -> restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소"))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -181,7 +181,7 @@ class RestoreProductInventoryUseCaseTest {
             doThrow(new RuntimeException("update fail")).when(updateInventoryPort).update(any());
 
             assertThatThrownBy(() -> restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소"))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verifyNoInteractions(saveInventoryRestorationHistoryPort);
             verifyNoInteractions(saveCacheStockPort);
@@ -203,10 +203,10 @@ class RestoreProductInventoryUseCaseTest {
             restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소");
 
             ArgumentCaptor<InventoryRestorationHistories> captor =
-                    ArgumentCaptor.forClass(InventoryRestorationHistories.class);
+                ArgumentCaptor.forClass(InventoryRestorationHistories.class);
             verify(saveInventoryRestorationHistoryPort).save(captor.capture());
             List<InventoryRestorationHistory> histories =
-                    captor.getValue().getInventoryRestorationHistories();
+                captor.getValue().getInventoryRestorationHistories();
 
             assertThat(histories).hasSize(1);
             assertThat(histories.get(0).getProductId()).isEqualTo(1L);
@@ -225,10 +225,10 @@ class RestoreProductInventoryUseCaseTest {
             restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소");
 
             ArgumentCaptor<InventoryRestorationHistories> captor =
-                    ArgumentCaptor.forClass(InventoryRestorationHistories.class);
+                ArgumentCaptor.forClass(InventoryRestorationHistories.class);
             verify(saveInventoryRestorationHistoryPort).save(captor.capture());
             List<InventoryRestorationHistory> histories =
-                    captor.getValue().getInventoryRestorationHistories();
+                captor.getValue().getInventoryRestorationHistories();
 
             assertThat(histories).hasSize(1);
             assertThat(histories.get(0).getStockValue()).isEqualTo(3);
@@ -246,10 +246,10 @@ class RestoreProductInventoryUseCaseTest {
             restoreProductInventoryService.restore(orderProducts, 99L, "주문 취소");
 
             ArgumentCaptor<InventoryRestorationHistories> captor =
-                    ArgumentCaptor.forClass(InventoryRestorationHistories.class);
+                ArgumentCaptor.forClass(InventoryRestorationHistories.class);
             verify(saveInventoryRestorationHistoryPort).save(captor.capture());
             List<InventoryRestorationHistory> histories =
-                    captor.getValue().getInventoryRestorationHistories();
+                captor.getValue().getInventoryRestorationHistories();
 
             assertThat(histories).hasSize(1);
             assertThat(histories.get(0).getOrderId()).isEqualTo(99L);
@@ -268,10 +268,10 @@ class RestoreProductInventoryUseCaseTest {
             restoreProductInventoryService.restore(orderProducts, 1L, reason);
 
             ArgumentCaptor<InventoryRestorationHistories> captor =
-                    ArgumentCaptor.forClass(InventoryRestorationHistories.class);
+                ArgumentCaptor.forClass(InventoryRestorationHistories.class);
             verify(saveInventoryRestorationHistoryPort).save(captor.capture());
             List<InventoryRestorationHistory> histories =
-                    captor.getValue().getInventoryRestorationHistories();
+                captor.getValue().getInventoryRestorationHistories();
 
             assertThat(histories).hasSize(1);
             assertThat(histories.get(0).getReason()).isEqualTo(reason);
@@ -281,8 +281,8 @@ class RestoreProductInventoryUseCaseTest {
         @DisplayName("복수 가격 정책 재고 복구 시 각 가격 정책별 복구 이력을 저장한다")
         void restore_multipleProducts_savesHistoryForEachPolicy() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 5)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 5)
             );
             Inventory inventory1 = buildInventory(1L, 100L, 8);
             Inventory inventory2 = buildInventory(2L, 200L, 15);
@@ -293,24 +293,24 @@ class RestoreProductInventoryUseCaseTest {
             restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소");
 
             ArgumentCaptor<InventoryRestorationHistories> captor =
-                    ArgumentCaptor.forClass(InventoryRestorationHistories.class);
+                ArgumentCaptor.forClass(InventoryRestorationHistories.class);
             verify(saveInventoryRestorationHistoryPort).save(captor.capture());
             List<InventoryRestorationHistory> histories =
-                    captor.getValue().getInventoryRestorationHistories();
+                captor.getValue().getInventoryRestorationHistories();
 
             assertThat(histories).hasSize(2);
             assertThat(histories).extracting(InventoryRestorationHistory::getPricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L);
+                .containsExactlyInAnyOrder(100L, 200L);
             assertThat(histories).extracting(InventoryRestorationHistory::getStockValue)
-                    .containsExactlyInAnyOrder(2, 5);
+                .containsExactlyInAnyOrder(2, 5);
         }
 
         @Test
         @DisplayName("동일 가격 정책의 복수 주문 상품 복구 시 합산된 수량으로 이력을 저장한다")
         void restore_samePolicyMultipleProducts_savesHistoryWithSummedQuantity() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(100L, 3)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(100L, 3)
             );
             Inventory inventory = buildInventory(1L, 100L, 5);
 
@@ -320,10 +320,10 @@ class RestoreProductInventoryUseCaseTest {
             restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소");
 
             ArgumentCaptor<InventoryRestorationHistories> captor =
-                    ArgumentCaptor.forClass(InventoryRestorationHistories.class);
+                ArgumentCaptor.forClass(InventoryRestorationHistories.class);
             verify(saveInventoryRestorationHistoryPort).save(captor.capture());
             List<InventoryRestorationHistory> histories =
-                    captor.getValue().getInventoryRestorationHistories();
+                captor.getValue().getInventoryRestorationHistories();
 
             assertThat(histories).hasSize(1);
             assertThat(histories.get(0).getStockValue()).isEqualTo(5);
@@ -338,10 +338,10 @@ class RestoreProductInventoryUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             doThrow(new RuntimeException("history save fail"))
-                    .when(saveInventoryRestorationHistoryPort).save(any());
+                .when(saveInventoryRestorationHistoryPort).save(any());
 
             assertThatThrownBy(() -> restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소"))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verify(updateInventoryPort).update(any());
             verifyNoInteractions(saveCacheStockPort);
@@ -359,7 +359,7 @@ class RestoreProductInventoryUseCaseTest {
             doThrow(exception).when(saveInventoryRestorationHistoryPort).save(any());
 
             assertThatThrownBy(() -> restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소"))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -371,10 +371,10 @@ class RestoreProductInventoryUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             doThrow(new DuplicateInventoryRestorationException(1L))
-                    .when(saveInventoryRestorationHistoryPort).save(any());
+                .when(saveInventoryRestorationHistoryPort).save(any());
 
             assertThatThrownBy(() -> restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소"))
-                    .isInstanceOf(DuplicateInventoryRestorationException.class);
+                .isInstanceOf(DuplicateInventoryRestorationException.class);
         }
 
         @Test
@@ -383,13 +383,13 @@ class RestoreProductInventoryUseCaseTest {
             List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
 
             doThrow(new InventoryLockAcquisitionException(100L))
-                    .when(inventoryLockPort).executeWithLock(any(), any());
+                .when(inventoryLockPort).executeWithLock(any(), any());
 
             assertThatThrownBy(() -> restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소"))
-                    .isInstanceOf(InventoryLockAcquisitionException.class);
+                .isInstanceOf(InventoryLockAcquisitionException.class);
 
             verifyNoInteractions(findInventoryPort, updateInventoryPort,
-                    saveInventoryRestorationHistoryPort, saveCacheStockPort, publishInventoryEventPort);
+                saveInventoryRestorationHistoryPort, saveCacheStockPort, publishInventoryEventPort);
         }
     }
 
@@ -403,12 +403,12 @@ class RestoreProductInventoryUseCaseTest {
 
     private OrderProduct buildOrderProduct(Long pricePolicyId, int quantity) {
         return OrderProduct.from(
-                OrderProductSnapshotState.builder()
-                        .pricePolicyId(pricePolicyId)
-                        .quantity(quantity)
-                        .unitAmount(0L)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .pricePolicyId(pricePolicyId)
+                .quantity(quantity)
+                .unitAmount(0L)
+                .accumulatedPoint(0L)
+                .build()
         );
     }
 
@@ -436,7 +436,7 @@ class RestoreProductInventoryUseCaseTest {
             restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소");
 
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    100L, 1L, 10, InventoryChangeAction.UPDATED
+                100L, 1L, 10, InventoryChangeAction.UPDATED
             );
         }
 
@@ -444,8 +444,8 @@ class RestoreProductInventoryUseCaseTest {
         @DisplayName("서로 다른 가격 정책의 복수 주문 상품 재고 복구 시 각각 UPDATED 이벤트를 발행한다")
         void restore_differentPolicies_publishesUpdatedEventForEach() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 5)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 5)
             );
             Inventory inventory1 = buildInventory(1L, 100L, 8);
             Inventory inventory2 = buildInventory(2L, 200L, 15);
@@ -456,10 +456,10 @@ class RestoreProductInventoryUseCaseTest {
             restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소");
 
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    100L, 1L, 10, InventoryChangeAction.UPDATED
+                100L, 1L, 10, InventoryChangeAction.UPDATED
             );
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    200L, 2L, 20, InventoryChangeAction.UPDATED
+                200L, 2L, 20, InventoryChangeAction.UPDATED
             );
         }
 

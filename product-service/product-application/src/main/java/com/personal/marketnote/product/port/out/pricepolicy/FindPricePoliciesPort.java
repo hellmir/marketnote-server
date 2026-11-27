@@ -45,13 +45,13 @@ public interface FindPricePoliciesPort {
     long countActivePricePoliciesByCategoryId(Long categoryId, ProductSearchTarget searchTarget, String searchKeyword);
 
     List<PricePolicy> findPricePoliciesByOffset(
-            List<Long> pricePolicyIds,
-            int page,
-            int pageSize,
-            Sort.Direction sortDirection,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword,
-            Long categoryId
+        List<Long> pricePolicyIds,
+        int page,
+        int pageSize,
+        Sort.Direction sortDirection,
+        ProductSortProperty sortProperty,
+        ProductSearchTarget searchTarget,
+        String searchKeyword,
+        Long categoryId
     );
 }

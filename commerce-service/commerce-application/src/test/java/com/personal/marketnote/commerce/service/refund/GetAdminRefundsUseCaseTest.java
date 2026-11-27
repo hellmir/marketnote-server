@@ -40,8 +40,8 @@ class GetAdminRefundsUseCaseTest {
             // given
             Long orderId = 1L;
             List<Refund> refunds = List.of(
-                    createRefund(100L, 1L, orderId, RefundType.FULL_REFUND, 50000L),
-                    createRefund(101L, 1L, orderId, RefundType.PARTIAL_REFUND, 20000L)
+                createRefund(100L, 1L, orderId, RefundType.FULL_REFUND, 50000L),
+                createRefund(101L, 1L, orderId, RefundType.PARTIAL_REFUND, 20000L)
             );
             when(findRefundPort.findByOrderId(orderId)).thenReturn(refunds);
 
@@ -115,29 +115,29 @@ class GetAdminRefundsUseCaseTest {
 
     private Refund createRefund(Long id, Long paymentId, Long orderId, RefundType type, Long amount) {
         return Refund.from(RefundSnapshotState.builder()
-                .id(id)
-                .paymentId(paymentId)
-                .orderId(orderId)
-                .refundType(type)
-                .refundAmount(amount)
-                .cancelReason("테스트")
-                .processedBy("SYSTEM")
-                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .build());
+            .id(id)
+            .paymentId(paymentId)
+            .orderId(orderId)
+            .refundType(type)
+            .refundAmount(amount)
+            .cancelReason("테스트")
+            .processedBy("SYSTEM")
+            .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .build());
     }
 
     private Refund createRefundWithPgInfo(Long id, Long paymentId, Long orderId) {
         return Refund.from(RefundSnapshotState.builder()
-                .id(id)
-                .paymentId(paymentId)
-                .orderId(orderId)
-                .refundType(RefundType.FULL_REFUND)
-                .refundAmount(50000L)
-                .cancelReason("고객 요청")
-                .processedBy("SYSTEM")
-                .pgRefundKey("tno_123")
-                .pgRawResponse("{\"res_cd\":\"0000\"}")
-                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .build());
+            .id(id)
+            .paymentId(paymentId)
+            .orderId(orderId)
+            .refundType(RefundType.FULL_REFUND)
+            .refundAmount(50000L)
+            .cancelReason("고객 요청")
+            .processedBy("SYSTEM")
+            .pgRefundKey("tno_123")
+            .pgRawResponse("{\"res_cd\":\"0000\"}")
+            .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .build());
     }
 }

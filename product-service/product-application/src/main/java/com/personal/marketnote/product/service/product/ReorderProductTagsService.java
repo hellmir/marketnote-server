@@ -48,9 +48,9 @@ public class ReorderProductTagsService implements ReorderProductTagsUseCase {
         updateProductTagPort.updateOrderNums(productId, tagIdToOrderNumMap);
 
         publishProductEventPort.publishProductTagChangedEvent(
-                productId,
-                toReorderedSnapshots(product.getProductTags(), tagIdToOrderNumMap),
-                ProductTagChangedEvent.Action.REORDERED
+            productId,
+            toReorderedSnapshots(product.getProductTags(), tagIdToOrderNumMap),
+            ProductTagChangedEvent.Action.REORDERED
         );
     }
 
@@ -81,8 +81,8 @@ public class ReorderProductTagsService implements ReorderProductTagsUseCase {
 
     private void validateTagsBelongToProduct(Product product, ReorderProductTagsCommand command) {
         Set<Long> existingTagIds = product.getProductTags().stream()
-                .map(ProductTag::getId)
-                .collect(Collectors.toSet());
+            .map(ProductTag::getId)
+            .collect(Collectors.toSet());
 
         for (ReorderProductTagsCommand.TagOrderItem item : command.tagOrders()) {
             if (!existingTagIds.contains(item.tagId())) {
@@ -101,17 +101,17 @@ public class ReorderProductTagsService implements ReorderProductTagsUseCase {
     }
 
     private List<ProductTagChangedEvent.ProductTagSnapshot> toReorderedSnapshots(
-            List<ProductTag> existingTags, Map<Long, Long> tagIdToOrderNumMap
+        List<ProductTag> existingTags, Map<Long, Long> tagIdToOrderNumMap
     ) {
         if (FormatValidator.hasNoValue(existingTags)) {
             return List.of();
         }
         return existingTags.stream()
-                .map(tag -> new ProductTagChangedEvent.ProductTagSnapshot(
-                        tag.getId(),
-                        tag.getName(),
-                        tagIdToOrderNumMap.getOrDefault(tag.getId(), tag.getOrderNum())
-                ))
-                .toList();
+            .map(tag -> new ProductTagChangedEvent.ProductTagSnapshot(
+                tag.getId(),
+                tag.getName(),
+                tagIdToOrderNumMap.getOrDefault(tag.getId(), tag.getOrderNum())
+            ))
+            .toList();
     }
 }

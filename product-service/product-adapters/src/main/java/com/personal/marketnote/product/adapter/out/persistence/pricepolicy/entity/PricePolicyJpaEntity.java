@@ -53,13 +53,13 @@ public class PricePolicyJpaEntity extends BaseOrderedGeneralEntity {
 
     public static PricePolicyJpaEntity from(ProductJpaEntity productRef, PricePolicy pricePolicy) {
         return PricePolicyJpaEntity.builder()
-                .productJpaEntity(productRef)
-                .price(pricePolicy.getPrice().getValue())
-                .discountPrice(pricePolicy.getDiscountPrice().getValue())
-                .discountRate(pricePolicy.getDiscountRate().getValue())
-                .accumulatedPoint(pricePolicy.getAccumulatedPoint().getValue())
-                .accumulationRate(pricePolicy.getAccumulationRate().getValue())
-                .build();
+            .productJpaEntity(productRef)
+            .price(pricePolicy.getPrice().getValue())
+            .discountPrice(pricePolicy.getDiscountPrice().getValue())
+            .discountRate(pricePolicy.getDiscountRate().getValue())
+            .accumulatedPoint(pricePolicy.getAccumulatedPoint().getValue())
+            .accumulationRate(pricePolicy.getAccumulationRate().getValue())
+            .build();
     }
 
     public void deactivate() {

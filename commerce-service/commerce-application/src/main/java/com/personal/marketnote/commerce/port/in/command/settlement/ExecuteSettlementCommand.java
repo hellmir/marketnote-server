@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record ExecuteSettlementCommand(
-        Integer year,
-        Integer month
+    Integer year,
+    Integer month
 ) {
 }

@@ -23,33 +23,33 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
         BrandTalkCoupon coupon = deserializeCoupon(entity.getCouponJson(), objectMapper);
 
         return AligoBrandTalkTemplate.from(
-                AligoBrandTalkTemplateSnapshotState.builder()
-                        .id(entity.getId())
-                        .senderKey(entity.getSenderKey())
-                        .templateCode(entity.getTemplateCode())
-                        .templateName(entity.getTemplateName())
-                        .templateType(entity.getTemplateType())
-                        .templateContent(entity.getTemplateContent())
-                        .adult(entity.isAdult())
-                        .imageUrl(entity.getImageUrl())
-                        .imageLink(entity.getImageLink())
-                        .buttons(buttons)
-                        .coupon(coupon)
-                        .templateHeader(entity.getTemplateHeader())
-                        .mainWideItem(deserializeWideItem(entity.getMainWideItemJson(), objectMapper))
-                        .subWideItems(deserializeWideItems(entity.getSubWideItemsJson(), objectMapper))
-                        .carouselHeader(entity.getCarouselHeader())
-                        .carouselItems(deserializeCarouselItems(entity.getCarouselItemsJson(), objectMapper))
-                        .carouselCommerces(deserializeCarouselCommerces(entity.getCarouselCommercesJson(), objectMapper))
-                        .carouselTail(deserializeCarouselTail(entity.getCarouselTailJson(), objectMapper))
-                        .videoUrl(entity.getVideoUrl())
-                        .videoThumbnailUrl(entity.getVideoThumbnailUrl())
-                        .commerceInfo(deserializeCommerceInfo(entity.getCommerceInfoJson(), objectMapper))
-                        .templateStatus(entity.getTemplateStatus())
-                        .status(entity.getStatus())
-                        .createdAt(entity.getCreatedAt())
-                        .modifiedAt(entity.getModifiedAt())
-                        .build()
+            AligoBrandTalkTemplateSnapshotState.builder()
+                .id(entity.getId())
+                .senderKey(entity.getSenderKey())
+                .templateCode(entity.getTemplateCode())
+                .templateName(entity.getTemplateName())
+                .templateType(entity.getTemplateType())
+                .templateContent(entity.getTemplateContent())
+                .adult(entity.isAdult())
+                .imageUrl(entity.getImageUrl())
+                .imageLink(entity.getImageLink())
+                .buttons(buttons)
+                .coupon(coupon)
+                .templateHeader(entity.getTemplateHeader())
+                .mainWideItem(deserializeWideItem(entity.getMainWideItemJson(), objectMapper))
+                .subWideItems(deserializeWideItems(entity.getSubWideItemsJson(), objectMapper))
+                .carouselHeader(entity.getCarouselHeader())
+                .carouselItems(deserializeCarouselItems(entity.getCarouselItemsJson(), objectMapper))
+                .carouselCommerces(deserializeCarouselCommerces(entity.getCarouselCommercesJson(), objectMapper))
+                .carouselTail(deserializeCarouselTail(entity.getCarouselTailJson(), objectMapper))
+                .videoUrl(entity.getVideoUrl())
+                .videoThumbnailUrl(entity.getVideoThumbnailUrl())
+                .commerceInfo(deserializeCommerceInfo(entity.getCommerceInfoJson(), objectMapper))
+                .templateStatus(entity.getTemplateStatus())
+                .status(entity.getStatus())
+                .createdAt(entity.getCreatedAt())
+                .modifiedAt(entity.getModifiedAt())
+                .build()
         );
     }
 
@@ -61,8 +61,8 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             List<ButtonDto> dtos = objectMapper.readValue(buttonsJson, new TypeReference<>() {
             });
             return dtos.stream()
-                    .map(dto -> BrandTalkButton.from(mapToButtonSnapshotState(dto)))
-                    .toList();
+                .map(dto -> BrandTalkButton.from(mapToButtonSnapshotState(dto)))
+                .toList();
         } catch (JsonProcessingException e) {
             log.warn("fallback applied: 브랜드메시지 버튼 역직렬화 실패, 빈 리스트 반환", e);
             return List.of();
@@ -84,24 +84,24 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
 
     private static BrandTalkButtonSnapshotState mapToButtonSnapshotState(ButtonDto dto) {
         return BrandTalkButtonSnapshotState.builder()
-                .name(dto.name())
-                .linkType(AligoTemplateButtonLinkType.from(dto.linkType()))
-                .linkM(dto.linkM())
-                .linkP(dto.linkP())
-                .linkI(dto.linkI())
-                .linkA(dto.linkA())
-                .build();
+            .name(dto.name())
+            .linkType(AligoTemplateButtonLinkType.from(dto.linkType()))
+            .linkM(dto.linkM())
+            .linkP(dto.linkP())
+            .linkI(dto.linkI())
+            .linkA(dto.linkA())
+            .build();
     }
 
     private static BrandTalkCouponSnapshotState mapToCouponSnapshotState(CouponDto dto) {
         return BrandTalkCouponSnapshotState.builder()
-                .title(dto.title())
-                .description(dto.description())
-                .linkM(dto.linkM())
-                .linkP(dto.linkP())
-                .linkI(dto.linkI())
-                .linkA(dto.linkA())
-                .build();
+            .title(dto.title())
+            .description(dto.description())
+            .linkM(dto.linkM())
+            .linkP(dto.linkP())
+            .linkI(dto.linkI())
+            .linkA(dto.linkA())
+            .build();
     }
 
     private static BrandTalkWideItem deserializeWideItem(String json, ObjectMapper objectMapper) {
@@ -125,8 +125,8 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             List<WideItemDto> dtos = objectMapper.readValue(json, new TypeReference<>() {
             });
             return dtos.stream()
-                    .map(AligoBrandTalkTemplateJpaEntityToDomainMapper::mapToWideItem)
-                    .toList();
+                .map(AligoBrandTalkTemplateJpaEntityToDomainMapper::mapToWideItem)
+                .toList();
         } catch (JsonProcessingException e) {
             log.warn("fallback applied: 브랜드메시지 와이드 아이템 리스트 역직렬화 실패, 빈 리스트 반환", e);
             return List.of();
@@ -135,14 +135,14 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
 
     private static BrandTalkWideItem mapToWideItem(WideItemDto dto) {
         return BrandTalkWideItem.from(
-                BrandTalkWideItemSnapshotState.builder()
-                        .title(dto.title())
-                        .imageUrl(dto.imageUrl())
-                        .linkM(dto.linkM())
-                        .linkP(dto.linkP())
-                        .linkI(dto.linkI())
-                        .linkA(dto.linkA())
-                        .build()
+            BrandTalkWideItemSnapshotState.builder()
+                .title(dto.title())
+                .imageUrl(dto.imageUrl())
+                .linkM(dto.linkM())
+                .linkP(dto.linkP())
+                .linkI(dto.linkI())
+                .linkA(dto.linkA())
+                .build()
         );
     }
 
@@ -154,8 +154,8 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             List<CarouselItemDto> dtos = objectMapper.readValue(json, new TypeReference<>() {
             });
             return dtos.stream()
-                    .map(AligoBrandTalkTemplateJpaEntityToDomainMapper::mapToCarouselItem)
-                    .toList();
+                .map(AligoBrandTalkTemplateJpaEntityToDomainMapper::mapToCarouselItem)
+                .toList();
         } catch (JsonProcessingException e) {
             log.warn("fallback applied: 브랜드메시지 캐러셀 아이템 역직렬화 실패, 빈 리스트 반환", e);
             return List.of();
@@ -164,21 +164,21 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
 
     private static BrandTalkCarouselItem mapToCarouselItem(CarouselItemDto dto) {
         List<BrandTalkButtonSnapshotState> buttons = FormatValidator.hasValue(dto.buttons())
-                ? dto.buttons().stream()
-                .map(AligoBrandTalkTemplateJpaEntityToDomainMapper::mapToButtonSnapshotState)
-                .toList()
-                : List.of();
+            ? dto.buttons().stream()
+            .map(AligoBrandTalkTemplateJpaEntityToDomainMapper::mapToButtonSnapshotState)
+            .toList()
+            : List.of();
         BrandTalkCouponSnapshotState coupon = FormatValidator.hasValue(dto.coupon())
-                ? mapToCouponSnapshotState(dto.coupon())
-                : null;
+            ? mapToCouponSnapshotState(dto.coupon())
+            : null;
         return BrandTalkCarouselItem.from(
-                BrandTalkCarouselItemSnapshotState.builder()
-                        .header(dto.header())
-                        .content(dto.content())
-                        .imageUrl(dto.imageUrl())
-                        .buttons(buttons)
-                        .coupon(coupon)
-                        .build()
+            BrandTalkCarouselItemSnapshotState.builder()
+                .header(dto.header())
+                .content(dto.content())
+                .imageUrl(dto.imageUrl())
+                .buttons(buttons)
+                .coupon(coupon)
+                .build()
         );
     }
 
@@ -190,8 +190,8 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             List<CarouselCommerceDto> dtos = objectMapper.readValue(json, new TypeReference<>() {
             });
             return dtos.stream()
-                    .map(AligoBrandTalkTemplateJpaEntityToDomainMapper::mapToCarouselCommerce)
-                    .toList();
+                .map(AligoBrandTalkTemplateJpaEntityToDomainMapper::mapToCarouselCommerce)
+                .toList();
         } catch (JsonProcessingException e) {
             log.warn("fallback applied: 브랜드메시지 캐러셀 커머스 역직렬화 실패, 빈 리스트 반환", e);
             return List.of();
@@ -200,13 +200,13 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
 
     private static BrandTalkCarouselCommerce mapToCarouselCommerce(CarouselCommerceDto dto) {
         return BrandTalkCarouselCommerce.from(
-                BrandTalkCarouselCommerceSnapshotState.builder()
-                        .title(dto.title())
-                        .regularPrice(dto.regularPrice())
-                        .discountPrice(dto.discountPrice())
-                        .discountRate(dto.discountRate())
-                        .discountFixed(dto.discountFixed())
-                        .build()
+            BrandTalkCarouselCommerceSnapshotState.builder()
+                .title(dto.title())
+                .regularPrice(dto.regularPrice())
+                .discountPrice(dto.discountPrice())
+                .discountRate(dto.discountRate())
+                .discountFixed(dto.discountFixed())
+                .build()
         );
     }
 
@@ -233,14 +233,14 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
     }
 
     private record CarouselItemDto(
-            String header, String content, String imageUrl,
-            List<ButtonDto> buttons, CouponDto coupon
+        String header, String content, String imageUrl,
+        List<ButtonDto> buttons, CouponDto coupon
     ) {
     }
 
     private record CarouselCommerceDto(
-            String title, String regularPrice, String discountPrice,
-            String discountRate, String discountFixed
+        String title, String regularPrice, String discountPrice,
+        String discountRate, String discountFixed
     ) {
     }
 
@@ -248,8 +248,8 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
     }
 
     private record CommerceInfoDto(
-            String title, String regularPrice, String discountPrice,
-            String discountRate, String discountFixed
+        String title, String regularPrice, String discountPrice,
+        String discountRate, String discountFixed
     ) {
     }
 
@@ -260,13 +260,13 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
         try {
             CommerceInfoDto dto = objectMapper.readValue(json, CommerceInfoDto.class);
             return BrandTalkCommerceInfo.from(
-                    BrandTalkCommerceInfoSnapshotState.builder()
-                            .title(dto.title())
-                            .regularPrice(dto.regularPrice())
-                            .discountPrice(dto.discountPrice())
-                            .discountRate(dto.discountRate())
-                            .discountFixed(dto.discountFixed())
-                            .build()
+                BrandTalkCommerceInfoSnapshotState.builder()
+                    .title(dto.title())
+                    .regularPrice(dto.regularPrice())
+                    .discountPrice(dto.discountPrice())
+                    .discountRate(dto.discountRate())
+                    .discountFixed(dto.discountFixed())
+                    .build()
             );
         } catch (JsonProcessingException e) {
             log.warn("fallback applied: 브랜드메시지 커머스 정보 역직렬화 실패, null 반환", e);

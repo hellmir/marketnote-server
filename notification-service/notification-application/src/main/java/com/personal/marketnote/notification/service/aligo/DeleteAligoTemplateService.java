@@ -23,10 +23,10 @@ public class DeleteAligoTemplateService implements DeleteAligoTemplateUseCase {
     @Override
     public void deleteTemplate(DeleteAligoTemplateCommand command) {
         AligoTemplate template = findAligoTemplatePort.findByTemplateCode(command.templateCode())
-                .orElseThrow(() -> {
-                    log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", command.templateCode());
-                    return new AligoTemplateNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", command.templateCode());
+                return new AligoTemplateNotFoundException();
+            });
         template.validateDeletion();
 
         deleteAligoTemplateExternalPort.deleteTemplate(command.senderKey(), command.templateCode());

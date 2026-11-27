@@ -7,12 +7,12 @@ public interface SendGifticonCouponPort {
 
     @Builder
     record SendCouponResult(
-            boolean success,
-            String orderNo,
-            String pinNo,
-            String couponImageUrl,
-            String errorCode,
-            String errorMessage
+        boolean success,
+        String orderNo,
+        String pinNo,
+        String couponImageUrl,
+        String errorCode,
+        String errorMessage
     ) {
     }
 }

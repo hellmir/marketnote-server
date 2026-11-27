@@ -144,11 +144,11 @@ public interface GetUserUseCase {
      * @Description 활성화/비활성화/비노출 회원 목록을 조회합니다.
      */
     Page<GetUserResult> getAllStatusUsers(
-            int pageSize,
-            int pageNumber,
-            Sort.Direction sortDirection,
-            UserSortProperty sortProperty,
-            UserSearchTarget searchTarget,
-            String searchKeyword
+        int pageSize,
+        int pageNumber,
+        Sort.Direction sortDirection,
+        UserSortProperty sortProperty,
+        UserSearchTarget searchTarget,
+        String searchKeyword
     );
 }

@@ -27,25 +27,25 @@ public class SettlementEventKafkaProducer implements PublishSettlementEventPort 
 
     @Override
     public void publishSettlementExecutedEvent(
-            Long settlementId, Long sellerId,
-            Long totalAllocatedAmount, Long shippingFee,
-            Long pgFeeAmount, Long platformFeeAmount,
-            Long sellerPayoutAmount
+        Long settlementId, Long sellerId,
+        Long totalAllocatedAmount, Long shippingFee,
+        Long pgFeeAmount, Long platformFeeAmount,
+        Long sellerPayoutAmount
     ) {
         SettlementExecutedEvent payload = new SettlementExecutedEvent(
-                settlementId, sellerId, totalAllocatedAmount, shippingFee,
-                pgFeeAmount, platformFeeAmount, sellerPayoutAmount
+            settlementId, sellerId, totalAllocatedAmount, shippingFee,
+            pgFeeAmount, platformFeeAmount, sellerPayoutAmount
         );
         String topic = KafkaTopicConstants.SETTLEMENT_EXECUTED;
         EventEnvelope<SettlementExecutedEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         String partitionKey = settlementId.toString();
         String payloadJson = serializePayload(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(), topic, partitionKey,
-                envelope.eventType(), SOURCE, payloadJson, clock
+            envelope.eventId(), topic, partitionKey,
+            envelope.eventType(), SOURCE, payloadJson, clock
         );
         saveOutboxEventPort.save(outboxEvent);
         log.info("Outbox 이벤트 저장. topic={}, settlementId={}, eventId={}", topic, settlementId, envelope.eventId());

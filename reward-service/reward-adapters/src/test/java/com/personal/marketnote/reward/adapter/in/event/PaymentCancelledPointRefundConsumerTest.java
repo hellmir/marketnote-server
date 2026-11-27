@@ -45,12 +45,12 @@ class PaymentCancelledPointRefundConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId,
                                                                  Long pointAmount, boolean isFullCancel) {
         PaymentCancelledEvent event = new PaymentCancelledEvent(
-                orderId, "order-key-1", buyerId, 50000L, 80000L, pointAmount,
-                isFullCancel, 0L, null, List.of(), null, null
+            orderId, "order-key-1", buyerId, 50000L, 80000L, pointAmount,
+            isFullCancel, 0L, null, List.of(), null, null
         );
         EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.payment.cancelled", "commerce-service",
-                LocalDateTime.of(2026, 3, 6, 10, 0), event
+            "test-event-id", "commerce.payment.cancelled", "commerce-service",
+            LocalDateTime.of(2026, 3, 6, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.payment.cancelled", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -167,15 +167,15 @@ class PaymentCancelledPointRefundConsumerTest {
     void handlePaymentCancelledEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         PaymentCancelledEvent event = new PaymentCancelledEvent(
-                1L, "order-key-1", 100L, 50000L, 80000L, 1000L,
-                true, 0L, null, List.of(), null, null
+            1L, "order-key-1", 100L, 50000L, 80000L, 1000L,
+            true, 0L, null, List.of(), null, null
         );
         EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 3, 6, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 3, 6, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.cancelled", 0, 0L, "1", envelope
+            "commerce.payment.cancelled", 0, 0L, "1", envelope
         );
 
         // when
@@ -247,7 +247,7 @@ class PaymentCancelledPointRefundConsumerTest {
     void handlePaymentCancelledEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.cancelled", 0, 0L, "1", null
+            "commerce.payment.cancelled", 0, 0L, "1", null
         );
 
         // when
@@ -264,7 +264,7 @@ class PaymentCancelledPointRefundConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, true);
         doThrow(new DuplicateUserPointHistoryException())
-                .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+            .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // when
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
@@ -280,12 +280,12 @@ class PaymentCancelledPointRefundConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, true);
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+            .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handlePaymentCancelledEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 실패");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 실패");
 
         verify(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
         verify(acknowledgment, never()).acknowledge();
@@ -297,17 +297,17 @@ class PaymentCancelledPointRefundConsumerTest {
     void handlePaymentCancelledEvent_unexpectedException_propagatesForRetry() {
         // given
         EventEnvelope<String> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.payment.cancelled", "commerce-service",
-                LocalDateTime.of(2026, 3, 6, 10, 0), "invalid-payload"
+            "test-event-id", "commerce.payment.cancelled", "commerce-service",
+            LocalDateTime.of(2026, 3, 6, 10, 0), "invalid-payload"
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.cancelled", 0, 0L, "1",
-                (EventEnvelope<?>) (EventEnvelope) envelope
+            "commerce.payment.cancelled", 0, 0L, "1",
+            (EventEnvelope<?>) (EventEnvelope) envelope
         );
 
         // when & then
         assertThatThrownBy(() -> consumer.handlePaymentCancelledEvent(record, acknowledgment))
-                .isInstanceOf(Exception.class);
+            .isInstanceOf(Exception.class);
 
         verify(acknowledgment, never()).acknowledge();
     }

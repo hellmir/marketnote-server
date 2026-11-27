@@ -9,13 +9,13 @@ import lombok.Builder;
 
 @Builder
 public record FulfillmentVendorCommunicationHistoryCommand(
-        FulfillmentVendorCommunicationTargetType targetType,
-        String targetId,
-        FulfillmentVendorName vendorName,
-        FulfillmentVendorCommunicationType communicationType,
-        FulfillmentVendorCommunicationSenderType sender,
-        String exception,
-        String payload,
-        JsonNode payloadJson
+    FulfillmentVendorCommunicationTargetType targetType,
+    String targetId,
+    FulfillmentVendorName vendorName,
+    FulfillmentVendorCommunicationType communicationType,
+    FulfillmentVendorCommunicationSenderType sender,
+    String exception,
+    String payload,
+    JsonNode payloadJson
 ) {
 }

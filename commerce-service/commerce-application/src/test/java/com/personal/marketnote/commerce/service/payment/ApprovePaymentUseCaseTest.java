@@ -55,7 +55,7 @@ class ApprovePaymentUseCaseTest {
             when(txHelper.prepareExecution(command)).thenReturn(context);
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
             when(txHelper.commitSuccess(eq(context), eq(vendorResult), any(Installment.class)))
-                    .thenReturn(expectedResult);
+                .thenReturn(expectedResult);
 
             ApprovePaymentResult result = approvePaymentService.approve(command);
 
@@ -78,17 +78,17 @@ class ApprovePaymentUseCaseTest {
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
             PaymentApprovalContext context = createContext();
             PaymentApprovalVendorResult vendorResult = PaymentApprovalVendorResult.builder()
-                    .success(false)
-                    .resultCode("8001")
-                    .resultMessage("카드 인증 실패")
-                    .rawResponse("{}")
-                    .build();
+                .success(false)
+                .resultCode("8001")
+                .resultMessage("카드 인증 실패")
+                .rawResponse("{}")
+                .build();
 
             when(txHelper.prepareExecution(command)).thenReturn(context);
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(PaymentApprovalException.class);
+                .isInstanceOf(PaymentApprovalException.class);
 
             verify(txHelper).commitFailure(context, "8001", "카드 인증 실패");
             verify(txHelper, never()).commitSuccess(any(), any(), any());
@@ -105,7 +105,7 @@ class ApprovePaymentUseCaseTest {
             when(paymentVendorPort.approvePayment(any())).thenThrow(new RuntimeException("Connection timeout"));
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(PaymentApprovalException.class);
+                .isInstanceOf(PaymentApprovalException.class);
 
             verify(txHelper).commitUnknown(eq(context), eq("UNKNOWN"), contains("Connection timeout"));
             verify(txHelper, never()).commitSuccess(any(), any(), any());
@@ -120,10 +120,10 @@ class ApprovePaymentUseCaseTest {
 
             when(txHelper.prepareExecution(command)).thenReturn(context);
             when(paymentVendorPort.approvePayment(any()))
-                    .thenThrow(new PaymentVendorConnectionFailedException("KCP 연결 실패: Connection refused"));
+                .thenThrow(new PaymentVendorConnectionFailedException("KCP 연결 실패: Connection refused"));
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(PaymentApprovalException.class);
+                .isInstanceOf(PaymentApprovalException.class);
 
             verify(txHelper).commitFailure(eq(context), eq("CONN_FAIL"), contains("KCP 연결 실패"));
             verify(txHelper, never()).commitSuccess(any(), any(), any());
@@ -143,7 +143,7 @@ class ApprovePaymentUseCaseTest {
             when(txHelper.prepareExecution(command)).thenThrow(new PaymentNotFoundException());
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(PaymentNotFoundException.class);
+                .isInstanceOf(PaymentNotFoundException.class);
 
             verify(paymentVendorPort, never()).approvePayment(any());
         }
@@ -156,7 +156,7 @@ class ApprovePaymentUseCaseTest {
             when(txHelper.prepareExecution(command)).thenThrow(new PaymentEventNotFoundException());
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(PaymentEventNotFoundException.class);
+                .isInstanceOf(PaymentEventNotFoundException.class);
 
             verify(paymentVendorPort, never()).approvePayment(any());
         }
@@ -169,7 +169,7 @@ class ApprovePaymentUseCaseTest {
             when(txHelper.prepareExecution(command)).thenThrow(new UnauthorizedOrderAccessException());
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
 
             verify(paymentVendorPort, never()).approvePayment(any());
         }
@@ -182,7 +182,7 @@ class ApprovePaymentUseCaseTest {
             when(txHelper.prepareExecution(command)).thenThrow(new PaymentAmountMismatchException(60000L, 50000L));
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(PaymentAmountMismatchException.class);
+                .isInstanceOf(PaymentAmountMismatchException.class);
 
             verify(paymentVendorPort, never()).approvePayment(any());
         }
@@ -203,7 +203,7 @@ class ApprovePaymentUseCaseTest {
             when(txHelper.prepareExecution(command)).thenReturn(context);
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
             when(txHelper.commitSuccess(eq(context), eq(vendorResult), any(Installment.class)))
-                    .thenReturn(expectedResult);
+                .thenReturn(expectedResult);
 
             approvePaymentService.approve(command);
 
@@ -223,7 +223,7 @@ class ApprovePaymentUseCaseTest {
             when(paymentVendorPort.approvePayment(any())).thenThrow(new RuntimeException("Timeout"));
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(PaymentApprovalException.class);
+                .isInstanceOf(PaymentApprovalException.class);
 
             InOrder inOrder = inOrder(txHelper, paymentVendorPort);
             inOrder.verify(txHelper).prepareExecution(command);
@@ -239,10 +239,10 @@ class ApprovePaymentUseCaseTest {
 
             when(txHelper.prepareExecution(command)).thenReturn(context);
             when(paymentVendorPort.approvePayment(any()))
-                    .thenThrow(new PaymentVendorConnectionFailedException("Connection refused"));
+                .thenThrow(new PaymentVendorConnectionFailedException("Connection refused"));
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(PaymentApprovalException.class);
+                .isInstanceOf(PaymentApprovalException.class);
 
             InOrder inOrder = inOrder(txHelper, paymentVendorPort);
             inOrder.verify(txHelper).prepareExecution(command);
@@ -259,65 +259,65 @@ class ApprovePaymentUseCaseTest {
 
     private Payment createPayment(Long orderId, UUID orderKey, Long amount) {
         PaymentCreateState state = PaymentCreateState.builder()
-                .orderId(orderId)
-                .orderKey(orderKey)
-                .paymentAmount(amount)
-                .build();
+            .orderId(orderId)
+            .orderKey(orderKey)
+            .paymentAmount(amount)
+            .build();
         return Payment.from(state);
     }
 
     private PspPaymentEvent createReadyEvent(Long id, String orderKey, Long amount) {
         PspPaymentEventSnapshotState state = PspPaymentEventSnapshotState.builder()
-                .id(id)
-                .orderId(1L)
-                .orderKey(orderKey)
-                .pgCompanyKey("NHN_KCP")
-                .pgShopKey("T0000")
-                .poStatus(PaymentEventStatus.READY)
-                .method("PACA")
-                .amount(amount)
-                .build();
+            .id(id)
+            .orderId(1L)
+            .orderKey(orderKey)
+            .pgCompanyKey("NHN_KCP")
+            .pgShopKey("T0000")
+            .poStatus(PaymentEventStatus.READY)
+            .method("PACA")
+            .amount(amount)
+            .build();
         return PspPaymentEvent.from(state);
     }
 
     private ApprovePaymentCommand createApproveCommand(String orderKey) {
         return ApprovePaymentCommand.builder()
-                .buyerId(BUYER_ID)
-                .orderKey(orderKey)
-                .encData("enc_data_test")
-                .encInfo("enc_info_test")
-                .payType("PACA")
-                .build();
+            .buyerId(BUYER_ID)
+            .orderKey(orderKey)
+            .encData("enc_data_test")
+            .encInfo("enc_info_test")
+            .payType("PACA")
+            .build();
     }
 
     private ApprovePaymentResult createExpectedResult(String tno) {
         return ApprovePaymentResult.builder()
-                .orderId(1L)
-                .orderKey(ORDER_KEY_STR)
-                .pgPaymentKey(tno)
-                .amount(50000L)
-                .resultCode("0000")
-                .resultMessage("승인 성공")
-                .payMethod("PACA")
-                .build();
+            .orderId(1L)
+            .orderKey(ORDER_KEY_STR)
+            .pgPaymentKey(tno)
+            .amount(50000L)
+            .resultCode("0000")
+            .resultMessage("승인 성공")
+            .payMethod("PACA")
+            .build();
     }
 
     private PaymentApprovalVendorResult createSuccessVendorResult(String transactionId, String amount) {
         return PaymentApprovalVendorResult.builder()
-                .success(true)
-                .resultCode("0000")
-                .resultMessage("승인 성공")
-                .transactionId(transactionId)
-                .amount(amount)
-                .payMethod("PACA")
-                .cardCode("CCLG")
-                .cardName("신한카드")
-                .cardNumber("1234-****-****-5678")
-                .approvalNumber("12345678")
-                .approvalTime("20260210153000")
-                .installmentMonths("00")
-                .partialCancelYn("Y")
-                .rawResponse("{\"res_cd\":\"0000\"}")
-                .build();
+            .success(true)
+            .resultCode("0000")
+            .resultMessage("승인 성공")
+            .transactionId(transactionId)
+            .amount(amount)
+            .payMethod("PACA")
+            .cardCode("CCLG")
+            .cardName("신한카드")
+            .cardNumber("1234-****-****-5678")
+            .approvalNumber("12345678")
+            .approvalTime("20260210153000")
+            .installmentMonths("00")
+            .partialCancelYn("Y")
+            .rawResponse("{\"res_cd\":\"0000\"}")
+            .build();
     }
 }

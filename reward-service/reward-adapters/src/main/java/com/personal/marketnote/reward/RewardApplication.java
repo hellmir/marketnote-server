@@ -6,7 +6,7 @@ import org.springframework.core.Ordered;
 import org.springframework.retry.annotation.EnableRetry;
 
 @SpringBootApplication(scanBasePackages = {
-        "com.personal.marketnote"
+    "com.personal.marketnote"
 })
 @EnableRetry(order = Ordered.LOWEST_PRECEDENCE - 1)
 public class RewardApplication {

@@ -36,18 +36,18 @@ public class AligoApiPropertiesValidator {
         Set<String> sensitivePaths = properties.getApi().getSensitivePaths();
         if (FormatValidator.hasNoValue(sensitivePaths)) {
             throw new InvalidAligoApiPropertiesException(
-                    "aligo.api.sensitive-paths 값이 설정되지 않았습니다. "
-                            + "raw body 노출 방지를 위해 마스킹 대상 경로를 1개 이상 등록해야 합니다."
+                "aligo.api.sensitive-paths 값이 설정되지 않았습니다. "
+                    + "raw body 노출 방지를 위해 마스킹 대상 경로를 1개 이상 등록해야 합니다."
             );
         }
 
         Set<String> definedPaths = collectDefinedPaths(properties.getApi());
         Set<String> orphans = sensitivePaths.stream()
-                .filter(path -> !definedPaths.contains(path))
-                .collect(Collectors.toUnmodifiableSet());
+            .filter(path -> !definedPaths.contains(path))
+            .collect(Collectors.toUnmodifiableSet());
         if (!orphans.isEmpty()) {
             throw new InvalidAligoApiPropertiesException(
-                    "aligo.api.sensitive-paths에 등록된 경로가 Api 정의와 불일치합니다. orphans=" + orphans
+                "aligo.api.sensitive-paths에 등록된 경로가 Api 정의와 불일치합니다. orphans=" + orphans
             );
         }
 
@@ -56,11 +56,11 @@ public class AligoApiPropertiesValidator {
 
     private Set<String> collectDefinedPaths(AligoProperties.Api api) {
         return Arrays.stream(AligoProperties.Api.class.getDeclaredFields())
-                .filter(field -> field.getType() == String.class)
-                .filter(field -> field.getName().endsWith("Path"))
-                .map(field -> readStringField(api, field))
-                .filter(FormatValidator::hasValue)
-                .collect(Collectors.toUnmodifiableSet());
+            .filter(field -> field.getType() == String.class)
+            .filter(field -> field.getName().endsWith("Path"))
+            .map(field -> readStringField(api, field))
+            .filter(FormatValidator::hasValue)
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     private String readStringField(AligoProperties.Api api, Field field) {
@@ -69,7 +69,7 @@ public class AligoApiPropertiesValidator {
             return (String) field.get(api);
         } catch (IllegalAccessException iae) {
             throw new InvalidAligoApiPropertiesException(
-                    "Api 필드 reflection 접근 실패: " + field.getName(), iae
+                "Api 필드 reflection 접근 실패: " + field.getName(), iae
             );
         }
     }

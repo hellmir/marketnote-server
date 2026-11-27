@@ -26,10 +26,10 @@ public class ProductOptionPricePolicyJpaEntity {
 
     public static ProductOptionPricePolicyJpaEntity of(ProductOptionJpaEntity optionRef, PricePolicyJpaEntity pricePolicyRef) {
         return ProductOptionPricePolicyJpaEntity.builder()
-                .id(new ProductOptionPricePolicyId(optionRef.getId(), pricePolicyRef.getId()))
-                .productOptionJpaEntity(optionRef)
-                .pricePolicyJpaEntity(pricePolicyRef)
-                .build();
+            .id(new ProductOptionPricePolicyId(optionRef.getId(), pricePolicyRef.getId()))
+            .productOptionJpaEntity(optionRef)
+            .pricePolicyJpaEntity(pricePolicyRef)
+            .build();
     }
 }
 

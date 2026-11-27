@@ -49,11 +49,11 @@ class PaymentPersistenceAdapterTest {
 
     private Payment createAndSavePayment(Long orderId, UUID orderKey, Long paymentAmount) {
         Payment payment = Payment.from(
-                PaymentCreateState.builder()
-                        .orderId(orderId)
-                        .orderKey(orderKey)
-                        .paymentAmount(paymentAmount)
-                        .build()
+            PaymentCreateState.builder()
+                .orderId(orderId)
+                .orderKey(orderKey)
+                .paymentAmount(paymentAmount)
+                .build()
         );
         return adapter.save(payment);
     }
@@ -150,16 +150,16 @@ class PaymentPersistenceAdapterTest {
             entityManager.clear();
 
             Payment toUpdate = Payment.from(
-                    PaymentSnapshotState.builder()
-                            .id(saved.getId())
-                            .orderId(1L)
-                            .orderKey(ORDER_KEY)
-                            .pgPaymentKey("PG_KEY_001")
-                            .paymentAmount(50000L)
-                            .successYn(true)
-                            .refundedYn(false)
-                            .refundAmount(0L)
-                            .build()
+                PaymentSnapshotState.builder()
+                    .id(saved.getId())
+                    .orderId(1L)
+                    .orderKey(ORDER_KEY)
+                    .pgPaymentKey("PG_KEY_001")
+                    .paymentAmount(50000L)
+                    .successYn(true)
+                    .refundedYn(false)
+                    .refundAmount(0L)
+                    .build()
             );
 
             // when
@@ -182,16 +182,16 @@ class PaymentPersistenceAdapterTest {
             entityManager.clear();
 
             Payment toUpdate = Payment.from(
-                    PaymentSnapshotState.builder()
-                            .id(saved.getId())
-                            .orderId(1L)
-                            .orderKey(ORDER_KEY)
-                            .pgPaymentKey("PG_KEY_001")
-                            .paymentAmount(50000L)
-                            .successYn(true)
-                            .refundedYn(true)
-                            .refundAmount(50000L)
-                            .build()
+                PaymentSnapshotState.builder()
+                    .id(saved.getId())
+                    .orderId(1L)
+                    .orderKey(ORDER_KEY)
+                    .pgPaymentKey("PG_KEY_001")
+                    .paymentAmount(50000L)
+                    .successYn(true)
+                    .refundedYn(true)
+                    .refundAmount(50000L)
+                    .build()
             );
 
             // when
@@ -210,20 +210,20 @@ class PaymentPersistenceAdapterTest {
         void shouldThrowWhenPaymentNotFound() {
             // given
             Payment nonExistent = Payment.from(
-                    PaymentSnapshotState.builder()
-                            .id(999L)
-                            .orderId(999L)
-                            .orderKey(UUID.randomUUID())
-                            .paymentAmount(50000L)
-                            .successYn(false)
-                            .refundedYn(false)
-                            .refundAmount(0L)
-                            .build()
+                PaymentSnapshotState.builder()
+                    .id(999L)
+                    .orderId(999L)
+                    .orderKey(UUID.randomUUID())
+                    .paymentAmount(50000L)
+                    .successYn(false)
+                    .refundedYn(false)
+                    .refundAmount(0L)
+                    .build()
             );
 
             // when & then
             assertThatThrownBy(() -> adapter.update(nonExistent))
-                    .isInstanceOf(DomainNotFoundException.class);
+                .isInstanceOf(DomainNotFoundException.class);
         }
     }
 }

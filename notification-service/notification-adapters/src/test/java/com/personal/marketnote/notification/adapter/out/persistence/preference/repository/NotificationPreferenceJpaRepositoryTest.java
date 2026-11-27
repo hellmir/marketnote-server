@@ -55,7 +55,7 @@ class NotificationPreferenceJpaRepositoryTest {
 
         // when
         Optional<NotificationPreferenceJpaEntity> result = repository.findByUserIdAndNotificationTypeAndStatus(
-                100L, NotificationType.ORDER_PAYMENT_COMPLETED, EntityStatus.ACTIVE
+            100L, NotificationType.ORDER_PAYMENT_COMPLETED, EntityStatus.ACTIVE
         );
 
         // then
@@ -72,9 +72,9 @@ class NotificationPreferenceJpaRepositoryTest {
 
         // when
         List<NotificationPreferenceJpaEntity> result = repository
-                .findByUserIdInAndNotificationTypeAndStatusAndEnabledTrue(
-                        List.of(100L, 200L, 300L), NotificationType.ORDER_PAYMENT_COMPLETED, EntityStatus.ACTIVE
-                );
+            .findByUserIdInAndNotificationTypeAndStatusAndEnabledTrue(
+                List.of(100L, 200L, 300L), NotificationType.ORDER_PAYMENT_COMPLETED, EntityStatus.ACTIVE
+            );
 
         // then
         assertThat(result).hasSize(2);
@@ -101,14 +101,14 @@ class NotificationPreferenceJpaRepositoryTest {
         // given
         persistPreference(100L, NotificationType.ORDER_PAYMENT_COMPLETED, true);
         entityManager.createNativeQuery(
-                "UPDATE notification_preference SET consented_at = :oldDate WHERE user_id = 100"
+            "UPDATE notification_preference SET consented_at = :oldDate WHERE user_id = 100"
         ).setParameter("oldDate", LocalDateTime.of(2025, 1, 1, 0, 0)).executeUpdate();
         entityManager.flush();
         entityManager.clear();
 
         // when
         List<NotificationPreferenceJpaEntity> result = repository.findConsentReminderDue(
-                LocalDateTime.of(2026, 1, 1, 0, 0), EntityStatus.ACTIVE
+            LocalDateTime.of(2026, 1, 1, 0, 0), EntityStatus.ACTIVE
         );
 
         // then
@@ -117,11 +117,11 @@ class NotificationPreferenceJpaRepositoryTest {
 
     private void persistPreference(Long userId, NotificationType type, boolean enabled) {
         NotificationPreference domain = NotificationPreference.from(
-                NotificationPreferenceCreateState.builder()
-                        .userId(userId)
-                        .notificationType(type)
-                        .enabled(enabled)
-                        .build()
+            NotificationPreferenceCreateState.builder()
+                .userId(userId)
+                .notificationType(type)
+                .enabled(enabled)
+                .build()
         );
         NotificationPreferenceJpaEntity entity = NotificationPreferenceJpaEntity.from(domain);
         repository.saveAndFlush(entity);

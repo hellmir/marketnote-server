@@ -59,22 +59,22 @@ public class FulfillmentGoodsController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RegisterFulfillmentGoodsApiDocs
     public ResponseEntity<BaseResponse<RegisterFulfillmentGoodsResponse>> registerGoods(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @Valid @RequestBody List<RegisterFulfillmentGoodsRequest> request
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @Valid @RequestBody List<RegisterFulfillmentGoodsRequest> request
     ) {
         RegisterFulfillmentGoodsResult result = registerFulfillmentGoodsUseCase.registerGoods(
-                FulfillmentGoodsRequestToCommandMapper.mapToRegisterCommand(customerCode, accessToken, request)
+            FulfillmentGoodsRequestToCommandMapper.mapToRegisterCommand(customerCode, accessToken, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterFulfillmentGoodsResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 상품 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterFulfillmentGoodsResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 상품 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -91,21 +91,21 @@ public class FulfillmentGoodsController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentGoodsApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentGoodsResponse>> getGoods(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken
     ) {
         GetFulfillmentGoodsResult result = getFulfillmentGoodsUseCase.getGoods(
-                FulfillmentGoodsRequestToCommandMapper.mapToGoodsCommand(customerCode, accessToken)
+            FulfillmentGoodsRequestToCommandMapper.mapToGoodsCommand(customerCode, accessToken)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentGoodsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 상품 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentGoodsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 상품 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -123,22 +123,22 @@ public class FulfillmentGoodsController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentGoodsDetailApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentGoodsResponse>> getGoodsDetail(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @RequestParam("godNm") String godNm
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @RequestParam("godNm") String godNm
     ) {
         GetFulfillmentGoodsResult result = getFulfillmentGoodsDetailUseCase.getGoodsDetail(
-                FulfillmentGoodsRequestToCommandMapper.mapToGoodsDetailCommand(customerCode, accessToken, godNm)
+            FulfillmentGoodsRequestToCommandMapper.mapToGoodsDetailCommand(customerCode, accessToken, godNm)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentGoodsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 단일 상품 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentGoodsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 단일 상품 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -155,21 +155,21 @@ public class FulfillmentGoodsController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentGoodsElementsApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentGoodsElementsResponse>> getGoodsElements(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken
     ) {
         GetFulfillmentGoodsElementsResult result = getFulfillmentGoodsElementsUseCase.getGoodsElements(
-                FulfillmentGoodsRequestToCommandMapper.mapToGoodsElementsCommand(customerCode, accessToken)
+            FulfillmentGoodsRequestToCommandMapper.mapToGoodsElementsCommand(customerCode, accessToken)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentGoodsElementsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 모음상품 상세 정보 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentGoodsElementsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 모음상품 상세 정보 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -187,22 +187,22 @@ public class FulfillmentGoodsController {
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdateFulfillmentGoodsApiDocs
     public ResponseEntity<BaseResponse<UpdateFulfillmentGoodsResponse>> updateGoods(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @Valid @RequestBody List<UpdateFulfillmentGoodsRequest> request
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @Valid @RequestBody List<UpdateFulfillmentGoodsRequest> request
     ) {
         UpdateFulfillmentGoodsResult result = updateFulfillmentGoodsUseCase.updateGoods(
-                FulfillmentGoodsRequestToCommandMapper.mapToUpdateCommand(customerCode, accessToken, request)
+            FulfillmentGoodsRequestToCommandMapper.mapToUpdateCommand(customerCode, accessToken, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        UpdateFulfillmentGoodsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 상품 수정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                UpdateFulfillmentGoodsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 상품 수정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

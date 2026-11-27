@@ -48,16 +48,16 @@ class InternalShippingAddressControllerTest {
         void getsShippingAddressWithUserIdFromQuery() {
             // given
             GetShippingAddressResult result = new GetShippingAddressResult(
-                    10L, ShippingAddressType.HOME, "서울시 강남구", "101호",
-                    null, "집", "홍길동", "01012345678",
-                    DeliveryRequestType.LEAVE_AT_DOOR, null, true,
-                    ShippingAddressRegionType.NORMAL
+                10L, ShippingAddressType.HOME, "서울시 강남구", "101호",
+                null, "집", "홍길동", "01012345678",
+                DeliveryRequestType.LEAVE_AT_DOOR, null, true,
+                ShippingAddressRegionType.NORMAL
             );
             when(getShippingAddressUseCase.getShippingAddress(10L, 100L)).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetShippingAddressResponse>> response = controller.getShippingAddress(
-                    10L, 100L
+                10L, 100L
             );
 
             // then
@@ -86,7 +86,7 @@ class InternalShippingAddressControllerTest {
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<UpdateDeliveryRequestCommand> captor =
-                    ArgumentCaptor.forClass(UpdateDeliveryRequestCommand.class);
+                ArgumentCaptor.forClass(UpdateDeliveryRequestCommand.class);
             verify(updateDeliveryRequestUseCase).updateDeliveryRequest(eq(10L), eq(100L), captor.capture());
             UpdateDeliveryRequestCommand captured = captor.getValue();
             assertThat(captured.deliveryRequestType()).isEqualTo(DeliveryRequestType.CUSTOM);

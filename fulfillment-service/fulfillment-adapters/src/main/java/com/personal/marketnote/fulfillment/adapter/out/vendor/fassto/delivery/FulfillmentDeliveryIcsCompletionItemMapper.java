@@ -17,8 +17,8 @@ public class FulfillmentDeliveryIcsCompletionItemMapper {
 
     public static FulfillmentDeliveryIcsCompletionItemMapper of(List<String> ordNoList) {
         FulfillmentDeliveryIcsCompletionItemMapper mapper = FulfillmentDeliveryIcsCompletionItemMapper.builder()
-                .ordNoList(ordNoList)
-                .build();
+            .ordNoList(ordNoList)
+            .build();
         mapper.validate();
         return mapper;
     }

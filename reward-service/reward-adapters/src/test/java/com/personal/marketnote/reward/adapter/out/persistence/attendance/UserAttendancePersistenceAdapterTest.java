@@ -42,14 +42,14 @@ class UserAttendancePersistenceAdapterTest {
 
     private UserAttendanceJpaEntity buildEntity(Long id) {
         UserAttendance restored = UserAttendance.from(UserAttendanceSnapshotState.builder()
-                .id(id)
-                .userId(USER_ID)
-                .year(Year.Y2026)
-                .month(Month.APRIL)
-                .createdAt(LocalDateTime.now())
-                .totalRewardQuantity(RewardQuantity.of(500L))
-                .histories(null)
-                .build());
+            .id(id)
+            .userId(USER_ID)
+            .year(Year.Y2026)
+            .month(Month.APRIL)
+            .createdAt(LocalDateTime.now())
+            .totalRewardQuantity(RewardQuantity.of(500L))
+            .histories(null)
+            .build());
         return UserAttendanceJpaEntity.from(restored);
     }
 
@@ -60,7 +60,7 @@ class UserAttendancePersistenceAdapterTest {
         UserAttendanceJpaEntity entity = buildEntity(1L);
         given(repository.save(any(UserAttendanceJpaEntity.class))).willReturn(entity);
         given(historyRepository.findAllByUserAttendanceIdOrderByAttendedAtAsc(anyLong()))
-                .willReturn(List.of());
+            .willReturn(List.of());
 
         // when
         UserAttendance result = adapter.save(entity.toDomain(List.of()));
@@ -76,9 +76,9 @@ class UserAttendancePersistenceAdapterTest {
     void shouldFindByUserIdAndYearAndMonth() {
         // given
         given(repository.findTop1ByUserIdAndYearAndMonth(USER_ID, Year.Y2026, Month.APRIL))
-                .willReturn(Optional.of(buildEntity(1L)));
+            .willReturn(Optional.of(buildEntity(1L)));
         given(historyRepository.findAllByUserAttendanceIdOrderByAttendedAtAsc(anyLong()))
-                .willReturn(List.of());
+            .willReturn(List.of());
 
         // when
         Optional<UserAttendance> result = adapter.findByUserIdAndYearAndMonth(USER_ID, Year.Y2026, Month.APRIL);
@@ -93,7 +93,7 @@ class UserAttendancePersistenceAdapterTest {
     @DisplayName("findByUserIdAndYearAndMonth는 결과가 없으면 빈 Optional을 반환한다")
     void shouldReturnEmptyWhenNoEntity() {
         given(repository.findTop1ByUserIdAndYearAndMonth(USER_ID, Year.Y2026, Month.APRIL))
-                .willReturn(Optional.empty());
+            .willReturn(Optional.empty());
         assertThat(adapter.findByUserIdAndYearAndMonth(USER_ID, Year.Y2026, Month.APRIL)).isEmpty();
     }
 }

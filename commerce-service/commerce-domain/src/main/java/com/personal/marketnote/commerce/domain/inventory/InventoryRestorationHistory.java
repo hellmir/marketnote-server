@@ -16,27 +16,27 @@ public class InventoryRestorationHistory {
 
     public static InventoryRestorationHistory from(InventoryRestorationHistoryCreateState state) {
         return InventoryRestorationHistory.builder()
-                .productId(state.getProductId())
-                .pricePolicyId(state.getPricePolicyId())
-                .orderId(state.getOrderId())
-                .stock(Stock.of(
-                        String.valueOf(state.getStock())
-                ))
-                .reason(state.getReason())
-                .build();
+            .productId(state.getProductId())
+            .pricePolicyId(state.getPricePolicyId())
+            .orderId(state.getOrderId())
+            .stock(Stock.of(
+                String.valueOf(state.getStock())
+            ))
+            .reason(state.getReason())
+            .build();
     }
 
     public static InventoryRestorationHistory from(InventoryRestorationHistorySnapshotState state) {
         return InventoryRestorationHistory.builder()
-                .id(state.getId())
-                .productId(state.getProductId())
-                .pricePolicyId(state.getPricePolicyId())
-                .orderId(state.getOrderId())
-                .stock(Stock.of(
-                        String.valueOf(state.getStock())
-                ))
-                .reason(state.getReason())
-                .build();
+            .id(state.getId())
+            .productId(state.getProductId())
+            .pricePolicyId(state.getPricePolicyId())
+            .orderId(state.getOrderId())
+            .stock(Stock.of(
+                String.valueOf(state.getStock())
+            ))
+            .reason(state.getReason())
+            .build();
     }
 
     public Integer getStockValue() {

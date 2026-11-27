@@ -7,13 +7,13 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record UpdateFulfillmentGoodsResponse(
-        FulfillmentResponseHeader header,
-        List<UpdateFulfillmentGoodsItemResponse> data,
-        FulfillmentErrorInfo errorInfo
+    FulfillmentResponseHeader header,
+    List<UpdateFulfillmentGoodsItemResponse> data,
+    FulfillmentErrorInfo errorInfo
 ) implements FulfillmentApiResponse {
     public boolean isSuccess() {
         return FormatValidator.hasValue(header) && header.isSuccess() && FormatValidator.hasValue(data)
-                && data.stream().allMatch(UpdateFulfillmentGoodsItemResponse::isSuccess);
+            && data.stream().allMatch(UpdateFulfillmentGoodsItemResponse::isSuccess);
     }
 
     @Override

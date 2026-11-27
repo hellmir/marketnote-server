@@ -75,20 +75,20 @@ class FulfillmentSettlementClientTest {
         externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
 
         client = new FulfillmentSettlementClient(
-                builder,
-                objectMapper,
-                properties,
-                vendorCommunicationRecorder,
-                vendorCommunicationPayloadGenerator,
-                vendorCommunicationFailureHandler,
-                externalCallLogger,
-                new NoOpSleeper()
+            builder,
+            objectMapper,
+            properties,
+            vendorCommunicationRecorder,
+            vendorCommunicationPayloadGenerator,
+            vendorCommunicationFailureHandler,
+            externalCallLogger,
+            new NoOpSleeper()
         );
     }
 
     private void stubPayloadGenerator() {
         lenient().when(vendorCommunicationPayloadGenerator.buildPayloadJson(any()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
     }
 
     private void stubSettlementProperties() {
@@ -124,7 +124,7 @@ class FulfillmentSettlementClientTest {
 
     private GetFulfillmentSettlementDailyCostsCommand buildCommand() {
         return GetFulfillmentSettlementDailyCostsCommand.of(
-                "202601", "WH001", "CUST001", "valid-token"
+            "202601", "WH001", "CUST001", "valid-token"
         );
     }
 
@@ -149,12 +149,12 @@ class FulfillmentSettlementClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentSettlementDailyCostsCommand command = GetFulfillmentSettlementDailyCostsCommand.of(
-                    "202601", "WH001", "CUST001", "valid-token"
+                "202601", "WH001", "CUST001", "valid-token"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(command))
-                    .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
+                .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
         }
     }
 
@@ -169,12 +169,12 @@ class FulfillmentSettlementClientTest {
             when(properties.getBaseUrl()).thenReturn(null);
 
             GetFulfillmentSettlementDailyCostsCommand command = GetFulfillmentSettlementDailyCostsCommand.of(
-                    "202601", "WH001", "CUST001", "valid-token"
+                "202601", "WH001", "CUST001", "valid-token"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -189,14 +189,14 @@ class FulfillmentSettlementClientTest {
             stubSettlementProperties();
             stubPayloadGenerator();
             FulfillmentSettlementDailyCostItemResponse item = new FulfillmentSettlementDailyCostItemResponse(
-                    "20260101", "WH001", "CUST001",
-                    "1000", "2000", "300", "400", "500",
-                    "600", "700", "800", "900", "10000"
+                "20260101", "WH001", "CUST001",
+                "1000", "2000", "300", "400", "500",
+                "600", "700", "800", "900", "10000"
             );
             FulfillmentSettlementDailyCostListResponse payload = new FulfillmentSettlementDailyCostListResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(item),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(item),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
@@ -220,15 +220,15 @@ class FulfillmentSettlementClientTest {
             stubSettlementProperties();
             stubPayloadGenerator();
             stubGetChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(buildCommand()))
-                    .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
+                .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
         }
 
         @Test
@@ -238,15 +238,15 @@ class FulfillmentSettlementClientTest {
             stubSettlementProperties();
             stubPayloadGenerator();
             stubGetChainThrows(new HttpServerErrorException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Internal Server Error",
-                    "boom".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                "boom".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(buildCommand()))
-                    .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
+                .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
         }
 
         @Test
@@ -256,15 +256,15 @@ class FulfillmentSettlementClientTest {
             stubSettlementProperties();
             stubPayloadGenerator();
             FulfillmentSettlementDailyCostListResponse payload = new FulfillmentSettlementDailyCostListResponse(
-                    new FulfillmentResponseHeader("500", "vendor failure", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("500", "vendor failure", 0),
+                List.of(),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(buildCommand()))
-                    .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
+                .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
         }
 
         @Test
@@ -274,16 +274,16 @@ class FulfillmentSettlementClientTest {
             stubSettlementProperties();
             stubPayloadGenerator();
             FulfillmentSettlementDailyCostListResponse payload = new FulfillmentSettlementDailyCostListResponse(
-                    new FulfillmentResponseHeader("500", "fail", 0),
-                    List.of(),
-                    new FulfillmentErrorInfo("E_INTERNAL", "vendor outage", null)
+                new FulfillmentResponseHeader("500", "fail", 0),
+                List.of(),
+                new FulfillmentErrorInfo("E_INTERNAL", "vendor outage", null)
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(buildCommand()))
-                    .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class)
-                    .hasMessageContaining("vendor outage");
+                .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class)
+                .hasMessageContaining("vendor outage");
         }
 
         @Test
@@ -296,7 +296,7 @@ class FulfillmentSettlementClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(buildCommand()))
-                    .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
+                .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
         }
 
         @Test
@@ -306,15 +306,15 @@ class FulfillmentSettlementClientTest {
             stubSettlementProperties();
             stubPayloadGenerator();
             FulfillmentSettlementDailyCostListResponse payload = new FulfillmentSettlementDailyCostListResponse(
-                    new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
+                List.of(),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(buildCommand()))
-                    .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
+                .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
         }
 
         @Test
@@ -325,16 +325,16 @@ class FulfillmentSettlementClientTest {
             stubPayloadGenerator();
             String errorBody = "{\"errorInfo\":{\"errorCode\":\"E_VENDOR\",\"errorMessage\":\"vendor down\"}}";
             stubGetChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    errorBody.getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                errorBody.getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(buildCommand()))
-                    .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class)
-                    .hasMessageContaining("vendor down");
+                .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class)
+                .hasMessageContaining("vendor down");
         }
     }
 
@@ -351,7 +351,7 @@ class FulfillmentSettlementClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(buildCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -363,7 +363,7 @@ class FulfillmentSettlementClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(buildCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -375,7 +375,7 @@ class FulfillmentSettlementClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(buildCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -387,7 +387,7 @@ class FulfillmentSettlementClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getDailyCosts(buildCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -406,19 +406,19 @@ class FulfillmentSettlementClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentSettlementDailyCostsCommand command = GetFulfillmentSettlementDailyCostsCommand.of(
-                    "202601", "WH001", "CUST001", "valid-token"
+                "202601", "WH001", "CUST001", "valid-token"
             );
 
             // when
             assertThatThrownBy(() -> client.getDailyCosts(command))
-                    .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
+                .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
 
             // then
             verify(externalCallLogger).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("getDailyCosts"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getDailyCosts"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).record(
-                    eq(ExternalSystem.FASSTO), eq("getDailyCosts"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getDailyCosts"), any(Map.class), any(Supplier.class)
             );
         }
 
@@ -432,19 +432,19 @@ class FulfillmentSettlementClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentSettlementDailyCostsCommand command = GetFulfillmentSettlementDailyCostsCommand.of(
-                    "202601", "WH001", "CUST001", "valid-token"
+                "202601", "WH001", "CUST001", "valid-token"
             );
 
             // when
             assertThatThrownBy(() -> client.getDailyCosts(command))
-                    .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
+                .isInstanceOf(GetFulfillmentSettlementDailyCostsFailedException.class);
 
             // then
             verify(externalCallLogger).record(
-                    eq(ExternalSystem.FASSTO), eq("getDailyCosts"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getDailyCosts"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("getDailyCosts"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getDailyCosts"), any(Map.class), any(Supplier.class)
             );
         }
     }

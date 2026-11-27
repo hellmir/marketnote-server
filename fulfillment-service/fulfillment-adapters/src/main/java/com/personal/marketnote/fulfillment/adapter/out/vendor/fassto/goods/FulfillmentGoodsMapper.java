@@ -17,15 +17,15 @@ public class FulfillmentGoodsMapper {
     private List<FulfillmentGoodsItemMapper> goods;
 
     public static FulfillmentGoodsMapper register(
-            String customerCode,
-            String accessToken,
-            List<FulfillmentGoodsItemMapper> goods
+        String customerCode,
+        String accessToken,
+        List<FulfillmentGoodsItemMapper> goods
     ) {
         FulfillmentGoodsMapper mapper = FulfillmentGoodsMapper.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .goods(goods)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .goods(goods)
+            .build();
         mapper.validate();
 
         return mapper;
@@ -45,8 +45,8 @@ public class FulfillmentGoodsMapper {
 
     public List<Map<String, Object>> toPayload() {
         return goods.stream()
-                .map(FulfillmentGoodsItemMapper::toPayload)
-                .toList();
+            .map(FulfillmentGoodsItemMapper::toPayload)
+            .toList();
     }
 
     public String getProductKey() {

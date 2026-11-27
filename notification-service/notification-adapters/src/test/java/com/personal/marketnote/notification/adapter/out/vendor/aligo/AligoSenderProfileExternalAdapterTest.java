@@ -3,10 +3,10 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import com.personal.marketnote.notification.configuration.AligoProperties;
 import com.personal.marketnote.notification.domain.aligo.AligoSenderProfile;
 import com.personal.marketnote.notification.domain.aligo.AligoSenderProfileStatus;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -49,8 +49,8 @@ class AligoSenderProfileExternalAdapterTest {
         RestClient restClient = builder.baseUrl("http://localhost").build();
 
         AligoHttpClient aligoHttpClient = AligoHttpClientTestSupport.newClient(
-                restClient, objectMapper, properties,
-                new ExternalCallLogger(new SimpleMeterRegistry())
+            restClient, objectMapper, properties,
+            new ExternalCallLogger(new SimpleMeterRegistry())
         );
         adapter = new AligoSenderProfileExternalAdapter(aligoHttpClient, properties);
     }
@@ -64,18 +64,18 @@ class AligoSenderProfileExternalAdapterTest {
         void shouldExtractSenderKey() {
             // given
             String responseBody = """
-                    {
-                        "result_code": 0,
-                        "message": "성공",
-                        "senderkey": "SENDER-KEY-001"
-                    }
-                    """;
+                {
+                    "result_code": 0,
+                    "message": "성공",
+                    "senderkey": "SENDER-KEY-001"
+                }
+                """;
             mockServer.expect(requestTo("http://localhost/akv10/profile/auth/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                    .andExpect(content().string(Matchers.containsString("plusid=%40plus")))
-                    .andExpect(content().string(Matchers.containsString("phonenumber=01011112222")))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(content().string(Matchers.containsString("plusid=%40plus")))
+                .andExpect(content().string(Matchers.containsString("phonenumber=01011112222")))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             String senderKey = adapter.requestAuthentication("@plus", "01011112222");
@@ -96,10 +96,10 @@ class AligoSenderProfileExternalAdapterTest {
             // given
             String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
             mockServer.expect(requestTo("http://localhost/akv10/profile/add/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andExpect(content().string(Matchers.containsString("senderkey=SK")))
-                    .andExpect(content().string(Matchers.containsString("categorycode=001001")))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().string(Matchers.containsString("senderkey=SK")))
+                .andExpect(content().string(Matchers.containsString("categorycode=001001")))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             adapter.registerProfile("SK", "001001");
@@ -118,36 +118,36 @@ class AligoSenderProfileExternalAdapterTest {
         void shouldConvertStatusToEnum() {
             // given
             String responseBody = """
-                    {
-                        "result_code": 0,
-                        "message": "성공",
-                        "list": [
-                            {
-                                "senderkey": "SK1",
-                                "plusid": "@plus",
-                                "name": "프로필1",
-                                "categorycode": "001001",
-                                "profileInspectionStatus": "A",
-                                "senderProfileStatus": "A",
-                                "alim_use_yn": "Y",
-                                "uuid": "uuid-1"
-                            },
-                            {
-                                "senderkey": "SK2",
-                                "plusid": "@plus2",
-                                "name": "프로필2",
-                                "categorycode": "001002",
-                                "profileInspectionStatus": "A",
-                                "senderProfileStatus": "S",
-                                "alim_use_yn": "N",
-                                "uuid": "uuid-2"
-                            }
-                        ]
-                    }
-                    """;
+                {
+                    "result_code": 0,
+                    "message": "성공",
+                    "list": [
+                        {
+                            "senderkey": "SK1",
+                            "plusid": "@plus",
+                            "name": "프로필1",
+                            "categorycode": "001001",
+                            "profileInspectionStatus": "A",
+                            "senderProfileStatus": "A",
+                            "alim_use_yn": "Y",
+                            "uuid": "uuid-1"
+                        },
+                        {
+                            "senderkey": "SK2",
+                            "plusid": "@plus2",
+                            "name": "프로필2",
+                            "categorycode": "001002",
+                            "profileInspectionStatus": "A",
+                            "senderProfileStatus": "S",
+                            "alim_use_yn": "N",
+                            "uuid": "uuid-2"
+                        }
+                    ]
+                }
+                """;
             mockServer.expect(requestTo("http://localhost/akv10/profile/list/"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
             // when
             List<AligoSenderProfile> profiles = adapter.getProfileList();

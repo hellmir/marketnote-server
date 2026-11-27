@@ -35,7 +35,7 @@ class GifticonGoodsCashPriceTest {
 
         // when & then
         assertThatThrownBy(() -> goods.changeCashPrice(Money.of(nullAmount)))
-                .isInstanceOf(MoneyAmountNoValueException.class);
+            .isInstanceOf(MoneyAmountNoValueException.class);
     }
 
     @Test
@@ -46,7 +46,7 @@ class GifticonGoodsCashPriceTest {
 
         // when & then
         assertThatThrownBy(() -> goods.changeCashPrice(Money.of(-1L)))
-                .isInstanceOf(InvalidMoneyAmountException.class);
+            .isInstanceOf(InvalidMoneyAmountException.class);
     }
 
     @Test
@@ -57,18 +57,18 @@ class GifticonGoodsCashPriceTest {
         goods.changeCashPrice(Money.of(2900L));
 
         GifticonGoodsSyncState syncState = GifticonGoodsSyncState.builder()
-                .goodsName("스타벅스 아메리카노 (변경)")
-                .brandCode("B001")
-                .brandName("스타벅스")
-                .brandImageUrl("https://example.com/brand.jpg")
-                .categoryCode("3")
-                .realPrice(6000L)
-                .salePrice(5500L)
-                .imageUrl("https://example.com/image.jpg")
-                .description("상품 설명 변경")
-                .validDays(90)
-                .goodsStatus(GoodsStatus.SALE)
-                .build();
+            .goodsName("스타벅스 아메리카노 (변경)")
+            .brandCode("B001")
+            .brandName("스타벅스")
+            .brandImageUrl("https://example.com/brand.jpg")
+            .categoryCode("3")
+            .realPrice(6000L)
+            .salePrice(5500L)
+            .imageUrl("https://example.com/image.jpg")
+            .description("상품 설명 변경")
+            .validDays(90)
+            .goodsStatus(GoodsStatus.SALE)
+            .build();
 
         // when
         goods.syncFromApi(syncState);
@@ -81,25 +81,25 @@ class GifticonGoodsCashPriceTest {
 
     private GifticonGoods createGoods(Long cashPrice) {
         return GifticonGoods.from(GifticonGoodsSnapshotState.builder()
-                .id(1L)
-                .goodsCode("G001")
-                .goodsName("스타벅스 아메리카노")
-                .brandCode("B001")
-                .brandName("스타벅스")
-                .brandImageUrl("https://example.com/brand.jpg")
-                .categoryCode("3")
-                .realPrice(5000L)
-                .salePrice(4500L)
-                .cashPrice(cashPrice)
-                .imageUrl("https://example.com/image.jpg")
-                .description("상품 설명")
-                .validDays(90)
-                .goodsStatus(GoodsStatus.SALE)
-                .exposed(false)
-                .orderNum(null)
-                .createdAt(LocalDateTime.of(2026, 4, 26, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 26, 10, 0))
-                .build()
+            .id(1L)
+            .goodsCode("G001")
+            .goodsName("스타벅스 아메리카노")
+            .brandCode("B001")
+            .brandName("스타벅스")
+            .brandImageUrl("https://example.com/brand.jpg")
+            .categoryCode("3")
+            .realPrice(5000L)
+            .salePrice(4500L)
+            .cashPrice(cashPrice)
+            .imageUrl("https://example.com/image.jpg")
+            .description("상품 설명")
+            .validDays(90)
+            .goodsStatus(GoodsStatus.SALE)
+            .exposed(false)
+            .orderNum(null)
+            .createdAt(LocalDateTime.of(2026, 4, 26, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 26, 10, 0))
+            .build()
         );
     }
 }

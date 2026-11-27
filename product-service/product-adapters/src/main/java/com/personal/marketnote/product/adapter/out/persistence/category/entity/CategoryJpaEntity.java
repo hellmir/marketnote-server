@@ -10,7 +10,7 @@ import lombok.*;
 
 @Entity
 @Table(name = "category", indexes = {
-        @Index(name = "idx_category_parent", columnList = "parent_category_id")
+    @Index(name = "idx_category_parent", columnList = "parent_category_id")
 })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -25,9 +25,9 @@ public class CategoryJpaEntity extends BaseGeneralEntity {
 
     public static CategoryJpaEntity of(Long parentCategoryId, String name) {
         return CategoryJpaEntity.builder()
-                .parentCategoryId(parentCategoryId)
-                .name(name)
-                .build();
+            .parentCategoryId(parentCategoryId)
+            .name(name)
+            .build();
     }
 
     public void updateFrom(Category category) {

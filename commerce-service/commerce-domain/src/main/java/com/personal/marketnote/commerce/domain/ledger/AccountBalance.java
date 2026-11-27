@@ -30,13 +30,13 @@ public class AccountBalance {
         Long calculatedBalance = calculateBalance(account.getAccountType(), debitTotal, creditTotal);
 
         return AccountBalance.builder()
-                .accountId(account.getId())
-                .accountName(account.getName())
-                .accountType(account.getAccountType())
-                .debitTotal(Money.of(debitTotal))
-                .creditTotal(Money.of(creditTotal))
-                .balance(calculatedBalance)
-                .build();
+            .accountId(account.getId())
+            .accountName(account.getName())
+            .accountType(account.getAccountType())
+            .debitTotal(Money.of(debitTotal))
+            .creditTotal(Money.of(creditTotal))
+            .balance(calculatedBalance)
+            .build();
     }
 
     private static Long calculateBalance(AccountType accountType, Long debitTotal, Long creditTotal) {

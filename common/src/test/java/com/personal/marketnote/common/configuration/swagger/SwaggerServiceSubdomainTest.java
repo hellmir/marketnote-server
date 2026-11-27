@@ -74,7 +74,7 @@ class SwaggerServiceSubdomainTest {
     void buildsMonitoringMarkdownLinkWithAuthHint() {
         String link = SwaggerServiceSubdomain.MONITORING.markdownLink("https", "marketnote.store");
         assertThat(link).isEqualTo(
-                "- [모니터링 대시보드](https://monitoring.marketnote.store/d/spring_boot_21/spring-boot-3-x-statistics) (인증 필요)"
+            "- [모니터링 대시보드](https://monitoring.marketnote.store/d/spring_boot_21/spring-boot-3-x-statistics) (인증 필요)"
         );
     }
 

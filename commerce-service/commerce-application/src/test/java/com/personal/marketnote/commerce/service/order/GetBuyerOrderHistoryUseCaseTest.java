@@ -65,9 +65,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -85,13 +85,13 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order1, order2, order3));
+                .thenReturn(List.of(order1, order2, order3));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B"),
-                            300L, createProductInfo(300L, "상품C")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B"),
+                    300L, createProductInfo(300L, "상품C")
+                ));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -106,14 +106,14 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             Map<Long, ProductInfoResult> productInfoMap = Map.of(
-                    100L, createProductInfo(100L, "상품A"),
-                    200L, createProductInfo(200L, "상품B")
+                100L, createProductInfo(100L, "상품A"),
+                200L, createProductInfo(200L, "상품B")
             );
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(productInfoMap);
+                .thenReturn(productInfoMap);
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -131,9 +131,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -148,9 +148,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -173,7 +173,7 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -187,7 +187,7 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -201,7 +201,7 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(null);
+                .thenReturn(null);
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -215,7 +215,7 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(null);
+                .thenReturn(null);
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -240,12 +240,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order1, order2));
+                .thenReturn(List.of(order1, order2));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B")
+                ));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -261,12 +261,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, "");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order1, order2));
+                .thenReturn(List.of(order1, order2));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B")
+                ));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -282,12 +282,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, "   ");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order1, order2));
+                .thenReturn(List.of(order1, order2));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B")
+                ));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -302,9 +302,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, "나이키 에어맥스");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "나이키 에어맥스")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "나이키 에어맥스")));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -319,9 +319,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, "나이키");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "나이키 에어맥스 90")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "나이키 에어맥스 90")));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -336,9 +336,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, "NIKE");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "Nike Air Max")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "Nike Air Max")));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -353,9 +353,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, "아디다스");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "나이키 에어맥스")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "나이키 에어맥스")));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -372,20 +372,20 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, "나이키");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order1, order2, order3));
+                .thenReturn(List.of(order1, order2, order3));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "나이키 에어맥스"),
-                            200L, createProductInfo(200L, "아디다스 울트라부스트"),
-                            300L, createProductInfo(300L, "나이키 덩크")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "나이키 에어맥스"),
+                    200L, createProductInfo(200L, "아디다스 울트라부스트"),
+                    300L, createProductInfo(300L, "나이키 덩크")
+                ));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
             assertThat(result.orders()).hasSize(2);
             assertThat(result.orders())
-                    .extracting(Order::getId)
-                    .containsExactly(1L, 3L);
+                .extracting(Order::getId)
+                .containsExactly(1L, 3L);
         }
 
         @Test
@@ -396,9 +396,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, "  나이키  ");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "나이키 에어맥스")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "나이키 에어맥스")));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -413,9 +413,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, "상품A");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(999L, createProductInfo(999L, "상품A")));
+                .thenReturn(Map.of(999L, createProductInfo(999L, "상품A")));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -430,9 +430,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, "상품A");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, null)));
+                .thenReturn(Map.of(100L, createProductInfo(100L, null)));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -455,12 +455,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    buyerIdCaptor.capture(), any(), any(), anyList()
+                buyerIdCaptor.capture(), any(), any(), anyList()
             );
             assertThat(buyerIdCaptor.getValue()).isEqualTo(42L);
         }
@@ -472,12 +472,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    any(), any(), endDateCaptor.capture(), anyList()
+                any(), any(), endDateCaptor.capture(), anyList()
             );
             LocalDate today = LocalDate.now();
             LocalDateTime expectedEndDate = LocalDateTime.of(today.plusDays(1), LocalTime.MIDNIGHT);
@@ -491,12 +491,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    any(), startDateCaptor.capture(), any(), anyList()
+                any(), startDateCaptor.capture(), any(), anyList()
             );
             assertThat(startDateCaptor.getValue()).isNull();
         }
@@ -508,12 +508,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, OrderPeriod.ONE_MONTH, null, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    any(), startDateCaptor.capture(), any(), anyList()
+                any(), startDateCaptor.capture(), any(), anyList()
             );
             LocalDate today = LocalDate.now();
             LocalDateTime expectedStartDate = LocalDateTime.of(today.minusMonths(1), LocalTime.MIDNIGHT);
@@ -527,12 +527,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, OrderPeriod.THREE_MONTHS, null, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    any(), startDateCaptor.capture(), any(), anyList()
+                any(), startDateCaptor.capture(), any(), anyList()
             );
             LocalDate today = LocalDate.now();
             LocalDateTime expectedStartDate = LocalDateTime.of(today.minusMonths(3), LocalTime.MIDNIGHT);
@@ -546,12 +546,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, OrderPeriod.SIX_MONTHS, null, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    any(), startDateCaptor.capture(), any(), anyList()
+                any(), startDateCaptor.capture(), any(), anyList()
             );
             LocalDate today = LocalDate.now();
             LocalDateTime expectedStartDate = LocalDateTime.of(today.minusMonths(6), LocalTime.MIDNIGHT);
@@ -565,12 +565,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, OrderPeriod.ONE_YEAR, null, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    any(), startDateCaptor.capture(), any(), anyList()
+                any(), startDateCaptor.capture(), any(), anyList()
             );
             LocalDate today = LocalDate.now();
             LocalDateTime expectedStartDate = LocalDateTime.of(today.minusMonths(12), LocalTime.MIDNIGHT);
@@ -584,12 +584,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, OrderPeriod.ALL, null, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    any(), startDateCaptor.capture(), any(), anyList()
+                any(), startDateCaptor.capture(), any(), anyList()
             );
             assertThat(startDateCaptor.getValue()).isNull();
         }
@@ -601,12 +601,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    any(), any(), any(), statusesCaptor.capture()
+                any(), any(), any(), statusesCaptor.capture()
             );
             assertThat(statusesCaptor.getValue()).isEmpty();
         }
@@ -618,16 +618,16 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, OrderStatusFilter.SHIPPING, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    any(), any(), any(), statusesCaptor.capture()
+                any(), any(), any(), statusesCaptor.capture()
             );
             assertThat(statusesCaptor.getValue()).containsExactlyInAnyOrder(
-                    OrderStatus.PREPARING,
-                    OrderStatus.SHIPPING
+                OrderStatus.PREPARING,
+                OrderStatus.SHIPPING
             );
         }
 
@@ -638,12 +638,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, OrderStatusFilter.DELIVERED, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    any(), any(), any(), statusesCaptor.capture()
+                any(), any(), any(), statusesCaptor.capture()
             );
             assertThat(statusesCaptor.getValue()).containsExactly(OrderStatus.DELIVERED);
         }
@@ -655,16 +655,16 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, OrderStatusFilter.CONFIRMED, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    any(), any(), any(), statusesCaptor.capture()
+                any(), any(), any(), statusesCaptor.capture()
             );
             assertThat(statusesCaptor.getValue()).containsExactlyInAnyOrder(
-                    OrderStatus.PARTIALLY_CONFIRMED,
-                    OrderStatus.CONFIRMED
+                OrderStatus.PARTIALLY_CONFIRMED,
+                OrderStatus.CONFIRMED
             );
         }
 
@@ -675,21 +675,21 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, OrderStatusFilter.CANCEL_RETURN, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    any(), any(), any(), statusesCaptor.capture()
+                any(), any(), any(), statusesCaptor.capture()
             );
             assertThat(statusesCaptor.getValue()).containsExactlyInAnyOrder(
-                    OrderStatus.CANCELLED,
-                    OrderStatus.RETURN_REQUESTED,
-                    OrderStatus.PARTIALLY_RETURN_REQUESTED,
-                    OrderStatus.RETURN_REJECTED,
-                    OrderStatus.RETURN_IN_PROGRESS,
-                    OrderStatus.PARTIALLY_RETURNED,
-                    OrderStatus.RETURNED
+                OrderStatus.CANCELLED,
+                OrderStatus.RETURN_REQUESTED,
+                OrderStatus.PARTIALLY_RETURN_REQUESTED,
+                OrderStatus.RETURN_REJECTED,
+                OrderStatus.RETURN_IN_PROGRESS,
+                OrderStatus.PARTIALLY_RETURNED,
+                OrderStatus.RETURNED
             );
         }
     }
@@ -709,12 +709,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort, times(1)).findByBuyerId(
-                    eq(buyerId), any(), any(), anyList()
+                eq(buyerId), any(), any(), anyList()
             );
         }
 
@@ -726,9 +726,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             getOrderService.getBuyerOrderHistory(query);
 
@@ -742,7 +742,7 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
@@ -757,9 +757,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             getOrderService.getBuyerOrderHistory(query);
 
@@ -775,13 +775,13 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order1, order2));
+                .thenReturn(List.of(order1, order2));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B"),
-                            300L, createProductInfo(300L, "상품C")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B"),
+                    300L, createProductInfo(300L, "상품C")
+                ));
 
             getOrderService.getBuyerOrderHistory(query);
 
@@ -798,9 +798,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+                .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             getOrderService.getBuyerOrderHistory(query);
 
@@ -817,7 +817,7 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             getOrderService.getBuyerOrderHistory(query);
 
@@ -832,7 +832,7 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             getOrderService.getBuyerOrderHistory(query);
 
@@ -856,7 +856,7 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -872,9 +872,9 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(null);
+                .thenReturn(null);
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -890,15 +890,15 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B"),
-                            300L, createProductInfo(300L, "상품C"),
-                            400L, createProductInfo(400L, "상품D"),
-                            500L, createProductInfo(500L, "상품E")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B"),
+                    300L, createProductInfo(300L, "상품C"),
+                    400L, createProductInfo(400L, "상품D"),
+                    500L, createProductInfo(500L, "상품E")
+                ));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -916,20 +916,20 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order1, order2));
+                .thenReturn(List.of(order1, order2));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B"),
-                            300L, createProductInfo(300L, "상품C")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B"),
+                    300L, createProductInfo(300L, "상품C")
+                ));
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findProductByPricePolicyPort).findByPricePolicyIds(pricePolicyIdsCaptor.capture());
             assertThat(pricePolicyIdsCaptor.getValue())
-                    .hasSize(3)
-                    .containsExactlyInAnyOrder(100L, 200L, 300L);
+                .hasSize(3)
+                .containsExactlyInAnyOrder(100L, 200L, 300L);
         }
 
         @Test
@@ -941,12 +941,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, "존재하지않는상품");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order1, order2));
+                .thenReturn(List.of(order1, order2));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B")
+                ));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -962,13 +962,13 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, null, "상품B");
 
             when(findOrderPort.findByBuyerId(eq(buyerId), any(), any(), anyList()))
-                    .thenReturn(List.of(order));
+                .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(
-                            100L, createProductInfo(100L, "상품A"),
-                            200L, createProductInfo(200L, "상품B"),
-                            300L, createProductInfo(300L, "상품C")
-                    ));
+                .thenReturn(Map.of(
+                    100L, createProductInfo(100L, "상품A"),
+                    200L, createProductInfo(200L, "상품B"),
+                    300L, createProductInfo(300L, "상품C")
+                ));
 
             GetBuyerOrdersResult result = getOrderService.getBuyerOrderHistory(query);
 
@@ -983,12 +983,12 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, OrderStatusFilter.ALL, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query);
 
             verify(findOrderPort).findByBuyerId(
-                    any(), any(), any(), statusesCaptor.capture()
+                any(), any(), any(), statusesCaptor.capture()
             );
             assertThat(statusesCaptor.getValue()).isEmpty();
         }
@@ -1002,7 +1002,7 @@ class GetBuyerOrderHistoryUseCaseTest {
             GetBuyerOrderHistoryQuery query2 = createQuery(buyerId2, null, null, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             getOrderService.getBuyerOrderHistory(query1);
             getOrderService.getBuyerOrderHistory(query2);
@@ -1017,110 +1017,110 @@ class GetBuyerOrderHistoryUseCaseTest {
     // ==================================================================================
 
     private GetBuyerOrderHistoryQuery createQuery(
-            Long buyerId,
-            OrderPeriod period,
-            OrderStatusFilter status,
-            String productName
+        Long buyerId,
+        OrderPeriod period,
+        OrderStatusFilter status,
+        String productName
     ) {
         return GetBuyerOrderHistoryQuery.of(buyerId, period, status, productName);
     }
 
     private Order createOrderWithProducts(Long orderId, Long buyerId, List<Long> pricePolicyIds) {
         List<OrderProductSnapshotState> productStates = pricePolicyIds.stream()
-                .map(pricePolicyId -> OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(OrderStatus.PAID)
-                        .accumulatedPoint(0L)
-                        .build())
-                .toList();
+            .map(pricePolicyId -> OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(OrderStatus.PAID)
+                .accumulatedPoint(0L)
+                .build())
+            .toList();
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithNullPricePolicyProducts(Long orderId, Long buyerId, int count) {
         List<OrderProductSnapshotState> productStates = java.util.stream.IntStream.range(0, count)
-                .mapToObj(i -> OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(null)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(OrderStatus.PAID)
-                        .accumulatedPoint(0L)
-                        .build())
-                .toList();
+            .mapToObj(i -> OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(null)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(OrderStatus.PAID)
+                .accumulatedPoint(0L)
+                .build())
+            .toList();
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithMixedPricePolicyProducts(
-            Long orderId, Long buyerId, List<Long> validPricePolicyIds, int nullPricePolicyCount
+        Long orderId, Long buyerId, List<Long> validPricePolicyIds, int nullPricePolicyCount
     ) {
         List<OrderProductSnapshotState> validStates = validPricePolicyIds.stream()
-                .map(pricePolicyId -> OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(OrderStatus.PAID)
-                        .accumulatedPoint(0L)
-                        .build())
-                .toList();
+            .map(pricePolicyId -> OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(OrderStatus.PAID)
+                .accumulatedPoint(0L)
+                .build())
+            .toList();
 
         List<OrderProductSnapshotState> nullStates = java.util.stream.IntStream.range(0, nullPricePolicyCount)
-                .mapToObj(i -> OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(null)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(OrderStatus.PAID)
-                        .accumulatedPoint(0L)
-                        .build())
-                .toList();
+            .mapToObj(i -> OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(null)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(OrderStatus.PAID)
+                .accumulatedPoint(0L)
+                .build())
+            .toList();
 
         List<OrderProductSnapshotState> allStates = new java.util.ArrayList<>(validStates);
         allStates.addAll(nullStates);
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(allStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(allStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private ProductInfoResult createProductInfo(Long id, String name) {

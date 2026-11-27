@@ -22,12 +22,12 @@ public class PaymentApprovedLedgerConsumer {
     private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PAYMENT_APPROVED,
-            groupId = "commerce-ledger"
+        topics = KafkaTopicConstants.PAYMENT_APPROVED,
+        groupId = "commerce-ledger"
     )
     public void handlePaymentApprovedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -44,11 +44,11 @@ public class PaymentApprovedLedgerConsumer {
         PaymentApprovedEvent payload = envelope.getPayloadAs(PaymentApprovedEvent.class, objectMapper);
 
         log.info("결제 승인 이벤트 수신 (회계 분개). eventId={}, orderId={}, orderKey={}, paymentAmount={}",
-                envelope.eventId(), payload.orderId(), payload.orderKey(), payload.paymentAmount()
+            envelope.eventId(), payload.orderId(), payload.orderKey(), payload.paymentAmount()
         );
 
         if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+            envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
         )) {
             acknowledgment.acknowledge();
             return;

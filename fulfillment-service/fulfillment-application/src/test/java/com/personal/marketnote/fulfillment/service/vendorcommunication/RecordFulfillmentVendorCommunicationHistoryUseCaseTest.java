@@ -28,15 +28,15 @@ class RecordFulfillmentVendorCommunicationHistoryUseCaseTest {
     void shouldDelegateToPort() {
         // given
         FulfillmentVendorCommunicationHistoryCommand command = FulfillmentVendorCommunicationHistoryCommand.builder()
-                .targetType(FulfillmentVendorCommunicationTargetType.DELIVERY)
-                .targetId("delivery-123")
-                .vendorName(FulfillmentVendorName.FASSTO)
-                .communicationType(FulfillmentVendorCommunicationType.REQUEST)
-                .sender(FulfillmentVendorCommunicationSenderType.SERVER)
-                .payload("{}")
-                .build();
+            .targetType(FulfillmentVendorCommunicationTargetType.DELIVERY)
+            .targetId("delivery-123")
+            .vendorName(FulfillmentVendorName.FASSTO)
+            .communicationType(FulfillmentVendorCommunicationType.REQUEST)
+            .sender(FulfillmentVendorCommunicationSenderType.SERVER)
+            .payload("{}")
+            .build();
         when(saveVendorCommunicationHistoryPort.save(any(FulfillmentVendorCommunicationHistory.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenAnswer(invocation -> invocation.getArgument(0));
         // when
         FulfillmentVendorCommunicationHistory result = service.record(command);
         // then

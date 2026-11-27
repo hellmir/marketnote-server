@@ -30,12 +30,12 @@ public class OrderReturnRefundSagaConsumer {
     private final SagaResponsePublisher sagaResponsePublisher;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_RETURN_REFUND,
-            groupId = "saga-order-return-refund"
+        topics = KafkaTopicConstants.SAGA_ORDER_RETURN_REFUND,
+        groupId = "saga-order-return-refund"
     )
     public void handleRefundStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         try {
             EventEnvelope<?> envelope = record.value();
@@ -54,12 +54,12 @@ public class OrderReturnRefundSagaConsumer {
             }
 
             log.warn("반품 PG 환불 스텝은 보상이 없음. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType()
+                stepMessage.sagaId(), stepMessage.messageType()
             );
         } catch (Exception e) {
             // boundary E: @KafkaListener record-level boundary — 호출자 전파 불가 (finally ack), ERROR + cause 인자 필수
             log.error("SAGA 반품 PG 환불 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
-                    record.topic(), record.partition(), record.offset(), e.getMessage(), e
+                record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
         } finally {
             acknowledgment.acknowledge();
@@ -69,7 +69,7 @@ public class OrderReturnRefundSagaConsumer {
     private void handleAction(SagaStepMessage stepMessage) {
         try {
             ReturnRefundSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), ReturnRefundSagaPayload.class);
+                stepMessage.payload(), ReturnRefundSagaPayload.class);
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
                 publishValidationFailure(stepMessage, "orderId 누락");
@@ -82,35 +82,35 @@ public class OrderReturnRefundSagaConsumer {
             }
 
             CompleteReturnRefundCommand command = CompleteReturnRefundCommand.builder()
-                    .orderId(payload.orderId())
-                    .orderKey(payload.orderKey())
-                    .buyerId(payload.buyerId())
-                    .returnAmount(payload.returnAmount())
-                    .paymentAmount(payload.paymentAmount())
-                    .isFullReturn(payload.isFullReturn())
-                    .returnShippingFee(FormatValidator.hasValue(payload.returnShippingFee()) ? payload.returnShippingFee() : 0L)
-                    .build();
+                .orderId(payload.orderId())
+                .orderKey(payload.orderKey())
+                .buyerId(payload.buyerId())
+                .returnAmount(payload.returnAmount())
+                .paymentAmount(payload.paymentAmount())
+                .isFullReturn(payload.isFullReturn())
+                .returnShippingFee(FormatValidator.hasValue(payload.returnShippingFee()) ? payload.returnShippingFee() : 0L)
+                .build();
 
             completeReturnRefundUseCase.completeReturnRefund(command);
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true}"
             );
 
             log.info("SAGA 반품 PG 환불 성공. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
         } catch (PaymentAlreadyRefundedException e) {
             log.info("이미 환불 처리된 결제 (멱등 처리). sagaId={}, message={}", stepMessage.sagaId(), e.getMessage());
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
             );
         } catch (Exception e) {
             // boundary E: SAGA step boundary — UseCase 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 반품 PG 환불 처리 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "반품 PG 환불 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "반품 PG 환불 처리 실패"
             );
         }
     }
@@ -118,8 +118,8 @@ public class OrderReturnRefundSagaConsumer {
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
         log.warn("SAGA 반품 PG 환불 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
     }
 }

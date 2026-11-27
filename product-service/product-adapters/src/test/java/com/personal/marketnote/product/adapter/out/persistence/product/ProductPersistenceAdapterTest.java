@@ -60,11 +60,11 @@ class ProductPersistenceAdapterTest {
         void throwsDuplicateFasstoProductCodeWhenMessageContainsConstraintName() {
             Product product = buildProductDomain(null, "상품", EntityStatus.ACTIVE);
             when(productJpaRepository.save(any(ProductJpaEntity.class)))
-                    .thenThrow(new DataIntegrityViolationException("could not execute statement [uk_product_fassto_product_code]"));
+                .thenThrow(new DataIntegrityViolationException("could not execute statement [uk_product_fassto_product_code]"));
 
             assertThatThrownBy(() -> adapter.save(product))
-                    .isInstanceOf(DuplicateFasstoProductCodeException.class)
-                    .hasMessageContaining("이미 등록된 fasstoProductCode입니다");
+                .isInstanceOf(DuplicateFasstoProductCodeException.class)
+                .hasMessageContaining("이미 등록된 fasstoProductCode입니다");
         }
 
         @Test
@@ -72,13 +72,13 @@ class ProductPersistenceAdapterTest {
         void throwsDuplicateFasstoProductCodeWhenRootCauseMessageContainsConstraintName() {
             Product product = buildProductDomain(null, "상품", EntityStatus.ACTIVE);
             DataIntegrityViolationException dive = new DataIntegrityViolationException(
-                    "could not execute",
-                    new RuntimeException("ERROR: duplicate key value violates unique constraint \"uk_product_fassto_product_code\"")
+                "could not execute",
+                new RuntimeException("ERROR: duplicate key value violates unique constraint \"uk_product_fassto_product_code\"")
             );
             when(productJpaRepository.save(any(ProductJpaEntity.class))).thenThrow(dive);
 
             assertThatThrownBy(() -> adapter.save(product))
-                    .isInstanceOf(DuplicateFasstoProductCodeException.class);
+                .isInstanceOf(DuplicateFasstoProductCodeException.class);
         }
 
         @Test
@@ -86,13 +86,13 @@ class ProductPersistenceAdapterTest {
         void rethrowsWhenOtherConstraintViolation() {
             Product product = buildProductDomain(null, "상품", EntityStatus.ACTIVE);
             DataIntegrityViolationException dive = new DataIntegrityViolationException(
-                    "could not execute statement [uk_other_constraint]"
+                "could not execute statement [uk_other_constraint]"
             );
             when(productJpaRepository.save(any(ProductJpaEntity.class))).thenThrow(dive);
 
             assertThatThrownBy(() -> adapter.save(product))
-                    .isInstanceOf(DataIntegrityViolationException.class)
-                    .isNotInstanceOf(DuplicateFasstoProductCodeException.class);
+                .isInstanceOf(DataIntegrityViolationException.class)
+                .isNotInstanceOf(DuplicateFasstoProductCodeException.class);
         }
     }
 
@@ -313,7 +313,7 @@ class ProductPersistenceAdapterTest {
             when(productJpaRepository.findById(999L)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> adapter.update(product))
-                    .isInstanceOf(ProductNotFoundException.class);
+                .isInstanceOf(ProductNotFoundException.class);
             verify(productJpaRepository, never()).flush();
         }
     }
@@ -321,18 +321,18 @@ class ProductPersistenceAdapterTest {
     private Product buildProductDomain(Long id, String name, EntityStatus status) {
         UUID productKey = RandomCodeGenerator.generateProductKey();
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(id)
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name(name)
-                        .brandName("브랜드")
-                        .detail("설명")
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(status)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(id)
+                .productKey(productKey)
+                .sellerId(1L)
+                .name(name)
+                .brandName("브랜드")
+                .detail("설명")
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(status)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
     }
 

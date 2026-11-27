@@ -52,7 +52,7 @@ public class PollAligoMessageDetailService implements PollAligoMessageDetailUseC
     private boolean processMessage(AligoMessage message, LocalDateTime now) {
         try {
             List<AligoRecipientDetailResult> details =
-                    getAligoMessageDetailExternalPort.getMessageDetail(message.getAligoMid());
+                getAligoMessageDetailExternalPort.getMessageDetail(message.getAligoMid());
 
             transactionTemplate.execute(status -> {
                 applyRecipientResults(message, details);
@@ -64,20 +64,20 @@ public class PollAligoMessageDetailService implements PollAligoMessageDetailUseC
             return true;
         } catch (AligoApiException e) {
             log.warn(
-                    "알리고 메시지 폴링 외부 API 호출 실패: messageId={}, aligoMid={}",
-                    message.getId(), message.getAligoMid(), e
+                "알리고 메시지 폴링 외부 API 호출 실패: messageId={}, aligoMid={}",
+                message.getId(), message.getAligoMid(), e
             );
             return false;
         } catch (DataAccessException e) {
             log.error(
-                    "알리고 메시지 폴링 DB 갱신 실패: messageId={}, aligoMid={}",
-                    message.getId(), message.getAligoMid(), e
+                "알리고 메시지 폴링 DB 갱신 실패: messageId={}, aligoMid={}",
+                message.getId(), message.getAligoMid(), e
             );
             throw e;
         } catch (RuntimeException e) {
             log.error(
-                    "알리고 메시지 폴링 예상치 못한 오류: messageId={}, aligoMid={}",
-                    message.getId(), message.getAligoMid(), e
+                "알리고 메시지 폴링 예상치 못한 오류: messageId={}, aligoMid={}",
+                message.getId(), message.getAligoMid(), e
             );
             return false;
         }
@@ -90,9 +90,9 @@ public class PollAligoMessageDetailService implements PollAligoMessageDetailUseC
             }
             AligoMessageRecipientStatus targetStatus = resolveRecipientStatus(detail.rslt());
             message.updateRecipientResult(
-                    detail.receiver(), targetStatus, detail.msgId(),
-                    detail.rslt(), detail.rsltMessage(),
-                    detail.sentAt(), detail.resultAt(), detail.reportAt()
+                detail.receiver(), targetStatus, detail.msgId(),
+                detail.rslt(), detail.rsltMessage(),
+                detail.sentAt(), detail.resultAt(), detail.reportAt()
             );
         }
     }

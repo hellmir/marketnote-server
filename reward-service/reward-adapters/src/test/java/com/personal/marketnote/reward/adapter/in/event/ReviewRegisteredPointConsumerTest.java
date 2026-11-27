@@ -45,11 +45,11 @@ class ReviewRegisteredPointConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long reviewerId, Long reviewId) {
         ReviewRegisteredEvent event = new ReviewRegisteredEvent(
-                1L, 2L, 50L, 10, new BigDecimal("4.50"), reviewerId, reviewId
+            1L, 2L, 50L, 10, new BigDecimal("4.50"), reviewerId, reviewId
         );
         EventEnvelope<ReviewRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "community.review.registered", "community-service",
-                LocalDateTime.of(2026, 4, 16, 10, 0), event
+            "test-event-id", "community.review.registered", "community-service",
+            LocalDateTime.of(2026, 4, 16, 10, 0), event
         );
         return new ConsumerRecord<>("community.review.registered", 0, 0L, "1", envelope);
     }
@@ -112,7 +112,7 @@ class ReviewRegisteredPointConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, 200L);
         doThrow(new DuplicateUserPointHistoryException())
-                .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+            .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // when
         consumer.handleReviewRegisteredEvent(record, acknowledgment);
@@ -127,7 +127,7 @@ class ReviewRegisteredPointConsumerTest {
     void handleReviewRegisteredEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "community.review.registered", 0, 0L, "1", null
+            "community.review.registered", 0, 0L, "1", null
         );
 
         // when
@@ -143,14 +143,14 @@ class ReviewRegisteredPointConsumerTest {
     void handleReviewRegisteredEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         ReviewRegisteredEvent event = new ReviewRegisteredEvent(
-                1L, 2L, 50L, 10, new BigDecimal("4.50"), 100L, 200L
+            1L, 2L, 50L, 10, new BigDecimal("4.50"), 100L, 200L
         );
         EventEnvelope<ReviewRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "community-service",
-                LocalDateTime.of(2026, 4, 16, 10, 0), event
+            "test-event-id", "wrong.event.type", "community-service",
+            LocalDateTime.of(2026, 4, 16, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "community.review.registered", 0, 0L, "1", envelope
+            "community.review.registered", 0, 0L, "1", envelope
         );
 
         // when
@@ -167,12 +167,12 @@ class ReviewRegisteredPointConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, 200L);
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+            .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleReviewRegisteredEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 실패");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 실패");
 
         verify(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
         verify(acknowledgment, never()).acknowledge();

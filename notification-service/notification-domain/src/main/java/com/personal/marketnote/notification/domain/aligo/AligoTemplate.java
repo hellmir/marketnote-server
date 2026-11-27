@@ -38,48 +38,48 @@ public class AligoTemplate extends BaseDomain {
     public static AligoTemplate from(AligoTemplateCreateState state) {
         validate(state);
         AligoTemplate template = AligoTemplate.builder()
-                .senderKey(state.getSenderKey())
-                .templateCode(state.getTemplateCode())
-                .templateName(state.getTemplateName())
-                .templateContent(state.getTemplateContent())
-                .templateTitle(state.getTemplateTitle())
-                .templateSubtitle(state.getTemplateSubtitle())
-                .templateType(state.getTemplateType())
-                .templateEmType(state.getTemplateEmType())
-                .templateSecure(state.isTemplateSecure())
-                .templateAdvert(state.isTemplateAdvert())
-                .imageUrl(state.getImageUrl())
-                .imageName(state.getImageName())
-                .inspStatus(AligoTemplateInspectionStatus.REG.name())
-                .templateStatus(AligoTemplateStatus.R)
-                .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
-                .build();
+            .senderKey(state.getSenderKey())
+            .templateCode(state.getTemplateCode())
+            .templateName(state.getTemplateName())
+            .templateContent(state.getTemplateContent())
+            .templateTitle(state.getTemplateTitle())
+            .templateSubtitle(state.getTemplateSubtitle())
+            .templateType(state.getTemplateType())
+            .templateEmType(state.getTemplateEmType())
+            .templateSecure(state.isTemplateSecure())
+            .templateAdvert(state.isTemplateAdvert())
+            .imageUrl(state.getImageUrl())
+            .imageName(state.getImageName())
+            .inspStatus(AligoTemplateInspectionStatus.REG.name())
+            .templateStatus(AligoTemplateStatus.R)
+            .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
+            .build();
         template.activate();
         return template;
     }
 
     public static AligoTemplate from(AligoTemplateSnapshotState state) {
         AligoTemplate template = AligoTemplate.builder()
-                .id(state.getId())
-                .senderKey(state.getSenderKey())
-                .templateCode(state.getTemplateCode())
-                .templateName(state.getTemplateName())
-                .templateContent(state.getTemplateContent())
-                .templateTitle(state.getTemplateTitle())
-                .templateSubtitle(state.getTemplateSubtitle())
-                .templateType(state.getTemplateType())
-                .templateEmType(state.getTemplateEmType())
-                .templateSecure(state.isTemplateSecure())
-                .templateAdvert(state.isTemplateAdvert())
-                .imageUrl(state.getImageUrl())
-                .imageName(state.getImageName())
-                .inspStatus(state.getInspStatus())
-                .templateStatus(state.getTemplateStatus())
-                .comments(state.getComments())
-                .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .senderKey(state.getSenderKey())
+            .templateCode(state.getTemplateCode())
+            .templateName(state.getTemplateName())
+            .templateContent(state.getTemplateContent())
+            .templateTitle(state.getTemplateTitle())
+            .templateSubtitle(state.getTemplateSubtitle())
+            .templateType(state.getTemplateType())
+            .templateEmType(state.getTemplateEmType())
+            .templateSecure(state.isTemplateSecure())
+            .templateAdvert(state.isTemplateAdvert())
+            .imageUrl(state.getImageUrl())
+            .imageName(state.getImageName())
+            .inspStatus(state.getInspStatus())
+            .templateStatus(state.getTemplateStatus())
+            .comments(state.getComments())
+            .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
         template.status = state.getStatus();
         return template;
     }
@@ -87,17 +87,17 @@ public class AligoTemplate extends BaseDomain {
     public static AligoTemplate from(AligoTemplateExternalState state) {
         validateExternal(state);
         AligoTemplate template = AligoTemplate.builder()
-                .senderKey(state.getSenderKey())
-                .templateCode(state.getTemplateCode())
-                .templateName(state.getTemplateName())
-                .templateContent(state.getTemplateContent())
-                .templateType(state.getTemplateType())
-                .templateEmType(state.getTemplateEmType())
-                .inspStatus(state.getInspStatus())
-                .templateStatus(state.getTemplateStatus())
-                .comments(state.getComments())
-                .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
-                .build();
+            .senderKey(state.getSenderKey())
+            .templateCode(state.getTemplateCode())
+            .templateName(state.getTemplateName())
+            .templateContent(state.getTemplateContent())
+            .templateType(state.getTemplateType())
+            .templateEmType(state.getTemplateEmType())
+            .inspStatus(state.getInspStatus())
+            .templateStatus(state.getTemplateStatus())
+            .comments(state.getComments())
+            .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
+            .build();
         template.activate();
         return template;
     }
@@ -162,9 +162,9 @@ public class AligoTemplate extends BaseDomain {
     }
 
     public void updateContent(
-            String templateName, String templateContent,
-            String templateTitle, String templateSubtitle,
-            List<AligoTemplateButton> buttons
+        String templateName, String templateContent,
+        String templateTitle, String templateSubtitle,
+        List<AligoTemplateButton> buttons
     ) {
         if (!canModify()) {
             log.warn("템플릿을 수정할 수 없는 상태입니다. templateCode={}", templateCode);

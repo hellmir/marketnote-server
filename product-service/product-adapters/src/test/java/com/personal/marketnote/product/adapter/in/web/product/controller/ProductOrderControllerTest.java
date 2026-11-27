@@ -42,14 +42,14 @@ class ProductOrderControllerTest {
         @DisplayName("주문 대기 상품 목록 조회 시 200 OK를 반환한다")
         void returnsOkWithOrderingProducts() {
             GetMyOrderingProductsRequest request = new GetMyOrderingProductsRequest(
-                    List.of(new OrderingItemRequest(1L, null, (short) 2, "http://img"))
+                List.of(new OrderingItemRequest(1L, null, (short) 2, "http://img"))
             );
             GetMyOrderProductsResult result = GetMyOrderProductsResult.from(List.of());
             when(getMyOrderingProductsUseCase.getMyOrderingProducts(any(GetMyOrderingProductsQuery.class)))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             ResponseEntity<BaseResponse<GetMyOrderingProductsResponse>> response =
-                    productOrderController.getMyOrderingProducts(request);
+                productOrderController.getMyOrderingProducts(request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent()).isNotNull();
@@ -62,10 +62,10 @@ class ProductOrderControllerTest {
             GetMyOrderingProductsRequest request = new GetMyOrderingProductsRequest(List.of());
             GetMyOrderProductsResult result = GetMyOrderProductsResult.from(List.of());
             when(getMyOrderingProductsUseCase.getMyOrderingProducts(any(GetMyOrderingProductsQuery.class)))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             ResponseEntity<BaseResponse<GetMyOrderingProductsResponse>> response =
-                    productOrderController.getMyOrderingProducts(request);
+                productOrderController.getMyOrderingProducts(request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         }

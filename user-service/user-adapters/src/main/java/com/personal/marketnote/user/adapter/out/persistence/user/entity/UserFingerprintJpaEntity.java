@@ -8,11 +8,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "user_fingerprint",
-        uniqueConstraints = @UniqueConstraint(
-                name = "ux_user_fingerprint_user_id_fingerprint",
-                columnNames = {"user_id", "fingerprint"}
-        )
+    name = "user_fingerprint",
+    uniqueConstraints = @UniqueConstraint(
+        name = "ux_user_fingerprint_user_id_fingerprint",
+        columnNames = {"user_id", "fingerprint"}
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -41,12 +41,12 @@ public class UserFingerprintJpaEntity {
 
     public static UserFingerprintJpaEntity of(Long userId, String fingerprint, FingerprintSource source, LocalDateTime now) {
         return UserFingerprintJpaEntity.builder()
-                .userId(userId)
-                .fingerprint(fingerprint)
-                .source(source)
-                .firstSeenAt(now)
-                .lastSeenAt(now)
-                .build();
+            .userId(userId)
+            .fingerprint(fingerprint)
+            .source(source)
+            .firstSeenAt(now)
+            .lastSeenAt(now)
+            .build();
     }
 
     public void updateLastSeenAt(LocalDateTime lastSeenAt) {

@@ -34,11 +34,11 @@ class GetGifticonBrandsUseCaseTest {
         GifticonGoodsBrandProjection brand1 = new GifticonGoodsBrandProjection("BR001", "스타벅스", "https://img.com/sb.png");
         GifticonGoodsBrandProjection brand2 = new GifticonGoodsBrandProjection("BR002", "이디야", "https://img.com/ediya.png");
         when(findGifticonGoodsPort.findDistinctBrandsByCategoryCode(categoryCode))
-                .thenReturn(List.of(brand1, brand2));
+            .thenReturn(List.of(brand1, brand2));
 
         // when
         GetGifticonBrandsResult result = getGifticonBrandsService.getBrands(
-                new GetGifticonBrandsCommand(categoryCode)
+            new GetGifticonBrandsCommand(categoryCode)
         );
 
         // then
@@ -56,11 +56,11 @@ class GetGifticonBrandsUseCaseTest {
         // given
         String categoryCode = "99";
         when(findGifticonGoodsPort.findDistinctBrandsByCategoryCode(categoryCode))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         GetGifticonBrandsResult result = getGifticonBrandsService.getBrands(
-                new GetGifticonBrandsCommand(categoryCode)
+            new GetGifticonBrandsCommand(categoryCode)
         );
 
         // then

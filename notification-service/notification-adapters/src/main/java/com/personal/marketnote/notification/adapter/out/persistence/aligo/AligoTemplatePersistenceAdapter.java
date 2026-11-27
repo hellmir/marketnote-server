@@ -21,8 +21,8 @@ import java.util.Optional;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class AligoTemplatePersistenceAdapter
-        implements SaveAligoTemplatePort, UpdateAligoTemplatePort, DeleteAligoTemplatePort,
-        FindAligoTemplatePort, FindAligoTemplateListPort {
+    implements SaveAligoTemplatePort, UpdateAligoTemplatePort, DeleteAligoTemplatePort,
+    FindAligoTemplatePort, FindAligoTemplateListPort {
 
     private final AligoTemplateJpaRepository aligoTemplateJpaRepository;
 
@@ -31,13 +31,13 @@ public class AligoTemplatePersistenceAdapter
         List<AligoTemplateButtonJpaEntity> buttonEntities = mapButtonsToEntities(template.getButtons());
 
         AligoTemplateJpaEntity entity = AligoTemplateJpaEntity.create(
-                template.getSenderKey(), template.getTemplateCode(), template.getTemplateName(),
-                template.getTemplateContent(), template.getTemplateTitle(), template.getTemplateSubtitle(),
-                template.getTemplateType(), template.getTemplateEmType(),
-                template.isTemplateSecure(), template.isTemplateAdvert(),
-                template.getImageUrl(), template.getImageName(),
-                template.getInspStatus(), template.getTemplateStatus(),
-                buttonEntities
+            template.getSenderKey(), template.getTemplateCode(), template.getTemplateName(),
+            template.getTemplateContent(), template.getTemplateTitle(), template.getTemplateSubtitle(),
+            template.getTemplateType(), template.getTemplateEmType(),
+            template.isTemplateSecure(), template.isTemplateAdvert(),
+            template.getImageUrl(), template.getImageName(),
+            template.getInspStatus(), template.getTemplateStatus(),
+            buttonEntities
         );
 
         AligoTemplateJpaEntity saved = aligoTemplateJpaRepository.save(entity);
@@ -48,7 +48,7 @@ public class AligoTemplatePersistenceAdapter
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void update(AligoTemplate template) {
         AligoTemplateJpaEntity entity = aligoTemplateJpaRepository.findByTemplateCodeWithButtons(
-                template.getTemplateCode()
+            template.getTemplateCode()
         ).orElseThrow(() -> {
             log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", template.getTemplateCode());
             return new AligoTemplateNotFoundException();
@@ -57,10 +57,10 @@ public class AligoTemplatePersistenceAdapter
         List<AligoTemplateButtonJpaEntity> buttonEntities = mapButtonsToEntities(template.getButtons());
 
         entity.updateFrom(
-                template.getTemplateName(), template.getTemplateContent(),
-                template.getTemplateTitle(), template.getTemplateSubtitle(),
-                template.getInspStatus(), template.getTemplateStatus(),
-                template.getComments(), buttonEntities
+            template.getTemplateName(), template.getTemplateContent(),
+            template.getTemplateTitle(), template.getTemplateSubtitle(),
+            template.getInspStatus(), template.getTemplateStatus(),
+            template.getComments(), buttonEntities
         );
     }
 
@@ -73,14 +73,14 @@ public class AligoTemplatePersistenceAdapter
     @Override
     public Optional<AligoTemplate> findByTemplateCode(String templateCode) {
         return aligoTemplateJpaRepository.findByTemplateCodeWithButtons(templateCode)
-                .map(AligoTemplateJpaEntityToDomainMapper::mapToDomain);
+            .map(AligoTemplateJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override
     public List<AligoTemplate> findAllBySenderKey(String senderKey) {
         return aligoTemplateJpaRepository.findAllBySenderKeyAndStatus(senderKey).stream()
-                .map(AligoTemplateJpaEntityToDomainMapper::mapToDomain)
-                .toList();
+            .map(AligoTemplateJpaEntityToDomainMapper::mapToDomain)
+            .toList();
     }
 
     private List<AligoTemplateButtonJpaEntity> mapButtonsToEntities(List<AligoTemplateButton> buttons) {
@@ -88,10 +88,10 @@ public class AligoTemplatePersistenceAdapter
             return List.of();
         }
         return buttons.stream()
-                .map(btn -> AligoTemplateButtonJpaEntity.create(
-                        btn.getOrdering(), btn.getName(), btn.getLinkType(),
-                        btn.getLinkMo(), btn.getLinkPc(), btn.getLinkIos(), btn.getLinkAnd()
-                ))
-                .toList();
+            .map(btn -> AligoTemplateButtonJpaEntity.create(
+                btn.getOrdering(), btn.getName(), btn.getLinkType(),
+                btn.getLinkMo(), btn.getLinkPc(), btn.getLinkIos(), btn.getLinkAnd()
+            ))
+            .toList();
     }
 }

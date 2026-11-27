@@ -8,12 +8,12 @@ import lombok.Builder;
 
 @Builder
 public record FulfillmentServiceCommunicationHistoryCommand(
-        FulfillmentServiceCommunicationTargetType targetType,
-        String targetId,
-        FulfillmentServiceCommunicationType communicationType,
-        FulfillmentServiceCommunicationSenderType sender,
-        String exception,
-        String payload,
-        JsonNode payloadJson
+    FulfillmentServiceCommunicationTargetType targetType,
+    String targetId,
+    FulfillmentServiceCommunicationType communicationType,
+    FulfillmentServiceCommunicationSenderType sender,
+    String exception,
+    String payload,
+    JsonNode payloadJson
 ) {
 }

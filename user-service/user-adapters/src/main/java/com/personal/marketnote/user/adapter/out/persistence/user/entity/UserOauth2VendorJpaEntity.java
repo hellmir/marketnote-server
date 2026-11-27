@@ -26,18 +26,18 @@ public class UserOauth2VendorJpaEntity extends BaseGeneralEntity {
 
     public static UserOauth2VendorJpaEntity from(UserAuthProvider userAuthProvider) {
         return UserOauth2VendorJpaEntity.builder()
-                .userJpaEntity(UserJpaEntity.from(userAuthProvider.getUser()))
-                .authVendor(userAuthProvider.getAuthVendor())
-                .oidcId(userAuthProvider.getOidcId())
-                .build();
+            .userJpaEntity(UserJpaEntity.from(userAuthProvider.getUser()))
+            .authVendor(userAuthProvider.getAuthVendor())
+            .oidcId(userAuthProvider.getOidcId())
+            .build();
     }
 
     public static UserOauth2VendorJpaEntity of(UserJpaEntity parent, AuthVendor authVendor, String oidcId) {
         return UserOauth2VendorJpaEntity.builder()
-                .userJpaEntity(parent)
-                .authVendor(authVendor)
-                .oidcId(oidcId)
-                .build();
+            .userJpaEntity(parent)
+            .authVendor(authVendor)
+            .oidcId(oidcId)
+            .build();
     }
 
     public void updateFrom(UserJpaEntity userJpaEntity, UserAuthProvider userAuthProvider) {

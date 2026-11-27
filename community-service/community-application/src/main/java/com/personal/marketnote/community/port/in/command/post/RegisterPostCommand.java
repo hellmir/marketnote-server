@@ -8,21 +8,21 @@ import lombok.Builder;
 
 @Builder
 public record RegisterPostCommand(
-        Long userId,
-        Long parentId,
-        Board board,
-        String category,
-        PostTargetGroupType targetGroupType,
-        Long targetGroupId,
-        PostTargetType targetType,
-        Long targetId,
-        String productImageUrl,
-        String writerName,
-        String title,
-        String content,
-        boolean isPrivate,
-        boolean isPhoto,
-        boolean isImportant
+    Long userId,
+    Long parentId,
+    Board board,
+    String category,
+    PostTargetGroupType targetGroupType,
+    Long targetGroupId,
+    PostTargetType targetType,
+    Long targetId,
+    String productImageUrl,
+    String writerName,
+    String title,
+    String content,
+    boolean isPrivate,
+    boolean isPhoto,
+    boolean isImportant
 ) {
     public boolean isReply() {
         return FormatValidator.hasValue(parentId);

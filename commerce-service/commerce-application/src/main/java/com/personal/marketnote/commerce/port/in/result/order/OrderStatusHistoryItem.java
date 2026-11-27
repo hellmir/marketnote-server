@@ -14,21 +14,21 @@ import java.time.LocalDateTime;
  * @Description 개별 주문 상태 변경 이력 항목을 표현합니다.
  */
 public record OrderStatusHistoryItem(
-        Long id,
-        OrderStatus orderStatus,
-        String orderStatusDescription,
-        OrderStatusReasonCategory reasonCategory,
-        String reason,
-        LocalDateTime createdAt
+    Long id,
+    OrderStatus orderStatus,
+    String orderStatusDescription,
+    OrderStatusReasonCategory reasonCategory,
+    String reason,
+    LocalDateTime createdAt
 ) {
     public static OrderStatusHistoryItem from(OrderStatusHistory history) {
         return new OrderStatusHistoryItem(
-                history.getId(),
-                history.getOrderStatus(),
-                history.getOrderStatus().getDescription(),
-                history.getReasonCategory(),
-                history.getReason(),
-                history.getCreatedAt()
+            history.getId(),
+            history.getOrderStatus(),
+            history.getOrderStatus().getDescription(),
+            history.getReasonCategory(),
+            history.getReason(),
+            history.getCreatedAt()
         );
     }
 }

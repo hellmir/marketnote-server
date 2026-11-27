@@ -62,8 +62,8 @@ class SendNotificationUseCaseTest {
 
     @Spy
     private Clock clock = Clock.fixed(
-            Instant.parse("2026-06-03T05:00:00Z"),
-            ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-06-03T05:00:00Z"),
+        ZoneId.of("Asia/Seoul")
     );
 
     private static final Long USER_ID = 1L;
@@ -79,11 +79,11 @@ class SendNotificationUseCaseTest {
             // given
             SendNotificationCommand command = createCommand("PUSH_ONLY");
             when(findNotificationTemplatePort.findActiveByTemplateCode(TEMPLATE_CODE))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> sendNotificationService.sendNotification(command))
-                    .isInstanceOf(NotificationTemplateNotFoundException.class);
+                .isInstanceOf(NotificationTemplateNotFoundException.class);
         }
     }
 
@@ -134,12 +134,12 @@ class SendNotificationUseCaseTest {
             setupTemplateFound(template);
             setupPreferenceEnabled();
             when(saveNotificationPort.save(any(Notification.class)))
-                    .thenAnswer(invocation -> {
-                        Notification notification = invocation.getArgument(0);
-                        assertThat(notification.getTitle()).startsWith("(광고) ");
-                        assertThat(notification.getBody()).endsWith("\n[수신거부:더보기>설정]");
-                        return withId(notification, 100L);
-                    });
+                .thenAnswer(invocation -> {
+                    Notification notification = invocation.getArgument(0);
+                    assertThat(notification.getTitle()).startsWith("(광고) ");
+                    assertThat(notification.getBody()).endsWith("\n[수신거부:더보기>설정]");
+                    return withId(notification, 100L);
+                });
 
             // when
             SendNotificationResult result = sendNotificationService.sendNotification(command);
@@ -158,7 +158,7 @@ class SendNotificationUseCaseTest {
             setupTemplateFound(template);
             setupPreferenceDisabled();
             when(saveNotificationPort.save(any(Notification.class)))
-                    .thenAnswer(invocation -> withId(invocation.getArgument(0), 100L));
+                .thenAnswer(invocation -> withId(invocation.getArgument(0), 100L));
 
             // when
             SendNotificationResult result = sendNotificationService.sendNotification(command);
@@ -174,31 +174,31 @@ class SendNotificationUseCaseTest {
             // given
             String marketingTemplateCode = "MARKETING";
             SendNotificationCommand command = new SendNotificationCommand(
-                    USER_ID, marketingTemplateCode, Map.of(), "PUSH_ONLY", null
+                USER_ID, marketingTemplateCode, Map.of(), "PUSH_ONLY", null
             );
             NotificationTemplate template = NotificationTemplate.from(
-                    NotificationTemplateSnapshotState.builder()
-                            .id(2L)
-                            .templateCode(marketingTemplateCode)
-                            .notificationType(NotificationType.MARKETING)
-                            .notificationCategory(NotificationCategory.PROMOTIONAL)
-                            .title("마케팅 알림")
-                            .bodyTemplate("마케팅 본문")
-                            .urlTemplate("/marketing")
-                            .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                            .createdAt(LocalDateTime.now())
-                            .modifiedAt(LocalDateTime.now())
-                            .build()
+                NotificationTemplateSnapshotState.builder()
+                    .id(2L)
+                    .templateCode(marketingTemplateCode)
+                    .notificationType(NotificationType.MARKETING)
+                    .notificationCategory(NotificationCategory.PROMOTIONAL)
+                    .title("마케팅 알림")
+                    .bodyTemplate("마케팅 본문")
+                    .urlTemplate("/marketing")
+                    .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .modifiedAt(LocalDateTime.now())
+                    .build()
             );
             when(findNotificationTemplatePort.findActiveByTemplateCode(marketingTemplateCode))
-                    .thenReturn(Optional.of(template));
+                .thenReturn(Optional.of(template));
             NotificationPreference preference = mock(NotificationPreference.class);
             when(preference.isEnabled()).thenReturn(false);
             when(findNotificationPreferencePort.findByUserIdAndNotificationType(
-                    USER_ID, NotificationType.MARKETING
+                USER_ID, NotificationType.MARKETING
             )).thenReturn(Optional.of(preference));
             when(saveNotificationPort.save(any(Notification.class)))
-                    .thenAnswer(invocation -> withId(invocation.getArgument(0), 200L));
+                .thenAnswer(invocation -> withId(invocation.getArgument(0), 200L));
 
             // when
             SendNotificationResult result = sendNotificationService.sendNotification(command);
@@ -216,10 +216,10 @@ class SendNotificationUseCaseTest {
             NotificationTemplate template = createTemplate(NotificationCategory.PROMOTIONAL);
             setupTemplateFound(template);
             when(findNotificationPreferencePort.findByUserIdAndNotificationType(
-                    USER_ID, NotificationType.ORDER_PAYMENT_COMPLETED
+                USER_ID, NotificationType.ORDER_PAYMENT_COMPLETED
             )).thenReturn(Optional.empty());
             when(saveNotificationPort.save(any(Notification.class)))
-                    .thenAnswer(invocation -> withId(invocation.getArgument(0), 100L));
+                .thenAnswer(invocation -> withId(invocation.getArgument(0), 100L));
 
             // when
             SendNotificationResult result = sendNotificationService.sendNotification(command);
@@ -239,8 +239,8 @@ class SendNotificationUseCaseTest {
         void shouldScheduleForPromotionalAtNight() {
             // given
             Clock nightClock = Clock.fixed(
-                    Instant.parse("2026-06-03T13:00:00Z"),
-                    ZoneId.of("Asia/Seoul")
+                Instant.parse("2026-06-03T13:00:00Z"),
+                ZoneId.of("Asia/Seoul")
             );
             when(clock.instant()).thenReturn(nightClock.instant());
             when(clock.getZone()).thenReturn(nightClock.getZone());
@@ -250,11 +250,11 @@ class SendNotificationUseCaseTest {
             setupTemplateFound(template);
             setupPreferenceEnabled();
             when(saveNotificationPort.save(any(Notification.class)))
-                    .thenAnswer(invocation -> {
-                        Notification notification = invocation.getArgument(0);
-                        assertThat(notification.getSendStatus()).isEqualTo(SendStatus.SCHEDULED);
-                        return withId(notification, 100L);
-                    });
+                .thenAnswer(invocation -> {
+                    Notification notification = invocation.getArgument(0);
+                    assertThat(notification.getSendStatus()).isEqualTo(SendStatus.SCHEDULED);
+                    return withId(notification, 100L);
+                });
 
             // when
             SendNotificationResult result = sendNotificationService.sendNotification(command);
@@ -277,7 +277,7 @@ class SendNotificationUseCaseTest {
             NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
             setupTemplateFound(template);
             when(saveNotificationPort.save(any(Notification.class)))
-                    .thenAnswer(invocation -> withId(invocation.getArgument(0), 100L));
+                .thenAnswer(invocation -> withId(invocation.getArgument(0), 100L));
 
             // when
             SendNotificationResult result = sendNotificationService.sendNotification(command);
@@ -305,7 +305,7 @@ class SendNotificationUseCaseTest {
 
             // then
             ArgumentCaptor<PushNotificationRequestedEvent> captor =
-                    ArgumentCaptor.forClass(PushNotificationRequestedEvent.class);
+                ArgumentCaptor.forClass(PushNotificationRequestedEvent.class);
             verify(applicationEventPublisher).publishEvent(captor.capture());
 
             PushNotificationRequestedEvent event = captor.getValue();
@@ -342,32 +342,32 @@ class SendNotificationUseCaseTest {
         void shouldRenderTemplateVariables() {
             // given
             SendNotificationCommand command = new SendNotificationCommand(
-                    USER_ID, TEMPLATE_CODE,
-                    Map.of("orderNumber", "ORD-001", "amount", "50,000원"),
-                    "PUSH_ONLY", null
+                USER_ID, TEMPLATE_CODE,
+                Map.of("orderNumber", "ORD-001", "amount", "50,000원"),
+                "PUSH_ONLY", null
             );
             NotificationTemplate template = createTemplateWithBody(
-                    NotificationCategory.MANDATORY,
-                    "주문 완료",
-                    "주문번호 {orderNumber}이 {amount}에 결제되었습니다.",
-                    "/order/{orderNumber}"
+                NotificationCategory.MANDATORY,
+                "주문 완료",
+                "주문번호 {orderNumber}이 {amount}에 결제되었습니다.",
+                "/order/{orderNumber}"
             );
             setupTemplateFound(template);
             when(saveNotificationPort.save(any(Notification.class)))
-                    .thenAnswer(invocation -> {
-                        Notification notification = invocation.getArgument(0);
-                        assertThat(notification.getTitle()).isEqualTo("주문 완료");
-                        assertThat(notification.getBody()).isEqualTo("주문번호 ORD-001이 50,000원에 결제되었습니다.");
-                        assertThat(notification.getLandingUrl()).isEqualTo("/order/ORD-001");
-                        return withId(notification, 100L);
-                    });
+                .thenAnswer(invocation -> {
+                    Notification notification = invocation.getArgument(0);
+                    assertThat(notification.getTitle()).isEqualTo("주문 완료");
+                    assertThat(notification.getBody()).isEqualTo("주문번호 ORD-001이 50,000원에 결제되었습니다.");
+                    assertThat(notification.getLandingUrl()).isEqualTo("/order/ORD-001");
+                    return withId(notification, 100L);
+                });
 
             // when
             sendNotificationService.sendNotification(command);
 
             // then
             ArgumentCaptor<PushNotificationRequestedEvent> captor =
-                    ArgumentCaptor.forClass(PushNotificationRequestedEvent.class);
+                ArgumentCaptor.forClass(PushNotificationRequestedEvent.class);
             verify(applicationEventPublisher).publishEvent(captor.capture());
             PushNotificationRequestedEvent event = captor.getValue();
             assertThat(event.title()).isEqualTo("주문 완료");
@@ -380,7 +380,7 @@ class SendNotificationUseCaseTest {
 
     private SendNotificationCommand createCommand(String deliveryChannel) {
         return new SendNotificationCommand(
-                USER_ID, TEMPLATE_CODE, Map.of(), deliveryChannel, null
+            USER_ID, TEMPLATE_CODE, Map.of(), deliveryChannel, null
         );
     }
 
@@ -389,40 +389,40 @@ class SendNotificationUseCaseTest {
     }
 
     private NotificationTemplate createTemplateWithBody(
-            NotificationCategory category, String title, String bodyTemplate, String urlTemplate
+        NotificationCategory category, String title, String bodyTemplate, String urlTemplate
     ) {
         return NotificationTemplate.from(
-                NotificationTemplateSnapshotState.builder()
-                        .id(1L)
-                        .templateCode(TEMPLATE_CODE)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .notificationCategory(category)
-                        .title(title)
-                        .bodyTemplate(bodyTemplate)
-                        .urlTemplate(urlTemplate)
-                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            NotificationTemplateSnapshotState.builder()
+                .id(1L)
+                .templateCode(TEMPLATE_CODE)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .notificationCategory(category)
+                .title(title)
+                .bodyTemplate(bodyTemplate)
+                .urlTemplate(urlTemplate)
+                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 
     private void setupTemplateFound(NotificationTemplate template) {
         when(findNotificationTemplatePort.findActiveByTemplateCode(TEMPLATE_CODE))
-                .thenReturn(Optional.of(template));
+            .thenReturn(Optional.of(template));
     }
 
     private void setupTemplateAndSave(NotificationTemplate template) {
         setupTemplateFound(template);
         when(saveNotificationPort.save(any(Notification.class)))
-                .thenAnswer(invocation -> withId(invocation.getArgument(0), 100L));
+            .thenAnswer(invocation -> withId(invocation.getArgument(0), 100L));
     }
 
     private void setupPreferenceEnabled() {
         NotificationPreference preference = mock(NotificationPreference.class);
         when(preference.isEnabled()).thenReturn(true);
         when(findNotificationPreferencePort.findByUserIdAndNotificationType(
-                USER_ID, NotificationType.ORDER_PAYMENT_COMPLETED
+            USER_ID, NotificationType.ORDER_PAYMENT_COMPLETED
         )).thenReturn(Optional.of(preference));
     }
 
@@ -430,28 +430,28 @@ class SendNotificationUseCaseTest {
         NotificationPreference preference = mock(NotificationPreference.class);
         when(preference.isEnabled()).thenReturn(false);
         when(findNotificationPreferencePort.findByUserIdAndNotificationType(
-                USER_ID, NotificationType.ORDER_PAYMENT_COMPLETED
+            USER_ID, NotificationType.ORDER_PAYMENT_COMPLETED
         )).thenReturn(Optional.of(preference));
     }
 
     private Notification withId(Notification notification, Long id) {
         return Notification.from(
-                NotificationSnapshotState.builder()
-                        .id(id)
-                        .userId(notification.getUserId())
-                        .notificationType(notification.getNotificationType())
-                        .title(notification.getTitle())
-                        .body(notification.getBody())
-                        .data(notification.getData())
-                        .deliveryChannel(notification.getDeliveryChannel())
-                        .isRead(notification.isRead())
-                        .landingUrl(notification.getLandingUrl())
-                        .sendStatus(notification.getSendStatus())
-                        .scheduledAt(notification.getScheduledAt())
-                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            NotificationSnapshotState.builder()
+                .id(id)
+                .userId(notification.getUserId())
+                .notificationType(notification.getNotificationType())
+                .title(notification.getTitle())
+                .body(notification.getBody())
+                .data(notification.getData())
+                .deliveryChannel(notification.getDeliveryChannel())
+                .isRead(notification.isRead())
+                .landingUrl(notification.getLandingUrl())
+                .sendStatus(notification.getSendStatus())
+                .scheduledAt(notification.getScheduledAt())
+                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 }

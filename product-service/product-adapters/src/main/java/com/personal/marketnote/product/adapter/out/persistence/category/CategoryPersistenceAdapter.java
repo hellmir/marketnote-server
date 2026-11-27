@@ -27,7 +27,7 @@ public class CategoryPersistenceAdapter implements FindCategoryPort, SaveCategor
     @Override
     public Optional<Category> findById(Long id) {
         return CategoryJpaEntityToDomainMapper.mapToDomain(
-                categoryJpaRepository.findById(id).orElse(null)
+            categoryJpaRepository.findById(id).orElse(null)
         );
     }
 
@@ -35,14 +35,14 @@ public class CategoryPersistenceAdapter implements FindCategoryPort, SaveCategor
     public List<Category> findActiveByParentId(Long parentCategoryId) {
         Long safeParentId = FormatValidator.hasValue(parentCategoryId) ? parentCategoryId : -1L;
         return CategoryJpaEntityToDomainMapper.mapToDomainList(
-                categoryJpaRepository.findActiveByParentId(safeParentId)
+            categoryJpaRepository.findActiveByParentId(safeParentId)
         );
     }
 
     @Override
     public List<Category> findAllActiveByIds(List<Long> ids) {
         return CategoryJpaEntityToDomainMapper.mapToDomainList(
-                categoryJpaRepository.findAllByIdInAndStatus(ids, EntityStatus.ACTIVE)
+            categoryJpaRepository.findAllByIdInAndStatus(ids, EntityStatus.ACTIVE)
         );
     }
 
@@ -52,10 +52,10 @@ public class CategoryPersistenceAdapter implements FindCategoryPort, SaveCategor
         CategoryJpaEntity saved = categoryJpaRepository.save(entity);
 
         return CategoryJpaEntityToDomainMapper.mapToDomain(saved)
-                .orElseThrow(() -> {
-                    log.warn("저장된 카테고리를 도메인으로 매핑할 수 없습니다. categoryId={}", saved.getId());
-                    return new CategoryNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("저장된 카테고리를 도메인으로 매핑할 수 없습니다. categoryId={}", saved.getId());
+                return new CategoryNotFoundException();
+            });
     }
 
     @Override
@@ -77,10 +77,10 @@ public class CategoryPersistenceAdapter implements FindCategoryPort, SaveCategor
     public void update(Category category) {
         Long id = category.getId();
         CategoryJpaEntity entity = categoryJpaRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("존재하지 않는 카테고리입니다. categoryId={}", id);
-                    return new CategoryNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("존재하지 않는 카테고리입니다. categoryId={}", id);
+                return new CategoryNotFoundException();
+            });
 
         entity.updateFrom(category);
     }

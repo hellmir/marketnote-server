@@ -68,10 +68,10 @@ class PricePolicyJpaRepositoryTest {
             PricePolicyJpaEntity third = savePricePolicy(product, 3000L);
 
             List<PricePolicyJpaEntity> results = pricePolicyJpaRepository
-                    .findAllByProductJpaEntity_IdOrderByIdDesc(product.getId());
+                .findAllByProductJpaEntity_IdOrderByIdDesc(product.getId());
 
             assertThat(results).extracting(PricePolicyJpaEntity::getId)
-                    .containsExactly(third.getId(), second.getId(), first.getId());
+                .containsExactly(third.getId(), second.getId(), first.getId());
         }
 
         @Test
@@ -83,7 +83,7 @@ class PricePolicyJpaRepositoryTest {
             savePricePolicy(productB, 2000L);
 
             List<PricePolicyJpaEntity> results = pricePolicyJpaRepository
-                    .findAllByProductJpaEntity_IdOrderByIdDesc(productA.getId());
+                .findAllByProductJpaEntity_IdOrderByIdDesc(productA.getId());
 
             assertThat(results).hasSize(1);
             assertThat(results.getFirst().getId()).isEqualTo(policyA.getId());
@@ -95,7 +95,7 @@ class PricePolicyJpaRepositoryTest {
             ProductJpaEntity product = saveProduct("상품1", "브랜드1");
 
             List<PricePolicyJpaEntity> results = pricePolicyJpaRepository
-                    .findAllByProductJpaEntity_IdOrderByIdDesc(product.getId());
+                .findAllByProductJpaEntity_IdOrderByIdDesc(product.getId());
 
             assertThat(results).isEmpty();
         }
@@ -119,7 +119,7 @@ class PricePolicyJpaRepositoryTest {
             entityManager.clear();
 
             List<PricePolicyJpaEntity> results = pricePolicyJpaRepository
-                    .findByOptionIds(List.of(red.getId(), blue.getId()));
+                .findByOptionIds(List.of(red.getId(), blue.getId()));
 
             assertThat(results).hasSize(1);
             assertThat(results.getFirst().getId()).isEqualTo(policy.getId());
@@ -138,7 +138,7 @@ class PricePolicyJpaRepositoryTest {
             entityManager.clear();
 
             List<PricePolicyJpaEntity> results = pricePolicyJpaRepository
-                    .findByOptionIds(List.of(red.getId(), blue.getId()));
+                .findByOptionIds(List.of(red.getId(), blue.getId()));
 
             assertThat(results).isEmpty();
         }
@@ -162,7 +162,7 @@ class PricePolicyJpaRepositoryTest {
             entityManager.clear();
 
             Optional<PricePolicyJpaEntity> result = pricePolicyJpaRepository
-                    .findOneByOptionIds(List.of(red.getId()));
+                .findOneByOptionIds(List.of(red.getId()));
 
             assertThat(result).isPresent();
             assertThat(result.get().getId()).isEqualTo(newer.getId());
@@ -178,7 +178,7 @@ class PricePolicyJpaRepositoryTest {
             entityManager.clear();
 
             Optional<PricePolicyJpaEntity> result = pricePolicyJpaRepository
-                    .findOneByOptionIds(List.of(red.getId()));
+                .findOneByOptionIds(List.of(red.getId()));
 
             assertThat(result).isEmpty();
         }
@@ -200,7 +200,7 @@ class PricePolicyJpaRepositoryTest {
             entityManager.clear();
 
             List<PricePolicyJpaEntity> results = pricePolicyJpaRepository
-                    .findAllWithProductAndOptionMappingsByIdIn(List.of(policy.getId()));
+                .findAllWithProductAndOptionMappingsByIdIn(List.of(policy.getId()));
 
             assertThat(results).hasSize(1);
             PricePolicyJpaEntity fetched = results.getFirst();
@@ -217,7 +217,7 @@ class PricePolicyJpaRepositoryTest {
             entityManager.clear();
 
             List<PricePolicyJpaEntity> results = pricePolicyJpaRepository
-                    .findAllWithProductAndOptionMappingsByIdIn(List.of(policy.getId() + 100));
+                .findAllWithProductAndOptionMappingsByIdIn(List.of(policy.getId() + 100));
 
             assertThat(results).isEmpty();
         }
@@ -264,17 +264,17 @@ class PricePolicyJpaRepositoryTest {
     private ProductJpaEntity saveProduct(String name, String brandName) {
         UUID productKey = RandomCodeGenerator.generateProductKey();
         Product product = Product.from(
-                ProductSnapshotState.builder()
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name(name)
-                        .brandName(brandName)
-                        .detail("설명")
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .productKey(productKey)
+                .sellerId(1L)
+                .name(name)
+                .brandName(brandName)
+                .detail("설명")
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
         ProductJpaEntity entity = ProductJpaEntity.from(product);
         ProductJpaEntity saved = productJpaRepository.save(entity);
@@ -284,13 +284,13 @@ class PricePolicyJpaRepositoryTest {
 
     private PricePolicyJpaEntity savePricePolicy(ProductJpaEntity productEntity, Long accumulatedPoint) {
         PricePolicy pricePolicy = PricePolicy.from(
-                PricePolicyCreateState.builder()
-                        .price(10000L)
-                        .discountPrice(9000L)
-                        .discountRate(Rate.of(BigDecimal.valueOf(10.0)))
-                        .accumulatedPoint(accumulatedPoint)
-                        .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
-                        .build()
+            PricePolicyCreateState.builder()
+                .price(10000L)
+                .discountPrice(9000L)
+                .discountRate(Rate.of(BigDecimal.valueOf(10.0)))
+                .accumulatedPoint(accumulatedPoint)
+                .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
+                .build()
         );
         PricePolicyJpaEntity entity = PricePolicyJpaEntity.from(productEntity, pricePolicy);
         PricePolicyJpaEntity saved = pricePolicyJpaRepository.save(entity);
@@ -300,10 +300,10 @@ class PricePolicyJpaRepositoryTest {
 
     private ProductOptionCategoryJpaEntity saveOptionCategory(ProductJpaEntity product, String name) {
         ProductOptionCategoryCreateState state = ProductOptionCategoryCreateState.builder()
-                .product(null)
-                .name(name)
-                .optionStates(List.of())
-                .build();
+            .product(null)
+            .name(name)
+            .optionStates(List.of())
+            .build();
         ProductOptionCategory category = ProductOptionCategory.from(state);
         ProductOptionCategoryJpaEntity entity = ProductOptionCategoryJpaEntity.from(category, product);
         ProductOptionCategoryJpaEntity saved = productOptionCategoryJpaRepository.save(entity);
@@ -313,9 +313,9 @@ class PricePolicyJpaRepositoryTest {
 
     private ProductOptionJpaEntity saveOption(ProductOptionCategoryJpaEntity category, String content) {
         ProductOptionCreateState state = ProductOptionCreateState.builder()
-                .category(null)
-                .content(content)
-                .build();
+            .category(null)
+            .content(content)
+            .build();
         ProductOption option = ProductOption.from(state);
         ProductOptionJpaEntity entity = ProductOptionJpaEntity.from(category, option);
         entityManager.persist(entity);

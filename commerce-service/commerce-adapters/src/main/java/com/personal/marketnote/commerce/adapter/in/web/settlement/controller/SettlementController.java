@@ -67,20 +67,20 @@ public class SettlementController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ExecuteSettlementApiDocs
     public ResponseEntity<BaseResponse<Void>> executeSettlement(
-            @Valid @RequestBody ExecuteSettlementRequest request
+        @Valid @RequestBody ExecuteSettlementRequest request
     ) {
         executeSettlementUseCase.executeSettlement(
-                SettlementRequestToCommandMapper.mapToCommand(request)
+            SettlementRequestToCommandMapper.mapToCommand(request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "정산 실행 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "정산 실행 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -96,18 +96,18 @@ public class SettlementController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RetryFailedSettlementApiDocs
     public ResponseEntity<BaseResponse<Void>> retrySettlement(
-            @PathVariable("id") Long id
+        @PathVariable("id") Long id
     ) {
         retryFailedSettlementUseCase.retrySettlement(id);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "정산 재시도 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "정산 재시도 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -123,18 +123,18 @@ public class SettlementController {
     @PreAuthorize(ADMIN_POINTCUT)
     @CancelSettlementApiDocs
     public ResponseEntity<BaseResponse<Void>> cancelSettlement(
-            @PathVariable("id") Long id
+        @PathVariable("id") Long id
     ) {
         cancelSettlementUseCase.cancelSettlement(id);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "정산 취소 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "정산 취소 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -150,18 +150,18 @@ public class SettlementController {
     @PreAuthorize(ADMIN_POINTCUT)
     @ReExecuteSettlementApiDocs
     public ResponseEntity<BaseResponse<Void>> reExecuteSettlement(
-            @PathVariable("id") Long id
+        @PathVariable("id") Long id
     ) {
         reExecuteSettlementUseCase.reExecuteSettlement(id);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "정산 재실행 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "정산 재실행 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -179,13 +179,13 @@ public class SettlementController {
         GetSettlementsResult result = getFailedSettlementsUseCase.getFailedSettlements();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetSettlementsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "실패한 정산 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetSettlementsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "실패한 정산 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -203,21 +203,21 @@ public class SettlementController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetSettlementsApiDocs
     public ResponseEntity<BaseResponse<GetSettlementsResponse>> getSettlements(
-            @RequestParam @NotNull @Min(2020) @Max(2100) Integer year,
-            @RequestParam @NotNull @Min(1) @Max(12) Integer month
+        @RequestParam @NotNull @Min(2020) @Max(2100) Integer year,
+        @RequestParam @NotNull @Min(1) @Max(12) Integer month
     ) {
         GetSettlementsResult result = getSettlementUseCase.getSettlements(
-                SettlementRequestToCommandMapper.mapToQuery(year, month)
+            SettlementRequestToCommandMapper.mapToQuery(year, month)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetSettlementsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "정산 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetSettlementsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "정산 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -234,18 +234,18 @@ public class SettlementController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetSettlementApiDocs
     public ResponseEntity<BaseResponse<GetSettlementResponse>> getSettlement(
-            @PathVariable("id") Long id
+        @PathVariable("id") Long id
     ) {
         GetSettlementResult result = getSettlementUseCase.getSettlement(id);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetSettlementResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "정산 단건 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetSettlementResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "정산 단건 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -262,18 +262,18 @@ public class SettlementController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetSettlementDetailApiDocs
     public ResponseEntity<BaseResponse<List<GetSettlementDetailResponse>>> getSettlementAllocations(
-            @PathVariable("id") Long id
+        @PathVariable("id") Long id
     ) {
         List<GetSettlementDetailResult> results = getSettlementDetailUseCase.getSettlementAllocations(id);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetSettlementDetailResponse.fromList(results),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "정산 내역 상세 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetSettlementDetailResponse.fromList(results),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "정산 내역 상세 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -292,24 +292,24 @@ public class SettlementController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @GetSellerSettlementsApiDocs
     public ResponseEntity<BaseResponse<GetSellerSettlementsResponse>> getMySettlements(
-            @RequestParam @NotNull @Min(2020) @Max(2100) Integer year,
-            @RequestParam(required = false) @Min(1) @Max(12) Integer month,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @RequestParam @NotNull @Min(2020) @Max(2100) Integer year,
+        @RequestParam(required = false) @Min(1) @Max(12) Integer month,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long sellerId = ElementExtractor.extractUserId(principal);
 
         GetSettlementsResult result = getSellerSettlementsUseCase.getSellerSettlements(
-                SellerSettlementRequestToQueryMapper.mapToQuery(sellerId, year, month)
+            SellerSettlementRequestToQueryMapper.mapToQuery(sellerId, year, month)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetSellerSettlementsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "나의 정산 내역 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetSellerSettlementsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "나의 정산 내역 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

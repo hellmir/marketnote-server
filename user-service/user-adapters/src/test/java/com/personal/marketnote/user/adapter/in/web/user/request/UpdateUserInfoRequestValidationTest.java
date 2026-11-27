@@ -28,11 +28,11 @@ class UpdateUserInfoRequestValidationTest {
 
     @ParameterizedTest(name = "canonical/하이픈 포함 입력 {0} 은 phoneNumber 패턴 위반 없음")
     @ValueSource(strings = {
-            "01012345678",
-            "0101234567",
-            "010-1234-5678",
-            "010-123-4567",
-            "010-12345678"
+        "01012345678",
+        "0101234567",
+        "010-1234-5678",
+        "010-123-4567",
+        "010-12345678"
     })
     @DisplayName("canonical 또는 하이픈 포함 입력은 phoneNumber 패턴 검증을 통과한다")
     void shouldPassPhoneNumberValidationForValidInputs(String phoneNumber) {
@@ -46,11 +46,11 @@ class UpdateUserInfoRequestValidationTest {
 
     @ParameterizedTest(name = "비허용 입력 {0} 은 phoneNumber 패턴 위반 발생")
     @ValueSource(strings = {
-            "01012345",
-            "02012345678",
-            "01212345678",
-            "010 1234 5678",
-            "010.1234.5678"
+        "01012345",
+        "02012345678",
+        "01212345678",
+        "010 1234 5678",
+        "010.1234.5678"
     })
     @DisplayName("비허용 입력은 phoneNumber 패턴 검증에 실패한다")
     void shouldFailPhoneNumberValidationForInvalidInputs(String phoneNumber) {

@@ -56,15 +56,15 @@ class DeleteQuickPaymentCardUseCaseTest {
             DeleteBatchKeyPortResult portResult = createSuccessPortResult();
 
             when(findQuickPaymentCardPort.findActiveByIdAndUserId(CARD_ID, USER_ID))
-                    .thenReturn(Optional.of(card));
+                .thenReturn(Optional.of(card));
             when(deleteBatchKeyPort.deleteBatchKey(argThat(c ->
-                    "batch_key_test".equals(c.batchKey()) && "group_test".equals(c.groupId())
+                "batch_key_test".equals(c.batchKey()) && "group_test".equals(c.groupId())
             ))).thenReturn(portResult);
 
             deleteQuickPaymentCardService.delete(command);
 
             verify(deleteQuickPaymentCardPort).deactivate(argThat(c ->
-                    c.isInactive()
+                c.isInactive()
             ));
         }
 
@@ -76,7 +76,7 @@ class DeleteQuickPaymentCardUseCaseTest {
             DeleteBatchKeyPortResult portResult = createSuccessPortResult();
 
             when(findQuickPaymentCardPort.findActiveByIdAndUserId(CARD_ID, USER_ID))
-                    .thenReturn(Optional.of(card));
+                .thenReturn(Optional.of(card));
             when(deleteBatchKeyPort.deleteBatchKey(any())).thenReturn(portResult);
 
             deleteQuickPaymentCardService.delete(command);
@@ -96,10 +96,10 @@ class DeleteQuickPaymentCardUseCaseTest {
             DeleteQuickPaymentCardCommand command = createCommand();
 
             when(findQuickPaymentCardPort.findActiveByIdAndUserId(CARD_ID, USER_ID))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> deleteQuickPaymentCardService.delete(command))
-                    .isInstanceOf(QuickPaymentCardNotFoundException.class);
+                .isInstanceOf(QuickPaymentCardNotFoundException.class);
 
             verify(deleteBatchKeyPort, never()).deleteBatchKey(any());
             verify(deleteQuickPaymentCardPort, never()).deactivate(any());
@@ -111,19 +111,19 @@ class DeleteQuickPaymentCardUseCaseTest {
             DeleteQuickPaymentCardCommand command = createCommand();
             QuickPaymentCard card = createCard();
             DeleteBatchKeyPortResult portResult = DeleteBatchKeyPortResult.builder()
-                    .success(false)
-                    .resultCode("9999")
-                    .resultMessage("시스템 오류")
-                    .build();
+                .success(false)
+                .resultCode("9999")
+                .resultMessage("시스템 오류")
+                .build();
 
             when(findQuickPaymentCardPort.findActiveByIdAndUserId(CARD_ID, USER_ID))
-                    .thenReturn(Optional.of(card));
+                .thenReturn(Optional.of(card));
             when(deleteBatchKeyPort.deleteBatchKey(any())).thenReturn(portResult);
 
             assertThatThrownBy(() -> deleteQuickPaymentCardService.delete(command))
-                    .isInstanceOf(QuickPaymentBatchKeyDeletionFailedException.class)
-                    .hasMessageContaining("9999")
-                    .hasMessageContaining("시스템 오류");
+                .isInstanceOf(QuickPaymentBatchKeyDeletionFailedException.class)
+                .hasMessageContaining("9999")
+                .hasMessageContaining("시스템 오류");
 
             verify(deleteQuickPaymentCardPort, never()).deactivate(any());
         }
@@ -135,13 +135,13 @@ class DeleteQuickPaymentCardUseCaseTest {
             QuickPaymentCard card = createCard();
 
             when(findQuickPaymentCardPort.findActiveByIdAndUserId(CARD_ID, USER_ID))
-                    .thenReturn(Optional.of(card));
+                .thenReturn(Optional.of(card));
             when(deleteBatchKeyPort.deleteBatchKey(any()))
-                    .thenThrow(new RuntimeException("KCP 통신 실패"));
+                .thenThrow(new RuntimeException("KCP 통신 실패"));
 
             assertThatThrownBy(() -> deleteQuickPaymentCardService.delete(command))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessageContaining("KCP 통신 실패");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("KCP 통신 실패");
 
             verify(deleteQuickPaymentCardPort, never()).deactivate(any());
         }
@@ -149,30 +149,30 @@ class DeleteQuickPaymentCardUseCaseTest {
 
     private DeleteQuickPaymentCardCommand createCommand() {
         return DeleteQuickPaymentCardCommand.builder()
-                .quickPaymentCardId(CARD_ID)
-                .userId(USER_ID)
-                .build();
+            .quickPaymentCardId(CARD_ID)
+            .userId(USER_ID)
+            .build();
     }
 
     private QuickPaymentCard createCard() {
         return QuickPaymentCard.from(QuickPaymentCardSnapshotState.builder()
-                .id(CARD_ID)
-                .userId(USER_ID)
-                .batchKey("batch_key_test")
-                .groupId("group_test")
-                .cardCode("CCDI")
-                .cardName("현대카드")
-                .cardBinType01("0")
-                .cardBinType02("0")
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(CARD_ID)
+            .userId(USER_ID)
+            .batchKey("batch_key_test")
+            .groupId("group_test")
+            .cardCode("CCDI")
+            .cardName("현대카드")
+            .cardBinType01("0")
+            .cardBinType02("0")
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 
     private DeleteBatchKeyPortResult createSuccessPortResult() {
         return DeleteBatchKeyPortResult.builder()
-                .success(true)
-                .resultCode("0000")
-                .resultMessage("성공")
-                .build();
+            .success(true)
+            .resultCode("0000")
+            .resultMessage("성공")
+            .build();
     }
 }

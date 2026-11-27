@@ -33,12 +33,12 @@ public class NoticeRegisteredNotificationConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.NOTICE_REGISTERED,
-            groupId = "notification-notice-registered"
+        topics = KafkaTopicConstants.NOTICE_REGISTERED,
+        groupId = "notification-notice-registered"
     )
     public void handleNoticeRegisteredEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -55,10 +55,10 @@ public class NoticeRegisteredNotificationConsumer {
         NoticeRegisteredEvent payload = envelope.getPayloadAs(NoticeRegisteredEvent.class, objectMapper);
 
         log.info("공지사항 등록 이벤트 수신 (알림 발송). eventId={}, postId={}, title={}",
-                envelope.eventId(), payload.postId(), payload.title());
+            envelope.eventId(), payload.postId(), payload.title());
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("postId", payload.postId()))) {
+            EventPayloadValidator.id("postId", payload.postId()))) {
             acknowledgment.acknowledge();
             return;
         }
@@ -73,8 +73,8 @@ public class NoticeRegisteredNotificationConsumer {
             List<Long> allUserIds = findNotificationPreferencePort.findAllDistinctUserIds();
 
             Map<String, String> variables = Map.of(
-                    "post_id", String.valueOf(payload.postId()),
-                    "notice_title", payload.title()
+                "post_id", String.valueOf(payload.postId()),
+                "notice_title", payload.title()
             );
 
             String deliveryChannel = resolveDeliveryChannel(payload.isImportant());
@@ -83,22 +83,22 @@ public class NoticeRegisteredNotificationConsumer {
                 List<Long> batchUserIds = allUserIds.subList(i, Math.min(i + MAX_BATCH_SIZE, allUserIds.size()));
 
                 SendBatchNotificationCommand command = new SendBatchNotificationCommand(
-                        batchUserIds,
-                        "NOTICE_REGISTERED",
-                        variables,
-                        deliveryChannel,
-                        null
+                    batchUserIds,
+                    "NOTICE_REGISTERED",
+                    variables,
+                    deliveryChannel,
+                    null
                 );
                 sendBatchNotificationUseCase.sendBatchNotification(command);
 
                 log.info("공지사항 알림 배치 발송 완료. postId={}, batchIndex={}, batchSize={}",
-                        payload.postId(), i / MAX_BATCH_SIZE, batchUserIds.size());
+                    payload.postId(), i / MAX_BATCH_SIZE, batchUserIds.size());
             }
 
             log.info("공지사항 알림 전체 발송 완료. postId={}, totalUsers={}", payload.postId(), allUserIds.size());
         } catch (Exception e) {
             log.error("공지사항 알림 발송 실패. eventId={}, postId={}, error={}",
-                    envelope.eventId(), payload.postId(), e.getMessage(), e);
+                envelope.eventId(), payload.postId(), e.getMessage(), e);
         }
 
         acknowledgment.acknowledge();

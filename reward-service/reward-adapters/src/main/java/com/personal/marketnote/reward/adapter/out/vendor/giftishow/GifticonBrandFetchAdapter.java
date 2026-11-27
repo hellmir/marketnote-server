@@ -28,19 +28,19 @@ public class GifticonBrandFetchAdapter implements FetchGifticonBrandPort {
 
         GiftishowBrandListResponse result = response.result();
         List<FetchedGifticonBrandItem> items = result.brandList().stream()
-                .map(this::mapToFetchedItem)
-                .toList();
+            .map(this::mapToFetchedItem)
+            .toList();
 
         return new FetchGifticonBrandResult(result.listNum(), items);
     }
 
     private FetchedGifticonBrandItem mapToFetchedItem(GiftishowBrandItem item) {
         return new FetchedGifticonBrandItem(
-                item.brandCode(),
-                item.brandName(),
-                item.brandIconImg(),
-                item.category1Seq(),
-                item.category1Name()
+            item.brandCode(),
+            item.brandName(),
+            item.brandIconImg(),
+            item.category1Seq(),
+            item.category1Name()
         );
     }
 }

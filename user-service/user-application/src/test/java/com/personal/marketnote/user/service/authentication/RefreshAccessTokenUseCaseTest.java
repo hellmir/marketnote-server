@@ -49,7 +49,7 @@ class RefreshAccessTokenUseCaseTest {
 
         // expect
         assertThatCode(() -> refreshAccessTokenService.validateRefreshToken(refreshToken))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
 
         verify(parseRefreshTokenPort).extractUserId(refreshToken);
         verify(findRefreshTokenPort).matchesByUserId(userId, refreshToken);
@@ -68,7 +68,7 @@ class RefreshAccessTokenUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> refreshAccessTokenService.validateRefreshToken(refreshToken))
-                .isInstanceOf(InvalidRefreshTokenException.class);
+            .isInstanceOf(InvalidRefreshTokenException.class);
 
         verify(findUserPort, never()).findAllStatusUserById(any());
     }
@@ -85,7 +85,7 @@ class RefreshAccessTokenUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> refreshAccessTokenService.validateRefreshToken(refreshToken))
-                .isInstanceOf(InvalidRefreshTokenException.class);
+            .isInstanceOf(InvalidRefreshTokenException.class);
 
         verify(findUserPort, never()).findAllStatusUserById(any());
     }
@@ -106,7 +106,7 @@ class RefreshAccessTokenUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> refreshAccessTokenService.validateRefreshToken(refreshToken))
-                .isInstanceOf(InvalidRefreshTokenException.class);
+            .isInstanceOf(InvalidRefreshTokenException.class);
     }
 
     @Test
@@ -122,7 +122,7 @@ class RefreshAccessTokenUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> refreshAccessTokenService.validateRefreshToken(refreshToken))
-                .isInstanceOf(InvalidRefreshTokenException.class);
+            .isInstanceOf(InvalidRefreshTokenException.class);
     }
 
     @Test
@@ -135,7 +135,7 @@ class RefreshAccessTokenUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> refreshAccessTokenService.validateRefreshToken(refreshToken))
-                .isInstanceOf(InvalidRefreshTokenException.class);
+            .isInstanceOf(InvalidRefreshTokenException.class);
 
         verifyNoInteractions(findRefreshTokenPort, findUserPort);
     }

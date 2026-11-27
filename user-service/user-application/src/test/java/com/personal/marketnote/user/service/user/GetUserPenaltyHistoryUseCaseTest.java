@@ -41,24 +41,24 @@ class GetUserPenaltyHistoryUseCaseTest {
         UserPenaltyHistorySortProperty sortProperty = UserPenaltyHistorySortProperty.ID;
 
         UserPenaltyHistory history1 = buildHistory(
-                10L, userId, 0, 1, "게시글 도배 행위", 99L, LocalDateTime.of(2026, 4, 13, 10, 0)
+            10L, userId, 0, 1, "게시글 도배 행위", 99L, LocalDateTime.of(2026, 4, 13, 10, 0)
         );
         UserPenaltyHistory history2 = buildHistory(
-                11L, userId, 1, 2, "약관 위반", 99L, LocalDateTime.of(2026, 4, 13, 11, 0)
+            11L, userId, 1, 2, "약관 위반", 99L, LocalDateTime.of(2026, 4, 13, 11, 0)
         );
 
         Page<UserPenaltyHistory> histories = new PageImpl<>(
-                List.of(history1, history2),
-                PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getLowerValue())),
-                2
+            List.of(history1, history2),
+            PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getLowerValue())),
+            2
         );
 
         when(findUserPenaltyHistoryPort.findUserPenaltyHistoriesByUserId(any(Pageable.class), eq(userId)))
-                .thenReturn(histories);
+            .thenReturn(histories);
 
         // when
         Page<GetUserPenaltyHistoryResult> result = getUserPenaltyHistoryService.getUserPenaltyHistories(
-                userId, pageSize, pageNumber, sortDirection, sortProperty
+            userId, pageSize, pageNumber, sortDirection, sortProperty
         );
 
         // then
@@ -104,17 +104,17 @@ class GetUserPenaltyHistoryUseCaseTest {
         UserPenaltyHistorySortProperty sortProperty = UserPenaltyHistorySortProperty.ID;
 
         Page<UserPenaltyHistory> histories = new PageImpl<>(
-                List.of(),
-                PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getLowerValue())),
-                0
+            List.of(),
+            PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getLowerValue())),
+            0
         );
 
         when(findUserPenaltyHistoryPort.findUserPenaltyHistoriesByUserId(any(Pageable.class), eq(userId)))
-                .thenReturn(histories);
+            .thenReturn(histories);
 
         // when
         Page<GetUserPenaltyHistoryResult> result = getUserPenaltyHistoryService.getUserPenaltyHistories(
-                userId, pageSize, pageNumber, sortDirection, sortProperty
+            userId, pageSize, pageNumber, sortDirection, sortProperty
         );
 
         // then
@@ -126,24 +126,24 @@ class GetUserPenaltyHistoryUseCaseTest {
     }
 
     private UserPenaltyHistory buildHistory(
-            Long id,
-            Long userId,
-            int previousCount,
-            int currentCount,
-            String reason,
-            Long createdBy,
-            LocalDateTime createdAt
+        Long id,
+        Long userId,
+        int previousCount,
+        int currentCount,
+        String reason,
+        Long createdBy,
+        LocalDateTime createdAt
     ) {
         return UserPenaltyHistory.from(
-                UserPenaltyHistorySnapshotState.builder()
-                        .id(id)
-                        .userId(userId)
-                        .previousCount(previousCount)
-                        .currentCount(currentCount)
-                        .reason(reason)
-                        .createdBy(createdBy)
-                        .createdAt(createdAt)
-                        .build()
+            UserPenaltyHistorySnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .previousCount(previousCount)
+                .currentCount(currentCount)
+                .reason(reason)
+                .createdBy(createdBy)
+                .createdAt(createdAt)
+                .build()
         );
     }
 }

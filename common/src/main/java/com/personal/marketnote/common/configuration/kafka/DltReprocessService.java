@@ -72,8 +72,8 @@ public class DltReprocessService {
             }
 
             List<TopicPartition> partitions = partitionInfos.stream()
-                    .map(pi -> new TopicPartition(dltTopic, pi.partition()))
-                    .toList();
+                .map(pi -> new TopicPartition(dltTopic, pi.partition()))
+                .toList();
 
             consumer.assign(partitions);
             consumer.seekToBeginning(partitions);
@@ -90,33 +90,33 @@ public class DltReprocessService {
                     if (resolvedKeys.contains(key)) {
                         skippedCount++;
                         log.info("이미 처리된 DLT 메시지 스킵. originalTopic={}, partition={}, offset={}",
-                                originalTopic, record.partition(), record.offset()
+                            originalTopic, record.partition(), record.offset()
                         );
                         continue;
                     }
 
                     try {
                         kafkaTemplate.send(originalTopic, record.key(), record.value())
-                                .get(SEND_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+                            .get(SEND_TIMEOUT_SECONDS, TimeUnit.SECONDS);
                         reprocessedCount++;
                         dltMetricsCollector.incrementDltReprocessCount(originalTopic, "success");
                         try {
                             saveResolution(originalTopic, dltTopic, record.partition(), record.offset(),
-                                    DltResolutionStatus.RETRIED, operatorInfo, null
+                                DltResolutionStatus.RETRIED, operatorInfo, null
                             );
                         } catch (Exception se) {
                             log.warn("DLT resolution 저장 실패. originalTopic={}, partition={}, offset={}",
-                                    originalTopic, record.partition(), record.offset(), se
+                                originalTopic, record.partition(), record.offset(), se
                             );
                         }
                         log.info("DLT 메시지 재처리 성공. originalTopic={}, key={}, offset={}",
-                                originalTopic, record.key(), record.offset()
+                            originalTopic, record.key(), record.offset()
                         );
                     } catch (Exception e) {
                         failedCount++;
                         dltMetricsCollector.incrementDltReprocessCount(originalTopic, "failure");
                         log.error("DLT 메시지 재처리 실패. originalTopic={}, key={}, offset={}",
-                                originalTopic, record.key(), record.offset(), e
+                            originalTopic, record.key(), record.offset(), e
                         );
                     }
                 }
@@ -125,7 +125,7 @@ public class DltReprocessService {
             }
 
             log.info("DLT 재처리 완료. dltTopic={}, reprocessed={}, failed={}, skipped={}",
-                    dltTopic, reprocessedCount, failedCount, skippedCount
+                dltTopic, reprocessedCount, failedCount, skippedCount
             );
             dltAuditLogger.logReprocessComplete(originalTopic, operatorInfo, reprocessedCount, failedCount);
             return new DltReprocessResult(reprocessedCount, failedCount, skippedCount);
@@ -147,14 +147,14 @@ public class DltReprocessService {
     }
 
     private void saveResolution(
-            String originalTopic, String dltTopic,
-            int partition, long offset,
-            DltResolutionStatus resolution, String operatorInfo,
-            String reason
+        String originalTopic, String dltTopic,
+        int partition, long offset,
+        DltResolutionStatus resolution, String operatorInfo,
+        String reason
     ) {
         DltMessageResolutionJpaEntity entity = DltMessageResolutionJpaEntity.of(
-                originalTopic, dltTopic, partition, offset,
-                resolution, operatorInfo, LocalDateTime.now(), reason
+            originalTopic, dltTopic, partition, offset,
+            resolution, operatorInfo, LocalDateTime.now(), reason
         );
         resolutionRepository.save(entity);
     }

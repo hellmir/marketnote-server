@@ -10,8 +10,8 @@ import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @Table(name = "quick_payment_card",
-        indexes = @Index(name = "idx_quick_payment_card_user_id", columnList = "user_id"),
-        uniqueConstraints = @UniqueConstraint(name = "uk_quick_payment_card_batch_key", columnNames = "batch_key"))
+    indexes = @Index(name = "idx_quick_payment_card_user_id", columnList = "user_id"),
+    uniqueConstraints = @UniqueConstraint(name = "uk_quick_payment_card_batch_key", columnNames = "batch_key"))
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -53,16 +53,16 @@ public class QuickPaymentCardJpaEntity extends BaseEntity {
 
     public static QuickPaymentCardJpaEntity from(QuickPaymentCard domain) {
         return QuickPaymentCardJpaEntity.builder()
-                .userId(domain.getUserId())
-                .batchKey(domain.getBatchKey())
-                .groupId(domain.getGroupId())
-                .cardCode(domain.getCardCode())
-                .cardName(domain.getCardName())
-                .maskedCardNumber(toMaskedCardNumberValue(domain))
-                .cardBinType01(domain.getCardBinType01())
-                .cardBinType02(domain.getCardBinType02())
-                .status(domain.getStatus())
-                .build();
+            .userId(domain.getUserId())
+            .batchKey(domain.getBatchKey())
+            .groupId(domain.getGroupId())
+            .cardCode(domain.getCardCode())
+            .cardName(domain.getCardName())
+            .maskedCardNumber(toMaskedCardNumberValue(domain))
+            .cardBinType01(domain.getCardBinType01())
+            .cardBinType02(domain.getCardBinType02())
+            .status(domain.getStatus())
+            .build();
     }
 
     public void markInactive() {

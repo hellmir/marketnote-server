@@ -11,7 +11,7 @@ import com.personal.marketnote.common.domain.exception.illegalargument.invalidva
  */
 public class ShippingFeeMismatchException extends InvalidValueException {
     private static final String MESSAGE =
-            "ERR_ORDER_SHIPPING_01::배송비가 서버 계산 결과와 일치하지 않습니다. requestedShippingFee=%d, calculatedShippingFee=%d";
+        "ERR_ORDER_SHIPPING_01::배송비가 서버 계산 결과와 일치하지 않습니다. requestedShippingFee=%d, calculatedShippingFee=%d";
 
     public ShippingFeeMismatchException(Long requestedShippingFee, Long calculatedShippingFee) {
         super(String.format(MESSAGE, requestedShippingFee, calculatedShippingFee));

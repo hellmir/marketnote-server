@@ -7,25 +7,25 @@ import java.time.LocalDateTime;
 
 @Builder
 public record GetUnknownPaymentEventsResult(
-        Long id,
-        Long orderId,
-        String orderKey,
-        Long amount,
-        String method,
-        String resultCode,
-        String resultMessage,
-        LocalDateTime createdAt
+    Long id,
+    Long orderId,
+    String orderKey,
+    Long amount,
+    String method,
+    String resultCode,
+    String resultMessage,
+    LocalDateTime createdAt
 ) {
     public static GetUnknownPaymentEventsResult from(PspPaymentEvent event) {
         return GetUnknownPaymentEventsResult.builder()
-                .id(event.getId())
-                .orderId(event.getOrderId())
-                .orderKey(event.getOrderKey())
-                .amount(event.getAmount().getValue())
-                .method(event.getMethod())
-                .resultCode(event.getResultCode())
-                .resultMessage(event.getResultMessage())
-                .createdAt(event.getCreatedAt())
-                .build();
+            .id(event.getId())
+            .orderId(event.getOrderId())
+            .orderKey(event.getOrderKey())
+            .amount(event.getAmount().getValue())
+            .method(event.getMethod())
+            .resultCode(event.getResultCode())
+            .resultMessage(event.getResultMessage())
+            .createdAt(event.getCreatedAt())
+            .build();
     }
 }

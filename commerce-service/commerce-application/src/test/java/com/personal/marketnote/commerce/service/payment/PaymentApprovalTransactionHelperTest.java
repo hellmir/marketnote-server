@@ -151,7 +151,7 @@ class PaymentApprovalTransactionHelperTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> txHelper.prepareExecution(command))
-                    .isInstanceOf(PaymentNotFoundException.class);
+                .isInstanceOf(PaymentNotFoundException.class);
 
             verify(changeOrderStatusUseCase, never()).changeOrderStatus(any());
         }
@@ -168,7 +168,7 @@ class PaymentApprovalTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> txHelper.prepareExecution(command))
-                    .isInstanceOf(PaymentEventNotFoundException.class);
+                .isInstanceOf(PaymentEventNotFoundException.class);
 
             verify(changeOrderStatusUseCase, never()).changeOrderStatus(any());
         }
@@ -207,7 +207,7 @@ class PaymentApprovalTransactionHelperTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.empty());
 
             assertThatThrownBy(
-                    () -> txHelper.prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000")
+                () -> txHelper.prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000")
             ).isInstanceOf(PaymentNotFoundException.class);
 
             verify(changeOrderStatusUseCase, never()).changeOrderStatus(any());
@@ -225,7 +225,7 @@ class PaymentApprovalTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(unresolvedEvent));
 
             assertThatThrownBy(
-                    () -> txHelper.prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000")
+                () -> txHelper.prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000")
             ).isInstanceOf(DuplicatePaymentReadyException.class);
 
             verify(savePspPaymentEventPort, never()).save(any());
@@ -273,7 +273,7 @@ class PaymentApprovalTransactionHelperTest {
             when(findOrderPort.findById(ORDER_ID)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> txHelper.commitSuccess(context, vendorResult, Installment.of((short) 0)))
-                    .isInstanceOf(OrderNotFoundException.class);
+                .isInstanceOf(OrderNotFoundException.class);
         }
 
         @Test
@@ -317,7 +317,7 @@ class PaymentApprovalTransactionHelperTest {
             txHelper.commitSuccess(context, vendorResult, Installment.of((short) 0));
 
             verify(publishPaymentEventPort).publishPaymentApprovedEvent(
-                    ORDER_ID, ORDER_KEY_STR, payment.getPaymentAmount().getValue()
+                ORDER_ID, ORDER_KEY_STR, payment.getPaymentAmount().getValue()
             );
             verify(orderPaymentSagaStarter, never()).get();
         }
@@ -336,12 +336,12 @@ class PaymentApprovalTransactionHelperTest {
             OrderPaymentSagaStarter sagaStarter = org.mockito.Mockito.mock(OrderPaymentSagaStarter.class);
             Map<Long, ProductInfoResult> productInfoMap = new HashMap<>();
             productInfoMap.put(11L, new ProductInfoResult(
-                    101L, UUID.randomUUID(), 10L, "상품A", "브랜드A",
-                    10000L, null, 500L, List.of()
+                101L, UUID.randomUUID(), 10L, "상품A", "브랜드A",
+                10000L, null, 500L, List.of()
             ));
             productInfoMap.put(22L, new ProductInfoResult(
-                    102L, UUID.randomUUID(), 10L, "상품B", "브랜드B",
-                    20000L, null, 1000L, List.of()
+                102L, UUID.randomUUID(), 10L, "상품B", "브랜드B",
+                20000L, null, 1000L, List.of()
             ));
 
             when(findOrderPort.findById(ORDER_ID)).thenReturn(Optional.of(order));
@@ -435,11 +435,11 @@ class PaymentApprovalTransactionHelperTest {
 
         @ParameterizedTest(name = "{0} 메서드는 @Transactional(REQUIRES_NEW, READ_COMMITTED)로 선언되어 있다")
         @ValueSource(strings = {
-                "prepareExecution",
-                "prepareExecutionForQuickPayment",
-                "commitSuccess",
-                "commitFailure",
-                "commitUnknown"
+            "prepareExecution",
+            "prepareExecutionForQuickPayment",
+            "commitSuccess",
+            "commitFailure",
+            "commitUnknown"
         })
         void shouldDeclareRequiresNewAndReadCommitted(String methodName) {
             Method method = findPublicMethod(methodName);
@@ -461,120 +461,120 @@ class PaymentApprovalTransactionHelperTest {
 
     private ApprovePaymentCommand createApproveCommand() {
         return ApprovePaymentCommand.builder()
-                .buyerId(BUYER_ID)
-                .orderKey(ORDER_KEY_STR)
-                .encData("enc_data_test")
-                .encInfo("enc_info_test")
-                .payType("PACA")
-                .build();
+            .buyerId(BUYER_ID)
+            .orderKey(ORDER_KEY_STR)
+            .encData("enc_data_test")
+            .encInfo("enc_info_test")
+            .payType("PACA")
+            .build();
     }
 
     private Payment createPayment() {
         PaymentCreateState state = PaymentCreateState.builder()
-                .orderId(ORDER_ID)
-                .orderKey(ORDER_KEY)
-                .paymentAmount(50000L)
-                .build();
+            .orderId(ORDER_ID)
+            .orderKey(ORDER_KEY)
+            .paymentAmount(50000L)
+            .build();
         return Payment.from(state);
     }
 
     private Order createOrder(OrderStatus status) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(ORDER_ID)
-                        .sellerId(10L)
-                        .pricePolicyId(1L)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .accumulatedPoint(0L)
-                        .orderStatus(status)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(ORDER_ID)
+                .sellerId(10L)
+                .pricePolicyId(1L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .orderStatus(status)
+                .build()
         );
         return createOrder(status, productStates, createDefaultShippingAddress());
     }
 
     private Order createOrderWithTwoProducts() {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(ORDER_ID)
-                        .productId(101L)
-                        .productKey(UUID.randomUUID())
-                        .sellerId(10L)
-                        .pricePolicyId(11L)
-                        .orderProductKey(UUID.randomUUID())
-                        .quantity(1)
-                        .unitAmount(10000L)
-                        .accumulatedPoint(100L)
-                        .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                        .build(),
-                OrderProductSnapshotState.builder()
-                        .orderId(ORDER_ID)
-                        .productId(102L)
-                        .productKey(UUID.randomUUID())
-                        .sellerId(10L)
-                        .pricePolicyId(22L)
-                        .orderProductKey(UUID.randomUUID())
-                        .quantity(2)
-                        .unitAmount(20000L)
-                        .accumulatedPoint(100L)
-                        .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(ORDER_ID)
+                .productId(101L)
+                .productKey(UUID.randomUUID())
+                .sellerId(10L)
+                .pricePolicyId(11L)
+                .orderProductKey(UUID.randomUUID())
+                .quantity(1)
+                .unitAmount(10000L)
+                .accumulatedPoint(100L)
+                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                .build(),
+            OrderProductSnapshotState.builder()
+                .orderId(ORDER_ID)
+                .productId(102L)
+                .productKey(UUID.randomUUID())
+                .sellerId(10L)
+                .pricePolicyId(22L)
+                .orderProductKey(UUID.randomUUID())
+                .quantity(2)
+                .unitAmount(20000L)
+                .accumulatedPoint(100L)
+                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                .build()
         );
         return createOrder(OrderStatus.PAYMENT_EXECUTING, productStates, createDefaultShippingAddress());
     }
 
     private Order createOrderWithoutShippingAddress() {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(ORDER_ID)
-                        .sellerId(10L)
-                        .pricePolicyId(1L)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .accumulatedPoint(0L)
-                        .orderStatus(OrderStatus.PAYMENT_EXECUTING)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(ORDER_ID)
+                .sellerId(10L)
+                .pricePolicyId(1L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                .build()
         );
         return createOrder(OrderStatus.PAYMENT_EXECUTING, productStates, null);
     }
 
     private Order createOrder(
-            OrderStatus status, List<OrderProductSnapshotState> productStates, ShippingAddress shippingAddress
+        OrderStatus status, List<OrderProductSnapshotState> productStates, ShippingAddress shippingAddress
     ) {
         return Order.from(OrderSnapshotState.builder()
-                .id(ORDER_ID)
-                .buyerId(BUYER_ID)
-                .orderKey(ORDER_KEY)
-                .orderNumber(OrderNumber.of("ORD-TEST-001"))
-                .orderStatus(status)
-                .amount(createDefaultOrderAmount())
-                .shippingAddress(shippingAddress)
-                .orderProductStates(productStates)
-                .build()
+            .id(ORDER_ID)
+            .buyerId(BUYER_ID)
+            .orderKey(ORDER_KEY)
+            .orderNumber(OrderNumber.of("ORD-TEST-001"))
+            .orderStatus(status)
+            .amount(createDefaultOrderAmount())
+            .shippingAddress(shippingAddress)
+            .orderProductStates(productStates)
+            .build()
         );
     }
 
     private OrderAmount createDefaultOrderAmount() {
         return OrderAmount.from(OrderAmountCreateState.builder()
-                .totalAmount(50000L)
-                .paidAmount(null)
-                .couponAmount(0L)
-                .pointAmount(0L)
-                .shippingFee(null)
-                .build()
+            .totalAmount(50000L)
+            .paidAmount(null)
+            .couponAmount(0L)
+            .pointAmount(0L)
+            .shippingFee(null)
+            .build()
         );
     }
 
     private ShippingAddress createDefaultShippingAddress() {
         return ShippingAddress.from(ShippingAddressCreateState.builder()
-                .recipientName("수령인")
-                .recipientPhoneNumber("01012345678")
-                .zipCode("12345")
-                .address("서울시 강남구")
-                .addressDetail("상세주소")
-                .deliveryRequestType(null)
-                .deliveryRequestMessage(null)
-                .build()
+            .recipientName("수령인")
+            .recipientPhoneNumber("01012345678")
+            .zipCode("12345")
+            .address("서울시 강남구")
+            .addressDetail("상세주소")
+            .deliveryRequestType(null)
+            .deliveryRequestMessage(null)
+            .build()
         );
     }
 
@@ -587,48 +587,48 @@ class PaymentApprovalTransactionHelperTest {
 
     private PspPaymentEvent createReadyEvent() {
         PspPaymentEventSnapshotState state = PspPaymentEventSnapshotState.builder()
-                .id(1L)
-                .orderId(ORDER_ID)
-                .orderKey(ORDER_KEY_STR)
-                .pgCompanyKey("NHN_KCP")
-                .pgShopKey("T0000")
-                .poStatus(PaymentEventStatus.READY)
-                .method("PACA")
-                .amount(50000L)
-                .build();
+            .id(1L)
+            .orderId(ORDER_ID)
+            .orderKey(ORDER_KEY_STR)
+            .pgCompanyKey("NHN_KCP")
+            .pgShopKey("T0000")
+            .poStatus(PaymentEventStatus.READY)
+            .method("PACA")
+            .amount(50000L)
+            .build();
         return PspPaymentEvent.from(state);
     }
 
     private PspPaymentEvent createExecutingEvent() {
         PspPaymentEventSnapshotState state = PspPaymentEventSnapshotState.builder()
-                .id(1L)
-                .orderId(ORDER_ID)
-                .orderKey(ORDER_KEY_STR)
-                .pgCompanyKey("NHN_KCP")
-                .pgShopKey("T0000")
-                .poStatus(PaymentEventStatus.EXECUTING)
-                .method("PACA")
-                .amount(50000L)
-                .build();
+            .id(1L)
+            .orderId(ORDER_ID)
+            .orderKey(ORDER_KEY_STR)
+            .pgCompanyKey("NHN_KCP")
+            .pgShopKey("T0000")
+            .poStatus(PaymentEventStatus.EXECUTING)
+            .method("PACA")
+            .amount(50000L)
+            .build();
         return PspPaymentEvent.from(state);
     }
 
     private PaymentApprovalVendorResult createSuccessVendorResult() {
         return PaymentApprovalVendorResult.builder()
-                .success(true)
-                .resultCode("0000")
-                .resultMessage("승인 성공")
-                .transactionId("tno_123")
-                .amount("50000")
-                .payMethod("PACA")
-                .cardCode("CCLG")
-                .cardName("신한카드")
-                .cardNumber("1234-****-****-5678")
-                .approvalNumber("12345678")
-                .approvalTime("20260210153000")
-                .installmentMonths("00")
-                .partialCancelYn("Y")
-                .rawResponse("{\"res_cd\":\"0000\"}")
-                .build();
+            .success(true)
+            .resultCode("0000")
+            .resultMessage("승인 성공")
+            .transactionId("tno_123")
+            .amount("50000")
+            .payMethod("PACA")
+            .cardCode("CCLG")
+            .cardName("신한카드")
+            .cardNumber("1234-****-****-5678")
+            .approvalNumber("12345678")
+            .approvalTime("20260210153000")
+            .installmentMonths("00")
+            .partialCancelYn("Y")
+            .rawResponse("{\"res_cd\":\"0000\"}")
+            .build();
     }
 }

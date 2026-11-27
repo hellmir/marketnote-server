@@ -10,12 +10,7 @@ import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.*;
-import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
-import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowBrandCodeException;
-import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowGoodsCodeException;
-import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowPhoneNoException;
-import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowTrIdException;
-import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.InvalidGiftishowUserIdException;
+import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.*;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
 import com.personal.marketnote.reward.domain.vendorcommunication.RewardVendorCommunicationSenderType;
 import com.personal.marketnote.reward.domain.vendorcommunication.RewardVendorCommunicationTargetType;
@@ -49,7 +44,7 @@ public class GiftishowApiClient {
     private static final String OP_COUPON_RESEND = GiftishowOperationTargetTypeResolver.OP_COUPON_RESEND;
     private static final String OP_BIZMONEY_BALANCE = GiftishowOperationTargetTypeResolver.OP_BIZMONEY_BALANCE;
     private static final String OP_COUPON_SEND_FAIL_CANCEL =
-            GiftishowOperationTargetTypeResolver.OP_COUPON_SEND_FAIL_CANCEL;
+        GiftishowOperationTargetTypeResolver.OP_COUPON_SEND_FAIL_CANCEL;
 
     private static final String DEV_YN_PRODUCTION = "N";
     private static final String API_CODE_PRODUCT_LIST = "0101";
@@ -77,13 +72,13 @@ public class GiftishowApiClient {
     private final GiftishowOperationTargetTypeResolver operationTargetTypeResolver;
 
     public GiftishowApiClient(
-            GiftishowApiProperties properties,
-            RestClient giftishowRestClient,
-            ObjectMapper objectMapper,
-            ExternalCallLogger externalCallLogger,
-            VendorCommunicationRecorder vendorCommunicationRecorder,
-            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            GiftishowOperationTargetTypeResolver operationTargetTypeResolver
+        GiftishowApiProperties properties,
+        RestClient giftishowRestClient,
+        ObjectMapper objectMapper,
+        ExternalCallLogger externalCallLogger,
+        VendorCommunicationRecorder vendorCommunicationRecorder,
+        VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+        GiftishowOperationTargetTypeResolver operationTargetTypeResolver
     ) {
         this.properties = properties;
         this.giftishowRestClient = giftishowRestClient;
@@ -109,13 +104,13 @@ public class GiftishowApiClient {
         String path = properties.getApi().getProductListPath();
 
         return recordVendorCall(
-                path, OP_PRODUCT_LIST, tags, params,
-                () -> executePost(
-                        path,
-                        params,
-                        new TypeReference<>() {
-                        }
-                )
+            path, OP_PRODUCT_LIST, tags, params,
+            () -> executePost(
+                path,
+                params,
+                new TypeReference<>() {
+                }
+            )
         );
     }
 
@@ -136,14 +131,14 @@ public class GiftishowApiClient {
         String path = properties.getApi().getProductDetailPath();
 
         return recordVendorCall(
-                path, OP_PRODUCT_DETAIL, tags, params,
-                () -> executePostWithPathVariable(
-                        path,
-                        goodsCode,
-                        params,
-                        new TypeReference<>() {
-                        }
-                )
+            path, OP_PRODUCT_DETAIL, tags, params,
+            () -> executePostWithPathVariable(
+                path,
+                goodsCode,
+                params,
+                new TypeReference<>() {
+                }
+            )
         );
     }
 
@@ -160,13 +155,13 @@ public class GiftishowApiClient {
         String path = properties.getApi().getBrandListPath();
 
         return recordVendorCall(
-                path, OP_BRAND_LIST, tags, params,
-                () -> executePost(
-                        path,
-                        params,
-                        new TypeReference<>() {
-                        }
-                )
+            path, OP_BRAND_LIST, tags, params,
+            () -> executePost(
+                path,
+                params,
+                new TypeReference<>() {
+                }
+            )
         );
     }
 
@@ -187,14 +182,14 @@ public class GiftishowApiClient {
         String path = properties.getApi().getBrandDetailPath();
 
         return recordVendorCall(
-                path, OP_BRAND_DETAIL, tags, params,
-                () -> executePostWithPathVariable(
-                        path,
-                        brandCode,
-                        params,
-                        new TypeReference<>() {
-                        }
-                )
+            path, OP_BRAND_DETAIL, tags, params,
+            () -> executePostWithPathVariable(
+                path,
+                brandCode,
+                params,
+                new TypeReference<>() {
+                }
+            )
         );
     }
 
@@ -207,13 +202,13 @@ public class GiftishowApiClient {
      * {@code order_no}는 호출자가 전달(없으면 송신 생략).</p>
      */
     public GiftishowApiResponse<GiftishowCouponSendResponse> sendCoupon(
-            String trId,
-            String goodsCode,
-            String phoneNo,
-            String userId,
-            String mmsMsg,
-            String mmsTitle,
-            String orderNo
+        String trId,
+        String goodsCode,
+        String phoneNo,
+        String userId,
+        String mmsMsg,
+        String mmsTitle,
+        String orderNo
     ) {
         if (FormatValidator.hasNoValue(trId)) {
             throw new InvalidGiftishowTrIdException();
@@ -256,13 +251,13 @@ public class GiftishowApiClient {
         String path = properties.getApi().getCouponSendPath();
 
         return recordVendorCall(
-                path, OP_COUPON_SEND, tags, params,
-                () -> executePost(
-                        path,
-                        params,
-                        new TypeReference<>() {
-                        }
-                )
+            path, OP_COUPON_SEND, tags, params,
+            () -> executePost(
+                path,
+                params,
+                new TypeReference<>() {
+                }
+            )
         );
     }
 
@@ -286,13 +281,13 @@ public class GiftishowApiClient {
         String path = properties.getApi().getCouponDetailPath();
 
         return recordVendorCall(
-                path, OP_COUPON_DETAIL, tags, params,
-                () -> executePost(
-                        path,
-                        params,
-                        new TypeReference<>() {
-                        }
-                )
+            path, OP_COUPON_DETAIL, tags, params,
+            () -> executePost(
+                path,
+                params,
+                new TypeReference<>() {
+                }
+            )
         );
     }
 
@@ -319,13 +314,13 @@ public class GiftishowApiClient {
         String path = properties.getApi().getCouponCancelPath();
 
         return recordVendorCall(
-                path, OP_COUPON_CANCEL, tags, params,
-                () -> executePost(
-                        path,
-                        params,
-                        new TypeReference<>() {
-                        }
-                )
+            path, OP_COUPON_CANCEL, tags, params,
+            () -> executePost(
+                path,
+                params,
+                new TypeReference<>() {
+                }
+            )
         );
     }
 
@@ -351,13 +346,13 @@ public class GiftishowApiClient {
         String path = properties.getApi().getCouponResendPath();
 
         return recordVendorCall(
-                path, OP_COUPON_RESEND, tags, params,
-                () -> executePost(
-                        path,
-                        params,
-                        new TypeReference<>() {
-                        }
-                )
+            path, OP_COUPON_RESEND, tags, params,
+            () -> executePost(
+                path,
+                params,
+                new TypeReference<>() {
+                }
+            )
         );
     }
 
@@ -383,13 +378,13 @@ public class GiftishowApiClient {
         String path = properties.getApi().getBizMoneyBalancePath();
 
         return recordVendorCall(
-                path, OP_BIZMONEY_BALANCE, tags, params,
-                () -> {
-                    GiftishowBizMoneyResponse raw = executePostFlat(
-                            path, params, GiftishowBizMoneyResponse.class
-                    );
-                    return new GiftishowApiResponse<>(raw.code(), raw.message(), raw);
-                }
+            path, OP_BIZMONEY_BALANCE, tags, params,
+            () -> {
+                GiftishowBizMoneyResponse raw = executePostFlat(
+                    path, params, GiftishowBizMoneyResponse.class
+                );
+                return new GiftishowApiResponse<>(raw.code(), raw.message(), raw);
+            }
         );
     }
 
@@ -416,13 +411,13 @@ public class GiftishowApiClient {
         String path = properties.getApi().getCouponSendFailCancelPath();
 
         return recordVendorCall(
-                path, OP_COUPON_SEND_FAIL_CANCEL, tags, params,
-                () -> executePost(
-                        path,
-                        params,
-                        new TypeReference<>() {
-                        }
-                )
+            path, OP_COUPON_SEND_FAIL_CANCEL, tags, params,
+            () -> executePost(
+                path,
+                params,
+                new TypeReference<>() {
+                }
+            )
         );
     }
 
@@ -435,18 +430,18 @@ public class GiftishowApiClient {
     }
 
     private <T> GiftishowApiResponse<T> executePost(
-            String path,
-            MultiValueMap<String, String> params,
-            TypeReference<GiftishowApiResponse<T>> typeReference
+        String path,
+        MultiValueMap<String, String> params,
+        TypeReference<GiftishowApiResponse<T>> typeReference
     ) {
         ResponseEntity<String> rawResponse;
         try {
             rawResponse = giftishowRestClient.post()
-                    .uri(path)
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .body(params)
-                    .retrieve()
-                    .toEntity(String.class);
+                .uri(path)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(params)
+                .retrieve()
+                .toEntity(String.class);
         } catch (RestClientResponseException re) {
             throw wrapHttpFailure(path, re);
         }
@@ -455,18 +450,18 @@ public class GiftishowApiClient {
     }
 
     private <T> T executePostFlat(
-            String path,
-            MultiValueMap<String, String> params,
-            Class<T> responseType
+        String path,
+        MultiValueMap<String, String> params,
+        Class<T> responseType
     ) {
         ResponseEntity<String> rawResponse;
         try {
             rawResponse = giftishowRestClient.post()
-                    .uri(path)
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .body(params)
-                    .retrieve()
-                    .toEntity(String.class);
+                .uri(path)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(params)
+                .retrieve()
+                .toEntity(String.class);
         } catch (RestClientResponseException re) {
             throw wrapHttpFailure(path, re);
         }
@@ -476,7 +471,7 @@ public class GiftishowApiClient {
 
         if (FormatValidator.hasNoValue(responseBody)) {
             throw new GiftishowCommunicationException(
-                    "기프티쇼 API 응답 본문이 비어 있습니다. path=" + path
+                "기프티쇼 API 응답 본문이 비어 있습니다. path=" + path
             );
         }
 
@@ -486,32 +481,32 @@ public class GiftishowApiClient {
             logParseFailure(path, e);
             if (isSensitivePath(path)) {
                 throw new GiftishowCommunicationException(
-                        "기프티쇼 API 응답 파싱 실패. path=" + path
+                    "기프티쇼 API 응답 파싱 실패. path=" + path
                 );
             }
             throw new GiftishowCommunicationException(
-                    "기프티쇼 API 응답 파싱 실패. path=" + path, e
+                "기프티쇼 API 응답 파싱 실패. path=" + path, e
             );
         }
     }
 
     private <T> GiftishowApiResponse<T> executePostWithPathVariable(
-            String basePath,
-            String pathVariable,
-            MultiValueMap<String, String> params,
-            TypeReference<GiftishowApiResponse<T>> typeReference
+        String basePath,
+        String pathVariable,
+        MultiValueMap<String, String> params,
+        TypeReference<GiftishowApiResponse<T>> typeReference
     ) {
         ResponseEntity<String> rawResponse;
         try {
             rawResponse = giftishowRestClient.post()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(basePath)
-                            .pathSegment(pathVariable)
-                            .build())
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .body(params)
-                    .retrieve()
-                    .toEntity(String.class);
+                .uri(uriBuilder -> uriBuilder
+                    .path(basePath)
+                    .pathSegment(pathVariable)
+                    .build())
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(params)
+                .retrieve()
+                .toEntity(String.class);
         } catch (RestClientResponseException re) {
             throw wrapHttpFailure(basePath, re);
         }
@@ -523,30 +518,30 @@ public class GiftishowApiClient {
         int statusCode = re.getStatusCode().value();
         if (isSensitivePath(path)) {
             log.error(
-                    "기프티쇼 API HTTP 응답 실패: path={}, status={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    path, statusCode, re.getClass().getSimpleName()
+                "기프티쇼 API HTTP 응답 실패: path={}, status={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                path, statusCode, re.getClass().getSimpleName()
             );
             return new GiftishowCommunicationException(
-                    "기프티쇼 API HTTP 응답 실패. path=" + path + ", status=" + statusCode
+                "기프티쇼 API HTTP 응답 실패. path=" + path + ", status=" + statusCode
             );
         }
         log.error("기프티쇼 API HTTP 응답 실패: path={}, status={}", path, statusCode, re);
         return new GiftishowCommunicationException(
-                "기프티쇼 API HTTP 응답 실패. path=" + path + ", status=" + statusCode, re
+            "기프티쇼 API HTTP 응답 실패. path=" + path + ", status=" + statusCode, re
         );
     }
 
     private <T> GiftishowApiResponse<T> parseResponse(
-            ResponseEntity<String> rawResponse,
-            String path,
-            TypeReference<GiftishowApiResponse<T>> typeReference
+        ResponseEntity<String> rawResponse,
+        String path,
+        TypeReference<GiftishowApiResponse<T>> typeReference
     ) {
         String responseBody = rawResponse.getBody();
         logApiResponse(path, rawResponse, responseBody);
 
         if (FormatValidator.hasNoValue(responseBody)) {
             throw new GiftishowCommunicationException(
-                    "기프티쇼 API 응답 본문이 비어 있습니다. path=" + path
+                "기프티쇼 API 응답 본문이 비어 있습니다. path=" + path
             );
         }
 
@@ -556,11 +551,11 @@ public class GiftishowApiClient {
             logParseFailure(path, e);
             if (isSensitivePath(path)) {
                 throw new GiftishowCommunicationException(
-                        "기프티쇼 API 응답 파싱 실패. path=" + path
+                    "기프티쇼 API 응답 파싱 실패. path=" + path
                 );
             }
             throw new GiftishowCommunicationException(
-                    "기프티쇼 API 응답 파싱 실패. path=" + path, e
+                "기프티쇼 API 응답 파싱 실패. path=" + path, e
             );
         }
     }
@@ -568,8 +563,8 @@ public class GiftishowApiClient {
     private void logParseFailure(String path, JsonProcessingException e) {
         if (isSensitivePath(path)) {
             log.error(
-                    "기프티쇼 API 응답 파싱 실패: path={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    path, e.getClass().getSimpleName()
+                "기프티쇼 API 응답 파싱 실패: path={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                path, e.getClass().getSimpleName()
             );
             return;
         }
@@ -579,15 +574,15 @@ public class GiftishowApiClient {
     private void logApiResponse(String path, ResponseEntity<String> rawResponse, String responseBody) {
         if (isSensitivePath(path)) {
             log.debug("기프티쇼 API 응답: path={}, status={} (body 로깅 생략 — 민감 데이터 포함)",
-                    path, rawResponse.getStatusCode());
+                path, rawResponse.getStatusCode());
             return;
         }
         log.debug("기프티쇼 API 응답: path={}, status={}, body={}",
-                path, rawResponse.getStatusCode(), responseBody);
+            path, rawResponse.getStatusCode(), responseBody);
     }
 
     private <T> T recordCall(
-            String path, String operation, Map<String, String> tags, Supplier<T> call
+        String path, String operation, Map<String, String> tags, Supplier<T> call
     ) {
         if (isSensitivePath(path)) {
             return externalCallLogger.recordSensitive(ExternalSystem.GIFTISHOW, operation, tags, call);
@@ -603,11 +598,11 @@ public class GiftishowApiClient {
      * record 실패는 try-catch로 격리하여 쿠폰 발송 실패로 전이되지 않도록 한다.</p>
      */
     private <T extends GiftishowApiResponse<?>> T recordVendorCall(
-            String path,
-            String operation,
-            Map<String, String> tags,
-            MultiValueMap<String, String> params,
-            Supplier<T> call
+        String path,
+        String operation,
+        Map<String, String> tags,
+        MultiValueMap<String, String> params,
+        Supplier<T> call
     ) {
         RewardVendorCommunicationTargetType targetType = operationTargetTypeResolver.resolve(operation);
         String targetId = resolveTargetId(tags);
@@ -626,64 +621,64 @@ public class GiftishowApiClient {
     }
 
     private void recordRequestSafely(
-            RewardVendorCommunicationTargetType targetType,
-            String operation,
-            String targetId,
-            MultiValueMap<String, String> params,
-            boolean sensitive
+        RewardVendorCommunicationTargetType targetType,
+        String operation,
+        String targetId,
+        MultiValueMap<String, String> params,
+        boolean sensitive
     ) {
         try {
             JsonNode payloadJson = sensitive
-                    ? buildMaskedRequestPayloadJson(operation)
-                    : buildRequestPayloadJson(operation, params);
+                ? buildMaskedRequestPayloadJson(operation)
+                : buildRequestPayloadJson(operation, params);
             String payload = payloadJson.toString();
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    RewardVendorCommunicationType.REQUEST,
-                    RewardVendorCommunicationSenderType.SERVER,
-                    targetId,
-                    RewardVendorName.GIFTISHOW,
-                    payload,
-                    payloadJson
+                targetType,
+                RewardVendorCommunicationType.REQUEST,
+                RewardVendorCommunicationSenderType.SERVER,
+                targetId,
+                RewardVendorName.GIFTISHOW,
+                payload,
+                payloadJson
             );
         } catch (RuntimeException re) {
             log.warn("Giftishow REQUEST 이력 영속 실패 (격리 — 외부 호출 흐름 영향 없음): operation={}, exception={}",
-                    operation, re.getClass().getSimpleName(), re);
+                operation, re.getClass().getSimpleName(), re);
         }
     }
 
     private void recordResponseSafely(
-            RewardVendorCommunicationTargetType targetType,
-            String operation,
-            String targetId,
-            GiftishowApiResponse<?> response,
-            RuntimeException exception,
-            boolean sensitive
+        RewardVendorCommunicationTargetType targetType,
+        String operation,
+        String targetId,
+        GiftishowApiResponse<?> response,
+        RuntimeException exception,
+        boolean sensitive
     ) {
         try {
             String exceptionName = FormatValidator.hasValue(exception)
-                    ? exception.getClass().getSimpleName()
-                    : resolveResponseException(response);
+                ? exception.getClass().getSimpleName()
+                : resolveResponseException(response);
 
             JsonNode payloadJson = sensitive
-                    ? buildMaskedResponsePayloadJson(operation, response, exception)
-                    : buildResponsePayloadJson(operation, response, exception);
+                ? buildMaskedResponsePayloadJson(operation, response, exception)
+                : buildResponsePayloadJson(operation, response, exception);
             String payload = payloadJson.toString();
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    RewardVendorCommunicationType.RESPONSE,
-                    RewardVendorCommunicationSenderType.VENDOR,
-                    targetId,
-                    RewardVendorName.GIFTISHOW,
-                    payload,
-                    payloadJson,
-                    exceptionName
+                targetType,
+                RewardVendorCommunicationType.RESPONSE,
+                RewardVendorCommunicationSenderType.VENDOR,
+                targetId,
+                RewardVendorName.GIFTISHOW,
+                payload,
+                payloadJson,
+                exceptionName
             );
         } catch (RuntimeException re) {
             log.warn("Giftishow RESPONSE 이력 영속 실패 (격리 — 외부 호출 흐름 영향 없음): operation={}, exception={}",
-                    operation, re.getClass().getSimpleName(), re);
+                operation, re.getClass().getSimpleName(), re);
         }
     }
 
@@ -707,7 +702,7 @@ public class GiftishowApiClient {
     }
 
     private JsonNode buildResponsePayloadJson(
-            String operation, GiftishowApiResponse<?> response, RuntimeException exception
+        String operation, GiftishowApiResponse<?> response, RuntimeException exception
     ) {
         ObjectNode node = (ObjectNode) vendorCommunicationPayloadGenerator.buildPayloadJson(null);
         node.put("operation", operation);
@@ -727,7 +722,7 @@ public class GiftishowApiClient {
     }
 
     private JsonNode buildMaskedResponsePayloadJson(
-            String operation, GiftishowApiResponse<?> response, RuntimeException exception
+        String operation, GiftishowApiResponse<?> response, RuntimeException exception
     ) {
         ObjectNode node = (ObjectNode) vendorCommunicationPayloadGenerator.buildPayloadJson(null);
         node.put("masked", true);

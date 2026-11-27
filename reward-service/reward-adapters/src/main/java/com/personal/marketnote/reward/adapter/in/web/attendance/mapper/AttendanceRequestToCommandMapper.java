@@ -8,18 +8,18 @@ import com.personal.marketnote.reward.port.in.command.attendance.RegisterAttenda
 public class AttendanceRequestToCommandMapper {
     public static RegisterAttendanceCommand mapToCommand(Long userId, RegisterAttendanceRequest request) {
         return RegisterAttendanceCommand.builder()
-                .userId(userId)
-                .attendedAt(request.getAttendedAt())
-                .build();
+            .userId(userId)
+            .attendedAt(request.getAttendedAt())
+            .build();
     }
 
     public static RegisterAttendancePolicyCommand mapToCommand(RegisterAttendancePolicyRequest request) {
         return RegisterAttendancePolicyCommand.builder()
-                .continuousPeriod(request.getContinuousPeriod())
-                .rewardType(request.getRewardType())
-                .rewardQuantity(request.getRewardQuantity())
-                .attendenceDate(request.getAttendenceDate())
-                .build();
+            .continuousPeriod(request.getContinuousPeriod())
+            .rewardType(request.getRewardType())
+            .rewardQuantity(request.getRewardQuantity())
+            .attendenceDate(request.getAttendenceDate())
+            .build();
     }
 }
 

@@ -36,12 +36,12 @@ class UserPointJpaRepositoryTest {
 
     private void persistUserPoint(Long userId, String userKey, long amount) {
         UserPoint domain = UserPoint.from(UserPointSnapshotState.builder()
-                .userId(userId)
-                .userKey(userKey)
-                .amount(PointAmount.of(amount))
-                .addExpectedAmount(PointAmount.of(0L))
-                .expireExpectedAmount(PointAmount.of(0L))
-                .build());
+            .userId(userId)
+            .userKey(userKey)
+            .amount(PointAmount.of(amount))
+            .addExpectedAmount(PointAmount.of(0L))
+            .expireExpectedAmount(PointAmount.of(0L))
+            .build());
         em.persist(UserPointJpaEntity.from(domain));
         em.flush();
     }

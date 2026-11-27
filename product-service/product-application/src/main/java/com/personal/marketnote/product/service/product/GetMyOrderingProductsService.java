@@ -29,9 +29,9 @@ public class GetMyOrderingProductsService implements GetMyOrderingProductsUseCas
     @Override
     public GetMyOrderProductsResult getMyOrderingProducts(GetMyOrderingProductsQuery query) {
         List<Long> pricePolicyIds = query.orderingItemQueries()
-                .stream()
-                .map(OrderingItemQuery::pricePolicyId)
-                .toList();
+            .stream()
+            .map(OrderingItemQuery::pricePolicyId)
+            .toList();
 
         List<PricePolicy> pricePolicies = getPricePoliciesUseCase.getPricePoliciesAndOptions(pricePolicyIds);
 
@@ -40,25 +40,25 @@ public class GetMyOrderingProductsService implements GetMyOrderingProductsUseCas
 
         List<GetCartProductResult> orderingProducts = new ArrayList<>();
         pricePolicies.forEach(
-                pricePolicy -> query.orderingItemQueries()
-                        .stream()
-                        .filter(
-                                request -> FormatValidator.equals(
-                                        request.pricePolicyId(), pricePolicy.getId()
-                                )
+            pricePolicy -> query.orderingItemQueries()
+                .stream()
+                .filter(
+                    request -> FormatValidator.equals(
+                        request.pricePolicyId(), pricePolicy.getId()
+                    )
+                )
+                .findFirst()
+                .ifPresent(
+                    itemQuery -> orderingProducts.add(
+                        GetCartProductResult.of(
+                            pricePolicy,
+                            itemQuery.imageUrl(),
+                            itemQuery.quantity(),
+                            stocks.get(pricePolicy.getId()),
+                            itemQuery.sharerKey()
                         )
-                        .findFirst()
-                        .ifPresent(
-                                itemQuery -> orderingProducts.add(
-                                        GetCartProductResult.of(
-                                                pricePolicy,
-                                                itemQuery.imageUrl(),
-                                                itemQuery.quantity(),
-                                                stocks.get(pricePolicy.getId()),
-                                                itemQuery.sharerKey()
-                                        )
-                                )
-                        )
+                    )
+                )
         );
 
         return GetMyOrderProductsResult.from(orderingProducts);

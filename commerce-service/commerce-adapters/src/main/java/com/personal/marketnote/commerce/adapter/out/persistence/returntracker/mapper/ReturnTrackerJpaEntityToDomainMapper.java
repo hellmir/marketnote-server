@@ -11,17 +11,17 @@ public class ReturnTrackerJpaEntityToDomainMapper {
 
     public static ReturnTracker toDomain(ReturnTrackerJpaEntity entity) {
         return ReturnTracker.from(
-                ReturnTrackerSnapshotState.builder()
-                        .id(entity.getId())
-                        .orderId(entity.getOrderId())
-                        .returnSlipNumber(entity.getReturnSlipNumber())
-                        .inspectionStatus(entity.getInspectionStatus())
-                        .refundStatus(entity.getRefundStatus())
-                        .inspectedAt(entity.getInspectedAt())
-                        .refundedAt(entity.getRefundedAt())
-                        .createdAt(entity.getCreatedAt())
-                        .modifiedAt(entity.getModifiedAt())
-                        .build()
+            ReturnTrackerSnapshotState.builder()
+                .id(entity.getId())
+                .orderId(entity.getOrderId())
+                .returnSlipNumber(entity.getReturnSlipNumber())
+                .inspectionStatus(entity.getInspectionStatus())
+                .refundStatus(entity.getRefundStatus())
+                .inspectedAt(entity.getInspectedAt())
+                .refundedAt(entity.getRefundedAt())
+                .createdAt(entity.getCreatedAt())
+                .modifiedAt(entity.getModifiedAt())
+                .build()
         );
     }
 }

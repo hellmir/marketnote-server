@@ -79,16 +79,16 @@ class GetGifticonCategoriesUseCaseTest {
     private GifticonCategory createCategory(Long id, String categoryCode, String categoryName,
                                             String displayName, String iconUrl, Integer orderNum) {
         return GifticonCategory.from(GifticonCategorySnapshotState.builder()
-                .id(id)
-                .categoryCode(categoryCode)
-                .categoryName(categoryName)
-                .displayName(displayName)
-                .iconUrl(iconUrl)
-                .exposed(true)
-                .orderNum(orderNum)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build()
+            .id(id)
+            .categoryCode(categoryCode)
+            .categoryName(categoryName)
+            .displayName(displayName)
+            .iconUrl(iconUrl)
+            .exposed(true)
+            .orderNum(orderNum)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build()
         );
     }
 }

@@ -67,25 +67,25 @@ class SettlementControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
+            String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
         );
     }
 
     private GetSettlementResult sampleSettlementResult() {
         return GetSettlementResult.builder()
-                .id(1L)
-                .sellerId(100L)
-                .year(2026)
-                .month(1)
-                .totalAllocatedAmount(100_000L)
-                .shippingFee(3_000L)
-                .pgFeeAmount(2_000L)
-                .platformFeeAmount(5_000L)
-                .sellerPayoutAmount(90_000L)
-                .status(SettlementStatus.PENDING)
-                .createdAt(LocalDateTime.of(2026, 2, 1, 0, 0))
-                .modifiedAt(LocalDateTime.of(2026, 2, 1, 0, 0))
-                .build();
+            .id(1L)
+            .sellerId(100L)
+            .year(2026)
+            .month(1)
+            .totalAllocatedAmount(100_000L)
+            .shippingFee(3_000L)
+            .pgFeeAmount(2_000L)
+            .platformFeeAmount(5_000L)
+            .sellerPayoutAmount(90_000L)
+            .status(SettlementStatus.PENDING)
+            .createdAt(LocalDateTime.of(2026, 2, 1, 0, 0))
+            .modifiedAt(LocalDateTime.of(2026, 2, 1, 0, 0))
+            .build();
     }
 
     @Nested
@@ -102,7 +102,7 @@ class SettlementControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    settlementController.executeSettlement(request);
+                settlementController.executeSettlement(request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -171,7 +171,7 @@ class SettlementControllerTest {
 
             // when
             ResponseEntity<BaseResponse<GetSettlementsResponse>> response =
-                    settlementController.getFailedSettlements();
+                settlementController.getFailedSettlements();
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -194,7 +194,7 @@ class SettlementControllerTest {
 
             // when
             ResponseEntity<BaseResponse<GetSettlementsResponse>> response =
-                    settlementController.getSettlements(2026, 1);
+                settlementController.getSettlements(2026, 1);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -216,7 +216,7 @@ class SettlementControllerTest {
 
             // when
             ResponseEntity<BaseResponse<GetSettlementResponse>> response =
-                    settlementController.getSettlement(1L);
+                settlementController.getSettlement(1L);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -235,21 +235,21 @@ class SettlementControllerTest {
         void shouldReturnAllocations() {
             // given
             GetSettlementDetailResult detail = GetSettlementDetailResult.builder()
-                    .id(10L)
-                    .orderId(20L)
-                    .sellerId(100L)
-                    .allocatedAmount(50_000L)
-                    .shippingFee(3_000L)
-                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                    .targetType(PaymentAllocationTargetType.ORDER)
-                    .createdAt(LocalDateTime.of(2026, 1, 15, 0, 0))
-                    .build();
+                .id(10L)
+                .orderId(20L)
+                .sellerId(100L)
+                .allocatedAmount(50_000L)
+                .shippingFee(3_000L)
+                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                .targetType(PaymentAllocationTargetType.ORDER)
+                .createdAt(LocalDateTime.of(2026, 1, 15, 0, 0))
+                .build();
             when(getSettlementDetailUseCase.getSettlementAllocations(1L))
-                    .thenReturn(List.of(detail));
+                .thenReturn(List.of(detail));
 
             // when
             ResponseEntity<BaseResponse<List<GetSettlementDetailResponse>>> response =
-                    settlementController.getSettlementAllocations(1L);
+                settlementController.getSettlementAllocations(1L);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -274,7 +274,7 @@ class SettlementControllerTest {
 
             // when
             ResponseEntity<BaseResponse<GetSellerSettlementsResponse>> response =
-                    settlementController.getMySettlements(2026, 1, principal);
+                settlementController.getMySettlements(2026, 1, principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

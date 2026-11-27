@@ -52,11 +52,11 @@ public class GetPostService implements GetPostUseCase {
     @Override
     public GetPostsResult getPosts(GetPostsQuery query) {
         Sort.Direction sortDirection = FormatValidator.hasValue(query.sortDirection())
-                ? query.sortDirection()
-                : Sort.Direction.DESC;
+            ? query.sortDirection()
+            : Sort.Direction.DESC;
         PostSortProperty sortProperty = resolveSortProperty(query);
         Pageable pageable = PageRequest.of(
-                0, query.pageSize() + 1, Sort.by(sortDirection, sortProperty.getSortField())
+            0, query.pageSize() + 1, Sort.by(sortDirection, sortProperty.getSortField())
         );
 
         Posts posts = getBoardPosts(query, pageable, sortProperty);
@@ -72,34 +72,34 @@ public class GetPostService implements GetPostUseCase {
         // 비회원 전용 게시판이거나 상품 상세 정보의 문의 게시판인 경우
         if (query.isPublicPosts()) {
             return findPostPort.findPublicPosts(
-                    board,
-                    query.category(),
-                    query.targetGroupType(),
-                    query.targetGroupId(),
-                    query.cursor(),
-                    pageable,
-                    isDesc,
-                    sortProperty,
-                    userId,
-                    query.filter(),
-                    query.filterValue(),
-                    query.searchTarget(),
-                    query.searchKeyword()
+                board,
+                query.category(),
+                query.targetGroupType(),
+                query.targetGroupId(),
+                query.cursor(),
+                pageable,
+                isDesc,
+                sortProperty,
+                userId,
+                query.filter(),
+                query.filterValue(),
+                query.searchTarget(),
+                query.searchKeyword()
             );
         }
 
         // 나의 상품 문의 게시판이거나 나의 1:1 문의 게시판인 경우
         return findPostPort.findUserPosts(
-                userId,
-                board,
-                query.cursor(),
-                pageable,
-                isDesc,
-                sortProperty,
-                query.filter(),
-                query.filterValue(),
-                query.searchTarget(),
-                query.searchKeyword()
+            userId,
+            board,
+            query.cursor(),
+            pageable,
+            isDesc,
+            sortProperty,
+            query.filter(),
+            query.filterValue(),
+            query.searchTarget(),
+            query.searchKeyword()
         );
     }
 
@@ -113,8 +113,8 @@ public class GetPostService implements GetPostUseCase {
 
         // 상품 문의 게시판인 경우 각 게시글의 주문 상품 정보 조회
         Map<Long, ProductInfoResult> targetProductsByPricePolicyId = board.isProductInquery()
-                ? getProductInfo(posts.getPosts())
-                : Map.of();
+            ? getProductInfo(posts.getPosts())
+            : Map.of();
 
         List<Post> filteredPosts = posts.getPosts();
 
@@ -124,15 +124,15 @@ public class GetPostService implements GetPostUseCase {
                 PostSearchTarget keywordCategory = query.searchTarget();
                 String searchKeyword = query.searchKeyword().toLowerCase();
                 filteredPosts = filteredPosts.stream()
-                        .filter(post -> matchesKeyword(post, keywordCategory, searchKeyword))
-                        .toList();
+                    .filter(post -> matchesKeyword(post, keywordCategory, searchKeyword))
+                    .toList();
             }
         }
 
         boolean hasNext = filteredPosts.size() > query.pageSize();
         List<Post> pagedPosts = hasNext
-                ? filteredPosts.subList(0, query.pageSize())
-                : filteredPosts;
+            ? filteredPosts.subList(0, query.pageSize())
+            : filteredPosts;
 
         Long nextCursor = null;
         if (FormatValidator.hasValue(pagedPosts)) {
@@ -142,38 +142,38 @@ public class GetPostService implements GetPostUseCase {
         Map<Long, List<GetFileResult>> postImagesByPostId = findPostImages(pagedPosts);
 
         List<PostItemResult> postItems = pagedPosts.stream()
-                .map(post -> {
-                    List<GetFileResult> images = postImagesByPostId.get(post.getId());
-                    if (FormatValidator.hasNoValue(post.getTargetId())) {
-                        return PostItemResult.from(post, images);
+            .map(post -> {
+                List<GetFileResult> images = postImagesByPostId.get(post.getId());
+                if (FormatValidator.hasNoValue(post.getTargetId())) {
+                    return PostItemResult.from(post, images);
+                }
+
+                // 상품 문의 게시판인 경우 각 게시글의 상품 정보 포함
+                ProductInfoResult productInfoResult = targetProductsByPricePolicyId.get(post.getTargetId());
+                PostItemResult postItemResult = PostItemResult.from(
+                    post,
+                    PostProductInfoResult.from(productInfoResult),
+                    images
+                );
+
+                // 상품 상세 정보 페이지의 상품 문의 게시판인 경우 비밀글 필터링
+                if (FormatValidator.hasValue(targetType)) {
+                    Long sellerId = FormatValidator.hasValue(productInfoResult)
+                        ? productInfoResult.sellerId()
+                        : null;
+                    if (!adminOrSeller(query.principal(), query.userId(), sellerId)) {
+                        postItemResult.maskPrivatePost(query.userId());
                     }
+                }
 
-                    // 상품 문의 게시판인 경우 각 게시글의 상품 정보 포함
-                    ProductInfoResult productInfoResult = targetProductsByPricePolicyId.get(post.getTargetId());
-                    PostItemResult postItemResult = PostItemResult.from(
-                            post,
-                            PostProductInfoResult.from(productInfoResult),
-                            images
-                    );
+                // 게시글의 답글 목록 추가
+                if (!postItemResult.isMasked() && post.hasReplies()) {
+                    postItemResult.addReplies(post, postImagesByPostId);
+                }
 
-                    // 상품 상세 정보 페이지의 상품 문의 게시판인 경우 비밀글 필터링
-                    if (FormatValidator.hasValue(targetType)) {
-                        Long sellerId = FormatValidator.hasValue(productInfoResult)
-                                ? productInfoResult.sellerId()
-                                : null;
-                        if (!adminOrSeller(query.principal(), query.userId(), sellerId)) {
-                            postItemResult.maskPrivatePost(query.userId());
-                        }
-                    }
-
-                    // 게시글의 답글 목록 추가
-                    if (!postItemResult.isMasked() && post.hasReplies()) {
-                        postItemResult.addReplies(post, postImagesByPostId);
-                    }
-
-                    return postItemResult;
-                })
-                .toList();
+                return postItemResult;
+            })
+            .toList();
 
         return GetPostsResult.of(hasNext, nextCursor, totalElements, postItems);
     }
@@ -186,25 +186,25 @@ public class GetPostService implements GetPostUseCase {
 
         if (query.isPublicPosts()) {
             return findPostPort.countPublicPosts(
-                    board,
-                    query.category(),
-                    query.targetGroupType(),
-                    query.targetGroupId(),
-                    userId,
-                    query.filter(),
-                    query.filterValue(),
-                    searchTarget,
-                    searchKeyword
-            );
-        }
-
-        return findPostPort.countUserPosts(
-                userId,
                 board,
+                query.category(),
+                query.targetGroupType(),
+                query.targetGroupId(),
+                userId,
                 query.filter(),
                 query.filterValue(),
                 searchTarget,
                 searchKeyword
+            );
+        }
+
+        return findPostPort.countUserPosts(
+            userId,
+            board,
+            query.filter(),
+            query.filterValue(),
+            searchTarget,
+            searchKeyword
         );
     }
 
@@ -224,22 +224,22 @@ public class GetPostService implements GetPostUseCase {
 
         ProductInfoResult productInfoResult = null;
         if (query.board().isProductInquery()
-                && PostTargetType.PRICE_POLICY.equals(post.getTargetType())
-                && FormatValidator.hasValue(post.getTargetId())) {
+            && PostTargetType.PRICE_POLICY.equals(post.getTargetType())
+            && FormatValidator.hasValue(post.getTargetId())) {
             productInfoResult = findProductByPricePolicyPort.findByPricePolicyIds(List.of(post.getTargetId()))
-                    .get(post.getTargetId());
+                .get(post.getTargetId());
         }
 
         PostItemResult postItemResult = PostItemResult.from(
-                post,
-                PostProductInfoResult.from(productInfoResult),
-                images
+            post,
+            PostProductInfoResult.from(productInfoResult),
+            images
         );
 
         if (FormatValidator.hasValue(query.targetType())) {
             Long sellerId = FormatValidator.hasValue(productInfoResult)
-                    ? productInfoResult.sellerId()
-                    : null;
+                ? productInfoResult.sellerId()
+                : null;
             if (!adminOrSeller(query.principal(), query.userId(), sellerId)) {
                 postItemResult.maskPrivatePost(query.userId());
             }
@@ -254,10 +254,10 @@ public class GetPostService implements GetPostUseCase {
 
     private Post getPostWithReplies(Long id) {
         return findPostPort.findByIdWithReplies(id)
-                .orElseThrow(() -> {
-                    log.warn("게시글을 찾을 수 없습니다. postId={}", id);
-                    return new PostNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("게시글을 찾을 수 없습니다. postId={}", id);
+                return new PostNotFoundException();
+            });
     }
 
     private void validateQueryMatchesPost(GetPostQuery query, Post post) {
@@ -268,16 +268,16 @@ public class GetPostService implements GetPostUseCase {
 
     private boolean adminOrSeller(OAuth2AuthenticatedPrincipal principal, Long userId, Long sellerId) {
         return AuthorityValidator.hasAdminRole(principal)
-                || (FormatValidator.equals(userId, sellerId) && AuthorityValidator.hasSellerRole(principal));
+            || (FormatValidator.equals(userId, sellerId) && AuthorityValidator.hasSellerRole(principal));
     }
 
     private Map<Long, ProductInfoResult> getProductInfo(List<Post> posts) {
         List<Long> pricePolicyIds = posts.stream()
-                .filter(post -> PostTargetType.PRICE_POLICY.equals(post.getTargetType()))
-                .map(Post::getTargetId)
-                .filter(FormatValidator::hasValue)
-                .distinct()
-                .toList();
+            .filter(post -> PostTargetType.PRICE_POLICY.equals(post.getTargetType()))
+            .map(Post::getTargetId)
+            .filter(FormatValidator::hasValue)
+            .distinct()
+            .toList();
 
         return findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
     }
@@ -313,10 +313,10 @@ public class GetPostService implements GetPostUseCase {
     @Override
     public Post getPost(Long id) {
         return findPostPort.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("게시글을 찾을 수 없습니다. postId={}", id);
-                    return new PostNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("게시글을 찾을 수 없습니다. postId={}", id);
+                return new PostNotFoundException();
+            });
     }
 
     private Map<Long, List<GetFileResult>> findPostImages(List<Post> posts) {
@@ -327,19 +327,19 @@ public class GetPostService implements GetPostUseCase {
         Map<Long, List<GetFileResult>> postImages = new ConcurrentHashMap<>();
 
         List<Post> photoPosts = posts.stream()
-                .flatMap(post -> {
-                    Stream<Post> replies = post.hasReplies() ? post.getReplies().stream() : Stream.empty();
-                    return Stream.concat(Stream.of(post), replies);
-                })
-                .filter(Post::isPhoto)
-                .toList();
+            .flatMap(post -> {
+                Stream<Post> replies = post.hasReplies() ? post.getReplies().stream() : Stream.empty();
+                return Stream.concat(Stream.of(post), replies);
+            })
+            .filter(Post::isPhoto)
+            .toList();
 
         List<CompletableFuture<Void>> futures = photoPosts.stream()
-                .map(post -> CompletableFuture.runAsync(
-                        () -> findPostImagesPort.findImagesByPostIdAndSort(post.getId(), POST_IMAGE)
-                                .ifPresent(result -> postImages.put(post.getId(), result.images()))
-                ))
-                .toList();
+            .map(post -> CompletableFuture.runAsync(
+                () -> findPostImagesPort.findImagesByPostIdAndSort(post.getId(), POST_IMAGE)
+                    .ifPresent(result -> postImages.put(post.getId(), result.images()))
+            ))
+            .toList();
 
         if (FormatValidator.hasValue(futures)) {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();

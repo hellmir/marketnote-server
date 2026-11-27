@@ -8,11 +8,11 @@ import java.util.List;
 public record UserPointHistoryByDateResponse(LocalDate date, Integer count, List<UserPointHistoryResponse> histories) {
     public static UserPointHistoryByDateResponse from(UserPointHistoryByDateResult result) {
         return new UserPointHistoryByDateResponse(
-                result.date(),
-                result.count(),
-                result.histories().stream()
-                        .map(UserPointHistoryResponse::from)
-                        .toList()
+            result.date(),
+            result.count(),
+            result.histories().stream()
+                .map(UserPointHistoryResponse::from)
+                .toList()
         );
     }
 }

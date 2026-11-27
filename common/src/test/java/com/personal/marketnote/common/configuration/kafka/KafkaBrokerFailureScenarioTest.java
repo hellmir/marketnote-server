@@ -152,10 +152,10 @@ class KafkaBrokerFailureScenarioTest {
         // when & then
         try (KafkaProducer<String, String> producer = createProducerWithShortTimeout()) {
             Future<RecordMetadata> future = producer.send(
-                    new ProducerRecord<>(TEST_TOPIC, "key-fail", "실패 메시지")
+                new ProducerRecord<>(TEST_TOPIC, "key-fail", "실패 메시지")
             );
             assertThatThrownBy(() -> future.get(15, TimeUnit.SECONDS))
-                    .isInstanceOf(ExecutionException.class);
+                .isInstanceOf(ExecutionException.class);
         }
     }
 
@@ -168,16 +168,16 @@ class KafkaBrokerFailureScenarioTest {
         // when & then
         try (KafkaProducer<String, String> producer = createProducerWithShortTimeout()) {
             Future<RecordMetadata> future = producer.send(
-                    new ProducerRecord<>(TEST_TOPIC, "key-error", "에러 로깅 테스트")
+                new ProducerRecord<>(TEST_TOPIC, "key-error", "에러 로깅 테스트")
             );
 
             assertThatThrownBy(() -> future.get(15, TimeUnit.SECONDS))
-                    .isInstanceOf(ExecutionException.class)
-                    .cause()
-                    .satisfiesAnyOf(
-                            cause -> assertThat(cause).isInstanceOf(org.apache.kafka.common.errors.TimeoutException.class),
-                            cause -> assertThat(cause).isInstanceOf(org.apache.kafka.common.errors.NotEnoughReplicasException.class)
-                    );
+                .isInstanceOf(ExecutionException.class)
+                .cause()
+                .satisfiesAnyOf(
+                    cause -> assertThat(cause).isInstanceOf(org.apache.kafka.common.errors.TimeoutException.class),
+                    cause -> assertThat(cause).isInstanceOf(org.apache.kafka.common.errors.NotEnoughReplicasException.class)
+                );
         }
     }
 
@@ -249,7 +249,7 @@ class KafkaBrokerFailureScenarioTest {
         for (int attempt = 0; attempt < READY_CHECK_MAX_ATTEMPTS; attempt++) {
             try (KafkaProducer<String, String> producer = createProducer()) {
                 Future<RecordMetadata> future = producer.send(
-                        new ProducerRecord<>(TEST_TOPIC, "key-sla", "SLA 측정 메시지")
+                    new ProducerRecord<>(TEST_TOPIC, "key-sla", "SLA 측정 메시지")
                 );
                 metadata = future.get(5, TimeUnit.SECONDS);
                 break;
@@ -286,7 +286,7 @@ class KafkaBrokerFailureScenarioTest {
         for (int attempt = 0; attempt < READY_CHECK_MAX_ATTEMPTS; attempt++) {
             try (KafkaProducer<String, String> producer = createProducerWithShortTimeout()) {
                 Future<RecordMetadata> future = producer.send(
-                        new ProducerRecord<>(TEST_TOPIC, "readiness-" + attempt, "cluster-ready-check")
+                    new ProducerRecord<>(TEST_TOPIC, "readiness-" + attempt, "cluster-ready-check")
                 );
                 future.get(5, TimeUnit.SECONDS);
                 return;
@@ -305,14 +305,14 @@ class KafkaBrokerFailureScenarioTest {
             for (int attempt = 0; attempt < READY_CHECK_MAX_ATTEMPTS; attempt++) {
                 try {
                     TopicDescription description = adminClient
-                            .describeTopics(Collections.singletonList(TEST_TOPIC))
-                            .allTopicNames()
-                            .get(10, TimeUnit.SECONDS)
-                            .get(TEST_TOPIC);
+                        .describeTopics(Collections.singletonList(TEST_TOPIC))
+                        .allTopicNames()
+                        .get(10, TimeUnit.SECONDS)
+                        .get(TEST_TOPIC);
 
                     boolean allPartitionsHaveLeader = description.partitions().stream()
-                            .map(TopicPartitionInfo::leader)
-                            .allMatch(leader -> FormatValidator.hasValue(leader) && leader.id() >= 0);
+                        .map(TopicPartitionInfo::leader)
+                        .allMatch(leader -> FormatValidator.hasValue(leader) && leader.id() >= 0);
 
                     if (allPartitionsHaveLeader) {
                         Thread.sleep(2000);

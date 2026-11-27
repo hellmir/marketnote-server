@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("OutboxEventJpaEntity 행위 메서드 테스트")
 class OutboxEventJpaEntityTest {
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-03-15T10:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-03-15T10:00:00Z"), ZoneId.of("Asia/Seoul")
     );
     private static final LocalDateTime FIXED_NOW = LocalDateTime.now(FIXED_CLOCK);
 
@@ -71,7 +71,7 @@ class OutboxEventJpaEntityTest {
 
     private OutboxEventJpaEntity createPendingEntity() {
         OutboxEvent domainEvent = OutboxEvent.of(
-                "event-id-1", "topic", "key", "TestEvent", "test-service", "{}", FIXED_CLOCK
+            "event-id-1", "topic", "key", "TestEvent", "test-service", "{}", FIXED_CLOCK
         );
         return OutboxEventJpaEntity.from(domainEvent);
     }

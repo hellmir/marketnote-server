@@ -7,25 +7,25 @@ import java.time.LocalDateTime;
 
 @Builder
 public record GetUnknownPaymentEventsResponse(
-        Long id,
-        Long orderId,
-        String orderKey,
-        Long amount,
-        String method,
-        String resultCode,
-        String resultMessage,
-        LocalDateTime createdAt
+    Long id,
+    Long orderId,
+    String orderKey,
+    Long amount,
+    String method,
+    String resultCode,
+    String resultMessage,
+    LocalDateTime createdAt
 ) {
     public static GetUnknownPaymentEventsResponse from(GetUnknownPaymentEventsResult result) {
         return GetUnknownPaymentEventsResponse.builder()
-                .id(result.id())
-                .orderId(result.orderId())
-                .orderKey(result.orderKey())
-                .amount(result.amount())
-                .method(result.method())
-                .resultCode(result.resultCode())
-                .resultMessage(result.resultMessage())
-                .createdAt(result.createdAt())
-                .build();
+            .id(result.id())
+            .orderId(result.orderId())
+            .orderKey(result.orderKey())
+            .amount(result.amount())
+            .method(result.method())
+            .resultCode(result.resultCode())
+            .resultMessage(result.resultMessage())
+            .createdAt(result.createdAt())
+            .build();
     }
 }

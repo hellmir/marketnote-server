@@ -41,8 +41,8 @@ public class InMemoryMultipartFile implements MultipartFile {
     @Override
     public long getSize() {
         return FormatValidator.hasValue(content)
-                ? content.length
-                : 0L;
+            ? content.length
+            : 0L;
     }
 
     @Override

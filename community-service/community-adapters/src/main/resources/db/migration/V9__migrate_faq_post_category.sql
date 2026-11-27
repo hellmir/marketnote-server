@@ -25,16 +25,19 @@ WHERE board = 'FAQ'
   AND category = 'LOGIN_USER_INFO';
 
 -- 매핑 누락 검증: 신규 5개 외 카테고리가 잔존하면 마이그레이션 실패
-DO $$
+DO
+$$
 DECLARE
-    leftover_count INTEGER;
+leftover_count INTEGER;
 BEGIN
-    SELECT COUNT(*) INTO leftover_count
-    FROM post
-    WHERE board = 'FAQ'
-      AND category NOT IN ('ORDER_DELIVERY', 'CANCEL_RETURN', 'BENEFIT_REWARD', 'PRODUCT', 'ACCOUNT');
+SELECT COUNT(*)
+INTO leftover_count
+FROM post
+WHERE board = 'FAQ'
+  AND category NOT IN ('ORDER_DELIVERY', 'CANCEL_RETURN', 'BENEFIT_REWARD', 'PRODUCT', 'ACCOUNT');
 
-    IF leftover_count > 0 THEN
+IF
+leftover_count > 0 THEN
         RAISE EXCEPTION 'V9 FAQ 카테고리 마이그레이션 누락: % 건', leftover_count;
-    END IF;
+END IF;
 END $$;

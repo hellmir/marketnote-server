@@ -56,7 +56,7 @@ class InventoryControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    inventoryController.registerInventory(request);
+                inventoryController.registerInventory(request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -74,14 +74,14 @@ class InventoryControllerTest {
             // given
             List<Long> pricePolicyIds = List.of(1L, 2L);
             Set<Inventory> inventories = Set.of(
-                    Inventory.of(1L, 1L, 100),
-                    Inventory.of(2L, 2L, 50)
+                Inventory.of(1L, 1L, 100),
+                Inventory.of(2L, 2L, 50)
             );
             when(getInventoryUseCase.getInventories(pricePolicyIds)).thenReturn(inventories);
 
             // when
             ResponseEntity<BaseResponse<GetInventoriesResponse>> response =
-                    inventoryController.getInventories(pricePolicyIds, null);
+                inventoryController.getInventories(pricePolicyIds, null);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -96,15 +96,15 @@ class InventoryControllerTest {
             List<Long> pricePolicyIds = List.of(1L, 2L);
             List<Long> productIds = List.of(10L, 20L);
             Set<Inventory> inventories = Set.of(
-                    Inventory.of(10L, 1L, 100),
-                    Inventory.of(20L, 2L, 50)
+                Inventory.of(10L, 1L, 100),
+                Inventory.of(20L, 2L, 50)
             );
             when(getInventoryUseCase.getOrCreateInventories(Map.of(1L, 10L, 2L, 20L)))
-                    .thenReturn(inventories);
+                .thenReturn(inventories);
 
             // when
             ResponseEntity<BaseResponse<GetInventoriesResponse>> response =
-                    inventoryController.getInventories(pricePolicyIds, productIds);
+                inventoryController.getInventories(pricePolicyIds, productIds);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -126,12 +126,12 @@ class InventoryControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    inventoryController.syncFulfillmentVendorInventories(request);
+                inventoryController.syncFulfillmentVendorInventories(request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(syncFulfillmentVendorInventoryUseCase)
-                    .syncInventories(any(SyncFulfillmentVendorInventoryCommand.class));
+                .syncInventories(any(SyncFulfillmentVendorInventoryCommand.class));
         }
     }
 }

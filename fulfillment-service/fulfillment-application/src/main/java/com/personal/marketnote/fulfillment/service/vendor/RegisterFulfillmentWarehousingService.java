@@ -30,8 +30,8 @@ public class RegisterFulfillmentWarehousingService implements RegisterFulfillmen
 
     private void schedulePolling(RegisterFulfillmentWarehousingCommand command, RegisterFulfillmentWarehousingResult result) {
         if (FormatValidator.hasNoValue(command)
-                || FormatValidator.hasNoValue(command.warehousingRequests())
-                || FormatValidator.hasNoValue(result)) {
+            || FormatValidator.hasNoValue(command.warehousingRequests())
+            || FormatValidator.hasNoValue(result)) {
             return;
         }
 
@@ -41,11 +41,11 @@ public class RegisterFulfillmentWarehousingService implements RegisterFulfillmen
             }
 
             scheduleFulfillmentWarehousingPollingPort.schedule(
-                    ScheduleFulfillmentWarehousingPollingCommand.of(
-                            command.customerCode(),
-                            item.orderNumber(),
-                            item.orderDate()
-                    )
+                ScheduleFulfillmentWarehousingPollingCommand.of(
+                    command.customerCode(),
+                    item.orderNumber(),
+                    item.orderDate()
+                )
             );
         }
     }

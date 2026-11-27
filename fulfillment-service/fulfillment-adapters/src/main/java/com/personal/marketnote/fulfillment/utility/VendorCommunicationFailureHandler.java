@@ -18,51 +18,51 @@ public class VendorCommunicationFailureHandler {
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
 
     public void handleFailure(
-            FulfillmentVendorCommunicationTargetType targetType,
-            FulfillmentVendorName vendorName,
-            String requestPayload,
-            JsonNode requestPayloadJson,
-            Object errorPayload,
-            Exception e
+        FulfillmentVendorCommunicationTargetType targetType,
+        FulfillmentVendorName vendorName,
+        String requestPayload,
+        JsonNode requestPayloadJson,
+        Object errorPayload,
+        Exception e
     ) {
         handleFailure(targetType, null, vendorName, requestPayload, requestPayloadJson, errorPayload, e);
     }
 
     public void handleFailure(
-            FulfillmentVendorCommunicationTargetType targetType,
-            String targetId,
-            FulfillmentVendorName vendorName,
-            String requestPayload,
-            JsonNode requestPayloadJson,
-            Object errorPayload,
-            Exception e
+        FulfillmentVendorCommunicationTargetType targetType,
+        String targetId,
+        FulfillmentVendorName vendorName,
+        String requestPayload,
+        JsonNode requestPayloadJson,
+        Object errorPayload,
+        Exception e
     ) {
         String exceptionName = e.getClass().getSimpleName();
         log.error("Exception occured while communicating with vendor: {}", e.getMessage(), e);
 
         vendorCommunicationRecorder.record(
-                targetType,
-                FulfillmentVendorCommunicationType.REQUEST,
-                FulfillmentVendorCommunicationSenderType.SERVER,
-                targetId,
-                vendorName,
-                requestPayload,
-                requestPayloadJson,
-                exceptionName
+            targetType,
+            FulfillmentVendorCommunicationType.REQUEST,
+            FulfillmentVendorCommunicationSenderType.SERVER,
+            targetId,
+            vendorName,
+            requestPayload,
+            requestPayloadJson,
+            exceptionName
         );
 
         JsonNode responsePayloadJson = vendorCommunicationPayloadGenerator.buildPayloadJson(errorPayload);
         String responsePayload = responsePayloadJson.toString();
 
         vendorCommunicationRecorder.record(
-                targetType,
-                FulfillmentVendorCommunicationType.RESPONSE,
-                FulfillmentVendorCommunicationSenderType.VENDOR,
-                targetId,
-                vendorName,
-                responsePayload,
-                responsePayloadJson,
-                exceptionName
+            targetType,
+            FulfillmentVendorCommunicationType.RESPONSE,
+            FulfillmentVendorCommunicationSenderType.VENDOR,
+            targetId,
+            vendorName,
+            responsePayload,
+            responsePayloadJson,
+            exceptionName
         );
     }
 }

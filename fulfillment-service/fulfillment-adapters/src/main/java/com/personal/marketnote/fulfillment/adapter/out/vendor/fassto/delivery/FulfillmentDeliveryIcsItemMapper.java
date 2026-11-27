@@ -29,37 +29,37 @@ public class FulfillmentDeliveryIcsItemMapper {
     private List<FulfillmentDeliveryGoodsMapper> godCds;
 
     public static FulfillmentDeliveryIcsItemMapper of(
-            String ordDt,
-            String ordNo,
-            String platform,
-            String logiCenter,
-            String invoiceNo,
-            String custNm,
-            String custTelNo,
-            String custAddr,
-            String sendNm,
-            String sendTelNo,
-            String salChanel,
-            String shipReqTerm,
-            String remark,
-            List<FulfillmentDeliveryGoodsMapper> godCds
+        String ordDt,
+        String ordNo,
+        String platform,
+        String logiCenter,
+        String invoiceNo,
+        String custNm,
+        String custTelNo,
+        String custAddr,
+        String sendNm,
+        String sendTelNo,
+        String salChanel,
+        String shipReqTerm,
+        String remark,
+        List<FulfillmentDeliveryGoodsMapper> godCds
     ) {
         FulfillmentDeliveryIcsItemMapper mapper = FulfillmentDeliveryIcsItemMapper.builder()
-                .ordDt(ordDt)
-                .ordNo(ordNo)
-                .platform(platform)
-                .logiCenter(logiCenter)
-                .invoiceNo(invoiceNo)
-                .custNm(custNm)
-                .custTelNo(custTelNo)
-                .custAddr(custAddr)
-                .sendNm(sendNm)
-                .sendTelNo(sendTelNo)
-                .salChanel(salChanel)
-                .shipReqTerm(shipReqTerm)
-                .remark(remark)
-                .godCds(godCds)
-                .build();
+            .ordDt(ordDt)
+            .ordNo(ordNo)
+            .platform(platform)
+            .logiCenter(logiCenter)
+            .invoiceNo(invoiceNo)
+            .custNm(custNm)
+            .custTelNo(custTelNo)
+            .custAddr(custAddr)
+            .sendNm(sendNm)
+            .sendTelNo(sendTelNo)
+            .salChanel(salChanel)
+            .shipReqTerm(shipReqTerm)
+            .remark(remark)
+            .godCds(godCds)
+            .build();
         mapper.validate();
         return mapper;
     }
@@ -81,8 +81,8 @@ public class FulfillmentDeliveryIcsItemMapper {
         putIfHasValue(payload, "remark", remark);
         if (FormatValidator.hasValue(godCds)) {
             payload.put("godCds", godCds.stream()
-                    .map(FulfillmentDeliveryGoodsMapper::toPayload)
-                    .toList());
+                .map(FulfillmentDeliveryGoodsMapper::toPayload)
+                .toList());
         }
         return payload;
     }

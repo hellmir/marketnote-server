@@ -45,8 +45,8 @@ class EventRegisteredNotificationConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long postId, String title) {
         EventRegisteredEvent event = new EventRegisteredEvent(postId, title);
         EventEnvelope<EventRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "community.event.registered", "community-service",
-                LocalDateTime.of(2026, 4, 10, 10, 0), event
+            "test-event-id", "community.event.registered", "community-service",
+            LocalDateTime.of(2026, 4, 10, 10, 0), event
         );
         return new ConsumerRecord<>("community.event.registered", 0, 0L, "key-1", envelope);
     }
@@ -63,7 +63,7 @@ class EventRegisteredNotificationConsumerTest {
 
         // then
         ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
-                SendBatchNotificationCommand.class
+            SendBatchNotificationCommand.class
         );
         verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
 
@@ -99,7 +99,7 @@ class EventRegisteredNotificationConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "community.event.registered", 0, 0L, "1", null
+            "community.event.registered", 0, 0L, "1", null
         );
 
         // when
@@ -116,11 +116,11 @@ class EventRegisteredNotificationConsumerTest {
         // given
         EventRegisteredEvent event = new EventRegisteredEvent(100L, "이벤트");
         EventEnvelope<EventRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "community-service",
-                LocalDateTime.of(2026, 4, 10, 10, 0), event
+            "test-event-id", "wrong.event.type", "community-service",
+            LocalDateTime.of(2026, 4, 10, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "community.event.registered", 0, 0L, "key-1", envelope
+            "community.event.registered", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -166,7 +166,7 @@ class EventRegisteredNotificationConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, "이벤트");
         when(findNotificationPreferencePort.findAllDistinctUserIds()).thenReturn(List.of(1L));
         doThrow(new RuntimeException("발송 실패"))
-                .when(sendBatchNotificationUseCase).sendBatchNotification(any());
+            .when(sendBatchNotificationUseCase).sendBatchNotification(any());
 
         // when
         consumer.handleEventRegisteredEvent(record, acknowledgment);

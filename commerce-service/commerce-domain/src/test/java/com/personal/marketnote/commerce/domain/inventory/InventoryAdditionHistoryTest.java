@@ -20,13 +20,13 @@ class InventoryAdditionHistoryTest {
         @DisplayName("CreateState의 모든 필드를 도메인에 매핑한다 - ID는 null 유지")
         void shouldMapAllFieldsFromCreateState() {
             InventoryAdditionHistoryCreateState state = InventoryAdditionHistoryCreateState.builder()
-                    .productId(10L)
-                    .pricePolicyId(20L)
-                    .stock(30)
-                    .reason("입고")
-                    .unitPrice(5000L)
-                    .supplier("공급사A")
-                    .build();
+                .productId(10L)
+                .pricePolicyId(20L)
+                .stock(30)
+                .reason("입고")
+                .unitPrice(5000L)
+                .supplier("공급사A")
+                .build();
 
             InventoryAdditionHistory history = InventoryAdditionHistory.from(state);
 
@@ -43,13 +43,13 @@ class InventoryAdditionHistoryTest {
         @DisplayName("stock 0 경계값에서도 Stock VO를 생성한다")
         void shouldAcceptZeroStock() {
             InventoryAdditionHistoryCreateState state = InventoryAdditionHistoryCreateState.builder()
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .stock(0)
-                    .reason("초기")
-                    .unitPrice(0L)
-                    .supplier("s")
-                    .build();
+                .productId(1L)
+                .pricePolicyId(1L)
+                .stock(0)
+                .reason("초기")
+                .unitPrice(0L)
+                .supplier("s")
+                .build();
 
             InventoryAdditionHistory history = InventoryAdditionHistory.from(state);
 
@@ -61,16 +61,16 @@ class InventoryAdditionHistoryTest {
         @DisplayName("stock이 음수이면 InvalidQuantityException이 발생한다")
         void shouldThrowWhenStockIsNegative() {
             InventoryAdditionHistoryCreateState state = InventoryAdditionHistoryCreateState.builder()
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .stock(-1)
-                    .reason("입고")
-                    .unitPrice(100L)
-                    .supplier("s")
-                    .build();
+                .productId(1L)
+                .pricePolicyId(1L)
+                .stock(-1)
+                .reason("입고")
+                .unitPrice(100L)
+                .supplier("s")
+                .build();
 
             assertThatThrownBy(() -> InventoryAdditionHistory.from(state))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
     }
 
@@ -82,14 +82,14 @@ class InventoryAdditionHistoryTest {
         @DisplayName("SnapshotState로부터 ID를 포함한 모든 필드를 복원한다")
         void shouldRestoreAllFieldsIncludingId() {
             InventoryAdditionHistorySnapshotState state = InventoryAdditionHistorySnapshotState.builder()
-                    .id(99L)
-                    .productId(11L)
-                    .pricePolicyId(22L)
-                    .stock(33)
-                    .reason("보충")
-                    .unitPrice(1500L)
-                    .supplier("공급사B")
-                    .build();
+                .id(99L)
+                .productId(11L)
+                .pricePolicyId(22L)
+                .stock(33)
+                .reason("보충")
+                .unitPrice(1500L)
+                .supplier("공급사B")
+                .build();
 
             InventoryAdditionHistory history = InventoryAdditionHistory.from(state);
 
@@ -111,13 +111,13 @@ class InventoryAdditionHistoryTest {
         @DisplayName("CreateState의 unitPrice가 null이면 Money.zero로 변환한다")
         void shouldConvertNullUnitPriceToZeroOnCreate() {
             InventoryAdditionHistoryCreateState state = InventoryAdditionHistoryCreateState.builder()
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .stock(5)
-                    .reason("입고")
-                    .unitPrice(null)
-                    .supplier("공급사")
-                    .build();
+                .productId(1L)
+                .pricePolicyId(1L)
+                .stock(5)
+                .reason("입고")
+                .unitPrice(null)
+                .supplier("공급사")
+                .build();
 
             InventoryAdditionHistory history = InventoryAdditionHistory.from(state);
 
@@ -129,14 +129,14 @@ class InventoryAdditionHistoryTest {
         @DisplayName("SnapshotState의 unitPrice가 null이면 Money.zero로 복원한다")
         void shouldConvertNullUnitPriceToZeroOnSnapshot() {
             InventoryAdditionHistorySnapshotState state = InventoryAdditionHistorySnapshotState.builder()
-                    .id(1L)
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .stock(5)
-                    .reason("보충")
-                    .unitPrice(null)
-                    .supplier("공급사")
-                    .build();
+                .id(1L)
+                .productId(1L)
+                .pricePolicyId(1L)
+                .stock(5)
+                .reason("보충")
+                .unitPrice(null)
+                .supplier("공급사")
+                .build();
 
             InventoryAdditionHistory history = InventoryAdditionHistory.from(state);
 
@@ -148,13 +148,13 @@ class InventoryAdditionHistoryTest {
         @DisplayName("unitPrice가 0이면 Money.zero로 설정된다")
         void shouldMapZeroUnitPriceToMoneyZero() {
             InventoryAdditionHistoryCreateState state = InventoryAdditionHistoryCreateState.builder()
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .stock(5)
-                    .reason("입고")
-                    .unitPrice(0L)
-                    .supplier("공급사")
-                    .build();
+                .productId(1L)
+                .pricePolicyId(1L)
+                .stock(5)
+                .reason("입고")
+                .unitPrice(0L)
+                .supplier("공급사")
+                .build();
 
             InventoryAdditionHistory history = InventoryAdditionHistory.from(state);
 
@@ -165,13 +165,13 @@ class InventoryAdditionHistoryTest {
         @DisplayName("unitPrice가 양수이면 Money.of 값으로 변환된다")
         void shouldMapPositiveUnitPriceToMoney() {
             InventoryAdditionHistoryCreateState state = InventoryAdditionHistoryCreateState.builder()
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .stock(5)
-                    .reason("입고")
-                    .unitPrice(12345L)
-                    .supplier("공급사")
-                    .build();
+                .productId(1L)
+                .pricePolicyId(1L)
+                .stock(5)
+                .reason("입고")
+                .unitPrice(12345L)
+                .supplier("공급사")
+                .build();
 
             InventoryAdditionHistory history = InventoryAdditionHistory.from(state);
 
@@ -187,13 +187,13 @@ class InventoryAdditionHistoryTest {
         @DisplayName("CreateState의 Integer stock이 Stock VO로 변환되고 내부 값은 동일하다")
         void shouldConvertIntegerStockToStockVoOnCreate() {
             InventoryAdditionHistoryCreateState state = InventoryAdditionHistoryCreateState.builder()
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .stock(77)
-                    .reason("입고")
-                    .unitPrice(1000L)
-                    .supplier("공급사")
-                    .build();
+                .productId(1L)
+                .pricePolicyId(1L)
+                .stock(77)
+                .reason("입고")
+                .unitPrice(1000L)
+                .supplier("공급사")
+                .build();
 
             InventoryAdditionHistory history = InventoryAdditionHistory.from(state);
 
@@ -205,14 +205,14 @@ class InventoryAdditionHistoryTest {
         @DisplayName("SnapshotState의 Integer stock이 Stock VO로 복원되고 내부 값은 동일하다")
         void shouldConvertIntegerStockToStockVoOnSnapshot() {
             InventoryAdditionHistorySnapshotState state = InventoryAdditionHistorySnapshotState.builder()
-                    .id(1L)
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .stock(88)
-                    .reason("보충")
-                    .unitPrice(1000L)
-                    .supplier("공급사")
-                    .build();
+                .id(1L)
+                .productId(1L)
+                .pricePolicyId(1L)
+                .stock(88)
+                .reason("보충")
+                .unitPrice(1000L)
+                .supplier("공급사")
+                .build();
 
             InventoryAdditionHistory history = InventoryAdditionHistory.from(state);
 

@@ -26,10 +26,10 @@ public class ManageGifticonCategoryExposureService implements ManageGifticonCate
     public void manageExposure(ManageGifticonCategoryExposureCommand command) {
         for (ExposureItem item : command.items()) {
             GifticonCategory category = findGifticonCategoryPort.findById(item.categoryId())
-                    .orElseThrow(() -> {
-                        log.warn("기프티콘 카테고리를 찾을 수 없습니다. categoryId={}", item.categoryId());
-                        return new GifticonCategoryNotFoundException();
-                    });
+                .orElseThrow(() -> {
+                    log.warn("기프티콘 카테고리를 찾을 수 없습니다. categoryId={}", item.categoryId());
+                    return new GifticonCategoryNotFoundException();
+                });
 
             applyExposure(category, item.exposed());
             updateGifticonCategoryPort.update(category);

@@ -43,12 +43,12 @@ class SyncProductTagChangeUseCaseTest {
     void syncProductTagChange_firstTime_persistsLogAndUpdatesReadModel() {
         UUID eventId = UUID.randomUUID();
         ProductTagChangedEvent event = new ProductTagChangedEvent(
-                10L,
-                List.of(
-                        new ProductTagChangedEvent.ProductTagSnapshot(1L, "봄", 1L),
-                        new ProductTagChangedEvent.ProductTagSnapshot(2L, "세일", 2L)
-                ),
-                ProductTagChangedEvent.Action.UPDATED
+            10L,
+            List.of(
+                new ProductTagChangedEvent.ProductTagSnapshot(1L, "봄", 1L),
+                new ProductTagChangedEvent.ProductTagSnapshot(2L, "세일", 2L)
+            ),
+            ProductTagChangedEvent.Action.UPDATED
         );
         when(productTagChangeSyncLogPort.isProcessed(eventId)).thenReturn(false);
 
@@ -66,9 +66,9 @@ class SyncProductTagChangeUseCaseTest {
     void syncProductTagChange_alreadyProcessed_skipsWork() {
         UUID eventId = UUID.randomUUID();
         ProductTagChangedEvent event = new ProductTagChangedEvent(
-                20L,
-                List.of(new ProductTagChangedEvent.ProductTagSnapshot(3L, "겨울", 1L)),
-                ProductTagChangedEvent.Action.REORDERED
+            20L,
+            List.of(new ProductTagChangedEvent.ProductTagSnapshot(3L, "겨울", 1L)),
+            ProductTagChangedEvent.Action.REORDERED
         );
         when(productTagChangeSyncLogPort.isProcessed(eventId)).thenReturn(true);
 
@@ -83,13 +83,13 @@ class SyncProductTagChangeUseCaseTest {
     void syncProductTagChange_logConflict_returnsWithoutUpdate() {
         UUID eventId = UUID.randomUUID();
         ProductTagChangedEvent event = new ProductTagChangedEvent(
-                30L,
-                List.of(new ProductTagChangedEvent.ProductTagSnapshot(4L, "한정", 1L)),
-                ProductTagChangedEvent.Action.UPDATED
+            30L,
+            List.of(new ProductTagChangedEvent.ProductTagSnapshot(4L, "한정", 1L)),
+            ProductTagChangedEvent.Action.UPDATED
         );
         when(productTagChangeSyncLogPort.isProcessed(eventId)).thenReturn(false);
         doThrow(new DataIntegrityViolationException("duplicate"))
-                .when(productTagChangeSyncLogPort).markProcessed(eventId);
+            .when(productTagChangeSyncLogPort).markProcessed(eventId);
 
         service.syncProductTagChange(eventId, event);
 
@@ -102,7 +102,7 @@ class SyncProductTagChangeUseCaseTest {
     void syncProductTagChange_emptyTags_writesNull() {
         UUID eventId = UUID.randomUUID();
         ProductTagChangedEvent event = new ProductTagChangedEvent(
-                40L, List.of(), ProductTagChangedEvent.Action.UPDATED
+            40L, List.of(), ProductTagChangedEvent.Action.UPDATED
         );
         when(productTagChangeSyncLogPort.isProcessed(eventId)).thenReturn(false);
 
@@ -116,9 +116,9 @@ class SyncProductTagChangeUseCaseTest {
     void syncProductTagChange_serializationFails_writesNull() throws Exception {
         UUID eventId = UUID.randomUUID();
         ProductTagChangedEvent event = new ProductTagChangedEvent(
-                50L,
-                List.of(new ProductTagChangedEvent.ProductTagSnapshot(5L, "가을", 1L)),
-                ProductTagChangedEvent.Action.UPDATED
+            50L,
+            List.of(new ProductTagChangedEvent.ProductTagSnapshot(5L, "가을", 1L)),
+            ProductTagChangedEvent.Action.UPDATED
         );
         when(productTagChangeSyncLogPort.isProcessed(eventId)).thenReturn(false);
         doThrow(new JsonProcessingException("failed") {

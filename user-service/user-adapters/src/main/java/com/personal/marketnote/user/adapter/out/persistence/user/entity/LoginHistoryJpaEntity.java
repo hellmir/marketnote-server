@@ -28,9 +28,9 @@ public class LoginHistoryJpaEntity extends BaseEntity {
 
     public static LoginHistoryJpaEntity of(UserJpaEntity userJpaEntity, AuthVendor authVendor, String ipAddress) {
         return LoginHistoryJpaEntity.builder()
-                .userJpaEntity(userJpaEntity)
-                .authVendor(authVendor)
-                .ipAddress(ipAddress)
-                .build();
+            .userJpaEntity(userJpaEntity)
+            .authVendor(authVendor)
+            .ipAddress(ipAddress)
+            .build();
     }
 }

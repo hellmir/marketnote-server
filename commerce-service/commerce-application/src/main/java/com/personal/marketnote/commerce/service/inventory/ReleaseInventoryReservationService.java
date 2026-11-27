@@ -37,18 +37,18 @@ public class ReleaseInventoryReservationService implements ReleaseInventoryReser
     @Override
     public void release(List<OrderProduct> orderProducts, Long orderId, String reason) {
         Map<Long, Integer> stocksByPricePolicyId = orderProducts.stream()
-                .collect(Collectors.groupingBy(
-                        OrderProduct::getPricePolicyId, Collectors.summingInt(op -> op.getQuantity().getValue())
-                ));
+            .collect(Collectors.groupingBy(
+                OrderProduct::getPricePolicyId, Collectors.summingInt(op -> op.getQuantity().getValue())
+            ));
 
         inventoryLockPort.executeWithLock(stocksByPricePolicyId.keySet(), () -> {
             Set<Inventory> inventories = findInventoryPort.findByPricePolicyIds(stocksByPricePolicyId.keySet());
 
             List<InventoryReservation> reservations = findInventoryReservationPort
-                    .findByOrderIdAndPricePolicyIds(orderId, stocksByPricePolicyId.keySet());
+                .findByOrderIdAndPricePolicyIds(orderId, stocksByPricePolicyId.keySet());
 
             Map<Long, InventoryReservation> reservationByPricePolicyId = reservations.stream()
-                    .collect(Collectors.toMap(InventoryReservation::getPricePolicyId, r -> r));
+                .collect(Collectors.toMap(InventoryReservation::getPricePolicyId, r -> r));
 
             Set<Long> reservedPricePolicyIds = reservationByPricePolicyId.keySet();
 
@@ -74,28 +74,28 @@ public class ReleaseInventoryReservationService implements ReleaseInventoryReser
 
             Map<Long, Long> productIdsByPricePolicyId = new HashMap<>();
             inventories.forEach(inventory ->
-                    productIdsByPricePolicyId.put(inventory.getPricePolicyId(), inventory.getProductId())
+                productIdsByPricePolicyId.put(inventory.getPricePolicyId(), inventory.getProductId())
             );
             saveInventoryRestorationHistoryPort.save(
-                    InventoryRestorationHistories.from(
-                            stocksByPricePolicyId, productIdsByPricePolicyId, orderId, reason
-                    )
+                InventoryRestorationHistories.from(
+                    stocksByPricePolicyId, productIdsByPricePolicyId, orderId, reason
+                )
             );
 
             saveCacheStockPort.save(inventories);
 
             inventories.forEach(inventory ->
-                    publishInventoryEventPort.publishInventoryChangedEvent(
-                            inventory.getPricePolicyId(), inventory.getProductId(),
-                            inventory.getStockValue(), InventoryChangeAction.UPDATED
-                    )
+                publishInventoryEventPort.publishInventoryChangedEvent(
+                    inventory.getPricePolicyId(), inventory.getProductId(),
+                    inventory.getStockValue(), InventoryChangeAction.UPDATED
+                )
             );
 
             inventories.forEach(inventory ->
-                    publishInventoryEventPort.publishStockReleasedEvent(
-                            inventory.getPricePolicyId(), inventory.getProductId(),
-                            releasedQuantityByPricePolicyId.get(inventory.getPricePolicyId()), reason, orderId
-                    )
+                publishInventoryEventPort.publishStockReleasedEvent(
+                    inventory.getPricePolicyId(), inventory.getProductId(),
+                    releasedQuantityByPricePolicyId.get(inventory.getPricePolicyId()), reason, orderId
+                )
             );
         });
     }

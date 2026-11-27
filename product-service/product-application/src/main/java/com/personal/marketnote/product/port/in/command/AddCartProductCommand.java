@@ -6,10 +6,10 @@ import java.util.UUID;
 
 @Builder
 public record AddCartProductCommand(
-        Long userId,
-        UUID sharerKey,
-        Long pricePolicyId,
-        String imageUrl,
-        Short quantity
+    Long userId,
+    UUID sharerKey,
+    Long pricePolicyId,
+    String imageUrl,
+    Short quantity
 ) {
 }

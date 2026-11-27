@@ -35,8 +35,8 @@ public enum AuthVendor {
 
     public List<AuthVendor> getExceptValues() {
         return Arrays.stream(values())
-                .filter(authVendor -> authVendor != this)
-                .collect(Collectors.toList());
+            .filter(authVendor -> authVendor != this)
+            .collect(Collectors.toList());
     }
 
     public boolean isMe(AuthVendor authVendor) {

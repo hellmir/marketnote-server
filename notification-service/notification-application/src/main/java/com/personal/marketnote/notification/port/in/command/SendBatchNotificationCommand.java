@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 public record SendBatchNotificationCommand(
-        List<Long> userIds,
-        String templateCode,
-        Map<String, String> variables,
-        String deliveryChannel,
-        LocalDateTime scheduledAt
+    List<Long> userIds,
+    String templateCode,
+    Map<String, String> variables,
+    String deliveryChannel,
+    LocalDateTime scheduledAt
 ) {
 }

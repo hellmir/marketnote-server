@@ -4,11 +4,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
-import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
-import com.personal.marketnote.product.domain.product.Product;
-import com.personal.marketnote.product.domain.product.ProductSearchTarget;
-import com.personal.marketnote.product.domain.product.ProductSnapshotState;
-import com.personal.marketnote.product.domain.product.ProductSortProperty;
+import com.personal.marketnote.product.domain.product.*;
 import com.personal.marketnote.product.exception.InvalidProductPageSizeException;
 import com.personal.marketnote.product.port.in.result.product.GetAdminProductsResult;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductInventoryUseCase;
@@ -72,26 +68,26 @@ class GetAdminProductsUseCaseTest {
         long totalElements = 25L;
 
         List<PricePolicy> pricePolicies = List.of(
-                createPricePolicyWithProduct(1L, 100L),
-                createPricePolicyWithProduct(2L, 200L)
+            createPricePolicyWithProduct(1L, 100L),
+            createPricePolicyWithProduct(2L, 200L)
         );
 
         when(findPricePoliciesPort.findPricePoliciesByOffset(
-                null, page, pageSize, Sort.Direction.DESC,
-                ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, page, pageSize, Sort.Direction.DESC,
+            ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         )).thenReturn(pricePolicies);
 
         when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                null, ProductSearchTarget.NAME, null
+            null, ProductSearchTarget.NAME, null
         )).thenReturn(totalElements);
 
         stubEnrichment(100L, 200L);
 
         // when
         GetAdminProductsResult result = getAdminProductsService.getAdminProducts(
-                null, null, page, pageSize,
-                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                ProductSearchTarget.NAME, null
+            null, null, page, pageSize,
+            Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+            ProductSearchTarget.NAME, null
         );
 
         // then
@@ -115,21 +111,21 @@ class GetAdminProductsUseCaseTest {
         List<PricePolicy> pricePolicies = List.of(createPricePolicyWithProduct(1L, 100L));
 
         when(findPricePoliciesPort.findPricePoliciesByOffset(
-                null, page, pageSize, Sort.Direction.DESC,
-                ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, categoryId
+            null, page, pageSize, Sort.Direction.DESC,
+            ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, categoryId
         )).thenReturn(pricePolicies);
 
         when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                categoryId, ProductSearchTarget.NAME, null
+            categoryId, ProductSearchTarget.NAME, null
         )).thenReturn(1L);
 
         stubEnrichment(100L);
 
         // when
         GetAdminProductsResult result = getAdminProductsService.getAdminProducts(
-                categoryId, null, page, pageSize,
-                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                ProductSearchTarget.NAME, null
+            categoryId, null, page, pageSize,
+            Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+            ProductSearchTarget.NAME, null
         );
 
         // then
@@ -137,8 +133,8 @@ class GetAdminProductsUseCaseTest {
         assertThat(result.products()).hasSize(1);
 
         verify(findPricePoliciesPort).findPricePoliciesByOffset(
-                null, page, pageSize, Sort.Direction.DESC,
-                ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, categoryId
+            null, page, pageSize, Sort.Direction.DESC,
+            ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, categoryId
         );
     }
 
@@ -153,21 +149,21 @@ class GetAdminProductsUseCaseTest {
         List<PricePolicy> pricePolicies = List.of(createPricePolicyWithProduct(1L, 100L));
 
         when(findPricePoliciesPort.findPricePoliciesByOffset(
-                null, page, pageSize, Sort.Direction.DESC,
-                ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, searchKeyword, null
+            null, page, pageSize, Sort.Direction.DESC,
+            ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, searchKeyword, null
         )).thenReturn(pricePolicies);
 
         when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                null, ProductSearchTarget.NAME, searchKeyword
+            null, ProductSearchTarget.NAME, searchKeyword
         )).thenReturn(1L);
 
         stubEnrichment(100L);
 
         // when
         GetAdminProductsResult result = getAdminProductsService.getAdminProducts(
-                null, null, page, pageSize,
-                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                ProductSearchTarget.NAME, searchKeyword
+            null, null, page, pageSize,
+            Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+            ProductSearchTarget.NAME, searchKeyword
         );
 
         // then
@@ -183,19 +179,19 @@ class GetAdminProductsUseCaseTest {
         int pageSize = 10;
 
         when(findPricePoliciesPort.findPricePoliciesByOffset(
-                null, page, pageSize, Sort.Direction.DESC,
-                ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, page, pageSize, Sort.Direction.DESC,
+            ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         )).thenReturn(List.of());
 
         when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                null, ProductSearchTarget.NAME, null
+            null, ProductSearchTarget.NAME, null
         )).thenReturn(0L);
 
         // when
         GetAdminProductsResult result = getAdminProductsService.getAdminProducts(
-                null, null, page, pageSize,
-                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                ProductSearchTarget.NAME, null
+            null, null, page, pageSize,
+            Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+            ProductSearchTarget.NAME, null
         );
 
         // then
@@ -214,19 +210,19 @@ class GetAdminProductsUseCaseTest {
         long totalElements = 30L;
 
         when(findPricePoliciesPort.findPricePoliciesByOffset(
-                null, page, pageSize, Sort.Direction.DESC,
-                ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, page, pageSize, Sort.Direction.DESC,
+            ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         )).thenReturn(List.of());
 
         when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                null, ProductSearchTarget.NAME, null
+            null, ProductSearchTarget.NAME, null
         )).thenReturn(totalElements);
 
         // when
         GetAdminProductsResult result = getAdminProductsService.getAdminProducts(
-                null, null, page, pageSize,
-                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                ProductSearchTarget.NAME, null
+            null, null, page, pageSize,
+            Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+            ProductSearchTarget.NAME, null
         );
 
         // then
@@ -237,9 +233,9 @@ class GetAdminProductsUseCaseTest {
     @DisplayName("pageSize가 0이면 InvalidProductPageSizeException을 던진다")
     void getAdminProducts_pageSizeZero_throwsInvalidProductPageSizeException() {
         assertThatThrownBy(() -> getAdminProductsService.getAdminProducts(
-                null, null, 0, 0,
-                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                ProductSearchTarget.NAME, null
+            null, null, 0, 0,
+            Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+            ProductSearchTarget.NAME, null
         )).isInstanceOf(InvalidProductPageSizeException.class);
 
         verifyNoInteractions(findPricePoliciesPort);
@@ -249,9 +245,9 @@ class GetAdminProductsUseCaseTest {
     @DisplayName("pageSize가 음수이면 InvalidProductPageSizeException을 던진다")
     void getAdminProducts_pageSizeNegative_throwsInvalidProductPageSizeException() {
         assertThatThrownBy(() -> getAdminProductsService.getAdminProducts(
-                null, null, 0, -1,
-                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                ProductSearchTarget.NAME, null
+            null, null, 0, -1,
+            Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+            ProductSearchTarget.NAME, null
         )).isInstanceOf(InvalidProductPageSizeException.class);
 
         verifyNoInteractions(findPricePoliciesPort);
@@ -268,21 +264,21 @@ class GetAdminProductsUseCaseTest {
         List<PricePolicy> pricePolicies = List.of(createPricePolicyWithProduct(1L, 100L));
 
         when(findPricePoliciesPort.findPricePoliciesByOffset(
-                null, page, pageSize, Sort.Direction.DESC,
-                ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, page, pageSize, Sort.Direction.DESC,
+            ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         )).thenReturn(pricePolicies);
 
         when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                null, ProductSearchTarget.NAME, null
+            null, ProductSearchTarget.NAME, null
         )).thenReturn(totalElements);
 
         stubEnrichment(100L);
 
         // when
         GetAdminProductsResult result = getAdminProductsService.getAdminProducts(
-                null, null, page, pageSize,
-                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                ProductSearchTarget.NAME, null
+            null, null, page, pageSize,
+            Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+            ProductSearchTarget.NAME, null
         );
 
         // then
@@ -299,28 +295,28 @@ class GetAdminProductsUseCaseTest {
         List<PricePolicy> pricePolicies = List.of(createPricePolicyWithProduct(1L, 100L));
 
         when(findPricePoliciesPort.findPricePoliciesByOffset(
-                null, page, pageSize, Sort.Direction.DESC,
-                ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, page, pageSize, Sort.Direction.DESC,
+            ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         )).thenReturn(pricePolicies);
 
         when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                null, ProductSearchTarget.NAME, null
+            null, ProductSearchTarget.NAME, null
         )).thenReturn(1L);
 
         when(findProductReviewAggregatesPort.findByProductIds(List.of(100L)))
-                .thenReturn(Map.of());
+            .thenReturn(Map.of());
         when(findProductImagesPort.findImagesByProductIdAndSort(eq(100L), any()))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(getProductInventoryUseCase.getProductStocks(List.of(1L)))
-                .thenReturn(Map.of(1L, 50));
+            .thenReturn(Map.of(1L, 50));
 
         stubExecutorToRunDirectly();
 
         // when
         GetAdminProductsResult result = getAdminProductsService.getAdminProducts(
-                null, null, page, pageSize,
-                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                ProductSearchTarget.NAME, null
+            null, null, page, pageSize,
+            Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+            ProductSearchTarget.NAME, null
         );
 
         // then
@@ -340,21 +336,21 @@ class GetAdminProductsUseCaseTest {
         List<PricePolicy> pricePolicies = List.of(createPricePolicyWithProduct(1L, 100L));
 
         when(findPricePoliciesPort.findPricePoliciesByOffset(
-                null, page, pageSize, Sort.Direction.DESC,
-                ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
+            null, page, pageSize, Sort.Direction.DESC,
+            ProductSortProperty.ORDER_NUM, ProductSearchTarget.NAME, null, null
         )).thenReturn(pricePolicies);
 
         when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                null, ProductSearchTarget.NAME, null
+            null, ProductSearchTarget.NAME, null
         )).thenReturn(1L);
 
         stubEnrichment(100L);
 
         // when
         getAdminProductsService.getAdminProducts(
-                null, null, page, pageSize,
-                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                ProductSearchTarget.NAME, null
+            null, null, page, pageSize,
+            Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+            ProductSearchTarget.NAME, null
         );
 
         // then
@@ -364,19 +360,19 @@ class GetAdminProductsUseCaseTest {
     private PricePolicy createPricePolicyWithProduct(Long id, Long productId) {
         Product product = createProduct(productId);
         PricePolicy pricePolicy = PricePolicy.from(
-                PricePolicySnapshotState.builder()
-                        .id(id)
-                        .productId(productId)
-                        .price(10000L)
-                        .discountPrice(8000L)
-                        .discountRate(Rate.of(BigDecimal.valueOf(20)))
-                        .accumulatedPoint(100L)
-                        .accumulationRate(Rate.of(BigDecimal.valueOf(1)))
-                        .popularity(0L)
-                        .status(EntityStatus.ACTIVE)
-                        .orderNum(id)
-                        .optionIds(List.of())
-                        .build()
+            PricePolicySnapshotState.builder()
+                .id(id)
+                .productId(productId)
+                .price(10000L)
+                .discountPrice(8000L)
+                .discountRate(Rate.of(BigDecimal.valueOf(20)))
+                .accumulatedPoint(100L)
+                .accumulationRate(Rate.of(BigDecimal.valueOf(1)))
+                .popularity(0L)
+                .status(EntityStatus.ACTIVE)
+                .orderNum(id)
+                .optionIds(List.of())
+                .build()
         );
         pricePolicy.addProduct(product);
         return pricePolicy;
@@ -385,33 +381,33 @@ class GetAdminProductsUseCaseTest {
     private Product createProduct(Long id) {
         UUID productKey = UUID.randomUUID();
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(id)
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name("테스트 상품 " + id)
-                        .brandName("테스트 브랜드")
-                        .detail("상세")
-                        .sales(10)
-                        .viewCount(100L)
-                        .popularity(50L)
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .orderNum(id)
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(id)
+                .productKey(productKey)
+                .sellerId(1L)
+                .name("테스트 상품 " + id)
+                .brandName("테스트 브랜드")
+                .detail("상세")
+                .sales(10)
+                .viewCount(100L)
+                .popularity(50L)
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .orderNum(id)
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
     }
 
     private void stubEnrichment(Long... productIds) {
         List<Long> productIdList = List.of(productIds);
         lenient().when(findProductReviewAggregatesPort.findByProductIds(productIdList))
-                .thenReturn(Map.of());
+            .thenReturn(Map.of());
         lenient().when(findProductImagesPort.findImagesByProductIdAndSort(any(), any()))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         lenient().when(getProductInventoryUseCase.getProductStocks(any()))
-                .thenReturn(Map.of());
+            .thenReturn(Map.of());
 
         stubExecutorToRunDirectly();
     }

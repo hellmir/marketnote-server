@@ -16,17 +16,17 @@ public class Category extends BaseDomain {
 
     public static Category from(CategoryCreateState state) {
         return Category.builder()
-                .parentCategoryId(state.getParentCategoryId())
-                .name(state.getName())
-                .build();
+            .parentCategoryId(state.getParentCategoryId())
+            .name(state.getName())
+            .build();
     }
 
     public static Category from(CategorySnapshotState state) {
         Category category = Category.builder()
-                .id(state.getId())
-                .parentCategoryId(state.getParentCategoryId())
-                .name(state.getName())
-                .build();
+            .id(state.getId())
+            .parentCategoryId(state.getParentCategoryId())
+            .name(state.getName())
+            .build();
         category.status = state.getStatus();
 
         return category;

@@ -6,8 +6,8 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentD
 import java.util.List;
 
 public record GetFulfillmentDeliveryOutOrdGoodsByOrdNoResponse(
-        Integer dataCount,
-        List<FulfillmentDeliveryOutOrdGoodsByOrdNoInfoResult> goodsByOrdNo
+    Integer dataCount,
+    List<FulfillmentDeliveryOutOrdGoodsByOrdNoInfoResult> goodsByOrdNo
 ) {
     public static GetFulfillmentDeliveryOutOrdGoodsByOrdNoResponse from(GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult result) {
         return new GetFulfillmentDeliveryOutOrdGoodsByOrdNoResponse(result.dataCount(), result.goodsByOrdNo());

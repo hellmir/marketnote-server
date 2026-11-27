@@ -45,13 +45,13 @@ class PricePolicyEventKafkaListenerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long productId, UUID productKey, Long pricePolicyId) {
         PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
-                productId, productKey, pricePolicyId, null, null, null,
-                null, null, null, null,
-                java.util.List.of(), java.util.List.of()
+            productId, productKey, pricePolicyId, null, null, null,
+            null, null, null, null,
+            java.util.List.of(), java.util.List.of()
         );
         EventEnvelope<PricePolicyCreatedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "product.price-policy.created", "product-service",
-                LocalDateTime.of(2026, 2, 27, 10, 0), event
+            "test-event-id", "product.price-policy.created", "product-service",
+            LocalDateTime.of(2026, 2, 27, 10, 0), event
         );
         return new ConsumerRecord<>("product.price-policy.created", 0, 0L, "key-1", envelope);
     }
@@ -148,7 +148,7 @@ class PricePolicyEventKafkaListenerTest {
     void handlePricePolicyCreatedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "product.price-policy.created", 0, 0L, "key-1", null
+            "product.price-policy.created", 0, 0L, "key-1", null
         );
 
         // when
@@ -164,16 +164,16 @@ class PricePolicyEventKafkaListenerTest {
     void handlePricePolicyCreatedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
-                1L, UUID.randomUUID(), 2L, null, null, null,
-                null, null, null, null,
-                java.util.List.of(), java.util.List.of()
+            1L, UUID.randomUUID(), 2L, null, null, null,
+            null, null, null, null,
+            java.util.List.of(), java.util.List.of()
         );
         EventEnvelope<PricePolicyCreatedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "product-service",
-                LocalDateTime.of(2026, 2, 27, 10, 0), event
+            "test-event-id", "wrong.event.type", "product-service",
+            LocalDateTime.of(2026, 2, 27, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "product.price-policy.created", 0, 0L, "key-1", envelope
+            "product.price-policy.created", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -246,7 +246,7 @@ class PricePolicyEventKafkaListenerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
         doThrow(new InventoryAlreadyExistsException())
-                .when(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
+            .when(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
 
         // when
         pricePolicyEventKafkaListener.handlePricePolicyCreatedEvent(record, acknowledgment);
@@ -262,12 +262,12 @@ class PricePolicyEventKafkaListenerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
         doThrow(new RuntimeException("네트워크 오류"))
-                .when(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
+            .when(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
 
         // when & then
         assertThatThrownBy(() -> pricePolicyEventKafkaListener.handlePricePolicyCreatedEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("네트워크 오류");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("네트워크 오류");
 
         verify(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
         verify(acknowledgment, never()).acknowledge();

@@ -43,7 +43,7 @@ public class GetAttendanceRelayStatusService implements GetAttendanceRelayStatus
         Month month = Month.from(today.getMonthValue());
 
         Optional<UserAttendance> attendanceOpt =
-                findUserAttendancePort.findByUserIdAndYearAndMonth(userId, year, month);
+            findUserAttendancePort.findByUserIdAndYearAndMonth(userId, year, month);
 
         if (attendanceOpt.isEmpty()) {
             return buildDefaultResult();
@@ -52,10 +52,10 @@ public class GetAttendanceRelayStatusService implements GetAttendanceRelayStatus
         UserAttendance attendance = attendanceOpt.get();
         boolean todayChecked = checkTodayAttendance(attendance.getId(), today);
         Optional<UserAttendanceHistory> latestHistory =
-                findUserAttendanceHistoryPort.findLatestByUserAttendanceId(attendance.getId());
+            findUserAttendanceHistoryPort.findLatestByUserAttendanceId(attendance.getId());
         short currentRelayDay = resolveCurrentRelayDay(todayChecked, latestHistory, today);
         List<GetAttendanceRelayStatusResult.RelaySlot> relaySlots =
-                buildRelaySlots(currentRelayDay, todayChecked);
+            buildRelaySlots(currentRelayDay, todayChecked);
 
         return new GetAttendanceRelayStatusResult(currentRelayDay, todayChecked, relaySlots);
     }
@@ -69,14 +69,14 @@ public class GetAttendanceRelayStatusService implements GetAttendanceRelayStatus
         LocalDateTime startOfDay = today.atStartOfDay();
         LocalDateTime endOfDayExclusive = startOfDay.plusDays(1);
         return findUserAttendanceHistoryPort.existsByUserAttendanceIdAndAttendedAtBetween(
-                userAttendanceId, startOfDay, endOfDayExclusive
+            userAttendanceId, startOfDay, endOfDayExclusive
         );
     }
 
     private short resolveCurrentRelayDay(
-            boolean todayChecked,
-            Optional<UserAttendanceHistory> latestHistory,
-            LocalDate today
+        boolean todayChecked,
+        Optional<UserAttendanceHistory> latestHistory,
+        LocalDate today
     ) {
         if (todayChecked && latestHistory.isPresent()) {
             return latestHistory.get().getContinuousPeriodValue();
@@ -89,19 +89,19 @@ public class GetAttendanceRelayStatusService implements GetAttendanceRelayStatus
 
     private boolean isYesterdayAttendance(Optional<UserAttendanceHistory> latestHistory, LocalDate today) {
         return latestHistory.isPresent()
-                && latestHistory.get().getAttendedAt().toLocalDate().equals(today.minusDays(1));
+            && latestHistory.get().getAttendedAt().toLocalDate().equals(today.minusDays(1));
     }
 
     private List<GetAttendanceRelayStatusResult.RelaySlot> buildRelaySlots(
-            short currentRelayDay,
-            boolean todayChecked
+        short currentRelayDay,
+        boolean todayChecked
     ) {
         List<GetAttendanceRelayStatusResult.RelaySlot> slots = new ArrayList<>();
         for (short day = 1; day <= RELAY_CYCLE_SIZE; day++) {
             AttendancePolicy policy = findPolicyForPeriod(day);
             boolean completed = resolveSlotCompleted(day, currentRelayDay, todayChecked);
             slots.add(new GetAttendanceRelayStatusResult.RelaySlot(
-                    day, policy.getRewardType(), policy.getRewardQuantityValue(), completed
+                day, policy.getRewardType(), policy.getRewardQuantityValue(), completed
             ));
         }
         return slots;
@@ -109,11 +109,11 @@ public class GetAttendanceRelayStatusService implements GetAttendanceRelayStatus
 
     private AttendancePolicy findPolicyForPeriod(short continuousPeriod) {
         return findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDateIsNull(continuousPeriod)
-                .or(() -> findAttendancePolicyPort.findById(DEFAULT_POLICY_ID))
-                .orElseThrow(() -> {
-                    log.warn("출석 정책을 찾을 수 없습니다. attendancePolicyId={}", DEFAULT_POLICY_ID);
-                    return new AttendancePolicyNotFoundException();
-                });
+            .or(() -> findAttendancePolicyPort.findById(DEFAULT_POLICY_ID))
+            .orElseThrow(() -> {
+                log.warn("출석 정책을 찾을 수 없습니다. attendancePolicyId={}", DEFAULT_POLICY_ID);
+                return new AttendancePolicyNotFoundException();
+            });
     }
 
     private boolean resolveSlotCompleted(short slotDay, short currentRelayDay, boolean todayChecked) {

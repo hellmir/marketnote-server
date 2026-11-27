@@ -9,11 +9,11 @@ import lombok.*;
 
 @Entity
 @Table(
-        name = "fulfillment_work_status_read_models",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_fulfillment_work_status_read_model_order_id",
-                columnNames = "orderId"
-        )
+    name = "fulfillment_work_status_read_models",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_fulfillment_work_status_read_model_order_id",
+        columnNames = "orderId"
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -29,9 +29,9 @@ public class FulfillmentWorkStatusReadModelJpaEntity extends BaseGeneralEntity {
 
     public static FulfillmentWorkStatusReadModelJpaEntity of(Long orderId, String workStatus) {
         return FulfillmentWorkStatusReadModelJpaEntity.builder()
-                .orderId(orderId)
-                .workStatus(workStatus)
-                .build();
+            .orderId(orderId)
+            .workStatus(workStatus)
+            .build();
     }
 
     public void updateFrom(String workStatus) {

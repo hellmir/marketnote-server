@@ -52,9 +52,9 @@ class PollReturnInspectionUseCaseTest {
     @BeforeEach
     void setUp() {
         pollReturnInspectionService = new PollReturnInspectionService(
-                findReturnTrackerPort, updateReturnTrackerPort,
-                getReturnInspectionResultPort, completeReturnInspectionService,
-                failReturnInspectionService, clock
+            findReturnTrackerPort, updateReturnTrackerPort,
+            getReturnInspectionResultPort, completeReturnInspectionService,
+            failReturnInspectionService, clock
         );
     }
 
@@ -67,7 +67,7 @@ class PollReturnInspectionUseCaseTest {
         void shouldReturnEarlyWhenNoPendingTrackers() {
             // given
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             // when
             pollReturnInspectionService.pollPendingInspections();
@@ -84,7 +84,7 @@ class PollReturnInspectionUseCaseTest {
             // given
             ReturnTracker trackerWithoutSlip = createTrackerWithoutSlipNumber(1L);
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of(trackerWithoutSlip));
+                .thenReturn(List.of(trackerWithoutSlip));
 
             // when
             pollReturnInspectionService.pollPendingInspections();
@@ -104,9 +104,9 @@ class PollReturnInspectionUseCaseTest {
             // given
             ReturnTracker tracker = createTracker(1L, "RS-001");
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of(tracker));
+                .thenReturn(List.of(tracker));
             when(getReturnInspectionResultPort.getReturnGodDetail("RS-001"))
-                    .thenThrow(new RuntimeException("API 호출 실패"));
+                .thenThrow(new RuntimeException("API 호출 실패"));
 
             // when
             pollReturnInspectionService.pollPendingInspections();
@@ -122,9 +122,9 @@ class PollReturnInspectionUseCaseTest {
             // given
             ReturnTracker tracker = createTracker(1L, "RS-001");
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of(tracker));
+                .thenReturn(List.of(tracker));
             when(getReturnInspectionResultPort.getReturnGodDetail("RS-001"))
-                    .thenReturn(null);
+                .thenReturn(null);
 
             // when
             pollReturnInspectionService.pollPendingInspections();
@@ -140,9 +140,9 @@ class PollReturnInspectionUseCaseTest {
             // given
             ReturnTracker tracker = createTracker(1L, "RS-001");
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of(tracker));
+                .thenReturn(List.of(tracker));
             when(getReturnInspectionResultPort.getReturnGodDetail("RS-001"))
-                    .thenReturn(new ReturnInspectionResult(0, null));
+                .thenReturn(new ReturnInspectionResult(0, null));
 
             // when
             pollReturnInspectionService.pollPendingInspections();
@@ -163,10 +163,10 @@ class PollReturnInspectionUseCaseTest {
             // given
             ReturnTracker tracker = createTracker(1L, "RS-001");
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of(tracker));
+                .thenReturn(List.of(tracker));
 
             ReturnInspectionResult result = new ReturnInspectionResult(1, List.of(
-                    createResultItem("1", "01", "01")
+                createResultItem("1", "01", "01")
             ));
             when(getReturnInspectionResultPort.getReturnGodDetail("RS-001")).thenReturn(result);
 
@@ -189,10 +189,10 @@ class PollReturnInspectionUseCaseTest {
             // given
             ReturnTracker tracker = createTracker(1L, "RS-001");
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of(tracker));
+                .thenReturn(List.of(tracker));
 
             ReturnInspectionResult result = new ReturnInspectionResult(1, List.of(
-                    createResultItem("1", "01", "02")
+                createResultItem("1", "01", "02")
             ));
             when(getReturnInspectionResultPort.getReturnGodDetail("RS-001")).thenReturn(result);
 
@@ -211,10 +211,10 @@ class PollReturnInspectionUseCaseTest {
             // given
             ReturnTracker tracker = createTracker(1L, "RS-001");
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of(tracker));
+                .thenReturn(List.of(tracker));
 
             ReturnInspectionResult result = new ReturnInspectionResult(1, List.of(
-                    createResultItem("1", "01", "03")
+                createResultItem("1", "01", "03")
             ));
             when(getReturnInspectionResultPort.getReturnGodDetail("RS-001")).thenReturn(result);
 
@@ -233,10 +233,10 @@ class PollReturnInspectionUseCaseTest {
             // given
             ReturnTracker tracker = createTracker(1L, "RS-001");
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of(tracker));
+                .thenReturn(List.of(tracker));
 
             ReturnInspectionResult result = new ReturnInspectionResult(1, List.of(
-                    createResultItem("1", "03", "02")
+                createResultItem("1", "03", "02")
             ));
             when(getReturnInspectionResultPort.getReturnGodDetail("RS-001")).thenReturn(result);
 
@@ -259,10 +259,10 @@ class PollReturnInspectionUseCaseTest {
             // given
             ReturnTracker tracker = createTracker(1L, "RS-001");
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of(tracker));
+                .thenReturn(List.of(tracker));
 
             ReturnInspectionResult result = new ReturnInspectionResult(1, List.of(
-                    createResultItem("999", "01")
+                createResultItem("999", "01")
             ));
             when(getReturnInspectionResultPort.getReturnGodDetail("RS-001")).thenReturn(result);
 
@@ -280,10 +280,10 @@ class PollReturnInspectionUseCaseTest {
             // given
             ReturnTracker tracker = createTracker(1L, "RS-001");
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of(tracker));
+                .thenReturn(List.of(tracker));
 
             ReturnInspectionResult result = new ReturnInspectionResult(1, List.of(
-                    new ReturnInspectionResultItem("1", "SLIP-001", List.of())
+                new ReturnInspectionResultItem("1", "SLIP-001", List.of())
             ));
             when(getReturnInspectionResultPort.getReturnGodDetail("RS-001")).thenReturn(result);
 
@@ -301,10 +301,10 @@ class PollReturnInspectionUseCaseTest {
             // given
             ReturnTracker tracker = createTracker(1L, "RS-001");
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of(tracker));
+                .thenReturn(List.of(tracker));
 
             ReturnInspectionResult result = new ReturnInspectionResult(1, List.of(
-                    createResultItem("1", "99")
+                createResultItem("1", "99")
             ));
             when(getReturnInspectionResultPort.getReturnGodDetail("RS-001")).thenReturn(result);
 
@@ -323,7 +323,7 @@ class PollReturnInspectionUseCaseTest {
             ReturnTracker tracker1 = createTracker(1L, "RS-001");
             ReturnTracker tracker2 = createTracker(2L, "RS-002");
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of(tracker1, tracker2));
+                .thenReturn(List.of(tracker1, tracker2));
 
             ReturnInspectionResultItem failingItem = createResultItem("1", "01");
             ReturnInspectionResultItem successItem = createResultItem("2", "02");
@@ -331,11 +331,11 @@ class PollReturnInspectionUseCaseTest {
             when(getReturnInspectionResultPort.getReturnGodDetail("RS-001,RS-002")).thenReturn(result);
 
             doThrow(new RuntimeException("완료 처리 실패"))
-                    .when(completeReturnInspectionService).completeInspection(eq(tracker1), any());
+                .when(completeReturnInspectionService).completeInspection(eq(tracker1), any());
 
             // when
             assertThatCode(() -> pollReturnInspectionService.pollPendingInspections())
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             // then
             verify(failReturnInspectionService).failInspection(eq(tracker2), any(LocalDateTime.class));
@@ -348,10 +348,10 @@ class PollReturnInspectionUseCaseTest {
             ReturnTracker tracker1 = createTracker(1L, "RS-001");
             ReturnTracker tracker2 = createTracker(1L, "RS-002");
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
-                    .thenReturn(List.of(tracker1, tracker2));
+                .thenReturn(List.of(tracker1, tracker2));
 
             ReturnInspectionResult result = new ReturnInspectionResult(1, List.of(
-                    createResultItem("1", "02")
+                createResultItem("1", "02")
             ));
             when(getReturnInspectionResultPort.getReturnGodDetail("RS-001,RS-002")).thenReturn(result);
 
@@ -369,27 +369,27 @@ class PollReturnInspectionUseCaseTest {
 
     private ReturnTracker createTracker(Long orderId, String returnSlipNumber) {
         return ReturnTracker.from(ReturnTrackerSnapshotState.builder()
-                .id(orderId)
-                .orderId(orderId)
-                .returnSlipNumber(returnSlipNumber)
-                .inspectionStatus(ReturnInspectionStatus.PENDING)
-                .refundStatus(ReturnRefundStatus.PENDING)
-                .build());
+            .id(orderId)
+            .orderId(orderId)
+            .returnSlipNumber(returnSlipNumber)
+            .inspectionStatus(ReturnInspectionStatus.PENDING)
+            .refundStatus(ReturnRefundStatus.PENDING)
+            .build());
     }
 
     private ReturnTracker createTrackerWithoutSlipNumber(Long orderId) {
         return ReturnTracker.from(ReturnTrackerSnapshotState.builder()
-                .id(orderId)
-                .orderId(orderId)
-                .inspectionStatus(ReturnInspectionStatus.PENDING)
-                .refundStatus(ReturnRefundStatus.PENDING)
-                .build());
+            .id(orderId)
+            .orderId(orderId)
+            .inspectionStatus(ReturnInspectionStatus.PENDING)
+            .refundStatus(ReturnRefundStatus.PENDING)
+            .build());
     }
 
     private ReturnInspectionResultItem createResultItem(String orderNumber, String... statuses) {
         List<ReturnInspectionGoodsItem> goods = java.util.Arrays.stream(statuses)
-                .map(status -> new ReturnInspectionGoodsItem("PROD-001", "테스트 상품", status, "상태명"))
-                .toList();
+            .map(status -> new ReturnInspectionGoodsItem("PROD-001", "테스트 상품", status, "상태명"))
+            .toList();
         return new ReturnInspectionResultItem(orderNumber, "SLIP-001", goods);
     }
 }

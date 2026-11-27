@@ -6,18 +6,9 @@ import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGift
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsExposureRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsOrderRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetAdminGifticonGoodsResponse;
-import com.personal.marketnote.reward.port.in.command.gifticon.GetAdminGifticonGoodsCommand;
-import com.personal.marketnote.reward.port.in.command.gifticon.ManageFeaturedGifticonGoodsCommand;
-import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsCashPriceCommand;
-import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsExposureCommand;
-import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsOrderCommand;
+import com.personal.marketnote.reward.port.in.command.gifticon.*;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetAdminGifticonGoodsResult;
-import com.personal.marketnote.reward.port.in.usecase.gifticon.GetAdminGifticonGoodsUseCase;
-import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageFeaturedGifticonGoodsUseCase;
-import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsCashPriceUseCase;
-import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsExposureUseCase;
-import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonGoodsOrderUseCase;
-import com.personal.marketnote.reward.port.in.usecase.gifticon.SyncGifticonGoodsAndBrandsUseCase;
+import com.personal.marketnote.reward.port.in.usecase.gifticon.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -64,15 +55,15 @@ class AdminGifticonGoodsControllerTest {
         @DisplayName("페이지/필터 파라미터를 UseCase Command에 전달하고 OK를 반환한다")
         void returnsOkAndPassesParams() {
             given(getAdminGifticonGoodsUseCase.getAdminGifticonGoods(any(GetAdminGifticonGoodsCommand.class)))
-                    .willReturn(new GetAdminGifticonGoodsResult(1, 20, 0L, 0, List.of()));
+                .willReturn(new GetAdminGifticonGoodsResult(1, 20, 0L, 0, List.of()));
 
             ResponseEntity<BaseResponse<GetAdminGifticonGoodsResponse>> response =
-                    controller.getAdminGifticonGoods(2, 50, "SELLING", true, "키워드");
+                controller.getAdminGifticonGoods(2, 50, "SELLING", true, "키워드");
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent()).isNotNull();
             ArgumentCaptor<GetAdminGifticonGoodsCommand> captor =
-                    ArgumentCaptor.forClass(GetAdminGifticonGoodsCommand.class);
+                ArgumentCaptor.forClass(GetAdminGifticonGoodsCommand.class);
             verify(getAdminGifticonGoodsUseCase).getAdminGifticonGoods(captor.capture());
             assertThat(captor.getValue().page()).isEqualTo(2);
             assertThat(captor.getValue().pageSize()).isEqualTo(50);
@@ -90,7 +81,7 @@ class AdminGifticonGoodsControllerTest {
         @DisplayName("정상 요청 시 OK 상태를 반환하고 UseCase를 호출한다")
         void returnsOkAndDelegates() {
             ManageGifticonGoodsExposureRequest request = new ManageGifticonGoodsExposureRequest(
-                    List.of(new ManageGifticonGoodsExposureRequest.ExposureItem("G-01", true))
+                List.of(new ManageGifticonGoodsExposureRequest.ExposureItem("G-01", true))
             );
 
             ResponseEntity<BaseResponse<Void>> response = controller.manageGifticonGoodsExposure(request);
@@ -108,7 +99,7 @@ class AdminGifticonGoodsControllerTest {
         @DisplayName("정상 요청 시 OK 상태를 반환하고 UseCase를 호출한다")
         void returnsOkAndDelegates() {
             ManageGifticonGoodsOrderRequest request = new ManageGifticonGoodsOrderRequest(
-                    List.of(new ManageGifticonGoodsOrderRequest.OrderItem("G-01", 5))
+                List.of(new ManageGifticonGoodsOrderRequest.OrderItem("G-01", 5))
             );
 
             ResponseEntity<BaseResponse<Void>> response = controller.manageGifticonGoodsOrder(request);
@@ -126,7 +117,7 @@ class AdminGifticonGoodsControllerTest {
         @DisplayName("정상 요청 시 OK 상태를 반환하고 UseCase를 호출한다")
         void returnsOkAndDelegates() {
             ManageFeaturedGifticonGoodsRequest request = new ManageFeaturedGifticonGoodsRequest(
-                    List.of(new ManageFeaturedGifticonGoodsRequest.FeaturedGoodsItem("G-01", true, 1))
+                List.of(new ManageFeaturedGifticonGoodsRequest.FeaturedGoodsItem("G-01", true, 1))
             );
 
             ResponseEntity<BaseResponse<Void>> response = controller.manageFeaturedGifticonGoods(request);
@@ -144,7 +135,7 @@ class AdminGifticonGoodsControllerTest {
         @DisplayName("정상 요청 시 OK 상태를 반환하고 UseCase를 호출한다")
         void returnsOkAndDelegates() {
             ManageGifticonGoodsCashPriceRequest request = new ManageGifticonGoodsCashPriceRequest(
-                    List.of(new ManageGifticonGoodsCashPriceRequest.CashPriceItem("G-01", 2900L))
+                List.of(new ManageGifticonGoodsCashPriceRequest.CashPriceItem("G-01", 2900L))
             );
 
             ResponseEntity<BaseResponse<Void>> response = controller.manageGifticonGoodsCashPrice(request);

@@ -50,15 +50,15 @@ public class FileJpaEntity extends BaseGeneralEntity {
 
     public static FileJpaEntity from(FileDomain domain, String storageUrl) {
         return FileJpaEntity.builder()
-                .ownerType(domain.getOwnerType())
-                .ownerId(domain.getOwnerId())
-                .sort(domain.getSort().name())
-                .extension(domain.getExtension())
-                .name(domain.getName())
-                .storageUrl(storageUrl)
-                .userId(domain.getUserId())
-                .ownerKey(domain.getOwnerKey())
-                .build();
+            .ownerType(domain.getOwnerType())
+            .ownerId(domain.getOwnerId())
+            .sort(domain.getSort().name())
+            .extension(domain.getExtension())
+            .name(domain.getName())
+            .storageUrl(storageUrl)
+            .userId(domain.getUserId())
+            .ownerKey(domain.getOwnerKey())
+            .build();
     }
 
     public void setIdToOrderNum() {

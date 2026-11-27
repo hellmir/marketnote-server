@@ -17,17 +17,17 @@ class NotificationVendorCommunicationHistoryTest {
     void shouldMapAllFieldsFromCreateState() throws Exception {
         JsonNode payloadJson = objectMapper.readTree("{\"messageId\":\"msg-1\"}");
         NotificationVendorCommunicationHistoryCreateState state =
-                NotificationVendorCommunicationHistoryCreateState.builder()
-                        .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
-                        .targetId("100")
-                        .vendorName(NotificationVendorName.FCM)
-                        .communicationType(NotificationVendorCommunicationType.REQUEST)
-                        .sender(NotificationVendorCommunicationSenderType.SERVER)
-                        .exception(null)
-                        .payload("{\"title\":\"알림\"}")
-                        .payloadJson(payloadJson)
-                        .attemptCount(1)
-                        .build();
+            NotificationVendorCommunicationHistoryCreateState.builder()
+                .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
+                .targetId("100")
+                .vendorName(NotificationVendorName.FCM)
+                .communicationType(NotificationVendorCommunicationType.REQUEST)
+                .sender(NotificationVendorCommunicationSenderType.SERVER)
+                .exception(null)
+                .payload("{\"title\":\"알림\"}")
+                .payloadJson(payloadJson)
+                .attemptCount(1)
+                .build();
 
         NotificationVendorCommunicationHistory history = NotificationVendorCommunicationHistory.from(state);
 
@@ -48,15 +48,15 @@ class NotificationVendorCommunicationHistoryTest {
     @DisplayName("재시도된 통신 이력의 attemptCount는 2 이상으로 매핑된다")
     void shouldMapAttemptCountForRetriedCommunication() {
         NotificationVendorCommunicationHistoryCreateState state =
-                NotificationVendorCommunicationHistoryCreateState.builder()
-                        .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
-                        .targetId("150")
-                        .vendorName(NotificationVendorName.FCM)
-                        .communicationType(NotificationVendorCommunicationType.REQUEST)
-                        .sender(NotificationVendorCommunicationSenderType.SERVER)
-                        .payload("{}")
-                        .attemptCount(3)
-                        .build();
+            NotificationVendorCommunicationHistoryCreateState.builder()
+                .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
+                .targetId("150")
+                .vendorName(NotificationVendorName.FCM)
+                .communicationType(NotificationVendorCommunicationType.REQUEST)
+                .sender(NotificationVendorCommunicationSenderType.SERVER)
+                .payload("{}")
+                .attemptCount(3)
+                .build();
 
         NotificationVendorCommunicationHistory history = NotificationVendorCommunicationHistory.from(state);
 
@@ -67,16 +67,16 @@ class NotificationVendorCommunicationHistoryTest {
     @DisplayName("payload_json이 null이어도 생성 가능하다")
     void shouldAllowNullPayloadJson() {
         NotificationVendorCommunicationHistoryCreateState state =
-                NotificationVendorCommunicationHistoryCreateState.builder()
-                        .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
-                        .targetId("200")
-                        .vendorName(NotificationVendorName.FCM)
-                        .communicationType(NotificationVendorCommunicationType.RESPONSE)
-                        .sender(NotificationVendorCommunicationSenderType.VENDOR)
-                        .exception(null)
-                        .payload("{\"success\":true}")
-                        .payloadJson(null)
-                        .build();
+            NotificationVendorCommunicationHistoryCreateState.builder()
+                .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
+                .targetId("200")
+                .vendorName(NotificationVendorName.FCM)
+                .communicationType(NotificationVendorCommunicationType.RESPONSE)
+                .sender(NotificationVendorCommunicationSenderType.VENDOR)
+                .exception(null)
+                .payload("{\"success\":true}")
+                .payloadJson(null)
+                .build();
 
         NotificationVendorCommunicationHistory history = NotificationVendorCommunicationHistory.from(state);
 
@@ -88,15 +88,15 @@ class NotificationVendorCommunicationHistoryTest {
     @DisplayName("exception 필드가 null이면 성공 이력으로 판단한다")
     void shouldBeSuccessWhenExceptionIsNull() {
         NotificationVendorCommunicationHistory history = NotificationVendorCommunicationHistory.from(
-                NotificationVendorCommunicationHistoryCreateState.builder()
-                        .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
-                        .targetId("300")
-                        .vendorName(NotificationVendorName.FCM)
-                        .communicationType(NotificationVendorCommunicationType.RESPONSE)
-                        .sender(NotificationVendorCommunicationSenderType.VENDOR)
-                        .exception(null)
-                        .payload("{}")
-                        .build()
+            NotificationVendorCommunicationHistoryCreateState.builder()
+                .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
+                .targetId("300")
+                .vendorName(NotificationVendorName.FCM)
+                .communicationType(NotificationVendorCommunicationType.RESPONSE)
+                .sender(NotificationVendorCommunicationSenderType.VENDOR)
+                .exception(null)
+                .payload("{}")
+                .build()
         );
 
         assertThat(history.isSuccess()).isTrue();
@@ -107,15 +107,15 @@ class NotificationVendorCommunicationHistoryTest {
     @DisplayName("exception 필드가 존재하면 실패 이력으로 판단한다")
     void shouldBeFailureWhenExceptionExists() {
         NotificationVendorCommunicationHistory history = NotificationVendorCommunicationHistory.from(
-                NotificationVendorCommunicationHistoryCreateState.builder()
-                        .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
-                        .targetId("400")
-                        .vendorName(NotificationVendorName.FCM)
-                        .communicationType(NotificationVendorCommunicationType.REQUEST)
-                        .sender(NotificationVendorCommunicationSenderType.SERVER)
-                        .exception("UNREGISTERED")
-                        .payload("{}")
-                        .build()
+            NotificationVendorCommunicationHistoryCreateState.builder()
+                .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
+                .targetId("400")
+                .vendorName(NotificationVendorName.FCM)
+                .communicationType(NotificationVendorCommunicationType.REQUEST)
+                .sender(NotificationVendorCommunicationSenderType.SERVER)
+                .exception("UNREGISTERED")
+                .payload("{}")
+                .build()
         );
 
         assertThat(history.isSuccess()).isFalse();
@@ -129,19 +129,19 @@ class NotificationVendorCommunicationHistoryTest {
         java.time.LocalDateTime createdAt = java.time.LocalDateTime.of(2026, 4, 15, 10, 0);
 
         NotificationVendorCommunicationHistorySnapshotState snapshot =
-                NotificationVendorCommunicationHistorySnapshotState.builder()
-                        .id(777L)
-                        .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
-                        .targetId("500")
-                        .vendorName(NotificationVendorName.FCM)
-                        .communicationType(NotificationVendorCommunicationType.RESPONSE)
-                        .sender(NotificationVendorCommunicationSenderType.VENDOR)
-                        .exception("INTERNAL")
-                        .payload("{\"success\":false}")
-                        .payloadJson(payloadJson)
-                        .attemptCount(2)
-                        .createdAt(createdAt)
-                        .build();
+            NotificationVendorCommunicationHistorySnapshotState.builder()
+                .id(777L)
+                .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
+                .targetId("500")
+                .vendorName(NotificationVendorName.FCM)
+                .communicationType(NotificationVendorCommunicationType.RESPONSE)
+                .sender(NotificationVendorCommunicationSenderType.VENDOR)
+                .exception("INTERNAL")
+                .payload("{\"success\":false}")
+                .payloadJson(payloadJson)
+                .attemptCount(2)
+                .createdAt(createdAt)
+                .build();
 
         NotificationVendorCommunicationHistory history = NotificationVendorCommunicationHistory.from(snapshot);
 

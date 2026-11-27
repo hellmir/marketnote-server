@@ -31,7 +31,7 @@ class GetFulfillmentWarehousingUseCaseTest {
     void shouldReturnWarehousingListFromPort() {
         // given
         GetFulfillmentWarehousingCommand command = GetFulfillmentWarehousingCommand.of(
-                "CUST001", "token", "2026-01-01", "2026-01-31"
+            "CUST001", "token", "2026-01-01", "2026-01-31"
         );
         GetFulfillmentWarehousingResult expectedResult = GetFulfillmentWarehousingResult.of(0, List.of());
         when(getFulfillmentWarehousingPort.getWarehousing(any())).thenReturn(expectedResult);

@@ -14,8 +14,8 @@ public class ProductCategory {
 
     public static ProductCategory of(Long productId, Long categoryId) {
         return ProductCategory.builder()
-                .productId(productId)
-                .categoryId(categoryId)
-                .build();
+            .productId(productId)
+            .categoryId(categoryId)
+            .build();
     }
 }

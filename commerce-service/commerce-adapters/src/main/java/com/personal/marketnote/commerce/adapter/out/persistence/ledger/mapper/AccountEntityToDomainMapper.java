@@ -11,12 +11,12 @@ public class AccountEntityToDomainMapper {
 
     public static Account toDomain(AccountJpaEntity entity) {
         return Account.from(AccountSnapshotState.builder()
-                .id(entity.getId())
-                .name(entity.getName())
-                .accountType(entity.getAccountType())
-                .status(entity.getStatus())
-                .createdAt(entity.getCreatedAt())
-                .modifiedAt(entity.getModifiedAt())
-                .build());
+            .id(entity.getId())
+            .name(entity.getName())
+            .accountType(entity.getAccountType())
+            .status(entity.getStatus())
+            .createdAt(entity.getCreatedAt())
+            .modifiedAt(entity.getModifiedAt())
+            .build());
     }
 }

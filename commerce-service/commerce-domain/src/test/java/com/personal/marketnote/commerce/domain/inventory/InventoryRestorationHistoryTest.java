@@ -19,12 +19,12 @@ class InventoryRestorationHistoryTest {
         @DisplayName("CreateState의 모든 필드를 도메인에 매핑한다 - ID는 null 유지")
         void shouldMapAllFieldsFromCreateState() {
             InventoryRestorationHistoryCreateState state = InventoryRestorationHistoryCreateState.builder()
-                    .productId(10L)
-                    .pricePolicyId(20L)
-                    .orderId(30L)
-                    .stock(40)
-                    .reason("복구")
-                    .build();
+                .productId(10L)
+                .pricePolicyId(20L)
+                .orderId(30L)
+                .stock(40)
+                .reason("복구")
+                .build();
 
             InventoryRestorationHistory history = InventoryRestorationHistory.from(state);
 
@@ -40,12 +40,12 @@ class InventoryRestorationHistoryTest {
         @DisplayName("stock 0 경계값에서도 생성 가능하다")
         void shouldAcceptZeroStock() {
             InventoryRestorationHistoryCreateState state = InventoryRestorationHistoryCreateState.builder()
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .orderId(1L)
-                    .stock(0)
-                    .reason("0 복구")
-                    .build();
+                .productId(1L)
+                .pricePolicyId(1L)
+                .orderId(1L)
+                .stock(0)
+                .reason("0 복구")
+                .build();
 
             InventoryRestorationHistory history = InventoryRestorationHistory.from(state);
 
@@ -56,15 +56,15 @@ class InventoryRestorationHistoryTest {
         @DisplayName("stock이 음수이면 Stock VO 생성 단계에서 InvalidQuantityException이 발생한다")
         void shouldThrowWhenStockIsNegative() {
             InventoryRestorationHistoryCreateState state = InventoryRestorationHistoryCreateState.builder()
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .orderId(1L)
-                    .stock(-3)
-                    .reason("음수 복구")
-                    .build();
+                .productId(1L)
+                .pricePolicyId(1L)
+                .orderId(1L)
+                .stock(-3)
+                .reason("음수 복구")
+                .build();
 
             assertThatThrownBy(() -> InventoryRestorationHistory.from(state))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
     }
 
@@ -76,13 +76,13 @@ class InventoryRestorationHistoryTest {
         @DisplayName("SnapshotState로부터 ID를 포함한 모든 필드를 복원한다")
         void shouldRestoreAllFieldsIncludingId() {
             InventoryRestorationHistorySnapshotState state = InventoryRestorationHistorySnapshotState.builder()
-                    .id(202L)
-                    .productId(11L)
-                    .pricePolicyId(22L)
-                    .orderId(33L)
-                    .stock(55)
-                    .reason("주문 복구")
-                    .build();
+                .id(202L)
+                .productId(11L)
+                .pricePolicyId(22L)
+                .orderId(33L)
+                .stock(55)
+                .reason("주문 복구")
+                .build();
 
             InventoryRestorationHistory history = InventoryRestorationHistory.from(state);
 
@@ -103,12 +103,12 @@ class InventoryRestorationHistoryTest {
         @DisplayName("CreateState 기반 stock 양수 값을 그대로 반환한다")
         void shouldReturnStockValueFromCreate() {
             InventoryRestorationHistoryCreateState state = InventoryRestorationHistoryCreateState.builder()
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .orderId(1L)
-                    .stock(123)
-                    .reason("복구")
-                    .build();
+                .productId(1L)
+                .pricePolicyId(1L)
+                .orderId(1L)
+                .stock(123)
+                .reason("복구")
+                .build();
 
             InventoryRestorationHistory history = InventoryRestorationHistory.from(state);
 
@@ -119,13 +119,13 @@ class InventoryRestorationHistoryTest {
         @DisplayName("SnapshotState 기반 stock 양수 값을 그대로 반환한다")
         void shouldReturnStockValueFromSnapshot() {
             InventoryRestorationHistorySnapshotState state = InventoryRestorationHistorySnapshotState.builder()
-                    .id(1L)
-                    .productId(1L)
-                    .pricePolicyId(1L)
-                    .orderId(1L)
-                    .stock(456)
-                    .reason("복원")
-                    .build();
+                .id(1L)
+                .productId(1L)
+                .pricePolicyId(1L)
+                .orderId(1L)
+                .stock(456)
+                .reason("복원")
+                .build();
 
             InventoryRestorationHistory history = InventoryRestorationHistory.from(state);
 

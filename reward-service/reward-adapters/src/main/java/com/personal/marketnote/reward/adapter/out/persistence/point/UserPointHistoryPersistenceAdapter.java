@@ -33,14 +33,14 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
     public UserPointHistory save(UserPointHistory history) {
         try {
             UserPointHistoryJpaEntity saved = repository.saveAndFlush(
-                    Objects.requireNonNull(UserPointHistoryJpaEntity.from(history))
+                Objects.requireNonNull(UserPointHistoryJpaEntity.from(history))
             );
             return saved.toDomain();
         } catch (DataIntegrityViolationException e) {
             log.warn(
-                    "이미 처리된 포인트 변경입니다. userId={}, sourceType={}, sourceId={}, reason={}",
-                    history.getUserId(), history.getSourceType(),
-                    history.getSourceId(), history.getReason()
+                "이미 처리된 포인트 변경입니다. userId={}, sourceType={}, sourceId={}, reason={}",
+                history.getUserId(), history.getSourceType(),
+                history.getSourceId(), history.getReason()
             );
             throw new DuplicateUserPointHistoryException(e);
         }
@@ -48,9 +48,9 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
 
     @Override
     public List<UserPointHistory> findByUserId(
-            Long userId, UserPointHistoryFilter filter,
-            LocalDate startDate, LocalDate endDate,
-            Long cursor, int pageSize
+        Long userId, UserPointHistoryFilter filter,
+        LocalDate startDate, LocalDate endDate,
+        Long cursor, int pageSize
     ) {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
@@ -58,14 +58,14 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
         Long safeCursor = FormatValidator.hasValue(cursor) ? cursor : -1L;
 
         List<UserPointHistoryJpaEntity> histories = filter.isAll()
-                ? repository.findByUserIdAndDateRange(userId, startDateTime, endDateTime, safeCursor, pageable)
-                : repository.findByUserIdAndDateRangeAndChangeType(
-                userId, startDateTime, endDateTime, filter.toChangeType(), safeCursor, pageable
+            ? repository.findByUserIdAndDateRange(userId, startDateTime, endDateTime, safeCursor, pageable)
+            : repository.findByUserIdAndDateRangeAndChangeType(
+            userId, startDateTime, endDateTime, filter.toChangeType(), safeCursor, pageable
         );
 
         return histories.stream()
-                .map(UserPointHistoryJpaEntity::toDomain)
-                .toList();
+            .map(UserPointHistoryJpaEntity::toDomain)
+            .toList();
     }
 
     @Override
@@ -77,19 +77,19 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
             return repository.countByUserIdAndDateRange(userId, startDateTime, endDateTime);
         }
         return repository.countByUserIdAndDateRangeAndChangeType(
-                userId, startDateTime, endDateTime, filter.toChangeType()
+            userId, startDateTime, endDateTime, filter.toChangeType()
         );
     }
 
     @Override
     public List<UserPointHistory> findUnreflectedByUserIdAndSource(
-            Long userId, UserPointSourceType sourceType, Long sourceId
+        Long userId, UserPointSourceType sourceType, Long sourceId
     ) {
         return repository.findByUserIdAndIsReflectedAndSourceTypeAndSourceId(
-                        userId, Boolean.FALSE, sourceType, sourceId
-                ).stream()
-                .map(UserPointHistoryJpaEntity::toDomain)
-                .toList();
+                userId, Boolean.FALSE, sourceType, sourceId
+            ).stream()
+            .map(UserPointHistoryJpaEntity::toDomain)
+            .toList();
     }
 
     @Override
@@ -100,21 +100,21 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
     @Override
     public long countCompletedReferrals(Long userId) {
         return repository.countByUserIdAndSourceTypeAndReason(
-                userId, UserPointSourceType.USER, REFERRER_POINT_REASON
+            userId, UserPointSourceType.USER, REFERRER_POINT_REASON
         );
     }
 
     @Override
     public long sumReferralEarnedAmount(Long userId) {
         return repository.sumReferralEarnedAmount(
-                userId, UserPointSourceType.USER, REFERRER_POINT_REASON, REFERRAL_BONUS_REASON_PREFIX
+            userId, UserPointSourceType.USER, REFERRER_POINT_REASON, REFERRAL_BONUS_REASON_PREFIX
         );
     }
 
     @Override
     public boolean isAlreadyClaimed(Long userId, ReferralBonusTier tier) {
         return repository.existsByUserIdAndSourceTypeAndSourceIdAndReason(
-                userId, UserPointSourceType.USER, userId, tier.getReason()
+            userId, UserPointSourceType.USER, userId, tier.getReason()
         );
     }
 }

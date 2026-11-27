@@ -29,24 +29,24 @@ public class GetProductInfoResponse {
         GetFilesResult contentImages = getProductInfoWithOptionsResult.contentImages();
 
         return GetProductInfoResponse.builder()
-                .productInfo(getProductInfoWithOptionsResult.productInfo())
-                .categories(
-                        getProductInfoWithOptionsResult.categories().stream()
-                                .map(SelectableProductOptionCategoryResponse::from)
-                                .toList()
-                )
-                .representativeImages(
-                        FormatValidator.hasValue(representativeImages)
-                                ? representativeImages.images()
-                                : null
-                )
-                .contentImages(
-                        FormatValidator.hasValue(contentImages)
-                                ? contentImages.images()
-                                : null
-                )
-                .pricePolicies(getProductInfoWithOptionsResult.pricePolicies())
-                .build();
+            .productInfo(getProductInfoWithOptionsResult.productInfo())
+            .categories(
+                getProductInfoWithOptionsResult.categories().stream()
+                    .map(SelectableProductOptionCategoryResponse::from)
+                    .toList()
+            )
+            .representativeImages(
+                FormatValidator.hasValue(representativeImages)
+                    ? representativeImages.images()
+                    : null
+            )
+            .contentImages(
+                FormatValidator.hasValue(contentImages)
+                    ? contentImages.images()
+                    : null
+            )
+            .pricePolicies(getProductInfoWithOptionsResult.pricePolicies())
+            .build();
     }
 }
 

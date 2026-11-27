@@ -26,37 +26,37 @@ public class UserAttendance {
 
     public static UserAttendance from(UserAttendanceCreateState state) {
         return UserAttendance.builder()
-                .userId(state.getUserId())
-                .year(state.getYear())
-                .month(state.getMonth())
-                .totalRewardQuantity(state.getTotalRewardQuantity())
-                .histories(state.getHistories())
-                .build();
+            .userId(state.getUserId())
+            .year(state.getYear())
+            .month(state.getMonth())
+            .totalRewardQuantity(state.getTotalRewardQuantity())
+            .histories(state.getHistories())
+            .build();
     }
 
     public static UserAttendance from(UserAttendanceSnapshotState state) {
         return UserAttendance.builder()
-                .id(state.getId())
-                .userId(state.getUserId())
-                .year(state.getYear())
-                .month(state.getMonth())
-                .createdAt(state.getCreatedAt())
-                .totalRewardQuantity(state.getTotalRewardQuantity())
-                .histories(state.getHistories())
-                .build();
+            .id(state.getId())
+            .userId(state.getUserId())
+            .year(state.getYear())
+            .month(state.getMonth())
+            .createdAt(state.getCreatedAt())
+            .totalRewardQuantity(state.getTotalRewardQuantity())
+            .histories(state.getHistories())
+            .build();
     }
 
     public UserAttendance withAddedReward(long rewardQuantity) {
         RewardQuantity added = RewardQuantity.of(rewardQuantity);
         return UserAttendance.builder()
-                .id(id)
-                .userId(userId)
-                .year(year)
-                .month(month)
-                .createdAt(createdAt)
-                .totalRewardQuantity(totalRewardQuantity.add(added))
-                .histories(histories)
-                .build();
+            .id(id)
+            .userId(userId)
+            .year(year)
+            .month(month)
+            .createdAt(createdAt)
+            .totalRewardQuantity(totalRewardQuantity.add(added))
+            .histories(histories)
+            .build();
     }
 }
 

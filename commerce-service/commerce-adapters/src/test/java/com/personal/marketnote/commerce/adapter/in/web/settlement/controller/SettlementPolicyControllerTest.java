@@ -51,16 +51,16 @@ class SettlementPolicyControllerTest {
 
     private GetSettlementPolicyResult samplePolicyResult() {
         return GetSettlementPolicyResult.builder()
-                .id(1L)
-                .sellerId(100L)
-                .pgFeeRate(30)
-                .platformFeeRate(50)
-                .settlementCycle(SettlementCycle.MONTHLY)
-                .minPayoutAmount(10_000L)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                .modifiedAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                .build();
+            .id(1L)
+            .sellerId(100L)
+            .pgFeeRate(30)
+            .platformFeeRate(50)
+            .settlementCycle(SettlementCycle.MONTHLY)
+            .minPayoutAmount(10_000L)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+            .modifiedAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+            .build();
     }
 
     @Nested
@@ -79,11 +79,11 @@ class SettlementPolicyControllerTest {
             when(request.getMinPayoutAmount()).thenReturn(10_000L);
 
             when(registerSettlementPolicyUseCase.registerPolicy(any(RegisterSettlementPolicyCommand.class)))
-                    .thenReturn(samplePolicyResult());
+                .thenReturn(samplePolicyResult());
 
             // when
             ResponseEntity<BaseResponse<GetSettlementPolicyResponse>> response =
-                    settlementPolicyController.registerPolicy(request);
+                settlementPolicyController.registerPolicy(request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -105,7 +105,7 @@ class SettlementPolicyControllerTest {
 
             // when
             ResponseEntity<BaseResponse<List<GetSettlementPolicyResponse>>> response =
-                    settlementPolicyController.getAllPolicies();
+                settlementPolicyController.getAllPolicies();
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -127,7 +127,7 @@ class SettlementPolicyControllerTest {
 
             // when
             ResponseEntity<BaseResponse<GetSettlementPolicyResponse>> response =
-                    settlementPolicyController.getPolicy(1L);
+                settlementPolicyController.getPolicy(1L);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -151,11 +151,11 @@ class SettlementPolicyControllerTest {
             when(request.getSettlementCycle()).thenReturn("WEEKLY");
             when(request.getMinPayoutAmount()).thenReturn(5_000L);
             when(updateSettlementPolicyUseCase.updatePolicy(any(UpdateSettlementPolicyCommand.class)))
-                    .thenReturn(samplePolicyResult());
+                .thenReturn(samplePolicyResult());
 
             // when
             ResponseEntity<BaseResponse<GetSettlementPolicyResponse>> response =
-                    settlementPolicyController.updatePolicy(1L, request);
+                settlementPolicyController.updatePolicy(1L, request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -172,7 +172,7 @@ class SettlementPolicyControllerTest {
         void shouldReturnOkWhenDeleteSucceeds() {
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    settlementPolicyController.deletePolicy(1L);
+                settlementPolicyController.deletePolicy(1L);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

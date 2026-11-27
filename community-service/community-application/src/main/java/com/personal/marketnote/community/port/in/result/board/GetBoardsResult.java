@@ -6,17 +6,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public record GetBoardsResult(
-        List<BoardItemResult> boards
+    List<BoardItemResult> boards
 ) {
     public static GetBoardsResult from(Board[] boards) {
         return new GetBoardsResult(
-                Arrays.stream(boards)
-                        .map(
-                                board -> BoardItemResult.of(
-                                        board.name(), board.getDescription()
-                                )
-                        )
-                        .toList()
+            Arrays.stream(boards)
+                .map(
+                    board -> BoardItemResult.of(
+                        board.name(), board.getDescription()
+                    )
+                )
+                .toList()
         );
     }
 }

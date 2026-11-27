@@ -42,36 +42,36 @@ class SetDefaultShippingAddressUseCaseTest {
         Long userId = 100L;
 
         ShippingAddress targetAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(shippingAddressId)
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .isDefault(false)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(shippingAddressId)
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .isDefault(false)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         ShippingAddress currentDefault = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(2L)
-                .userId(userId)
-                .addressType(ShippingAddressType.COMPANY)
-                .address("서울시 서초구 서초대로 456")
-                .addressDetail("5층")
-                .companyName("테스트 회사")
-                .recipientName("김철수")
-                .recipientPhoneNumber("01098765432")
-                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
-                .isDefault(true)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(2L)
+            .userId(userId)
+            .addressType(ShippingAddressType.COMPANY)
+            .address("서울시 서초구 서초대로 456")
+            .addressDetail("5층")
+            .companyName("테스트 회사")
+            .recipientName("김철수")
+            .recipientPhoneNumber("01098765432")
+            .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
+            .isDefault(true)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.of(targetAddress));
+            .thenReturn(Optional.of(targetAddress));
         when(findShippingAddressPort.findDefaultsByUserId(userId))
-                .thenReturn(List.of(currentDefault));
+            .thenReturn(List.of(currentDefault));
 
         // when
         setDefaultShippingAddressService.setDefaultShippingAddress(shippingAddressId, userId);
@@ -96,20 +96,20 @@ class SetDefaultShippingAddressUseCaseTest {
         Long userId = 100L;
 
         ShippingAddress targetAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(shippingAddressId)
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .isDefault(true)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(shippingAddressId)
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .isDefault(true)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.of(targetAddress));
+            .thenReturn(Optional.of(targetAddress));
 
         // when
         setDefaultShippingAddressService.setDefaultShippingAddress(shippingAddressId, userId);
@@ -129,13 +129,13 @@ class SetDefaultShippingAddressUseCaseTest {
         Long userId = 100L;
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // expect
         assertThatThrownBy(() ->
-                setDefaultShippingAddressService.setDefaultShippingAddress(shippingAddressId, userId))
-                .isInstanceOf(ShippingAddressNotFoundException.class)
-                .hasMessage("배송지를 찾을 수 없습니다.");
+            setDefaultShippingAddressService.setDefaultShippingAddress(shippingAddressId, userId))
+            .isInstanceOf(ShippingAddressNotFoundException.class)
+            .hasMessage("배송지를 찾을 수 없습니다.");
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoMoreInteractions(findShippingAddressPort);
@@ -150,50 +150,50 @@ class SetDefaultShippingAddressUseCaseTest {
         Long userId = 100L;
 
         ShippingAddress targetAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(shippingAddressId)
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .isDefault(false)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(shippingAddressId)
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .isDefault(false)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         ShippingAddress defaultAddress1 = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(2L)
-                .userId(userId)
-                .addressType(ShippingAddressType.COMPANY)
-                .address("서울시 서초구 서초대로 456")
-                .addressDetail("5층")
-                .companyName("테스트 회사")
-                .recipientName("김철수")
-                .recipientPhoneNumber("01098765432")
-                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
-                .isDefault(true)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(2L)
+            .userId(userId)
+            .addressType(ShippingAddressType.COMPANY)
+            .address("서울시 서초구 서초대로 456")
+            .addressDetail("5층")
+            .companyName("테스트 회사")
+            .recipientName("김철수")
+            .recipientPhoneNumber("01098765432")
+            .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
+            .isDefault(true)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         ShippingAddress defaultAddress2 = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(3L)
-                .userId(userId)
-                .addressType(ShippingAddressType.OTHER)
-                .address("서울시 마포구 홍대로 789")
-                .addressDetail("3층")
-                .addressAlias("친구 집")
-                .recipientName("이영희")
-                .recipientPhoneNumber("01055556666")
-                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
-                .isDefault(true)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(3L)
+            .userId(userId)
+            .addressType(ShippingAddressType.OTHER)
+            .address("서울시 마포구 홍대로 789")
+            .addressDetail("3층")
+            .addressAlias("친구 집")
+            .recipientName("이영희")
+            .recipientPhoneNumber("01055556666")
+            .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
+            .isDefault(true)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.of(targetAddress));
+            .thenReturn(Optional.of(targetAddress));
         when(findShippingAddressPort.findDefaultsByUserId(userId))
-                .thenReturn(List.of(defaultAddress1, defaultAddress2));
+            .thenReturn(List.of(defaultAddress1, defaultAddress2));
 
         // when
         setDefaultShippingAddressService.setDefaultShippingAddress(shippingAddressId, userId);

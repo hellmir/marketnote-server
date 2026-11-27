@@ -128,7 +128,7 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
 
             // then
             Optional<ShippingPolicyReadModelJpaEntity> entity = repository.findBySellerIdAndStatus(
-                    10L, EntityStatus.ACTIVE
+                10L, EntityStatus.ACTIVE
             );
             assertThat(entity).isPresent();
             assertThat(entity.get().getSellerId()).isEqualTo(10L);
@@ -150,7 +150,7 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
 
             // then
             Optional<ShippingPolicyReadModelJpaEntity> entity = repository.findBySellerIdAndStatus(
-                    10L, EntityStatus.ACTIVE
+                10L, EntityStatus.ACTIVE
             );
             assertThat(entity).isPresent();
             assertThat(entity.get().getShippingFee()).isEqualTo(5000L);
@@ -171,7 +171,7 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
 
             // then
             Optional<ShippingPolicyReadModelJpaEntity> entity = repository.findBySellerIdAndStatus(
-                    10L, EntityStatus.ACTIVE
+                10L, EntityStatus.ACTIVE
             );
             assertThat(entity).isPresent();
             assertThat(entity.get().getShippingFee()).isEqualTo(5000L);

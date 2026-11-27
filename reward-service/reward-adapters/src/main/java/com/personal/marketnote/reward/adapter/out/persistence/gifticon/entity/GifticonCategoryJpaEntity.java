@@ -37,29 +37,29 @@ public class GifticonCategoryJpaEntity extends BaseEntity {
 
     public static GifticonCategoryJpaEntity from(GifticonCategory domain) {
         return GifticonCategoryJpaEntity.builder()
-                .id(domain.getId())
-                .categoryCode(domain.getCategoryCode().getValue())
-                .categoryName(domain.getCategoryName())
-                .displayName(domain.getDisplayName())
-                .iconUrl(domain.getIconUrl())
-                .exposed(domain.isExposed())
-                .orderNum(domain.getOrderNum())
-                .build();
+            .id(domain.getId())
+            .categoryCode(domain.getCategoryCode().getValue())
+            .categoryName(domain.getCategoryName())
+            .displayName(domain.getDisplayName())
+            .iconUrl(domain.getIconUrl())
+            .exposed(domain.isExposed())
+            .orderNum(domain.getOrderNum())
+            .build();
     }
 
     public GifticonCategory toDomain() {
         return GifticonCategory.from(
-                GifticonCategorySnapshotState.builder()
-                        .id(id)
-                        .categoryCode(categoryCode)
-                        .categoryName(categoryName)
-                        .displayName(displayName)
-                        .iconUrl(iconUrl)
-                        .exposed(exposed)
-                        .orderNum(orderNum)
-                        .createdAt(getCreatedAt())
-                        .modifiedAt(getModifiedAt())
-                        .build()
+            GifticonCategorySnapshotState.builder()
+                .id(id)
+                .categoryCode(categoryCode)
+                .categoryName(categoryName)
+                .displayName(displayName)
+                .iconUrl(iconUrl)
+                .exposed(exposed)
+                .orderNum(orderNum)
+                .createdAt(getCreatedAt())
+                .modifiedAt(getModifiedAt())
+                .build()
         );
     }
 

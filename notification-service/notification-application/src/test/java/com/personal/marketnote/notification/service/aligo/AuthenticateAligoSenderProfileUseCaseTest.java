@@ -35,23 +35,23 @@ class AuthenticateAligoSenderProfileUseCaseTest {
     void shouldCallExternalApiAndSaveResult() {
         // given
         AuthenticateAligoSenderProfileCommand command = new AuthenticateAligoSenderProfileCommand(
-                "@testChannel", "01012345678"
+            "@testChannel", "01012345678"
         );
         when(requestAligoSenderAuthenticationPort.requestAuthentication("@testChannel", "01012345678"))
-                .thenReturn("test-sender-key");
+            .thenReturn("test-sender-key");
 
         AligoSenderProfile savedProfile = AligoSenderProfile.from(
-                AligoSenderProfileCreateState.builder()
-                        .senderKey("test-sender-key")
-                        .plusId("@testChannel")
-                        .phoneNumber("01012345678")
-                        .build()
+            AligoSenderProfileCreateState.builder()
+                .senderKey("test-sender-key")
+                .plusId("@testChannel")
+                .phoneNumber("01012345678")
+                .build()
         );
         when(saveAligoSenderProfilePort.save(any(AligoSenderProfile.class))).thenReturn(savedProfile);
 
         // when
         AuthenticateAligoSenderProfileResult result = authenticateAligoSenderProfileService
-                .authenticateSenderProfile(command);
+            .authenticateSenderProfile(command);
 
         // then
         assertThat(result.senderKey()).isEqualTo("test-sender-key");

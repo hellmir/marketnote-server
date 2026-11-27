@@ -6,8 +6,8 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentS
 import java.util.List;
 
 public record GetFulfillmentSettlementDailyCostsResponse(
-        Integer dataCount,
-        List<FulfillmentSettlementDailyCostInfoResult> dailyCosts
+    Integer dataCount,
+    List<FulfillmentSettlementDailyCostInfoResult> dailyCosts
 ) {
     public static GetFulfillmentSettlementDailyCostsResponse from(GetFulfillmentSettlementDailyCostsResult result) {
         return new GetFulfillmentSettlementDailyCostsResponse(result.dataCount(), result.dailyCosts());

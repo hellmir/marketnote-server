@@ -44,7 +44,7 @@ public class ConfirmOrderService implements ConfirmOrderUseCase {
         order.changeAllProductsStatus(TARGET_STATUS, now, 0L);
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
-                OrderStatusHistoryCreateState.forStatusOnly(command.id(), TARGET_STATUS)
+            OrderStatusHistoryCreateState.forStatusOnly(command.id(), TARGET_STATUS)
         );
 
         updateOrderPort.update(order, orderStatusHistory);
@@ -54,7 +54,7 @@ public class ConfirmOrderService implements ConfirmOrderUseCase {
     private void validateBuyerOwnership(ConfirmOrderCommand command, Order order) {
         if (!order.getBuyerId().equals(command.buyerId())) {
             log.warn("주문 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
-                    command.id(), order.getBuyerId(), command.buyerId()
+                command.id(), order.getBuyerId(), command.buyerId()
             );
             throw new UnauthorizedOrderAccessException();
         }
@@ -72,12 +72,12 @@ public class ConfirmOrderService implements ConfirmOrderUseCase {
 
     private void publishConfirmedEvent(Order order) {
         List<UUID> sharerKeys = order.getOrderProducts().stream()
-                .map(OrderProduct::getSharerKey)
-                .filter(Objects::nonNull)
-                .toList();
+            .map(OrderProduct::getSharerKey)
+            .filter(Objects::nonNull)
+            .toList();
 
         publishOrderEventPort.publishOrderPurchaseConfirmedEvent(
-                order.getId(), order.getBuyerId(), sharerKeys, false, order.getOrderProducts()
+            order.getId(), order.getBuyerId(), sharerKeys, false, order.getOrderProducts()
         );
     }
 }

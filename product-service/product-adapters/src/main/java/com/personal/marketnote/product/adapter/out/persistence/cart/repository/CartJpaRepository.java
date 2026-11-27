@@ -12,44 +12,44 @@ public interface CartJpaRepository extends JpaRepository<CartProductJpaEntity, L
     List<CartProductJpaEntity> findByIdUserId(Long userId);
 
     @Query(
+        """
+            SELECT c FROM CartProductJpaEntity c
+            WHERE 1 = 1
+            AND c.id.userId = :userId
+            AND c.id.pricePolicyId = :pricePolicyId
             """
-                    SELECT c FROM CartProductJpaEntity c 
-                    WHERE 1 = 1
-                    AND c.id.userId = :userId 
-                    AND c.id.pricePolicyId = :pricePolicyId
-                    """
     )
     Optional<CartProductJpaEntity> findByIdUserIdAndPricePolicyId(Long userId, Long pricePolicyId);
 
     @Modifying
     @Query(
+        """
+            DELETE FROM CartProductJpaEntity c
+            WHERE 1 = 1
+            AND c.id.userId = :userId
+            AND c.id.pricePolicyId IN :pricePolicyIds
             """
-                    DELETE FROM CartProductJpaEntity c 
-                    WHERE 1 = 1
-                    AND c.id.userId = :userId 
-                    AND c.id.pricePolicyId IN :pricePolicyIds
-                    """
     )
     void deleteByUserIdAndPricePolicyIdIn(Long userId, List<Long> pricePolicyIds);
 
     @Modifying
     @Query(
+        """
+            DELETE FROM CartProductJpaEntity c
+            WHERE 1 = 1
+            AND c.id.userId = :userId
             """
-                    DELETE FROM CartProductJpaEntity c 
-                    WHERE 1 = 1
-                    AND c.id.userId = :userId
-                    """
     )
     void deleteByUserId(Long userId);
 
     @Query(
+        """
+            SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END
+            FROM CartProductJpaEntity c
+            WHERE 1 = 1
+            AND c.id.userId = :userId
+            AND c.id.pricePolicyId = :pricePolicyId
             """
-                    SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END
-                    FROM CartProductJpaEntity c
-                    WHERE 1 = 1
-                    AND c.id.userId = :userId
-                    AND c.id.pricePolicyId = :pricePolicyId
-                    """
     )
     boolean existsByUserIdAndPolicyId(Long userId, Long pricePolicyId);
 }

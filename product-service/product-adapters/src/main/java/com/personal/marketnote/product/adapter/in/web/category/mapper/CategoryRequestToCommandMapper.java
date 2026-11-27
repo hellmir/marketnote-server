@@ -6,8 +6,8 @@ import com.personal.marketnote.product.port.in.command.RegisterCategoryCommand;
 public class CategoryRequestToCommandMapper {
     public static RegisterCategoryCommand mapToCommand(RegisterCategoryRequest registerCategoryRequest) {
         return RegisterCategoryCommand.of(
-                registerCategoryRequest.getParentCategoryId(),
-                registerCategoryRequest.getName()
+            registerCategoryRequest.getParentCategoryId(),
+            registerCategoryRequest.getName()
         );
     }
 }

@@ -58,44 +58,44 @@ class ReExecuteSettlementUseCaseTest {
     @BeforeEach
     void setUpAccounts() {
         lenient().when(findAccountPort.findByName("매출채권_PG"))
-                .thenReturn(Optional.of(createAccount(PG_RECEIVABLE_ID, "매출채권_PG")));
+            .thenReturn(Optional.of(createAccount(PG_RECEIVABLE_ID, "매출채권_PG")));
         lenient().when(findAccountPort.findByName("미지급금_판매자"))
-                .thenReturn(Optional.of(createAccount(SELLER_PAYABLE_ID, "미지급금_판매자")));
+            .thenReturn(Optional.of(createAccount(SELLER_PAYABLE_ID, "미지급금_판매자")));
         lenient().when(findAccountPort.findByName("보통예금")).thenReturn(Optional.of(createAccount(CASH_ID, "보통예금")));
         lenient().when(findAccountPort.findByName("PG수수료비용"))
-                .thenReturn(Optional.of(createAccount(PG_FEE_ID, "PG수수료비용")));
+            .thenReturn(Optional.of(createAccount(PG_FEE_ID, "PG수수료비용")));
         lenient().when(findAccountPort.findByName("플랫폼수수료수익"))
-                .thenReturn(Optional.of(createAccount(PLATFORM_FEE_ID, "플랫폼수수료수익")));
+            .thenReturn(Optional.of(createAccount(PLATFORM_FEE_ID, "플랫폼수수료수익")));
     }
 
     private Account createAccount(Long id, String name) {
         return Account.from(AccountSnapshotState.builder()
-                .id(id)
-                .name(name)
-                .accountType(AccountType.ASSET)
-                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(id)
+            .name(name)
+            .accountType(AccountType.ASSET)
+            .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Settlement createCancelledSettlement(Long id, Long sellerId, Long totalAllocatedAmount,
                                                  Long pgFeeAmount, Long platformFeeAmount, Long sellerPayoutAmount) {
         return Settlement.from(SettlementSnapshotState.builder()
-                .id(id)
-                .sellerId(sellerId)
-                .year(2026)
-                .month(2)
-                .totalAllocatedAmount(totalAllocatedAmount)
-                .pgFeeAmount(pgFeeAmount)
-                .platformFeeAmount(platformFeeAmount)
-                .sellerPayoutAmount(sellerPayoutAmount)
-                .status(SettlementStatus.CANCELLED)
-                .version(2L)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .shippingFee(0L)
-                .build());
+            .id(id)
+            .sellerId(sellerId)
+            .year(2026)
+            .month(2)
+            .totalAllocatedAmount(totalAllocatedAmount)
+            .pgFeeAmount(pgFeeAmount)
+            .platformFeeAmount(platformFeeAmount)
+            .sellerPayoutAmount(sellerPayoutAmount)
+            .status(SettlementStatus.CANCELLED)
+            .version(2L)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .shippingFee(0L)
+            .build());
     }
 
     @Nested
@@ -168,7 +168,7 @@ class ReExecuteSettlementUseCaseTest {
 
             // when & then
             assertThatThrownBy(() -> reExecuteSettlementService.reExecuteSettlement(999L))
-                    .isInstanceOf(SettlementNotFoundException.class);
+                .isInstanceOf(SettlementNotFoundException.class);
 
             verifyNoInteractions(recordLedgerEntryUseCase);
             verifyNoInteractions(updateSettlementPort);
@@ -179,18 +179,18 @@ class ReExecuteSettlementUseCaseTest {
         void shouldThrowWhenSettlementIsPending() {
             // given
             Settlement pendingSettlement = Settlement.from(SettlementSnapshotState.builder()
-                    .id(1L).sellerId(10L).year(2026).month(2)
-                    .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
-                    .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
-                    .status(SettlementStatus.PENDING).version(0L)
-                    .createdAt(LocalDateTime.now()).modifiedAt(LocalDateTime.now())
-                    .shippingFee(0L)
-                    .build());
+                .id(1L).sellerId(10L).year(2026).month(2)
+                .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
+                .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
+                .status(SettlementStatus.PENDING).version(0L)
+                .createdAt(LocalDateTime.now()).modifiedAt(LocalDateTime.now())
+                .shippingFee(0L)
+                .build());
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(pendingSettlement));
 
             // when & then
             assertThatThrownBy(() -> reExecuteSettlementService.reExecuteSettlement(1L))
-                    .isInstanceOf(InvalidSettlementStatusTransitionException.class);
+                .isInstanceOf(InvalidSettlementStatusTransitionException.class);
 
             verifyNoInteractions(recordLedgerEntryUseCase);
             verifyNoInteractions(updateSettlementPort);
@@ -201,18 +201,18 @@ class ReExecuteSettlementUseCaseTest {
         void shouldThrowWhenSettlementIsCompleted() {
             // given
             Settlement completedSettlement = Settlement.from(SettlementSnapshotState.builder()
-                    .id(1L).sellerId(10L).year(2026).month(2)
-                    .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
-                    .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
-                    .status(SettlementStatus.COMPLETED).version(1L)
-                    .createdAt(LocalDateTime.now()).modifiedAt(LocalDateTime.now())
-                    .shippingFee(0L)
-                    .build());
+                .id(1L).sellerId(10L).year(2026).month(2)
+                .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
+                .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
+                .status(SettlementStatus.COMPLETED).version(1L)
+                .createdAt(LocalDateTime.now()).modifiedAt(LocalDateTime.now())
+                .shippingFee(0L)
+                .build());
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(completedSettlement));
 
             // when & then
             assertThatThrownBy(() -> reExecuteSettlementService.reExecuteSettlement(1L))
-                    .isInstanceOf(InvalidSettlementStatusTransitionException.class);
+                .isInstanceOf(InvalidSettlementStatusTransitionException.class);
 
             verifyNoInteractions(recordLedgerEntryUseCase);
             verifyNoInteractions(updateSettlementPort);
@@ -223,18 +223,18 @@ class ReExecuteSettlementUseCaseTest {
         void shouldThrowWhenSettlementIsFailed() {
             // given
             Settlement failedSettlement = Settlement.from(SettlementSnapshotState.builder()
-                    .id(1L).sellerId(10L).year(2026).month(2)
-                    .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
-                    .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
-                    .status(SettlementStatus.FAILED).version(0L)
-                    .createdAt(LocalDateTime.now()).modifiedAt(LocalDateTime.now())
-                    .shippingFee(0L)
-                    .build());
+                .id(1L).sellerId(10L).year(2026).month(2)
+                .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
+                .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
+                .status(SettlementStatus.FAILED).version(0L)
+                .createdAt(LocalDateTime.now()).modifiedAt(LocalDateTime.now())
+                .shippingFee(0L)
+                .build());
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(failedSettlement));
 
             // when & then
             assertThatThrownBy(() -> reExecuteSettlementService.reExecuteSettlement(1L))
-                    .isInstanceOf(InvalidSettlementStatusTransitionException.class);
+                .isInstanceOf(InvalidSettlementStatusTransitionException.class);
 
             verifyNoInteractions(recordLedgerEntryUseCase);
             verifyNoInteractions(updateSettlementPort);
@@ -252,12 +252,12 @@ class ReExecuteSettlementUseCaseTest {
             Settlement cancelledSettlement = createCancelledSettlement(1L, 10L, 100000L, 3000L, 5000L, 92000L);
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(cancelledSettlement));
             doThrow(new RuntimeException("분개 기록 실패"))
-                    .when(recordLedgerEntryUseCase).record(any(RecordLedgerEntryCommand.class));
+                .when(recordLedgerEntryUseCase).record(any(RecordLedgerEntryCommand.class));
 
             // when & then
             assertThatThrownBy(() -> reExecuteSettlementService.reExecuteSettlement(1L))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessageContaining("분개 기록 실패");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("분개 기록 실패");
 
             verify(updateSettlementPort).update(argThat(Settlement::isFailed));
         }

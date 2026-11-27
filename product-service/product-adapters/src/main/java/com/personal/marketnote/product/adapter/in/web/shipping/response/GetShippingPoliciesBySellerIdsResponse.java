@@ -5,31 +5,31 @@ import com.personal.marketnote.product.port.in.result.shipping.GetShippingPolicy
 import java.util.List;
 
 public record GetShippingPoliciesBySellerIdsResponse(
-        List<ShippingPolicyBySellerResponse> shippingPolicies
+    List<ShippingPolicyBySellerResponse> shippingPolicies
 ) {
 
     public static GetShippingPoliciesBySellerIdsResponse from(List<GetShippingPolicyBySellerResult> results) {
         List<ShippingPolicyBySellerResponse> responses = results.stream()
-                .map(ShippingPolicyBySellerResponse::from)
-                .toList();
+            .map(ShippingPolicyBySellerResponse::from)
+            .toList();
         return new GetShippingPoliciesBySellerIdsResponse(responses);
     }
 
     public record ShippingPolicyBySellerResponse(
-            Long sellerId,
-            Long shippingFee,
-            Long freeShippingThreshold,
-            Long jejuSurcharge,
-            Long islandSurcharge
+        Long sellerId,
+        Long shippingFee,
+        Long freeShippingThreshold,
+        Long jejuSurcharge,
+        Long islandSurcharge
     ) {
 
         public static ShippingPolicyBySellerResponse from(GetShippingPolicyBySellerResult result) {
             return new ShippingPolicyBySellerResponse(
-                    result.sellerId(),
-                    result.shippingFee(),
-                    result.freeShippingThreshold(),
-                    result.jejuSurcharge(),
-                    result.islandSurcharge()
+                result.sellerId(),
+                result.shippingFee(),
+                result.freeShippingThreshold(),
+                result.jejuSurcharge(),
+                result.islandSurcharge()
             );
         }
     }

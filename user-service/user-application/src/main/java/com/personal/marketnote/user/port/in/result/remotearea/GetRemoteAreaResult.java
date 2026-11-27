@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public record GetRemoteAreaResult(
-        List<GetRemoteAreaItemResult> remoteAreas
+    List<GetRemoteAreaItemResult> remoteAreas
 ) {
     public static GetRemoteAreaResult from(List<RemoteArea> remoteAreas) {
         return new GetRemoteAreaResult(
-                remoteAreas.stream()
-                        .map(GetRemoteAreaItemResult::from)
-                        .collect(Collectors.toList())
+            remoteAreas.stream()
+                .map(GetRemoteAreaItemResult::from)
+                .collect(Collectors.toList())
         );
     }
 }

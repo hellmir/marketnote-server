@@ -30,23 +30,23 @@ public class OrderAutoConfirmFailedEventKafkaProducer implements PublishOrderAut
     @Override
     public void publish(Long orderId, Long buyerId, String reason, LocalDateTime failedAt) {
         OrderAutoConfirmFailedEvent payload = new OrderAutoConfirmFailedEvent(
-                orderId, buyerId, truncate(reason), failedAt
+            orderId, buyerId, truncate(reason), failedAt
         );
         String topic = KafkaTopicConstants.ORDER_AUTO_CONFIRM_FAILED;
         EventEnvelope<OrderAutoConfirmFailedEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         String partitionKey = String.valueOf(orderId);
         String payloadJson = serialize(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(), topic, partitionKey,
-                envelope.eventType(), SOURCE, payloadJson, clock
+            envelope.eventId(), topic, partitionKey,
+            envelope.eventType(), SOURCE, payloadJson, clock
         );
         saveOutboxEventPort.save(outboxEvent);
         log.info(
-                "자동 확정 실패 Outbox 이벤트 저장. topic={}, orderId={}, buyerId={}, eventId={}",
-                topic, orderId, buyerId, envelope.eventId()
+            "자동 확정 실패 Outbox 이벤트 저장. topic={}, orderId={}, buyerId={}, eventId={}",
+            topic, orderId, buyerId, envelope.eventId()
         );
     }
 

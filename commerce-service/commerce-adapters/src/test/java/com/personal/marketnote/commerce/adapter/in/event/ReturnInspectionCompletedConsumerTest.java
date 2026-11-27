@@ -41,11 +41,11 @@ class ReturnInspectionCompletedConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId) {
         ReturnInspectionCompletedEvent event = new ReturnInspectionCompletedEvent(orderId);
         EventEnvelope<ReturnInspectionCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.return-inspection.completed", "fulfillment-service",
-                LocalDateTime.of(2026, 4, 20, 10, 0), event
+            "test-event-id", "commerce.return-inspection.completed", "fulfillment-service",
+            LocalDateTime.of(2026, 4, 20, 10, 0), event
         );
         return new ConsumerRecord<>(
-                "commerce.return-inspection.completed", 0, 0L, String.valueOf(orderId), envelope
+            "commerce.return-inspection.completed", 0, 0L, String.valueOf(orderId), envelope
         );
     }
 
@@ -73,7 +73,7 @@ class ReturnInspectionCompletedConsumerTest {
     void handleReturnInspectionCompletedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.return-inspection.completed", 0, 0L, "1", null
+            "commerce.return-inspection.completed", 0, 0L, "1", null
         );
 
         // when
@@ -90,11 +90,11 @@ class ReturnInspectionCompletedConsumerTest {
         // given
         ReturnInspectionCompletedEvent event = new ReturnInspectionCompletedEvent(1L);
         EventEnvelope<ReturnInspectionCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "fulfillment-service",
-                LocalDateTime.of(2026, 4, 20, 10, 0), event
+            "test-event-id", "wrong.event.type", "fulfillment-service",
+            LocalDateTime.of(2026, 4, 20, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.return-inspection.completed", 0, 0L, "1", envelope
+            "commerce.return-inspection.completed", 0, 0L, "1", envelope
         );
 
         // when
@@ -153,7 +153,7 @@ class ReturnInspectionCompletedConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L);
         doThrow(new RuntimeException("DB 연결 오류"))
-                .when(completeReturnUseCase).completeReturn(any(CompleteReturnCommand.class));
+            .when(completeReturnUseCase).completeReturn(any(CompleteReturnCommand.class));
 
         // when
         consumer.handleReturnInspectionCompletedEvent(record, acknowledgment);

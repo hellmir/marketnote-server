@@ -62,17 +62,17 @@ class PostTest {
     void shouldRestorePostKeyFromSnapshotState() {
         UUID postKey = UUID.randomUUID();
         PostSnapshotState state = PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .postKey(postKey)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .writerName("홍길동")
-                .maskedWriterName("홍*동")
-                .title("공지 제목")
-                .content("공지 내용")
-                .status(EntityStatus.ACTIVE)
-                .build();
+            .id(1L)
+            .userId(100L)
+            .postKey(postKey)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .writerName("홍길동")
+            .maskedWriterName("홍*동")
+            .title("공지 제목")
+            .content("공지 내용")
+            .status(EntityStatus.ACTIVE)
+            .build();
 
         Post post = Post.from(state);
 
@@ -86,23 +86,23 @@ class PostTest {
         LocalDateTime modifiedAt = LocalDateTime.of(2026, 4, 1, 12, 0);
         UUID postKey = UUID.randomUUID();
         PostSnapshotState state = PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .postKey(postKey)
-                .parentId(null)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .writerName("홍길동")
-                .maskedWriterName("홍*동")
-                .title("공지 제목")
-                .content("공지 내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(createdAt)
-                .modifiedAt(modifiedAt)
-                .orderNum(1L)
-                .build();
+            .id(1L)
+            .userId(100L)
+            .postKey(postKey)
+            .parentId(null)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .writerName("홍길동")
+            .maskedWriterName("홍*동")
+            .title("공지 제목")
+            .content("공지 내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(createdAt)
+            .modifiedAt(modifiedAt)
+            .orderNum(1L)
+            .build();
 
         Post post = Post.from(state);
 
@@ -171,17 +171,17 @@ class PostTest {
     @DisplayName("SnapshotState로 복원 시 hasReply=true가 그대로 유지된다")
     void shouldRestoreHasReplyTrueFromSnapshotState() {
         Post post = Post.from(PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("홍길동")
-                .maskedWriterName("홍*동")
-                .title("문의")
-                .content("내용")
-                .hasReply(true)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("홍길동")
+            .maskedWriterName("홍*동")
+            .title("문의")
+            .content("내용")
+            .hasReply(true)
+            .status(EntityStatus.ACTIVE)
+            .build());
 
         assertThat(post.hasReply()).isTrue();
     }
@@ -190,17 +190,17 @@ class PostTest {
     @DisplayName("SnapshotState로 복원 시 hasReply=false가 그대로 유지된다")
     void shouldRestoreHasReplyFalseFromSnapshotState() {
         Post post = Post.from(PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("홍길동")
-                .maskedWriterName("홍*동")
-                .title("문의")
-                .content("내용")
-                .hasReply(false)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("홍길동")
+            .maskedWriterName("홍*동")
+            .title("문의")
+            .content("내용")
+            .hasReply(false)
+            .status(EntityStatus.ACTIVE)
+            .build());
 
         assertThat(post.hasReply()).isFalse();
     }
@@ -231,17 +231,17 @@ class PostTest {
     @DisplayName("parentId가 있으면 isReply는 true를 반환한다")
     void shouldReturnTrueWhenParentIdExists() {
         PostSnapshotState state = PostSnapshotState.builder()
-                .id(2L)
-                .userId(100L)
-                .parentId(1L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("관리자")
-                .maskedWriterName("관*자")
-                .title("답변")
-                .content("답변 내용")
-                .status(EntityStatus.ACTIVE)
-                .build();
+            .id(2L)
+            .userId(100L)
+            .parentId(1L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("관리자")
+            .maskedWriterName("관*자")
+            .title("답변")
+            .content("답변 내용")
+            .status(EntityStatus.ACTIVE)
+            .build();
 
         Post post = Post.from(state);
 
@@ -260,16 +260,16 @@ class PostTest {
     @DisplayName("title이 null이면 hasNoTitle은 true를 반환한다")
     void shouldReturnTrueWhenTitleIsNull() {
         Post post = Post.from(PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("홍길동")
-                .maskedWriterName("홍*동")
-                .title(null)
-                .content("내용")
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("홍길동")
+            .maskedWriterName("홍*동")
+            .title(null)
+            .content("내용")
+            .status(EntityStatus.ACTIVE)
+            .build());
 
         assertThat(post.hasNoTitle()).isTrue();
     }
@@ -278,16 +278,16 @@ class PostTest {
     @DisplayName("title이 빈 문자열이면 hasNoTitle은 true를 반환한다")
     void shouldReturnTrueWhenTitleIsBlank() {
         Post post = Post.from(PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("홍길동")
-                .maskedWriterName("홍*동")
-                .title("")
-                .content("내용")
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("홍길동")
+            .maskedWriterName("홍*동")
+            .title("")
+            .content("내용")
+            .status(EntityStatus.ACTIVE)
+            .build());
 
         assertThat(post.hasNoTitle()).isTrue();
     }
@@ -304,18 +304,18 @@ class PostTest {
     @DisplayName("targetType이 PRICE_POLICY이면 isPricePolicyTarget은 true를 반환한다")
     void shouldReturnTrueWhenTargetTypeIsPricePolicy() {
         Post post = Post.from(PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("홍길동")
-                .maskedWriterName("홍*동")
-                .title("문의")
-                .content("내용")
-                .targetType(PostTargetType.PRICE_POLICY)
-                .targetId(10L)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("홍길동")
+            .maskedWriterName("홍*동")
+            .title("문의")
+            .content("내용")
+            .targetType(PostTargetType.PRICE_POLICY)
+            .targetId(10L)
+            .status(EntityStatus.ACTIVE)
+            .build());
 
         assertThat(post.isPricePolicyTarget()).isTrue();
     }
@@ -340,18 +340,18 @@ class PostTest {
     @DisplayName("targetId가 존재하면 hasNoTargetId는 false를 반환한다")
     void shouldReturnFalseWhenTargetIdExists() {
         Post post = Post.from(PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("홍길동")
-                .maskedWriterName("홍*동")
-                .title("문의")
-                .content("내용")
-                .targetType(PostTargetType.PRICE_POLICY)
-                .targetId(10L)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("홍길동")
+            .maskedWriterName("홍*동")
+            .title("문의")
+            .content("내용")
+            .targetType(PostTargetType.PRICE_POLICY)
+            .targetId(10L)
+            .status(EntityStatus.ACTIVE)
+            .build());
 
         assertThat(post.hasNoTargetId()).isFalse();
     }
@@ -360,16 +360,16 @@ class PostTest {
     @DisplayName("PostCreateState에 isImportant=true 전달 시 공지 게시글이면 isImportant가 true로 저장된다")
     void shouldSetIsImportantTrueWhenNoticeAnnouncementWithImportantTrue() {
         PostCreateState state = PostCreateState.builder()
-                .userId(100L)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .writerName("홍길동")
-                .title("중요 공지")
-                .content("내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .isImportant(true)
-                .build();
+            .userId(100L)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .writerName("홍길동")
+            .title("중요 공지")
+            .content("내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .isImportant(true)
+            .build();
 
         Post post = Post.from(state);
 
@@ -380,16 +380,16 @@ class PostTest {
     @DisplayName("PostCreateState에 isImportant=false 전달 시 isImportant는 false로 저장된다")
     void shouldSetIsImportantFalseWhenRequestedFalse() {
         PostCreateState state = PostCreateState.builder()
-                .userId(100L)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .writerName("홍길동")
-                .title("일반 공지")
-                .content("내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .isImportant(false)
-                .build();
+            .userId(100L)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .writerName("홍길동")
+            .title("일반 공지")
+            .content("내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .isImportant(false)
+            .build();
 
         Post post = Post.from(state);
 
@@ -400,16 +400,16 @@ class PostTest {
     @DisplayName("NOTICE 게시판이지만 ANNOUNCEMENT 카테고리가 아닌 게시글은 isImportant 요청이 true여도 false로 저장된다")
     void shouldForceIsImportantFalseWhenNoticeButNotAnnouncement() {
         PostCreateState state = PostCreateState.builder()
-                .userId(100L)
-                .board(Board.NOTICE)
-                .category("EVENT")
-                .writerName("홍길동")
-                .title("이벤트")
-                .content("이벤트 내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .isImportant(true)
-                .build();
+            .userId(100L)
+            .board(Board.NOTICE)
+            .category("EVENT")
+            .writerName("홍길동")
+            .title("이벤트")
+            .content("이벤트 내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .isImportant(true)
+            .build();
 
         Post post = Post.from(state);
 
@@ -420,16 +420,16 @@ class PostTest {
     @DisplayName("공지 게시판이 아닌 게시글(PRODUCT_INQUERY)은 isImportant 요청이 true여도 false로 저장된다")
     void shouldForceIsImportantFalseWhenProductInqueryBoard() {
         PostCreateState state = PostCreateState.builder()
-                .userId(100L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .writerName("홍길동")
-                .title("상품 문의")
-                .content("내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .isImportant(true)
-                .build();
+            .userId(100L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .writerName("홍길동")
+            .title("상품 문의")
+            .content("내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .isImportant(true)
+            .build();
 
         Post post = Post.from(state);
 
@@ -440,15 +440,15 @@ class PostTest {
     @DisplayName("공지 게시판이 아닌 게시글(ONE_ON_ONE_INQUERY)은 isImportant 요청이 true여도 false로 저장된다")
     void shouldForceIsImportantFalseWhenOneOnOneInqueryBoard() {
         PostCreateState state = PostCreateState.builder()
-                .userId(100L)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .writerName("홍길동")
-                .content("1:1 문의")
-                .isPrivate(false)
-                .isPhoto(false)
-                .isImportant(true)
-                .build();
+            .userId(100L)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .writerName("홍길동")
+            .content("1:1 문의")
+            .isPrivate(false)
+            .isPhoto(false)
+            .isImportant(true)
+            .build();
 
         Post post = Post.from(state);
 
@@ -459,16 +459,16 @@ class PostTest {
     @DisplayName("공지 게시판이 아닌 게시글(FAQ)은 isImportant 요청이 true여도 false로 저장된다")
     void shouldForceIsImportantFalseWhenFaqBoard() {
         PostCreateState state = PostCreateState.builder()
-                .userId(100L)
-                .board(Board.FAQ)
-                .category("ORDER_DELIVERY")
-                .writerName("관리자")
-                .title("자주 묻는 질문")
-                .content("FAQ 내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .isImportant(true)
-                .build();
+            .userId(100L)
+            .board(Board.FAQ)
+            .category("ORDER_DELIVERY")
+            .writerName("관리자")
+            .title("자주 묻는 질문")
+            .content("FAQ 내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .isImportant(true)
+            .build();
 
         Post post = Post.from(state);
 
@@ -479,19 +479,19 @@ class PostTest {
     @DisplayName("PostSnapshotState로 복원 시 isImportant=true가 그대로 복원된다")
     void shouldRestoreIsImportantTrueFromSnapshotState() {
         PostSnapshotState state = PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .writerName("홍길동")
-                .maskedWriterName("홍*동")
-                .title("중요 공지")
-                .content("내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .isImportant(true)
-                .status(EntityStatus.ACTIVE)
-                .build();
+            .id(1L)
+            .userId(100L)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .writerName("홍길동")
+            .maskedWriterName("홍*동")
+            .title("중요 공지")
+            .content("내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .isImportant(true)
+            .status(EntityStatus.ACTIVE)
+            .build();
 
         Post post = Post.from(state);
 
@@ -502,19 +502,19 @@ class PostTest {
     @DisplayName("PostSnapshotState로 복원 시 isImportant=false가 그대로 복원된다")
     void shouldRestoreIsImportantFalseFromSnapshotState() {
         PostSnapshotState state = PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .writerName("홍길동")
-                .maskedWriterName("홍*동")
-                .title("일반 공지")
-                .content("내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .isImportant(false)
-                .status(EntityStatus.ACTIVE)
-                .build();
+            .id(1L)
+            .userId(100L)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .writerName("홍길동")
+            .maskedWriterName("홍*동")
+            .title("일반 공지")
+            .content("내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .isImportant(false)
+            .status(EntityStatus.ACTIVE)
+            .build();
 
         Post post = Post.from(state);
 
@@ -525,17 +525,17 @@ class PostTest {
     @DisplayName("공지 게시글에서 updateImportance(true) 호출 시 isImportant가 true로 전이된다")
     void shouldUpdateImportanceToTrueForNoticeAnnouncement() {
         Post post = Post.from(PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .writerName("관리자")
-                .maskedWriterName("관*자")
-                .title("공지 제목")
-                .content("공지 내용")
-                .isImportant(false)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .writerName("관리자")
+            .maskedWriterName("관*자")
+            .title("공지 제목")
+            .content("공지 내용")
+            .isImportant(false)
+            .status(EntityStatus.ACTIVE)
+            .build());
 
         post.updateImportance(Boolean.TRUE);
 
@@ -546,17 +546,17 @@ class PostTest {
     @DisplayName("공지 게시글에서 updateImportance(false) 호출 시 isImportant가 false로 전이된다")
     void shouldUpdateImportanceToFalseForNoticeAnnouncement() {
         Post post = Post.from(PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .writerName("관리자")
-                .maskedWriterName("관*자")
-                .title("공지 제목")
-                .content("공지 내용")
-                .isImportant(true)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .writerName("관리자")
+            .maskedWriterName("관*자")
+            .title("공지 제목")
+            .content("공지 내용")
+            .isImportant(true)
+            .status(EntityStatus.ACTIVE)
+            .build());
 
         post.updateImportance(Boolean.FALSE);
 
@@ -567,17 +567,17 @@ class PostTest {
     @DisplayName("updateImportance(null) 호출 시 기존 isImportant 값이 유지된다")
     void shouldKeepIsImportantWhenRequestedIsNull() {
         Post post = Post.from(PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .writerName("관리자")
-                .maskedWriterName("관*자")
-                .title("공지 제목")
-                .content("공지 내용")
-                .isImportant(true)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .writerName("관리자")
+            .maskedWriterName("관*자")
+            .title("공지 제목")
+            .content("공지 내용")
+            .isImportant(true)
+            .status(EntityStatus.ACTIVE)
+            .build());
 
         post.updateImportance(null);
 
@@ -588,17 +588,17 @@ class PostTest {
     @DisplayName("NOTICE+EVENT 게시글에서 updateImportance(true) 호출 시 isImportant 변경이 무시된다")
     void shouldIgnoreUpdateImportanceForNoticeEvent() {
         Post post = Post.from(PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.NOTICE)
-                .category("EVENT")
-                .writerName("관리자")
-                .maskedWriterName("관*자")
-                .title("이벤트")
-                .content("이벤트 내용")
-                .isImportant(false)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .board(Board.NOTICE)
+            .category("EVENT")
+            .writerName("관리자")
+            .maskedWriterName("관*자")
+            .title("이벤트")
+            .content("이벤트 내용")
+            .isImportant(false)
+            .status(EntityStatus.ACTIVE)
+            .build());
 
         post.updateImportance(Boolean.TRUE);
 
@@ -609,17 +609,17 @@ class PostTest {
     @DisplayName("FAQ 게시글에서 updateImportance(true) 호출 시 isImportant 변경이 무시된다")
     void shouldIgnoreUpdateImportanceForFaq() {
         Post post = Post.from(PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.FAQ)
-                .category("ORDER_DELIVERY")
-                .writerName("관리자")
-                .maskedWriterName("관*자")
-                .title("FAQ 제목")
-                .content("FAQ 내용")
-                .isImportant(false)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .board(Board.FAQ)
+            .category("ORDER_DELIVERY")
+            .writerName("관리자")
+            .maskedWriterName("관*자")
+            .title("FAQ 제목")
+            .content("FAQ 내용")
+            .isImportant(false)
+            .status(EntityStatus.ACTIVE)
+            .build());
 
         post.updateImportance(Boolean.TRUE);
 
@@ -630,17 +630,17 @@ class PostTest {
     @DisplayName("updateImportance 호출이 title과 content에 영향을 주지 않는다")
     void shouldNotAffectTitleAndContentWhenUpdatingImportance() {
         Post post = Post.from(PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .writerName("관리자")
-                .maskedWriterName("관*자")
-                .title("원본 제목")
-                .content("원본 내용")
-                .isImportant(false)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .writerName("관리자")
+            .maskedWriterName("관*자")
+            .title("원본 제목")
+            .content("원본 내용")
+            .isImportant(false)
+            .status(EntityStatus.ACTIVE)
+            .build());
 
         post.updateImportance(Boolean.TRUE);
 
@@ -651,28 +651,28 @@ class PostTest {
 
     private PostCreateState createPostCreateState(Board board, String category, String writerName) {
         return PostCreateState.builder()
-                .userId(100L)
-                .board(board)
-                .category(category)
-                .writerName(writerName)
-                .title("테스트 제목")
-                .content("테스트 내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .build();
+            .userId(100L)
+            .board(board)
+            .category(category)
+            .writerName(writerName)
+            .title("테스트 제목")
+            .content("테스트 내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .build();
     }
 
     private Post createActivePost() {
         return Post.from(PostSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .writerName("홍길동")
-                .maskedWriterName("홍*동")
-                .title("테스트 제목")
-                .content("테스트 내용")
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .writerName("홍길동")
+            .maskedWriterName("홍*동")
+            .title("테스트 제목")
+            .content("테스트 내용")
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 }

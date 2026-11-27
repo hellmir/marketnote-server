@@ -6,15 +6,15 @@ import com.personal.marketnote.community.port.in.result.post.GetUserProductInqui
 public record GetUserProductInquiryPostsResponse(OffsetResponse<UserProductInquiryPostItemResponse> posts) {
     public static GetUserProductInquiryPostsResponse from(GetUserProductInquiryPostsResult result) {
         return new GetUserProductInquiryPostsResponse(
-                new OffsetResponse<>(
-                        result.page(),
-                        result.pageSize(),
-                        result.totalElements(),
-                        result.totalPages(),
-                        result.posts().stream()
-                                .map(UserProductInquiryPostItemResponse::from)
-                                .toList()
-                )
+            new OffsetResponse<>(
+                result.page(),
+                result.pageSize(),
+                result.totalElements(),
+                result.totalPages(),
+                result.posts().stream()
+                    .map(UserProductInquiryPostItemResponse::from)
+                    .toList()
+            )
         );
     }
 }

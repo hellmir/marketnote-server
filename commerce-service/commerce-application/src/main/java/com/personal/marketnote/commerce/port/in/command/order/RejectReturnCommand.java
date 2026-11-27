@@ -5,8 +5,8 @@ import lombok.Builder;
 
 @Builder
 public record RejectReturnCommand(
-        Long id,
-        OrderStatusReasonCategory reasonCategory,
-        String reason
+    Long id,
+    OrderStatusReasonCategory reasonCategory,
+    String reason
 ) {
 }

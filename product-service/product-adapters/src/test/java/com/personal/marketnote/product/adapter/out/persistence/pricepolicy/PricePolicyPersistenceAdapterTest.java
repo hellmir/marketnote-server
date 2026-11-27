@@ -10,13 +10,8 @@ import com.personal.marketnote.product.adapter.out.persistence.productoption.rep
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
-import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
-import com.personal.marketnote.product.domain.product.Product;
-import com.personal.marketnote.product.domain.product.ProductSearchTarget;
-import com.personal.marketnote.product.domain.product.ProductSnapshotState;
-import com.personal.marketnote.product.domain.product.ProductSortProperty;
+import com.personal.marketnote.product.domain.product.*;
 import com.personal.marketnote.product.exception.PricePolicyNotFoundException;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -60,22 +56,22 @@ class PricePolicyPersistenceAdapterTest {
     void setUp() {
         UUID productKey = UUID.randomUUID();
         product = Product.from(
-                ProductSnapshotState.builder()
-                        .id(100L)
-                        .productKey(productKey)
-                        .name("테스트 상품")
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(100L)
+                .productKey(productKey)
+                .name("테스트 상품")
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
         pricePolicy = PricePolicy.from(
-                PricePolicyCreateState.builder()
-                        .product(product)
-                        .price(10_000L)
-                        .discountPrice(8_000L)
-                        .discountRate(Rate.of(BigDecimal.valueOf(20.0)))
-                        .accumulatedPoint(100L)
-                        .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
-                        .build()
+            PricePolicyCreateState.builder()
+                .product(product)
+                .price(10_000L)
+                .discountPrice(8_000L)
+                .discountRate(Rate.of(BigDecimal.valueOf(20.0)))
+                .accumulatedPoint(100L)
+                .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
+                .build()
         );
     }
 
@@ -145,7 +141,7 @@ class PricePolicyPersistenceAdapterTest {
         void returnsEmptyWhenNoCandidates() {
             List<Long> optionIds = List.of(1L, 2L);
             when(productOptionPricePolicyJpaRepository.findExactMatchingPricePolicyIds(optionIds, 2))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             Optional<PricePolicy> result = adapter.findByProductAndOptionIds(100L, optionIds);
 
@@ -161,7 +157,7 @@ class PricePolicyPersistenceAdapterTest {
             PricePolicyJpaEntity pricePolicyEntity = mock(PricePolicyJpaEntity.class);
 
             when(productOptionPricePolicyJpaRepository.findExactMatchingPricePolicyIds(optionIds, 2))
-                    .thenReturn(List.of(10L));
+                .thenReturn(List.of(10L));
             when(pricePolicyJpaRepository.findAllById(List.of(10L))).thenReturn(List.of(pricePolicyEntity));
             when(pricePolicyEntity.getProductJpaEntity()).thenReturn(productJpaEntity);
             when(productJpaEntity.getId()).thenReturn(999L);
@@ -179,7 +175,7 @@ class PricePolicyPersistenceAdapterTest {
             PricePolicyJpaEntity entity = buildPricePolicyEntity(20L, productEntity);
 
             when(productOptionPricePolicyJpaRepository.findExactMatchingPricePolicyIds(optionIds, 2))
-                    .thenReturn(List.of(20L));
+                .thenReturn(List.of(20L));
             when(pricePolicyJpaRepository.findAllById(List.of(20L))).thenReturn(List.of(entity));
 
             Optional<PricePolicy> result = adapter.findByProductAndOptionIds(100L, optionIds);
@@ -227,7 +223,7 @@ class PricePolicyPersistenceAdapterTest {
         @DisplayName("상품의 가격 정책이 없으면 빈 리스트를 반환한다")
         void returnsEmptyListWhenNoEntities() {
             when(pricePolicyJpaRepository.findAllByProductJpaEntity_IdOrderByIdDesc(100L))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             List<PricePolicy> result = adapter.findByProductId(100L);
 
@@ -243,11 +239,11 @@ class PricePolicyPersistenceAdapterTest {
             PricePolicyJpaEntity hydratedEntity = buildPricePolicyEntity(40L, productEntity);
 
             when(pricePolicyJpaRepository.findAllByProductJpaEntity_IdOrderByIdDesc(100L))
-                    .thenReturn(List.of(baseEntity));
+                .thenReturn(List.of(baseEntity));
             when(pricePolicyJpaRepository.findAllWithProductAndOptionMappingsByIdIn(List.of(40L)))
-                    .thenReturn(List.of(hydratedEntity));
+                .thenReturn(List.of(hydratedEntity));
             when(productOptionPricePolicyJpaRepository.findAllOptionIdsByPricePolicyIds(List.of(40L)))
-                    .thenReturn(List.of(buildMapping(40L, 7L)));
+                .thenReturn(List.of(buildMapping(40L, 7L)));
 
             List<PricePolicy> result = adapter.findByProductId(100L);
 
@@ -273,7 +269,7 @@ class PricePolicyPersistenceAdapterTest {
         @DisplayName("hydrated 결과가 비어 있으면 빈 리스트를 반환한다")
         void returnsEmptyListWhenHydratedEmpty() {
             when(pricePolicyJpaRepository.findAllWithProductAndOptionMappingsByIdIn(List.of(1L)))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             List<PricePolicy> result = adapter.findByIds(List.of(1L));
 
@@ -288,7 +284,7 @@ class PricePolicyPersistenceAdapterTest {
             PricePolicyJpaEntity entityB = buildPricePolicyEntity(51L, productEntity);
 
             when(pricePolicyJpaRepository.findAllWithProductAndOptionMappingsByIdIn(List.of(51L, 50L)))
-                    .thenReturn(List.of(entityA, entityB));
+                .thenReturn(List.of(entityA, entityB));
 
             List<PricePolicy> result = adapter.findByIds(List.of(51L, 50L));
 
@@ -333,29 +329,29 @@ class PricePolicyPersistenceAdapterTest {
         @DisplayName("오름차순이면 isAsc=true로 fragment 메서드를 호출한다")
         void delegatesToAsc() {
             when(pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                    any(), anyInt(), anyInt(), anyBoolean(), any(), any(), any(), any()))
-                    .thenReturn(List.of());
+                any(), anyInt(), anyInt(), anyBoolean(), any(), any(), any(), any()))
+                .thenReturn(List.of());
 
             adapter.findPricePoliciesByOffset(
-                    List.of(),
-                    0,
-                    10,
-                    Sort.Direction.ASC,
-                    ProductSortProperty.ACCUMULATED_POINT,
-                    ProductSearchTarget.NAME,
-                    null,
-                    null
+                List.of(),
+                0,
+                10,
+                Sort.Direction.ASC,
+                ProductSortProperty.ACCUMULATED_POINT,
+                ProductSearchTarget.NAME,
+                null,
+                null
             );
 
             verify(pricePolicyJpaRepository).findActivePricePoliciesByOffset(
-                    eq(List.of()),
-                    eq(0),
-                    eq(10),
-                    eq(true),
-                    eq(ProductSortProperty.ACCUMULATED_POINT),
-                    eq(ProductSearchTarget.NAME),
-                    isNull(),
-                    isNull()
+                eq(List.of()),
+                eq(0),
+                eq(10),
+                eq(true),
+                eq(ProductSortProperty.ACCUMULATED_POINT),
+                eq(ProductSearchTarget.NAME),
+                isNull(),
+                isNull()
             );
         }
 
@@ -363,29 +359,29 @@ class PricePolicyPersistenceAdapterTest {
         @DisplayName("내림차순이면 isAsc=false로 fragment 메서드를 호출한다")
         void delegatesToDesc() {
             when(pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                    any(), anyInt(), anyInt(), anyBoolean(), any(), any(), any(), any()))
-                    .thenReturn(List.of());
+                any(), anyInt(), anyInt(), anyBoolean(), any(), any(), any(), any()))
+                .thenReturn(List.of());
 
             adapter.findPricePoliciesByOffset(
-                    List.of(),
-                    2,
-                    10,
-                    Sort.Direction.DESC,
-                    ProductSortProperty.POPULARITY,
-                    ProductSearchTarget.NAME,
-                    "k",
-                    3L
+                List.of(),
+                2,
+                10,
+                Sort.Direction.DESC,
+                ProductSortProperty.POPULARITY,
+                ProductSearchTarget.NAME,
+                "k",
+                3L
             );
 
             verify(pricePolicyJpaRepository).findActivePricePoliciesByOffset(
-                    eq(List.of()),
-                    eq(2),
-                    eq(10),
-                    eq(false),
-                    eq(ProductSortProperty.POPULARITY),
-                    eq(ProductSearchTarget.NAME),
-                    eq("k"),
-                    eq(3L)
+                eq(List.of()),
+                eq(2),
+                eq(10),
+                eq(false),
+                eq(ProductSortProperty.POPULARITY),
+                eq(ProductSearchTarget.NAME),
+                eq("k"),
+                eq(3L)
             );
         }
     }
@@ -416,7 +412,7 @@ class PricePolicyPersistenceAdapterTest {
             when(pricePolicyJpaRepository.findById(10L)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> adapter.deleteById(10L))
-                    .isInstanceOf(PricePolicyNotFoundException.class);
+                .isInstanceOf(PricePolicyNotFoundException.class);
 
             verify(productOptionPricePolicyJpaRepository, never()).deleteByPricePolicyId(anyLong());
         }
@@ -449,22 +445,22 @@ class PricePolicyPersistenceAdapterTest {
             PricePolicyJpaEntity hydratedEntity = buildPricePolicyEntity(60L, productEntity);
 
             when(pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                    any(), anyInt(), anyInt(), anyBoolean(), any(), any(), any(), any()))
-                    .thenReturn(List.of(baseEntity));
+                any(), anyInt(), anyInt(), anyBoolean(), any(), any(), any(), any()))
+                .thenReturn(List.of(baseEntity));
             when(pricePolicyJpaRepository.findAllWithProductAndOptionMappingsByIdIn(List.of(60L)))
-                    .thenReturn(List.of(hydratedEntity));
+                .thenReturn(List.of(hydratedEntity));
             when(productOptionPricePolicyJpaRepository.findAllOptionIdsByPricePolicyIds(List.of(60L)))
-                    .thenReturn(List.of(buildMapping(60L, 9L)));
+                .thenReturn(List.of(buildMapping(60L, 9L)));
 
             List<PricePolicy> result = adapter.findPricePoliciesByOffset(
-                    List.of(60L),
-                    0,
-                    10,
-                    Sort.Direction.ASC,
-                    ProductSortProperty.ACCUMULATED_POINT,
-                    ProductSearchTarget.NAME,
-                    null,
-                    null
+                List.of(60L),
+                0,
+                10,
+                Sort.Direction.ASC,
+                ProductSortProperty.ACCUMULATED_POINT,
+                ProductSearchTarget.NAME,
+                null,
+                null
             );
 
             assertThat(result).hasSize(1);
@@ -475,18 +471,18 @@ class PricePolicyPersistenceAdapterTest {
     private ProductJpaEntity buildProductEntity(Long id) {
         UUID productKey = UUID.randomUUID();
         Product domain = Product.from(
-                ProductSnapshotState.builder()
-                        .id(id)
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name("테스트 상품")
-                        .brandName("브랜드")
-                        .detail("설명")
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(id)
+                .productKey(productKey)
+                .sellerId(1L)
+                .name("테스트 상품")
+                .brandName("브랜드")
+                .detail("설명")
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
         ProductJpaEntity entity = ProductJpaEntity.from(domain);
         ReflectionTestUtils.setField(entity, "id", id);

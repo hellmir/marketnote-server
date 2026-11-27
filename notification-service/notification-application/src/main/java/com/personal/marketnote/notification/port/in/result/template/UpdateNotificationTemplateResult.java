@@ -5,24 +5,24 @@ import com.personal.marketnote.notification.domain.template.NotificationTemplate
 import com.personal.marketnote.notification.domain.template.NotificationType;
 
 public record UpdateNotificationTemplateResult(
-        Long id,
-        String templateCode,
-        NotificationType notificationType,
-        NotificationCategory notificationCategory,
-        String title,
-        String bodyTemplate,
-        String urlTemplate
+    Long id,
+    String templateCode,
+    NotificationType notificationType,
+    NotificationCategory notificationCategory,
+    String title,
+    String bodyTemplate,
+    String urlTemplate
 ) {
 
     public static UpdateNotificationTemplateResult from(NotificationTemplate template) {
         return new UpdateNotificationTemplateResult(
-                template.getId(),
-                template.getTemplateCode(),
-                template.getNotificationType(),
-                template.getNotificationCategory(),
-                template.getTitle(),
-                template.getBodyTemplate(),
-                template.getUrlTemplate()
+            template.getId(),
+            template.getTemplateCode(),
+            template.getNotificationType(),
+            template.getNotificationCategory(),
+            template.getTitle(),
+            template.getBodyTemplate(),
+            template.getUrlTemplate()
         );
     }
 }

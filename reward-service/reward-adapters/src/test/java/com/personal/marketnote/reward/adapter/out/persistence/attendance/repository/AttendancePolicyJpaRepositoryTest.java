@@ -38,12 +38,12 @@ class AttendancePolicyJpaRepositoryTest {
 
     private AttendancePolicyJpaEntity persistPolicy(short continuousPeriod, LocalDate attendenceDate, short orderNum) {
         AttendancePolicy domain = AttendancePolicy.from(AttendancePolicySnapshotState.builder()
-                .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
-                .rewardType(AttendanceRewardType.POINT)
-                .rewardQuantity(RewardQuantity.of(100L))
-                .attendenceDate(attendenceDate)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
+            .rewardType(AttendanceRewardType.POINT)
+            .rewardQuantity(RewardQuantity.of(100L))
+            .attendenceDate(attendenceDate)
+            .status(EntityStatus.ACTIVE)
+            .build());
         AttendancePolicyJpaEntity entity = AttendancePolicyJpaEntity.from(domain);
         em.persist(entity);
         em.flush();
@@ -81,7 +81,7 @@ class AttendancePolicyJpaRepositoryTest {
         em.clear();
 
         Optional<AttendancePolicyJpaEntity> result = repository
-                .findTop1ByContinuousPeriodAndAttendenceDateIsNullOrderByOrderNumDesc((short) 1);
+            .findTop1ByContinuousPeriodAndAttendenceDateIsNullOrderByOrderNumDesc((short) 1);
         assertThat(result).isPresent();
         assertThat(result.get().getId()).isEqualTo(higher.getId());
     }

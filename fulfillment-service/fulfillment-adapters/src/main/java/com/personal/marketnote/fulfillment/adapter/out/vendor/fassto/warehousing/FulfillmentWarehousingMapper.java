@@ -17,25 +17,25 @@ public class FulfillmentWarehousingMapper {
     private List<FulfillmentWarehousingItemMapper> warehousingRequests;
 
     public static FulfillmentWarehousingMapper register(
-            String customerCode,
-            String accessToken,
-            List<FulfillmentWarehousingItemMapper> warehousingRequests
+        String customerCode,
+        String accessToken,
+        List<FulfillmentWarehousingItemMapper> warehousingRequests
     ) {
         return create(customerCode, accessToken, warehousingRequests);
     }
 
     public static FulfillmentWarehousingMapper update(
-            String customerCode,
-            String accessToken,
-            List<FulfillmentWarehousingItemMapper> warehousingRequests
+        String customerCode,
+        String accessToken,
+        List<FulfillmentWarehousingItemMapper> warehousingRequests
     ) {
         return create(customerCode, accessToken, warehousingRequests);
     }
 
     public List<Map<String, Object>> toPayload() {
         return warehousingRequests.stream()
-                .map(FulfillmentWarehousingItemMapper::toPayload)
-                .toList();
+            .map(FulfillmentWarehousingItemMapper::toPayload)
+            .toList();
     }
 
     private void validate() {
@@ -51,15 +51,15 @@ public class FulfillmentWarehousingMapper {
     }
 
     private static FulfillmentWarehousingMapper create(
-            String customerCode,
-            String accessToken,
-            List<FulfillmentWarehousingItemMapper> warehousingRequests
+        String customerCode,
+        String accessToken,
+        List<FulfillmentWarehousingItemMapper> warehousingRequests
     ) {
         FulfillmentWarehousingMapper mapper = FulfillmentWarehousingMapper.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .warehousingRequests(warehousingRequests)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .warehousingRequests(warehousingRequests)
+            .build();
         mapper.validate();
         return mapper;
     }

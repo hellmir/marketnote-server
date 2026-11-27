@@ -40,15 +40,15 @@ class PurchaseConfirmationCompletedInAppNotificationConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long orderId, Long buyerId, boolean isAutoConfirmed) {
+        Long orderId, Long buyerId, boolean isAutoConfirmed) {
         OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(
-                orderId, buyerId, List.of(UUID.randomUUID()), isAutoConfirmed, java.util.List.of());
+            orderId, buyerId, List.of(UUID.randomUUID()), isAutoConfirmed, java.util.List.of());
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 15, 0), event
+            "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 15, 0), event
         );
         return new ConsumerRecord<>("commerce.order.purchase-confirmed", 0, 0L,
-                String.valueOf(orderId), envelope);
+            String.valueOf(orderId), envelope);
     }
 
     @Test
@@ -102,7 +102,7 @@ class PurchaseConfirmationCompletedInAppNotificationConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.purchase-confirmed", 0, 0L, "1", null
+            "commerce.order.purchase-confirmed", 0, 0L, "1", null
         );
 
         // when
@@ -118,13 +118,13 @@ class PurchaseConfirmationCompletedInAppNotificationConsumerTest {
     void shouldSkipWhenEventTypeMismatch() {
         // given
         OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(
-                100L, 1L, List.of(), true, java.util.List.of());
+            100L, 1L, List.of(), true, java.util.List.of());
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 15, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 15, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.purchase-confirmed", 0, 0L, "100", envelope
+            "commerce.order.purchase-confirmed", 0, 0L, "100", envelope
         );
 
         // when

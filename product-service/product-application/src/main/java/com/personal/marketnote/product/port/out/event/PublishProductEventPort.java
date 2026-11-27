@@ -11,13 +11,13 @@ import java.util.UUID;
 public interface PublishProductEventPort {
 
     void publishProductRegisteredEvent(
-            Long productId, UUID productKey, Long pricePolicyId, Long sellerId, String productName, String goodsType,
-            String brandName, Long price, Long discountPrice, Long accumulatedPoint,
-            Long sales,
-            List<ProductRegisteredEvent.ProductTagSnapshot> productTags,
-            List<ProductRegisteredEvent.ProductOptionSnapshot> selectedOptions,
-            String fasstoProductCode,
-            boolean imported
+        Long productId, UUID productKey, Long pricePolicyId, Long sellerId, String productName, String goodsType,
+        String brandName, Long price, Long discountPrice, Long accumulatedPoint,
+        Long sales,
+        List<ProductRegisteredEvent.ProductTagSnapshot> productTags,
+        List<ProductRegisteredEvent.ProductOptionSnapshot> selectedOptions,
+        String fasstoProductCode,
+        boolean imported
     );
 
     void publishPricePolicyCreatedEvent(PricePolicyCreatedEvent event);
@@ -29,8 +29,8 @@ public interface PublishProductEventPort {
     void publishProductDeletedEvent(Long productId);
 
     void publishProductTagChangedEvent(
-            Long productId,
-            List<ProductTagChangedEvent.ProductTagSnapshot> productTags,
-            ProductTagChangedEvent.Action action
+        Long productId,
+        List<ProductTagChangedEvent.ProductTagSnapshot> productTags,
+        ProductTagChangedEvent.Action action
     );
 }

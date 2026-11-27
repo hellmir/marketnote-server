@@ -72,8 +72,8 @@ class PushNotificationEventListenerTest {
 
     @Spy
     private Clock clock = Clock.fixed(
-            Instant.parse("2026-06-03T05:00:00Z"),
-            ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-06-03T05:00:00Z"),
+        ZoneId.of("Asia/Seoul")
     );
 
     private static final Long NOTIFICATION_ID = 100L;
@@ -84,7 +84,7 @@ class PushNotificationEventListenerTest {
 
     private PushNotificationRequestedEvent event() {
         return new PushNotificationRequestedEvent(
-                NOTIFICATION_ID, USER_ID, TITLE, BODY, LANDING_URL
+            NOTIFICATION_ID, USER_ID, TITLE, BODY, LANDING_URL
         );
     }
 
@@ -97,11 +97,11 @@ class PushNotificationEventListenerTest {
         void shouldThrowWhenNotificationNotFound() {
             // given
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> listener.handlePushNotificationRequestedEvent(event()))
-                    .isInstanceOf(NotificationNotFoundException.class);
+                .isInstanceOf(NotificationNotFoundException.class);
         }
     }
 
@@ -115,7 +115,7 @@ class PushNotificationEventListenerTest {
             // given
             Notification notification = createPendingNotification();
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.of(notification));
+                .thenReturn(Optional.of(notification));
             setupDeviceTokensAndPush(2, true);
 
             // when
@@ -133,15 +133,15 @@ class PushNotificationEventListenerTest {
             // given
             Notification notification = createPendingNotification();
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.of(notification));
+                .thenReturn(Optional.of(notification));
             List<DeviceToken> tokens = List.of(
-                    createDeviceToken(1L, "token1", Platform.ANDROID),
-                    createDeviceToken(2L, "token2", Platform.IOS)
+                createDeviceToken(1L, "token1", Platform.ANDROID),
+                createDeviceToken(2L, "token2", Platform.IOS)
             );
             when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.success("msg1"))
-                    .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
+                .thenReturn(SendPushNotificationResult.success("msg1"))
+                .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
 
             // when
             listener.handlePushNotificationRequestedEvent(event());
@@ -158,11 +158,11 @@ class PushNotificationEventListenerTest {
             // given
             Notification notification = createPendingNotification();
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.of(notification));
+                .thenReturn(Optional.of(notification));
             List<DeviceToken> tokens = List.of(createDeviceToken(1L, "token1", Platform.ANDROID));
             when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
+                .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
 
             // when
             listener.handlePushNotificationRequestedEvent(event());
@@ -179,11 +179,11 @@ class PushNotificationEventListenerTest {
             // given
             Notification notification = createPendingNotification();
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.of(notification));
+                .thenReturn(Optional.of(notification));
             List<DeviceToken> tokens = List.of(createDeviceToken(1L, "invalid-token", Platform.ANDROID));
             when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.tokenInvalid("UNREGISTERED"));
+                .thenReturn(SendPushNotificationResult.tokenInvalid("UNREGISTERED"));
 
             // when
             listener.handlePushNotificationRequestedEvent(event());
@@ -198,7 +198,7 @@ class PushNotificationEventListenerTest {
             // given
             Notification notification = createPendingNotification();
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.of(notification));
+                .thenReturn(Optional.of(notification));
             when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(List.of());
 
             // when
@@ -221,7 +221,7 @@ class PushNotificationEventListenerTest {
             // given
             Notification notification = createPendingNotification();
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.of(notification));
+                .thenReturn(Optional.of(notification));
             setupDeviceTokensAndPush(3, true);
 
             // when
@@ -229,12 +229,12 @@ class PushNotificationEventListenerTest {
 
             // then
             verify(vendorCommunicationRecorder, times(3)).recordFcmSendResult(
-                    any(Notification.class), any(DeviceToken.class),
-                    anyString(), anyString(), anyString(),
-                    argThat(SendPushNotificationResult::success)
+                any(Notification.class), any(DeviceToken.class),
+                anyString(), anyString(), anyString(),
+                argThat(SendPushNotificationResult::success)
             );
             verify(vendorCommunicationRecorder, never()).recordFcmSendException(
-                    any(), any(), any(), any(), any(), any()
+                any(), any(), any(), any(), any(), any()
             );
         }
 
@@ -244,20 +244,20 @@ class PushNotificationEventListenerTest {
             // given
             Notification notification = createPendingNotification();
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.of(notification));
+                .thenReturn(Optional.of(notification));
             List<DeviceToken> tokens = List.of(createDeviceToken(1L, "token1", Platform.ANDROID));
             when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
+                .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
 
             // when
             listener.handlePushNotificationRequestedEvent(event());
 
             // then
             verify(vendorCommunicationRecorder).recordFcmSendResult(
-                    any(Notification.class), any(DeviceToken.class),
-                    anyString(), anyString(), anyString(),
-                    argThat(r -> !r.success() && "INTERNAL".equals(r.errorCode()) && !r.tokenInvalid())
+                any(Notification.class), any(DeviceToken.class),
+                anyString(), anyString(), anyString(),
+                argThat(r -> !r.success() && "INTERNAL".equals(r.errorCode()) && !r.tokenInvalid())
             );
         }
 
@@ -267,15 +267,15 @@ class PushNotificationEventListenerTest {
             // given
             Notification notification = createPendingNotification();
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.of(notification));
+                .thenReturn(Optional.of(notification));
             List<DeviceToken> tokens = List.of(
-                    createDeviceToken(1L, "token1", Platform.ANDROID),
-                    createDeviceToken(2L, "token2", Platform.IOS)
+                createDeviceToken(1L, "token1", Platform.ANDROID),
+                createDeviceToken(2L, "token2", Platform.IOS)
             );
             when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenThrow(new FcmSendFailedException("타임아웃"))
-                    .thenReturn(SendPushNotificationResult.success("msg2"));
+                .thenThrow(new FcmSendFailedException("타임아웃"))
+                .thenReturn(SendPushNotificationResult.success("msg2"));
 
             // when
             listener.handlePushNotificationRequestedEvent(event());
@@ -283,16 +283,16 @@ class PushNotificationEventListenerTest {
             // then
             assertThat(notification.getSendStatus()).isEqualTo(SendStatus.SENT);
             verify(vendorCommunicationRecorder).recordFcmSendException(
-                    any(Notification.class),
-                    argThat(dt -> dt.getId().equals(1L)),
-                    anyString(), anyString(), anyString(),
-                    any(FcmSendFailedException.class)
+                any(Notification.class),
+                argThat(dt -> dt.getId().equals(1L)),
+                anyString(), anyString(), anyString(),
+                any(FcmSendFailedException.class)
             );
             verify(vendorCommunicationRecorder).recordFcmSendResult(
-                    any(Notification.class),
-                    argThat(dt -> dt.getId().equals(2L)),
-                    anyString(), anyString(), anyString(),
-                    argThat(SendPushNotificationResult::success)
+                any(Notification.class),
+                argThat(dt -> dt.getId().equals(2L)),
+                anyString(), anyString(), anyString(),
+                argThat(SendPushNotificationResult::success)
             );
         }
 
@@ -302,11 +302,11 @@ class PushNotificationEventListenerTest {
             // given
             Notification notification = createPendingNotification();
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.of(notification));
+                .thenReturn(Optional.of(notification));
             List<DeviceToken> tokens = List.of(createDeviceToken(1L, "invalid-token", Platform.ANDROID));
             when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.tokenInvalid("UNREGISTERED"));
+                .thenReturn(SendPushNotificationResult.tokenInvalid("UNREGISTERED"));
 
             // when
             listener.handlePushNotificationRequestedEvent(event());
@@ -314,9 +314,9 @@ class PushNotificationEventListenerTest {
             // then
             verify(deleteDeviceTokenPort).deleteById(1L);
             verify(vendorCommunicationRecorder).recordFcmSendResult(
-                    any(Notification.class), any(DeviceToken.class),
-                    anyString(), anyString(), anyString(),
-                    argThat(r -> !r.success() && r.tokenInvalid() && "UNREGISTERED".equals(r.errorCode()))
+                any(Notification.class), any(DeviceToken.class),
+                anyString(), anyString(), anyString(),
+                argThat(r -> !r.success() && r.tokenInvalid() && "UNREGISTERED".equals(r.errorCode()))
             );
         }
 
@@ -326,7 +326,7 @@ class PushNotificationEventListenerTest {
             // given
             Notification notification = createPendingNotification();
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.of(notification));
+                .thenReturn(Optional.of(notification));
             when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(List.of());
 
             // when
@@ -347,7 +347,7 @@ class PushNotificationEventListenerTest {
             // given
             Notification notification = createPendingNotification();
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.of(notification));
+                .thenReturn(Optional.of(notification));
             setupDeviceTokensAndPush(1, true);
 
             // when
@@ -355,7 +355,7 @@ class PushNotificationEventListenerTest {
 
             // then
             ArgumentCaptor<com.personal.marketnote.common.kafka.event.PushNotificationSentEvent> captor =
-                    ArgumentCaptor.forClass(com.personal.marketnote.common.kafka.event.PushNotificationSentEvent.class);
+                ArgumentCaptor.forClass(com.personal.marketnote.common.kafka.event.PushNotificationSentEvent.class);
             verify(publishNotificationSentEventPort).publish(captor.capture());
             com.personal.marketnote.common.kafka.event.PushNotificationSentEvent published = captor.getValue();
             assertThat(published.notificationId()).isEqualTo(NOTIFICATION_ID);
@@ -374,7 +374,7 @@ class PushNotificationEventListenerTest {
             // given
             Notification notification = createPendingNotification();
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.of(notification));
+                .thenReturn(Optional.of(notification));
             when(findNotificationPort.countUnreadByUserId(USER_ID)).thenReturn(5L);
             setupDeviceTokensAndPush(1, true);
 
@@ -383,9 +383,9 @@ class PushNotificationEventListenerTest {
 
             // then
             verify(publishSseEventPort).publish(
-                    eq(USER_ID),
-                    eq(NotificationSseEventType.UNREAD_COUNT_CHANGED),
-                    eq(UnreadCountChangedPayload.of(5L))
+                eq(USER_ID),
+                eq(NotificationSseEventType.UNREAD_COUNT_CHANGED),
+                eq(UnreadCountChangedPayload.of(5L))
             );
         }
 
@@ -395,9 +395,9 @@ class PushNotificationEventListenerTest {
             // given
             Notification notification = createPendingNotification();
             when(findNotificationPort.findActiveById(NOTIFICATION_ID))
-                    .thenReturn(Optional.of(notification));
+                .thenReturn(Optional.of(notification));
             when(findNotificationPort.countUnreadByUserId(USER_ID))
-                    .thenThrow(new RuntimeException("DB 오류"));
+                .thenThrow(new RuntimeException("DB 오류"));
             setupDeviceTokensAndPush(1, true);
 
             // when & then
@@ -409,20 +409,20 @@ class PushNotificationEventListenerTest {
 
     private Notification createPendingNotification() {
         return Notification.from(
-                NotificationSnapshotState.builder()
-                        .id(NOTIFICATION_ID)
-                        .userId(USER_ID)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .title(TITLE)
-                        .body(BODY)
-                        .deliveryChannel(DeliveryChannel.PUSH_ONLY)
-                        .isRead(false)
-                        .landingUrl(LANDING_URL)
-                        .sendStatus(SendStatus.PENDING)
-                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            NotificationSnapshotState.builder()
+                .id(NOTIFICATION_ID)
+                .userId(USER_ID)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title(TITLE)
+                .body(BODY)
+                .deliveryChannel(DeliveryChannel.PUSH_ONLY)
+                .isRead(false)
+                .landingUrl(LANDING_URL)
+                .sendStatus(SendStatus.PENDING)
+                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 
@@ -434,23 +434,23 @@ class PushNotificationEventListenerTest {
         when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
         if (success) {
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.success("msg-id"));
+                .thenReturn(SendPushNotificationResult.success("msg-id"));
         }
     }
 
     private DeviceToken createDeviceToken(Long id, String token, Platform platform) {
         return DeviceToken.from(
-                com.personal.marketnote.notification.domain.device.DeviceTokenSnapshotState.builder()
-                        .id(id)
-                        .userId(USER_ID)
-                        .token(token)
-                        .platform(platform)
-                        .deviceId("device-" + id)
-                        .lastUsedAt(LocalDateTime.now())
-                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            com.personal.marketnote.notification.domain.device.DeviceTokenSnapshotState.builder()
+                .id(id)
+                .userId(USER_ID)
+                .token(token)
+                .platform(platform)
+                .deviceId("device-" + id)
+                .lastUsedAt(LocalDateTime.now())
+                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 }

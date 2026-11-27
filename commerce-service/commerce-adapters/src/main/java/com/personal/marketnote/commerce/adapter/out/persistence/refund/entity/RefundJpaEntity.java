@@ -14,10 +14,10 @@ import lombok.*;
  */
 @Entity
 @Table(name = "refund",
-        indexes = {
-                @Index(name = "idx_refund_order_id", columnList = "order_id"),
-                @Index(name = "idx_refund_payment_id", columnList = "payment_id")
-        })
+    indexes = {
+        @Index(name = "idx_refund_order_id", columnList = "order_id"),
+        @Index(name = "idx_refund_payment_id", columnList = "payment_id")
+    })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
@@ -55,14 +55,14 @@ public class RefundJpaEntity extends BaseEntity {
 
     public static RefundJpaEntity from(Refund refund) {
         return RefundJpaEntity.builder()
-                .paymentId(refund.getPaymentId())
-                .orderId(refund.getOrderId())
-                .refundType(refund.getRefundType())
-                .refundAmount(refund.getRefundAmount().getValue())
-                .cancelReason(refund.getCancelReason())
-                .processedBy(refund.getProcessedBy())
-                .pgRefundKey(refund.getPgRefundKey())
-                .pgRawResponse(refund.getPgRawResponse())
-                .build();
+            .paymentId(refund.getPaymentId())
+            .orderId(refund.getOrderId())
+            .refundType(refund.getRefundType())
+            .refundAmount(refund.getRefundAmount().getValue())
+            .cancelReason(refund.getCancelReason())
+            .processedBy(refund.getProcessedBy())
+            .pgRefundKey(refund.getPgRefundKey())
+            .pgRawResponse(refund.getPgRawResponse())
+            .build();
     }
 }

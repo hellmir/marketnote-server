@@ -65,15 +65,15 @@ class SyncFulfillmentStockUseCaseTest {
 
     private FulfillmentStockInfoResult buildStockInfo(String customerProductCode, int availableStock) {
         return FulfillmentStockInfoResult.builder()
-                .warehouseCode("WH001")
-                .productCode("GOD001")
-                .customerProductCode(customerProductCode)
-                .productName("상품명")
-                .stockQuantity(availableStock)
-                .defectiveStockQuantity(0)
-                .availableStockQuantity(availableStock)
-                .goodsSerialNumbers(List.of())
-                .build();
+            .warehouseCode("WH001")
+            .productCode("GOD001")
+            .customerProductCode(customerProductCode)
+            .productName("상품명")
+            .stockQuantity(availableStock)
+            .defectiveStockQuantity(0)
+            .availableStockQuantity(availableStock)
+            .goodsSerialNumbers(List.of())
+            .build();
     }
 
     @Nested
@@ -83,16 +83,16 @@ class SyncFulfillmentStockUseCaseTest {
         @DisplayName("command가 null이면 FulfillmentQueryParameterNoValueException이 발생한다")
         void shouldThrowWhenCommandIsNull() {
             assertThatThrownBy(() -> service.sync(null))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
         @DisplayName("customerCode가 없으면 FulfillmentQueryParameterNoValueException이 발생한다")
         void shouldThrowWhenCustomerCodeIsNull() {
             SyncFulfillmentStockCommand command =
-                    SyncFulfillmentStockCommand.of(null, List.of(AUTO_GEN_FASSTO_CODE));
+                SyncFulfillmentStockCommand.of(null, List.of(AUTO_GEN_FASSTO_CODE));
             assertThatThrownBy(() -> service.sync(command))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
@@ -100,16 +100,16 @@ class SyncFulfillmentStockUseCaseTest {
         void shouldThrowWhenFasstoProductCodesIsNull() {
             SyncFulfillmentStockCommand command = SyncFulfillmentStockCommand.of("CUST001", null);
             assertThatThrownBy(() -> service.sync(command))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
         @DisplayName("fasstoProductCodes가 모두 blank이면 FulfillmentQueryParameterNoValueException이 발생한다")
         void shouldThrowWhenAllFasstoProductCodesAreBlank() {
             SyncFulfillmentStockCommand command =
-                    SyncFulfillmentStockCommand.of("CUST001", Arrays.asList(null, "  ", ""));
+                SyncFulfillmentStockCommand.of("CUST001", Arrays.asList(null, "  ", ""));
             assertThatThrownBy(() -> service.sync(command))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
     }
 
@@ -123,24 +123,24 @@ class SyncFulfillmentStockUseCaseTest {
             // given
             UUID productKey = UUID.randomUUID();
             when(findFulfillmentGoodsRegistrationPort.findProductKeyByFasstoProductCode(AUTO_GEN_FASSTO_CODE))
-                    .thenReturn(Optional.of(productKey));
+                .thenReturn(Optional.of(productKey));
             when(getFulfillmentStockDetailUseCase.getStockDetail(any(GetFulfillmentStockDetailCommand.class)))
-                    .thenReturn(GetFulfillmentStocksResult.of(1, List.of(buildStockInfo(AUTO_GEN_FASSTO_CODE, 5))));
+                .thenReturn(GetFulfillmentStocksResult.of(1, List.of(buildStockInfo(AUTO_GEN_FASSTO_CODE, 5))));
             SyncFulfillmentStockCommand command =
-                    SyncFulfillmentStockCommand.of("CUST001", List.of(AUTO_GEN_FASSTO_CODE));
+                SyncFulfillmentStockCommand.of("CUST001", List.of(AUTO_GEN_FASSTO_CODE));
 
             // when
             service.sync(command);
 
             // then
             ArgumentCaptor<GetFulfillmentStockDetailCommand> captor =
-                    ArgumentCaptor.forClass(GetFulfillmentStockDetailCommand.class);
+                ArgumentCaptor.forClass(GetFulfillmentStockDetailCommand.class);
             verify(getFulfillmentStockDetailUseCase).getStockDetail(captor.capture());
             assertThat(captor.getValue().fasstoProductCode()).isEqualTo(AUTO_GEN_FASSTO_CODE);
             assertThat(captor.getValue().productKey()).isEqualTo(productKey);
 
             ArgumentCaptor<FulfillmentInventorySyncedEvent> eventCaptor =
-                    ArgumentCaptor.forClass(FulfillmentInventorySyncedEvent.class);
+                ArgumentCaptor.forClass(FulfillmentInventorySyncedEvent.class);
             verify(publishFulfillmentInventorySyncedEventPort).publish(eventCaptor.capture());
             FulfillmentInventorySyncedEvent.InventoryItem item = eventCaptor.getValue().inventories().get(0);
             assertThat(item.productKey()).isEqualTo(productKey);
@@ -153,24 +153,24 @@ class SyncFulfillmentStockUseCaseTest {
             // given
             UUID productKey = UUID.randomUUID();
             when(findFulfillmentGoodsRegistrationPort.findProductKeyByFasstoProductCode(IMPORT_FASSTO_CODE))
-                    .thenReturn(Optional.of(productKey));
+                .thenReturn(Optional.of(productKey));
             when(getFulfillmentStockDetailUseCase.getStockDetail(any(GetFulfillmentStockDetailCommand.class)))
-                    .thenReturn(GetFulfillmentStocksResult.of(1, List.of(buildStockInfo(IMPORT_FASSTO_CODE, 7))));
+                .thenReturn(GetFulfillmentStocksResult.of(1, List.of(buildStockInfo(IMPORT_FASSTO_CODE, 7))));
             SyncFulfillmentStockCommand command =
-                    SyncFulfillmentStockCommand.of("CUST001", List.of(IMPORT_FASSTO_CODE));
+                SyncFulfillmentStockCommand.of("CUST001", List.of(IMPORT_FASSTO_CODE));
 
             // when
             service.sync(command);
 
             // then
             ArgumentCaptor<GetFulfillmentStockDetailCommand> captor =
-                    ArgumentCaptor.forClass(GetFulfillmentStockDetailCommand.class);
+                ArgumentCaptor.forClass(GetFulfillmentStockDetailCommand.class);
             verify(getFulfillmentStockDetailUseCase).getStockDetail(captor.capture());
             assertThat(captor.getValue().fasstoProductCode()).isEqualTo(IMPORT_FASSTO_CODE);
             assertThat(captor.getValue().productKey()).isEqualTo(productKey);
 
             ArgumentCaptor<FulfillmentInventorySyncedEvent> eventCaptor =
-                    ArgumentCaptor.forClass(FulfillmentInventorySyncedEvent.class);
+                ArgumentCaptor.forClass(FulfillmentInventorySyncedEvent.class);
             verify(publishFulfillmentInventorySyncedEventPort).publish(eventCaptor.capture());
             FulfillmentInventorySyncedEvent.InventoryItem item = eventCaptor.getValue().inventories().get(0);
             assertThat(item.productKey()).isEqualTo(productKey);
@@ -182,9 +182,9 @@ class SyncFulfillmentStockUseCaseTest {
         void shouldSkipWhenProductKeyNotResolved() {
             // given
             when(findFulfillmentGoodsRegistrationPort.findProductKeyByFasstoProductCode("UNKNOWN"))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
             SyncFulfillmentStockCommand command =
-                    SyncFulfillmentStockCommand.of("CUST001", List.of("UNKNOWN"));
+                SyncFulfillmentStockCommand.of("CUST001", List.of("UNKNOWN"));
 
             // when
             service.sync(command);
@@ -202,7 +202,7 @@ class SyncFulfillmentStockUseCaseTest {
         @DisplayName("command가 null이면 FulfillmentQueryParameterNoValueException이 발생한다")
         void shouldThrowWhenCommandIsNull() {
             assertThatThrownBy(() -> service.syncAll(null))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
@@ -210,7 +210,7 @@ class SyncFulfillmentStockUseCaseTest {
         void shouldThrowWhenCustomerCodeIsNull() {
             SyncFulfillmentAllStockCommand command = SyncFulfillmentAllStockCommand.of(null);
             assertThatThrownBy(() -> service.syncAll(command))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
     }
 
@@ -224,9 +224,9 @@ class SyncFulfillmentStockUseCaseTest {
             // given
             UUID productKey = UUID.randomUUID();
             when(findFulfillmentGoodsRegistrationPort.findProductKeyByFasstoProductCode(AUTO_GEN_FASSTO_CODE))
-                    .thenReturn(Optional.of(productKey));
+                .thenReturn(Optional.of(productKey));
             when(getFulfillmentStocksUseCase.getStocks(any(GetFulfillmentStocksCommand.class)))
-                    .thenReturn(GetFulfillmentStocksResult.of(1, List.of(buildStockInfo(AUTO_GEN_FASSTO_CODE, 3))));
+                .thenReturn(GetFulfillmentStocksResult.of(1, List.of(buildStockInfo(AUTO_GEN_FASSTO_CODE, 3))));
             SyncFulfillmentAllStockCommand command = SyncFulfillmentAllStockCommand.of("CUST001");
 
             // when
@@ -234,7 +234,7 @@ class SyncFulfillmentStockUseCaseTest {
 
             // then
             ArgumentCaptor<FulfillmentInventorySyncedEvent> captor =
-                    ArgumentCaptor.forClass(FulfillmentInventorySyncedEvent.class);
+                ArgumentCaptor.forClass(FulfillmentInventorySyncedEvent.class);
             verify(publishFulfillmentInventorySyncedEventPort).publish(captor.capture());
             FulfillmentInventorySyncedEvent.InventoryItem item = captor.getValue().inventories().get(0);
             assertThat(item.productKey()).isEqualTo(productKey);
@@ -247,9 +247,9 @@ class SyncFulfillmentStockUseCaseTest {
             // given
             UUID productKey = UUID.randomUUID();
             when(findFulfillmentGoodsRegistrationPort.findProductKeyByFasstoProductCode(IMPORT_FASSTO_CODE))
-                    .thenReturn(Optional.of(productKey));
+                .thenReturn(Optional.of(productKey));
             when(getFulfillmentStocksUseCase.getStocks(any(GetFulfillmentStocksCommand.class)))
-                    .thenReturn(GetFulfillmentStocksResult.of(1, List.of(buildStockInfo(IMPORT_FASSTO_CODE, 11))));
+                .thenReturn(GetFulfillmentStocksResult.of(1, List.of(buildStockInfo(IMPORT_FASSTO_CODE, 11))));
             SyncFulfillmentAllStockCommand command = SyncFulfillmentAllStockCommand.of("CUST001");
 
             // when
@@ -257,7 +257,7 @@ class SyncFulfillmentStockUseCaseTest {
 
             // then
             ArgumentCaptor<FulfillmentInventorySyncedEvent> captor =
-                    ArgumentCaptor.forClass(FulfillmentInventorySyncedEvent.class);
+                ArgumentCaptor.forClass(FulfillmentInventorySyncedEvent.class);
             verify(publishFulfillmentInventorySyncedEventPort).publish(captor.capture());
             FulfillmentInventorySyncedEvent.InventoryItem item = captor.getValue().inventories().get(0);
             assertThat(item.productKey()).isEqualTo(productKey);
@@ -270,12 +270,12 @@ class SyncFulfillmentStockUseCaseTest {
             // given
             UUID productKey = UUID.randomUUID();
             when(findFulfillmentGoodsRegistrationPort.findProductKeyByFasstoProductCode(IMPORT_FASSTO_CODE))
-                    .thenReturn(Optional.of(productKey));
+                .thenReturn(Optional.of(productKey));
             when(getFulfillmentStocksUseCase.getStocks(any(GetFulfillmentStocksCommand.class)))
-                    .thenReturn(GetFulfillmentStocksResult.of(2, List.of(
-                            buildStockInfo(IMPORT_FASSTO_CODE, 3),
-                            buildStockInfo(IMPORT_FASSTO_CODE, 5)
-                    )));
+                .thenReturn(GetFulfillmentStocksResult.of(2, List.of(
+                    buildStockInfo(IMPORT_FASSTO_CODE, 3),
+                    buildStockInfo(IMPORT_FASSTO_CODE, 5)
+                )));
             SyncFulfillmentAllStockCommand command = SyncFulfillmentAllStockCommand.of("CUST001");
 
             // when
@@ -283,7 +283,7 @@ class SyncFulfillmentStockUseCaseTest {
 
             // then
             ArgumentCaptor<FulfillmentInventorySyncedEvent> captor =
-                    ArgumentCaptor.forClass(FulfillmentInventorySyncedEvent.class);
+                ArgumentCaptor.forClass(FulfillmentInventorySyncedEvent.class);
             verify(publishFulfillmentInventorySyncedEventPort).publish(captor.capture());
             FulfillmentInventorySyncedEvent.InventoryItem item = captor.getValue().inventories().get(0);
             assertThat(item.productKey()).isEqualTo(productKey);
@@ -295,9 +295,9 @@ class SyncFulfillmentStockUseCaseTest {
         void shouldSkipUnmatchedRows() {
             // given
             when(findFulfillmentGoodsRegistrationPort.findProductKeyByFasstoProductCode("UNKNOWN"))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
             when(getFulfillmentStocksUseCase.getStocks(any(GetFulfillmentStocksCommand.class)))
-                    .thenReturn(GetFulfillmentStocksResult.of(1, List.of(buildStockInfo("UNKNOWN", 9))));
+                .thenReturn(GetFulfillmentStocksResult.of(1, List.of(buildStockInfo("UNKNOWN", 9))));
             SyncFulfillmentAllStockCommand command = SyncFulfillmentAllStockCommand.of("CUST001");
 
             // when
@@ -312,7 +312,7 @@ class SyncFulfillmentStockUseCaseTest {
         void shouldNotPublishWhenStocksEmpty() {
             // given
             when(getFulfillmentStocksUseCase.getStocks(any(GetFulfillmentStocksCommand.class)))
-                    .thenReturn(GetFulfillmentStocksResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentStocksResult.of(0, List.of()));
             SyncFulfillmentAllStockCommand command = SyncFulfillmentAllStockCommand.of("CUST001");
 
             // when

@@ -31,26 +31,26 @@ public class ShippingTracker {
             throw new FulfillmentQueryParameterNoValueException("buyerId");
         }
         return ShippingTracker.builder()
-                .orderId(state.getOrderId())
-                .buyerId(state.getBuyerId())
-                .shippingStatus(ShippingStatus.PREPARING)
-                .pollingActive(true)
-                .build();
+            .orderId(state.getOrderId())
+            .buyerId(state.getBuyerId())
+            .shippingStatus(ShippingStatus.PREPARING)
+            .pollingActive(true)
+            .build();
     }
 
     public static ShippingTracker from(ShippingTrackerSnapshotState state) {
         return ShippingTracker.builder()
-                .id(state.getId())
-                .orderId(state.getOrderId())
-                .buyerId(state.getBuyerId())
-                .trackingNumber(state.getTrackingNumber())
-                .carrierCode(state.getCarrierCode())
-                .shippingStatus(state.getShippingStatus())
-                .pollingActive(state.isPollingActive())
-                .lastPolledAt(state.getLastPolledAt())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .orderId(state.getOrderId())
+            .buyerId(state.getBuyerId())
+            .trackingNumber(state.getTrackingNumber())
+            .carrierCode(state.getCarrierCode())
+            .shippingStatus(state.getShippingStatus())
+            .pollingActive(state.isPollingActive())
+            .lastPolledAt(state.getLastPolledAt())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public void startShipping(TrackingNumber trackingNumber, CarrierCode carrierCode) {

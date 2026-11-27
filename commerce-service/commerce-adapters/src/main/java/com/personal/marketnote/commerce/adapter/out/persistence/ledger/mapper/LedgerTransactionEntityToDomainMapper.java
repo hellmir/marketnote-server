@@ -12,13 +12,13 @@ public class LedgerTransactionEntityToDomainMapper {
 
     public static LedgerTransaction toDomain(LedgerTransactionJpaEntity entity) {
         return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
-                .id(entity.getId())
-                .transactionType(entity.getTransactionType())
-                .targetType(entity.getTargetType())
-                .targetId(entity.getTargetId())
-                .description(entity.getDescription())
-                .idempotencyKey(IdempotencyKey.of(entity.getIdempotencyKey()))
-                .createdAt(entity.getCreatedAt())
-                .build());
+            .id(entity.getId())
+            .transactionType(entity.getTransactionType())
+            .targetType(entity.getTargetType())
+            .targetId(entity.getTargetId())
+            .description(entity.getDescription())
+            .idempotencyKey(IdempotencyKey.of(entity.getIdempotencyKey()))
+            .createdAt(entity.getCreatedAt())
+            .build());
     }
 }

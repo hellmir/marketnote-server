@@ -55,22 +55,22 @@ public class FulfillmentWarehousingController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RegisterFulfillmentWarehousingApiDocs
     public ResponseEntity<BaseResponse<RegisterFulfillmentWarehousingResponse>> registerWarehousing(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @Valid @RequestBody List<RegisterFulfillmentWarehousingRequest> request
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @Valid @RequestBody List<RegisterFulfillmentWarehousingRequest> request
     ) {
         RegisterFulfillmentWarehousingResult result = registerFulfillmentWarehousingUseCase.registerWarehousing(
-                FulfillmentWarehousingRequestToCommandMapper.mapToRegisterCommand(customerCode, accessToken, request)
+            FulfillmentWarehousingRequestToCommandMapper.mapToRegisterCommand(customerCode, accessToken, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterFulfillmentWarehousingResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 상품 입고 요청 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterFulfillmentWarehousingResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 상품 입고 요청 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -92,34 +92,34 @@ public class FulfillmentWarehousingController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentWarehousingApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentWarehousingResponse>> getWarehousing(
-            @PathVariable String customerCode,
-            @PathVariable String startDate,
-            @PathVariable String endDate,
-            @RequestHeader("accessToken") String accessToken,
-            @RequestParam(required = false) String inWay,
-            @RequestParam(required = false) String ordNo,
-            @RequestParam(required = false) String wrkStat
+        @PathVariable String customerCode,
+        @PathVariable String startDate,
+        @PathVariable String endDate,
+        @RequestHeader("accessToken") String accessToken,
+        @RequestParam(required = false) String inWay,
+        @RequestParam(required = false) String ordNo,
+        @RequestParam(required = false) String wrkStat
     ) {
         GetFulfillmentWarehousingResult result = getFulfillmentWarehousingUseCase.getWarehousing(
-                FulfillmentWarehousingRequestToCommandMapper.mapToWarehousingQuery(
-                        customerCode,
-                        accessToken,
-                        startDate,
-                        endDate,
-                        inWay,
-                        ordNo,
-                        wrkStat
-                )
+            FulfillmentWarehousingRequestToCommandMapper.mapToWarehousingQuery(
+                customerCode,
+                accessToken,
+                startDate,
+                endDate,
+                inWay,
+                ordNo,
+                wrkStat
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentWarehousingResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 상품 입고 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentWarehousingResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 상품 입고 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -138,28 +138,28 @@ public class FulfillmentWarehousingController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentWarehousingDetailApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentWarehousingDetailResponse>> getWarehousingDetail(
-            @PathVariable String customerCode,
-            @PathVariable String slipNo,
-            @RequestHeader("accessToken") String accessToken,
-            @RequestParam(required = false) String ordNo
+        @PathVariable String customerCode,
+        @PathVariable String slipNo,
+        @RequestHeader("accessToken") String accessToken,
+        @RequestParam(required = false) String ordNo
     ) {
         GetFulfillmentWarehousingDetailResult result = getFulfillmentWarehousingDetailUseCase.getWarehousingDetail(
-                FulfillmentWarehousingRequestToCommandMapper.mapToWarehousingDetailCommand(
-                        customerCode,
-                        accessToken,
-                        slipNo,
-                        ordNo
-                )
+            FulfillmentWarehousingRequestToCommandMapper.mapToWarehousingDetailCommand(
+                customerCode,
+                accessToken,
+                slipNo,
+                ordNo
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentWarehousingDetailResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 상품 입고 상세 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentWarehousingDetailResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 상품 입고 상세 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -178,28 +178,28 @@ public class FulfillmentWarehousingController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentWarehousingInspecDetailApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentWarehousingInspecDetailResponse>> getWarehousingInspecDetail(
-            @PathVariable String customerCode,
-            @PathVariable String slipNo,
-            @PathVariable String whCd,
-            @RequestHeader("accessToken") String accessToken
+        @PathVariable String customerCode,
+        @PathVariable String slipNo,
+        @PathVariable String whCd,
+        @RequestHeader("accessToken") String accessToken
     ) {
         GetFulfillmentWarehousingInspecDetailResult result = getFulfillmentWarehousingInspecDetailUseCase.getWarehousingInspecDetail(
-                FulfillmentWarehousingRequestToCommandMapper.mapToWarehousingInspecDetailCommand(
-                        customerCode,
-                        accessToken,
-                        slipNo,
-                        whCd
-                )
+            FulfillmentWarehousingRequestToCommandMapper.mapToWarehousingInspecDetailCommand(
+                customerCode,
+                accessToken,
+                slipNo,
+                whCd
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentWarehousingInspecDetailResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 입고 검수 상세 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentWarehousingInspecDetailResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 입고 검수 상세 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -218,28 +218,28 @@ public class FulfillmentWarehousingController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentWarehousingAbnormalApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentWarehousingAbnormalResponse>> getWarehousingAbnormal(
-            @PathVariable String customerCode,
-            @PathVariable String whCd,
-            @PathVariable String slipNo,
-            @RequestHeader("accessToken") String accessToken
+        @PathVariable String customerCode,
+        @PathVariable String whCd,
+        @PathVariable String slipNo,
+        @RequestHeader("accessToken") String accessToken
     ) {
         GetFulfillmentWarehousingAbnormalResult result = getFulfillmentWarehousingAbnormalUseCase.getWarehousingAbnormal(
-                FulfillmentWarehousingRequestToCommandMapper.mapToWarehousingAbnormalCommand(
-                        customerCode,
-                        accessToken,
-                        whCd,
-                        slipNo
-                )
+            FulfillmentWarehousingRequestToCommandMapper.mapToWarehousingAbnormalCommand(
+                customerCode,
+                accessToken,
+                whCd,
+                slipNo
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentWarehousingAbnormalResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 비정상 입고 상품 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentWarehousingAbnormalResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 비정상 입고 상품 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -260,32 +260,32 @@ public class FulfillmentWarehousingController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentWarehousingAbnormalImageApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentWarehousingAbnormalImageResponse>> getWarehousingAbnormalImage(
-            @PathVariable String slipNo,
-            @PathVariable String godCd,
-            @PathVariable String goodsSerialNo,
-            @PathVariable String fileSeq,
-            @PathVariable String imgNo,
-            @RequestHeader("accessToken") String accessToken
+        @PathVariable String slipNo,
+        @PathVariable String godCd,
+        @PathVariable String goodsSerialNo,
+        @PathVariable String fileSeq,
+        @PathVariable String imgNo,
+        @RequestHeader("accessToken") String accessToken
     ) {
         GetFulfillmentWarehousingAbnormalImageResult result = getFulfillmentWarehousingAbnormalImageUseCase.getWarehousingAbnormalImage(
-                FulfillmentWarehousingRequestToCommandMapper.mapToWarehousingAbnormalImageCommand(
-                        accessToken,
-                        slipNo,
-                        godCd,
-                        goodsSerialNo,
-                        fileSeq,
-                        imgNo
-                )
+            FulfillmentWarehousingRequestToCommandMapper.mapToWarehousingAbnormalImageCommand(
+                accessToken,
+                slipNo,
+                godCd,
+                goodsSerialNo,
+                fileSeq,
+                imgNo
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentWarehousingAbnormalImageResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 비정상 입고 상품 이미지 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentWarehousingAbnormalImageResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 비정상 입고 상품 이미지 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -303,22 +303,22 @@ public class FulfillmentWarehousingController {
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdateFulfillmentWarehousingApiDocs
     public ResponseEntity<BaseResponse<UpdateFulfillmentWarehousingResponse>> updateWarehousing(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @Valid @RequestBody List<UpdateFulfillmentWarehousingRequest> request
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @Valid @RequestBody List<UpdateFulfillmentWarehousingRequest> request
     ) {
         UpdateFulfillmentWarehousingResult result = updateFulfillmentWarehousingUseCase.updateWarehousing(
-                FulfillmentWarehousingRequestToCommandMapper.mapToUpdateCommand(customerCode, accessToken, request)
+            FulfillmentWarehousingRequestToCommandMapper.mapToUpdateCommand(customerCode, accessToken, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        UpdateFulfillmentWarehousingResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 상품 입고 수정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                UpdateFulfillmentWarehousingResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 상품 입고 수정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

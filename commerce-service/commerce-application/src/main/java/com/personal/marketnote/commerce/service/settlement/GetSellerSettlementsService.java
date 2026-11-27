@@ -42,7 +42,7 @@ public class GetSellerSettlementsService implements GetSellerSettlementsUseCase 
     private List<Settlement> resolveSellerSettlements(GetSellerSettlementsQuery query) {
         if (FormatValidator.hasValue(query.month())) {
             Optional<Settlement> settlement = findSettlementPort.findBySellerIdAndYearAndMonth(
-                    query.sellerId(), query.year(), query.month()
+                query.sellerId(), query.year(), query.month()
             );
             return settlement.map(List::of).orElse(List.of());
         }

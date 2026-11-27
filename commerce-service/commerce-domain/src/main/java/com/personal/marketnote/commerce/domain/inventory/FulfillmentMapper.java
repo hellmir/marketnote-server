@@ -14,19 +14,19 @@ public class FulfillmentMapper {
 
     public static FulfillmentMapper from(FulfillmentMapperCreateState state) {
         return FulfillmentMapper.builder()
-                .productId(state.getProductId())
-                .wmsKey(state.getWmsKey())
-                .wmsProductKey(state.getWmsProductKey())
-                .stock(state.getStock())
-                .build();
+            .productId(state.getProductId())
+            .wmsKey(state.getWmsKey())
+            .wmsProductKey(state.getWmsProductKey())
+            .stock(state.getStock())
+            .build();
     }
 
     public static FulfillmentMapper from(FulfillmentMapperSnapshotState state) {
         return FulfillmentMapper.builder()
-                .productId(state.getProductId())
-                .wmsKey(state.getWmsKey())
-                .wmsProductKey(state.getWmsProductKey())
-                .stock(state.getStock())
-                .build();
+            .productId(state.getProductId())
+            .wmsKey(state.getWmsKey())
+            .wmsProductKey(state.getWmsProductKey())
+            .stock(state.getStock())
+            .build();
     }
 }

@@ -26,14 +26,14 @@ public enum ReferralBonusTier {
 
     public static Optional<ReferralBonusTier> findNewlyAchievedTier(long count) {
         return Arrays.stream(values())
-                .filter(tier -> tier.requiredCount == count)
-                .findFirst();
+            .filter(tier -> tier.requiredCount == count)
+            .findFirst();
     }
 
     public static List<ReferralBonusTier> findAllAchievedTiers(long count) {
         return Arrays.stream(values())
-                .filter(tier -> tier.isAchieved(count))
-                .toList();
+            .filter(tier -> tier.isAchieved(count))
+            .toList();
     }
 
     public static boolean isMaxReached(long count) {

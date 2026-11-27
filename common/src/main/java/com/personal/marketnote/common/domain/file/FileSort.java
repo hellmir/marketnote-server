@@ -25,9 +25,9 @@ public enum FileSort {
 
     public static FileSort from(String targetValue) throws IllegalArgumentException {
         return Arrays.stream(FileSort.values())
-                .filter(fileSort -> FormatValidator.equals(fileSort.name(), targetValue))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid file sort: " + targetValue));
+            .filter(fileSort -> FormatValidator.equals(fileSort.name(), targetValue))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Invalid file sort: " + targetValue));
     }
 
     public boolean isCatalogImage() {
@@ -40,8 +40,8 @@ public enum FileSort {
 
     public boolean isProductImage() {
         return this == FileSort.PRODUCT_CATALOG_IMAGE
-                || this == FileSort.PRODUCT_REPRESENTATIVE_IMAGE
-                || this == FileSort.PRODUCT_CONTENT_IMAGE;
+            || this == FileSort.PRODUCT_REPRESENTATIVE_IMAGE
+            || this == FileSort.PRODUCT_CONTENT_IMAGE;
     }
 
     public boolean isAdminOnly() {

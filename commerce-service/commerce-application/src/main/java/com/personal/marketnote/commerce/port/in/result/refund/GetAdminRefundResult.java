@@ -14,16 +14,16 @@ import java.time.LocalDateTime;
  */
 @Builder
 public record GetAdminRefundResult(
-        Long id,
-        Long paymentId,
-        Long orderId,
-        RefundType refundType,
-        Long refundAmount,
-        String cancelReason,
-        String processedBy,
-        String pgRefundKey,
-        String pgRawResponse,
-        LocalDateTime createdAt
+    Long id,
+    Long paymentId,
+    Long orderId,
+    RefundType refundType,
+    Long refundAmount,
+    String cancelReason,
+    String processedBy,
+    String pgRefundKey,
+    String pgRawResponse,
+    LocalDateTime createdAt
 ) {
     /**
      * 환불 도메인 객체로부터 조회 결과를 생성한다.
@@ -33,16 +33,16 @@ public record GetAdminRefundResult(
      */
     public static GetAdminRefundResult from(Refund refund) {
         return GetAdminRefundResult.builder()
-                .id(refund.getId())
-                .paymentId(refund.getPaymentId())
-                .orderId(refund.getOrderId())
-                .refundType(refund.getRefundType())
-                .refundAmount(refund.getRefundAmount().getValue())
-                .cancelReason(refund.getCancelReason())
-                .processedBy(refund.getProcessedBy())
-                .pgRefundKey(refund.getPgRefundKey())
-                .pgRawResponse(refund.getPgRawResponse())
-                .createdAt(refund.getCreatedAt())
-                .build();
+            .id(refund.getId())
+            .paymentId(refund.getPaymentId())
+            .orderId(refund.getOrderId())
+            .refundType(refund.getRefundType())
+            .refundAmount(refund.getRefundAmount().getValue())
+            .cancelReason(refund.getCancelReason())
+            .processedBy(refund.getProcessedBy())
+            .pgRefundKey(refund.getPgRefundKey())
+            .pgRawResponse(refund.getPgRawResponse())
+            .createdAt(refund.getCreatedAt())
+            .build();
     }
 }

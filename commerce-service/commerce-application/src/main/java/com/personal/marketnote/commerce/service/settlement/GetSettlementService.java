@@ -26,10 +26,10 @@ public class GetSettlementService implements GetSettlementUseCase {
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public GetSettlementResult getSettlement(Long id) {
         Settlement settlement = findSettlementPort.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("정산을 찾을 수 없습니다. settlementId={}", id);
-                    return new SettlementNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("정산을 찾을 수 없습니다. settlementId={}", id);
+                return new SettlementNotFoundException();
+            });
         return GetSettlementResult.from(settlement);
     }
 

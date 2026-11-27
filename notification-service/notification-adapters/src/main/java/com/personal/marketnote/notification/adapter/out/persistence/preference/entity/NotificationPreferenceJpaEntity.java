@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notification_preference", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_notification_preference_user_type", columnNames = {"user_id", "notification_type"})
+    @UniqueConstraint(name = "uk_notification_preference_user_type", columnNames = {"user_id", "notification_type"})
 }, indexes = {
-        @Index(name = "idx_notification_preference_user_id", columnList = "user_id")
+    @Index(name = "idx_notification_preference_user_id", columnList = "user_id")
 })
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -37,11 +37,11 @@ public class NotificationPreferenceJpaEntity extends BaseGeneralEntity {
 
     public static NotificationPreferenceJpaEntity from(NotificationPreference preference) {
         return NotificationPreferenceJpaEntity.builder()
-                .userId(preference.getUserId())
-                .notificationType(preference.getNotificationType())
-                .enabled(preference.isEnabled())
-                .consentedAt(preference.getConsentedAt())
-                .build();
+            .userId(preference.getUserId())
+            .notificationType(preference.getNotificationType())
+            .enabled(preference.isEnabled())
+            .consentedAt(preference.getConsentedAt())
+            .build();
     }
 
     public void updateFrom(NotificationPreference preference) {

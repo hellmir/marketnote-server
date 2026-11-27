@@ -34,7 +34,7 @@ class PopularitySchedulerTest {
     void updateWeeklyPopularity_unexpectedException_doesNotPropagate() {
         // given
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(updatePopularityUseCase).updateWeeklyPopularity();
+            .when(updatePopularityUseCase).updateWeeklyPopularity();
 
         // when & then
         popularityScheduler.updateWeeklyPopularity();

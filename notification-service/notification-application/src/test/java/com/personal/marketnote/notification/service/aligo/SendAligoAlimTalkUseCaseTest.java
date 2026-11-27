@@ -59,34 +59,34 @@ class SendAligoAlimTalkUseCaseTest {
         AligoTemplate template = createApprovedTemplate(templateCode, "안녕하세요 #{이름}님, #{상품명}을 구매해주셔서 감사합니다.");
 
         SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                templateCode,
-                "01012345678",
-                Map.of("이름", "홍길동", "상품명", "운동화"),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
-                null
+            templateCode,
+            "01012345678",
+            Map.of("이름", "홍길동", "상품명", "운동화"),
+            List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
+            null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
         when(saveAligoMessagePort.save(any(AligoMessage.class))).thenAnswer(invocation -> {
             AligoMessage msg = invocation.getArgument(0);
             return AligoMessage.from(AligoMessageSnapshotState.builder()
-                    .id(100L)
-                    .senderKey(msg.getSenderKey())
-                    .templateCode(msg.getTemplateCode())
-                    .sender(msg.getSender())
-                    .messageType(msg.getMessageType())
-                    .content(msg.getContent())
-                    .title(msg.getTitle())
-                    .buttons(msg.getButtons())
-                    .messageStatus(AligoMessageStatus.REQUESTED)
-                    .successCount(0)
-                    .failCount(0)
-                    .requestedAt(msg.getRequestedAt())
-                    .status(EntityStatus.ACTIVE)
-                    .build());
+                .id(100L)
+                .senderKey(msg.getSenderKey())
+                .templateCode(msg.getTemplateCode())
+                .sender(msg.getSender())
+                .messageType(msg.getMessageType())
+                .content(msg.getContent())
+                .title(msg.getTitle())
+                .buttons(msg.getButtons())
+                .messageStatus(AligoMessageStatus.REQUESTED)
+                .successCount(0)
+                .failCount(0)
+                .requestedAt(msg.getRequestedAt())
+                .status(EntityStatus.ACTIVE)
+                .build());
         });
         when(sendAligoAlimTalkExternalPort.send(any(AligoMessage.class)))
-                .thenReturn(new AligoAlimTalkSendResponse("MID_001", 1, 0, null));
+            .thenReturn(new AligoAlimTalkSendResponse("MID_001", 1, 0, null));
 
         // when
         SendAligoAlimTalkResult result = sendAligoAlimTalkService.sendAlimTalk(command);
@@ -110,18 +110,18 @@ class SendAligoAlimTalkUseCaseTest {
         AligoTemplate template = createTemplateWithInspStatus(templateCode, "REG");
 
         SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                templateCode,
-                "01012345678",
-                Map.of(),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트")),
-                null
+            templateCode,
+            "01012345678",
+            Map.of(),
+            List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트")),
+            null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
 
         // when & then
         assertThatThrownBy(() -> sendAligoAlimTalkService.sendAlimTalk(command))
-                .isInstanceOf(AligoTemplateMismatchException.class);
+            .isInstanceOf(AligoTemplateMismatchException.class);
 
         verifyNoInteractions(saveAligoMessagePort);
         verifyNoInteractions(sendAligoAlimTalkExternalPort);
@@ -136,18 +136,18 @@ class SendAligoAlimTalkUseCaseTest {
         AligoTemplate template = createApprovedTemplate(templateCode, "안녕하세요 #{이름}님, #{주문번호} 확인해주세요.");
 
         SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                templateCode,
-                "01012345678",
-                Map.of("이름", "홍길동"),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
-                null
+            templateCode,
+            "01012345678",
+            Map.of("이름", "홍길동"),
+            List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
+            null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
 
         // when & then
         assertThatThrownBy(() -> sendAligoAlimTalkService.sendAlimTalk(command))
-                .isInstanceOf(InvalidAligoTemplateException.class);
+            .isInstanceOf(InvalidAligoTemplateException.class);
 
         verifyNoInteractions(saveAligoMessagePort);
         verifyNoInteractions(sendAligoAlimTalkExternalPort);
@@ -161,37 +161,37 @@ class SendAligoAlimTalkUseCaseTest {
         AligoTemplate template = createApprovedTemplate(templateCode, "알림 내용입니다.");
 
         SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                templateCode,
-                "01012345678",
-                Map.of(),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트")),
-                null
+            templateCode,
+            "01012345678",
+            Map.of(),
+            List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트")),
+            null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
         when(saveAligoMessagePort.save(any(AligoMessage.class))).thenAnswer(invocation -> {
             AligoMessage msg = invocation.getArgument(0);
             return AligoMessage.from(AligoMessageSnapshotState.builder()
-                    .id(200L)
-                    .senderKey(msg.getSenderKey())
-                    .templateCode(msg.getTemplateCode())
-                    .sender(msg.getSender())
-                    .messageType(msg.getMessageType())
-                    .content(msg.getContent())
-                    .title(msg.getTitle())
-                    .messageStatus(AligoMessageStatus.REQUESTED)
-                    .successCount(0)
-                    .failCount(0)
-                    .requestedAt(msg.getRequestedAt())
-                    .status(EntityStatus.ACTIVE)
-                    .build());
+                .id(200L)
+                .senderKey(msg.getSenderKey())
+                .templateCode(msg.getTemplateCode())
+                .sender(msg.getSender())
+                .messageType(msg.getMessageType())
+                .content(msg.getContent())
+                .title(msg.getTitle())
+                .messageStatus(AligoMessageStatus.REQUESTED)
+                .successCount(0)
+                .failCount(0)
+                .requestedAt(msg.getRequestedAt())
+                .status(EntityStatus.ACTIVE)
+                .build());
         });
         when(sendAligoAlimTalkExternalPort.send(any(AligoMessage.class)))
-                .thenThrow(new AligoInsufficientPointException());
+            .thenThrow(new AligoInsufficientPointException());
 
         // when & then
         assertThatThrownBy(() -> sendAligoAlimTalkService.sendAlimTalk(command))
-                .isInstanceOf(AligoInsufficientPointException.class);
+            .isInstanceOf(AligoInsufficientPointException.class);
 
         verify(updateAligoMessagePort).update(any(AligoMessage.class));
     }
@@ -204,37 +204,37 @@ class SendAligoAlimTalkUseCaseTest {
         AligoTemplate template = createApprovedTemplate(templateCode, "대량 발송 내용입니다.");
 
         List<AligoAlimTalkRecipientCommand> recipients = IntStream.rangeClosed(1, 500)
-                .mapToObj(i -> new AligoAlimTalkRecipientCommand("010" + String.format("%08d", i), "수신자" + i))
-                .toList();
+            .mapToObj(i -> new AligoAlimTalkRecipientCommand("010" + String.format("%08d", i), "수신자" + i))
+            .toList();
 
         SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                templateCode,
-                "01012345678",
-                Map.of(),
-                recipients,
-                null
+            templateCode,
+            "01012345678",
+            Map.of(),
+            recipients,
+            null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
         when(saveAligoMessagePort.save(any(AligoMessage.class))).thenAnswer(invocation -> {
             AligoMessage msg = invocation.getArgument(0);
             return AligoMessage.from(AligoMessageSnapshotState.builder()
-                    .id(300L)
-                    .senderKey(msg.getSenderKey())
-                    .templateCode(msg.getTemplateCode())
-                    .sender(msg.getSender())
-                    .messageType(msg.getMessageType())
-                    .content(msg.getContent())
-                    .title(msg.getTitle())
-                    .messageStatus(AligoMessageStatus.REQUESTED)
-                    .successCount(0)
-                    .failCount(0)
-                    .requestedAt(msg.getRequestedAt())
-                    .status(EntityStatus.ACTIVE)
-                    .build());
+                .id(300L)
+                .senderKey(msg.getSenderKey())
+                .templateCode(msg.getTemplateCode())
+                .sender(msg.getSender())
+                .messageType(msg.getMessageType())
+                .content(msg.getContent())
+                .title(msg.getTitle())
+                .messageStatus(AligoMessageStatus.REQUESTED)
+                .successCount(0)
+                .failCount(0)
+                .requestedAt(msg.getRequestedAt())
+                .status(EntityStatus.ACTIVE)
+                .build());
         });
         when(sendAligoAlimTalkExternalPort.send(any(AligoMessage.class)))
-                .thenReturn(new AligoAlimTalkSendResponse("MID_MASS", 500, 0, null));
+            .thenReturn(new AligoAlimTalkSendResponse("MID_MASS", 500, 0, null));
 
         // when
         SendAligoAlimTalkResult result = sendAligoAlimTalkService.sendAlimTalk(command);
@@ -255,22 +255,22 @@ class SendAligoAlimTalkUseCaseTest {
         AligoTemplate template = createApprovedTemplate(templateCode, "초과 발송 내용입니다.");
 
         List<AligoAlimTalkRecipientCommand> recipients = IntStream.rangeClosed(1, 501)
-                .mapToObj(i -> new AligoAlimTalkRecipientCommand("010" + String.format("%08d", i), "수신자" + i))
-                .toList();
+            .mapToObj(i -> new AligoAlimTalkRecipientCommand("010" + String.format("%08d", i), "수신자" + i))
+            .toList();
 
         SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                templateCode,
-                "01012345678",
-                Map.of(),
-                recipients,
-                null
+            templateCode,
+            "01012345678",
+            Map.of(),
+            recipients,
+            null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
 
         // when & then
         assertThatThrownBy(() -> sendAligoAlimTalkService.sendAlimTalk(command))
-                .isInstanceOf(InvalidAligoMessageRecipientCountException.class);
+            .isInstanceOf(InvalidAligoMessageRecipientCountException.class);
 
         verifyNoInteractions(sendAligoAlimTalkExternalPort);
         verifyNoInteractions(updateAligoMessagePort);
@@ -282,18 +282,18 @@ class SendAligoAlimTalkUseCaseTest {
         // given
         String templateCode = "NONEXISTENT";
         SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                templateCode,
-                "01012345678",
-                Map.of(),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트")),
-                null
+            templateCode,
+            "01012345678",
+            Map.of(),
+            List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트")),
+            null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> sendAligoAlimTalkService.sendAlimTalk(command))
-                .isInstanceOf(AligoTemplateNotFoundException.class);
+            .isInstanceOf(AligoTemplateNotFoundException.class);
 
         verifyNoInteractions(saveAligoMessagePort);
         verifyNoInteractions(sendAligoAlimTalkExternalPort);
@@ -306,22 +306,22 @@ class SendAligoAlimTalkUseCaseTest {
         // given
         String templateCode = "TPL_BTN";
         AligoTemplateButton button = AligoTemplateButton.from(
-                AligoTemplateButtonCreateState.builder()
-                        .ordering(1)
-                        .name("주문 상세 보기")
-                        .linkType(AligoTemplateButtonLinkType.WL)
-                        .linkMo("https://m.example.com/order")
-                        .linkPc("https://www.example.com/order")
-                        .build()
+            AligoTemplateButtonCreateState.builder()
+                .ordering(1)
+                .name("주문 상세 보기")
+                .linkType(AligoTemplateButtonLinkType.WL)
+                .linkMo("https://m.example.com/order")
+                .linkPc("https://www.example.com/order")
+                .build()
         );
         AligoTemplate template = createApprovedTemplateWithButtons(templateCode, "주문 완료 알림입니다.", List.of(button));
 
         SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                templateCode,
-                "01012345678",
-                Map.of(),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
-                null
+            templateCode,
+            "01012345678",
+            Map.of(),
+            List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
+            null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
@@ -329,23 +329,23 @@ class SendAligoAlimTalkUseCaseTest {
             AligoMessage msg = invocation.getArgument(0);
             assertThat(msg.getButtons()).contains("주문 상세 보기");
             return AligoMessage.from(AligoMessageSnapshotState.builder()
-                    .id(400L)
-                    .senderKey(msg.getSenderKey())
-                    .templateCode(msg.getTemplateCode())
-                    .sender(msg.getSender())
-                    .messageType(msg.getMessageType())
-                    .content(msg.getContent())
-                    .title(msg.getTitle())
-                    .buttons(msg.getButtons())
-                    .messageStatus(AligoMessageStatus.REQUESTED)
-                    .successCount(0)
-                    .failCount(0)
-                    .requestedAt(msg.getRequestedAt())
-                    .status(EntityStatus.ACTIVE)
-                    .build());
+                .id(400L)
+                .senderKey(msg.getSenderKey())
+                .templateCode(msg.getTemplateCode())
+                .sender(msg.getSender())
+                .messageType(msg.getMessageType())
+                .content(msg.getContent())
+                .title(msg.getTitle())
+                .buttons(msg.getButtons())
+                .messageStatus(AligoMessageStatus.REQUESTED)
+                .successCount(0)
+                .failCount(0)
+                .requestedAt(msg.getRequestedAt())
+                .status(EntityStatus.ACTIVE)
+                .build());
         });
         when(sendAligoAlimTalkExternalPort.send(any(AligoMessage.class)))
-                .thenReturn(new AligoAlimTalkSendResponse("MID_BTN", 1, 0, null));
+            .thenReturn(new AligoAlimTalkSendResponse("MID_BTN", 1, 0, null));
 
         // when
         SendAligoAlimTalkResult result = sendAligoAlimTalkService.sendAlimTalk(command);
@@ -364,40 +364,40 @@ class SendAligoAlimTalkUseCaseTest {
 
         AligoFailoverCommand failover = new AligoFailoverCommand(true, "대체문자 제목", "대체문자 본문");
         SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                templateCode,
-                "01012345678",
-                Map.of(),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
-                failover
+            templateCode,
+            "01012345678",
+            Map.of(),
+            List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
+            failover
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
         when(saveAligoMessagePort.save(any(AligoMessage.class))).thenAnswer(invocation -> {
             AligoMessage msg = invocation.getArgument(0);
             return AligoMessage.from(AligoMessageSnapshotState.builder()
-                    .id(500L)
-                    .senderKey(msg.getSenderKey())
-                    .templateCode(msg.getTemplateCode())
-                    .sender(msg.getSender())
-                    .messageType(msg.getMessageType())
-                    .content(msg.getContent())
-                    .title(msg.getTitle())
-                    .failoverSubject(msg.getFailoverSubject())
-                    .failoverMessageBody(msg.getFailoverMessageBody())
-                    .messageStatus(AligoMessageStatus.REQUESTED)
-                    .successCount(0)
-                    .failCount(0)
-                    .requestedAt(msg.getRequestedAt())
-                    .recipients(List.of(
-                            AligoMessageRecipientSnapshotState.builder()
-                                    .id(50L).receiver("01098765432").recvName("홍길동")
-                                    .recipientStatus(AligoMessageRecipientStatus.PENDING).build()
-                    ))
-                    .status(EntityStatus.ACTIVE)
-                    .build());
+                .id(500L)
+                .senderKey(msg.getSenderKey())
+                .templateCode(msg.getTemplateCode())
+                .sender(msg.getSender())
+                .messageType(msg.getMessageType())
+                .content(msg.getContent())
+                .title(msg.getTitle())
+                .failoverSubject(msg.getFailoverSubject())
+                .failoverMessageBody(msg.getFailoverMessageBody())
+                .messageStatus(AligoMessageStatus.REQUESTED)
+                .successCount(0)
+                .failCount(0)
+                .requestedAt(msg.getRequestedAt())
+                .recipients(List.of(
+                    AligoMessageRecipientSnapshotState.builder()
+                        .id(50L).receiver("01098765432").recvName("홍길동")
+                        .recipientStatus(AligoMessageRecipientStatus.PENDING).build()
+                ))
+                .status(EntityStatus.ACTIVE)
+                .build());
         });
         when(sendAligoAlimTalkExternalPort.send(any(AligoMessage.class)))
-                .thenReturn(new AligoAlimTalkSendResponse("MID_FO_001", 0, 1, "SMID_001"));
+            .thenReturn(new AligoAlimTalkSendResponse("MID_FO_001", 0, 1, "SMID_001"));
 
         // when
         SendAligoAlimTalkResult result = sendAligoAlimTalkService.sendAlimTalk(command);
@@ -418,37 +418,37 @@ class SendAligoAlimTalkUseCaseTest {
         AligoTemplate template = createApprovedTemplate(templateCode, "대체문자 없는 발송입니다.");
 
         SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                templateCode,
-                "01012345678",
-                Map.of(),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트")),
-                null
+            templateCode,
+            "01012345678",
+            Map.of(),
+            List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트")),
+            null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
         when(saveAligoMessagePort.save(any(AligoMessage.class))).thenAnswer(invocation -> {
             AligoMessage msg = invocation.getArgument(0);
             return AligoMessage.from(AligoMessageSnapshotState.builder()
-                    .id(600L)
-                    .senderKey(msg.getSenderKey())
-                    .templateCode(msg.getTemplateCode())
-                    .sender(msg.getSender())
-                    .messageType(msg.getMessageType())
-                    .content(msg.getContent())
-                    .title(msg.getTitle())
-                    .messageStatus(AligoMessageStatus.REQUESTED)
-                    .successCount(0)
-                    .failCount(0)
-                    .requestedAt(msg.getRequestedAt())
-                    .status(EntityStatus.ACTIVE)
-                    .build());
+                .id(600L)
+                .senderKey(msg.getSenderKey())
+                .templateCode(msg.getTemplateCode())
+                .sender(msg.getSender())
+                .messageType(msg.getMessageType())
+                .content(msg.getContent())
+                .title(msg.getTitle())
+                .messageStatus(AligoMessageStatus.REQUESTED)
+                .successCount(0)
+                .failCount(0)
+                .requestedAt(msg.getRequestedAt())
+                .status(EntityStatus.ACTIVE)
+                .build());
         });
         when(sendAligoAlimTalkExternalPort.send(any(AligoMessage.class)))
-                .thenThrow(new AligoApiRequestFailedException("발송 실패"));
+            .thenThrow(new AligoApiRequestFailedException("발송 실패"));
 
         // when & then
         assertThatThrownBy(() -> sendAligoAlimTalkService.sendAlimTalk(command))
-                .isInstanceOf(AligoApiRequestFailedException.class);
+            .isInstanceOf(AligoApiRequestFailedException.class);
 
         verify(updateAligoMessagePort).update(any(AligoMessage.class));
     }
@@ -462,35 +462,35 @@ class SendAligoAlimTalkUseCaseTest {
 
         AligoFailoverCommand failover = new AligoFailoverCommand(true, "대체 제목", "대체 본문");
         SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
-                templateCode,
-                "01012345678",
-                Map.of(),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
-                failover
+            templateCode,
+            "01012345678",
+            Map.of(),
+            List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
+            failover
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
         when(saveAligoMessagePort.save(any(AligoMessage.class))).thenAnswer(invocation -> {
             AligoMessage msg = invocation.getArgument(0);
             return AligoMessage.from(AligoMessageSnapshotState.builder()
-                    .id(700L)
-                    .senderKey(msg.getSenderKey())
-                    .templateCode(msg.getTemplateCode())
-                    .sender(msg.getSender())
-                    .messageType(msg.getMessageType())
-                    .content(msg.getContent())
-                    .title(msg.getTitle())
-                    .failoverSubject(msg.getFailoverSubject())
-                    .failoverMessageBody(msg.getFailoverMessageBody())
-                    .messageStatus(AligoMessageStatus.REQUESTED)
-                    .successCount(0)
-                    .failCount(0)
-                    .requestedAt(msg.getRequestedAt())
-                    .status(EntityStatus.ACTIVE)
-                    .build());
+                .id(700L)
+                .senderKey(msg.getSenderKey())
+                .templateCode(msg.getTemplateCode())
+                .sender(msg.getSender())
+                .messageType(msg.getMessageType())
+                .content(msg.getContent())
+                .title(msg.getTitle())
+                .failoverSubject(msg.getFailoverSubject())
+                .failoverMessageBody(msg.getFailoverMessageBody())
+                .messageStatus(AligoMessageStatus.REQUESTED)
+                .successCount(0)
+                .failCount(0)
+                .requestedAt(msg.getRequestedAt())
+                .status(EntityStatus.ACTIVE)
+                .build());
         });
         when(sendAligoAlimTalkExternalPort.send(any(AligoMessage.class)))
-                .thenReturn(new AligoAlimTalkSendResponse("MID_FO_OK", 1, 0, null));
+            .thenReturn(new AligoAlimTalkSendResponse("MID_FO_OK", 1, 0, null));
 
         // when
         SendAligoAlimTalkResult result = sendAligoAlimTalkService.sendAlimTalk(command);
@@ -506,51 +506,51 @@ class SendAligoAlimTalkUseCaseTest {
 
     private AligoTemplate createApprovedTemplate(String templateCode, String content) {
         return AligoTemplate.from(AligoTemplateSnapshotState.builder()
-                .id(1L)
-                .senderKey("test-sender-key")
-                .templateCode(templateCode)
-                .templateName("테스트 템플릿")
-                .templateContent(content)
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .inspStatus("APR")
-                .templateStatus(AligoTemplateStatus.A)
-                .status(EntityStatus.ACTIVE)
-                .buttons(List.of())
-                .build());
+            .id(1L)
+            .senderKey("test-sender-key")
+            .templateCode(templateCode)
+            .templateName("테스트 템플릿")
+            .templateContent(content)
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .inspStatus("APR")
+            .templateStatus(AligoTemplateStatus.A)
+            .status(EntityStatus.ACTIVE)
+            .buttons(List.of())
+            .build());
     }
 
     private AligoTemplate createApprovedTemplateWithButtons(
-            String templateCode, String content, List<AligoTemplateButton> buttons
+        String templateCode, String content, List<AligoTemplateButton> buttons
     ) {
         return AligoTemplate.from(AligoTemplateSnapshotState.builder()
-                .id(1L)
-                .senderKey("test-sender-key")
-                .templateCode(templateCode)
-                .templateName("테스트 템플릿")
-                .templateContent(content)
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .inspStatus("APR")
-                .templateStatus(AligoTemplateStatus.A)
-                .status(EntityStatus.ACTIVE)
-                .buttons(buttons)
-                .build());
+            .id(1L)
+            .senderKey("test-sender-key")
+            .templateCode(templateCode)
+            .templateName("테스트 템플릿")
+            .templateContent(content)
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .inspStatus("APR")
+            .templateStatus(AligoTemplateStatus.A)
+            .status(EntityStatus.ACTIVE)
+            .buttons(buttons)
+            .build());
     }
 
     private AligoTemplate createTemplateWithInspStatus(String templateCode, String inspStatus) {
         return AligoTemplate.from(AligoTemplateSnapshotState.builder()
-                .id(1L)
-                .senderKey("test-sender-key")
-                .templateCode(templateCode)
-                .templateName("테스트 템플릿")
-                .templateContent("안녕하세요")
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .inspStatus(inspStatus)
-                .templateStatus(AligoTemplateStatus.R)
-                .status(EntityStatus.ACTIVE)
-                .buttons(List.of())
-                .build());
+            .id(1L)
+            .senderKey("test-sender-key")
+            .templateCode(templateCode)
+            .templateName("테스트 템플릿")
+            .templateContent("안녕하세요")
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .inspStatus(inspStatus)
+            .templateStatus(AligoTemplateStatus.R)
+            .status(EntityStatus.ACTIVE)
+            .buttons(List.of())
+            .build());
     }
 }

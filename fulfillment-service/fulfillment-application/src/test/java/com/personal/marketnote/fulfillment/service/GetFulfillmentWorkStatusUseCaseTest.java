@@ -32,12 +32,12 @@ class GetFulfillmentWorkStatusUseCaseTest {
 
     private FulfillmentDeliveryRegistration buildRegistration(Long orderId, FulfillmentWorkStatus workStatus) {
         return FulfillmentDeliveryRegistration.from(
-                FulfillmentDeliveryRegistrationSnapshotState.builder()
-                        .id(1L)
-                        .orderId(orderId)
-                        .workStatus(workStatus)
-                        .createdAt(LocalDateTime.of(2026, 4, 6, 10, 0))
-                        .build()
+            FulfillmentDeliveryRegistrationSnapshotState.builder()
+                .id(1L)
+                .orderId(orderId)
+                .workStatus(workStatus)
+                .createdAt(LocalDateTime.of(2026, 4, 6, 10, 0))
+                .build()
         );
     }
 
@@ -52,7 +52,7 @@ class GetFulfillmentWorkStatusUseCaseTest {
             GetFulfillmentWorkStatusCommand command = new GetFulfillmentWorkStatusCommand(orderId);
             FulfillmentDeliveryRegistration registration = buildRegistration(orderId, FulfillmentWorkStatus.REGISTERED);
             when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId))
-                    .thenReturn(Optional.of(registration));
+                .thenReturn(Optional.of(registration));
 
             // when
             GetFulfillmentWorkStatusResult result = getFulfillmentWorkStatusService.getWorkStatus(command);
@@ -70,7 +70,7 @@ class GetFulfillmentWorkStatusUseCaseTest {
             Long orderId = 200L;
             GetFulfillmentWorkStatusCommand command = new GetFulfillmentWorkStatusCommand(orderId);
             when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when
             GetFulfillmentWorkStatusResult result = getFulfillmentWorkStatusService.getWorkStatus(command);
@@ -89,7 +89,7 @@ class GetFulfillmentWorkStatusUseCaseTest {
             GetFulfillmentWorkStatusCommand command = new GetFulfillmentWorkStatusCommand(orderId);
             FulfillmentDeliveryRegistration registration = buildRegistration(orderId, FulfillmentWorkStatus.PICKED);
             when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId))
-                    .thenReturn(Optional.of(registration));
+                .thenReturn(Optional.of(registration));
 
             // when
             GetFulfillmentWorkStatusResult result = getFulfillmentWorkStatusService.getWorkStatus(command);
@@ -108,7 +108,7 @@ class GetFulfillmentWorkStatusUseCaseTest {
             GetFulfillmentWorkStatusCommand command = new GetFulfillmentWorkStatusCommand(orderId);
             FulfillmentDeliveryRegistration registration = buildRegistration(orderId, FulfillmentWorkStatus.RELEASED);
             when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId))
-                    .thenReturn(Optional.of(registration));
+                .thenReturn(Optional.of(registration));
 
             // when
             GetFulfillmentWorkStatusResult result = getFulfillmentWorkStatusService.getWorkStatus(command);

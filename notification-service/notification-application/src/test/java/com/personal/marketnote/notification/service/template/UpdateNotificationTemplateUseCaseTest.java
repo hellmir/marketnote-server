@@ -36,26 +36,26 @@ class UpdateNotificationTemplateUseCaseTest {
     void shouldUpdateNotificationTemplate() {
         // given
         NotificationTemplate template = NotificationTemplate.from(NotificationTemplateCreateState.builder()
-                .templateCode("ORDER_PAYMENT_COMPLETED")
-                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                .notificationCategory(NotificationCategory.INFORMATIONAL)
-                .title("주문이 완료되었습니다")
-                .bodyTemplate("기존 본문")
-                .urlTemplate("/order/{orderId}")
-                .build());
+            .templateCode("ORDER_PAYMENT_COMPLETED")
+            .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+            .notificationCategory(NotificationCategory.INFORMATIONAL)
+            .title("주문이 완료되었습니다")
+            .bodyTemplate("기존 본문")
+            .urlTemplate("/order/{orderId}")
+            .build());
 
         UpdateNotificationTemplateCommand command = new UpdateNotificationTemplateCommand(
-                "수정된 제목",
-                "수정된 본문 {productName}",
-                "/updated/{orderId}"
+            "수정된 제목",
+            "수정된 본문 {productName}",
+            "/updated/{orderId}"
         );
 
         when(findNotificationTemplatePort.findActiveById(1L))
-                .thenReturn(Optional.of(template));
+            .thenReturn(Optional.of(template));
 
         // when
         UpdateNotificationTemplateResult result = updateNotificationTemplateService.updateNotificationTemplate(
-                1L, command
+            1L, command
         );
 
         // then
@@ -70,15 +70,15 @@ class UpdateNotificationTemplateUseCaseTest {
     void shouldThrowExceptionWhenTemplateNotFound() {
         // given
         UpdateNotificationTemplateCommand command = new UpdateNotificationTemplateCommand(
-                "제목", "본문", "/url"
+            "제목", "본문", "/url"
         );
 
         when(findNotificationTemplatePort.findActiveById(999L))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> updateNotificationTemplateService.updateNotificationTemplate(999L, command))
-                .isInstanceOf(NotificationTemplateNotFoundException.class);
+            .isInstanceOf(NotificationTemplateNotFoundException.class);
         verify(updateNotificationTemplatePort, never()).update(any());
     }
 }

@@ -6,10 +6,10 @@ import java.util.List;
 
 @Builder
 public record FulfillmentVendorGoodsElementInfoResult(
-        String goodsCode,
-        String customerGoodsCode,
-        String goodsName,
-        String enabled,
-        List<FulfillmentVendorGoodsElementItemResult> elementList
+    String goodsCode,
+    String customerGoodsCode,
+    String goodsName,
+    String enabled,
+    List<FulfillmentVendorGoodsElementItemResult> elementList
 ) {
 }

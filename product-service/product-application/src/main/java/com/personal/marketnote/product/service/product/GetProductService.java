@@ -35,9 +35,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
-import static com.personal.marketnote.common.domain.file.FileSort.PRODUCT_CATALOG_IMAGE;
-import static com.personal.marketnote.common.domain.file.FileSort.PRODUCT_CONTENT_IMAGE;
-import static com.personal.marketnote.common.domain.file.FileSort.PRODUCT_REPRESENTATIVE_IMAGE;
+import static com.personal.marketnote.common.domain.file.FileSort.*;
 import static com.personal.marketnote.common.utility.ApiConstant.FIRST_PAGE_CURSOR_VALUE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -74,10 +72,10 @@ public class GetProductService implements GetProductUseCase {
     @Override
     public GetProductInfoWithOptionsResult getProductInfo(Long id, List<Long> selectedOptionIds) {
         Product product = findProductPort.findActiveById(id)
-                .orElseThrow(() -> {
-                    log.warn("상품을 찾을 수 없습니다. productId={}", id);
-                    return new ProductNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("상품을 찾을 수 없습니다. productId={}", id);
+                return new ProductNotFoundException();
+            });
         return buildProductInfo(product, id, selectedOptionIds);
     }
 
@@ -88,45 +86,45 @@ public class GetProductService implements GetProductUseCase {
     }
 
     private GetProductInfoWithOptionsResult buildProductInfo(
-            Product product, Long id, List<Long> selectedOptionIds
+        Product product, Long id, List<Long> selectedOptionIds
     ) {
         // 상단 대표 이미지 목록, 본문 이미지 목록 조회 시작
         CompletableFuture<GetFilesResult> representativeFuture =
-                CompletableFuture.supplyAsync(
-                        () -> findProductImagesPort.findImagesByProductIdAndSort(
-                                id, PRODUCT_REPRESENTATIVE_IMAGE
-                        ).orElse(null),
-                        productImageExecutor
-                );
+            CompletableFuture.supplyAsync(
+                () -> findProductImagesPort.findImagesByProductIdAndSort(
+                    id, PRODUCT_REPRESENTATIVE_IMAGE
+                ).orElse(null),
+                productImageExecutor
+            );
 
         CompletableFuture<GetFilesResult> contentFuture =
-                CompletableFuture.supplyAsync(
-                        () -> findProductImagesPort.findImagesByProductIdAndSort(
-                                id, PRODUCT_CONTENT_IMAGE
-                        ).orElse(null),
-                        productImageExecutor
-                );
+            CompletableFuture.supplyAsync(
+                () -> findProductImagesPort.findImagesByProductIdAndSort(
+                    id, PRODUCT_CONTENT_IMAGE
+                ).orElse(null),
+                productImageExecutor
+            );
 
         // 상품 조회 (병렬 진행)
         List<ProductOptionCategory> categories
-                = findProductOptionCategoryPort.findActiveWithOptionsByProductId(product.getId());
+            = findProductOptionCategoryPort.findActiveWithOptionsByProductId(product.getId());
         List<PricePolicy> pricePolicies
-                = findPricePoliciesPort.findByProductId(product.getId());
+            = findPricePoliciesPort.findByProductId(product.getId());
         PricePolicy defaultPricePolicy = pricePolicies.stream()
-                .filter(policy -> !policy.hasOptions())
-                .findFirst()
-                .orElse(null);
+            .filter(policy -> !policy.hasOptions())
+            .findFirst()
+            .orElse(null);
         PricePolicy selectedPricePolicy = defaultPricePolicy;
 
         if (
-                product.isFindAllOptionsYn()
-                        && FormatValidator.hasValue(selectedOptionIds)
-                        && FormatValidator.hasValue(categories)
+            product.isFindAllOptionsYn()
+                && FormatValidator.hasValue(selectedOptionIds)
+                && FormatValidator.hasValue(categories)
         ) {
             selectedPricePolicy = pricePolicies.stream()
-                    .filter(policy -> FormatValidator.equals(policy.getOptionIds(), selectedOptionIds))
-                    .findFirst()
-                    .orElse(defaultPricePolicy);
+                .filter(policy -> FormatValidator.equals(policy.getOptionIds(), selectedOptionIds))
+                .findFirst()
+                .orElse(defaultPricePolicy);
         }
 
         if (FormatValidator.hasNoValue(selectedPricePolicy)) {
@@ -141,34 +139,34 @@ public class GetProductService implements GetProductUseCase {
 
         // 판매자 배송비 정책 조회
         ShippingPolicy shippingPolicy = findShippingPolicyPort.findActiveBySellerId(product.getSellerId())
-                .orElse(null);
+            .orElse(null);
 
         GetProductInfoResult productInfo
-                = GetProductInfoResult.from(product, selectedPricePolicy, inventories.get(pricePolicyId), shippingPolicy);
+            = GetProductInfoResult.from(product, selectedPricePolicy, inventories.get(pricePolicyId), shippingPolicy);
 
         List<SelectableProductOptionCategoryItemResult> selectableCategories
-                = categories.stream()
-                .map(c -> SelectableProductOptionCategoryItemResult.from(c, selectedOptionIds))
-                .toList();
+            = categories.stream()
+            .map(c -> SelectableProductOptionCategoryItemResult.from(c, selectedOptionIds))
+            .toList();
 
         // 이미지 결과 대기
         GetFilesResult representativeImages = representativeFuture.join();
         GetFilesResult contentImages = contentFuture.join();
 
         return GetProductInfoWithOptionsResult.of(
-                productInfo, selectableCategories, representativeImages, contentImages, pricePolicies
+            productInfo, selectableCategories, representativeImages, contentImages, pricePolicies
         );
     }
 
     private Map<Long, GetFilesResult> findCatalogImages(List<ProductItemResult> productItems) {
         Map<Long, GetFilesResult> productIdToImages = new ConcurrentHashMap<>();
         List<CompletableFuture<Void>> futures = productItems.stream()
-                .map(item -> CompletableFuture.runAsync(
-                        () -> findProductImagesPort.findImagesByProductIdAndSort(item.getId(), PRODUCT_CATALOG_IMAGE)
-                                .ifPresent(result -> productIdToImages.put(item.getId(), result)),
-                        productImageExecutor
-                ))
-                .toList();
+            .map(item -> CompletableFuture.runAsync(
+                () -> findProductImagesPort.findImagesByProductIdAndSort(item.getId(), PRODUCT_CATALOG_IMAGE)
+                    .ifPresent(result -> productIdToImages.put(item.getId(), result)),
+                productImageExecutor
+            ))
+            .toList();
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         return productIdToImages;
     }
@@ -183,42 +181,42 @@ public class GetProductService implements GetProductUseCase {
     @Override
     public Product getProduct(Long id) {
         return findProductPort.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("상품을 찾을 수 없습니다. productId={}", id);
-                    return new ProductNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("상품을 찾을 수 없습니다. productId={}", id);
+                return new ProductNotFoundException();
+            });
     }
 
     @Override
     public GetProductsResult getProducts(
-            Long categoryId,
-            List<Long> pricePolicyIds,
-            Long cursor,
-            int pageSize,
-            Sort.Direction sortDirection,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword
+        Long categoryId,
+        List<Long> pricePolicyIds,
+        Long cursor,
+        int pageSize,
+        Sort.Direction sortDirection,
+        ProductSortProperty sortProperty,
+        ProductSearchTarget searchTarget,
+        String searchKeyword
     ) {
         boolean isFirstPage = FormatValidator.equals(cursor, FIRST_PAGE_CURSOR_VALUE);
         boolean isAsc = sortDirection.isAscending();
 
         List<ProductCatalogItemResult> catalogItems = findProductCatalogReadModelPort.findCatalogItems(
-                categoryId,
-                pricePolicyIds,
-                cursor,
-                pageSize + 1,
-                isAsc,
-                sortProperty,
-                searchTarget,
-                searchKeyword
+            categoryId,
+            pricePolicyIds,
+            cursor,
+            pageSize + 1,
+            isAsc,
+            sortProperty,
+            searchTarget,
+            searchKeyword
         );
 
         // 무한 스크롤 페이지 설정
         boolean hasNext = catalogItems.size() > pageSize;
         List<ProductCatalogItemResult> pagedCatalogItems = hasNext
-                ? catalogItems.subList(0, pageSize)
-                : catalogItems;
+            ? catalogItems.subList(0, pageSize)
+            : catalogItems;
 
         Long nextCursor = null;
         if (FormatValidator.hasValue(pagedCatalogItems)) {
@@ -226,20 +224,20 @@ public class GetProductService implements GetProductUseCase {
         }
 
         List<ProductItemResult> catalogMappedItems = pagedCatalogItems.stream()
-                .map(ProductItemResult::fromReadModel)
-                .toList();
+            .map(ProductItemResult::fromReadModel)
+            .toList();
 
         Map<Long, GetFilesResult> productIdToImages = findCatalogImages(catalogMappedItems);
 
         List<ProductItemResult> productItems = catalogMappedItems.stream()
-                .map(item -> ProductItemResult.from(
-                        item,
-                        extractFirstImage(productIdToImages.get(item.getId())),
-                        item.getStock(),
-                        item.getAverageRating(),
-                        item.getTotalCount()
-                ))
-                .toList();
+            .map(item -> ProductItemResult.from(
+                item,
+                extractFirstImage(productIdToImages.get(item.getId())),
+                item.getStock(),
+                item.getAverageRating(),
+                item.getTotalCount()
+            ))
+            .toList();
 
         Long totalElements = null;
         if (isFirstPage) {

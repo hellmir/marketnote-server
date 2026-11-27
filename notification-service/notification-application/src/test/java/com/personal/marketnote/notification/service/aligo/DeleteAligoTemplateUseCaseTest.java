@@ -60,7 +60,7 @@ class DeleteAligoTemplateUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> deleteAligoTemplateService.deleteTemplate(command))
-                .isInstanceOf(AligoTemplateNotFoundException.class);
+            .isInstanceOf(AligoTemplateNotFoundException.class);
         verifyNoInteractions(deleteAligoTemplateExternalPort, deleteAligoTemplatePort);
     }
 
@@ -75,24 +75,24 @@ class DeleteAligoTemplateUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> deleteAligoTemplateService.deleteTemplate(command))
-                .isInstanceOf(InvalidAligoTemplateDeletionException.class);
+            .isInstanceOf(InvalidAligoTemplateDeletionException.class);
         verifyNoInteractions(deleteAligoTemplateExternalPort, deleteAligoTemplatePort);
     }
 
     private AligoTemplate createTemplate(String inspStatus) {
         return AligoTemplate.from(
-                AligoTemplateSnapshotState.builder()
-                        .id(1L)
-                        .senderKey("sender-key")
-                        .templateCode("TPL001")
-                        .templateName("이름")
-                        .templateContent("내용")
-                        .templateType(AligoTemplateType.BA)
-                        .templateEmType(AligoTemplateEmType.NONE)
-                        .inspStatus(inspStatus)
-                        .templateStatus(AligoTemplateStatus.R)
-                        .buttons(List.of())
-                        .build()
+            AligoTemplateSnapshotState.builder()
+                .id(1L)
+                .senderKey("sender-key")
+                .templateCode("TPL001")
+                .templateName("이름")
+                .templateContent("내용")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .inspStatus(inspStatus)
+                .templateStatus(AligoTemplateStatus.R)
+                .buttons(List.of())
+                .build()
         );
     }
 }

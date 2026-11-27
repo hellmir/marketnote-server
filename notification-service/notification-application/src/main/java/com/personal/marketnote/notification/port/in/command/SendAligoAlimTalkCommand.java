@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 public record SendAligoAlimTalkCommand(
-        String templateCode,
-        String sender,
-        Map<String, String> variables,
-        List<AligoAlimTalkRecipientCommand> recipients,
-        AligoFailoverCommand failover
+    String templateCode,
+    String sender,
+    Map<String, String> variables,
+    List<AligoAlimTalkRecipientCommand> recipients,
+    AligoFailoverCommand failover
 ) {
 }

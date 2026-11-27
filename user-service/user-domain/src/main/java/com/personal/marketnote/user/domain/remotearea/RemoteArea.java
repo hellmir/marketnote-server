@@ -38,23 +38,23 @@ public class RemoteArea extends BaseDomain {
         ShippingAddressRegionType regionType = resolveRegionType(state.getRegionType());
 
         return RemoteArea.builder()
-                .province(state.getProvince())
-                .district(district)
-                .village(village)
-                .subarea(subarea)
-                .regionType(regionType)
-                .build();
+            .province(state.getProvince())
+            .district(district)
+            .village(village)
+            .subarea(subarea)
+            .regionType(regionType)
+            .build();
     }
 
     public static RemoteArea from(RemoteAreaSnapshotState state) {
         return RemoteArea.builder()
-                .id(state.getId())
-                .province(state.getProvince())
-                .district(state.getDistrict())
-                .village(state.getVillage())
-                .subarea(state.getSubarea())
-                .regionType(state.getRegionType())
-                .build();
+            .id(state.getId())
+            .province(state.getProvince())
+            .district(state.getDistrict())
+            .village(state.getVillage())
+            .subarea(state.getSubarea())
+            .regionType(state.getRegionType())
+            .build();
     }
 
     public boolean isDeliveryImpossible() {

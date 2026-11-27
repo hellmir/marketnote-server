@@ -41,7 +41,7 @@ class ManageGifticonCategoryExposureUseCaseTest {
         GifticonCategory category = createCategory(1L, false);
         when(findGifticonCategoryPort.findById(1L)).thenReturn(Optional.of(category));
         ManageGifticonCategoryExposureCommand command = new ManageGifticonCategoryExposureCommand(
-                List.of(new ExposureItem(1L, true))
+            List.of(new ExposureItem(1L, true))
         );
 
         // when
@@ -59,7 +59,7 @@ class ManageGifticonCategoryExposureUseCaseTest {
         GifticonCategory category = createCategory(1L, true);
         when(findGifticonCategoryPort.findById(1L)).thenReturn(Optional.of(category));
         ManageGifticonCategoryExposureCommand command = new ManageGifticonCategoryExposureCommand(
-                List.of(new ExposureItem(1L, false))
+            List.of(new ExposureItem(1L, false))
         );
 
         // when
@@ -79,7 +79,7 @@ class ManageGifticonCategoryExposureUseCaseTest {
         when(findGifticonCategoryPort.findById(1L)).thenReturn(Optional.of(category1));
         when(findGifticonCategoryPort.findById(2L)).thenReturn(Optional.of(category2));
         ManageGifticonCategoryExposureCommand command = new ManageGifticonCategoryExposureCommand(
-                List.of(new ExposureItem(1L, true), new ExposureItem(2L, false))
+            List.of(new ExposureItem(1L, true), new ExposureItem(2L, false))
         );
 
         // when
@@ -98,24 +98,24 @@ class ManageGifticonCategoryExposureUseCaseTest {
         // given
         when(findGifticonCategoryPort.findById(999L)).thenReturn(Optional.empty());
         ManageGifticonCategoryExposureCommand command = new ManageGifticonCategoryExposureCommand(
-                List.of(new ExposureItem(999L, true))
+            List.of(new ExposureItem(999L, true))
         );
 
         // when & then
         assertThatThrownBy(() -> manageGifticonCategoryExposureService.manageExposure(command))
-                .isInstanceOf(GifticonCategoryNotFoundException.class);
+            .isInstanceOf(GifticonCategoryNotFoundException.class);
         verify(updateGifticonCategoryPort, never()).update(any());
     }
 
     private GifticonCategory createCategory(Long id, boolean exposed) {
         return GifticonCategory.from(GifticonCategorySnapshotState.builder()
-                .id(id)
-                .categoryCode(String.valueOf(id))
-                .categoryName("카테고리" + id)
-                .exposed(exposed)
-                .createdAt(LocalDateTime.of(2026, 4, 3, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 3, 10, 0))
-                .build()
+            .id(id)
+            .categoryCode(String.valueOf(id))
+            .categoryName("카테고리" + id)
+            .exposed(exposed)
+            .createdAt(LocalDateTime.of(2026, 4, 3, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 3, 10, 0))
+            .build()
         );
     }
 }

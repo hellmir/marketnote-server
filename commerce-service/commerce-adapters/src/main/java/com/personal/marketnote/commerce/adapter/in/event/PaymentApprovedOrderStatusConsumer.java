@@ -24,12 +24,12 @@ public class PaymentApprovedOrderStatusConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PAYMENT_APPROVED,
-            groupId = "commerce-order-status"
+        topics = KafkaTopicConstants.PAYMENT_APPROVED,
+        groupId = "commerce-order-status"
     )
     public void handlePaymentApprovedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -47,32 +47,32 @@ public class PaymentApprovedOrderStatusConsumer {
             PaymentApprovedEvent payload = envelope.getPayloadAs(PaymentApprovedEvent.class, objectMapper);
 
             log.info("결제 승인 이벤트 수신. eventId={}, orderId={}, orderKey={}",
-                    envelope.eventId(), payload.orderId(), payload.orderKey()
+                envelope.eventId(), payload.orderId(), payload.orderKey()
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                    envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
             )) {
                 acknowledgment.acknowledge();
                 return;
             }
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(payload.orderId())
-                    .orderStatus(OrderStatus.PAID)
-                    .paidAmount(payload.paymentAmount())
-                    .build();
+                .id(payload.orderId())
+                .orderStatus(OrderStatus.PAID)
+                .paidAmount(payload.paymentAmount())
+                .build();
             changeOrderStatusUseCase.changeOrderStatus(command);
 
             log.info("Kafka 이벤트로 주문 상태 PAID 변경 완료. orderId={}, orderKey={}", payload.orderId(), payload.orderKey());
         } catch (OrderStatusAlreadyChangedException e) {
             log.warn("듀얼 라이트: 이미 주문 상태가 변경됨. eventId={}, key={}, message={}",
-                    envelope.eventId(), record.key(), e.getMessage()
+                envelope.eventId(), record.key(), e.getMessage()
             );
         } catch (Exception e) {
             // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수
             log.error("주문 상태 PAID 변경 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e
+                envelope.eventId(), record.key(), e.getMessage(), e
             );
             throw e;
         }

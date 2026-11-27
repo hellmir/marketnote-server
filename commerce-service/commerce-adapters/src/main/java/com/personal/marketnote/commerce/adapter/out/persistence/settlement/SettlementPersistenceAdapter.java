@@ -29,20 +29,20 @@ public class SettlementPersistenceAdapter implements SaveSettlementPort, FindSet
     @Override
     public Optional<Settlement> findById(Long id) {
         return settlementJpaRepository.findById(id)
-                .map(SettlementEntityToDomainMapper::toDomain);
+            .map(SettlementEntityToDomainMapper::toDomain);
     }
 
     @Override
     public Optional<Settlement> findBySellerIdAndYearAndMonth(Long sellerId, Integer year, Integer month) {
         return settlementJpaRepository.findBySellerIdAndYearAndMonth(sellerId, year, month)
-                .map(SettlementEntityToDomainMapper::toDomain);
+            .map(SettlementEntityToDomainMapper::toDomain);
     }
 
     @Override
     public List<Settlement> findAllByYearAndMonth(Integer year, Integer month) {
         return settlementJpaRepository.findAllByYearAndMonth(year, month).stream()
-                .map(SettlementEntityToDomainMapper::toDomain)
-                .toList();
+            .map(SettlementEntityToDomainMapper::toDomain)
+            .toList();
     }
 
     @Override
@@ -53,15 +53,15 @@ public class SettlementPersistenceAdapter implements SaveSettlementPort, FindSet
     @Override
     public List<Settlement> findAllBySellerIdAndYear(Long sellerId, Integer year) {
         return settlementJpaRepository.findAllBySellerIdAndYear(sellerId, year).stream()
-                .map(SettlementEntityToDomainMapper::toDomain)
-                .toList();
+            .map(SettlementEntityToDomainMapper::toDomain)
+            .toList();
     }
 
     @Override
     public List<Settlement> findAllByStatus(SettlementStatus status) {
         return settlementJpaRepository.findAllByStatus(status).stream()
-                .map(SettlementEntityToDomainMapper::toDomain)
-                .toList();
+            .map(SettlementEntityToDomainMapper::toDomain)
+            .toList();
     }
 
     @Override

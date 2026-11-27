@@ -31,7 +31,7 @@ public class GetGifticonGoodsService implements GetGifticonGoodsUseCase {
         boolean isFirstPage = FormatValidator.equals(cursor, FIRST_PAGE_CURSOR_VALUE);
 
         List<GifticonGoods> fetched = findGifticonGoodsPort.findAllExposedByCursor(
-                command.categoryCode(), command.brandCode(), cursor, pageSize + 1
+            command.categoryCode(), command.brandCode(), cursor, pageSize + 1
         );
 
         boolean hasNext = fetched.size() > pageSize;
@@ -48,23 +48,23 @@ public class GetGifticonGoodsService implements GetGifticonGoodsUseCase {
         }
 
         List<GifticonGoodsItem> items = paged.stream()
-                .map(this::mapToItem)
-                .toList();
+            .map(this::mapToItem)
+            .toList();
 
         return GetGifticonGoodsResult.from(totalElements, hasNext, nextCursor, items);
     }
 
     private GifticonGoodsItem mapToItem(GifticonGoods goods) {
         return new GifticonGoodsItem(
-                goods.getGoodsCode().getValue(),
-                goods.getGoodsName(),
-                toBrandCodeValue(goods.getBrandCode()),
-                goods.getBrandName(),
-                goods.getBrandImageUrl(),
-                goods.getSalePrice().getValue(),
-                goods.getCashPrice().getValue(),
-                goods.getImageUrl(),
-                goods.getOrderNum()
+            goods.getGoodsCode().getValue(),
+            goods.getGoodsName(),
+            toBrandCodeValue(goods.getBrandCode()),
+            goods.getBrandName(),
+            goods.getBrandImageUrl(),
+            goods.getSalePrice().getValue(),
+            goods.getCashPrice().getValue(),
+            goods.getImageUrl(),
+            goods.getOrderNum()
         );
     }
 

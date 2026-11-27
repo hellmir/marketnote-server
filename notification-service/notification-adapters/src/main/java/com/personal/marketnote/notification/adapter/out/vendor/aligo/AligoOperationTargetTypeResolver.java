@@ -2,10 +2,10 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationTargetType;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
 import java.util.Map;
 
 /**
@@ -19,36 +19,36 @@ import java.util.Map;
 public class AligoOperationTargetTypeResolver {
 
     private static final NotificationVendorCommunicationTargetType DEFAULT_TARGET_TYPE =
-            NotificationVendorCommunicationTargetType.ALIMTALK;
+        NotificationVendorCommunicationTargetType.ALIMTALK;
 
     private static final Map<String, NotificationVendorCommunicationTargetType> OPERATION_TO_TARGET_TYPE = Map.ofEntries(
-            Map.entry("sendAlimTalk", NotificationVendorCommunicationTargetType.ALIMTALK),
-            Map.entry("sendBrandTalk", NotificationVendorCommunicationTargetType.FRIEND_TALK),
-            Map.entry("createBrandTalkTemplate", NotificationVendorCommunicationTargetType.FRIEND_TALK_TEMPLATE),
-            Map.entry("getBrandTalkTemplateList", NotificationVendorCommunicationTargetType.FRIEND_TALK_TEMPLATE),
-            Map.entry("requestSenderAuthentication", NotificationVendorCommunicationTargetType.SENDER_PROFILE),
-            Map.entry("registerSenderProfile", NotificationVendorCommunicationTargetType.SENDER_PROFILE),
-            Map.entry("getSenderProfileList", NotificationVendorCommunicationTargetType.SENDER_PROFILE),
-            Map.entry("getHeartInfo", NotificationVendorCommunicationTargetType.BALANCE),
-            Map.entry("cancelMessage", NotificationVendorCommunicationTargetType.CANCEL),
-            Map.entry("getMessageHistory", NotificationVendorCommunicationTargetType.SEND_HISTORY),
-            Map.entry("getMessageDetail", NotificationVendorCommunicationTargetType.SEND_HISTORY),
-            Map.entry("getCategoryTree", NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE),
-            Map.entry("registerTemplate", NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE),
-            Map.entry("updateTemplate", NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE),
-            Map.entry("getTemplateList", NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE),
-            Map.entry("requestTemplateInspection", NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE),
-            Map.entry("deleteTemplate", NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE)
+        Map.entry("sendAlimTalk", NotificationVendorCommunicationTargetType.ALIMTALK),
+        Map.entry("sendBrandTalk", NotificationVendorCommunicationTargetType.FRIEND_TALK),
+        Map.entry("createBrandTalkTemplate", NotificationVendorCommunicationTargetType.FRIEND_TALK_TEMPLATE),
+        Map.entry("getBrandTalkTemplateList", NotificationVendorCommunicationTargetType.FRIEND_TALK_TEMPLATE),
+        Map.entry("requestSenderAuthentication", NotificationVendorCommunicationTargetType.SENDER_PROFILE),
+        Map.entry("registerSenderProfile", NotificationVendorCommunicationTargetType.SENDER_PROFILE),
+        Map.entry("getSenderProfileList", NotificationVendorCommunicationTargetType.SENDER_PROFILE),
+        Map.entry("getHeartInfo", NotificationVendorCommunicationTargetType.BALANCE),
+        Map.entry("cancelMessage", NotificationVendorCommunicationTargetType.CANCEL),
+        Map.entry("getMessageHistory", NotificationVendorCommunicationTargetType.SEND_HISTORY),
+        Map.entry("getMessageDetail", NotificationVendorCommunicationTargetType.SEND_HISTORY),
+        Map.entry("getCategoryTree", NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE),
+        Map.entry("registerTemplate", NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE),
+        Map.entry("updateTemplate", NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE),
+        Map.entry("getTemplateList", NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE),
+        Map.entry("requestTemplateInspection", NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE),
+        Map.entry("deleteTemplate", NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE)
     );
 
     private static final String[] KNOWN_OPERATIONS = {
-            "sendAlimTalk", "sendBrandTalk",
-            "createBrandTalkTemplate", "getBrandTalkTemplateList",
-            "requestSenderAuthentication", "registerSenderProfile", "getSenderProfileList",
-            "getHeartInfo", "cancelMessage",
-            "getMessageHistory", "getMessageDetail",
-            "getCategoryTree", "registerTemplate", "updateTemplate", "getTemplateList",
-            "requestTemplateInspection", "deleteTemplate"
+        "sendAlimTalk", "sendBrandTalk",
+        "createBrandTalkTemplate", "getBrandTalkTemplateList",
+        "requestSenderAuthentication", "registerSenderProfile", "getSenderProfileList",
+        "getHeartInfo", "cancelMessage",
+        "getMessageHistory", "getMessageDetail",
+        "getCategoryTree", "registerTemplate", "updateTemplate", "getTemplateList",
+        "requestTemplateInspection", "deleteTemplate"
     };
 
     @PostConstruct
@@ -56,8 +56,8 @@ public class AligoOperationTargetTypeResolver {
         for (String operation : KNOWN_OPERATIONS) {
             if (!OPERATION_TO_TARGET_TYPE.containsKey(operation)) {
                 log.error(
-                        "Aligo operation→targetType 매핑 누락 감지: operation={} (시작 단계 검증 실패)",
-                        operation
+                    "Aligo operation→targetType 매핑 누락 감지: operation={} (시작 단계 검증 실패)",
+                    operation
                 );
             }
         }
@@ -66,16 +66,16 @@ public class AligoOperationTargetTypeResolver {
     public NotificationVendorCommunicationTargetType resolve(String operation) {
         if (FormatValidator.hasNoValue(operation)) {
             log.error(
-                    "Aligo operation이 null/blank로 전달됨: 기본 targetType={} 으로 fail-open 처리",
-                    DEFAULT_TARGET_TYPE
+                "Aligo operation이 null/blank로 전달됨: 기본 targetType={} 으로 fail-open 처리",
+                DEFAULT_TARGET_TYPE
             );
             return DEFAULT_TARGET_TYPE;
         }
         NotificationVendorCommunicationTargetType targetType = OPERATION_TO_TARGET_TYPE.get(operation);
         if (FormatValidator.hasNoValue(targetType)) {
             log.error(
-                    "Aligo operation→targetType 매핑 미등록: operation={}, 기본 targetType={} 으로 fail-open 처리",
-                    operation, DEFAULT_TARGET_TYPE
+                "Aligo operation→targetType 매핑 미등록: operation={}, 기본 targetType={} 으로 fail-open 처리",
+                operation, DEFAULT_TARGET_TYPE
             );
             return DEFAULT_TARGET_TYPE;
         }

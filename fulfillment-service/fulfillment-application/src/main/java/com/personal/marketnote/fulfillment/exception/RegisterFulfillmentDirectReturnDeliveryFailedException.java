@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class RegisterFulfillmentDirectReturnDeliveryFailedException extends ExternalOperationFailedException {
     private static final String REGISTER_FULFILLMENT_DIRECT_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE =
-            "Fulfillment direct return delivery registration request failed.";
+        "Fulfillment direct return delivery registration request failed.";
 
     public RegisterFulfillmentDirectReturnDeliveryFailedException(IOException cause) {
         super(REGISTER_FULFILLMENT_DIRECT_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE, cause);

@@ -8,18 +8,18 @@ public class PaymentEntityToDomainMapper {
 
     public static Payment toDomain(PaymentJpaEntity entity) {
         return Payment.from(
-                PaymentSnapshotState.builder()
-                        .id(entity.getId())
-                        .orderId(entity.getOrderId())
-                        .orderKey(entity.getOrderKey())
-                        .pgPaymentKey(entity.getPgPaymentKey())
-                        .paymentAmount(entity.getPaymentAmount())
-                        .successYn(entity.getSuccessYn())
-                        .refundedYn(entity.getRefundedYn())
-                        .refundAmount(entity.getRefundAmount())
-                        .createdAt(entity.getCreatedAt())
-                        .modifiedAt(entity.getModifiedAt())
-                        .build()
+            PaymentSnapshotState.builder()
+                .id(entity.getId())
+                .orderId(entity.getOrderId())
+                .orderKey(entity.getOrderKey())
+                .pgPaymentKey(entity.getPgPaymentKey())
+                .paymentAmount(entity.getPaymentAmount())
+                .successYn(entity.getSuccessYn())
+                .refundedYn(entity.getRefundedYn())
+                .refundAmount(entity.getRefundAmount())
+                .createdAt(entity.getCreatedAt())
+                .modifiedAt(entity.getModifiedAt())
+                .build()
         );
     }
 }

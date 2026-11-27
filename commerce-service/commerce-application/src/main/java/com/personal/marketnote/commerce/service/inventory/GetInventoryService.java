@@ -36,15 +36,15 @@ public class GetInventoryService implements GetInventoryUseCase {
 
         if (inventories.size() != pricePolicyIds.size()) {
             Set<Long> existingPricePolicyIds = inventories.stream()
-                    .map(Inventory::getPricePolicyId)
-                    .collect(Collectors.toSet());
+                .map(Inventory::getPricePolicyId)
+                .collect(Collectors.toSet());
 
             Set<RegisterInventoryCommand> commands = pricePolicyIds.stream()
-                    .filter(pricePolicyId -> !existingPricePolicyIds.contains(pricePolicyId))
-                    .map(pricePolicyId -> RegisterInventoryCommand.of(
-                            productIdsByPricePolicyId.get(pricePolicyId), pricePolicyId
-                    ))
-                    .collect(Collectors.toSet());
+                .filter(pricePolicyId -> !existingPricePolicyIds.contains(pricePolicyId))
+                .map(pricePolicyId -> RegisterInventoryCommand.of(
+                    productIdsByPricePolicyId.get(pricePolicyId), pricePolicyId
+                ))
+                .collect(Collectors.toSet());
 
             inventories.addAll(registerInventoryUseCase.registerInventories(commands));
         }

@@ -248,7 +248,7 @@ class WithdrawUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> withdrawService.withdrawUser(id, Map.of(AuthVendor.GOOGLE, "token")))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(getUserUseCase).getAllStatusUser(id);
         verifyNoMoreInteractions(getUserUseCase);

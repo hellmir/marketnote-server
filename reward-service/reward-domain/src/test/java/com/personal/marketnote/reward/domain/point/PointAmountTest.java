@@ -30,35 +30,35 @@ class PointAmountTest {
     @DisplayName("null이면 PointAmountNoValueException을 던진다")
     void shouldThrowExceptionWhenAmountIsNull() {
         assertThatThrownBy(() -> PointAmount.of(null))
-                .isInstanceOf(PointAmountNoValueException.class);
+            .isInstanceOf(PointAmountNoValueException.class);
     }
 
     @Test
     @DisplayName("빈 문자열이면 PointAmountNoValueException을 던진다")
     void shouldThrowExceptionWhenAmountIsBlank() {
         assertThatThrownBy(() -> PointAmount.of(""))
-                .isInstanceOf(PointAmountNoValueException.class);
+            .isInstanceOf(PointAmountNoValueException.class);
     }
 
     @Test
     @DisplayName("음수이면 InvalidPointAmountException을 던진다")
     void shouldThrowExceptionWhenAmountIsNegative() {
         assertThatThrownBy(() -> PointAmount.of("-1"))
-                .isInstanceOf(InvalidPointAmountException.class);
+            .isInstanceOf(InvalidPointAmountException.class);
     }
 
     @Test
     @DisplayName("비정수 문자열이면 InvalidPointAmountException을 던진다")
     void shouldThrowExceptionWhenAmountIsNotInteger() {
         assertThatThrownBy(() -> PointAmount.of("abc"))
-                .isInstanceOf(InvalidPointAmountException.class);
+            .isInstanceOf(InvalidPointAmountException.class);
     }
 
     @Test
     @DisplayName("소수이면 InvalidPointAmountException을 던진다")
     void shouldThrowExceptionWhenAmountIsDecimal() {
         assertThatThrownBy(() -> PointAmount.of("1.5"))
-                .isInstanceOf(InvalidPointAmountException.class);
+            .isInstanceOf(InvalidPointAmountException.class);
     }
 
     @Test
@@ -74,7 +74,7 @@ class PointAmountTest {
     @DisplayName("of(long)에 음수를 전달하면 InvalidPointAmountException을 던진다")
     void shouldThrowExceptionWhenOfLongIsNegative() {
         assertThatThrownBy(() -> PointAmount.of(-1L))
-                .isInstanceOf(InvalidPointAmountException.class);
+            .isInstanceOf(InvalidPointAmountException.class);
     }
 
     @Test
@@ -104,7 +104,7 @@ class PointAmountTest {
         PointAmount one = PointAmount.of(1L);
 
         assertThatThrownBy(() -> max.add(one))
-                .isInstanceOf(ArithmeticException.class);
+            .isInstanceOf(ArithmeticException.class);
     }
 
     @Test
@@ -126,7 +126,7 @@ class PointAmountTest {
         PointAmount b = PointAmount.of(50L);
 
         assertThatThrownBy(() -> a.subtract(b))
-                .isInstanceOf(InvalidPointAmountException.class);
+            .isInstanceOf(InvalidPointAmountException.class);
     }
 
     @Test

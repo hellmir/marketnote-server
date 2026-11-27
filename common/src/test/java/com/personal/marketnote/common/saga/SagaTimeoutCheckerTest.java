@@ -62,9 +62,9 @@ class SagaTimeoutCheckerTest {
             // given
             SagaInstance instance = createInstance(SAGA_ID_1, SagaStatus.PROCESSING);
             when(findSagaPort.findTimedOutProcessingInstances(PROCESSING_CUTOFF))
-                    .thenReturn(List.of(instance));
+                .thenReturn(List.of(instance));
             when(findSagaPort.findTimedOutCompensatingInstances(COMPENSATION_CUTOFF))
-                    .thenReturn(Collections.emptyList());
+                .thenReturn(Collections.emptyList());
 
             // when
             sagaTimeoutChecker.checkTimeouts();
@@ -82,9 +82,9 @@ class SagaTimeoutCheckerTest {
             SagaInstance instance2 = createInstance(SAGA_ID_2, SagaStatus.PROCESSING);
             SagaInstance instance3 = createInstance(SAGA_ID_3, SagaStatus.PROCESSING);
             when(findSagaPort.findTimedOutProcessingInstances(PROCESSING_CUTOFF))
-                    .thenReturn(List.of(instance1, instance2, instance3));
+                .thenReturn(List.of(instance1, instance2, instance3));
             when(findSagaPort.findTimedOutCompensatingInstances(COMPENSATION_CUTOFF))
-                    .thenReturn(Collections.emptyList());
+                .thenReturn(Collections.emptyList());
 
             // when
             sagaTimeoutChecker.checkTimeouts();
@@ -101,9 +101,9 @@ class SagaTimeoutCheckerTest {
         void shouldNotCallHandleProcessingTimeoutWhenNoTimedOutInstances() {
             // given
             when(findSagaPort.findTimedOutProcessingInstances(PROCESSING_CUTOFF))
-                    .thenReturn(Collections.emptyList());
+                .thenReturn(Collections.emptyList());
             when(findSagaPort.findTimedOutCompensatingInstances(COMPENSATION_CUTOFF))
-                    .thenReturn(Collections.emptyList());
+                .thenReturn(Collections.emptyList());
 
             // when
             sagaTimeoutChecker.checkTimeouts();
@@ -121,9 +121,9 @@ class SagaTimeoutCheckerTest {
             SagaInstance instance2 = createInstance(SAGA_ID_2, SagaStatus.PROCESSING);
             SagaInstance instance3 = createInstance(SAGA_ID_3, SagaStatus.PROCESSING);
             when(findSagaPort.findTimedOutProcessingInstances(PROCESSING_CUTOFF))
-                    .thenReturn(List.of(instance1, instance2, instance3));
+                .thenReturn(List.of(instance1, instance2, instance3));
             when(findSagaPort.findTimedOutCompensatingInstances(COMPENSATION_CUTOFF))
-                    .thenReturn(Collections.emptyList());
+                .thenReturn(Collections.emptyList());
             doThrow(new RuntimeException("처리 실패")).when(sagaOrchestrator).handleProcessingTimeout(SAGA_ID_2);
 
             // when
@@ -146,9 +146,9 @@ class SagaTimeoutCheckerTest {
             // given
             SagaInstance instance = createInstance(SAGA_ID_1, SagaStatus.COMPENSATING);
             when(findSagaPort.findTimedOutProcessingInstances(PROCESSING_CUTOFF))
-                    .thenReturn(Collections.emptyList());
+                .thenReturn(Collections.emptyList());
             when(findSagaPort.findTimedOutCompensatingInstances(COMPENSATION_CUTOFF))
-                    .thenReturn(List.of(instance));
+                .thenReturn(List.of(instance));
 
             // when
             sagaTimeoutChecker.checkTimeouts();
@@ -166,9 +166,9 @@ class SagaTimeoutCheckerTest {
             SagaInstance instance2 = createInstance(SAGA_ID_2, SagaStatus.COMPENSATING);
             SagaInstance instance3 = createInstance(SAGA_ID_3, SagaStatus.COMPENSATING);
             when(findSagaPort.findTimedOutProcessingInstances(PROCESSING_CUTOFF))
-                    .thenReturn(Collections.emptyList());
+                .thenReturn(Collections.emptyList());
             when(findSagaPort.findTimedOutCompensatingInstances(COMPENSATION_CUTOFF))
-                    .thenReturn(List.of(instance1, instance2, instance3));
+                .thenReturn(List.of(instance1, instance2, instance3));
 
             // when
             sagaTimeoutChecker.checkTimeouts();
@@ -185,9 +185,9 @@ class SagaTimeoutCheckerTest {
         void shouldNotCallHandleCompensationTimeoutWhenNoTimedOutInstances() {
             // given
             when(findSagaPort.findTimedOutProcessingInstances(PROCESSING_CUTOFF))
-                    .thenReturn(Collections.emptyList());
+                .thenReturn(Collections.emptyList());
             when(findSagaPort.findTimedOutCompensatingInstances(COMPENSATION_CUTOFF))
-                    .thenReturn(Collections.emptyList());
+                .thenReturn(Collections.emptyList());
 
             // when
             sagaTimeoutChecker.checkTimeouts();
@@ -205,9 +205,9 @@ class SagaTimeoutCheckerTest {
             SagaInstance instance2 = createInstance(SAGA_ID_2, SagaStatus.COMPENSATING);
             SagaInstance instance3 = createInstance(SAGA_ID_3, SagaStatus.COMPENSATING);
             when(findSagaPort.findTimedOutProcessingInstances(PROCESSING_CUTOFF))
-                    .thenReturn(Collections.emptyList());
+                .thenReturn(Collections.emptyList());
             when(findSagaPort.findTimedOutCompensatingInstances(COMPENSATION_CUTOFF))
-                    .thenReturn(List.of(instance1, instance2, instance3));
+                .thenReturn(List.of(instance1, instance2, instance3));
             doThrow(new RuntimeException("보상 처리 실패")).when(sagaOrchestrator).handleCompensationTimeout(SAGA_ID_2);
 
             // when
@@ -231,9 +231,9 @@ class SagaTimeoutCheckerTest {
             SagaInstance processingInstance = createInstance(SAGA_ID_1, SagaStatus.PROCESSING);
             SagaInstance compensatingInstance = createInstance(SAGA_ID_2, SagaStatus.COMPENSATING);
             when(findSagaPort.findTimedOutProcessingInstances(PROCESSING_CUTOFF))
-                    .thenReturn(List.of(processingInstance));
+                .thenReturn(List.of(processingInstance));
             when(findSagaPort.findTimedOutCompensatingInstances(COMPENSATION_CUTOFF))
-                    .thenReturn(List.of(compensatingInstance));
+                .thenReturn(List.of(compensatingInstance));
 
             // when
             sagaTimeoutChecker.checkTimeouts();
@@ -249,8 +249,8 @@ class SagaTimeoutCheckerTest {
 
     private SagaInstance createInstance(String sagaId, SagaStatus status) {
         return SagaInstance.from(new SagaInstanceSnapshotState(
-                1L, sagaId, SAGA_TYPE, status, 0, "{}",
-                FIXED_TIME, FIXED_TIME, null
+            1L, sagaId, SAGA_TYPE, status, 0, "{}",
+            FIXED_TIME, FIXED_TIME, null
         ));
     }
 }

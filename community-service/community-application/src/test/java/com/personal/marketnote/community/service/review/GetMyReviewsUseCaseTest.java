@@ -55,11 +55,11 @@ class GetMyReviewsUseCaseTest {
         Reviews reviews = Reviews.from(List.of(review));
 
         when(findReviewPort.findUserReviews(eq(userId), eq(-1L), any(Pageable.class), eq(ReviewSortProperty.ID)))
-                .thenReturn(reviews);
+            .thenReturn(reviews);
         when(findReviewPort.countActive(userId)).thenReturn(1L);
 
         GetMyReviewsResult result = getReviewService.getWriterReviews(
-                userId, -1L, 4, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, -1L, 4, Sort.Direction.DESC, ReviewSortProperty.ID
         );
 
         assertThat(result.reviews()).hasSize(1);
@@ -75,11 +75,11 @@ class GetMyReviewsUseCaseTest {
         Reviews reviews = Reviews.from(List.of(review));
 
         when(findReviewPort.findUserReviews(eq(userId), eq(-1L), any(Pageable.class), eq(ReviewSortProperty.ID)))
-                .thenReturn(reviews);
+            .thenReturn(reviews);
         when(findReviewPort.countActive(userId)).thenReturn(1L);
 
         GetMyReviewsResult result = getReviewService.getWriterReviews(
-                userId, -1L, 4, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, -1L, 4, Sort.Direction.DESC, ReviewSortProperty.ID
         );
 
         assertThat(result.reviews()).hasSize(1);
@@ -103,16 +103,16 @@ class GetMyReviewsUseCaseTest {
         Reviews reviews = Reviews.from(List.of(review));
 
         when(findReviewPort.findUserReviews(eq(userId), eq(-1L), any(Pageable.class), eq(ReviewSortProperty.ID)))
-                .thenReturn(reviews);
+            .thenReturn(reviews);
         when(findReviewPort.countActive(userId)).thenReturn(1L);
 
         ProductInfoResult productInfo = buildProductInfo(pricePolicyId);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
+            .thenReturn(Map.of(pricePolicyId, productInfo));
 
         // when
         GetMyReviewsResult result = getReviewService.getWriterReviews(
-                userId, -1L, 4, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, -1L, 4, Sort.Direction.DESC, ReviewSortProperty.ID
         );
 
         // then
@@ -131,16 +131,16 @@ class GetMyReviewsUseCaseTest {
         Reviews reviews = Reviews.from(List.of(review));
 
         when(findReviewPort.findUserReviews(eq(userId), eq(-1L), any(Pageable.class), eq(ReviewSortProperty.ID)))
-                .thenReturn(reviews);
+            .thenReturn(reviews);
         when(findReviewPort.countActive(userId)).thenReturn(1L);
 
         ProductInfoResult productInfo = buildProductInfo(pricePolicyId);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
+            .thenReturn(Map.of(pricePolicyId, productInfo));
 
         // when
         GetMyReviewsResult result = getReviewService.getWriterReviews(
-                userId, -1L, 4, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, -1L, 4, Sort.Direction.DESC, ReviewSortProperty.ID
         );
 
         // then
@@ -161,16 +161,16 @@ class GetMyReviewsUseCaseTest {
         Reviews reviews = Reviews.from(List.of(reviewWithAmount, reviewWithoutAmount));
 
         when(findReviewPort.findUserReviews(eq(userId), eq(-1L), any(Pageable.class), eq(ReviewSortProperty.ID)))
-                .thenReturn(reviews);
+            .thenReturn(reviews);
         when(findReviewPort.countActive(userId)).thenReturn(2L);
 
         ProductInfoResult productInfo = buildProductInfo(pricePolicyId);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
+            .thenReturn(Map.of(pricePolicyId, productInfo));
 
         // when
         GetMyReviewsResult result = getReviewService.getWriterReviews(
-                userId, -1L, 4, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, -1L, 4, Sort.Direction.DESC, ReviewSortProperty.ID
         );
 
         // then
@@ -190,16 +190,16 @@ class GetMyReviewsUseCaseTest {
         Reviews reviews = Reviews.from(List.of(review1, review2));
 
         when(findReviewPort.findUserReviews(eq(userId), eq(-1L), any(Pageable.class), eq(ReviewSortProperty.ID)))
-                .thenReturn(reviews);
+            .thenReturn(reviews);
         when(findReviewPort.countActive(userId)).thenReturn(2L);
 
         ProductInfoResult productInfo = buildProductInfo(pricePolicyId);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
+            .thenReturn(Map.of(pricePolicyId, productInfo));
 
         // when
         GetMyReviewsResult result = getReviewService.getWriterReviews(
-                userId, -1L, 4, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, -1L, 4, Sort.Direction.DESC, ReviewSortProperty.ID
         );
 
         // then
@@ -209,68 +209,68 @@ class GetMyReviewsUseCaseTest {
     }
 
     private Review buildReviewWithUnitAmount(
-            Long id, Long reviewerId, Long productId, Long pricePolicyId, boolean isPhoto, Long unitAmount
+        Long id, Long reviewerId, Long productId, Long pricePolicyId, boolean isPhoto, Long unitAmount
     ) {
         return Review.from(
-                ReviewSnapshotState.builder()
-                        .id(id)
-                        .reviewerId(reviewerId)
-                        .orderId(1000L + id)
-                        .productId(productId)
-                        .pricePolicyId(pricePolicyId)
-                        .productImageUrl("https://example.com/product-" + productId + ".jpg")
-                        .selectedOptions("옵션-" + id)
-                        .quantity(1)
-                        .reviewerName("사용자-" + id)
-                        .maskedReviewerName("사*자-" + id)
-                        .rating(Rating.of(5.0f))
-                        .content("리뷰-" + id)
-                        .isPhoto(isPhoto)
-                        .isEdited(false)
-                        .likeCount(3)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .orderNum(id)
-                        .unitAmount(unitAmount)
-                        .build()
+            ReviewSnapshotState.builder()
+                .id(id)
+                .reviewerId(reviewerId)
+                .orderId(1000L + id)
+                .productId(productId)
+                .pricePolicyId(pricePolicyId)
+                .productImageUrl("https://example.com/product-" + productId + ".jpg")
+                .selectedOptions("옵션-" + id)
+                .quantity(1)
+                .reviewerName("사용자-" + id)
+                .maskedReviewerName("사*자-" + id)
+                .rating(Rating.of(5.0f))
+                .content("리뷰-" + id)
+                .isPhoto(isPhoto)
+                .isEdited(false)
+                .likeCount(3)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .unitAmount(unitAmount)
+                .build()
         );
     }
 
     private ProductInfoResult buildProductInfo(Long pricePolicyId) {
         return new ProductInfoResult(
-                1L,
-                "테스트 상품",
-                "테스트 브랜드",
-                new ProductPricePolicyInfoResult(pricePolicyId, 20000L, 15000L, BigDecimal.valueOf(25), 100L),
-                List.of(),
-                new GetFileResult(1L, "CATALOG", "jpg", "catalog.jpg", "https://example.com/catalog.jpg", List.of(), 1L)
+            1L,
+            "테스트 상품",
+            "테스트 브랜드",
+            new ProductPricePolicyInfoResult(pricePolicyId, 20000L, 15000L, BigDecimal.valueOf(25), 100L),
+            List.of(),
+            new GetFileResult(1L, "CATALOG", "jpg", "catalog.jpg", "https://example.com/catalog.jpg", List.of(), 1L)
         );
     }
 
     private Review buildReview(Long id, Long reviewerId, Long productId, Long pricePolicyId, boolean isPhoto) {
         return Review.from(
-                ReviewSnapshotState.builder()
-                        .id(id)
-                        .reviewerId(reviewerId)
-                        .orderId(1000L + id)
-                        .productId(productId)
-                        .pricePolicyId(pricePolicyId)
-                        .productImageUrl("https://example.com/product-" + productId + ".jpg")
-                        .selectedOptions("옵션-" + id)
-                        .quantity(1)
-                        .reviewerName("사용자-" + id)
-                        .maskedReviewerName("사*자-" + id)
-                        .rating(Rating.of(5.0f))
-                        .content("리뷰-" + id)
-                        .isPhoto(isPhoto)
-                        .isEdited(false)
-                        .likeCount(3)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .orderNum(id)
-                        .build()
+            ReviewSnapshotState.builder()
+                .id(id)
+                .reviewerId(reviewerId)
+                .orderId(1000L + id)
+                .productId(productId)
+                .pricePolicyId(pricePolicyId)
+                .productImageUrl("https://example.com/product-" + productId + ".jpg")
+                .selectedOptions("옵션-" + id)
+                .quantity(1)
+                .reviewerName("사용자-" + id)
+                .maskedReviewerName("사*자-" + id)
+                .rating(Rating.of(5.0f))
+                .content("리뷰-" + id)
+                .isPhoto(isPhoto)
+                .isEdited(false)
+                .likeCount(3)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .build()
         );
     }
 }

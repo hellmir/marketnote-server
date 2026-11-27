@@ -31,7 +31,7 @@ public class KafkaSaslProperties {
     private static final String CLASSPATH_PREFIX = "classpath:";
 
     private static final Set<String> SUPPORTED_MECHANISMS = Set.of(
-            "SCRAM-SHA-256", "SCRAM-SHA-512", "PLAIN"
+        "SCRAM-SHA-256", "SCRAM-SHA-512", "PLAIN"
     );
 
     private boolean enabled = false;
@@ -101,8 +101,8 @@ public class KafkaSaslProperties {
         String sanitizedUsername = username.replace("\\", "\\\\").replace("\"", "\\\"");
         String sanitizedPassword = password.replace("\\", "\\\\").replace("\"", "\\\"");
         return loginModule + " required "
-                + "username=\"" + sanitizedUsername + "\" "
-                + "password=\"" + sanitizedPassword + "\";";
+            + "username=\"" + sanitizedUsername + "\" "
+            + "password=\"" + sanitizedPassword + "\";";
     }
 
     private String resolveLoginModule() {

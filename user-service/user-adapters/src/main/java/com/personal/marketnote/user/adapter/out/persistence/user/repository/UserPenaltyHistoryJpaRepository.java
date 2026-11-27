@@ -9,9 +9,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface UserPenaltyHistoryJpaRepository extends JpaRepository<UserPenaltyHistoryJpaEntity, Long> {
     @Query("""
-            SELECT h
-            FROM UserPenaltyHistoryJpaEntity h
-            WHERE h.userId = :userId
-            """)
+        SELECT h
+        FROM UserPenaltyHistoryJpaEntity h
+        WHERE h.userId = :userId
+        """)
     Page<UserPenaltyHistoryJpaEntity> findUserPenaltyHistoriesByUserId(Pageable pageable, @Param("userId") Long userId);
 }

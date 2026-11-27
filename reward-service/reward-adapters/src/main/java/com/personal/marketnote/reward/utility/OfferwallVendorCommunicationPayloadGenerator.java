@@ -32,19 +32,19 @@ public class OfferwallVendorCommunicationPayloadGenerator {
     }
 
     public JsonNode buildAdpopcornPayloadJson(
-            String rewardKey,
-            String userKey,
-            UserDeviceType userDeviceType,
-            String campaignKey,
-            Integer campaignType,
-            String campaignName,
-            Long quantity,
-            String signedValue,
-            Integer appKey,
-            String appName,
-            String adid,
-            String idfa,
-            String attendedAt
+        String rewardKey,
+        String userKey,
+        UserDeviceType userDeviceType,
+        String campaignKey,
+        Integer campaignType,
+        String campaignName,
+        Long quantity,
+        String signedValue,
+        Integer appKey,
+        String appName,
+        String adid,
+        String idfa,
+        String attendedAt
     ) {
         ObjectNode node = objectMapper.createObjectNode();
 
@@ -66,16 +66,16 @@ public class OfferwallVendorCommunicationPayloadGenerator {
     }
 
     public JsonNode buildTnkPayloadJson(
-            String rewardKey,
-            String userKey,
-            UserDeviceType userDeviceType,
-            Integer campaignType,
-            Long quantity,
-            String signedValue,
-            String appName,
-            String adid,
-            String attendedAt,
-            BigDecimal revenue
+        String rewardKey,
+        String userKey,
+        UserDeviceType userDeviceType,
+        Integer campaignType,
+        Long quantity,
+        String signedValue,
+        String appName,
+        String adid,
+        String attendedAt,
+        BigDecimal revenue
     ) {
         ObjectNode node = objectMapper.createObjectNode();
 
@@ -94,17 +94,17 @@ public class OfferwallVendorCommunicationPayloadGenerator {
     }
 
     public JsonNode buildAdiscopePayloadJson(
-            String rewardKey,
-            String userKey,
-            UserDeviceType userDeviceType,
-            String campaignKey,
-            String campaignType,
-            String campaignName,
-            String rewardUnit,
-            Long quantity,
-            String signedValue,
-            String adid,
-            String network
+        String rewardKey,
+        String userKey,
+        UserDeviceType userDeviceType,
+        String campaignKey,
+        String campaignType,
+        String campaignName,
+        String rewardUnit,
+        Long quantity,
+        String signedValue,
+        String adid,
+        String network
     ) {
         ObjectNode node = objectMapper.createObjectNode();
 

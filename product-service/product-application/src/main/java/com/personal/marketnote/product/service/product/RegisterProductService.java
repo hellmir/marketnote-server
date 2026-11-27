@@ -35,31 +35,31 @@ public class RegisterProductService implements RegisterProductUseCase {
         Long sellerId = command.sellerId();
 
         Product savedProduct = saveProductPort.save(
-                Product.from(ProductCommandToStateMapper.mapToState(command))
+            Product.from(ProductCommandToStateMapper.mapToState(command))
         );
 
         Long productId = savedProduct.getId();
         RegisterPricePolicyResult registerPricePolicyResult = registerPricePolicyUseCase.registerPricePolicy(
-                sellerId, false, RegisterPricePolicyCommand.from(productId, command)
+            sellerId, false, RegisterPricePolicyCommand.from(productId, command)
         );
 
         // Outbox 이벤트 저장 (트랜잭션 내)
         FulfillmentVendorGoodsOptionCommand fulfillmentOptions = command.fulfillmentVendorGoods();
         String goodsType = FormatValidator.hasValue(fulfillmentOptions) && FormatValidator.hasValue(fulfillmentOptions.goodsType())
-                ? fulfillmentOptions.goodsType()
-                : null;
+            ? fulfillmentOptions.goodsType()
+            : null;
 
         Long sales = FormatValidator.hasValue(savedProduct.getSales())
-                ? savedProduct.getSales().longValue()
-                : 0L;
+            ? savedProduct.getSales().longValue()
+            : 0L;
         List<ProductRegisteredEvent.ProductTagSnapshot> productTags = toTagSnapshots(savedProduct.getProductTags());
 
         boolean imported = FormatValidator.hasValue(command.fasstoProductCode());
         publishProductEventPort.publishProductRegisteredEvent(
-                savedProduct.getId(), savedProduct.getProductKey(),
-                registerPricePolicyResult.id(), command.sellerId(), savedProduct.getName(), goodsType,
-                savedProduct.getBrandName(), command.price(), command.discountPrice(), command.accumulatedPoint(),
-                sales, productTags, List.of(), savedProduct.getFasstoProductCode(), imported
+            savedProduct.getId(), savedProduct.getProductKey(),
+            registerPricePolicyResult.id(), command.sellerId(), savedProduct.getName(), goodsType,
+            savedProduct.getBrandName(), command.price(), command.discountPrice(), command.accumulatedPoint(),
+            sales, productTags, List.of(), savedProduct.getFasstoProductCode(), imported
         );
 
         return RegisterProductResult.from(savedProduct);
@@ -70,9 +70,9 @@ public class RegisterProductService implements RegisterProductUseCase {
             return List.of();
         }
         return productTags.stream()
-                .map(tag -> new ProductRegisteredEvent.ProductTagSnapshot(
-                        tag.getId(), tag.getName(), tag.getOrderNum()
-                ))
-                .toList();
+            .map(tag -> new ProductRegisteredEvent.ProductTagSnapshot(
+                tag.getId(), tag.getName(), tag.getOrderNum()
+            ))
+            .toList();
     }
 }

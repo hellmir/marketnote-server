@@ -15,8 +15,8 @@ class BrandTalkWideItemCommandToStateMapperTest {
     @DisplayName("와이드 아이템 Command는 도메인으로 매핑된다")
     void mapsWideItemCommand() {
         BrandTalkWideItemCommand command = new BrandTalkWideItemCommand(
-                "타이틀", "https://img.example.com/1.png",
-                "https://m.example.com", "https://pc.example.com", null, null
+            "타이틀", "https://img.example.com/1.png",
+            "https://m.example.com", "https://pc.example.com", null, null
         );
 
         BrandTalkWideItem wideItem = BrandTalkWideItemCommandToStateMapper.mapWideItem(command);
@@ -40,8 +40,8 @@ class BrandTalkWideItemCommandToStateMapperTest {
     @DisplayName("와이드 아이템 Command 리스트는 도메인 리스트로 매핑된다")
     void mapsWideItemCommandList() {
         List<BrandTalkWideItemCommand> commands = List.of(
-                new BrandTalkWideItemCommand("A", null, null, null, null, null),
-                new BrandTalkWideItemCommand("B", null, null, null, null, null)
+            new BrandTalkWideItemCommand("A", null, null, null, null, null),
+            new BrandTalkWideItemCommand("B", null, null, null, null, null)
         );
 
         List<BrandTalkWideItem> items = BrandTalkWideItemCommandToStateMapper.mapWideItems(commands);

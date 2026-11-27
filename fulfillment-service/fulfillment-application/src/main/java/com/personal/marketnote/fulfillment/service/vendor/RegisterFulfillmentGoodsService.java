@@ -36,7 +36,7 @@ public class RegisterFulfillmentGoodsService implements RegisterFulfillmentGoods
     @Transactional(isolation = READ_COMMITTED)
     public RegisterFulfillmentGoodsResult registerGoodsIdempotent(RegisterFulfillmentGoodsCommand command) {
         FulfillmentGoodsRegistration registration = FulfillmentGoodsRegistration.from(
-                FulfillmentCommandToStateMapper.mapToGoodsRegistrationCreateState(command)
+            FulfillmentCommandToStateMapper.mapToGoodsRegistrationCreateState(command)
         );
         saveFulfillmentGoodsRegistrationPort.save(registration);
 
@@ -53,10 +53,10 @@ public class RegisterFulfillmentGoodsService implements RegisterFulfillmentGoods
     @Transactional(isolation = READ_COMMITTED)
     public void recordImportedGoodsRegistration(UUID productKey, String fasstoProductCode) {
         FulfillmentGoodsRegistration registration = FulfillmentGoodsRegistration.from(
-                FulfillmentGoodsRegistrationCreateState.builder()
-                        .productKey(productKey)
-                        .fasstoProductCode(fasstoProductCode)
-                        .build()
+            FulfillmentGoodsRegistrationCreateState.builder()
+                .productKey(productKey)
+                .fasstoProductCode(fasstoProductCode)
+                .build()
         );
         saveFulfillmentGoodsRegistrationPort.save(registration);
     }

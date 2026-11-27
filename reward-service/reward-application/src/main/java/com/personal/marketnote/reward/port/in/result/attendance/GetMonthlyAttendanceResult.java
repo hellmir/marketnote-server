@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 public record GetMonthlyAttendanceResult(
-        List<LocalDate> attendanceDates, int totalAttendanceDays, long totalRewardQuantity
+    List<LocalDate> attendanceDates, int totalAttendanceDays, long totalRewardQuantity
 ) {
     public static GetMonthlyAttendanceResult from(UserAttendance attendance) {
         if (FormatValidator.hasNoValue(attendance)) {
@@ -19,19 +19,19 @@ public record GetMonthlyAttendanceResult(
 
         List<UserAttendanceHistory> histories = attendance.getHistories();
         List<LocalDate> dates = FormatValidator.hasNoValue(histories)
-                ? List.of()
-                : histories.stream()
-                .map(UserAttendanceHistory::getAttendedAt)
-                .filter(Objects::nonNull)
-                .map(LocalDateTime::toLocalDate)
-                .distinct()
-                .sorted()
-                .toList();
+            ? List.of()
+            : histories.stream()
+            .map(UserAttendanceHistory::getAttendedAt)
+            .filter(Objects::nonNull)
+            .map(LocalDateTime::toLocalDate)
+            .distinct()
+            .sorted()
+            .toList();
 
         return new GetMonthlyAttendanceResult(
-                dates,
-                dates.size(),
-                attendance.getTotalRewardQuantityValue()
+            dates,
+            dates.size(),
+            attendance.getTotalRewardQuantityValue()
         );
     }
 

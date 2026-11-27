@@ -30,13 +30,13 @@ public interface GetAdminProductsUseCase {
      * @Description 관리자 상품 목록을 조회합니다.
      */
     GetAdminProductsResult getAdminProducts(
-            Long categoryId,
-            List<Long> pricePolicyIds,
-            int page,
-            int pageSize,
-            Sort.Direction sortDirection,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword
+        Long categoryId,
+        List<Long> pricePolicyIds,
+        int page,
+        int pageSize,
+        Sort.Direction sortDirection,
+        ProductSortProperty sortProperty,
+        ProductSearchTarget searchTarget,
+        String searchKeyword
     );
 }

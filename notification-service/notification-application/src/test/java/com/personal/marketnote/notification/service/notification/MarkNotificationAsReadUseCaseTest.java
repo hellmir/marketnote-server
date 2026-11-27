@@ -59,7 +59,7 @@ class MarkNotificationAsReadUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> markNotificationAsReadService.markAsRead(command))
-                .isInstanceOf(NotificationNotFoundException.class);
+            .isInstanceOf(NotificationNotFoundException.class);
     }
 
     @Test
@@ -72,7 +72,7 @@ class MarkNotificationAsReadUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> markNotificationAsReadService.markAsRead(command))
-                .isInstanceOf(NotificationNotFoundException.class);
+            .isInstanceOf(NotificationNotFoundException.class);
         verifyNoInteractions(updateNotificationPort);
     }
 
@@ -93,19 +93,19 @@ class MarkNotificationAsReadUseCaseTest {
 
     private Notification createNotification(Long id, Long userId, boolean isRead) {
         return Notification.from(
-                NotificationSnapshotState.builder()
-                        .id(id)
-                        .userId(userId)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .title("알림")
-                        .body("알림 본문")
-                        .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
-                        .isRead(isRead)
-                        .sendStatus(SendStatus.SENT)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            NotificationSnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title("알림")
+                .body("알림 본문")
+                .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                .isRead(isRead)
+                .sendStatus(SendStatus.SENT)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 }

@@ -10,7 +10,7 @@ import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @Table(name = "notification_template", indexes = {
-        @Index(name = "idx_notification_template_template_code", columnList = "template_code", unique = true)
+    @Index(name = "idx_notification_template_template_code", columnList = "template_code", unique = true)
 })
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -41,13 +41,13 @@ public class NotificationTemplateJpaEntity extends BaseGeneralEntity {
 
     public static NotificationTemplateJpaEntity from(NotificationTemplate template) {
         return NotificationTemplateJpaEntity.builder()
-                .templateCode(template.getTemplateCode())
-                .notificationType(template.getNotificationType())
-                .notificationCategory(template.getNotificationCategory())
-                .title(template.getTitle())
-                .bodyTemplate(template.getBodyTemplate())
-                .urlTemplate(template.getUrlTemplate())
-                .build();
+            .templateCode(template.getTemplateCode())
+            .notificationType(template.getNotificationType())
+            .notificationCategory(template.getNotificationCategory())
+            .title(template.getTitle())
+            .bodyTemplate(template.getBodyTemplate())
+            .urlTemplate(template.getUrlTemplate())
+            .build();
     }
 
     public void updateFrom(NotificationTemplate template) {

@@ -46,14 +46,14 @@ class BrandTalkCouponTest {
 
         // when
         BrandTalkCoupon coupon = BrandTalkCoupon.from(
-                BrandTalkCouponSnapshotState.builder()
-                        .title(null)
-                        .description(longDescription)
-                        .linkM("https://m.example.com")
-                        .linkP("https://www.example.com")
-                        .linkI("example://open")
-                        .linkA("android://open")
-                        .build()
+            BrandTalkCouponSnapshotState.builder()
+                .title(null)
+                .description(longDescription)
+                .linkM("https://m.example.com")
+                .linkP("https://www.example.com")
+                .linkI("example://open")
+                .linkA("android://open")
+                .build()
         );
 
         // then

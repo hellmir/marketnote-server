@@ -4,12 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentErrorInfo;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentResponseHeader;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentDeliveryItemResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentDeliveryResponse;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentReturnGodDetailFailedException;
 import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentReturnDeliveryFailedException;
@@ -38,7 +37,6 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.nio.charset.StandardCharsets;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -92,20 +90,20 @@ class FulfillmentReturnDeliveryClientTest {
         externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
 
         client = new FulfillmentReturnDeliveryClient(
-                builder,
-                objectMapper,
-                properties,
-                vendorCommunicationRecorder,
-                vendorCommunicationPayloadGenerator,
-                vendorCommunicationFailureHandler,
-                externalCallLogger,
-                new NoOpSleeper()
+            builder,
+            objectMapper,
+            properties,
+            vendorCommunicationRecorder,
+            vendorCommunicationPayloadGenerator,
+            vendorCommunicationFailureHandler,
+            externalCallLogger,
+            new NoOpSleeper()
         );
     }
 
     private void stubPayloadGenerator() {
         lenient().when(vendorCommunicationPayloadGenerator.buildPayloadJson(any()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
     }
 
     private void stubReturnDeliveryProperties() {
@@ -120,20 +118,20 @@ class FulfillmentReturnDeliveryClientTest {
 
     private RegisterFulfillmentReturnDeliveryCommand buildValidRegisterCommand() {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                null, "PROD001", "PROD001", "20260414", 1
+            null, "PROD001", "PROD001", "20260414", 1
         );
         RegisterFulfillmentReturnDeliveryItemCommand itemCommand = RegisterFulfillmentReturnDeliveryItemCommand.builder()
-                .orderDate("20260414")
-                .orderNumber("ORD001")
-                .courierCode("04")
-                .invoiceNumber("1234567890")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .recipientAddress("서울시 강남구")
-                .returnType("01")
-                .returnReason("01")
-                .products(List.of(goodsCommand))
-                .build();
+            .orderDate("20260414")
+            .orderNumber("ORD001")
+            .courierCode("04")
+            .invoiceNumber("1234567890")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .recipientAddress("서울시 강남구")
+            .returnType("01")
+            .returnReason("01")
+            .products(List.of(goodsCommand))
+            .build();
         return RegisterFulfillmentReturnDeliveryCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 
@@ -207,7 +205,7 @@ class FulfillmentReturnDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerReturnDelivery(command))
-                    .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class);
         }
     }
 
@@ -224,15 +222,15 @@ class FulfillmentReturnDeliveryClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentReturnGodDetailCommand command = GetFulfillmentReturnGodDetailCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> client.getReturnGodDetail(command))
-                    .isInstanceOf(GetFulfillmentReturnGodDetailFailedException.class);
+                .isInstanceOf(GetFulfillmentReturnGodDetailFailedException.class);
         }
     }
 
@@ -247,15 +245,15 @@ class FulfillmentReturnDeliveryClientTest {
             when(properties.getBaseUrl()).thenReturn(null);
 
             GetFulfillmentReturnGodDetailCommand command = GetFulfillmentReturnGodDetailCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> client.getReturnGodDetail(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -270,9 +268,9 @@ class FulfillmentReturnDeliveryClientTest {
             stubReturnDeliveryProperties();
             stubPayloadGenerator();
             RegisterFulfillmentDeliveryResponse payload = new RegisterFulfillmentDeliveryResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new RegisterFulfillmentDeliveryItemResponse("FMS001", "ORD001", "OK", "200", null)),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(new RegisterFulfillmentDeliveryItemResponse("FMS001", "ORD001", "OK", "200", null)),
+                null
             );
             stubPostChain(ResponseEntity.ok(toJson(payload)));
 
@@ -296,15 +294,15 @@ class FulfillmentReturnDeliveryClientTest {
             stubReturnDeliveryProperties();
             stubPayloadGenerator();
             stubPostChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.registerReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class);
         }
 
         @Test
@@ -314,15 +312,15 @@ class FulfillmentReturnDeliveryClientTest {
             stubReturnDeliveryProperties();
             stubPayloadGenerator();
             stubPostChainThrows(new HttpServerErrorException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Internal Server Error",
-                    "boom".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                "boom".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.registerReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class);
         }
 
         @Test
@@ -332,15 +330,15 @@ class FulfillmentReturnDeliveryClientTest {
             stubReturnDeliveryProperties();
             stubPayloadGenerator();
             RegisterFulfillmentDeliveryResponse payload = new RegisterFulfillmentDeliveryResponse(
-                    new FulfillmentResponseHeader("500", "vendor failure", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("500", "vendor failure", 0),
+                List.of(),
+                null
             );
             stubPostChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.registerReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class);
         }
 
         @Test
@@ -350,18 +348,18 @@ class FulfillmentReturnDeliveryClientTest {
             stubReturnDeliveryProperties();
             stubPayloadGenerator();
             RegisterFulfillmentDeliveryResponse payload = new RegisterFulfillmentDeliveryResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new RegisterFulfillmentDeliveryItemResponse(
-                            null, "ORD001", "item-level vendor error", "400", null
-                    )),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(new RegisterFulfillmentDeliveryItemResponse(
+                    null, "ORD001", "item-level vendor error", "400", null
+                )),
+                null
             );
             stubPostChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.registerReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class)
-                    .hasMessageContaining("item-level vendor error");
+                .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class)
+                .hasMessageContaining("item-level vendor error");
         }
 
         @Test
@@ -374,7 +372,7 @@ class FulfillmentReturnDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class);
         }
 
         @Test
@@ -384,15 +382,15 @@ class FulfillmentReturnDeliveryClientTest {
             stubReturnDeliveryProperties();
             stubPayloadGenerator();
             RegisterFulfillmentDeliveryResponse payload = new RegisterFulfillmentDeliveryResponse(
-                    new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
+                List.of(),
+                null
             );
             stubPostChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.registerReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
+                .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
         }
     }
 
@@ -402,11 +400,11 @@ class FulfillmentReturnDeliveryClientTest {
 
         private GetFulfillmentReturnGodDetailCommand buildCommand() {
             return GetFulfillmentReturnGodDetailCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .build();
         }
 
         @Test
@@ -416,15 +414,15 @@ class FulfillmentReturnDeliveryClientTest {
             stubReturnGodDetailProperties();
             stubPayloadGenerator();
             stubGetChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.getReturnGodDetail(buildCommand()))
-                    .isInstanceOf(GetFulfillmentReturnGodDetailFailedException.class);
+                .isInstanceOf(GetFulfillmentReturnGodDetailFailedException.class);
         }
 
         @Test
@@ -434,15 +432,15 @@ class FulfillmentReturnDeliveryClientTest {
             stubReturnGodDetailProperties();
             stubPayloadGenerator();
             String body = String.format(
-                    "{\"header\":{\"code\":\"500\",\"msg\":\"fail\",\"dataCount\":0},\"data\":[],\"errorInfo\":{\"errorCode\":\"E_INTERNAL\",\"errorMessage\":\"%s\"}}",
-                    "vendor outage"
+                "{\"header\":{\"code\":\"500\",\"msg\":\"fail\",\"dataCount\":0},\"data\":[],\"errorInfo\":{\"errorCode\":\"E_INTERNAL\",\"errorMessage\":\"%s\"}}",
+                "vendor outage"
             );
             stubGetChainReturns(new ResponseEntity<>(body, HttpStatus.OK));
 
             // when & then
             assertThatThrownBy(() -> client.getReturnGodDetail(buildCommand()))
-                    .isInstanceOf(GetFulfillmentReturnGodDetailFailedException.class)
-                    .hasMessageContaining("vendor outage");
+                .isInstanceOf(GetFulfillmentReturnGodDetailFailedException.class)
+                .hasMessageContaining("vendor outage");
         }
 
         @Test
@@ -455,7 +453,7 @@ class FulfillmentReturnDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getReturnGodDetail(buildCommand()))
-                    .isInstanceOf(GetFulfillmentReturnGodDetailFailedException.class);
+                .isInstanceOf(GetFulfillmentReturnGodDetailFailedException.class);
         }
     }
 
@@ -472,7 +470,7 @@ class FulfillmentReturnDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -484,7 +482,7 @@ class FulfillmentReturnDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -495,15 +493,15 @@ class FulfillmentReturnDeliveryClientTest {
             when(properties.getReturnGodDetailPath()).thenReturn(null);
 
             GetFulfillmentReturnGodDetailCommand command = GetFulfillmentReturnGodDetailCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> client.getReturnGodDetail(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -523,14 +521,14 @@ class FulfillmentReturnDeliveryClientTest {
 
             // when
             assertThatThrownBy(() -> client.registerReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentReturnDeliveryFailedException.class);
 
             // then
             verify(externalCallLogger).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("registerReturnDelivery"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("registerReturnDelivery"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).record(
-                    eq(ExternalSystem.FASSTO), eq("registerReturnDelivery"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("registerReturnDelivery"), any(Map.class), any(Supplier.class)
             );
         }
 
@@ -544,22 +542,22 @@ class FulfillmentReturnDeliveryClientTest {
             stubGetChainThrows(new ResourceAccessException("Connection refused"));
 
             GetFulfillmentReturnGodDetailCommand command = GetFulfillmentReturnGodDetailCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .build();
 
             // when
             assertThatThrownBy(() -> client.getReturnGodDetail(command))
-                    .isInstanceOf(GetFulfillmentReturnGodDetailFailedException.class);
+                .isInstanceOf(GetFulfillmentReturnGodDetailFailedException.class);
 
             // then
             verify(externalCallLogger).record(
-                    eq(ExternalSystem.FASSTO), eq("getReturnGodDetail"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getReturnGodDetail"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("getReturnGodDetail"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getReturnGodDetail"), any(Map.class), any(Supplier.class)
             );
         }
     }
@@ -575,11 +573,11 @@ class FulfillmentReturnDeliveryClientTest {
 
         private GetFulfillmentReturnGodDetailCommand buildCommand() {
             return GetFulfillmentReturnGodDetailCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .build();
         }
 
         @Test
@@ -589,17 +587,17 @@ class FulfillmentReturnDeliveryClientTest {
             stubReturnGodDetailProperties();
             stubPayloadGenerator();
             String body = String.format("""
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{
-                        "ordNo": "ORD001",
-                        "godList": [{
-                          "cstGodCd": "%s",
-                          "godNm": "테스트 상품"
-                        }]
-                      }]
-                    }
-                    """, TEST_ENCODED_CST_GOD_CD);
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{
+                    "ordNo": "ORD001",
+                    "godList": [{
+                      "cstGodCd": "%s",
+                      "godNm": "테스트 상품"
+                    }]
+                  }]
+                }
+                """, TEST_ENCODED_CST_GOD_CD);
             stubGetChainReturns(new ResponseEntity<>(body, HttpStatus.OK));
 
             // when
@@ -609,7 +607,7 @@ class FulfillmentReturnDeliveryClientTest {
             assertThat(result.returnGodInfos()).hasSize(1);
             assertThat(result.returnGodInfos().get(0).products()).hasSize(1);
             assertThat(result.returnGodInfos().get(0).products().get(0).customerProductCode())
-                    .isEqualTo(TEST_ENCODED_CST_GOD_CD);
+                .isEqualTo(TEST_ENCODED_CST_GOD_CD);
         }
 
         @Test
@@ -619,17 +617,17 @@ class FulfillmentReturnDeliveryClientTest {
             stubReturnGodDetailProperties();
             stubPayloadGenerator();
             String body = String.format("""
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{
-                        "ordNo": "ORD001",
-                        "godList": [{
-                          "cstGodCd": "%s",
-                          "godNm": "테스트 상품"
-                        }]
-                      }]
-                    }
-                    """, FALLBACK_PRODUCT_CODE);
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{
+                    "ordNo": "ORD001",
+                    "godList": [{
+                      "cstGodCd": "%s",
+                      "godNm": "테스트 상품"
+                    }]
+                  }]
+                }
+                """, FALLBACK_PRODUCT_CODE);
             stubGetChainReturns(new ResponseEntity<>(body, HttpStatus.OK));
 
             // when
@@ -637,7 +635,7 @@ class FulfillmentReturnDeliveryClientTest {
 
             // then
             assertThat(result.returnGodInfos().get(0).products().get(0).customerProductCode())
-                    .isEqualTo(FALLBACK_PRODUCT_CODE);
+                .isEqualTo(FALLBACK_PRODUCT_CODE);
         }
 
         @Test
@@ -647,17 +645,17 @@ class FulfillmentReturnDeliveryClientTest {
             stubReturnGodDetailProperties();
             stubPayloadGenerator();
             String body = String.format("""
-                    {
-                      "header": {"code": "200", "msg": "success", "dataCount": 1},
-                      "data": [{
-                        "ordNo": "ORD001",
-                        "godList": [{
-                          "cstGodCd": "%s",
-                          "godNm": "테스트 상품"
-                        }]
-                      }]
-                    }
-                    """, LEGACY_UUID_RAW);
+                {
+                  "header": {"code": "200", "msg": "success", "dataCount": 1},
+                  "data": [{
+                    "ordNo": "ORD001",
+                    "godList": [{
+                      "cstGodCd": "%s",
+                      "godNm": "테스트 상품"
+                    }]
+                  }]
+                }
+                """, LEGACY_UUID_RAW);
             stubGetChainReturns(new ResponseEntity<>(body, HttpStatus.OK));
 
             // when
@@ -665,7 +663,7 @@ class FulfillmentReturnDeliveryClientTest {
 
             // then
             assertThat(result.returnGodInfos().get(0).products().get(0).customerProductCode())
-                    .isEqualTo(LEGACY_UUID_RAW);
+                .isEqualTo(LEGACY_UUID_RAW);
         }
     }
 }

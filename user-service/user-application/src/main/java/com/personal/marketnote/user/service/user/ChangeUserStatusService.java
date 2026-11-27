@@ -38,20 +38,20 @@ public class ChangeUserStatusService implements ChangeUserStatusUseCase {
         updateUserPort.update(user);
 
         UserStatusHistory savedHistory = saveUserStatusHistoryPort.save(
-                UserStatusHistory.byAdmin(
-                        command.userId(),
-                        action,
-                        command.reason(),
-                        resolveDeactivatedUntil(action, command.deactivatedUntil()),
-                        command.adminId()
-                )
+            UserStatusHistory.byAdmin(
+                command.userId(),
+                action,
+                command.reason(),
+                resolveDeactivatedUntil(action, command.deactivatedUntil()),
+                command.adminId()
+            )
         );
 
         return ChangeUserStatusResult.of(
-                user.getId(),
-                user.getStatus().name(),
-                user.getDeactivatedUntil(),
-                savedHistory.getId()
+            user.getId(),
+            user.getStatus().name(),
+            user.getDeactivatedUntil(),
+            savedHistory.getId()
         );
     }
 

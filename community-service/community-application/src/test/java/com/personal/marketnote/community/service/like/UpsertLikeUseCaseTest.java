@@ -43,7 +43,7 @@ class UpsertLikeUseCaseTest {
         Long userId = 1L;
         UpsertLikeCommand command = UpsertLikeCommand.of(targetType, targetId, true, userId);
         when(getLikeUseCase.getLike(targetType, targetId, userId))
-                .thenThrow(new LikeNotFoundException());
+            .thenThrow(new LikeNotFoundException());
 
         UpsertLikeResult result = upsertLikeService.upsertLike(command);
 
@@ -115,7 +115,7 @@ class UpsertLikeUseCaseTest {
         Long userId = 10L;
         UpsertLikeCommand command = UpsertLikeCommand.of(targetType, targetId, true, userId);
         when(getLikeUseCase.getLike(targetType, targetId, userId))
-                .thenThrow(new LikeNotFoundException());
+            .thenThrow(new LikeNotFoundException());
 
         upsertLikeService.upsertLike(command);
 
@@ -126,12 +126,12 @@ class UpsertLikeUseCaseTest {
 
     private Like buildLike(LikeTargetType targetType, Long targetId, Long userId, EntityStatus status) {
         return Like.from(LikeSnapshotState.builder()
-                .targetType(targetType)
-                .targetId(targetId)
-                .userId(userId)
-                .status(status)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .targetType(targetType)
+            .targetId(targetId)
+            .userId(userId)
+            .status(status)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 }

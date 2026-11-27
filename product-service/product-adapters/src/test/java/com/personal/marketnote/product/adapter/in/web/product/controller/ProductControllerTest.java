@@ -76,7 +76,7 @@ class ProductControllerTest {
             when(getProductSortPropertiesUseCase.getProductSortProperties()).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetProductSortPropertiesResponse>> response =
-                    productController.getProductSortProperties();
+                productController.getProductSortProperties();
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
@@ -96,7 +96,7 @@ class ProductControllerTest {
             when(getProductSearchTargetsUseCase.getProductSearchTargets()).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetProductSearchTargetsResponse>> response =
-                    productController.getProductSearchTargets();
+                productController.getProductSearchTargets();
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
@@ -113,23 +113,23 @@ class ProductControllerTest {
         void returnsOkWithProducts() {
             GetProductsResult result = GetProductsResult.from(false, -1L, 0L, List.of());
             when(getProductUseCase.getProducts(
-                    eq(1L), eq(List.of()), eq(-1L), eq(4),
-                    eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
-                    eq(ProductSearchTarget.NAME), eq("")
+                eq(1L), eq(List.of()), eq(-1L), eq(4),
+                eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
+                eq(ProductSearchTarget.NAME), eq("")
             )).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetProductsResponse>> response = productController.getProducts(
-                    1L, List.of(), -1L, 4,
-                    Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                    ProductSearchTarget.NAME, ""
+                1L, List.of(), -1L, 4,
+                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+                ProductSearchTarget.NAME, ""
             );
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
             verify(getProductUseCase).getProducts(
-                    eq(1L), eq(List.of()), eq(-1L), eq(4),
-                    eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
-                    eq(ProductSearchTarget.NAME), eq("")
+                eq(1L), eq(List.of()), eq(-1L), eq(4),
+                eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
+                eq(ProductSearchTarget.NAME), eq("")
             );
         }
     }
@@ -148,7 +148,7 @@ class ProductControllerTest {
             when(getProductKeyUseCase.getProductKey(eq(1L), any(), anyBoolean())).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetProductKeyResponse>> response =
-                    productController.getProductKey(1L, principal);
+                productController.getProductKey(1L, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent().productKey()).isEqualTo(key);
@@ -197,16 +197,16 @@ class ProductControllerTest {
         @DisplayName("상품 등록 시 201 CREATED와 등록 결과를 반환하고 UseCase에 매핑된 커맨드를 전달한다")
         void returnsCreatedWithResultAndInvokesUseCase() {
             RegisterProductRequest request = new RegisterProductRequest(
-                    10L, "상품명", "브랜드", "상세",
-                    10_000L, 8_000L, 100L, true,
-                    List.of("tag1"), null
+                10L, "상품명", "브랜드", "상세",
+                10_000L, 8_000L, 100L, true,
+                List.of("tag1"), null
             );
             UUID productKey = UUID.randomUUID();
             RegisterProductResult result = new RegisterProductResult(1L, productKey);
             when(registerProductUseCase.registerProduct(any(RegisterProductCommand.class))).thenReturn(result);
 
             ResponseEntity<BaseResponse<RegisterProductResponse>> response =
-                    productController.registerProduct(request);
+                productController.registerProduct(request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             assertThat(response.getBody()).isNotNull();
@@ -244,16 +244,16 @@ class ProductControllerTest {
         @DisplayName("파스토 기등록 상품 import 시 201 CREATED와 등록 결과를 반환하고 fasstoProductCode를 커맨드에 전달한다")
         void importProduct_returnsCreatedAndPropagatesFasstoProductCode() {
             ImportProductRequest request = new ImportProductRequest(
-                    10L, "import 상품", "브랜드", "상세",
-                    10_000L, 8_000L, 100L, true,
-                    List.of("tag1"), "FASSTO0000000000000000001"
+                10L, "import 상품", "브랜드", "상세",
+                10_000L, 8_000L, 100L, true,
+                List.of("tag1"), "FASSTO0000000000000000001"
             );
             UUID productKey = UUID.randomUUID();
             RegisterProductResult result = new RegisterProductResult(1L, productKey);
             when(registerProductUseCase.registerProduct(any(RegisterProductCommand.class))).thenReturn(result);
 
             ResponseEntity<BaseResponse<RegisterProductResponse>> response =
-                    productController.importProduct(request);
+                productController.importProduct(request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             assertThat(response.getBody()).isNotNull();
@@ -291,15 +291,15 @@ class ProductControllerTest {
         void returnsFirstPageWithCursor() {
             GetProductsResult result = GetProductsResult.from(true, 50L, 100L, List.of());
             when(getProductUseCase.getProducts(
-                    eq(1L), eq(List.of(10L, 20L)), eq(-1L), eq(4),
-                    eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
-                    eq(ProductSearchTarget.NAME), eq("keyword")
+                eq(1L), eq(List.of(10L, 20L)), eq(-1L), eq(4),
+                eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
+                eq(ProductSearchTarget.NAME), eq("keyword")
             )).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetProductsResponse>> response = productController.getProducts(
-                    1L, List.of(10L, 20L), -1L, 4,
-                    Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                    ProductSearchTarget.NAME, "keyword"
+                1L, List.of(10L, 20L), -1L, 4,
+                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+                ProductSearchTarget.NAME, "keyword"
             );
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -307,9 +307,9 @@ class ProductControllerTest {
             assertThat(response.getBody().getContent().getProducts().nextCursor()).isEqualTo(50L);
             assertThat(response.getBody().getContent().getProducts().hasNext()).isTrue();
             verify(getProductUseCase).getProducts(
-                    eq(1L), eq(List.of(10L, 20L)), eq(-1L), eq(4),
-                    eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
-                    eq(ProductSearchTarget.NAME), eq("keyword")
+                eq(1L), eq(List.of(10L, 20L)), eq(-1L), eq(4),
+                eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
+                eq(ProductSearchTarget.NAME), eq("keyword")
             );
         }
 
@@ -318,15 +318,15 @@ class ProductControllerTest {
         void returnsNextPageAndNoMoreData() {
             GetProductsResult result = GetProductsResult.from(false, -1L, 100L, List.of());
             when(getProductUseCase.getProducts(
-                    eq(1L), eq(List.of()), eq(50L), eq(4),
-                    eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
-                    eq(ProductSearchTarget.NAME), eq("")
+                eq(1L), eq(List.of()), eq(50L), eq(4),
+                eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
+                eq(ProductSearchTarget.NAME), eq("")
             )).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetProductsResponse>> response = productController.getProducts(
-                    1L, List.of(), 50L, 4,
-                    Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                    ProductSearchTarget.NAME, ""
+                1L, List.of(), 50L, 4,
+                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+                ProductSearchTarget.NAME, ""
             );
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -344,23 +344,23 @@ class ProductControllerTest {
         void returnsAdminProducts() {
             GetAdminProductsResult result = GetAdminProductsResult.of(0, 4, 0L, 0, List.of());
             when(getAdminProductsUseCase.getAdminProducts(
-                    eq(1L), eq(List.of()), eq(0), eq(4),
-                    eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
-                    eq(ProductSearchTarget.NAME), eq("")
+                eq(1L), eq(List.of()), eq(0), eq(4),
+                eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
+                eq(ProductSearchTarget.NAME), eq("")
             )).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetAdminProductsResponse>> response = productController.getAdminProducts(
-                    1L, List.of(), 0, 4,
-                    Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
-                    ProductSearchTarget.NAME, ""
+                1L, List.of(), 0, 4,
+                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+                ProductSearchTarget.NAME, ""
             );
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
             verify(getAdminProductsUseCase).getAdminProducts(
-                    eq(1L), eq(List.of()), eq(0), eq(4),
-                    eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
-                    eq(ProductSearchTarget.NAME), eq("")
+                eq(1L), eq(List.of()), eq(0), eq(4),
+                eq(Sort.Direction.DESC), eq(ProductSortProperty.ORDER_NUM),
+                eq(ProductSearchTarget.NAME), eq("")
             );
         }
     }
@@ -373,13 +373,13 @@ class ProductControllerTest {
         @DisplayName("selectedOptionIds가 null이면 빈 리스트로 UseCase에 전달한다")
         void convertsNullSelectedOptionIdsToEmptyList() {
             GetAdminProductDetailResult result = GetAdminProductDetailResult.of(
-                    GetProductInfoWithOptionsResult.of(null, List.of()),
-                    null, null
+                GetProductInfoWithOptionsResult.of(null, List.of()),
+                null, null
             );
             when(getAdminProductDetailUseCase.getAdminProductDetail(eq(1L), eq(List.of()))).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetAdminProductDetailResponse>> response =
-                    productController.getAdminProductDetail(1L, null);
+                productController.getAdminProductDetail(1L, null);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getAdminProductDetailUseCase).getAdminProductDetail(eq(1L), eq(List.of()));
@@ -389,14 +389,14 @@ class ProductControllerTest {
         @DisplayName("selectedOptionIds가 전달되면 그대로 UseCase에 전달한다")
         void passesThroughSelectedOptionIds() {
             GetAdminProductDetailResult result = GetAdminProductDetailResult.of(
-                    GetProductInfoWithOptionsResult.of(null, List.of()),
-                    null, null
+                GetProductInfoWithOptionsResult.of(null, List.of()),
+                null, null
             );
             when(getAdminProductDetailUseCase.getAdminProductDetail(eq(1L), eq(List.of(10L, 20L))))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             ResponseEntity<BaseResponse<GetAdminProductDetailResponse>> response =
-                    productController.getAdminProductDetail(1L, List.of(10L, 20L));
+                productController.getAdminProductDetail(1L, List.of(10L, 20L));
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getAdminProductDetailUseCase).getAdminProductDetail(eq(1L), eq(List.of(10L, 20L)));
@@ -411,14 +411,14 @@ class ProductControllerTest {
         @DisplayName("selectedOptionIds가 null이면 빈 리스트로 UseCase에 전달한다")
         void convertsNullSelectedOptionIdsToEmptyList() {
             GetProductInfoWithOptionsResult result = GetProductInfoWithOptionsResult.of(
-                    null, List.of(),
-                    new GetFilesResult(List.of()), new GetFilesResult(List.of()),
-                    List.of()
+                null, List.of(),
+                new GetFilesResult(List.of()), new GetFilesResult(List.of()),
+                List.of()
             );
             when(getProductUseCase.getProductInfo(eq(1L), eq(List.of()))).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetProductInfoResponse>> response =
-                    productController.getProductInfo(1L, null);
+                productController.getProductInfo(1L, null);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getProductUseCase).getProductInfo(eq(1L), eq(List.of()));
@@ -433,14 +433,14 @@ class ProductControllerTest {
         @DisplayName("가격 정책 ID로 상품 정보 조회 시 200 OK를 반환한다")
         void returnsOkByPricePolicyId() {
             GetProductInfoWithOptionsResult result = GetProductInfoWithOptionsResult.of(
-                    null, List.of(),
-                    new GetFilesResult(List.of()), new GetFilesResult(List.of()),
-                    List.of()
+                null, List.of(),
+                new GetFilesResult(List.of()), new GetFilesResult(List.of()),
+                List.of()
             );
             when(getProductUseCase.getProductInfo(eq(500L))).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetProductInfoResponse>> response =
-                    productController.getProductInfoByPricePolicyId(500L);
+                productController.getProductInfoByPricePolicyId(500L);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getProductUseCase).getProductInfo(eq(500L));
@@ -455,18 +455,18 @@ class ProductControllerTest {
         @DisplayName("상품 수정 시 200 OK와 수정 결과를 반환하고 userId/isAdmin을 UseCase에 전달한다")
         void returnsOkWithResultAndPassesPrincipal() {
             UpdateProductRequest request = new UpdateProductRequest(
-                    "수정상품명", "수정브랜드", "수정상세",
-                    true, List.of("tag1"), null
+                "수정상품명", "수정브랜드", "수정상세",
+                true, List.of("tag1"), null
             );
             UUID productKey = UUID.randomUUID();
             UpdateProductResult result = new UpdateProductResult(1L, productKey);
             OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
             when(principal.getName()).thenReturn("100");
             when(updateProductUseCase.update(eq(100L), anyBoolean(), any(UpdateProductCommand.class)))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             ResponseEntity<BaseResponse<UpdateProductResponse>> response =
-                    productController.updateProduct(1L, request, principal);
+                productController.updateProduct(1L, request, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
@@ -484,8 +484,8 @@ class ProductControllerTest {
         @DisplayName("updateProduct 메서드에 @PreAuthorize(관리자 또는 판매자) 어노테이션이 부착되어 있다")
         void updateProductHasPreAuthorize() throws NoSuchMethodException {
             Method method = ProductController.class.getMethod(
-                    "updateProduct",
-                    Long.class, UpdateProductRequest.class, OAuth2AuthenticatedPrincipal.class
+                "updateProduct",
+                Long.class, UpdateProductRequest.class, OAuth2AuthenticatedPrincipal.class
             );
 
             PreAuthorize preAuthorize = method.getAnnotation(PreAuthorize.class);
@@ -504,20 +504,20 @@ class ProductControllerTest {
         @DisplayName("태그 순서 변경 시 200 OK를 반환하고 매핑된 커맨드를 UseCase에 전달한다")
         void reordersTags() {
             ReorderProductTagsRequest request = new ReorderProductTagsRequest(
-                    List.of(
-                            new ReorderProductTagsRequest.TagOrderItem(1L, 1L),
-                            new ReorderProductTagsRequest.TagOrderItem(2L, 2L)
-                    )
+                List.of(
+                    new ReorderProductTagsRequest.TagOrderItem(1L, 1L),
+                    new ReorderProductTagsRequest.TagOrderItem(2L, 2L)
+                )
             );
             OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
             when(principal.getName()).thenReturn("100");
 
             ResponseEntity<BaseResponse<Void>> response =
-                    productController.reorderProductTags(1L, request, principal);
+                productController.reorderProductTags(1L, request, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(reorderProductTagsUseCase).reorderProductTags(
-                    eq(100L), anyBoolean(), any(ReorderProductTagsCommand.class)
+                eq(100L), anyBoolean(), any(ReorderProductTagsCommand.class)
             );
         }
     }
@@ -544,7 +544,7 @@ class ProductControllerTest {
         @DisplayName("deleteProduct 메서드에 @PreAuthorize(관리자 또는 판매자) 어노테이션이 부착되어 있다")
         void deleteProductHasPreAuthorize() throws NoSuchMethodException {
             Method method = ProductController.class.getMethod(
-                    "deleteProduct", Long.class, OAuth2AuthenticatedPrincipal.class
+                "deleteProduct", Long.class, OAuth2AuthenticatedPrincipal.class
             );
 
             PreAuthorize preAuthorize = method.getAnnotation(PreAuthorize.class);
@@ -561,11 +561,11 @@ class ProductControllerTest {
             when(principal.getName()).thenReturn("100");
 
             ResponseEntity<BaseResponse<Void>> response =
-                    productController.deleteProductImage(99L, 77L, principal);
+                productController.deleteProductImage(99L, 77L, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<DeleteProductImageCommand> captor
-                    = ArgumentCaptor.forClass(DeleteProductImageCommand.class);
+                = ArgumentCaptor.forClass(DeleteProductImageCommand.class);
             verify(deleteProductImageUseCase).delete(eq(100L), anyBoolean(), captor.capture());
             assertThat(captor.getValue().id()).isEqualTo(99L);
             assertThat(captor.getValue().fileId()).isEqualTo(77L);
@@ -580,10 +580,10 @@ class ProductControllerTest {
         @DisplayName("getProducts 메서드에 @RateLimited(key=products-cursor, maxRequests=60, windowSeconds=60)이 부착되어 있다")
         void getProductsHasRateLimited() throws NoSuchMethodException {
             Method method = ProductController.class.getMethod(
-                    "getProducts",
-                    Long.class, List.class, Long.class, int.class,
-                    Sort.Direction.class, ProductSortProperty.class,
-                    ProductSearchTarget.class, String.class
+                "getProducts",
+                Long.class, List.class, Long.class, int.class,
+                Sort.Direction.class, ProductSortProperty.class,
+                ProductSearchTarget.class, String.class
             );
 
             RateLimited rateLimited = method.getAnnotation(RateLimited.class);

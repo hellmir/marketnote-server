@@ -55,11 +55,11 @@ class FulfillmentReturnDeliveryControllerTest {
         void returnsCreated() {
             // given
             when(registerFulfillmentReturnDeliveryUseCase.registerReturnDelivery(any(RegisterFulfillmentReturnDeliveryCommand.class)))
-                    .thenReturn(com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryResult.of(0, List.of()));
+                .thenReturn(com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<RegisterFulfillmentReturnDeliveryResponse>> response =
-                    controller.registerReturnDelivery(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
+                controller.registerReturnDelivery(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -76,12 +76,12 @@ class FulfillmentReturnDeliveryControllerTest {
         void returnsCreated() {
             // given
             when(registerFulfillmentDirectReturnDeliveryUseCase.registerDirectReturnDelivery(
-                    any(RegisterFulfillmentDirectReturnDeliveryCommand.class)
+                any(RegisterFulfillmentDirectReturnDeliveryCommand.class)
             )).thenReturn(RegisterFulfillmentDeliveryResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<RegisterFulfillmentDirectReturnDeliveryResponse>> response =
-                    controller.registerDirectReturnDelivery(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
+                controller.registerDirectReturnDelivery(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -98,11 +98,11 @@ class FulfillmentReturnDeliveryControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentReturnGodDetailUseCase.getReturnGodDetail(any(GetFulfillmentReturnGodDetailCommand.class)))
-                    .thenReturn(GetFulfillmentReturnGodDetailResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentReturnGodDetailResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentReturnGodDetailResponse>> response = controller.getReturnGodDetail(
-                    CUSTOMER_CODE, ACCESS_TOKEN, "2026-04-01", "2026-10-07", null, "WH01"
+                CUSTOMER_CODE, ACCESS_TOKEN, "2026-04-01", "2026-10-07", null, "WH01"
             );
 
             // then

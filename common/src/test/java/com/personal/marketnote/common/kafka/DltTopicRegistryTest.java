@@ -67,12 +67,12 @@ class DltTopicRegistryTest {
             List<String> dltTopics = DltTopicRegistry.getAllDltTopics();
 
             assertThat(dltTopics).contains(
-                    KafkaTopicConstants.SAGA_ORDER_PAYMENT_INVENTORY + KafkaTopicConstants.DLT_SUFFIX,
-                    KafkaTopicConstants.SAGA_ORDER_PAYMENT_LEDGER + KafkaTopicConstants.DLT_SUFFIX,
-                    KafkaTopicConstants.SAGA_ORDER_PAYMENT_COMPLETED + KafkaTopicConstants.DLT_SUFFIX,
-                    KafkaTopicConstants.SAGA_ORDER_CANCEL_FULFILLMENT + KafkaTopicConstants.DLT_SUFFIX,
-                    KafkaTopicConstants.SAGA_ORDER_CANCEL_REFUND + KafkaTopicConstants.DLT_SUFFIX,
-                    KafkaTopicConstants.SAGA_ORDER_CANCEL_COMPLETED + KafkaTopicConstants.DLT_SUFFIX
+                KafkaTopicConstants.SAGA_ORDER_PAYMENT_INVENTORY + KafkaTopicConstants.DLT_SUFFIX,
+                KafkaTopicConstants.SAGA_ORDER_PAYMENT_LEDGER + KafkaTopicConstants.DLT_SUFFIX,
+                KafkaTopicConstants.SAGA_ORDER_PAYMENT_COMPLETED + KafkaTopicConstants.DLT_SUFFIX,
+                KafkaTopicConstants.SAGA_ORDER_CANCEL_FULFILLMENT + KafkaTopicConstants.DLT_SUFFIX,
+                KafkaTopicConstants.SAGA_ORDER_CANCEL_REFUND + KafkaTopicConstants.DLT_SUFFIX,
+                KafkaTopicConstants.SAGA_ORDER_CANCEL_COMPLETED + KafkaTopicConstants.DLT_SUFFIX
             );
         }
     }

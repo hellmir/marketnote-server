@@ -23,9 +23,9 @@ public class SecurityConfig {
 
     @Bean
     public JwtUtil jwtUtil(
-            @Value("${spring.jwt.secret:dev-secret-change-me}") String jwtSecret,
-            @Value("${spring.jwt.access-token.ttl:1800000}") Long accessTokenTtl,
-            @Value("${spring.jwt.refresh-token.ttl:1209600000}") Long refreshTokenTtl
+        @Value("${spring.jwt.secret:dev-secret-change-me}") String jwtSecret,
+        @Value("${spring.jwt.access-token.ttl:1800000}") Long accessTokenTtl,
+        @Value("${spring.jwt.refresh-token.ttl:1209600000}") Long refreshTokenTtl
     ) {
         return new JwtUtil(jwtSecret, accessTokenTtl, refreshTokenTtl);
     }
@@ -33,11 +33,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain localSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll())
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable);
+            .cors(Customizer.withDefaults())
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll())
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .formLogin(AbstractHttpConfigurer::disable);
 
         return http.build();
     }

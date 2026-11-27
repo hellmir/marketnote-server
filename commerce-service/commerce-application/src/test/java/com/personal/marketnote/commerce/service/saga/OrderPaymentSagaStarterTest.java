@@ -37,9 +37,9 @@ class OrderPaymentSagaStarterTest {
     void shouldStartSagaWithCorrectSagaId() {
         // given
         OrderPaymentSagaContext context = new OrderPaymentSagaContext(
-                1L, "order-key-1", 100L, 50000L, 60000L, 10000L, 500L,
-                null, null, null, null, null, null,
-                List.of(new OrderProductItem(10L, 1000L, null, null, 2, 25000L))
+            1L, "order-key-1", 100L, 50000L, 60000L, 10000L, 500L,
+            null, null, null, null, null, null,
+            List.of(new OrderProductItem(10L, 1000L, null, null, 2, 25000L))
         );
 
         // when
@@ -48,9 +48,9 @@ class OrderPaymentSagaStarterTest {
         // then
         ArgumentCaptor<String> sagaIdCaptor = ArgumentCaptor.forClass(String.class);
         verify(sagaOrchestrator).start(
-                eq(orderPaymentSagaDefinition),
-                sagaIdCaptor.capture(),
-                eq(context)
+            eq(orderPaymentSagaDefinition),
+            sagaIdCaptor.capture(),
+            eq(context)
         );
         assertThat(sagaIdCaptor.getValue()).isEqualTo("ORDER_PAYMENT:1");
     }
@@ -60,15 +60,15 @@ class OrderPaymentSagaStarterTest {
     void shouldPassContextToOrchestrator() {
         // given
         OrderPaymentSagaContext context = new OrderPaymentSagaContext(
-                42L, "order-key-42", 200L, 100000L, 120000L, 20000L, 1000L,
-                null, null, null, null, null, null,
-                List.of(
-                        new OrderProductItem(
-                                10L, 1000L, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
-                                1, 50000L
-                        ),
-                        new OrderProductItem(20L, 2000L, null, null, 2, 25000L)
-                )
+            42L, "order-key-42", 200L, 100000L, 120000L, 20000L, 1000L,
+            null, null, null, null, null, null,
+            List.of(
+                new OrderProductItem(
+                    10L, 1000L, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
+                    1, 50000L
+                ),
+                new OrderProductItem(20L, 2000L, null, null, 2, 25000L)
+            )
         );
 
         // when
@@ -77,11 +77,11 @@ class OrderPaymentSagaStarterTest {
         // then
         @SuppressWarnings("unchecked")
         ArgumentCaptor<OrderPaymentSagaContext> contextCaptor =
-                ArgumentCaptor.forClass(OrderPaymentSagaContext.class);
+            ArgumentCaptor.forClass(OrderPaymentSagaContext.class);
         verify(sagaOrchestrator).start(
-                any(OrderPaymentSagaDefinition.class),
-                eq("ORDER_PAYMENT:42"),
-                contextCaptor.capture()
+            any(OrderPaymentSagaDefinition.class),
+            eq("ORDER_PAYMENT:42"),
+            contextCaptor.capture()
         );
         OrderPaymentSagaContext captured = contextCaptor.getValue();
         assertThat(captured.orderId()).isEqualTo(42L);

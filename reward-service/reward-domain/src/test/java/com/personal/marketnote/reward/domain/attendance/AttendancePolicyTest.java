@@ -22,11 +22,11 @@ class AttendancePolicyTest {
     void shouldCreateAttendancePolicyFromCreateState() {
         // given
         AttendancePolicyCreateState state = AttendancePolicyCreateState.builder()
-                .continuousPeriod(ContinuousPeriod.of((short) 7))
-                .rewardType(AttendanceRewardType.POINT)
-                .rewardQuantity(RewardQuantity.of(100L))
-                .attendenceDate(ATTENDANCE_DATE)
-                .build();
+            .continuousPeriod(ContinuousPeriod.of((short) 7))
+            .rewardType(AttendanceRewardType.POINT)
+            .rewardQuantity(RewardQuantity.of(100L))
+            .attendenceDate(ATTENDANCE_DATE)
+            .build();
 
         // when
         AttendancePolicy policy = AttendancePolicy.from(state);
@@ -69,11 +69,11 @@ class AttendancePolicyTest {
     @DisplayName("ContinuousPeriod 최소값(1)로 정책을 생성할 수 있다")
     void shouldCreatePolicyWithMinContinuousPeriod() {
         AttendancePolicyCreateState state = AttendancePolicyCreateState.builder()
-                .continuousPeriod(ContinuousPeriod.of((short) 1))
-                .rewardType(AttendanceRewardType.POINT)
-                .rewardQuantity(RewardQuantity.of(1L))
-                .attendenceDate(ATTENDANCE_DATE)
-                .build();
+            .continuousPeriod(ContinuousPeriod.of((short) 1))
+            .rewardType(AttendanceRewardType.POINT)
+            .rewardQuantity(RewardQuantity.of(1L))
+            .attendenceDate(ATTENDANCE_DATE)
+            .build();
 
         AttendancePolicy policy = AttendancePolicy.from(state);
 
@@ -84,11 +84,11 @@ class AttendancePolicyTest {
     @DisplayName("ContinuousPeriod에 Short.MAX_VALUE까지 정책 생성이 허용된다")
     void shouldCreatePolicyWithMaxShortContinuousPeriod() {
         AttendancePolicyCreateState state = AttendancePolicyCreateState.builder()
-                .continuousPeriod(ContinuousPeriod.of(Short.MAX_VALUE))
-                .rewardType(AttendanceRewardType.POINT)
-                .rewardQuantity(RewardQuantity.of(100L))
-                .attendenceDate(ATTENDANCE_DATE)
-                .build();
+            .continuousPeriod(ContinuousPeriod.of(Short.MAX_VALUE))
+            .rewardType(AttendanceRewardType.POINT)
+            .rewardQuantity(RewardQuantity.of(100L))
+            .attendenceDate(ATTENDANCE_DATE)
+            .build();
 
         AttendancePolicy policy = AttendancePolicy.from(state);
 
@@ -99,20 +99,20 @@ class AttendancePolicyTest {
     @DisplayName("ContinuousPeriod가 0 이하이면 InvalidContinuousPeriodException을 던진다")
     void shouldThrowWhenContinuousPeriodZeroOrNegative() {
         assertThatThrownBy(() -> ContinuousPeriod.of((short) 0))
-                .isInstanceOf(InvalidContinuousPeriodException.class);
+            .isInstanceOf(InvalidContinuousPeriodException.class);
         assertThatThrownBy(() -> ContinuousPeriod.of((short) -1))
-                .isInstanceOf(InvalidContinuousPeriodException.class);
+            .isInstanceOf(InvalidContinuousPeriodException.class);
     }
 
     @Test
     @DisplayName("RewardQuantity 최소값(0)로 정책을 생성할 수 있다")
     void shouldCreatePolicyWithZeroRewardQuantity() {
         AttendancePolicyCreateState state = AttendancePolicyCreateState.builder()
-                .continuousPeriod(ContinuousPeriod.of((short) 1))
-                .rewardType(AttendanceRewardType.POINT)
-                .rewardQuantity(RewardQuantity.of(0L))
-                .attendenceDate(ATTENDANCE_DATE)
-                .build();
+            .continuousPeriod(ContinuousPeriod.of((short) 1))
+            .rewardType(AttendanceRewardType.POINT)
+            .rewardQuantity(RewardQuantity.of(0L))
+            .attendenceDate(ATTENDANCE_DATE)
+            .build();
 
         AttendancePolicy policy = AttendancePolicy.from(state);
 
@@ -123,7 +123,7 @@ class AttendancePolicyTest {
     @DisplayName("RewardQuantity가 음수이면 InvalidRewardQuantityException을 던진다")
     void shouldThrowWhenRewardQuantityNegative() {
         assertThatThrownBy(() -> RewardQuantity.of(-1L))
-                .isInstanceOf(InvalidRewardQuantityException.class);
+            .isInstanceOf(InvalidRewardQuantityException.class);
     }
 
     @Test
@@ -142,15 +142,15 @@ class AttendancePolicyTest {
 
     private AttendancePolicy createActivePolicy() {
         return AttendancePolicy.from(AttendancePolicySnapshotState.builder()
-                .id((short) 1)
-                .continuousPeriod(ContinuousPeriod.of((short) 7))
-                .rewardType(AttendanceRewardType.POINT)
-                .rewardQuantity(RewardQuantity.of(100L))
-                .attendenceDate(ATTENDANCE_DATE)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(NOW)
-                .modifiedAt(NOW)
-                .build()
+            .id((short) 1)
+            .continuousPeriod(ContinuousPeriod.of((short) 7))
+            .rewardType(AttendanceRewardType.POINT)
+            .rewardQuantity(RewardQuantity.of(100L))
+            .attendenceDate(ATTENDANCE_DATE)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(NOW)
+            .modifiedAt(NOW)
+            .build()
         );
     }
 }

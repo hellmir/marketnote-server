@@ -143,32 +143,32 @@ class PaymentCancelRetryableIntegrationTest {
 
         @Bean
         PaymentCancelTransactionHelper paymentCancelTransactionHelper(
-                FindOrderPort findOrderPort,
-                FindPaymentPort findPaymentPort,
-                UpdatePaymentPort updatePaymentPort,
-                FindPspPaymentEventPort findPspPaymentEventPort,
-                UpdatePspPaymentEventPort updatePspPaymentEventPort,
-                RestoreProductInventoryUseCase restoreProductInventoryUseCase,
-                ModifyUserPointPort modifyUserPointPort,
-                SaveRefundPort saveRefundPort,
-                FindProductByPricePolicyPort findProductByPricePolicyPort,
-                PublishPaymentEventPort publishPaymentEventPort,
-                FindPaymentAllocationPort findPaymentAllocationPort,
-                FindShippingPolicyBySellerIdsPort findShippingPolicyBySellerIdsPort
+            FindOrderPort findOrderPort,
+            FindPaymentPort findPaymentPort,
+            UpdatePaymentPort updatePaymentPort,
+            FindPspPaymentEventPort findPspPaymentEventPort,
+            UpdatePspPaymentEventPort updatePspPaymentEventPort,
+            RestoreProductInventoryUseCase restoreProductInventoryUseCase,
+            ModifyUserPointPort modifyUserPointPort,
+            SaveRefundPort saveRefundPort,
+            FindProductByPricePolicyPort findProductByPricePolicyPort,
+            PublishPaymentEventPort publishPaymentEventPort,
+            FindPaymentAllocationPort findPaymentAllocationPort,
+            FindShippingPolicyBySellerIdsPort findShippingPolicyBySellerIdsPort
         ) {
             return new PaymentCancelTransactionHelper(
-                    findOrderPort,
-                    findPaymentPort,
-                    updatePaymentPort,
-                    findPspPaymentEventPort,
-                    updatePspPaymentEventPort,
-                    restoreProductInventoryUseCase,
-                    modifyUserPointPort,
-                    saveRefundPort,
-                    findProductByPricePolicyPort,
-                    publishPaymentEventPort,
-                    findPaymentAllocationPort,
-                    findShippingPolicyBySellerIdsPort
+                findOrderPort,
+                findPaymentPort,
+                updatePaymentPort,
+                findPspPaymentEventPort,
+                updatePspPaymentEventPort,
+                restoreProductInventoryUseCase,
+                modifyUserPointPort,
+                saveRefundPort,
+                findProductByPricePolicyPort,
+                publishPaymentEventPort,
+                findPaymentAllocationPort,
+                findShippingPolicyBySellerIdsPort
             );
         }
     }
@@ -215,22 +215,22 @@ class PaymentCancelRetryableIntegrationTest {
     @BeforeEach
     void setUp() {
         reset(
-                findOrderPort, findPaymentPort, updatePaymentPort,
-                findPspPaymentEventPort, updatePspPaymentEventPort,
-                restoreProductInventoryUseCase, modifyUserPointPort, saveRefundPort,
-                findProductByPricePolicyPort, publishPaymentEventPort,
-                findPaymentAllocationPort, findShippingPolicyBySellerIdsPort
+            findOrderPort, findPaymentPort, updatePaymentPort,
+            findPspPaymentEventPort, updatePspPaymentEventPort,
+            restoreProductInventoryUseCase, modifyUserPointPort, saveRefundPort,
+            findProductByPricePolicyPort, publishPaymentEventPort,
+            findPaymentAllocationPort, findShippingPolicyBySellerIdsPort
         );
     }
 
     @AfterEach
     void tearDown() {
         reset(
-                findOrderPort, findPaymentPort, updatePaymentPort,
-                findPspPaymentEventPort, updatePspPaymentEventPort,
-                restoreProductInventoryUseCase, modifyUserPointPort, saveRefundPort,
-                findProductByPricePolicyPort, publishPaymentEventPort,
-                findPaymentAllocationPort, findShippingPolicyBySellerIdsPort
+            findOrderPort, findPaymentPort, updatePaymentPort,
+            findPspPaymentEventPort, updatePspPaymentEventPort,
+            restoreProductInventoryUseCase, modifyUserPointPort, saveRefundPort,
+            findProductByPricePolicyPort, publishPaymentEventPort,
+            findPaymentAllocationPort, findShippingPolicyBySellerIdsPort
         );
     }
 
@@ -238,25 +238,25 @@ class PaymentCancelRetryableIntegrationTest {
     @DisplayName("PaymentCancelTransactionHelper는 AOP 프록시로 생성되어 @Retryable이 실제 적용된다")
     void shouldBeAopProxy() {
         assertThat(AopUtils.isAopProxy(txHelper))
-                .as("@Retryable 적용을 위해 AOP 프록시여야 한다")
-                .isTrue();
+            .as("@Retryable 적용을 위해 AOP 프록시여야 한다")
+            .isTrue();
     }
 
     @Test
     @DisplayName("commitPaymentAndPostProcess에 @Transactional(REQUIRES_NEW)가 적용되어 재시도마다 독립 트랜잭션 경계를 가진다")
     void shouldHaveRequiresNewTransactionBoundaryForRetry() throws NoSuchMethodException {
         Method method = PaymentCancelTransactionHelper.class.getDeclaredMethod(
-                "commitPaymentAndPostProcess",
-                PaymentCancelContext.class,
-                PaymentCancelVendorResult.class
+            "commitPaymentAndPostProcess",
+            PaymentCancelContext.class,
+            PaymentCancelVendorResult.class
         );
         Transactional tx = method.getAnnotation(Transactional.class);
         assertThat(tx)
-                .as("commitPaymentAndPostProcess에 @Transactional이 선언되어야 한다")
-                .isNotNull();
+            .as("commitPaymentAndPostProcess에 @Transactional이 선언되어야 한다")
+            .isNotNull();
         assertThat(tx.propagation())
-                .as("재시도마다 독립 TX 경계 확보를 위해 propagation=REQUIRES_NEW여야 한다")
-                .isEqualTo(Propagation.REQUIRES_NEW);
+            .as("재시도마다 독립 TX 경계 확보를 위해 propagation=REQUIRES_NEW여야 한다")
+            .isEqualTo(Propagation.REQUIRES_NEW);
     }
 
     @Test
@@ -266,13 +266,13 @@ class PaymentCancelRetryableIntegrationTest {
         PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
         when(findPaymentPort.findByOrderKey(ORDER_KEY))
-                .thenAnswer(invocation -> Optional.of(createPayment(0L)));
+            .thenAnswer(invocation -> Optional.of(createPayment(0L)));
         doAnswer(invocation -> {
             throw new OptimisticLockingFailureException("version conflict #1");
         }).doAnswer(invocation -> {
-                    throw new OptimisticLockingFailureException("version conflict #2");
-                }).doAnswer(invocation -> null)
-                .when(updatePaymentPort).update(any(Payment.class));
+                throw new OptimisticLockingFailureException("version conflict #2");
+            }).doAnswer(invocation -> null)
+            .when(updatePaymentPort).update(any(Payment.class));
 
         txHelper.commitPaymentAndPostProcess(context, vendorResult);
 
@@ -288,16 +288,16 @@ class PaymentCancelRetryableIntegrationTest {
         PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
         when(findPaymentPort.findByOrderKey(ORDER_KEY))
-                .thenAnswer(invocation -> Optional.of(createPayment(0L)));
+            .thenAnswer(invocation -> Optional.of(createPayment(0L)));
         doAnswer(invocation -> {
             throw new OptimisticLockingFailureException("version conflict");
         }).when(updatePaymentPort).update(any(Payment.class));
 
         assertThatThrownBy(() -> txHelper.commitPaymentAndPostProcess(context, vendorResult))
-                .isInstanceOf(PaymentCancelRetryExhaustedException.class)
-                .hasMessageContaining("ERR_PAYMENT_CANCEL_01")
-                .hasMessageContaining(ORDER_KEY_STR)
-                .hasCauseInstanceOf(OptimisticLockingFailureException.class);
+            .isInstanceOf(PaymentCancelRetryExhaustedException.class)
+            .hasMessageContaining("ERR_PAYMENT_CANCEL_01")
+            .hasMessageContaining(ORDER_KEY_STR)
+            .hasCauseInstanceOf(OptimisticLockingFailureException.class);
 
         verify(findPaymentPort, times(3)).findByOrderKey(ORDER_KEY);
         verify(updatePaymentPort, times(3)).update(any(Payment.class));
@@ -310,13 +310,13 @@ class PaymentCancelRetryableIntegrationTest {
         PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
         when(findPaymentPort.findByOrderKey(ORDER_KEY))
-                .thenAnswer(invocation -> Optional.of(createPayment(0L)));
+            .thenAnswer(invocation -> Optional.of(createPayment(0L)));
         doAnswer(invocation -> {
             throw new OptimisticLockingFailureException("version conflict #1");
         }).doAnswer(invocation -> {
-                    throw new OptimisticLockingFailureException("version conflict #2");
-                }).doAnswer(invocation -> null)
-                .when(updatePaymentPort).update(any(Payment.class));
+                throw new OptimisticLockingFailureException("version conflict #2");
+            }).doAnswer(invocation -> null)
+            .when(updatePaymentPort).update(any(Payment.class));
 
         txHelper.commitPaymentAndPostProcess(context, vendorResult);
 
@@ -336,11 +336,11 @@ class PaymentCancelRetryableIntegrationTest {
         verify(updatePaymentPort, times(3)).update(any(Payment.class));
         verify(saveRefundPort, times(1)).save(any(Refund.class));
         verify(publishPaymentEventPort, times(1)).publishPaymentCancelledEvent(
-                anyLong(), anyString(), anyLong(), anyLong(), anyLong(), anyLong(),
-                any(Boolean.class), any(), any(), any(), any(), any()
+            anyLong(), anyString(), anyLong(), anyLong(), anyLong(), anyLong(),
+            any(Boolean.class), any(), any(), any(), any(), any()
         );
         verify(restoreProductInventoryUseCase, times(1))
-                .restore(any(), anyLong(), anyString());
+            .restore(any(), anyLong(), anyString());
     }
 
     @Test
@@ -352,7 +352,7 @@ class PaymentCancelRetryableIntegrationTest {
 
         // findByOrderKey: 호출 시점 DB 상태 기반 fresh 스냅샷 반환
         when(findPaymentPort.findByOrderKey(ORDER_KEY))
-                .thenAnswer(invocation -> Optional.of(createPayment(dbRefundAmount.get())));
+            .thenAnswer(invocation -> Optional.of(createPayment(dbRefundAmount.get())));
 
         // update: @Version 충돌 시뮬레이션
         //   payment는 markAsPartiallyRefunded(delta) 이후 refundAmount = base + delta 를 담고 있음.
@@ -366,7 +366,7 @@ class PaymentCancelRetryableIntegrationTest {
             boolean matched15000 = (requested - 15000L) == currentDb;
             if (!matched10000 && !matched15000) {
                 throw new OptimisticLockingFailureException(
-                        "stale base: requested=" + requested + ", currentDb=" + currentDb);
+                    "stale base: requested=" + requested + ", currentDb=" + currentDb);
             }
             dbRefundAmount.set(requested);
             return null;
@@ -411,14 +411,14 @@ class PaymentCancelRetryableIntegrationTest {
 
         assertThat(finished).as("두 스레드가 10초 내 완료되어야 한다").isTrue();
         assertThat(thread1Error.get())
-                .as("스레드1이 재시도 후 최종 성공해야 한다")
-                .isNull();
+            .as("스레드1이 재시도 후 최종 성공해야 한다")
+            .isNull();
         assertThat(thread2Error.get())
-                .as("스레드2가 재시도 후 최종 성공해야 한다")
-                .isNull();
+            .as("스레드2가 재시도 후 최종 성공해야 한다")
+            .isNull();
         assertThat(dbRefundAmount.get())
-                .as("최종 refundAmount는 두 delta 합(10000 + 15000)과 일치해야 한다")
-                .isEqualTo(25000L);
+            .as("최종 refundAmount는 두 delta 합(10000 + 15000)과 일치해야 한다")
+            .isEqualTo(25000L);
         verify(updatePaymentPort, atLeast(2)).update(any(Payment.class));
         verify(findPaymentPort, atLeast(2)).findByOrderKey(ORDER_KEY);
     }
@@ -430,7 +430,7 @@ class PaymentCancelRetryableIntegrationTest {
         PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
         when(findPaymentPort.findByOrderKey(ORDER_KEY))
-                .thenAnswer(invocation -> Optional.of(createPayment(0L)));
+            .thenAnswer(invocation -> Optional.of(createPayment(0L)));
         doAnswer(invocation -> {
             throw new IllegalStateException("non-retryable error");
         }).when(updatePaymentPort).update(any(Payment.class));
@@ -441,9 +441,9 @@ class PaymentCancelRetryableIntegrationTest {
         // IllegalStateException에 매칭되는 @Recover가 없으므로 ExhaustedRetryException으로 래핑된다.
         // 핵심 검증은 "updatePaymentPort.update가 단 1회만 호출되었다"이다.
         assertThatThrownBy(() -> txHelper.commitPaymentAndPostProcess(context, vendorResult))
-                .isInstanceOf(org.springframework.retry.ExhaustedRetryException.class)
-                .hasCauseInstanceOf(IllegalStateException.class)
-                .hasRootCauseMessage("non-retryable error");
+            .isInstanceOf(org.springframework.retry.ExhaustedRetryException.class)
+            .hasCauseInstanceOf(IllegalStateException.class)
+            .hasRootCauseMessage("non-retryable error");
 
         verify(updatePaymentPort, times(1)).update(any(Payment.class));
         verify(findPaymentPort, times(1)).findByOrderKey(ORDER_KEY);
@@ -456,29 +456,29 @@ class PaymentCancelRetryableIntegrationTest {
         PspPaymentEvent event = createCompleteEvent();
         Order order = createOrder();
         CancelPaymentCommand command = CancelPaymentCommand.builder()
-                .buyerId(BUYER_ID)
-                .orderKey(ORDER_KEY_STR)
-                .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
-                .cancelAmount(cancelAmount)
-                .cancelReason("테스트 부분 취소")
-                .build();
+            .buyerId(BUYER_ID)
+            .orderKey(ORDER_KEY_STR)
+            .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
+            .cancelAmount(cancelAmount)
+            .cancelReason("테스트 부분 취소")
+            .build();
         return PaymentCancelContext.builder()
-                .payment(payment)
-                .event(event)
-                .order(order)
-                .cancelAmount(cancelAmount)
-                .adjustedCancelAmount(cancelAmount)
-                .remainAmount(PAYMENT_AMOUNT - cancelAmount)
-                .alreadyRefunded(0L)
-                .shippingFeeDeduction(0L)
-                .isFullCancel(false)
-                .cancelReason("테스트 부분 취소")
-                .adjustedCancelReason("테스트 부분 취소")
-                .cancelId(UUID.randomUUID().toString())
-                .transactionNumber(PG_PAYMENT_KEY)
-                .modType("STPC")
-                .originalCommand(command)
-                .build();
+            .payment(payment)
+            .event(event)
+            .order(order)
+            .cancelAmount(cancelAmount)
+            .adjustedCancelAmount(cancelAmount)
+            .remainAmount(PAYMENT_AMOUNT - cancelAmount)
+            .alreadyRefunded(0L)
+            .shippingFeeDeduction(0L)
+            .isFullCancel(false)
+            .cancelReason("테스트 부분 취소")
+            .adjustedCancelReason("테스트 부분 취소")
+            .cancelId(UUID.randomUUID().toString())
+            .transactionNumber(PG_PAYMENT_KEY)
+            .modType("STPC")
+            .originalCommand(command)
+            .build();
     }
 
     private PaymentCancelContext buildPartialCancelContextWithProducts(Long cancelAmount) {
@@ -486,106 +486,106 @@ class PaymentCancelRetryableIntegrationTest {
         PspPaymentEvent event = createCompleteEvent();
         Order order = createOrder();
         CancelPaymentCommand command = CancelPaymentCommand.builder()
-                .buyerId(BUYER_ID)
-                .orderKey(ORDER_KEY_STR)
-                .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
-                .cancelAmount(cancelAmount)
-                .cancelReason("테스트 부분 취소")
-                .cancelProducts(List.of(new CancelPaymentCommand.CancelProductItem(100L, 1)))
-                .build();
+            .buyerId(BUYER_ID)
+            .orderKey(ORDER_KEY_STR)
+            .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
+            .cancelAmount(cancelAmount)
+            .cancelReason("테스트 부분 취소")
+            .cancelProducts(List.of(new CancelPaymentCommand.CancelProductItem(100L, 1)))
+            .build();
         return PaymentCancelContext.builder()
-                .payment(payment)
-                .event(event)
-                .order(order)
-                .cancelAmount(cancelAmount)
-                .adjustedCancelAmount(cancelAmount)
-                .remainAmount(PAYMENT_AMOUNT - cancelAmount)
-                .alreadyRefunded(0L)
-                .shippingFeeDeduction(0L)
-                .isFullCancel(false)
-                .cancelReason("테스트 부분 취소")
-                .adjustedCancelReason("테스트 부분 취소")
-                .cancelId(UUID.randomUUID().toString())
-                .transactionNumber(PG_PAYMENT_KEY)
-                .modType("STPC")
-                .originalCommand(command)
-                .build();
+            .payment(payment)
+            .event(event)
+            .order(order)
+            .cancelAmount(cancelAmount)
+            .adjustedCancelAmount(cancelAmount)
+            .remainAmount(PAYMENT_AMOUNT - cancelAmount)
+            .alreadyRefunded(0L)
+            .shippingFeeDeduction(0L)
+            .isFullCancel(false)
+            .cancelReason("테스트 부분 취소")
+            .adjustedCancelReason("테스트 부분 취소")
+            .cancelId(UUID.randomUUID().toString())
+            .transactionNumber(PG_PAYMENT_KEY)
+            .modType("STPC")
+            .originalCommand(command)
+            .build();
     }
 
     private Payment createPayment(Long refundAmount) {
         PaymentSnapshotState state = PaymentSnapshotState.builder()
-                .id(ORDER_ID)
-                .orderId(ORDER_ID)
-                .orderKey(ORDER_KEY)
-                .pgPaymentKey(PG_PAYMENT_KEY)
-                .paymentAmount(PAYMENT_AMOUNT)
-                .successYn(true)
-                .refundedYn(false)
-                .refundAmount(refundAmount)
-                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .build();
+            .id(ORDER_ID)
+            .orderId(ORDER_ID)
+            .orderKey(ORDER_KEY)
+            .pgPaymentKey(PG_PAYMENT_KEY)
+            .paymentAmount(PAYMENT_AMOUNT)
+            .successYn(true)
+            .refundedYn(false)
+            .refundAmount(refundAmount)
+            .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .build();
         return Payment.from(state);
     }
 
     private PspPaymentEvent createCompleteEvent() {
         PspPaymentEventSnapshotState state = PspPaymentEventSnapshotState.builder()
-                .id(1L)
-                .orderId(ORDER_ID)
-                .orderKey(ORDER_KEY_STR)
-                .pgCompanyKey("NHN_KCP")
-                .pgPaymentKey(PG_PAYMENT_KEY)
-                .poStatus(PaymentEventStatus.COMPLETE)
-                .method("CARD")
-                .amount(PAYMENT_AMOUNT)
-                .resultCode("0000")
-                .resultMessage("승인 성공")
-                .paidAt(LocalDateTime.of(2026, 2, 10, 15, 30))
-                .build();
+            .id(1L)
+            .orderId(ORDER_ID)
+            .orderKey(ORDER_KEY_STR)
+            .pgCompanyKey("NHN_KCP")
+            .pgPaymentKey(PG_PAYMENT_KEY)
+            .poStatus(PaymentEventStatus.COMPLETE)
+            .method("CARD")
+            .amount(PAYMENT_AMOUNT)
+            .resultCode("0000")
+            .resultMessage("승인 성공")
+            .paidAt(LocalDateTime.of(2026, 2, 10, 15, 30))
+            .build();
         return PspPaymentEvent.from(state);
     }
 
     private Order createOrder() {
         OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
-                .pricePolicyId(100L)
-                .quantity(2)
-                .sellerId(10L)
-                .unitAmount(25000L)
-                .accumulatedPoint(0L)
-                .build();
+            .pricePolicyId(100L)
+            .quantity(2)
+            .sellerId(10L)
+            .unitAmount(25000L)
+            .accumulatedPoint(0L)
+            .build();
         OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(ORDER_ID)
-                .buyerId(BUYER_ID)
-                .orderKey(ORDER_KEY)
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder()
-                        .totalAmount(PAYMENT_AMOUNT)
-                        .paidAmount(null)
-                        .couponAmount(null)
-                        .pointAmount(0L)
-                        .shippingFee(null)
-                        .build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder()
-                        .recipientName("수령인")
-                        .recipientPhoneNumber("01012345678")
-                        .zipCode("12345")
-                        .address("서울시 강남구")
-                        .addressDetail("상세")
-                        .deliveryRequestType(null)
-                        .deliveryRequestMessage(null)
-                        .build()))
-                .orderProductStates(List.of(productState))
-                .build();
+            .id(ORDER_ID)
+            .buyerId(BUYER_ID)
+            .orderKey(ORDER_KEY)
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder()
+                .totalAmount(PAYMENT_AMOUNT)
+                .paidAmount(null)
+                .couponAmount(null)
+                .pointAmount(0L)
+                .shippingFee(null)
+                .build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder()
+                .recipientName("수령인")
+                .recipientPhoneNumber("01012345678")
+                .zipCode("12345")
+                .address("서울시 강남구")
+                .addressDetail("상세")
+                .deliveryRequestType(null)
+                .deliveryRequestMessage(null)
+                .build()))
+            .orderProductStates(List.of(productState))
+            .build();
         return Order.from(state);
     }
 
     private PaymentCancelVendorResult createSuccessVendorResult() {
         return PaymentCancelVendorResult.builder()
-                .success(true)
-                .resultCode("0000")
-                .resultMessage("취소 성공")
-                .amount(String.valueOf(PAYMENT_AMOUNT))
-                .rawResponse("{\"res_cd\":\"0000\"}")
-                .build();
+            .success(true)
+            .resultCode("0000")
+            .resultMessage("취소 성공")
+            .amount(String.valueOf(PAYMENT_AMOUNT))
+            .rawResponse("{\"res_cd\":\"0000\"}")
+            .build();
     }
 }

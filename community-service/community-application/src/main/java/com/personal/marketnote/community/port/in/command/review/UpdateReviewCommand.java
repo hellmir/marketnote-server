@@ -4,10 +4,10 @@ import lombok.Builder;
 
 @Builder
 public record UpdateReviewCommand(
-        Long id,
-        Long reviewerId,
-        Float rating,
-        String content,
-        Boolean isPhoto
+    Long id,
+    Long reviewerId,
+    Float rating,
+    String content,
+    Boolean isPhoto
 ) {
 }

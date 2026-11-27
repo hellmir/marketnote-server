@@ -40,30 +40,30 @@ public class SagaStep {
         }
         LocalDateTime now = LocalDateTime.now(clock);
         return SagaStep.builder()
-                .sagaInstanceId(state.sagaInstanceId())
-                .stepName(state.stepName())
-                .stepIndex(state.stepIndex())
-                .status(SagaStepStatus.PENDING)
-                .request(state.request())
-                .createdAt(now)
-                .modifiedAt(now)
-                .build();
+            .sagaInstanceId(state.sagaInstanceId())
+            .stepName(state.stepName())
+            .stepIndex(state.stepIndex())
+            .status(SagaStepStatus.PENDING)
+            .request(state.request())
+            .createdAt(now)
+            .modifiedAt(now)
+            .build();
     }
 
     public static SagaStep from(SagaStepSnapshotState state) {
         return SagaStep.builder()
-                .id(state.id())
-                .sagaInstanceId(state.sagaInstanceId())
-                .stepName(state.stepName())
-                .stepIndex(state.stepIndex())
-                .status(state.status())
-                .request(state.request())
-                .response(state.response())
-                .compensationRequest(state.compensationRequest())
-                .compensationResponse(state.compensationResponse())
-                .createdAt(state.createdAt())
-                .modifiedAt(state.modifiedAt())
-                .build();
+            .id(state.id())
+            .sagaInstanceId(state.sagaInstanceId())
+            .stepName(state.stepName())
+            .stepIndex(state.stepIndex())
+            .status(state.status())
+            .request(state.request())
+            .response(state.response())
+            .compensationRequest(state.compensationRequest())
+            .compensationResponse(state.compensationResponse())
+            .createdAt(state.createdAt())
+            .modifiedAt(state.modifiedAt())
+            .build();
     }
 
     public void process() {

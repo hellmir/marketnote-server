@@ -15,15 +15,15 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(
-        name = "saga_instance",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_saga_instance_saga_id",
-                columnNames = {"saga_id"}
-        ),
-        indexes = {
-                @Index(name = "idx_saga_instance_type_status", columnList = "saga_type, status"),
-                @Index(name = "idx_saga_instance_status_modified_at", columnList = "status, modified_at")
-        }
+    name = "saga_instance",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_saga_instance_saga_id",
+        columnNames = {"saga_id"}
+    ),
+    indexes = {
+        @Index(name = "idx_saga_instance_type_status", columnList = "saga_type, status"),
+        @Index(name = "idx_saga_instance_status_modified_at", columnList = "status, modified_at")
+    }
 )
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -63,8 +63,8 @@ public class SagaInstanceJpaEntity {
     private LocalDateTime completedAt;
 
     private SagaInstanceJpaEntity(
-            String sagaId, String sagaType, SagaStatus status,
-            int currentStepIndex, String payload
+        String sagaId, String sagaType, SagaStatus status,
+        int currentStepIndex, String payload
     ) {
         this.sagaId = sagaId;
         this.sagaType = sagaType;
@@ -75,11 +75,11 @@ public class SagaInstanceJpaEntity {
 
     public static SagaInstanceJpaEntity from(com.personal.marketnote.common.saga.SagaInstance instance) {
         SagaInstanceJpaEntity entity = new SagaInstanceJpaEntity(
-                instance.getSagaId(),
-                instance.getSagaType(),
-                instance.getStatus(),
-                instance.getCurrentStepIndex(),
-                instance.getPayload()
+            instance.getSagaId(),
+            instance.getSagaType(),
+            instance.getStatus(),
+            instance.getCurrentStepIndex(),
+            instance.getPayload()
         );
         entity.completedAt = instance.getCompletedAt();
         return entity;

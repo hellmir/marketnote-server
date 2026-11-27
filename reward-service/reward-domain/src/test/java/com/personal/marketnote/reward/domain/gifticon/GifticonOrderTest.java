@@ -16,43 +16,43 @@ class GifticonOrderTest {
 
     private GifticonOrder createPendingOrder() {
         return GifticonOrder.from(GifticonOrderSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .goodsCode("G001")
-                .goodsName("스타벅스 아메리카노")
-                .brandName("스타벅스")
-                .productImageUrl("https://example.com/image.jpg")
-                .trId("NTCASH_100_20260403120000")
-                .orderNo("ORD001")
-                .cashPrice(4500L)
-                .orderStatus(GifticonOrderStatus.PENDING)
-                .couponImageUrl(null)
-                .pinNo(null)
-                .validEndDate(LocalDate.of(2026, 7, 3))
-                .createdAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
-                .build()
+            .id(1L)
+            .userId(100L)
+            .goodsCode("G001")
+            .goodsName("스타벅스 아메리카노")
+            .brandName("스타벅스")
+            .productImageUrl("https://example.com/image.jpg")
+            .trId("NTCASH_100_20260403120000")
+            .orderNo("ORD001")
+            .cashPrice(4500L)
+            .orderStatus(GifticonOrderStatus.PENDING)
+            .couponImageUrl(null)
+            .pinNo(null)
+            .validEndDate(LocalDate.of(2026, 7, 3))
+            .createdAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
+            .build()
         );
     }
 
     private GifticonOrder createIssuedOrder() {
         return GifticonOrder.from(GifticonOrderSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .goodsCode("G001")
-                .goodsName("스타벅스 아메리카노")
-                .brandName("스타벅스")
-                .productImageUrl("https://example.com/image.jpg")
-                .trId("NTCASH_100_20260403120000")
-                .orderNo("ORD001")
-                .cashPrice(4500L)
-                .orderStatus(GifticonOrderStatus.ISSUED)
-                .couponImageUrl("https://example.com/coupon.jpg")
-                .pinNo("encrypted_pin")
-                .validEndDate(LocalDate.of(2026, 7, 3))
-                .createdAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
-                .build()
+            .id(1L)
+            .userId(100L)
+            .goodsCode("G001")
+            .goodsName("스타벅스 아메리카노")
+            .brandName("스타벅스")
+            .productImageUrl("https://example.com/image.jpg")
+            .trId("NTCASH_100_20260403120000")
+            .orderNo("ORD001")
+            .cashPrice(4500L)
+            .orderStatus(GifticonOrderStatus.ISSUED)
+            .couponImageUrl("https://example.com/coupon.jpg")
+            .pinNo("encrypted_pin")
+            .validEndDate(LocalDate.of(2026, 7, 3))
+            .createdAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
+            .build()
         );
     }
 
@@ -100,7 +100,7 @@ class GifticonOrderTest {
             GifticonOrder order = createIssuedOrder();
 
             assertThatThrownBy(() -> order.issue("url", "pin", "ORD002", LocalDate.of(2026, 7, 3)))
-                    .isInstanceOf(InvalidGifticonOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidGifticonOrderStatusTransitionException.class);
         }
 
         @Test
@@ -119,7 +119,7 @@ class GifticonOrderTest {
             GifticonOrder order = createIssuedOrder();
 
             assertThatThrownBy(() -> order.markSendFailed())
-                    .isInstanceOf(InvalidGifticonOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidGifticonOrderStatusTransitionException.class);
         }
 
         @Test
@@ -160,7 +160,7 @@ class GifticonOrderTest {
             order.syncStatus(GifticonOrderStatus.USED);
 
             assertThatThrownBy(() -> order.cancel())
-                    .isInstanceOf(InvalidGifticonOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidGifticonOrderStatusTransitionException.class);
         }
 
         @Test

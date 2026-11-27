@@ -30,12 +30,12 @@ public class OrderReturnLedgerSagaConsumer {
     private final SagaResponsePublisher sagaResponsePublisher;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_RETURN_LEDGER,
-            groupId = "saga-order-return-ledger"
+        topics = KafkaTopicConstants.SAGA_ORDER_RETURN_LEDGER,
+        groupId = "saga-order-return-ledger"
     )
     public void handleLedgerStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         try {
             EventEnvelope<?> envelope = record.value();
@@ -62,7 +62,7 @@ public class OrderReturnLedgerSagaConsumer {
         } catch (Exception e) {
             // boundary E: @KafkaListener record-level boundary — 호출자 전파 불가 (finally ack), ERROR + cause 인자 필수
             log.error("SAGA 반품 역분개 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
-                    record.topic(), record.partition(), record.offset(), e.getMessage(), e
+                record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
         } finally {
             acknowledgment.acknowledge();
@@ -72,7 +72,7 @@ public class OrderReturnLedgerSagaConsumer {
     private void handleAction(SagaStepMessage stepMessage) {
         try {
             ReturnLedgerSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), ReturnLedgerSagaPayload.class);
+                stepMessage.payload(), ReturnLedgerSagaPayload.class);
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
                 publishValidationFailure(stepMessage, "orderId 누락");
@@ -80,27 +80,27 @@ public class OrderReturnLedgerSagaConsumer {
             }
 
             recordLedgerEntryUseCase.recordPaymentCancellation(
-                    payload.orderId(), payload.returnAmount(), payload.idempotencyKey()
+                payload.orderId(), payload.returnAmount(), payload.idempotencyKey()
             );
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true}"
             );
 
             log.info("SAGA 반품 역분개 성공. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
         } catch (DuplicateLedgerTransactionException e) {
             log.info("이미 처리된 반품 역분개 (멱등 처리). sagaId={}", stepMessage.sagaId());
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
             );
         } catch (Exception e) {
             // boundary E: SAGA step boundary — UseCase 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 반품 역분개 처리 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "반품 역분개 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "반품 역분개 처리 실패"
             );
         }
     }
@@ -108,7 +108,7 @@ public class OrderReturnLedgerSagaConsumer {
     private void handleCompensation(SagaStepMessage stepMessage) {
         try {
             ReturnLedgerCompensationSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), ReturnLedgerCompensationSagaPayload.class);
+                stepMessage.payload(), ReturnLedgerCompensationSagaPayload.class);
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
                 publishValidationFailure(stepMessage, "orderId 누락");
@@ -118,25 +118,25 @@ public class OrderReturnLedgerSagaConsumer {
             recordLedgerEntryUseCase.recordPaymentApproval(payload.orderId(), payload.paymentAmount());
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"compensated\":true}"
             );
 
             log.info("SAGA 반품 역분개 보상 완료 (원래 분개 복구). sagaId={}, orderId={}",
-                    stepMessage.sagaId(), payload.orderId()
+                stepMessage.sagaId(), payload.orderId()
             );
         } catch (DuplicateLedgerTransactionException e) {
             log.info("이미 처리된 역분개 보상 (멱등 처리). sagaId={}", stepMessage.sagaId());
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true,\"idempotent\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"compensated\":true,\"idempotent\":true}"
             );
         } catch (Exception e) {
             // boundary E: SAGA compensation boundary — 보상 처리 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 반품 역분개 보상 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "반품 역분개 보상 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "반품 역분개 보상 처리 실패"
             );
         }
     }
@@ -144,8 +144,8 @@ public class OrderReturnLedgerSagaConsumer {
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
         log.warn("SAGA 반품 역분개 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
     }
 }

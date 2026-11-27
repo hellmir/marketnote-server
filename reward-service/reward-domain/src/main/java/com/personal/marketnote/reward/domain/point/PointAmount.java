@@ -61,7 +61,7 @@ public final class PointAmount {
         long result = Math.subtractExact(amount, other.amount);
         if (result < 0L) {
             throw new InvalidPointAmountException(
-                    String.format(SUBTRACT_NEGATIVE_RESULT_MESSAGE, amount, other.amount)
+                String.format(SUBTRACT_NEGATIVE_RESULT_MESSAGE, amount, other.amount)
             );
         }
         return new PointAmount(result);

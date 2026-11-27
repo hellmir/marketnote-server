@@ -58,19 +58,19 @@ class RegisterOfferwallRewardUseCaseTest {
             // given
             RegisterOfferwallRewardCommand command = buildCommand();
             OfferwallMapper savedMapper = OfferwallMapper.from(
-                    OfferwallMapperSnapshotState.builder()
-                            .id(1L)
-                            .offerwallType(OfferwallType.ADPOPCORN)
-                            .rewardKey("reward-key")
-                            .userKey("user-key")
-                            .isSuccess(true)
-                            .failureCount((short) 0)
-                            .build()
+                OfferwallMapperSnapshotState.builder()
+                    .id(1L)
+                    .offerwallType(OfferwallType.ADPOPCORN)
+                    .rewardKey("reward-key")
+                    .userKey("user-key")
+                    .isSuccess(true)
+                    .failureCount((short) 0)
+                    .build()
             );
 
             when(getUserPointUseCase.existsUserPoint("user-key")).thenReturn(true);
             when(getOfferwallMapperUseCase.existsSucceededOfferwallMapper(OfferwallType.ADPOPCORN, "reward-key"))
-                    .thenReturn(false);
+                .thenReturn(false);
             when(saveOfferwallMapperPort.save(any(OfferwallMapper.class))).thenReturn(savedMapper);
 
             // when
@@ -79,7 +79,7 @@ class RegisterOfferwallRewardUseCaseTest {
             // then
             assertThat(result).isEqualTo(1L);
             verify(validateOfferwallSignaturePort).validateSignature(
-                    eq(OfferwallType.ADPOPCORN), eq(UserDeviceType.ANDROID), any(), any(), any(), any(), any(), any()
+                eq(OfferwallType.ADPOPCORN), eq(UserDeviceType.ANDROID), any(), any(), any(), any(), any(), any()
             );
             verify(saveOfferwallMapperPort).save(any(OfferwallMapper.class));
             verify(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
@@ -99,7 +99,7 @@ class RegisterOfferwallRewardUseCaseTest {
 
             // when & then
             assertThatThrownBy(() -> registerOfferwallRewardService.register(command))
-                    .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(UserNotFoundException.class);
 
             verifyNoInteractions(saveOfferwallMapperPort, modifyUserPointUseCase);
         }
@@ -111,11 +111,11 @@ class RegisterOfferwallRewardUseCaseTest {
             RegisterOfferwallRewardCommand command = buildCommand();
             when(getUserPointUseCase.existsUserPoint("user-key")).thenReturn(true);
             when(getOfferwallMapperUseCase.existsSucceededOfferwallMapper(OfferwallType.ADPOPCORN, "reward-key"))
-                    .thenReturn(true);
+                .thenReturn(true);
 
             // when & then
             assertThatThrownBy(() -> registerOfferwallRewardService.register(command))
-                    .isInstanceOf(DuplicateOfferwallRewardException.class);
+                .isInstanceOf(DuplicateOfferwallRewardException.class);
 
             verifyNoInteractions(saveOfferwallMapperPort, modifyUserPointUseCase);
         }
@@ -123,13 +123,13 @@ class RegisterOfferwallRewardUseCaseTest {
 
     private RegisterOfferwallRewardCommand buildCommand() {
         return RegisterOfferwallRewardCommand.builder()
-                .offerwallType(OfferwallType.ADPOPCORN)
-                .rewardKey("reward-key")
-                .userKey("user-key")
-                .userDeviceType(UserDeviceType.ANDROID)
-                .campaignKey("campaign-1")
-                .quantity(100L)
-                .rewardUnit("POINT")
-                .build();
+            .offerwallType(OfferwallType.ADPOPCORN)
+            .rewardKey("reward-key")
+            .userKey("user-key")
+            .userDeviceType(UserDeviceType.ANDROID)
+            .campaignKey("campaign-1")
+            .quantity(100L)
+            .rewardUnit("POINT")
+            .build();
     }
 }

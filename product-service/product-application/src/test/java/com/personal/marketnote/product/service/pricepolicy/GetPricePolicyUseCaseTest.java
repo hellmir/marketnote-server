@@ -52,8 +52,8 @@ class GetPricePolicyUseCaseTest {
         when(findPricePolicyPort.findById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> getPricePolicyService.getPricePolicy(id))
-                .isInstanceOf(PricePolicyNotFoundException.class)
-                .hasMessage("가격 정책을 찾을 수 없습니다.");
+            .isInstanceOf(PricePolicyNotFoundException.class)
+            .hasMessage("가격 정책을 찾을 수 없습니다.");
 
         verify(findPricePolicyPort).findById(id);
     }
@@ -67,7 +67,7 @@ class GetPricePolicyUseCaseTest {
         when(findPricePolicyPort.findById(id)).thenThrow(exception);
 
         assertThatThrownBy(() -> getPricePolicyService.getPricePolicy(id))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     @Test
@@ -92,8 +92,8 @@ class GetPricePolicyUseCaseTest {
         when(findPricePolicyPort.findByOptionIds(optionIds)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> getPricePolicyService.getPricePolicy(optionIds))
-                .isInstanceOf(PricePolicyNotFoundException.class)
-                .hasMessage("가격 정책을 찾을 수 없습니다.");
+            .isInstanceOf(PricePolicyNotFoundException.class)
+            .hasMessage("가격 정책을 찾을 수 없습니다.");
 
         verify(findPricePolicyPort).findByOptionIds(optionIds);
     }
@@ -107,21 +107,21 @@ class GetPricePolicyUseCaseTest {
         when(findPricePolicyPort.findByOptionIds(optionIds)).thenThrow(exception);
 
         assertThatThrownBy(() -> getPricePolicyService.getPricePolicy(optionIds))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     private PricePolicy buildPricePolicy(Long id, List<Long> optionIds) {
         return PricePolicy.from(
-                PricePolicySnapshotState.builder()
-                        .id(id)
-                        .price(10000L)
-                        .discountPrice(8000L)
-                        .discountRate(Rate.of(new BigDecimal("20.0")))
-                        .accumulatedPoint(200L)
-                        .accumulationRate(Rate.of(new BigDecimal("2.5")))
-                        .status(EntityStatus.ACTIVE)
-                        .optionIds(optionIds)
-                        .build()
+            PricePolicySnapshotState.builder()
+                .id(id)
+                .price(10000L)
+                .discountPrice(8000L)
+                .discountRate(Rate.of(new BigDecimal("20.0")))
+                .accumulatedPoint(200L)
+                .accumulationRate(Rate.of(new BigDecimal("2.5")))
+                .status(EntityStatus.ACTIVE)
+                .optionIds(optionIds)
+                .build()
         );
     }
 }

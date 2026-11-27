@@ -46,7 +46,7 @@ class KafkaSaslPropertiesTest {
         properties.setPassword("password");
 
         assertThatThrownBy(() -> properties.applyTo(props))
-                .isInstanceOf(KafkaSaslUsernameNotConfiguredException.class);
+            .isInstanceOf(KafkaSaslUsernameNotConfiguredException.class);
     }
 
     @Test
@@ -57,7 +57,7 @@ class KafkaSaslPropertiesTest {
         properties.setPassword(null);
 
         assertThatThrownBy(() -> properties.applyTo(props))
-                .isInstanceOf(KafkaSaslPasswordNotConfiguredException.class);
+            .isInstanceOf(KafkaSaslPasswordNotConfiguredException.class);
     }
 
     @Test
@@ -119,7 +119,7 @@ class KafkaSaslPropertiesTest {
         properties.setPassword("pass");
 
         assertThatThrownBy(() -> properties.applyTo(props))
-                .isInstanceOf(UnsupportedKafkaSaslMechanismException.class);
+            .isInstanceOf(UnsupportedKafkaSaslMechanismException.class);
     }
 
     @Test
@@ -246,6 +246,6 @@ class KafkaSaslPropertiesTest {
         properties.setSslTruststoreLocation("classpath:non-existent-truststore.jks");
 
         assertThatThrownBy(() -> properties.applyTo(props))
-                .isInstanceOf(KafkaSslTruststoreNotFoundException.class);
+            .isInstanceOf(KafkaSslTruststoreNotFoundException.class);
     }
 }

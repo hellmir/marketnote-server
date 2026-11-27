@@ -23,8 +23,8 @@ public class ProductCategoryPersistenceAdapter implements ReplaceProductCategori
     @Override
     @Transactional(isolation = READ_COMMITTED)
     @Caching(evict = {
-            @CacheEvict(value = "product:detail", key = "#productId"),
-            @CacheEvict(value = "product:list:first", allEntries = true)
+        @CacheEvict(value = "product:detail", key = "#productId"),
+        @CacheEvict(value = "product:list:first", allEntries = true)
     })
     public void replaceProductCategories(Long productId, List<Long> categoryIds) {
         productCategoryJpaRepository.deleteByProductId(productId);
@@ -33,9 +33,9 @@ public class ProductCategoryPersistenceAdapter implements ReplaceProductCategori
         }
 
         productCategoryJpaRepository.saveAll(
-                categoryIds.stream()
-                        .map(categoryId -> ProductCategoryJpaEntity.of(productId, categoryId))
-                        .toList()
+            categoryIds.stream()
+                .map(categoryId -> ProductCategoryJpaEntity.of(productId, categoryId))
+                .toList()
         );
     }
 

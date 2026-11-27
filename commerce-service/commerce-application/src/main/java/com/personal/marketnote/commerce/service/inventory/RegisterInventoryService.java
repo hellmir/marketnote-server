@@ -44,23 +44,23 @@ public class RegisterInventoryService implements RegisterInventoryUseCase {
         saveCacheStockPort.save(command.pricePolicyId(), 0);
 
         publishInventoryEventPort.publishInventoryChangedEvent(
-                command.pricePolicyId(), command.productId(), 0, InventoryChangeAction.CREATED
+            command.pricePolicyId(), command.productId(), 0, InventoryChangeAction.CREATED
         );
     }
 
     @Override
     public Set<Inventory> registerInventories(Set<RegisterInventoryCommand> commands) {
         Set<Inventory> inventories = commands.stream()
-                .map(command -> Inventory.of(command.productId(), command.productKey(), command.pricePolicyId()))
-                .collect(Collectors.toSet());
+            .map(command -> Inventory.of(command.productId(), command.productKey(), command.pricePolicyId()))
+            .collect(Collectors.toSet());
 
         saveInventoryPort.save(inventories);
         saveCacheStockPort.save(inventories);
 
         inventories.forEach(inventory ->
-                publishInventoryEventPort.publishInventoryChangedEvent(
-                        inventory.getPricePolicyId(), inventory.getProductId(), 0, InventoryChangeAction.CREATED
-                )
+            publishInventoryEventPort.publishInventoryChangedEvent(
+                inventory.getPricePolicyId(), inventory.getProductId(), 0, InventoryChangeAction.CREATED
+            )
         );
 
         return inventories;

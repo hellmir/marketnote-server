@@ -14,12 +14,12 @@ class ProductCatalogReadModelJpaEntityTest {
 
     private ProductCatalogReadModelJpaEntity newEntity() {
         return ProductCatalogReadModelJpaEntity.of(
-                1L, 100L, 200L, 10L,
-                "상품A", "브랜드A",
-                10000L, 9000L, BigDecimal.valueOf(10.0),
-                100L, BigDecimal.valueOf(1.0),
-                5L, 7L,
-                0L, null, null
+            1L, 100L, 200L, 10L,
+            "상품A", "브랜드A",
+            10000L, 9000L, BigDecimal.valueOf(10.0),
+            100L, BigDecimal.valueOf(1.0),
+            5L, 7L,
+            0L, null, null
         );
     }
 

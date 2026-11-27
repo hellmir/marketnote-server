@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface FindLedgerTransactionPort {
     List<LedgerTransaction> findByFilters(
-            LocalDateTime startDate, LocalDateTime endDate, LedgerTransactionType transactionType
+        LocalDateTime startDate, LocalDateTime endDate, LedgerTransactionType transactionType
     );
 }

@@ -8,15 +8,15 @@ public class SagaInstanceJpaEntityToDomainMapper {
 
     public static SagaInstance toDomain(SagaInstanceJpaEntity entity) {
         return SagaInstance.from(new SagaInstanceSnapshotState(
-                entity.getId(),
-                entity.getSagaId(),
-                entity.getSagaType(),
-                entity.getStatus(),
-                entity.getCurrentStepIndex(),
-                entity.getPayload(),
-                entity.getCreatedAt(),
-                entity.getModifiedAt(),
-                entity.getCompletedAt()
+            entity.getId(),
+            entity.getSagaId(),
+            entity.getSagaType(),
+            entity.getStatus(),
+            entity.getCurrentStepIndex(),
+            entity.getPayload(),
+            entity.getCreatedAt(),
+            entity.getModifiedAt(),
+            entity.getCompletedAt()
         ));
     }
 }

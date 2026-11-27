@@ -45,7 +45,7 @@ class BoardTest {
     @DisplayName("잘못된 카테고리 코드이면 InvalidPostCategoryForBoardException이 발생한다")
     void shouldThrowExceptionWhenCategoryCodeIsInvalid() {
         assertThatThrownBy(() -> Board.NOTICE.resolveCategory("INVALID_CODE"))
-                .isInstanceOf(InvalidPostCategoryForBoardException.class);
+            .isInstanceOf(InvalidPostCategoryForBoardException.class);
     }
 
     @Test
@@ -88,7 +88,7 @@ class BoardTest {
     @DisplayName("resolveCategory에 null을 전달하면 예외가 발생한다")
     void shouldThrowExceptionWhenCategoryCodeIsNull() {
         assertThatThrownBy(() -> Board.NOTICE.resolveCategory(null))
-                .isInstanceOf(InvalidPostCategoryForBoardException.class);
+            .isInstanceOf(InvalidPostCategoryForBoardException.class);
     }
 
     @Test

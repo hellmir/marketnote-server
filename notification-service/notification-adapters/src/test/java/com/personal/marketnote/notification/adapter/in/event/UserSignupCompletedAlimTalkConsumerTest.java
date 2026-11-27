@@ -49,17 +49,17 @@ class UserSignupCompletedAlimTalkConsumerTest {
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long userId, String userKey, String phoneNumber, String userName
+        Long userId, String userKey, String phoneNumber, String userName
     ) {
         UserSignupCompletedEvent event = new UserSignupCompletedEvent(
-                userId, userKey, phoneNumber, userName
+            userId, userKey, phoneNumber, userName
         );
         EventEnvelope<UserSignupCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "user.user.signup-completed", "user-service",
-                LocalDateTime.of(2026, 4, 16, 10, 0), event
+            "test-event-id", "user.user.signup-completed", "user-service",
+            LocalDateTime.of(2026, 4, 16, 10, 0), event
         );
         return new ConsumerRecord<>("user.user.signup-completed", 0, 0L,
-                String.valueOf(userId), envelope);
+            String.valueOf(userId), envelope);
     }
 
     @Test
@@ -67,7 +67,7 @@ class UserSignupCompletedAlimTalkConsumerTest {
     void shouldSendAlimTalkAndAcknowledge() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                1L, "user-key-123", "01012345678", "홍길동"
+            1L, "user-key-123", "01012345678", "홍길동"
         );
 
         // when
@@ -94,7 +94,7 @@ class UserSignupCompletedAlimTalkConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "user.user.signup-completed", 0, 0L, "1", null
+            "user.user.signup-completed", 0, 0L, "1", null
         );
 
         // when
@@ -110,14 +110,14 @@ class UserSignupCompletedAlimTalkConsumerTest {
     void shouldSkipWhenEventTypeMismatch() {
         // given
         UserSignupCompletedEvent event = new UserSignupCompletedEvent(
-                1L, "user-key-123", "01012345678", "홍길동"
+            1L, "user-key-123", "01012345678", "홍길동"
         );
         EventEnvelope<UserSignupCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "user-service",
-                LocalDateTime.of(2026, 4, 16, 10, 0), event
+            "test-event-id", "wrong.event.type", "user-service",
+            LocalDateTime.of(2026, 4, 16, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "user.user.signup-completed", 0, 0L, "1", envelope
+            "user.user.signup-completed", 0, 0L, "1", envelope
         );
 
         // when
@@ -133,7 +133,7 @@ class UserSignupCompletedAlimTalkConsumerTest {
     void shouldSkipWhenUserIdIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                null, "user-key-123", "01012345678", "홍길동"
+            null, "user-key-123", "01012345678", "홍길동"
         );
 
         // when
@@ -149,7 +149,7 @@ class UserSignupCompletedAlimTalkConsumerTest {
     void shouldSkipWhenPhoneNumberIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                1L, "user-key-123", null, "홍길동"
+            1L, "user-key-123", null, "홍길동"
         );
 
         // when
@@ -165,10 +165,10 @@ class UserSignupCompletedAlimTalkConsumerTest {
     void shouldLogAndAcknowledgeWhenAlimTalkFails() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
-                1L, "user-key-123", "01012345678", "홍길동"
+            1L, "user-key-123", "01012345678", "홍길동"
         );
         org.mockito.Mockito.doThrow(new RuntimeException("알리고 API 호출 실패"))
-                .when(sendAligoAlimTalkUseCase).sendAlimTalk(org.mockito.ArgumentMatchers.any());
+            .when(sendAligoAlimTalkUseCase).sendAlimTalk(org.mockito.ArgumentMatchers.any());
 
         // when
         consumer.handleUserSignupCompletedEvent(record, acknowledgment);

@@ -27,44 +27,44 @@ class SettlementPolicyTest {
     @DisplayName("수수료율 합계가 10000을 초과하면 InvalidSettlementPolicyException이 발생한다")
     void shouldThrowWhenFeeRateSumExceedsBasisPoint() {
         SettlementPolicyCreateState state = SettlementPolicyCreateState.builder()
-                .sellerId(1L)
-                .pgFeeRate(FeeRate.of(6000))
-                .platformFeeRate(FeeRate.of(5000))
-                .settlementCycle(SettlementCycle.MONTHLY)
-                .minPayoutAmount(10000L)
-                .build();
+            .sellerId(1L)
+            .pgFeeRate(FeeRate.of(6000))
+            .platformFeeRate(FeeRate.of(5000))
+            .settlementCycle(SettlementCycle.MONTHLY)
+            .minPayoutAmount(10000L)
+            .build();
 
         assertThatThrownBy(() -> SettlementPolicy.from(state))
-                .isInstanceOf(InvalidSettlementPolicyException.class);
+            .isInstanceOf(InvalidSettlementPolicyException.class);
     }
 
     @Test
     @DisplayName("최소 지급 금액이 음수이면 InvalidSettlementPolicyException이 발생한다")
     void shouldThrowWhenMinPayoutAmountIsNegative() {
         SettlementPolicyCreateState state = SettlementPolicyCreateState.builder()
-                .sellerId(1L)
-                .pgFeeRate(FeeRate.of(350))
-                .platformFeeRate(FeeRate.of(500))
-                .settlementCycle(SettlementCycle.MONTHLY)
-                .minPayoutAmount(-1L)
-                .build();
+            .sellerId(1L)
+            .pgFeeRate(FeeRate.of(350))
+            .platformFeeRate(FeeRate.of(500))
+            .settlementCycle(SettlementCycle.MONTHLY)
+            .minPayoutAmount(-1L)
+            .build();
 
         assertThatThrownBy(() -> SettlementPolicy.from(state))
-                .isInstanceOf(InvalidSettlementPolicyException.class);
+            .isInstanceOf(InvalidSettlementPolicyException.class);
     }
 
     @Test
     @DisplayName("SnapshotState로 SettlementPolicy를 복원하면 모든 필드가 그대로 매핑된다")
     void shouldRestoreFromSnapshotState() {
         SettlementPolicySnapshotState state = SettlementPolicySnapshotState.builder()
-                .id(10L)
-                .sellerId(1L)
-                .pgFeeRate(FeeRate.of(350))
-                .platformFeeRate(FeeRate.of(500))
-                .settlementCycle(SettlementCycle.WEEKLY)
-                .minPayoutAmount(5000L)
-                .status(EntityStatus.INACTIVE)
-                .build();
+            .id(10L)
+            .sellerId(1L)
+            .pgFeeRate(FeeRate.of(350))
+            .platformFeeRate(FeeRate.of(500))
+            .settlementCycle(SettlementCycle.WEEKLY)
+            .minPayoutAmount(5000L)
+            .status(EntityStatus.INACTIVE)
+            .build();
 
         SettlementPolicy policy = SettlementPolicy.from(state);
 
@@ -92,7 +92,7 @@ class SettlementPolicyTest {
         SettlementPolicy policy = SettlementPolicy.from(createValidState());
 
         assertThatThrownBy(() -> policy.update(FeeRate.of(6000), FeeRate.of(5000), SettlementCycle.MONTHLY, 10000L))
-                .isInstanceOf(InvalidSettlementPolicyException.class);
+            .isInstanceOf(InvalidSettlementPolicyException.class);
     }
 
     @Test
@@ -107,11 +107,11 @@ class SettlementPolicyTest {
 
     private SettlementPolicyCreateState createValidState() {
         return SettlementPolicyCreateState.builder()
-                .sellerId(1L)
-                .pgFeeRate(FeeRate.of(350))
-                .platformFeeRate(FeeRate.of(500))
-                .settlementCycle(SettlementCycle.MONTHLY)
-                .minPayoutAmount(10000L)
-                .build();
+            .sellerId(1L)
+            .pgFeeRate(FeeRate.of(350))
+            .platformFeeRate(FeeRate.of(500))
+            .settlementCycle(SettlementCycle.MONTHLY)
+            .minPayoutAmount(10000L)
+            .build();
     }
 }

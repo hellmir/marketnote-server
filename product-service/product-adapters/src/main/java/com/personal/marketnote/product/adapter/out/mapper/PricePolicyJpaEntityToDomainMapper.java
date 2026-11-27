@@ -13,96 +13,96 @@ import java.util.Optional;
 public class PricePolicyJpaEntityToDomainMapper {
     public static Optional<PricePolicy> mapToDomain(PricePolicyJpaEntity pricePolicyJpaEntity) {
         return Optional.ofNullable(pricePolicyJpaEntity)
-                .map(
-                        entity -> {
-                            PricePolicy pricePolicy = PricePolicy.from(
-                                    PricePolicySnapshotState.builder()
-                                            .id(pricePolicyJpaEntity.getId())
-                                            .price(pricePolicyJpaEntity.getPrice())
-                                            .discountPrice(pricePolicyJpaEntity.getDiscountPrice())
-                                            .discountRate(Rate.of(pricePolicyJpaEntity.getDiscountRate()))
-                                            .accumulatedPoint(pricePolicyJpaEntity.getAccumulatedPoint())
-                                            .accumulationRate(Rate.of(pricePolicyJpaEntity.getAccumulationRate()))
-                                            .popularity(pricePolicyJpaEntity.getPopularity())
-                                            .status(pricePolicyJpaEntity.getStatus())
-                                            .orderNum(pricePolicyJpaEntity.getOrderNum())
-                                            .build()
-                            );
-                            pricePolicy.addProduct(
-                                    ProductJpaEntityToDomainMapper.mapToDomainWithoutPolicyProduct(entity.getProductJpaEntity())
-                                            .orElse(null)
-                            );
+            .map(
+                entity -> {
+                    PricePolicy pricePolicy = PricePolicy.from(
+                        PricePolicySnapshotState.builder()
+                            .id(pricePolicyJpaEntity.getId())
+                            .price(pricePolicyJpaEntity.getPrice())
+                            .discountPrice(pricePolicyJpaEntity.getDiscountPrice())
+                            .discountRate(Rate.of(pricePolicyJpaEntity.getDiscountRate()))
+                            .accumulatedPoint(pricePolicyJpaEntity.getAccumulatedPoint())
+                            .accumulationRate(Rate.of(pricePolicyJpaEntity.getAccumulationRate()))
+                            .popularity(pricePolicyJpaEntity.getPopularity())
+                            .status(pricePolicyJpaEntity.getStatus())
+                            .orderNum(pricePolicyJpaEntity.getOrderNum())
+                            .build()
+                    );
+                    pricePolicy.addProduct(
+                        ProductJpaEntityToDomainMapper.mapToDomainWithoutPolicyProduct(entity.getProductJpaEntity())
+                            .orElse(null)
+                    );
 
-                            return pricePolicy;
-                        }
-                );
+                    return pricePolicy;
+                }
+            );
     }
 
     public static Optional<PricePolicy> mapToDomain(PricePolicyJpaEntity pricePolicyJpaEntity, List<Long> optionIds) {
         return Optional.ofNullable(pricePolicyJpaEntity)
-                .map(
-                        entity -> {
-                            PricePolicy pricePolicy = PricePolicy.from(
-                                    PricePolicySnapshotState.builder()
-                                            .id(pricePolicyJpaEntity.getId())
-                                            .price(pricePolicyJpaEntity.getPrice())
-                                            .discountPrice(pricePolicyJpaEntity.getDiscountPrice())
-                                            .discountRate(Rate.of(pricePolicyJpaEntity.getDiscountRate()))
-                                            .accumulatedPoint(pricePolicyJpaEntity.getAccumulatedPoint())
-                                            .accumulationRate(Rate.of(pricePolicyJpaEntity.getAccumulationRate()))
-                                            .popularity(pricePolicyJpaEntity.getPopularity())
-                                            .status(pricePolicyJpaEntity.getStatus())
-                                            .orderNum(pricePolicyJpaEntity.getOrderNum())
-                                            .optionIds(optionIds)
-                                            .build()
-                            );
-                            pricePolicy.addProduct(
-                                    ProductJpaEntityToDomainMapper.mapToDomain(entity.getProductJpaEntity())
-                                            .orElse(null)
-                            );
+            .map(
+                entity -> {
+                    PricePolicy pricePolicy = PricePolicy.from(
+                        PricePolicySnapshotState.builder()
+                            .id(pricePolicyJpaEntity.getId())
+                            .price(pricePolicyJpaEntity.getPrice())
+                            .discountPrice(pricePolicyJpaEntity.getDiscountPrice())
+                            .discountRate(Rate.of(pricePolicyJpaEntity.getDiscountRate()))
+                            .accumulatedPoint(pricePolicyJpaEntity.getAccumulatedPoint())
+                            .accumulationRate(Rate.of(pricePolicyJpaEntity.getAccumulationRate()))
+                            .popularity(pricePolicyJpaEntity.getPopularity())
+                            .status(pricePolicyJpaEntity.getStatus())
+                            .orderNum(pricePolicyJpaEntity.getOrderNum())
+                            .optionIds(optionIds)
+                            .build()
+                    );
+                    pricePolicy.addProduct(
+                        ProductJpaEntityToDomainMapper.mapToDomain(entity.getProductJpaEntity())
+                            .orElse(null)
+                    );
 
-                            return pricePolicy;
-                        }
-                );
+                    return pricePolicy;
+                }
+            );
     }
 
     public static Optional<PricePolicy> mapToDomainWithOptions(PricePolicyJpaEntity pricePolicyJpaEntity) {
         List<ProductOption> productOptions = pricePolicyJpaEntity.getProductOptionPricePolicyJpaEntities()
-                .stream()
-                .map(ProductOptionPricePolicyJpaEntity::getProductOptionJpaEntity)
-                .toList()
-                .stream()
-                .map(
-                        productOptionJpaEntity ->
-                                ProductJpaEntityToDomainMapper.mapToDomain(productOptionJpaEntity)
-                                        .orElse(null)
-                )
-                .toList();
+            .stream()
+            .map(ProductOptionPricePolicyJpaEntity::getProductOptionJpaEntity)
+            .toList()
+            .stream()
+            .map(
+                productOptionJpaEntity ->
+                    ProductJpaEntityToDomainMapper.mapToDomain(productOptionJpaEntity)
+                        .orElse(null)
+            )
+            .toList();
 
         return Optional.ofNullable(pricePolicyJpaEntity)
-                .map(
-                        entity -> {
-                            PricePolicy pricePolicy = PricePolicy.from(
-                                    PricePolicySnapshotState.builder()
-                                            .id(pricePolicyJpaEntity.getId())
-                                            .price(pricePolicyJpaEntity.getPrice())
-                                            .discountPrice(pricePolicyJpaEntity.getDiscountPrice())
-                                            .discountRate(Rate.of(pricePolicyJpaEntity.getDiscountRate()))
-                                            .accumulatedPoint(pricePolicyJpaEntity.getAccumulatedPoint())
-                                            .accumulationRate(Rate.of(pricePolicyJpaEntity.getAccumulationRate()))
-                                            .popularity(pricePolicyJpaEntity.getPopularity())
-                                            .status(pricePolicyJpaEntity.getStatus())
-                                            .orderNum(pricePolicyJpaEntity.getOrderNum())
-                                            .productOptions(productOptions)
-                                            .build()
-                            );
-                            pricePolicy.addProduct(
-                                    ProductJpaEntityToDomainMapper.mapToDomainWithoutPolicyProduct(entity.getProductJpaEntity())
-                                            .orElse(null)
-                            );
+            .map(
+                entity -> {
+                    PricePolicy pricePolicy = PricePolicy.from(
+                        PricePolicySnapshotState.builder()
+                            .id(pricePolicyJpaEntity.getId())
+                            .price(pricePolicyJpaEntity.getPrice())
+                            .discountPrice(pricePolicyJpaEntity.getDiscountPrice())
+                            .discountRate(Rate.of(pricePolicyJpaEntity.getDiscountRate()))
+                            .accumulatedPoint(pricePolicyJpaEntity.getAccumulatedPoint())
+                            .accumulationRate(Rate.of(pricePolicyJpaEntity.getAccumulationRate()))
+                            .popularity(pricePolicyJpaEntity.getPopularity())
+                            .status(pricePolicyJpaEntity.getStatus())
+                            .orderNum(pricePolicyJpaEntity.getOrderNum())
+                            .productOptions(productOptions)
+                            .build()
+                    );
+                    pricePolicy.addProduct(
+                        ProductJpaEntityToDomainMapper.mapToDomainWithoutPolicyProduct(entity.getProductJpaEntity())
+                            .orElse(null)
+                    );
 
-                            return pricePolicy;
-                        }
-                );
+                    return pricePolicy;
+                }
+            );
     }
 }

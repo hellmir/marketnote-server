@@ -18,7 +18,7 @@ public class GetFulfillmentDeliveryOutOrdGoodsByOrdNoService implements GetFulfi
 
     @Override
     public GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult getOutOrdGoodsByOrdNo(
-            GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command
+        GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command
     ) {
         return getFulfillmentDeliveryOutOrdGoodsByOrdNoPort.getOutOrdGoodsByOrdNo(command);
     }

@@ -57,11 +57,11 @@ class NotificationPreferencePersistenceAdapterTest {
             // given
             NotificationPreference preference = createDomainPreference(100L);
             when(notificationPreferenceJpaRepository.saveAll(anyList()))
-                    .thenThrow(new DataIntegrityViolationException("duplicate"));
+                .thenThrow(new DataIntegrityViolationException("duplicate"));
 
             // when & then
             assertThatThrownBy(() -> adapter.saveAll(List.of(preference)))
-                    .isInstanceOf(DuplicateNotificationPreferenceException.class);
+                .isInstanceOf(DuplicateNotificationPreferenceException.class);
         }
     }
 
@@ -75,7 +75,7 @@ class NotificationPreferencePersistenceAdapterTest {
             // given
             NotificationPreferenceJpaEntity entity = createMockEntity(1L, 100L);
             when(notificationPreferenceJpaRepository.findAllByUserIdAndStatus(100L, EntityStatus.ACTIVE))
-                    .thenReturn(List.of(entity));
+                .thenReturn(List.of(entity));
 
             // when
             List<NotificationPreference> result = adapter.findAllByUserId(100L);
@@ -95,12 +95,12 @@ class NotificationPreferencePersistenceAdapterTest {
             // given
             NotificationPreferenceJpaEntity entity = createMockEntity(1L, 100L);
             when(notificationPreferenceJpaRepository.findByUserIdAndNotificationTypeAndStatus(
-                    100L, NotificationType.ORDER_PAYMENT_COMPLETED, EntityStatus.ACTIVE
+                100L, NotificationType.ORDER_PAYMENT_COMPLETED, EntityStatus.ACTIVE
             )).thenReturn(Optional.of(entity));
 
             // when
             Optional<NotificationPreference> result = adapter.findByUserIdAndNotificationType(
-                    100L, NotificationType.ORDER_PAYMENT_COMPLETED
+                100L, NotificationType.ORDER_PAYMENT_COMPLETED
             );
 
             // then
@@ -112,12 +112,12 @@ class NotificationPreferencePersistenceAdapterTest {
         void returnsEmptyWhenNotFound() {
             // given
             when(notificationPreferenceJpaRepository.findByUserIdAndNotificationTypeAndStatus(
-                    100L, NotificationType.ORDER_PAYMENT_COMPLETED, EntityStatus.ACTIVE
+                100L, NotificationType.ORDER_PAYMENT_COMPLETED, EntityStatus.ACTIVE
             )).thenReturn(Optional.empty());
 
             // when
             Optional<NotificationPreference> result = adapter.findByUserIdAndNotificationType(
-                    100L, NotificationType.ORDER_PAYMENT_COMPLETED
+                100L, NotificationType.ORDER_PAYMENT_COMPLETED
             );
 
             // then
@@ -134,7 +134,7 @@ class NotificationPreferencePersistenceAdapterTest {
         void returnsDistinctUserIds() {
             // given
             when(notificationPreferenceJpaRepository.findAllDistinctUserIds())
-                    .thenReturn(List.of(100L, 200L, 300L));
+                .thenReturn(List.of(100L, 200L, 300L));
 
             // when
             List<Long> result = adapter.findAllDistinctUserIds();
@@ -176,23 +176,23 @@ class NotificationPreferencePersistenceAdapterTest {
 
     private NotificationPreference createDomainPreference(Long userId) {
         return NotificationPreference.from(
-                NotificationPreferenceCreateState.builder()
-                        .userId(userId)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .enabled(true)
-                        .build()
+            NotificationPreferenceCreateState.builder()
+                .userId(userId)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .enabled(true)
+                .build()
         );
     }
 
     private NotificationPreference createDomainPreferenceWithId(Long id, Long userId) {
         return NotificationPreference.from(
-                NotificationPreferenceSnapshotState.builder()
-                        .id(id)
-                        .userId(userId)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .enabled(true)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            NotificationPreferenceSnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .enabled(true)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

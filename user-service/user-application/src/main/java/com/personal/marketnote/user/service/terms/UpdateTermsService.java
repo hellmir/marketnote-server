@@ -26,10 +26,10 @@ public class UpdateTermsService implements UpdateTermsUseCase {
     @Override
     public GetUserTermsResult acceptOrCancelTerms(Long userId, AcceptOrCancelTermsCommand acceptOrCancelTermsCommand) {
         User user = findUserPort.findById(userId)
-                .orElseThrow(() -> {
-                    log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, userId);
-                    return new UserNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("{} userId={}", USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, userId);
+                return new UserNotFoundException();
+            });
         user.acceptOrCancelTerms(acceptOrCancelTermsCommand.getIds());
         updateUserPort.update(user);
 

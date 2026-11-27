@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record DeleteQuickPaymentCardCommand(
-        Long quickPaymentCardId,
-        Long userId
+    Long quickPaymentCardId,
+    Long userId
 ) {
 }

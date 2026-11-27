@@ -8,16 +8,16 @@ public class RewardServiceCommunicationHistoryCommandToStateMapper {
     }
 
     public static RewardServiceCommunicationHistoryCreateState mapToCreateState(
-            RewardServiceCommunicationHistoryCommand command
+        RewardServiceCommunicationHistoryCommand command
     ) {
         return RewardServiceCommunicationHistoryCreateState.builder()
-                .targetType(command.getTargetType())
-                .targetId(command.getTargetId())
-                .communicationType(command.getCommunicationType())
-                .sender(command.getSender())
-                .exception(command.getException())
-                .payload(command.getPayload())
-                .payloadJson(command.getPayloadJson())
-                .build();
+            .targetType(command.getTargetType())
+            .targetId(command.getTargetId())
+            .communicationType(command.getCommunicationType())
+            .sender(command.getSender())
+            .exception(command.getException())
+            .payload(command.getPayload())
+            .payloadJson(command.getPayloadJson())
+            .build();
     }
 }

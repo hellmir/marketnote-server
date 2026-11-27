@@ -68,9 +68,9 @@ class RegisterOrderUseCaseTest {
     @BeforeEach
     void setUp() {
         lenient().when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
-                .thenReturn(Map.of());
+            .thenReturn(Map.of());
         lenient().when(findUserShippingAddressPort.findByIdAndUserId(any(), any()))
-                .thenReturn(new ShippingAddressInfoResult("홍길동", "01012345678", "서울시 강남구", "101호", "NORMAL"));
+            .thenReturn(new ShippingAddressInfoResult("홍길동", "01012345678", "서울시 강남구", "101호", "NORMAL"));
     }
 
     // ==================================================================================
@@ -87,33 +87,33 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000005"))
-                                    .quantity(2)
-                                    .unitAmount(25000L)
-                                    .imageUrl("https://example.com/image.png")
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000005"))
+                        .quantity(2)
+                        .unitAmount(25000L)
+                        .imageUrl("https://example.com/image.png")
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 25000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -131,47 +131,47 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId1 = 100L;
             Long pricePolicyId2 = 200L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(100000L)
-                                    .couponAmount(5000L)
-                                    .pointAmount(3000L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId1)
-                                    .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000005"))
-                                    .quantity(2)
-                                    .unitAmount(25000L)
-                                    .imageUrl("https://example.com/image1.png")
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(200L)
-                                    .sellerId(20L)
-                                    .pricePolicyId(pricePolicyId2)
-                                    .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000006"))
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .imageUrl("https://example.com/image2.png")
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(100000L)
+                        .couponAmount(5000L)
+                        .pointAmount(3000L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId1)
+                        .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000005"))
+                        .quantity(2)
+                        .unitAmount(25000L)
+                        .imageUrl("https://example.com/image1.png")
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(200L)
+                        .sellerId(20L)
+                        .pricePolicyId(pricePolicyId2)
+                        .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000006"))
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .imageUrl("https://example.com/image2.png")
+                        .build()
+                ))
+                .build();
 
             mockProductPricesWithSellerIds(Map.of(
-                    pricePolicyId1, Map.entry(25000L, 10L),
-                    pricePolicyId2, Map.entry(50000L, 20L)
+                pricePolicyId1, Map.entry(25000L, 10L),
+                pricePolicyId2, Map.entry(50000L, 20L)
             ));
             when(modifyUserPointPort.getAvailablePoints(buyerId)).thenReturn(999999L);
 
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory1, inventory2));
+                .thenReturn(Set.of(inventory1, inventory2));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -192,31 +192,31 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             Long couponAmount = 10000L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(couponAmount)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(couponAmount)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -237,32 +237,32 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             Long pointAmount = 5000L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(pointAmount)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(pointAmount)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
             when(modifyUserPointPort.getAvailablePoints(buyerId)).thenReturn(999999L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -284,32 +284,32 @@ class RegisterOrderUseCaseTest {
             Long couponAmount = 10000L;
             Long pointAmount = 5000L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(couponAmount)
-                                    .pointAmount(pointAmount)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(couponAmount)
+                        .pointAmount(pointAmount)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
             when(modifyUserPointPort.getAvailablePoints(buyerId)).thenReturn(999999L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -330,33 +330,33 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .sharerKey(null)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .imageUrl("https://example.com/image.png")
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .sharerKey(null)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .imageUrl("https://example.com/image.png")
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -377,33 +377,33 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000005"))
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .imageUrl(null)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000005"))
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .imageUrl(null)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -424,31 +424,31 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(null)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(null)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -468,31 +468,31 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(null)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(null)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -521,35 +521,35 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(2)
-                                    .unitAmount(25000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(2)
+                        .unitAmount(25000L)
+                        .build()
+                ))
+                .build();
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, null, 10L, "테스트 상품", "테스트 브랜드", 25000L, null, 500L, List.of()
+                1L, null, 10L, "테스트 상품", "테스트 브랜드", 25000L, null, 500L, List.of()
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(pricePolicyId, productInfo));
+                .thenReturn(Map.of(pricePolicyId, productInfo));
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -570,31 +570,31 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -715,25 +715,25 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             Long sellerId = 99L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(sellerId)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(sellerId)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPriceWithSellerId(pricePolicyId, 50000L, sellerId);
             mockInventoryAndSave(pricePolicyId, 100, 1L);
@@ -805,26 +805,26 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             String imageUrl = "https://marketnote.example.com/images/product-123.png";
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .imageUrl(imageUrl)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .imageUrl(imageUrl)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
             mockInventoryAndSave(pricePolicyId, 100, 1L);
@@ -843,26 +843,26 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             UUID sharerKey = UUID.fromString("00000000-0000-0000-0000-000000000055");
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .sharerKey(sharerKey)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .sharerKey(sharerKey)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
             mockInventoryAndSave(pricePolicyId, 100, 1L);
@@ -889,7 +889,7 @@ class RegisterOrderUseCaseTest {
             Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderProducts()).hasSize(1);
             assertThat(capturedOrder.getOrderProducts().get(0).getOrderStatus())
-                    .isEqualTo(OrderStatus.PAYMENT_PENDING);
+                .isEqualTo(OrderStatus.PAYMENT_PENDING);
         }
     }
 
@@ -911,155 +911,155 @@ class RegisterOrderUseCaseTest {
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
         @DisplayName("totalAmount가 상품별 금액 합계보다 작으면 OrderAmountMismatchException이 발생한다")
         void registerOrder_totalAmountLessThanCalculated_throwsException() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(30000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(100L)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(30000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(100L)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(OrderAmountMismatchException.class)
-                    .hasMessageContaining("주문 총액이 상품 금액 합계와 일치하지 않습니다");
+                .isInstanceOf(OrderAmountMismatchException.class)
+                .hasMessageContaining("주문 총액이 상품 금액 합계와 일치하지 않습니다");
         }
 
         @Test
         @DisplayName("totalAmount가 상품별 금액 합계보다 크면 OrderAmountMismatchException이 발생한다")
         void registerOrder_totalAmountGreaterThanCalculated_throwsException() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(100000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(100L)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(100000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(100L)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(OrderAmountMismatchException.class);
+                .isInstanceOf(OrderAmountMismatchException.class);
         }
 
         @Test
         @DisplayName("totalAmount가 0이고 상품 금액이 0이 아니면 OrderAmountMismatchException이 발생한다")
         void registerOrder_zeroTotalAmountWithNonZeroProducts_throwsException() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(0L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(100L)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(0L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(100L)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(OrderAmountMismatchException.class);
+                .isInstanceOf(OrderAmountMismatchException.class);
         }
 
         @Test
         @DisplayName("복수 상품의 금액 합계가 totalAmount와 불일치하면 OrderAmountMismatchException이 발생한다")
         void registerOrder_multipleProductsMismatch_throwsException() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(99999L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(100L)
-                                    .quantity(2)
-                                    .unitAmount(25000L)
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(200L)
-                                    .sellerId(20L)
-                                    .pricePolicyId(200L)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(99999L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(100L)
+                        .quantity(2)
+                        .unitAmount(25000L)
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(200L)
+                        .sellerId(20L)
+                        .pricePolicyId(200L)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(OrderAmountMismatchException.class);
+                .isInstanceOf(OrderAmountMismatchException.class);
         }
 
         @Test
         @DisplayName("금액 불일치 시 재고 검증/주문 저장이 호출되지 않는다")
         void registerOrder_amountMismatch_doesNotCallSubsequentPorts() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(1L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(100L)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(1L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(100L)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(OrderAmountMismatchException.class);
+                .isInstanceOf(OrderAmountMismatchException.class);
 
             verifyNoInteractions(getInventoryUseCase, saveOrderPort, savePaymentPort, findProductByPricePolicyPort);
         }
@@ -1068,63 +1068,63 @@ class RegisterOrderUseCaseTest {
         @DisplayName("unitAmount * quantity 오버플로우 발생 시 OrderAmountMismatchException이 발생한다")
         void registerOrder_overflowInMultiplication_throwsException() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(Long.MAX_VALUE)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(100L)
-                                    .quantity(2)
-                                    .unitAmount(Long.MAX_VALUE)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(Long.MAX_VALUE)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(100L)
+                        .quantity(2)
+                        .unitAmount(Long.MAX_VALUE)
+                        .build()
+                ))
+                .build();
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(OrderAmountMismatchException.class);
+                .isInstanceOf(OrderAmountMismatchException.class);
         }
 
         @Test
         @DisplayName("복수 상품 합산 시 오버플로우 발생하면 OrderAmountMismatchException이 발생한다")
         void registerOrder_overflowInSum_throwsException() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(Long.MAX_VALUE)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(100L)
-                                    .quantity(1)
-                                    .unitAmount(Long.MAX_VALUE)
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(101L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(101L)
-                                    .quantity(1)
-                                    .unitAmount(Long.MAX_VALUE)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(Long.MAX_VALUE)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(100L)
+                        .quantity(1)
+                        .unitAmount(Long.MAX_VALUE)
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(101L)
+                        .sellerId(10L)
+                        .pricePolicyId(101L)
+                        .quantity(1)
+                        .unitAmount(Long.MAX_VALUE)
+                        .build()
+                ))
+                .build();
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(OrderAmountMismatchException.class);
+                .isInstanceOf(OrderAmountMismatchException.class);
         }
     }
 
@@ -1146,7 +1146,7 @@ class RegisterOrderUseCaseTest {
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -1158,8 +1158,8 @@ class RegisterOrderUseCaseTest {
             mockProductPrice(pricePolicyId, 50000L);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(PriceMismatchException.class)
-                    .hasMessageContaining("주문 상품 단가가 실제 가격과 일치하지 않습니다");
+                .isInstanceOf(PriceMismatchException.class)
+                .hasMessageContaining("주문 상품 단가가 실제 가격과 일치하지 않습니다");
         }
 
         @Test
@@ -1171,7 +1171,7 @@ class RegisterOrderUseCaseTest {
             mockProductPrice(pricePolicyId, 50000L);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(PriceMismatchException.class);
+                .isInstanceOf(PriceMismatchException.class);
         }
 
         @Test
@@ -1181,12 +1181,12 @@ class RegisterOrderUseCaseTest {
             RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 40000L, 1, 0L, 0L);
 
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(pricePolicyId,
-                            new ProductInfoResult(1L, null, 10L, "상품", "브랜드", 50000L, 40000L, null, List.of())));
+                .thenReturn(Map.of(pricePolicyId,
+                    new ProductInfoResult(1L, null, 10L, "상품", "브랜드", 50000L, 40000L, null, List.of())));
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -1196,12 +1196,12 @@ class RegisterOrderUseCaseTest {
             RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
 
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(pricePolicyId,
-                            new ProductInfoResult(1L, null, 10L, "상품", "브랜드", 50000L, null, null, List.of())));
+                .thenReturn(Map.of(pricePolicyId,
+                    new ProductInfoResult(1L, null, 10L, "상품", "브랜드", 50000L, null, null, List.of())));
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -1211,11 +1211,11 @@ class RegisterOrderUseCaseTest {
             RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
 
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -1227,7 +1227,7 @@ class RegisterOrderUseCaseTest {
             mockProductPrice(pricePolicyId, 50000L);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(PriceMismatchException.class);
+                .isInstanceOf(PriceMismatchException.class);
 
             verifyNoInteractions(getInventoryUseCase, saveOrderPort, savePaymentPort);
         }
@@ -1247,31 +1247,31 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             Long sellerId = 10L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(sellerId)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(sellerId)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPriceWithSellerId(pricePolicyId, 50000L, sellerId);
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -1281,31 +1281,31 @@ class RegisterOrderUseCaseTest {
             Long requestedSellerId = 999L;
             Long actualSellerId = 10L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(requestedSellerId)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(requestedSellerId)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPriceWithSellerId(pricePolicyId, 50000L, actualSellerId);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(SellerMismatchException.class)
-                    .hasMessageContaining("판매자가 실제 상품의 판매자와 일치하지 않습니다");
+                .isInstanceOf(SellerMismatchException.class)
+                .hasMessageContaining("판매자가 실제 상품의 판매자와 일치하지 않습니다");
         }
 
         @Test
@@ -1313,31 +1313,31 @@ class RegisterOrderUseCaseTest {
         void registerOrder_nullActualSellerId_skipsValidation() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(999L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(999L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPriceWithSellerId(pricePolicyId, 50000L, null);
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -1345,30 +1345,30 @@ class RegisterOrderUseCaseTest {
         void registerOrder_sellerMismatch_doesNotCallSubsequentPorts() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(999L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(999L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPriceWithSellerId(pricePolicyId, 50000L, 10L);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(SellerMismatchException.class);
+                .isInstanceOf(SellerMismatchException.class);
 
             verifyNoInteractions(getInventoryUseCase, saveOrderPort, savePaymentPort);
         }
@@ -1379,45 +1379,45 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId1 = 100L;
             Long pricePolicyId2 = 200L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(100000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId1)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(200L)
-                                    .sellerId(999L)
-                                    .pricePolicyId(pricePolicyId2)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(100000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId1)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(200L)
+                        .sellerId(999L)
+                        .pricePolicyId(pricePolicyId2)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             java.util.HashMap<Long, ProductInfoResult> productInfoMap = new java.util.HashMap<>();
             productInfoMap.put(
-                    pricePolicyId1, new ProductInfoResult(1L, null, 10L, "상품1", "브랜드1", 50000L, null, null, List.of())
+                pricePolicyId1, new ProductInfoResult(1L, null, 10L, "상품1", "브랜드1", 50000L, null, null, List.of())
             );
             productInfoMap.put(
-                    pricePolicyId2, new ProductInfoResult(2L, null, 20L, "상품2", "브랜드2", 50000L, null, null, List.of())
+                pricePolicyId2, new ProductInfoResult(2L, null, 20L, "상품2", "브랜드2", 50000L, null, null, List.of())
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(productInfoMap);
+                .thenReturn(productInfoMap);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(SellerMismatchException.class);
+                .isInstanceOf(SellerMismatchException.class);
         }
     }
 
@@ -1440,7 +1440,7 @@ class RegisterOrderUseCaseTest {
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -1450,8 +1450,8 @@ class RegisterOrderUseCaseTest {
             RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 60000L, 0L);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(ExcessiveDiscountException.class)
-                    .hasMessageContaining("할인 금액이 주문 총액 + 배송비를 초과합니다");
+                .isInstanceOf(ExcessiveDiscountException.class)
+                .hasMessageContaining("할인 금액이 주문 총액 + 배송비를 초과합니다");
         }
 
         @Test
@@ -1461,7 +1461,7 @@ class RegisterOrderUseCaseTest {
             RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 200000L);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(ExcessiveDiscountException.class);
+                .isInstanceOf(ExcessiveDiscountException.class);
         }
 
         @Test
@@ -1471,7 +1471,7 @@ class RegisterOrderUseCaseTest {
             RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 30000L, 30000L);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(ExcessiveDiscountException.class);
+                .isInstanceOf(ExcessiveDiscountException.class);
         }
 
         @Test
@@ -1479,31 +1479,31 @@ class RegisterOrderUseCaseTest {
         void registerOrder_nullDiscountAmounts_succeeds() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(null)
-                                    .pointAmount(null)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(null)
+                        .pointAmount(null)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -1513,7 +1513,7 @@ class RegisterOrderUseCaseTest {
             RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 60000L, 0L);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(ExcessiveDiscountException.class);
+                .isInstanceOf(ExcessiveDiscountException.class);
 
             verifyNoInteractions(findProductByPricePolicyPort, getInventoryUseCase, saveOrderPort, savePaymentPort);
         }
@@ -1523,28 +1523,28 @@ class RegisterOrderUseCaseTest {
         void registerOrder_discountOverflow_throwsException() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(Long.MAX_VALUE / 2 + 1)
-                                    .pointAmount(Long.MAX_VALUE / 2 + 1)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(Long.MAX_VALUE / 2 + 1)
+                        .pointAmount(Long.MAX_VALUE / 2 + 1)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(ExcessiveDiscountException.class);
+                .isInstanceOf(ExcessiveDiscountException.class);
         }
     }
 
@@ -1563,7 +1563,7 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             Long pointAmount = 5000L;
             RegisterOrderCommand command = createSingleProductCommand(
-                    buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount
+                buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount
             );
 
             mockProductPrice(pricePolicyId, 50000L);
@@ -1571,7 +1571,7 @@ class RegisterOrderUseCaseTest {
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
 
             verify(modifyUserPointPort).getAvailablePoints(buyerId);
         }
@@ -1583,13 +1583,13 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             Long pointAmount = 10000L;
             RegisterOrderCommand command = createSingleProductCommand(
-                    buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount
+                buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount
             );
 
             when(modifyUserPointPort.getAvailablePoints(buyerId)).thenReturn(5000L);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(InsufficientPointException.class);
+                .isInstanceOf(InsufficientPointException.class);
 
             verifyNoInteractions(getInventoryUseCase, saveOrderPort, savePaymentPort);
         }
@@ -1601,7 +1601,7 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             Long pointAmount = 5000L;
             RegisterOrderCommand command = createSingleProductCommand(
-                    buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount
+                buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount
             );
 
             mockProductPrice(pricePolicyId, 50000L);
@@ -1609,7 +1609,7 @@ class RegisterOrderUseCaseTest {
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -1657,42 +1657,42 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId1 = 100L;
             Long pricePolicyId2 = 200L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(100000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId1)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(200L)
-                                    .sellerId(20L)
-                                    .pricePolicyId(pricePolicyId2)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(100000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId1)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(200L)
+                        .sellerId(20L)
+                        .pricePolicyId(pricePolicyId2)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPricesWithSellerIds(Map.of(
-                    pricePolicyId1, Map.entry(50000L, 10L),
-                    pricePolicyId2, Map.entry(50000L, 20L)
+                pricePolicyId1, Map.entry(50000L, 10L),
+                pricePolicyId2, Map.entry(50000L, 20L)
             ));
 
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory1, inventory2));
+                .thenReturn(Set.of(inventory1, inventory2));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -1707,31 +1707,31 @@ class RegisterOrderUseCaseTest {
         void registerOrder_sufficientStock_succeeds() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(250000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(5)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(250000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(5)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 10);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -1749,31 +1749,31 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             int orderQuantity = 10;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(500000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(orderQuantity)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(500000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(orderQuantity)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, orderQuantity);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -1789,35 +1789,35 @@ class RegisterOrderUseCaseTest {
         void registerOrder_insufficientStock_throwsException() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(500000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(10)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(500000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(10)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 5);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class)
-                    .hasMessageContaining("가용재고가 부족합니다");
+                .isInstanceOf(InsufficientAvailableStockException.class)
+                .hasMessageContaining("가용재고가 부족합니다");
 
             verify(saveOrderPort, never()).save(any(Order.class));
         }
@@ -1832,10 +1832,10 @@ class RegisterOrderUseCaseTest {
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 0);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                .isInstanceOf(InsufficientAvailableStockException.class);
 
             verify(saveOrderPort, never()).save(any(Order.class));
         }
@@ -1846,45 +1846,45 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId1 = 100L;
             Long pricePolicyId2 = 200L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(100000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId1)
-                                    .quantity(5)
-                                    .unitAmount(10000L)
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(200L)
-                                    .sellerId(20L)
-                                    .pricePolicyId(pricePolicyId2)
-                                    .quantity(10)
-                                    .unitAmount(5000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(100000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId1)
+                        .quantity(5)
+                        .unitAmount(10000L)
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(200L)
+                        .sellerId(20L)
+                        .pricePolicyId(pricePolicyId2)
+                        .quantity(10)
+                        .unitAmount(5000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPricesWithSellerIds(Map.of(
-                    pricePolicyId1, Map.entry(10000L, 10L),
-                    pricePolicyId2, Map.entry(5000L, 20L)
+                pricePolicyId1, Map.entry(10000L, 10L),
+                pricePolicyId2, Map.entry(5000L, 20L)
             ));
 
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 5);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory1, inventory2));
+                .thenReturn(Set.of(inventory1, inventory2));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                .isInstanceOf(InsufficientAvailableStockException.class);
 
             verify(saveOrderPort, never()).save(any(Order.class));
         }
@@ -1894,43 +1894,43 @@ class RegisterOrderUseCaseTest {
         void registerOrder_samePricePolicyMultipleItems_sumsQuantityForValidation() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(350000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(3)
-                                    .unitAmount(50000L)
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(4)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(350000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(3)
+                        .unitAmount(50000L)
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(4)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 6);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class)
-                    .hasMessageContaining("현재 가용재고: 6")
-                    .hasMessageContaining("요청 수량: 7");
+                .isInstanceOf(InsufficientAvailableStockException.class)
+                .hasMessageContaining("현재 가용재고: 6")
+                .hasMessageContaining("요청 수량: 7");
         }
 
         @Test
@@ -1938,38 +1938,38 @@ class RegisterOrderUseCaseTest {
         void registerOrder_samePricePolicyMultipleItems_sufficientStock_succeeds() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(350000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(3)
-                                    .unitAmount(50000L)
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(4)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(350000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(3)
+                        .unitAmount(50000L)
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(4)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 10);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -1999,7 +1999,7 @@ class RegisterOrderUseCaseTest {
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -2021,34 +2021,34 @@ class RegisterOrderUseCaseTest {
         void registerOrder_stockValidationFails_doesNotCallSaveOrderPort() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(500000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(10)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(500000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(10)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 5);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                .isInstanceOf(InsufficientAvailableStockException.class);
 
             verify(getInventoryUseCase).getOrCreateInventories(anyMap());
             verifyNoInteractions(saveOrderPort);
@@ -2073,10 +2073,10 @@ class RegisterOrderUseCaseTest {
 
             RuntimeException exception = new RuntimeException("재고 조회 실패");
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenThrow(exception);
+                .thenThrow(exception);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
 
             verifyNoInteractions(saveOrderPort);
         }
@@ -2091,13 +2091,13 @@ class RegisterOrderUseCaseTest {
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             RuntimeException exception = new RuntimeException("주문 저장 실패");
             when(saveOrderPort.save(any(Order.class))).thenThrow(exception);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -2109,11 +2109,11 @@ class RegisterOrderUseCaseTest {
             mockProductPrice(pricePolicyId, 50000L);
 
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenThrow(new RuntimeException("재고 조회 실패"));
+                .thenThrow(new RuntimeException("재고 조회 실패"));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("재고 조회 실패");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("재고 조회 실패");
 
             verifyNoInteractions(saveOrderPort);
         }
@@ -2126,10 +2126,10 @@ class RegisterOrderUseCaseTest {
 
             RuntimeException originalException = new RuntimeException("가격 정책 조회 실패");
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenThrow(originalException);
+                .thenThrow(originalException);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isSameAs(originalException);
+                .isSameAs(originalException);
 
             verifyNoInteractions(saveOrderPort);
         }
@@ -2139,17 +2139,17 @@ class RegisterOrderUseCaseTest {
         void registerOrder_findShippingPolicyFails_unwrapsAndPropagatesOriginalException() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = createCommandWithShippingFee(
-                    1L, 10L, pricePolicyId, 50000L, 1, 0L, 0L, 3000L
+                1L, 10L, pricePolicyId, 50000L, 1, 0L, 0L, 3000L
             );
 
             mockProductPrice(pricePolicyId, 50000L);
 
             RuntimeException originalException = new RuntimeException("배송비 정책 조회 실패");
             when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
-                    .thenThrow(originalException);
+                .thenThrow(originalException);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isSameAs(originalException);
+                .isSameAs(originalException);
 
             verifyNoInteractions(saveOrderPort);
         }
@@ -2174,7 +2174,7 @@ class RegisterOrderUseCaseTest {
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(expectedOrderId);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -2192,37 +2192,37 @@ class RegisterOrderUseCaseTest {
 
             RegisterOrderCommand command1 = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
             RegisterOrderCommand command2 = RegisterOrderCommand.builder()
-                    .buyerId(2L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(100000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(2)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(2L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(100000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(2)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder1 = mockSavedOrder(1L);
             Order savedOrder2 = mockSavedOrder(2L);
             when(saveOrderPort.save(any(Order.class)))
-                    .thenReturn(savedOrder1)
-                    .thenReturn(savedOrder2);
+                .thenReturn(savedOrder1)
+                .thenReturn(savedOrder2);
 
             RegisterOrderResult result1 = registerOrderService.registerOrder(command1);
             RegisterOrderResult result2 = registerOrderService.registerOrder(command2);
@@ -2245,20 +2245,20 @@ class RegisterOrderUseCaseTest {
         @DisplayName("주문 상품이 빈 목록이면 빈 주문이 저장된다")
         void registerOrder_emptyOrderProducts_savesEmptyOrder() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(0L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of())
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(0L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of())
+                .build();
 
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(new HashSet<>());
+                .thenReturn(new HashSet<>());
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -2276,31 +2276,31 @@ class RegisterOrderUseCaseTest {
         void registerOrder_zeroTotalAmount_succeeds() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(0L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(0L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(0L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(0L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 0L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -2319,31 +2319,31 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             Long largeTotalAmount = Long.MAX_VALUE - 1;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(largeTotalAmount)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(largeTotalAmount)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(largeTotalAmount)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(largeTotalAmount)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, largeTotalAmount);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+                .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -2365,7 +2365,7 @@ class RegisterOrderUseCaseTest {
             mockProductPrice(pricePolicyId, 50000L);
 
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(new HashSet<>());
+                .thenReturn(new HashSet<>());
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -2383,50 +2383,50 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId2 = 200L;
             Long pricePolicyId3 = 300L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(300000L)
-                                    .couponAmount(10000L)
-                                    .pointAmount(5000L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId1)
-                                    .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000001"))
-                                    .quantity(2)
-                                    .unitAmount(50000L)
-                                    .imageUrl("https://example.com/image1.png")
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(200L)
-                                    .sellerId(20L)
-                                    .pricePolicyId(pricePolicyId2)
-                                    .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000002"))
-                                    .quantity(1)
-                                    .unitAmount(100000L)
-                                    .imageUrl("https://example.com/image2.png")
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(300L)
-                                    .sellerId(30L)
-                                    .pricePolicyId(pricePolicyId3)
-                                    .sharerKey(null)
-                                    .quantity(1)
-                                    .unitAmount(100000L)
-                                    .imageUrl(null)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(300000L)
+                        .couponAmount(10000L)
+                        .pointAmount(5000L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId1)
+                        .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000001"))
+                        .quantity(2)
+                        .unitAmount(50000L)
+                        .imageUrl("https://example.com/image1.png")
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(200L)
+                        .sellerId(20L)
+                        .pricePolicyId(pricePolicyId2)
+                        .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000002"))
+                        .quantity(1)
+                        .unitAmount(100000L)
+                        .imageUrl("https://example.com/image2.png")
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(300L)
+                        .sellerId(30L)
+                        .pricePolicyId(pricePolicyId3)
+                        .sharerKey(null)
+                        .quantity(1)
+                        .unitAmount(100000L)
+                        .imageUrl(null)
+                        .build()
+                ))
+                .build();
 
             mockProductPricesWithSellerIds(Map.of(
-                    pricePolicyId1, Map.entry(50000L, 10L),
-                    pricePolicyId2, Map.entry(100000L, 20L),
-                    pricePolicyId3, Map.entry(100000L, 30L)
+                pricePolicyId1, Map.entry(50000L, 10L),
+                pricePolicyId2, Map.entry(100000L, 20L),
+                pricePolicyId3, Map.entry(100000L, 30L)
             ));
             when(modifyUserPointPort.getAvailablePoints(1L)).thenReturn(999999L);
 
@@ -2434,7 +2434,7 @@ class RegisterOrderUseCaseTest {
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);
             Inventory inventory3 = Inventory.of(3L, pricePolicyId3, 30);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory1, inventory2, inventory3));
+                .thenReturn(Set.of(inventory1, inventory2, inventory3));
 
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -2446,8 +2446,8 @@ class RegisterOrderUseCaseTest {
             Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderProducts()).hasSize(3);
             assertThat(capturedOrder.getOrderProducts())
-                    .extracting(OrderProduct::getSellerId)
-                    .containsExactly(10L, 20L, 30L);
+                .extracting(OrderProduct::getSellerId)
+                .containsExactly(10L, 20L, 30L);
         }
     }
 
@@ -2468,45 +2468,45 @@ class RegisterOrderUseCaseTest {
             Long shippingFeeA = 3000L;
             Long shippingFeeB = 2500L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(100000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(shippingFeeA + shippingFeeB)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId1)
-                                    .quantity(2)
-                                    .unitAmount(25000L)
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(200L)
-                                    .sellerId(20L)
-                                    .pricePolicyId(pricePolicyId2)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(100000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(shippingFeeA + shippingFeeB)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId1)
+                        .quantity(2)
+                        .unitAmount(25000L)
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(200L)
+                        .sellerId(20L)
+                        .pricePolicyId(pricePolicyId2)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPricesWithSellerIds(Map.of(
-                    pricePolicyId1, Map.entry(25000L, 10L),
-                    pricePolicyId2, Map.entry(50000L, 20L)
+                pricePolicyId1, Map.entry(25000L, 10L),
+                pricePolicyId2, Map.entry(50000L, 20L)
             ));
             mockShippingPolicies(Map.of(
-                    10L, new ShippingPolicyInfoResult(10L, shippingFeeA, 100000L, 0L, 0L),
-                    20L, new ShippingPolicyInfoResult(20L, shippingFeeB, 100000L, 0L, 0L)
+                10L, new ShippingPolicyInfoResult(10L, shippingFeeA, 100000L, 0L, 0L),
+                20L, new ShippingPolicyInfoResult(20L, shippingFeeB, 100000L, 0L, 0L)
             ));
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory1, inventory2));
+                .thenReturn(Set.of(inventory1, inventory2));
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
 
@@ -2517,13 +2517,13 @@ class RegisterOrderUseCaseTest {
             List<PaymentAllocation> allocations = captor.getValue();
             assertThat(allocations).hasSize(2);
             assertThat(allocations)
-                    .extracting(PaymentAllocation::getSellerId)
-                    .containsExactlyInAnyOrder(10L, 20L);
+                .extracting(PaymentAllocation::getSellerId)
+                .containsExactlyInAnyOrder(10L, 20L);
 
             PaymentAllocation allocationA = allocations.stream()
-                    .filter(a -> a.getSellerId().equals(10L)).findFirst().orElseThrow();
+                .filter(a -> a.getSellerId().equals(10L)).findFirst().orElseThrow();
             PaymentAllocation allocationB = allocations.stream()
-                    .filter(a -> a.getSellerId().equals(20L)).findFirst().orElseThrow();
+                .filter(a -> a.getSellerId().equals(20L)).findFirst().orElseThrow();
             assertThat(allocationA.getShippingFee()).isEqualTo(Money.of(shippingFeeA));
             assertThat(allocationB.getShippingFee()).isEqualTo(Money.of(shippingFeeB));
         }
@@ -2536,36 +2536,36 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId2 = 200L;
             Long sameSellerId = 10L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(150000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(sameSellerId)
-                                    .pricePolicyId(pricePolicyId1)
-                                    .quantity(2)
-                                    .unitAmount(50000L)
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(200L)
-                                    .sellerId(sameSellerId)
-                                    .pricePolicyId(pricePolicyId2)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(150000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(sameSellerId)
+                        .pricePolicyId(pricePolicyId1)
+                        .quantity(2)
+                        .unitAmount(50000L)
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(200L)
+                        .sellerId(sameSellerId)
+                        .pricePolicyId(pricePolicyId2)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPricesWithSellerIds(Map.of(
-                    pricePolicyId1, Map.entry(50000L, sameSellerId),
-                    pricePolicyId2, Map.entry(50000L, sameSellerId)
+                pricePolicyId1, Map.entry(50000L, sameSellerId),
+                pricePolicyId2, Map.entry(50000L, sameSellerId)
             ));
             mockInventoryMultiple(Map.of(pricePolicyId1, 100, pricePolicyId2, 50));
             Order savedOrder = mockSavedOrder(1L);
@@ -2590,11 +2590,11 @@ class RegisterOrderUseCaseTest {
             mockProductPrice(pricePolicyId, 50000L);
             mockInventoryAndSave(pricePolicyId, 100, 1L);
             doThrow(new RuntimeException("DB 저장 실패"))
-                    .when(savePaymentAllocationPort).saveAll(anyList());
+                .when(savePaymentAllocationPort).saveAll(anyList());
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("DB 저장 실패");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("DB 저장 실패");
         }
 
         @Test
@@ -2633,7 +2633,7 @@ class RegisterOrderUseCaseTest {
             List<PaymentAllocation> allocations = captor.getValue();
             assertThat(allocations).hasSize(1);
             assertThat(allocations.get(0).getTransactionType())
-                    .isEqualTo(PaymentAllocationTransactionType.ORDER_REGISTRATION);
+                .isEqualTo(PaymentAllocationTransactionType.ORDER_REGISTRATION);
             assertThat(allocations.get(0).getTargetType()).isEqualTo(PaymentAllocationTargetType.ORDER);
         }
 
@@ -2670,14 +2670,14 @@ class RegisterOrderUseCaseTest {
             Long freeShippingThreshold = 20000L;
 
             RegisterOrderCommand command = createCommandWithShippingFee(
-                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, shippingFee);
+                1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, shippingFee);
 
             mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
             mockShippingPolicy(sellerId, shippingFee, freeShippingThreshold);
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -2690,14 +2690,14 @@ class RegisterOrderUseCaseTest {
             Long freeShippingThreshold = 20000L;
 
             RegisterOrderCommand command = createCommandWithShippingFee(
-                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, shippingFee);
+                1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, shippingFee);
 
             mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
             mockShippingPolicy(sellerId, 3000L, freeShippingThreshold);
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -2710,14 +2710,14 @@ class RegisterOrderUseCaseTest {
             Long freeShippingThreshold = 20000L;
 
             RegisterOrderCommand command = createCommandWithShippingFee(
-                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, wrongShippingFee);
+                1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, wrongShippingFee);
 
             mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
             mockShippingPolicy(sellerId, 3000L, freeShippingThreshold);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(ShippingFeeMismatchException.class)
-                    .hasMessageContaining("배송비가 서버 계산 결과와 일치하지 않습니다");
+                .isInstanceOf(ShippingFeeMismatchException.class)
+                .hasMessageContaining("배송비가 서버 계산 결과와 일치하지 않습니다");
         }
 
         @Test
@@ -2728,11 +2728,11 @@ class RegisterOrderUseCaseTest {
 
             mockProductPrice(pricePolicyId, 50000L);
             when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -2740,31 +2740,31 @@ class RegisterOrderUseCaseTest {
         void registerOrder_nullShippingFeeAndNoPolicy_succeeds() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(null)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(null)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 50000L);
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -2780,47 +2780,47 @@ class RegisterOrderUseCaseTest {
             Long shippingFeeB = 2500L;
 
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(unitAmountA + unitAmountB)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(shippingFeeA + shippingFeeB)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(1L)
-                                    .sellerId(sellerIdA)
-                                    .pricePolicyId(pricePolicyIdA)
-                                    .quantity(1)
-                                    .unitAmount(unitAmountA)
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(2L)
-                                    .sellerId(sellerIdB)
-                                    .pricePolicyId(pricePolicyIdB)
-                                    .quantity(1)
-                                    .unitAmount(unitAmountB)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(unitAmountA + unitAmountB)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(shippingFeeA + shippingFeeB)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(1L)
+                        .sellerId(sellerIdA)
+                        .pricePolicyId(pricePolicyIdA)
+                        .quantity(1)
+                        .unitAmount(unitAmountA)
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(2L)
+                        .sellerId(sellerIdB)
+                        .pricePolicyId(pricePolicyIdB)
+                        .quantity(1)
+                        .unitAmount(unitAmountB)
+                        .build()
+                ))
+                .build();
 
             mockProductPricesWithSellerIds(Map.of(
-                    pricePolicyIdA, Map.entry(unitAmountA, sellerIdA),
-                    pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
+                pricePolicyIdA, Map.entry(unitAmountA, sellerIdA),
+                pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
             ));
             mockShippingPolicies(Map.of(
-                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, shippingFeeA, 20000L, 0L, 0L),
-                    sellerIdB, new ShippingPolicyInfoResult(sellerIdB, shippingFeeB, 20000L, 0L, 0L)
+                sellerIdA, new ShippingPolicyInfoResult(sellerIdA, shippingFeeA, 20000L, 0L, 0L),
+                sellerIdB, new ShippingPolicyInfoResult(sellerIdB, shippingFeeB, 20000L, 0L, 0L)
             ));
             mockInventoryMultiple(Map.of(pricePolicyIdA, 100, pricePolicyIdB, 100));
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -2835,47 +2835,47 @@ class RegisterOrderUseCaseTest {
             Long shippingFeeB = 2500L;
 
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(unitAmountA + unitAmountB)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(shippingFeeB)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(1L)
-                                    .sellerId(sellerIdA)
-                                    .pricePolicyId(pricePolicyIdA)
-                                    .quantity(1)
-                                    .unitAmount(unitAmountA)
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(2L)
-                                    .sellerId(sellerIdB)
-                                    .pricePolicyId(pricePolicyIdB)
-                                    .quantity(1)
-                                    .unitAmount(unitAmountB)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(unitAmountA + unitAmountB)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(shippingFeeB)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(1L)
+                        .sellerId(sellerIdA)
+                        .pricePolicyId(pricePolicyIdA)
+                        .quantity(1)
+                        .unitAmount(unitAmountA)
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(2L)
+                        .sellerId(sellerIdB)
+                        .pricePolicyId(pricePolicyIdB)
+                        .quantity(1)
+                        .unitAmount(unitAmountB)
+                        .build()
+                ))
+                .build();
 
             mockProductPricesWithSellerIds(Map.of(
-                    pricePolicyIdA, Map.entry(unitAmountA, sellerIdA),
-                    pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
+                pricePolicyIdA, Map.entry(unitAmountA, sellerIdA),
+                pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
             ));
             mockShippingPolicies(Map.of(
-                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, 3000L, 20000L, 0L, 0L),
-                    sellerIdB, new ShippingPolicyInfoResult(sellerIdB, shippingFeeB, 20000L, 0L, 0L)
+                sellerIdA, new ShippingPolicyInfoResult(sellerIdA, 3000L, 20000L, 0L, 0L),
+                sellerIdB, new ShippingPolicyInfoResult(sellerIdB, shippingFeeB, 20000L, 0L, 0L)
             ));
             mockInventoryMultiple(Map.of(pricePolicyIdA, 100, pricePolicyIdB, 100));
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -2890,46 +2890,46 @@ class RegisterOrderUseCaseTest {
             Long shippingFeeA = 3000L;
 
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(unitAmountA + unitAmountB)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(shippingFeeA)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(1L)
-                                    .sellerId(sellerIdA)
-                                    .pricePolicyId(pricePolicyIdA)
-                                    .quantity(1)
-                                    .unitAmount(unitAmountA)
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(2L)
-                                    .sellerId(sellerIdB)
-                                    .pricePolicyId(pricePolicyIdB)
-                                    .quantity(1)
-                                    .unitAmount(unitAmountB)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(unitAmountA + unitAmountB)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(shippingFeeA)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(1L)
+                        .sellerId(sellerIdA)
+                        .pricePolicyId(pricePolicyIdA)
+                        .quantity(1)
+                        .unitAmount(unitAmountA)
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(2L)
+                        .sellerId(sellerIdB)
+                        .pricePolicyId(pricePolicyIdB)
+                        .quantity(1)
+                        .unitAmount(unitAmountB)
+                        .build()
+                ))
+                .build();
 
             mockProductPricesWithSellerIds(Map.of(
-                    pricePolicyIdA, Map.entry(unitAmountA, sellerIdA),
-                    pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
+                pricePolicyIdA, Map.entry(unitAmountA, sellerIdA),
+                pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
             ));
             mockShippingPolicies(Map.of(
-                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, shippingFeeA, 20000L, 0L, 0L)
+                sellerIdA, new ShippingPolicyInfoResult(sellerIdA, shippingFeeA, 20000L, 0L, 0L)
             ));
             mockInventoryMultiple(Map.of(pricePolicyIdA, 100, pricePolicyIdB, 100));
             Order savedOrder = mockSavedOrder(1L);
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -2942,32 +2942,32 @@ class RegisterOrderUseCaseTest {
             Long unitAmountB = 10000L;
 
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(unitAmountA + unitAmountB)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(0L)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(1L)
-                                    .sellerId(sellerId)
-                                    .pricePolicyId(pricePolicyIdA)
-                                    .quantity(1)
-                                    .unitAmount(unitAmountA)
-                                    .build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(2L)
-                                    .sellerId(sellerId)
-                                    .pricePolicyId(pricePolicyIdB)
-                                    .quantity(1)
-                                    .unitAmount(unitAmountB)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(unitAmountA + unitAmountB)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(0L)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(1L)
+                        .sellerId(sellerId)
+                        .pricePolicyId(pricePolicyIdA)
+                        .quantity(1)
+                        .unitAmount(unitAmountA)
+                        .build(),
+                    OrderProductItemCommand.builder()
+                        .productId(2L)
+                        .sellerId(sellerId)
+                        .pricePolicyId(pricePolicyIdB)
+                        .quantity(1)
+                        .unitAmount(unitAmountB)
+                        .build()
+                ))
+                .build();
 
             mockProductPrices(Map.of(pricePolicyIdA, unitAmountA, pricePolicyIdB, unitAmountB));
             mockShippingPolicy(sellerId, 3000L, 20000L);
@@ -2976,7 +2976,7 @@ class RegisterOrderUseCaseTest {
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
     }
 
@@ -3000,7 +3000,7 @@ class RegisterOrderUseCaseTest {
             Long expectedShippingFee = baseShippingFee + jejuSurcharge;
 
             RegisterOrderCommand command = createCommandWithShippingFee(
-                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, expectedShippingFee);
+                1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, expectedShippingFee);
 
             mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
             mockShippingPolicyWithSurcharge(sellerId, baseShippingFee, freeShippingThreshold, jejuSurcharge, 0L);
@@ -3008,7 +3008,7 @@ class RegisterOrderUseCaseTest {
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -3023,7 +3023,7 @@ class RegisterOrderUseCaseTest {
             Long expectedShippingFee = baseShippingFee + islandSurcharge;
 
             RegisterOrderCommand command = createCommandWithShippingFee(
-                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, expectedShippingFee);
+                1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, expectedShippingFee);
 
             mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
             mockShippingPolicyWithSurcharge(sellerId, baseShippingFee, freeShippingThreshold, 0L, islandSurcharge);
@@ -3031,7 +3031,7 @@ class RegisterOrderUseCaseTest {
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -3046,7 +3046,7 @@ class RegisterOrderUseCaseTest {
             Long expectedShippingFee = jejuSurcharge;
 
             RegisterOrderCommand command = createCommandWithShippingFee(
-                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, expectedShippingFee);
+                1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, expectedShippingFee);
 
             mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
             mockShippingPolicyWithSurcharge(sellerId, baseShippingFee, freeShippingThreshold, jejuSurcharge, 0L);
@@ -3054,7 +3054,7 @@ class RegisterOrderUseCaseTest {
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -3066,7 +3066,7 @@ class RegisterOrderUseCaseTest {
             Long freeShippingThreshold = 20000L;
 
             RegisterOrderCommand command = createCommandWithShippingFee(
-                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, 0L);
+                1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, 0L);
 
             mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
             mockShippingPolicyWithSurcharge(sellerId, 3000L, freeShippingThreshold, 3000L, 5000L);
@@ -3074,7 +3074,7 @@ class RegisterOrderUseCaseTest {
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -3088,14 +3088,14 @@ class RegisterOrderUseCaseTest {
             Long freeShippingThreshold = 20000L;
 
             RegisterOrderCommand command = createCommandWithShippingFee(
-                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, baseShippingFee);
+                1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, baseShippingFee);
 
             mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
             mockShippingPolicyWithSurcharge(sellerId, baseShippingFee, freeShippingThreshold, jejuSurcharge, 0L);
             mockShippingAddressWithRegionType("JEJU");
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(ShippingFeeMismatchException.class);
+                .isInstanceOf(ShippingFeeMismatchException.class);
         }
 
         @Test
@@ -3114,28 +3114,28 @@ class RegisterOrderUseCaseTest {
             Long expectedShippingFee = (baseShippingFeeA + jejuSurchargeA) + (baseShippingFeeB + jejuSurchargeB);
 
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .amount(OrderAmountCommand.builder()
-                            .totalAmount(unitAmountA + unitAmountB)
-                            .couponAmount(0L).pointAmount(0L)
-                            .shippingFee(expectedShippingFee).build())
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(1L).sellerId(sellerIdA)
-                                    .pricePolicyId(pricePolicyIdA).quantity(1).unitAmount(unitAmountA).build(),
-                            OrderProductItemCommand.builder()
-                                    .productId(2L).sellerId(sellerIdB)
-                                    .pricePolicyId(pricePolicyIdB).quantity(1).unitAmount(unitAmountB).build()
-                    ))
-                    .build();
+                .buyerId(1L)
+                .amount(OrderAmountCommand.builder()
+                    .totalAmount(unitAmountA + unitAmountB)
+                    .couponAmount(0L).pointAmount(0L)
+                    .shippingFee(expectedShippingFee).build())
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(1L).sellerId(sellerIdA)
+                        .pricePolicyId(pricePolicyIdA).quantity(1).unitAmount(unitAmountA).build(),
+                    OrderProductItemCommand.builder()
+                        .productId(2L).sellerId(sellerIdB)
+                        .pricePolicyId(pricePolicyIdB).quantity(1).unitAmount(unitAmountB).build()
+                ))
+                .build();
 
             mockProductPricesWithSellerIds(Map.of(
-                    pricePolicyIdA, Map.entry(unitAmountA, sellerIdA),
-                    pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
+                pricePolicyIdA, Map.entry(unitAmountA, sellerIdA),
+                pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
             ));
             mockShippingPolicies(Map.of(
-                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, baseShippingFeeA, 20000L, jejuSurchargeA, 0L),
-                    sellerIdB, new ShippingPolicyInfoResult(sellerIdB, baseShippingFeeB, 20000L, jejuSurchargeB, 0L)
+                sellerIdA, new ShippingPolicyInfoResult(sellerIdA, baseShippingFeeA, 20000L, jejuSurchargeA, 0L),
+                sellerIdB, new ShippingPolicyInfoResult(sellerIdB, baseShippingFeeB, 20000L, jejuSurchargeB, 0L)
             ));
             mockShippingAddressWithRegionType("JEJU");
             mockInventoryMultiple(Map.of(pricePolicyIdA, 100, pricePolicyIdB, 100));
@@ -3143,7 +3143,7 @@ class RegisterOrderUseCaseTest {
             when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -3156,7 +3156,7 @@ class RegisterOrderUseCaseTest {
             Long freeShippingThreshold = 20000L;
 
             RegisterOrderCommand command = createCommandWithShippingFee(
-                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, baseShippingFee);
+                1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, baseShippingFee);
 
             mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
             mockShippingPolicyWithSurcharge(sellerId, baseShippingFee, freeShippingThreshold, 3000L, 5000L);
@@ -3164,7 +3164,7 @@ class RegisterOrderUseCaseTest {
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
     }
 
@@ -3186,7 +3186,7 @@ class RegisterOrderUseCaseTest {
             Long couponAmount = 2000L;
 
             RegisterOrderCommand command = createCommandWithShippingFee(
-                    1L, sellerId, pricePolicyId, unitAmount, 1, couponAmount, 0L, shippingFee);
+                1L, sellerId, pricePolicyId, unitAmount, 1, couponAmount, 0L, shippingFee);
 
             mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
             mockShippingPolicy(sellerId, shippingFee, 20000L);
@@ -3210,11 +3210,11 @@ class RegisterOrderUseCaseTest {
             Long couponAmount = 20000L;
 
             RegisterOrderCommand command = createCommandWithShippingFee(
-                    1L, sellerId, pricePolicyId, unitAmount, 1, couponAmount, 0L, shippingFee);
+                1L, sellerId, pricePolicyId, unitAmount, 1, couponAmount, 0L, shippingFee);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(ExcessiveDiscountException.class)
-                    .hasMessageContaining("할인 금액이 주문 총액 + 배송비를 초과합니다");
+                .isInstanceOf(ExcessiveDiscountException.class)
+                .hasMessageContaining("할인 금액이 주문 총액 + 배송비를 초과합니다");
         }
 
         @Test
@@ -3227,14 +3227,14 @@ class RegisterOrderUseCaseTest {
             Long couponAmount = 18000L;
 
             RegisterOrderCommand command = createCommandWithShippingFee(
-                    1L, sellerId, pricePolicyId, unitAmount, 1, couponAmount, 0L, shippingFee);
+                1L, sellerId, pricePolicyId, unitAmount, 1, couponAmount, 0L, shippingFee);
 
             mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
             mockShippingPolicy(sellerId, shippingFee, 20000L);
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
     }
 
@@ -3250,74 +3250,74 @@ class RegisterOrderUseCaseTest {
     }
 
     private RegisterOrderCommand createSingleProductCommand(
-            Long buyerId, Long pricePolicyId, Long unitAmount, Integer quantity,
-            Long couponAmount, Long pointAmount
+        Long buyerId, Long pricePolicyId, Long unitAmount, Integer quantity,
+        Long couponAmount, Long pointAmount
     ) {
         return RegisterOrderCommand.builder()
-                .buyerId(buyerId)
-                .amount(
-                        OrderAmountCommand.builder()
-                                .totalAmount(unitAmount * quantity)
-                                .couponAmount(couponAmount)
-                                .pointAmount(pointAmount)
-                                .shippingFee(null)
-                                .build()
-                )
-                .orderProducts(List.of(
-                        OrderProductItemCommand.builder()
-                                .productId(100L)
-                                .sellerId(10L)
-                                .pricePolicyId(pricePolicyId)
-                                .quantity(quantity)
-                                .unitAmount(unitAmount)
-                                .build()
-                ))
-                .build();
+            .buyerId(buyerId)
+            .amount(
+                OrderAmountCommand.builder()
+                    .totalAmount(unitAmount * quantity)
+                    .couponAmount(couponAmount)
+                    .pointAmount(pointAmount)
+                    .shippingFee(null)
+                    .build()
+            )
+            .orderProducts(List.of(
+                OrderProductItemCommand.builder()
+                    .productId(100L)
+                    .sellerId(10L)
+                    .pricePolicyId(pricePolicyId)
+                    .quantity(quantity)
+                    .unitAmount(unitAmount)
+                    .build()
+            ))
+            .build();
     }
 
     private void mockProductPrice(Long pricePolicyId, Long price) {
         ProductInfoResult productInfo = new ProductInfoResult(
-                1L, null, 10L, "테스트 상품", "테스트 브랜드", price, null, null, List.of()
+            1L, null, 10L, "테스트 상품", "테스트 브랜드", price, null, null, List.of()
         );
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
+            .thenReturn(Map.of(pricePolicyId, productInfo));
     }
 
     private void mockProductPriceWithSellerId(Long pricePolicyId, Long price, Long sellerId) {
         ProductInfoResult productInfo = new ProductInfoResult(
-                1L, null, sellerId, "테스트 상품", "테스트 브랜드", price, null, null, List.of()
+            1L, null, sellerId, "테스트 상품", "테스트 브랜드", price, null, null, List.of()
         );
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
+            .thenReturn(Map.of(pricePolicyId, productInfo));
     }
 
     private void mockProductPricesWithSellerIds(Map<Long, Map.Entry<Long, Long>> pricePolicyIdToPriceAndSellerId) {
         java.util.HashMap<Long, ProductInfoResult> result = new java.util.HashMap<>();
         pricePolicyIdToPriceAndSellerId.forEach((pricePolicyId, priceAndSellerId) ->
-                result.put(pricePolicyId, new ProductInfoResult(
-                        pricePolicyId, null, priceAndSellerId.getValue(), "테스트 상품", "테스트 브랜드",
-                        priceAndSellerId.getKey(), null, null, List.of()
-                ))
+            result.put(pricePolicyId, new ProductInfoResult(
+                pricePolicyId, null, priceAndSellerId.getValue(), "테스트 상품", "테스트 브랜드",
+                priceAndSellerId.getKey(), null, null, List.of()
+            ))
         );
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                .thenReturn(result);
+            .thenReturn(result);
     }
 
     private void mockProductPrices(Map<Long, Long> pricePolicyIdToPrice) {
         java.util.HashMap<Long, ProductInfoResult> result = new java.util.HashMap<>();
         pricePolicyIdToPrice.forEach((pricePolicyId, price) ->
-                result.put(pricePolicyId, new ProductInfoResult(
-                        pricePolicyId, null, 10L, "테스트 상품", "테스트 브랜드", price, null, null, List.of()
-                ))
+            result.put(pricePolicyId, new ProductInfoResult(
+                pricePolicyId, null, 10L, "테스트 상품", "테스트 브랜드", price, null, null, List.of()
+            ))
         );
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                .thenReturn(result);
+            .thenReturn(result);
     }
 
     private void mockInventoryAndSave(Long pricePolicyId, int stock, Long orderId) {
         Inventory inventory = Inventory.of(1L, pricePolicyId, stock);
         when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                .thenReturn(Set.of(inventory));
+            .thenReturn(Set.of(inventory));
 
         Order savedOrder = mockSavedOrder(orderId);
         when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
@@ -3340,88 +3340,88 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .amount(
-                            OrderAmountCommand.builder()
-                                    .totalAmount(50000L)
-                                    .couponAmount(0L)
-                                    .pointAmount(0L)
-                                    .shippingFee(0L)
-                                    .build()
-                    )
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(2)
-                                    .unitAmount(25000L)
-                                    .build()
-                    ))
-                    .build();
+                .buyerId(buyerId)
+                .amount(
+                    OrderAmountCommand.builder()
+                        .totalAmount(50000L)
+                        .couponAmount(0L)
+                        .pointAmount(0L)
+                        .shippingFee(0L)
+                        .build()
+                )
+                .orderProducts(List.of(
+                    OrderProductItemCommand.builder()
+                        .productId(100L)
+                        .sellerId(10L)
+                        .pricePolicyId(pricePolicyId)
+                        .quantity(2)
+                        .unitAmount(25000L)
+                        .build()
+                ))
+                .build();
 
             mockProductPrice(pricePolicyId, 25000L);
             mockShippingAddressWithRegionType("DELIVERY_IMPOSSIBLE");
 
             // when & then
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(DeliveryImpossibleAreaException.class);
+                .isInstanceOf(DeliveryImpossibleAreaException.class);
 
             verifyNoInteractions(saveOrderPort, savePaymentPort, savePaymentAllocationPort);
         }
     }
 
     private RegisterOrderCommand createCommandWithShippingFee(
-            Long buyerId, Long sellerId, Long pricePolicyId, Long unitAmount, Integer quantity,
-            Long couponAmount, Long pointAmount, Long shippingFee
+        Long buyerId, Long sellerId, Long pricePolicyId, Long unitAmount, Integer quantity,
+        Long couponAmount, Long pointAmount, Long shippingFee
     ) {
         return RegisterOrderCommand.builder()
-                .buyerId(buyerId)
-                .amount(
-                        OrderAmountCommand.builder()
-                                .totalAmount(unitAmount * quantity)
-                                .couponAmount(couponAmount)
-                                .pointAmount(pointAmount)
-                                .shippingFee(shippingFee)
-                                .build()
-                )
-                .orderProducts(List.of(
-                        OrderProductItemCommand.builder()
-                                .productId(100L)
-                                .sellerId(sellerId)
-                                .pricePolicyId(pricePolicyId)
-                                .quantity(quantity)
-                                .unitAmount(unitAmount)
-                                .build()
-                ))
-                .build();
+            .buyerId(buyerId)
+            .amount(
+                OrderAmountCommand.builder()
+                    .totalAmount(unitAmount * quantity)
+                    .couponAmount(couponAmount)
+                    .pointAmount(pointAmount)
+                    .shippingFee(shippingFee)
+                    .build()
+            )
+            .orderProducts(List.of(
+                OrderProductItemCommand.builder()
+                    .productId(100L)
+                    .sellerId(sellerId)
+                    .pricePolicyId(pricePolicyId)
+                    .quantity(quantity)
+                    .unitAmount(unitAmount)
+                    .build()
+            ))
+            .build();
     }
 
     private void mockShippingPolicy(Long sellerId, Long shippingFee, Long freeShippingThreshold) {
         when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
-                .thenReturn(Map.of(
-                        sellerId, new ShippingPolicyInfoResult(sellerId, shippingFee, freeShippingThreshold, 0L, 0L)
-                ));
+            .thenReturn(Map.of(
+                sellerId, new ShippingPolicyInfoResult(sellerId, shippingFee, freeShippingThreshold, 0L, 0L)
+            ));
     }
 
     private void mockShippingPolicyWithSurcharge(Long sellerId, Long shippingFee, Long freeShippingThreshold,
                                                  Long jejuSurcharge, Long islandSurcharge) {
         when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
-                .thenReturn(Map.of(
-                        sellerId, new ShippingPolicyInfoResult(
-                                sellerId, shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge
-                        )
-                ));
+            .thenReturn(Map.of(
+                sellerId, new ShippingPolicyInfoResult(
+                    sellerId, shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge
+                )
+            ));
     }
 
     private void mockShippingAddressWithRegionType(String regionType) {
         when(findUserShippingAddressPort.findByIdAndUserId(any(), any()))
-                .thenReturn(new ShippingAddressInfoResult("홍길동", "01012345678", "서울시 강남구", "101호", regionType));
+            .thenReturn(new ShippingAddressInfoResult("홍길동", "01012345678", "서울시 강남구", "101호", regionType));
     }
 
     private void mockShippingPolicies(Map<Long, ShippingPolicyInfoResult> policies) {
         when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
-                .thenReturn(policies);
+            .thenReturn(policies);
     }
 
     private void mockInventoryMultiple(Map<Long, Integer> pricePolicyIdToStock) {
@@ -3431,6 +3431,6 @@ class RegisterOrderUseCaseTest {
             inventories.add(Inventory.of(idCounter++, entry.getKey(), entry.getValue()));
         }
         when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                .thenReturn(inventories);
+            .thenReturn(inventories);
     }
 }

@@ -12,16 +12,16 @@ public class PaymentAllocationEntityToDomainMapper {
 
     public static PaymentAllocation toDomain(PaymentAllocationJpaEntity entity) {
         return PaymentAllocation.from(PaymentAllocationSnapshotState.builder()
-                .id(entity.getId())
-                .orderId(entity.getOrderId())
-                .sellerId(entity.getSellerId())
-                .allocatedAmount(entity.getAllocatedAmount())
-                .shippingFee(entity.getShippingFee())
-                .settlementId(entity.getSettlementId())
-                .transactionType(entity.getTransactionType())
-                .targetType(entity.getTargetType())
-                .idempotencyKey(IdempotencyKey.of(entity.getIdempotencyKey()))
-                .createdAt(entity.getCreatedAt())
-                .build());
+            .id(entity.getId())
+            .orderId(entity.getOrderId())
+            .sellerId(entity.getSellerId())
+            .allocatedAmount(entity.getAllocatedAmount())
+            .shippingFee(entity.getShippingFee())
+            .settlementId(entity.getSettlementId())
+            .transactionType(entity.getTransactionType())
+            .targetType(entity.getTargetType())
+            .idempotencyKey(IdempotencyKey.of(entity.getIdempotencyKey()))
+            .createdAt(entity.getCreatedAt())
+            .build());
     }
 }

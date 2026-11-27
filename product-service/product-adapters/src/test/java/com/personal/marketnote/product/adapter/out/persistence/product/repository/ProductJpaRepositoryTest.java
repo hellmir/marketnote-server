@@ -12,11 +12,7 @@ import com.personal.marketnote.product.adapter.out.persistence.productcategory.r
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
-import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
-import com.personal.marketnote.product.domain.product.Product;
-import com.personal.marketnote.product.domain.product.ProductSnapshotState;
-import com.personal.marketnote.product.domain.product.ProductTag;
-import com.personal.marketnote.product.domain.product.ProductTagSnapshotState;
+import com.personal.marketnote.product.domain.product.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.DisplayName;
@@ -103,7 +99,7 @@ class ProductJpaRepositoryTest {
             List<ProductJpaEntity> results = productJpaRepository.findAllByCategoryIdOrderByOrderNumAsc(categoryId);
 
             assertThat(results).extracting(ProductJpaEntity::getId)
-                    .containsExactly(product1.getId(), product2.getId(), product3.getId());
+                .containsExactly(product1.getId(), product2.getId(), product3.getId());
         }
 
         @Test
@@ -146,10 +142,10 @@ class ProductJpaRepositoryTest {
             entityManager.clear();
 
             List<ProductJpaEntity> results = productJpaRepository
-                    .findByPricePolicyIds(List.of(policy1.getId(), policy2.getId()));
+                .findByPricePolicyIds(List.of(policy1.getId(), policy2.getId()));
 
             assertThat(results).extracting(ProductJpaEntity::getId)
-                    .containsExactlyInAnyOrder(product1.getId(), product2.getId());
+                .containsExactlyInAnyOrder(product1.getId(), product2.getId());
         }
 
         @Test
@@ -160,13 +156,13 @@ class ProductJpaRepositoryTest {
             PricePolicyJpaEntity activePolicy = savePricePolicy(active);
             PricePolicyJpaEntity inactivePolicy = savePricePolicy(inactive);
             entityManager.createNativeQuery("UPDATE product SET status = 'INACTIVE' WHERE id = :id")
-                    .setParameter("id", inactive.getId())
-                    .executeUpdate();
+                .setParameter("id", inactive.getId())
+                .executeUpdate();
             entityManager.flush();
             entityManager.clear();
 
             List<ProductJpaEntity> results = productJpaRepository
-                    .findByPricePolicyIds(List.of(activePolicy.getId(), inactivePolicy.getId()));
+                .findByPricePolicyIds(List.of(activePolicy.getId(), inactivePolicy.getId()));
 
             assertThat(results).hasSize(1);
             assertThat(results.getFirst().getId()).isEqualTo(active.getId());
@@ -194,13 +190,13 @@ class ProductJpaRepositoryTest {
 
             assertThat(withTags).hasSize(2);
             ProductJpaEntity loadedProduct1 = withTags.stream()
-                    .filter(p -> p.getId().equals(product1.getId()))
-                    .findFirst()
-                    .orElseThrow();
+                .filter(p -> p.getId().equals(product1.getId()))
+                .findFirst()
+                .orElseThrow();
             ProductJpaEntity loadedProduct2 = withTags.stream()
-                    .filter(p -> p.getId().equals(product2.getId()))
-                    .findFirst()
-                    .orElseThrow();
+                .filter(p -> p.getId().equals(product2.getId()))
+                .findFirst()
+                .orElseThrow();
             assertThat(loadedProduct1.getProductTagJpaEntities()).hasSize(2);
             assertThat(loadedProduct1.getPricePolicyJpaEntities()).hasSize(2);
             assertThat(loadedProduct2.getProductTagJpaEntities()).hasSize(1);
@@ -224,26 +220,26 @@ class ProductJpaRepositoryTest {
 
     private ProductJpaEntity saveProduct(String name, String brandName, Long sellerId, List<String> tagNames) {
         List<ProductTag> productTags = tagNames.stream()
-                .map(tagName -> ProductTag.from(
-                        ProductTagSnapshotState.builder()
-                                .name(tagName)
-                                .status(EntityStatus.ACTIVE)
-                                .build()
-                ))
-                .toList();
+            .map(tagName -> ProductTag.from(
+                ProductTagSnapshotState.builder()
+                    .name(tagName)
+                    .status(EntityStatus.ACTIVE)
+                    .build()
+            ))
+            .toList();
         UUID productKey = RandomCodeGenerator.generateProductKey();
         Product product = Product.from(
-                ProductSnapshotState.builder()
-                        .productKey(productKey)
-                        .sellerId(sellerId)
-                        .name(name)
-                        .brandName(brandName)
-                        .detail("설명")
-                        .findAllOptionsYn(false)
-                        .productTags(productTags)
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .productKey(productKey)
+                .sellerId(sellerId)
+                .name(name)
+                .brandName(brandName)
+                .detail("설명")
+                .findAllOptionsYn(false)
+                .productTags(productTags)
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
         ProductJpaEntity entity = ProductJpaEntity.from(product);
         ProductJpaEntity saved = productJpaRepository.save(entity);
@@ -253,13 +249,13 @@ class ProductJpaRepositoryTest {
 
     private PricePolicyJpaEntity savePricePolicy(ProductJpaEntity productEntity) {
         PricePolicy pricePolicy = PricePolicy.from(
-                PricePolicyCreateState.builder()
-                        .price(10000L)
-                        .discountPrice(9000L)
-                        .discountRate(Rate.of(BigDecimal.valueOf(10.0)))
-                        .accumulatedPoint(100L)
-                        .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
-                        .build()
+            PricePolicyCreateState.builder()
+                .price(10000L)
+                .discountPrice(9000L)
+                .discountRate(Rate.of(BigDecimal.valueOf(10.0)))
+                .accumulatedPoint(100L)
+                .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
+                .build()
         );
         PricePolicyJpaEntity entity = PricePolicyJpaEntity.from(productEntity, pricePolicy);
         PricePolicyJpaEntity saved = pricePolicyJpaRepository.save(entity);

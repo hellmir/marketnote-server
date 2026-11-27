@@ -40,8 +40,8 @@ class ReviewRegisteredCommerceConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long pricePolicyId) {
         ReviewRegisteredEvent event = new ReviewRegisteredEvent(orderId, pricePolicyId, null, null, null, null, null);
         EventEnvelope<ReviewRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "community.review.registered", "community-service",
-                LocalDateTime.of(2026, 3, 2, 10, 0), event
+            "test-event-id", "community.review.registered", "community-service",
+            LocalDateTime.of(2026, 3, 2, 10, 0), event
         );
         return new ConsumerRecord<>("community.review.registered", 0, 0L, "key-1", envelope);
     }
@@ -57,7 +57,7 @@ class ReviewRegisteredCommerceConsumerTest {
 
         // then
         ArgumentCaptor<UpdateOrderProductReviewStatusCommand> captor =
-                ArgumentCaptor.forClass(UpdateOrderProductReviewStatusCommand.class);
+            ArgumentCaptor.forClass(UpdateOrderProductReviewStatusCommand.class);
         verify(updateOrderProductUseCase).updateReviewStatus(captor.capture());
 
         UpdateOrderProductReviewStatusCommand command = captor.getValue();
@@ -101,7 +101,7 @@ class ReviewRegisteredCommerceConsumerTest {
     void handleReviewRegisteredEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "community.review.registered", 0, 0L, "key-1", null
+            "community.review.registered", 0, 0L, "key-1", null
         );
 
         // when
@@ -118,11 +118,11 @@ class ReviewRegisteredCommerceConsumerTest {
         // given
         ReviewRegisteredEvent event = new ReviewRegisteredEvent(1L, 2L, null, null, null, null, null);
         EventEnvelope<ReviewRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "community-service",
-                LocalDateTime.of(2026, 3, 2, 10, 0), event
+            "test-event-id", "wrong.event.type", "community-service",
+            LocalDateTime.of(2026, 3, 2, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "community.review.registered", 0, 0L, "key-1", envelope
+            "community.review.registered", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -195,12 +195,12 @@ class ReviewRegisteredCommerceConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
         doThrow(new RuntimeException("네트워크 오류"))
-                .when(updateOrderProductUseCase).updateReviewStatus(any(UpdateOrderProductReviewStatusCommand.class));
+            .when(updateOrderProductUseCase).updateReviewStatus(any(UpdateOrderProductReviewStatusCommand.class));
 
         // when & then
         assertThatThrownBy(() -> reviewRegisteredCommerceConsumer.handleReviewRegisteredEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("네트워크 오류");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("네트워크 오류");
 
         verify(updateOrderProductUseCase).updateReviewStatus(any(UpdateOrderProductReviewStatusCommand.class));
         verify(acknowledgment, never()).acknowledge();

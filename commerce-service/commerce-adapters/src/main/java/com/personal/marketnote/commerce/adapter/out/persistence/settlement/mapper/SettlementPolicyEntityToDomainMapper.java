@@ -11,17 +11,17 @@ public class SettlementPolicyEntityToDomainMapper {
 
     public static SettlementPolicy toDomain(SettlementPolicyJpaEntity entity) {
         return SettlementPolicy.from(
-                SettlementPolicySnapshotState.builder()
-                        .id(entity.getId())
-                        .sellerId(entity.getSellerId())
-                        .pgFeeRate(FeeRate.of(entity.getPgFeeRate()))
-                        .platformFeeRate(FeeRate.of(entity.getPlatformFeeRate()))
-                        .settlementCycle(entity.getSettlementCycle())
-                        .minPayoutAmount(entity.getMinPayoutAmount())
-                        .status(entity.getStatus())
-                        .createdAt(entity.getCreatedAt())
-                        .modifiedAt(entity.getModifiedAt())
-                        .build()
+            SettlementPolicySnapshotState.builder()
+                .id(entity.getId())
+                .sellerId(entity.getSellerId())
+                .pgFeeRate(FeeRate.of(entity.getPgFeeRate()))
+                .platformFeeRate(FeeRate.of(entity.getPlatformFeeRate()))
+                .settlementCycle(entity.getSettlementCycle())
+                .minPayoutAmount(entity.getMinPayoutAmount())
+                .status(entity.getStatus())
+                .createdAt(entity.getCreatedAt())
+                .modifiedAt(entity.getModifiedAt())
+                .build()
         );
     }
 }

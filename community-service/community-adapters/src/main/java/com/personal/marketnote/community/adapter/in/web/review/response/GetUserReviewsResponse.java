@@ -6,15 +6,15 @@ import com.personal.marketnote.community.port.in.result.review.GetUserReviewsRes
 public record GetUserReviewsResponse(OffsetResponse<UserReviewItemResponse> reviews) {
     public static GetUserReviewsResponse from(GetUserReviewsResult result) {
         return new GetUserReviewsResponse(
-                new OffsetResponse<>(
-                        result.page(),
-                        result.pageSize(),
-                        result.totalElements(),
-                        result.totalPages(),
-                        result.reviews().stream()
-                                .map(UserReviewItemResponse::from)
-                                .toList()
-                )
+            new OffsetResponse<>(
+                result.page(),
+                result.pageSize(),
+                result.totalElements(),
+                result.totalPages(),
+                result.reviews().stream()
+                    .map(UserReviewItemResponse::from)
+                    .toList()
+            )
         );
     }
 }

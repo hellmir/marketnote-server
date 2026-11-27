@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsDetailQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsElementQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.exception.*;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentGoodsElementsResult;
@@ -89,20 +89,20 @@ class FulfillmentGoodsClientTest {
         externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
 
         client = new FulfillmentGoodsClient(
-                builder,
-                objectMapper,
-                properties,
-                vendorCommunicationRecorder,
-                vendorCommunicationPayloadGenerator,
-                vendorCommunicationFailureHandler,
-                externalCallLogger,
-                new NoOpSleeper()
+            builder,
+            objectMapper,
+            properties,
+            vendorCommunicationRecorder,
+            vendorCommunicationPayloadGenerator,
+            vendorCommunicationFailureHandler,
+            externalCallLogger,
+            new NoOpSleeper()
         );
     }
 
     private void stubPayloadGenerator() {
         lenient().when(vendorCommunicationPayloadGenerator.buildPayloadJson(any()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
     }
 
     private void stubGoodsProperties() {
@@ -117,24 +117,24 @@ class FulfillmentGoodsClientTest {
 
     private RegisterFulfillmentGoodsCommand buildValidRegisterCommand() {
         RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
-                .productCode("PROD001")
-                .fasstoProductCode("PROD001")
-                .productName("테스트 상품")
-                .productType("1")
-                .giftDivision("01")
-                .build();
+            .productCode("PROD001")
+            .fasstoProductCode("PROD001")
+            .productName("테스트 상품")
+            .productType("1")
+            .giftDivision("01")
+            .build();
         return RegisterFulfillmentGoodsCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 
     private UpdateFulfillmentGoodsCommand buildValidUpdateCommand() {
         UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.builder()
-                .productCode("PROD001")
-                .fasstoProductCode("PROD001")
-                .productName("테스트 상품")
-                .productType("1")
-                .giftDivision("01")
-                .supplierCode("SUP001")
-                .build();
+            .productCode("PROD001")
+            .fasstoProductCode("PROD001")
+            .productName("테스트 상품")
+            .productType("1")
+            .giftDivision("01")
+            .supplierCode("SUP001")
+            .build();
         return UpdateFulfillmentGoodsCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 
@@ -217,17 +217,17 @@ class FulfillmentGoodsClientTest {
 
     private FulfillmentGoodsItemResponse buildGoodsItemResponse() {
         return new FulfillmentGoodsItemResponse(
-                "GOD001", "1", "테스트 상품", "Type", "N",
-                TEST_ENCODED_CST_GOD_CD, null, null, "CUST001", "Cust",
-                "SUP001", "Sup", "CAT001", "Category", "SEASON",
-                "GENDER", "1000", "800", "1200", "NORMAL",
-                "PF", "01", "GiftDiv", "10", "20", "30",
-                "2026", "600", "100", "60", "18000",
-                "BARCD", "20", "40", "50", "40000", "200",
-                "INBARCD", "10", "20", "2000", "15", "50", "10",
-                "10", "5", "2", "KR", "Y", "365", "30",
-                "30", "BOX", "N", "UP", "20260101", "Y",
-                "N", "1", "Y", "10"
+            "GOD001", "1", "테스트 상품", "Type", "N",
+            TEST_ENCODED_CST_GOD_CD, null, null, "CUST001", "Cust",
+            "SUP001", "Sup", "CAT001", "Category", "SEASON",
+            "GENDER", "1000", "800", "1200", "NORMAL",
+            "PF", "01", "GiftDiv", "10", "20", "30",
+            "2026", "600", "100", "60", "18000",
+            "BARCD", "20", "40", "50", "40000", "200",
+            "INBARCD", "10", "20", "2000", "15", "50", "10",
+            "10", "5", "2", "KR", "Y", "365", "30",
+            "30", "BOX", "N", "UP", "20260101", "Y",
+            "N", "1", "Y", "10"
         );
     }
 
@@ -242,9 +242,9 @@ class FulfillmentGoodsClientTest {
             stubGoodsProperties();
             stubPayloadGenerator();
             RegisterFulfillmentGoodsResponse payload = new RegisterFulfillmentGoodsResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new RegisterFulfillmentGoodsItemResponse("OK", "200", TEST_ENCODED_CST_GOD_CD)),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(new RegisterFulfillmentGoodsItemResponse("OK", "200", TEST_ENCODED_CST_GOD_CD)),
+                null
             );
             stubPostChain(ResponseEntity.ok(toJson(payload)));
 
@@ -270,9 +270,9 @@ class FulfillmentGoodsClientTest {
             stubGoodsProperties();
             stubPayloadGenerator();
             UpdateFulfillmentGoodsResponse payload = new UpdateFulfillmentGoodsResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new UpdateFulfillmentGoodsItemResponse("SLIP001", "ORD001", "OK", "200", null)),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(new UpdateFulfillmentGoodsItemResponse("SLIP001", "ORD001", "OK", "200", null)),
+                null
             );
             stubPatchChain(ResponseEntity.ok(toJson(payload)));
 
@@ -298,9 +298,9 @@ class FulfillmentGoodsClientTest {
             stubGoodsProperties();
             stubPayloadGenerator();
             FulfillmentGoodsListResponse payload = new FulfillmentGoodsListResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(buildGoodsItemResponse()),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(buildGoodsItemResponse()),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
@@ -327,14 +327,14 @@ class FulfillmentGoodsClientTest {
             stubGoodsProperties();
             stubPayloadGenerator();
             FulfillmentGoodsListResponse payload = new FulfillmentGoodsListResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(buildGoodsItemResponse()),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(buildGoodsItemResponse()),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             GetFulfillmentGoodsDetailCommand command = GetFulfillmentGoodsDetailCommand.of(
-                    "CUST001", "valid-token", "테스트 상품"
+                "CUST001", "valid-token", "테스트 상품"
             );
 
             // when
@@ -358,16 +358,16 @@ class FulfillmentGoodsClientTest {
             stubGoodsElementProperties();
             stubPayloadGenerator();
             FulfillmentGoodsElementsResponse payload = new FulfillmentGoodsElementsResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new FulfillmentGoodsElementResponse(
-                            "GOD001", TEST_ENCODED_CST_GOD_CD, "테스트 상품", "Y", List.of()
-                    )),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(new FulfillmentGoodsElementResponse(
+                    "GOD001", TEST_ENCODED_CST_GOD_CD, "테스트 상품", "Y", List.of()
+                )),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             GetFulfillmentGoodsElementsCommand command = GetFulfillmentGoodsElementsCommand.of(
-                    "CUST001", "valid-token"
+                "CUST001", "valid-token"
             );
 
             // when
@@ -396,7 +396,7 @@ class FulfillmentGoodsClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerGoods(command))
-                    .isInstanceOf(RegisterFulfillmentGoodsFailedException.class);
+                .isInstanceOf(RegisterFulfillmentGoodsFailedException.class);
         }
 
         @Test
@@ -406,17 +406,17 @@ class FulfillmentGoodsClientTest {
             stubGoodsProperties();
             stubPayloadGenerator();
             stubPostChainThrows(new HttpServerErrorException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Internal Server Error",
-                    "server boom".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                "server boom".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             RegisterFulfillmentGoodsCommand command = buildValidRegisterCommand();
 
             // when & then
             assertThatThrownBy(() -> client.registerGoods(command))
-                    .isInstanceOf(RegisterFulfillmentGoodsFailedException.class);
+                .isInstanceOf(RegisterFulfillmentGoodsFailedException.class);
         }
     }
 
@@ -431,17 +431,17 @@ class FulfillmentGoodsClientTest {
             stubGoodsProperties();
             stubPayloadGenerator();
             stubPatchChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             UpdateFulfillmentGoodsCommand command = buildValidUpdateCommand();
 
             // when & then
             assertThatThrownBy(() -> client.updateGoods(command))
-                    .isInstanceOf(UpdateFulfillmentGoodsFailedException.class);
+                .isInstanceOf(UpdateFulfillmentGoodsFailedException.class);
         }
     }
 
@@ -461,7 +461,7 @@ class FulfillmentGoodsClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getGoods(command))
-                    .isInstanceOf(GetFulfillmentGoodsFailedException.class);
+                .isInstanceOf(GetFulfillmentGoodsFailedException.class);
         }
     }
 
@@ -476,19 +476,19 @@ class FulfillmentGoodsClientTest {
             stubGoodsProperties();
             stubPayloadGenerator();
             stubGetChainThrows(new HttpServerErrorException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Internal Server Error",
-                    "server boom".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                "server boom".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             GetFulfillmentGoodsDetailCommand command = GetFulfillmentGoodsDetailCommand.of(
-                    "CUST001", "valid-token", "테스트 상품"
+                "CUST001", "valid-token", "테스트 상품"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getGoodsDetail(command))
-                    .isInstanceOf(GetFulfillmentGoodsDetailFailedException.class);
+                .isInstanceOf(GetFulfillmentGoodsDetailFailedException.class);
         }
     }
 
@@ -503,19 +503,19 @@ class FulfillmentGoodsClientTest {
             stubGoodsElementProperties();
             stubPayloadGenerator();
             stubGetChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             GetFulfillmentGoodsElementsCommand command = GetFulfillmentGoodsElementsCommand.of(
-                    "CUST001", "valid-token"
+                "CUST001", "valid-token"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getGoodsElements(command))
-                    .isInstanceOf(GetFulfillmentGoodsElementsFailedException.class);
+                .isInstanceOf(GetFulfillmentGoodsElementsFailedException.class);
         }
     }
 
@@ -533,7 +533,7 @@ class FulfillmentGoodsClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getGoods(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -545,35 +545,35 @@ class FulfillmentGoodsClientTest {
         @DisplayName("FulfillmentGoodsDetailQuery는 customerCode가 없으면 예외가 발생한다")
         void shouldThrowWhenDetailQueryMissesCustomerCode() {
             assertThatThrownBy(() -> FulfillmentGoodsDetailQuery.of(null, "valid-token", "상품명"))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
         @DisplayName("FulfillmentGoodsDetailQuery는 accessToken이 없으면 예외가 발생한다")
         void shouldThrowWhenDetailQueryMissesAccessToken() {
             assertThatThrownBy(() -> FulfillmentGoodsDetailQuery.of("CUST001", null, "상품명"))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
         @DisplayName("FulfillmentGoodsDetailQuery는 godNm이 없으면 예외가 발생한다")
         void shouldThrowWhenDetailQueryMissesGodNm() {
             assertThatThrownBy(() -> FulfillmentGoodsDetailQuery.of("CUST001", "valid-token", null))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
         @DisplayName("FulfillmentGoodsElementQuery는 customerCode가 없으면 예외가 발생한다")
         void shouldThrowWhenElementQueryMissesCustomerCode() {
             assertThatThrownBy(() -> FulfillmentGoodsElementQuery.of(null, "valid-token"))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
         @DisplayName("FulfillmentGoodsElementQuery는 accessToken이 없으면 예외가 발생한다")
         void shouldThrowWhenElementQueryMissesAccessToken() {
             assertThatThrownBy(() -> FulfillmentGoodsElementQuery.of("CUST001", null))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
     }
 
@@ -588,9 +588,9 @@ class FulfillmentGoodsClientTest {
             stubGoodsProperties();
             stubPayloadGenerator();
             FulfillmentGoodsListResponse payload = new FulfillmentGoodsListResponse(
-                    new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
+                List.of(),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
@@ -598,7 +598,7 @@ class FulfillmentGoodsClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getGoods(command))
-                    .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
+                .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
         }
 
         @Test
@@ -608,19 +608,19 @@ class FulfillmentGoodsClientTest {
             stubGoodsElementProperties();
             stubPayloadGenerator();
             FulfillmentGoodsElementsResponse payload = new FulfillmentGoodsElementsResponse(
-                    new FulfillmentResponseHeader("400", "bad", 0),
-                    List.of(),
-                    new FulfillmentErrorInfo("INVALID_ACCESS", "Access denied", null)
+                new FulfillmentResponseHeader("400", "bad", 0),
+                List.of(),
+                new FulfillmentErrorInfo("INVALID_ACCESS", "Access denied", null)
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
             GetFulfillmentGoodsElementsCommand command = GetFulfillmentGoodsElementsCommand.of(
-                    "CUST001", "stale-token"
+                "CUST001", "stale-token"
             );
 
             // when & then
             assertThatThrownBy(() -> client.getGoodsElements(command))
-                    .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
+                .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
         }
     }
 
@@ -640,14 +640,14 @@ class FulfillmentGoodsClientTest {
 
             // when
             assertThatThrownBy(() -> client.registerGoods(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentGoodsFailedException.class);
+                .isInstanceOf(RegisterFulfillmentGoodsFailedException.class);
 
             // then
             verify(externalCallLogger).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("registerGoods"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("registerGoods"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).record(
-                    eq(ExternalSystem.FASSTO), eq("registerGoods"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("registerGoods"), any(Map.class), any(Supplier.class)
             );
         }
 
@@ -662,14 +662,14 @@ class FulfillmentGoodsClientTest {
 
             // when
             assertThatThrownBy(() -> client.registerGoods(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentGoodsFailedException.class);
+                .isInstanceOf(RegisterFulfillmentGoodsFailedException.class);
 
             // then
             verify(externalCallLogger).record(
-                    eq(ExternalSystem.FASSTO), eq("registerGoods"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("registerGoods"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("registerGoods"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("registerGoods"), any(Map.class), any(Supplier.class)
             );
         }
     }

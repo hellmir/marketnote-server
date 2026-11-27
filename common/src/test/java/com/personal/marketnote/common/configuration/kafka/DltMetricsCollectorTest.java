@@ -25,8 +25,8 @@ class DltMetricsCollectorTest {
 
         // then
         Counter counter = meterRegistry.find("kafka.dlt.messages.total")
-                .tag("original_topic", "commerce.order.payment-completed")
-                .counter();
+            .tag("original_topic", "commerce.order.payment-completed")
+            .counter();
         assertThat(counter).isNotNull();
         assertThat(counter.count()).isEqualTo(2.0);
     }
@@ -45,11 +45,11 @@ class DltMetricsCollectorTest {
 
         // then
         Counter orderCounter = meterRegistry.find("kafka.dlt.messages.total")
-                .tag("original_topic", "commerce.order.payment-completed")
-                .counter();
+            .tag("original_topic", "commerce.order.payment-completed")
+            .counter();
         Counter paymentCounter = meterRegistry.find("kafka.dlt.messages.total")
-                .tag("original_topic", "commerce.payment.approved")
-                .counter();
+            .tag("original_topic", "commerce.payment.approved")
+            .counter();
 
         assertThat(orderCounter).isNotNull();
         assertThat(orderCounter.count()).isEqualTo(1.0);
@@ -69,9 +69,9 @@ class DltMetricsCollectorTest {
 
         // then
         Counter counter = meterRegistry.find("kafka.dlt.reprocess.total")
-                .tag("original_topic", "commerce.order.payment-completed")
-                .tag("outcome", "success")
-                .counter();
+            .tag("original_topic", "commerce.order.payment-completed")
+            .tag("outcome", "success")
+            .counter();
         assertThat(counter).isNotNull();
         assertThat(counter.count()).isEqualTo(1.0);
     }
@@ -88,9 +88,9 @@ class DltMetricsCollectorTest {
 
         // then
         Counter counter = meterRegistry.find("kafka.dlt.reprocess.total")
-                .tag("original_topic", "commerce.payment.cancelled")
-                .tag("outcome", "failure")
-                .counter();
+            .tag("original_topic", "commerce.payment.cancelled")
+            .tag("outcome", "failure")
+            .counter();
         assertThat(counter).isNotNull();
         assertThat(counter.count()).isEqualTo(1.0);
     }
@@ -119,9 +119,9 @@ class DltMetricsCollectorTest {
 
         // then
         Counter counter = meterRegistry.find("kafka.dlt.resolve.total")
-                .tag("original_topic", "commerce.order.payment-completed")
-                .tag("action", "retry")
-                .counter();
+            .tag("original_topic", "commerce.order.payment-completed")
+            .tag("action", "retry")
+            .counter();
         assertThat(counter).isNotNull();
         assertThat(counter.count()).isEqualTo(1.0);
     }
@@ -138,9 +138,9 @@ class DltMetricsCollectorTest {
 
         // then
         Counter counter = meterRegistry.find("kafka.dlt.resolve.total")
-                .tag("original_topic", "commerce.payment.cancelled")
-                .tag("action", "discard")
-                .counter();
+            .tag("original_topic", "commerce.payment.cancelled")
+            .tag("action", "discard")
+            .counter();
         assertThat(counter).isNotNull();
         assertThat(counter.count()).isEqualTo(1.0);
     }

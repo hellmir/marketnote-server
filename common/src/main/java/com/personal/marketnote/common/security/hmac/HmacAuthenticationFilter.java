@@ -39,9 +39,9 @@ public class HmacAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
+        HttpServletRequest request,
+        HttpServletResponse response,
+        FilterChain filterChain
     ) throws ServletException, IOException {
         String signature = request.getHeader(HEADER_SIGNATURE);
         String timestamp = request.getHeader(HEADER_TIMESTAMP);
@@ -54,7 +54,7 @@ public class HmacAuthenticationFilter extends OncePerRequestFilter {
 
         if (!hasAllHmacHeaders(signature, timestamp, nonce)) {
             throw new HmacAuthenticationFailedException(
-                    "HMAC 인증 실패: 필수 헤더가 누락되었습니다. 3개 헤더(X-HMAC-Signature, X-HMAC-Timestamp, X-HMAC-Nonce)를 모두 포함해야 합니다."
+                "HMAC 인증 실패: 필수 헤더가 누락되었습니다. 3개 헤더(X-HMAC-Signature, X-HMAC-Timestamp, X-HMAC-Nonce)를 모두 포함해야 합니다."
             );
         }
 
@@ -65,9 +65,9 @@ public class HmacAuthenticationFilter extends OncePerRequestFilter {
         hmacNonceValidator.validateAndStore(nonce);
 
         PreAuthenticatedAuthenticationToken authentication = new PreAuthenticatedAuthenticationToken(
-                "SERVICE",
-                null,
-                List.of(new SimpleGrantedAuthority("ROLE_SERVICE"))
+            "SERVICE",
+            null,
+            List.of(new SimpleGrantedAuthority("ROLE_SERVICE"))
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -76,13 +76,13 @@ public class HmacAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean hasAnyHmacHeader(String signature, String timestamp, String nonce) {
         return FormatValidator.hasValue(signature)
-                || FormatValidator.hasValue(timestamp)
-                || FormatValidator.hasValue(nonce);
+            || FormatValidator.hasValue(timestamp)
+            || FormatValidator.hasValue(nonce);
     }
 
     private boolean hasAllHmacHeaders(String signature, String timestamp, String nonce) {
         return FormatValidator.hasValue(signature)
-                && FormatValidator.hasValue(timestamp)
-                && FormatValidator.hasValue(nonce);
+            && FormatValidator.hasValue(timestamp)
+            && FormatValidator.hasValue(nonce);
     }
 }

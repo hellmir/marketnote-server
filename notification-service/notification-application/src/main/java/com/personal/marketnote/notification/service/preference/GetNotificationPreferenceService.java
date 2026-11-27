@@ -21,12 +21,12 @@ public class GetNotificationPreferenceService implements GetNotificationPreferen
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public List<GetNotificationPreferenceResult> getNotificationPreferences(Long userId) {
         return findNotificationPreferencePort.findAllByUserId(userId).stream()
-                .map(preference -> new GetNotificationPreferenceResult(
-                        preference.getNotificationType().name(),
-                        preference.getNotificationType().getDescription(),
-                        preference.isEnabled(),
-                        preference.getConsentedAt()
-                ))
-                .toList();
+            .map(preference -> new GetNotificationPreferenceResult(
+                preference.getNotificationType().name(),
+                preference.getNotificationType().getDescription(),
+                preference.isEnabled(),
+                preference.getConsentedAt()
+            ))
+            .toList();
     }
 }

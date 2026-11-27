@@ -52,11 +52,11 @@ public class PaymentCancelIdempotencyHelper {
     private final CounterRegistryHelper counterRegistryHelper;
 
     public PaymentCancelIdempotencyHelper(
-            FindPaymentPort findPaymentPort,
-            FindPaymentCancelIdempotencyPort findPaymentCancelIdempotencyPort,
-            SavePaymentCancelIdempotencyPort savePaymentCancelIdempotencyPort,
-            UpdatePaymentCancelIdempotencyPort updatePaymentCancelIdempotencyPort,
-            @Autowired(required = false) @Nullable CounterRegistryHelper counterRegistryHelper
+        FindPaymentPort findPaymentPort,
+        FindPaymentCancelIdempotencyPort findPaymentCancelIdempotencyPort,
+        SavePaymentCancelIdempotencyPort savePaymentCancelIdempotencyPort,
+        UpdatePaymentCancelIdempotencyPort updatePaymentCancelIdempotencyPort,
+        @Autowired(required = false) @Nullable CounterRegistryHelper counterRegistryHelper
     ) {
         this.findPaymentPort = findPaymentPort;
         this.findPaymentCancelIdempotencyPort = findPaymentCancelIdempotencyPort;
@@ -81,7 +81,7 @@ public class PaymentCancelIdempotencyHelper {
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public PaymentCancelIdempotencyResolution findOrCreate(String idempotencyKey, String orderKey, Long buyerId) {
         Optional<PaymentCancelIdempotency> existing =
-                findPaymentCancelIdempotencyPort.findByIdempotencyKey(idempotencyKey);
+            findPaymentCancelIdempotencyPort.findByIdempotencyKey(idempotencyKey);
 
         if (existing.isPresent()) {
             return resolveExisting(existing.get());
@@ -90,7 +90,7 @@ public class PaymentCancelIdempotencyHelper {
         Long paymentId = resolvePaymentId(orderKey);
 
         PaymentCancelIdempotency created = PaymentCancelIdempotency.from(
-                PaymentCancelIdempotencyCreateState.of(idempotencyKey, paymentId, buyerId)
+            PaymentCancelIdempotencyCreateState.of(idempotencyKey, paymentId, buyerId)
         );
 
         try {
@@ -99,7 +99,7 @@ public class PaymentCancelIdempotencyHelper {
         } catch (DuplicateIdempotencyKeyException dike) {
             log.warn("Idempotency-Key UNIQUE 충돌 — 재조회로 경합 해소. key: {}", idempotencyKey);
             PaymentCancelIdempotency concurrent = findPaymentCancelIdempotencyPort.findByIdempotencyKey(idempotencyKey)
-                    .orElseThrow(() -> dike);
+                .orElseThrow(() -> dike);
             return resolveExisting(concurrent);
         }
     }
@@ -132,7 +132,7 @@ public class PaymentCancelIdempotencyHelper {
     public void markCompleted(String idempotencyKey, String resultJson) {
         try {
             Optional<PaymentCancelIdempotency> optional =
-                    findPaymentCancelIdempotencyPort.findByIdempotencyKey(idempotencyKey);
+                findPaymentCancelIdempotencyPort.findByIdempotencyKey(idempotencyKey);
             if (optional.isEmpty()) {
                 log.error("COMPLETED 마킹 대상 멱등성 레코드 없음 — 비즈니스 TX 는 커밋된 상태. key: {}", idempotencyKey);
                 return;
@@ -140,15 +140,15 @@ public class PaymentCancelIdempotencyHelper {
             PaymentCancelIdempotency idempotency = optional.get();
             if (!idempotency.isInProgress()) {
                 log.warn("COMPLETED 마킹 스킵 — 상태가 IN_PROGRESS 아님. key: {}, status: {}",
-                        idempotencyKey, idempotency.getStatus());
+                    idempotencyKey, idempotency.getStatus());
                 return;
             }
             idempotency.complete(resultJson);
             updatePaymentCancelIdempotencyPort.update(idempotency);
         } catch (DataAccessException | TransactionException e) {
             log.error(
-                    "멱등성 COMPLETED 마킹 실패 — type: {}, key: {}",
-                    e.getClass().getSimpleName(), idempotencyKey, e
+                "멱등성 COMPLETED 마킹 실패 — type: {}, key: {}",
+                e.getClass().getSimpleName(), idempotencyKey, e
             );
             incrementMarkCompletedSwallowedCounter(e);
         }
@@ -179,7 +179,7 @@ public class PaymentCancelIdempotencyHelper {
     public void markFailed(String idempotencyKey, String reason) {
         try {
             Optional<PaymentCancelIdempotency> optional =
-                    findPaymentCancelIdempotencyPort.findByIdempotencyKey(idempotencyKey);
+                findPaymentCancelIdempotencyPort.findByIdempotencyKey(idempotencyKey);
             if (optional.isEmpty()) {
                 log.warn("FAILED 마킹 대상 멱등성 레코드 없음. key: {}", idempotencyKey);
                 return;
@@ -187,15 +187,15 @@ public class PaymentCancelIdempotencyHelper {
             PaymentCancelIdempotency idempotency = optional.get();
             if (!idempotency.isInProgress()) {
                 log.warn("FAILED 마킹 스킵 — 상태가 IN_PROGRESS 아님. key: {}, status: {}",
-                        idempotencyKey, idempotency.getStatus());
+                    idempotencyKey, idempotency.getStatus());
                 return;
             }
             idempotency.fail(reason);
             updatePaymentCancelIdempotencyPort.update(idempotency);
         } catch (DataAccessException | TransactionException e) {
             log.error(
-                    "멱등성 FAILED 마킹 실패 — type: {}, key: {}, reason: {}",
-                    e.getClass().getSimpleName(), idempotencyKey, reason, e
+                "멱등성 FAILED 마킹 실패 — type: {}, key: {}, reason: {}",
+                e.getClass().getSimpleName(), idempotencyKey, reason, e
             );
             incrementMarkFailedSwallowedCounter(e);
         }
@@ -206,9 +206,9 @@ public class PaymentCancelIdempotencyHelper {
             return;
         }
         counterRegistryHelper.increment(
-                MARK_FAILED_SWALLOWED_METRIC,
-                "멱등성 FAILED 마킹 삼킨 이벤트 총 건수",
-                "exception_type", e.getClass().getSimpleName()
+            MARK_FAILED_SWALLOWED_METRIC,
+            "멱등성 FAILED 마킹 삼킨 이벤트 총 건수",
+            "exception_type", e.getClass().getSimpleName()
         );
     }
 
@@ -217,9 +217,9 @@ public class PaymentCancelIdempotencyHelper {
             return;
         }
         counterRegistryHelper.increment(
-                MARK_COMPLETED_SWALLOWED_METRIC,
-                "멱등성 COMPLETED 마킹 삼킨 이벤트 총 건수",
-                "exception_type", e.getClass().getSimpleName()
+            MARK_COMPLETED_SWALLOWED_METRIC,
+            "멱등성 COMPLETED 마킹 삼킨 이벤트 총 건수",
+            "exception_type", e.getClass().getSimpleName()
         );
     }
 
@@ -242,10 +242,10 @@ public class PaymentCancelIdempotencyHelper {
         }
         UUID orderKeyUuid = UUID.fromString(orderKey);
         Payment payment = findPaymentPort.findByOrderKey(orderKeyUuid)
-                .orElseThrow(() -> {
-                    log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
-                    return new PaymentNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("결제 정보를 찾을 수 없습니다. orderKey={}", orderKey);
+                return new PaymentNotFoundException();
+            });
         return payment.getId();
     }
 

@@ -33,17 +33,17 @@ public class GetAligoTemplateListService implements GetAligoTemplateListUseCase 
         List<AligoTemplate> synced = syncTemplates(externalTemplates, localTemplates);
 
         List<GetAligoTemplateListResult.AligoTemplateResult> results = synced.stream()
-                .map(this::toResult)
-                .toList();
+            .map(this::toResult)
+            .toList();
 
         return new GetAligoTemplateListResult(results);
     }
 
     private List<AligoTemplate> syncTemplates(
-            List<AligoTemplate> externalTemplates, List<AligoTemplate> localTemplates
+        List<AligoTemplate> externalTemplates, List<AligoTemplate> localTemplates
     ) {
         Map<String, AligoTemplate> localMap = localTemplates.stream()
-                .collect(Collectors.toMap(AligoTemplate::getTemplateCode, t -> t));
+            .collect(Collectors.toMap(AligoTemplate::getTemplateCode, t -> t));
 
         List<AligoTemplate> synced = new ArrayList<>();
 
@@ -67,13 +67,13 @@ public class GetAligoTemplateListService implements GetAligoTemplateListUseCase 
 
     private GetAligoTemplateListResult.AligoTemplateResult toResult(AligoTemplate template) {
         return new GetAligoTemplateListResult.AligoTemplateResult(
-                template.getId(),
-                template.getTemplateCode(),
-                template.getTemplateName(),
-                template.getTemplateType().name(),
-                template.getInspStatus(),
-                template.getTemplateStatus().name(),
-                template.getComments()
+            template.getId(),
+            template.getTemplateCode(),
+            template.getTemplateName(),
+            template.getTemplateType().name(),
+            template.getInspStatus(),
+            template.getTemplateStatus().name(),
+            template.getComments()
         );
     }
 }

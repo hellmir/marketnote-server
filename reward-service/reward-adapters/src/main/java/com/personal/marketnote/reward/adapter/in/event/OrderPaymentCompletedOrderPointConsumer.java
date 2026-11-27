@@ -30,12 +30,12 @@ public class OrderPaymentCompletedOrderPointConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
-            groupId = "reward-order-point"
+        topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
+        groupId = "reward-order-point"
     )
     public void handleOrderPaymentCompletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -51,15 +51,15 @@ public class OrderPaymentCompletedOrderPointConsumer {
 
         try {
             OrderPaymentCompletedEvent payload = envelope.getPayloadAs(
-                    OrderPaymentCompletedEvent.class, objectMapper
+                OrderPaymentCompletedEvent.class, objectMapper
             );
 
             log.info("주문 결제 완료 이벤트 수신 (주문 포인트 차감). eventId={}, orderId={}, buyerId={}, pointAmount={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId(), payload.pointAmount());
+                envelope.eventId(), payload.orderId(), payload.buyerId(), payload.pointAmount());
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()),
-                    EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+                EventPayloadValidator.id("orderId", payload.orderId()),
+                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -73,10 +73,10 @@ public class OrderPaymentCompletedOrderPointConsumer {
             modifyUserPointIdempotent(envelope.eventId(), payload.buyerId(), payload.pointAmount(), payload.orderId());
 
             log.info("주문 포인트 차감 완료. orderId={}, buyerId={}, pointAmount={}",
-                    payload.orderId(), payload.buyerId(), payload.pointAmount());
+                payload.orderId(), payload.buyerId(), payload.pointAmount());
         } catch (Exception e) {
             log.error("주문 포인트 차감 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 
@@ -86,17 +86,17 @@ public class OrderPaymentCompletedOrderPointConsumer {
     private void modifyUserPointIdempotent(String eventId, Long buyerId, Long pointAmount, Long orderId) {
         try {
             ModifyUserPointCommand command = ModifyUserPointCommand.builder()
-                    .userId(buyerId)
-                    .changeType(UserPointChangeType.DEDUCTION)
-                    .amount(pointAmount)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(orderId)
-                    .reason(ORDER_POINT_DEDUCTION_REASON)
-                    .build();
+                .userId(buyerId)
+                .changeType(UserPointChangeType.DEDUCTION)
+                .amount(pointAmount)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(orderId)
+                .reason(ORDER_POINT_DEDUCTION_REASON)
+                .build();
             modifyUserPointUseCase.modify(command);
         } catch (DuplicateUserPointHistoryException e) {
             log.info("이미 처리된 주문 포인트 차감 이벤트 (멱등 처리). eventId={}, buyerId={}, message={}",
-                    eventId, buyerId, e.getMessage());
+                eventId, buyerId, e.getMessage());
         }
     }
 }

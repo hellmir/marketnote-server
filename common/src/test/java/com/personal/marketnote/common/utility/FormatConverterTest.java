@@ -39,7 +39,7 @@ class FormatConverterTest {
         @DisplayName("숫자가 아니면 InvalidIdException을 던진다")
         void throwsInvalidIdExceptionWhenNotNumber() {
             assertThatThrownBy(() -> FormatConverter.parseId("abc"))
-                    .isInstanceOf(InvalidIdException.class);
+                .isInstanceOf(InvalidIdException.class);
         }
     }
 
@@ -57,7 +57,7 @@ class FormatConverterTest {
         @DisplayName("숫자가 아니면 ParsingLongException을 던진다")
         void throwsParsingLongException() {
             assertThatThrownBy(() -> FormatConverter.parseToLong("abc"))
-                    .isInstanceOf(ParsingLongException.class);
+                .isInstanceOf(ParsingLongException.class);
         }
     }
 
@@ -75,14 +75,14 @@ class FormatConverterTest {
         @DisplayName("Integer 범위 초과 시 ParsingIntegerException을 던진다")
         void throwsWhenOverflow() {
             assertThatThrownBy(() -> FormatConverter.parseToInteger("9999999999"))
-                    .isInstanceOf(ParsingIntegerException.class);
+                .isInstanceOf(ParsingIntegerException.class);
         }
 
         @Test
         @DisplayName("숫자가 아니면 ParsingIntegerException을 던진다")
         void throwsWhenNotNumber() {
             assertThatThrownBy(() -> FormatConverter.parseToInteger("xyz"))
-                    .isInstanceOf(ParsingIntegerException.class);
+                .isInstanceOf(ParsingIntegerException.class);
         }
     }
 
@@ -100,7 +100,7 @@ class FormatConverterTest {
         @DisplayName("Short 범위 초과 시 ParsingShortException을 던진다")
         void throwsWhenOverflow() {
             assertThatThrownBy(() -> FormatConverter.parseToShort("99999"))
-                    .isInstanceOf(ParsingShortException.class);
+                .isInstanceOf(ParsingShortException.class);
         }
     }
 
@@ -118,7 +118,7 @@ class FormatConverterTest {
         @DisplayName("Byte 범위 초과 시 ParsingByteException을 던진다")
         void throwsWhenOverflow() {
             assertThatThrownBy(() -> FormatConverter.parseToByte("999"))
-                    .isInstanceOf(ParsingByteException.class);
+                .isInstanceOf(ParsingByteException.class);
         }
     }
 
@@ -136,7 +136,7 @@ class FormatConverterTest {
         @DisplayName("숫자가 아니면 ParsingDoubleException을 던진다")
         void throwsWhenNotNumber() {
             assertThatThrownBy(() -> FormatConverter.parseToDouble("abc"))
-                    .isInstanceOf(ParsingDoubleException.class);
+                .isInstanceOf(ParsingDoubleException.class);
         }
     }
 
@@ -154,7 +154,7 @@ class FormatConverterTest {
         @DisplayName("숫자가 아니면 ParsingFloatException을 던진다")
         void throwsWhenNotNumber() {
             assertThatThrownBy(() -> FormatConverter.parseToFloat("xyz"))
-                    .isInstanceOf(ParsingFloatException.class);
+                .isInstanceOf(ParsingFloatException.class);
         }
     }
 
@@ -179,14 +179,14 @@ class FormatConverterTest {
         @DisplayName("'true'/'false'가 아니면 ParsingBooleanException을 던진다")
         void throwsWhenInvalid(String value) {
             assertThatThrownBy(() -> FormatConverter.parseToBoolean(value))
-                    .isInstanceOf(ParsingBooleanException.class);
+                .isInstanceOf(ParsingBooleanException.class);
         }
 
         @Test
         @DisplayName("null 입력 시 NullPointerException이 발생한다 (현재 동작 고정)")
         void throwsNpeWhenNull() {
             assertThatThrownBy(() -> FormatConverter.parseToBoolean(null))
-                    .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(NullPointerException.class);
         }
     }
 
@@ -327,14 +327,14 @@ class FormatConverterTest {
         @DisplayName("윈도우 백슬래시 경로 구분자가 모두 제거된다")
         void stripsWindowsBackslashSeparators() {
             assertThat(FormatConverter.sanitizeFileName("..\\..\\windows\\system32"))
-                    .isEqualTo("....windowssystem32");
+                .isEqualTo("....windowssystem32");
         }
 
         @Test
         @DisplayName("UNC 경로('\\\\server\\share\\file')의 백슬래시가 모두 제거된다")
         void stripsUncPathBackslashes() {
             assertThat(FormatConverter.sanitizeFileName("\\\\server\\share\\file"))
-                    .isEqualTo("serversharefile");
+                .isEqualTo("serversharefile");
         }
 
         @Test
@@ -451,7 +451,7 @@ class FormatConverterTest {
         @DisplayName("epoch seconds 문자열을 Asia/Seoul 기준 LocalDateTime으로 파싱한다")
         void parsesEpochSeconds() {
             long epochSeconds = ZonedDateTime.of(2026, 4, 14, 18, 30, 45, 0, ZoneId.of("Asia/Seoul"))
-                    .toEpochSecond();
+                .toEpochSecond();
             LocalDateTime result = FormatConverter.parseToLocalDateTime(String.valueOf(epochSeconds));
             assertThat(result).isEqualTo(LocalDateTime.of(2026, 4, 14, 18, 30, 45));
         }

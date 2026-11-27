@@ -13,26 +13,26 @@ public interface LedgerTransactionJpaRepository extends JpaRepository<LedgerTran
     boolean existsByIdempotencyKey(String idempotencyKey);
 
     @Query("""
-            SELECT t FROM LedgerTransactionJpaEntity t
-            WHERE t.createdAt >= :startDate
-            AND t.createdAt <= :endDate
-            ORDER BY t.createdAt DESC
-            """)
+        SELECT t FROM LedgerTransactionJpaEntity t
+        WHERE t.createdAt >= :startDate
+        AND t.createdAt <= :endDate
+        ORDER BY t.createdAt DESC
+        """)
     List<LedgerTransactionJpaEntity> findByDateRange(
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate
     );
 
     @Query("""
-            SELECT t FROM LedgerTransactionJpaEntity t
-            WHERE t.createdAt >= :startDate
-            AND t.createdAt <= :endDate
-            AND t.transactionType = :transactionType
-            ORDER BY t.createdAt DESC
-            """)
+        SELECT t FROM LedgerTransactionJpaEntity t
+        WHERE t.createdAt >= :startDate
+        AND t.createdAt <= :endDate
+        AND t.transactionType = :transactionType
+        ORDER BY t.createdAt DESC
+        """)
     List<LedgerTransactionJpaEntity> findByDateRangeAndType(
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate,
-            @Param("transactionType") LedgerTransactionType transactionType
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate,
+        @Param("transactionType") LedgerTransactionType transactionType
     );
 }

@@ -80,20 +80,20 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
     @BeforeEach
     void setUp() throws Exception {
         actionPayload = objectMapper.writeValueAsString(Map.of(
-                "orderId", 1L,
-                "buyerId", 100L,
-                "recipientName", "홍길동",
-                "recipientPhoneNumber", "010-1234-5678",
-                "zipCode", "06236",
-                "address", "서울특별시 강남구",
-                "addressDetail", "101호",
-                "deliveryRequestMessage", "부재시 경비실",
-                "orderProducts", List.of(Map.of(
-                        "pricePolicyId", 10L,
-                        "productKey", java.util.UUID.randomUUID().toString(),
-                        "quantity", 2,
-                        "unitAmount", 25000L
-                ))
+            "orderId", 1L,
+            "buyerId", 100L,
+            "recipientName", "홍길동",
+            "recipientPhoneNumber", "010-1234-5678",
+            "zipCode", "06236",
+            "address", "서울특별시 강남구",
+            "addressDetail", "101호",
+            "deliveryRequestMessage", "부재시 경비실",
+            "orderProducts", List.of(Map.of(
+                "pricePolicyId", 10L,
+                "productKey", java.util.UUID.randomUUID().toString(),
+                "quantity", 2,
+                "unitAmount", 25000L
+            ))
         ));
         compensationPayload = objectMapper.writeValueAsString(Map.of("orderId", 1L));
     }
@@ -114,7 +114,7 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         @DisplayName("출고 등록 성공 시 성공 응답을 발행한다")
         void shouldPublishSuccessOnRegistration() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             stubAuthenticatedCaller();
@@ -125,7 +125,7 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
             verify(registerFulfillmentDeliveryUseCase).registerDeliveryIdempotent(any());
             verify(createShippingTrackerUseCase).createShippingTracker(any());
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -134,19 +134,19 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         @DisplayName("이미 등록된 주문이면 멱등 처리로 성공 응답을 발행한다")
         void shouldPublishSuccessOnAlreadyRegistered() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             stubAuthenticatedCaller();
             when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST01");
             doThrow(new FulfillmentDeliveryAlreadyRegisteredException())
-                    .when(registerFulfillmentDeliveryUseCase).registerDeliveryIdempotent(any());
+                .when(registerFulfillmentDeliveryUseCase).registerDeliveryIdempotent(any());
 
             consumer.handleFulfillmentStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishSuccess(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("idempotent")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("idempotent")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -155,18 +155,18 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         @DisplayName("출고 등록 처리 실패 시 실패 응답을 발행한다")
         void shouldPublishFailureOnRegistrationError() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             stubAuthenticatedCaller();
             when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST01");
             doThrow(new RuntimeException("외부 API 실패"))
-                    .when(registerFulfillmentDeliveryUseCase).registerDeliveryIdempotent(any());
+                .when(registerFulfillmentDeliveryUseCase).registerDeliveryIdempotent(any());
 
             consumer.handleFulfillmentStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "풀필먼트 출고 등록 처리 실패"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "풀필먼트 출고 등록 처리 실패"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -175,23 +175,23 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         @DisplayName("orderId가 누락되면 실패 응답을 발행한다")
         void shouldPublishFailureOnMissingOrderId() throws Exception {
             String invalidPayload = objectMapper.writeValueAsString(Map.of(
-                    "buyerId", 100L,
-                    "orderProducts", List.of(Map.of(
-                            "pricePolicyId", 10L,
-                            "productKey", java.util.UUID.randomUUID().toString(),
-                            "quantity", 2
-                    ))
+                "buyerId", 100L,
+                "orderProducts", List.of(Map.of(
+                    "pricePolicyId", 10L,
+                    "productKey", java.util.UUID.randomUUID().toString(),
+                    "quantity", 2
+                ))
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleFulfillmentStep(record, acknowledgment);
 
             verifyNoInteractions(registerFulfillmentDeliveryUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("orderId")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("orderId")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -200,21 +200,21 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         @DisplayName("orderProducts 내 productKey가 누락되면 실패 응답을 발행한다")
         void shouldPublishFailureOnMissingProductKey() throws Exception {
             String invalidPayload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L,
-                    "orderProducts", List.of(Map.of(
-                            "pricePolicyId", 10L, "quantity", 2, "unitAmount", 25000L
-                    ))
+                "orderId", 1L, "buyerId", 100L,
+                "orderProducts", List.of(Map.of(
+                    "pricePolicyId", 10L, "quantity", 2, "unitAmount", 25000L
+                ))
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleFulfillmentStep(record, acknowledgment);
 
             verifyNoInteractions(registerFulfillmentDeliveryUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("productKey")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("productKey")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -228,16 +228,16 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         @DisplayName("출고 취소 성공 시 보상 성공 응답을 발행한다")
         void shouldPublishSuccessOnCompensation() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             when(cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(any()))
-                    .thenReturn(new CancelInternalFulfillmentDeliveryResult(1L, true, "cancelled"));
+                .thenReturn(new CancelInternalFulfillmentDeliveryResult(1L, true, "cancelled"));
 
             consumer.handleFulfillmentStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{\"compensated\":true}"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{\"compensated\":true}"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -246,17 +246,17 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         @DisplayName("출고 취소 보상 거부 시 실패 응답을 발행한다")
         void shouldPublishFailureOnCompensationRejected() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             when(cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(any()))
-                    .thenReturn(new CancelInternalFulfillmentDeliveryResult(1L, false, "already shipping"));
+                .thenReturn(new CancelInternalFulfillmentDeliveryResult(1L, false, "already shipping"));
 
             consumer.handleFulfillmentStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.COMPENSATION), contains("풀필먼트 출고 취소 보상 거부")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.COMPENSATION), contains("풀필먼트 출고 취소 보상 거부")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -265,17 +265,17 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         @DisplayName("보상 처리 중 예외 발생 시 실패 응답을 발행한다")
         void shouldPublishFailureOnCompensationException() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new RuntimeException("보상 실패"))
-                    .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(any());
+                .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(any());
 
             consumer.handleFulfillmentStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION,
-                    "풀필먼트 출고 취소 보상 처리 실패"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION,
+                "풀필먼트 출고 취소 보상 처리 실패"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -284,17 +284,17 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         @DisplayName("등록되지 않은 출고를 보상하면 멱등 성공 응답을 발행한다")
         void shouldPublishSuccessOnRegistrationNotFound() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new FulfillmentDeliveryRegistrationNotFoundException())
-                    .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(any());
+                .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(any());
 
             consumer.handleFulfillmentStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishSuccess(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.COMPENSATION), contains("idempotent")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.COMPENSATION), contains("idempotent")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -303,17 +303,17 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         @DisplayName("출고 진행 중 보상 불가 시 실패 응답을 발행한다")
         void shouldPublishFailureOnCancellationNotAllowed() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new FulfillmentDeliveryCancellationNotAllowedException(FulfillmentWorkStatus.RELEASED))
-                    .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(any());
+                .when(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(any());
 
             consumer.handleFulfillmentStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.COMPENSATION), contains("풀필먼트 출고 취소 보상 거부")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.COMPENSATION), contains("풀필먼트 출고 취소 보상 거부")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -323,12 +323,12 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(SagaStepMessage stepMessage) {
         Clock fixedClock = Clock.fixed(Instant.parse("2026-10-17T01:00:00Z"), ZoneId.of("Asia/Seoul"));
         EventEnvelope<SagaStepMessage> envelope = EventEnvelope.of(
-                "saga.ORDER_PAYMENT_COMPLETED.REGISTER_FULFILLMENT_DELIVERY.action",
-                "saga-orchestrator", stepMessage, fixedClock
+            "saga.ORDER_PAYMENT_COMPLETED.REGISTER_FULFILLMENT_DELIVERY.action",
+            "saga-orchestrator", stepMessage, fixedClock
         );
         return new ConsumerRecord<>(
-                "saga.order-payment-downstream.fulfillment", 0, 0, SAGA_ID,
-                (EventEnvelope<?>) (EventEnvelope) envelope
+            "saga.order-payment-downstream.fulfillment", 0, 0, SAGA_ID,
+            (EventEnvelope<?>) (EventEnvelope) envelope
         );
     }
 }

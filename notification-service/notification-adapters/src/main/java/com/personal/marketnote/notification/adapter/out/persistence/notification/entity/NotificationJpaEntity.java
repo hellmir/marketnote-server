@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notification", indexes = {
-        @Index(name = "idx_notification_user_id_status", columnList = "user_id, status")
+    @Index(name = "idx_notification_user_id_status", columnList = "user_id, status")
 })
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -62,16 +62,16 @@ public class NotificationJpaEntity extends BaseGeneralEntity {
 
     public static NotificationJpaEntity from(Notification notification) {
         return NotificationJpaEntity.builder()
-                .userId(notification.getUserId())
-                .notificationType(notification.getNotificationType())
-                .title(notification.getTitle())
-                .body(notification.getBody())
-                .data(notification.getData())
-                .deliveryChannel(notification.getDeliveryChannel())
-                .isRead(notification.isRead())
-                .landingUrl(notification.getLandingUrl())
-                .sendStatus(notification.getSendStatus())
-                .scheduledAt(notification.getScheduledAt())
-                .build();
+            .userId(notification.getUserId())
+            .notificationType(notification.getNotificationType())
+            .title(notification.getTitle())
+            .body(notification.getBody())
+            .data(notification.getData())
+            .deliveryChannel(notification.getDeliveryChannel())
+            .isRead(notification.isRead())
+            .landingUrl(notification.getLandingUrl())
+            .sendStatus(notification.getSendStatus())
+            .scheduledAt(notification.getScheduledAt())
+            .build();
     }
 }

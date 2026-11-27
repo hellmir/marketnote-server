@@ -17,12 +17,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class SagaStepTest {
 
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-03-16T10:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-03-16T10:00:00Z"), ZoneId.of("Asia/Seoul")
     );
 
     private SagaStep createPendingStep() {
         SagaStepCreateState state = new SagaStepCreateState(
-                1L, "DEDUCT_INVENTORY", 0, "{\"productId\":100}"
+            1L, "DEDUCT_INVENTORY", 0, "{\"productId\":100}"
         );
         return SagaStep.from(state, FIXED_CLOCK);
     }
@@ -98,12 +98,12 @@ class SagaStepTest {
         void throwsExceptionWhenSagaInstanceIdIsNull() {
             // given
             SagaStepCreateState state = new SagaStepCreateState(
-                    null, "DEDUCT_INVENTORY", 0, "{}"
+                null, "DEDUCT_INVENTORY", 0, "{}"
             );
 
             // when & then
             assertThatThrownBy(() -> SagaStep.from(state, FIXED_CLOCK))
-                    .isInstanceOf(SagaInstanceIdNoValueException.class);
+                .isInstanceOf(SagaInstanceIdNoValueException.class);
         }
 
         @Test
@@ -111,12 +111,12 @@ class SagaStepTest {
         void throwsExceptionWhenStepNameIsNull() {
             // given
             SagaStepCreateState state = new SagaStepCreateState(
-                    1L, null, 0, "{}"
+                1L, null, 0, "{}"
             );
 
             // when & then
             assertThatThrownBy(() -> SagaStep.from(state, FIXED_CLOCK))
-                    .isInstanceOf(SagaStepNameNoValueException.class);
+                .isInstanceOf(SagaStepNameNoValueException.class);
         }
 
         @Test
@@ -124,12 +124,12 @@ class SagaStepTest {
         void throwsExceptionWhenRequestIsNull() {
             // given
             SagaStepCreateState state = new SagaStepCreateState(
-                    1L, "DEDUCT_INVENTORY", 0, null
+                1L, "DEDUCT_INVENTORY", 0, null
             );
 
             // when & then
             assertThatThrownBy(() -> SagaStep.from(state, FIXED_CLOCK))
-                    .isInstanceOf(SagaStepRequestNoValueException.class);
+                .isInstanceOf(SagaStepRequestNoValueException.class);
         }
 
         @Test
@@ -137,12 +137,12 @@ class SagaStepTest {
         void throwsExceptionWhenStepIndexIsNegative() {
             // given
             SagaStepCreateState state = new SagaStepCreateState(
-                    1L, "DEDUCT_INVENTORY", -1, "{}"
+                1L, "DEDUCT_INVENTORY", -1, "{}"
             );
 
             // when & then
             assertThatThrownBy(() -> SagaStep.from(state, FIXED_CLOCK))
-                    .isInstanceOf(InvalidSagaStepIndexException.class);
+                .isInstanceOf(InvalidSagaStepIndexException.class);
         }
     }
 
@@ -156,10 +156,10 @@ class SagaStepTest {
             // given
             LocalDateTime now = LocalDateTime.now(FIXED_CLOCK);
             SagaStepSnapshotState state = new SagaStepSnapshotState(
-                    1L, 10L, "DEDUCT_INVENTORY", 2, SagaStepStatus.PROCESSING,
-                    "{\"productId\":100}", "{\"result\":\"ok\"}",
-                    "{\"action\":\"restore\"}", "{\"restored\":true}",
-                    now, now
+                1L, 10L, "DEDUCT_INVENTORY", 2, SagaStepStatus.PROCESSING,
+                "{\"productId\":100}", "{\"result\":\"ok\"}",
+                "{\"action\":\"restore\"}", "{\"restored\":true}",
+                now, now
             );
 
             // when
@@ -205,7 +205,7 @@ class SagaStepTest {
 
             // when & then
             assertThatThrownBy(step::process)
-                    .isInstanceOf(InvalidSagaStepStatusTransitionException.class);
+                .isInstanceOf(InvalidSagaStepStatusTransitionException.class);
         }
     }
 
@@ -235,7 +235,7 @@ class SagaStepTest {
 
             // when & then
             assertThatThrownBy(() -> step.succeed("{\"result\":\"ok\"}"))
-                    .isInstanceOf(InvalidSagaStepStatusTransitionException.class);
+                .isInstanceOf(InvalidSagaStepStatusTransitionException.class);
         }
     }
 
@@ -265,7 +265,7 @@ class SagaStepTest {
 
             // when & then
             assertThatThrownBy(() -> step.fail("{\"error\":\"timeout\"}"))
-                    .isInstanceOf(InvalidSagaStepStatusTransitionException.class);
+                .isInstanceOf(InvalidSagaStepStatusTransitionException.class);
         }
     }
 
@@ -309,7 +309,7 @@ class SagaStepTest {
 
             // when & then
             assertThatThrownBy(() -> step.compensate(null))
-                    .isInstanceOf(SagaStepCompensationRequestNoValueException.class);
+                .isInstanceOf(SagaStepCompensationRequestNoValueException.class);
         }
 
         @Test
@@ -320,7 +320,7 @@ class SagaStepTest {
 
             // when & then
             assertThatThrownBy(() -> step.compensate("{\"action\":\"restore\"}"))
-                    .isInstanceOf(InvalidSagaStepStatusTransitionException.class);
+                .isInstanceOf(InvalidSagaStepStatusTransitionException.class);
         }
     }
 
@@ -350,7 +350,7 @@ class SagaStepTest {
 
             // when & then
             assertThatThrownBy(() -> step.completeCompensation("{\"restored\":true}"))
-                    .isInstanceOf(InvalidSagaStepStatusTransitionException.class);
+                .isInstanceOf(InvalidSagaStepStatusTransitionException.class);
         }
     }
 
@@ -380,7 +380,7 @@ class SagaStepTest {
 
             // when & then
             assertThatThrownBy(() -> step.failCompensation("{\"error\":\"compensation failed\"}"))
-                    .isInstanceOf(InvalidSagaStepStatusTransitionException.class);
+                .isInstanceOf(InvalidSagaStepStatusTransitionException.class);
         }
     }
 

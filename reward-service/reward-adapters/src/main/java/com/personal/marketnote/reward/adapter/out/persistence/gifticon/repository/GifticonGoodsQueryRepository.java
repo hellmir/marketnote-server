@@ -12,21 +12,21 @@ public interface GifticonGoodsQueryRepository {
     List<Object[]> findDistinctBrandsByCategoryCode(String categoryCode, GoodsStatus saleStatus);
 
     List<GifticonGoodsJpaEntity> findExposedByAnchor(
-            String categoryCode,
-            String brandCode,
-            GoodsStatus saleStatus,
-            Integer anchorOrderNum,
-            Long anchorId,
-            Pageable pageable
+        String categoryCode,
+        String brandCode,
+        GoodsStatus saleStatus,
+        Integer anchorOrderNum,
+        Long anchorId,
+        Pageable pageable
     );
 
     long countAllExposed(String categoryCode, String brandCode, GoodsStatus saleStatus);
 
     Page<GifticonGoodsJpaEntity> findAllForAdmin(
-            GoodsStatus goodsStatus,
-            Boolean exposed,
-            String keyword,
-            Pageable pageable
+        GoodsStatus goodsStatus,
+        Boolean exposed,
+        String keyword,
+        Pageable pageable
     );
 
     List<GifticonGoodsJpaEntity> findAllPopularAndExposed(GoodsStatus saleStatus, Pageable pageable);

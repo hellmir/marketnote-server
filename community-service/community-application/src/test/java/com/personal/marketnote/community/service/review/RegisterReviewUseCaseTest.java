@@ -56,7 +56,7 @@ class RegisterReviewUseCaseTest {
         Review savedReview = buildSavedReview(1L, command);
         when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
         when(getReviewUseCase.getProductReviewAggregate(anyLong()))
-                .thenThrow(new ProductReviewAggregateNotFoundException());
+            .thenThrow(new ProductReviewAggregateNotFoundException());
 
         registerReviewService.registerReview(command);
 
@@ -74,7 +74,7 @@ class RegisterReviewUseCaseTest {
         Review savedReview = buildSavedReview(1L, command);
         when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
         when(getReviewUseCase.getProductReviewAggregate(anyLong()))
-                .thenThrow(new ProductReviewAggregateNotFoundException());
+            .thenThrow(new ProductReviewAggregateNotFoundException());
 
         registerReviewService.registerReview(command);
 
@@ -91,18 +91,18 @@ class RegisterReviewUseCaseTest {
 
     private RegisterReviewCommand buildCommand(String reviewerName, String content) {
         return RegisterReviewCommand.builder()
-                .reviewerId(1L)
-                .orderId(100L)
-                .productId(50L)
-                .pricePolicyId(30L)
-                .productImageUrl("https://example.com/image.jpg")
-                .selectedOptions("30개입, 5박스")
-                .quantity(2)
-                .reviewerName(reviewerName)
-                .rating(5.0f)
-                .content(content)
-                .isPhoto(false)
-                .build();
+            .reviewerId(1L)
+            .orderId(100L)
+            .productId(50L)
+            .pricePolicyId(30L)
+            .productImageUrl("https://example.com/image.jpg")
+            .selectedOptions("30개입, 5박스")
+            .quantity(2)
+            .reviewerName(reviewerName)
+            .rating(5.0f)
+            .content(content)
+            .isPhoto(false)
+            .build();
     }
 
     @Test
@@ -112,7 +112,7 @@ class RegisterReviewUseCaseTest {
         when(findProfanityWordPort.containsProfanity("욕설포함내용")).thenReturn(true);
 
         assertThatThrownBy(() -> registerReviewService.registerReview(command))
-                .isInstanceOf(InvalidReviewContentContainsProfanityException.class);
+            .isInstanceOf(InvalidReviewContentContainsProfanityException.class);
 
         verifyNoInteractions(saveReviewPort);
     }
@@ -125,7 +125,7 @@ class RegisterReviewUseCaseTest {
         Review savedReview = buildSavedReview(1L, command);
         when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
         when(getReviewUseCase.getProductReviewAggregate(anyLong()))
-                .thenThrow(new ProductReviewAggregateNotFoundException());
+            .thenThrow(new ProductReviewAggregateNotFoundException());
 
         registerReviewService.registerReview(command);
 
@@ -140,7 +140,7 @@ class RegisterReviewUseCaseTest {
         Review savedReview = buildSavedReview(1L, command);
         when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
         when(getReviewUseCase.getProductReviewAggregate(command.productId()))
-                .thenThrow(new ProductReviewAggregateNotFoundException());
+            .thenThrow(new ProductReviewAggregateNotFoundException());
 
         registerReviewService.registerReview(command);
 
@@ -153,10 +153,10 @@ class RegisterReviewUseCaseTest {
     void registerReview_orderOwnershipNotVerified_throwsException() {
         RegisterReviewCommand command = buildCommand("테스트유저");
         doThrow(new UnauthorizedOrderAccessException())
-                .when(verifyOrderOwnershipPort).verifyOrderOwnership(command.orderId(), command.reviewerId());
+            .when(verifyOrderOwnershipPort).verifyOrderOwnership(command.orderId(), command.reviewerId());
 
         assertThatThrownBy(() -> registerReviewService.registerReview(command))
-                .isInstanceOf(UnauthorizedOrderAccessException.class);
+            .isInstanceOf(UnauthorizedOrderAccessException.class);
 
         verifyNoInteractions(saveReviewPort);
     }
@@ -166,10 +166,10 @@ class RegisterReviewUseCaseTest {
     void registerReview_duplicateReview_skipsOwnershipVerification() {
         RegisterReviewCommand command = buildCommand("테스트유저");
         doThrow(new ReviewAlreadyExistsException())
-                .when(getReviewUseCase).validateDuplicateReview(command);
+            .when(getReviewUseCase).validateDuplicateReview(command);
 
         assertThatThrownBy(() -> registerReviewService.registerReview(command))
-                .isInstanceOf(ReviewAlreadyExistsException.class);
+            .isInstanceOf(ReviewAlreadyExistsException.class);
 
         verifyNoInteractions(verifyOrderOwnershipPort);
         verifyNoInteractions(saveReviewPort);
@@ -182,7 +182,7 @@ class RegisterReviewUseCaseTest {
         when(findProfanityWordPort.containsProfanity("욕설포함내용")).thenReturn(true);
 
         assertThatThrownBy(() -> registerReviewService.registerReview(command))
-                .isInstanceOf(InvalidReviewContentContainsProfanityException.class);
+            .isInstanceOf(InvalidReviewContentContainsProfanityException.class);
 
         verifyNoInteractions(verifyOrderOwnershipPort);
         verifyNoInteractions(saveReviewPort);
@@ -193,10 +193,10 @@ class RegisterReviewUseCaseTest {
     void registerReview_orderStatusNotReviewable_throwsException() {
         RegisterReviewCommand command = buildCommand("테스트유저");
         doThrow(new InvalidOrderStatusForReviewException())
-                .when(verifyOrderOwnershipPort).verifyOrderOwnership(command.orderId(), command.reviewerId());
+            .when(verifyOrderOwnershipPort).verifyOrderOwnership(command.orderId(), command.reviewerId());
 
         assertThatThrownBy(() -> registerReviewService.registerReview(command))
-                .isInstanceOf(InvalidOrderStatusForReviewException.class);
+            .isInstanceOf(InvalidOrderStatusForReviewException.class);
 
         verifyNoInteractions(saveReviewPort);
     }
@@ -206,10 +206,10 @@ class RegisterReviewUseCaseTest {
     void registerReview_orderStatusNotReviewable_skipsSubsequentOperations() {
         RegisterReviewCommand command = buildCommand("테스트유저");
         doThrow(new InvalidOrderStatusForReviewException())
-                .when(verifyOrderOwnershipPort).verifyOrderOwnership(command.orderId(), command.reviewerId());
+            .when(verifyOrderOwnershipPort).verifyOrderOwnership(command.orderId(), command.reviewerId());
 
         assertThatThrownBy(() -> registerReviewService.registerReview(command))
-                .isInstanceOf(InvalidOrderStatusForReviewException.class);
+            .isInstanceOf(InvalidOrderStatusForReviewException.class);
 
         verifyNoInteractions(saveReviewPort);
         verifyNoInteractions(updateReviewPort);
@@ -223,7 +223,7 @@ class RegisterReviewUseCaseTest {
         Review savedReview = buildSavedReview(1L, command);
         when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
         when(getReviewUseCase.getProductReviewAggregate(anyLong()))
-                .thenThrow(new ProductReviewAggregateNotFoundException());
+            .thenThrow(new ProductReviewAggregateNotFoundException());
 
         registerReviewService.registerReview(command);
 
@@ -242,7 +242,7 @@ class RegisterReviewUseCaseTest {
         Review savedReview = buildSavedReviewWithKey(1L, command, expectedReviewKey);
         when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
         when(getReviewUseCase.getProductReviewAggregate(anyLong()))
-                .thenThrow(new ProductReviewAggregateNotFoundException());
+            .thenThrow(new ProductReviewAggregateNotFoundException());
 
         RegisterReviewResult result = registerReviewService.registerReview(command);
 
@@ -251,54 +251,54 @@ class RegisterReviewUseCaseTest {
 
     private Review buildSavedReviewWithKey(Long id, RegisterReviewCommand command, UUID reviewKey) {
         return Review.from(
-                ReviewSnapshotState.builder()
-                        .id(id)
-                        .reviewKey(reviewKey)
-                        .reviewerId(command.reviewerId())
-                        .orderId(command.orderId())
-                        .productId(command.productId())
-                        .pricePolicyId(command.pricePolicyId())
-                        .productImageUrl(command.productImageUrl())
-                        .selectedOptions(command.selectedOptions())
-                        .quantity(command.quantity())
-                        .reviewerName(command.reviewerName())
-                        .maskedReviewerName(ValueMasker.mask(command.reviewerName()))
-                        .rating(Rating.of(command.rating()))
-                        .content(command.content())
-                        .isPhoto(command.isPhoto())
-                        .isEdited(false)
-                        .likeCount(0)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .orderNum(id)
-                        .build()
+            ReviewSnapshotState.builder()
+                .id(id)
+                .reviewKey(reviewKey)
+                .reviewerId(command.reviewerId())
+                .orderId(command.orderId())
+                .productId(command.productId())
+                .pricePolicyId(command.pricePolicyId())
+                .productImageUrl(command.productImageUrl())
+                .selectedOptions(command.selectedOptions())
+                .quantity(command.quantity())
+                .reviewerName(command.reviewerName())
+                .maskedReviewerName(ValueMasker.mask(command.reviewerName()))
+                .rating(Rating.of(command.rating()))
+                .content(command.content())
+                .isPhoto(command.isPhoto())
+                .isEdited(false)
+                .likeCount(0)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .build()
         );
     }
 
     private Review buildSavedReview(Long id, RegisterReviewCommand command) {
         return Review.from(
-                ReviewSnapshotState.builder()
-                        .id(id)
-                        .reviewerId(command.reviewerId())
-                        .orderId(command.orderId())
-                        .productId(command.productId())
-                        .pricePolicyId(command.pricePolicyId())
-                        .productImageUrl(command.productImageUrl())
-                        .selectedOptions(command.selectedOptions())
-                        .quantity(command.quantity())
-                        .reviewerName(command.reviewerName())
-                        .maskedReviewerName(ValueMasker.mask(command.reviewerName()))
-                        .rating(Rating.of(command.rating()))
-                        .content(command.content())
-                        .isPhoto(command.isPhoto())
-                        .isEdited(false)
-                        .likeCount(0)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .orderNum(id)
-                        .build()
+            ReviewSnapshotState.builder()
+                .id(id)
+                .reviewerId(command.reviewerId())
+                .orderId(command.orderId())
+                .productId(command.productId())
+                .pricePolicyId(command.pricePolicyId())
+                .productImageUrl(command.productImageUrl())
+                .selectedOptions(command.selectedOptions())
+                .quantity(command.quantity())
+                .reviewerName(command.reviewerName())
+                .maskedReviewerName(ValueMasker.mask(command.reviewerName()))
+                .rating(Rating.of(command.rating()))
+                .content(command.content())
+                .isPhoto(command.isPhoto())
+                .isEdited(false)
+                .likeCount(0)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .build()
         );
     }
 }

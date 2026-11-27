@@ -15,13 +15,13 @@ class ExternalSystemTest {
 
     static Stream<Arguments> systems() {
         return Stream.of(
-                Arguments.of(ExternalSystem.KCP, "kcp", "external.kcp"),
-                Arguments.of(ExternalSystem.FASSTO, "fassto", "external.fassto"),
-                Arguments.of(ExternalSystem.GOOGLE_OAUTH, "google_oauth", "external.google_oauth"),
-                Arguments.of(ExternalSystem.KAKAO_OAUTH, "kakao_oauth", "external.kakao_oauth"),
-                Arguments.of(ExternalSystem.ALIGO, "aligo", "external.aligo"),
-                Arguments.of(ExternalSystem.S3, "s3", "external.s3"),
-                Arguments.of(ExternalSystem.USER, "user", "external.user")
+            Arguments.of(ExternalSystem.KCP, "kcp", "external.kcp"),
+            Arguments.of(ExternalSystem.FASSTO, "fassto", "external.fassto"),
+            Arguments.of(ExternalSystem.GOOGLE_OAUTH, "google_oauth", "external.google_oauth"),
+            Arguments.of(ExternalSystem.KAKAO_OAUTH, "kakao_oauth", "external.kakao_oauth"),
+            Arguments.of(ExternalSystem.ALIGO, "aligo", "external.aligo"),
+            Arguments.of(ExternalSystem.S3, "s3", "external.s3"),
+            Arguments.of(ExternalSystem.USER, "user", "external.user")
         );
     }
 

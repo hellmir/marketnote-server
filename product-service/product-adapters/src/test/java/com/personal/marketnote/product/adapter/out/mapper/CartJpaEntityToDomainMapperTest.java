@@ -46,9 +46,9 @@ class CartJpaEntityToDomainMapperTest {
             when(entity.getPricePolicyJpaEntity()).thenReturn(policyEntity);
 
             try (MockedStatic<PricePolicyJpaEntityToDomainMapper> mapperMock
-                         = Mockito.mockStatic(PricePolicyJpaEntityToDomainMapper.class)) {
+                     = Mockito.mockStatic(PricePolicyJpaEntityToDomainMapper.class)) {
                 mapperMock.when(() -> PricePolicyJpaEntityToDomainMapper.mapToDomainWithOptions(policyEntity))
-                        .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
 
                 Optional<CartProduct> result = CartJpaEntityToDomainMapper.mapToDomain(entity);
 

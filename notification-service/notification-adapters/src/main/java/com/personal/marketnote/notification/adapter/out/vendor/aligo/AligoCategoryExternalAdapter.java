@@ -28,8 +28,8 @@ public class AligoCategoryExternalAdapter implements GetAligoCategoryExternalPor
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         AligoCategoryApiResponse response = aligoHttpClient.post(
-                GET_CATEGORY_TREE_OPERATION, aligoProperties.getApi().getCategoryPath(),
-                params, AligoCategoryApiResponse.class
+            GET_CATEGORY_TREE_OPERATION, aligoProperties.getApi().getCategoryPath(),
+            params, AligoCategoryApiResponse.class
         );
 
         List<GetAligoCategoryTreeResult.CategoryResult> categories = buildCategoryTree(response.data());
@@ -42,17 +42,17 @@ public class AligoCategoryExternalAdapter implements GetAligoCategoryExternalPor
         }
 
         Map<String, List<GetAligoCategoryTreeResult.CategoryResult>> thirdByParent = groupByParentCode(
-                data.thirdBusinessType()
+            data.thirdBusinessType()
         );
 
         Map<String, List<GetAligoCategoryTreeResult.CategoryResult>> secondByParent = new LinkedHashMap<>();
         if (FormatValidator.hasValue(data.secondBusinessType())) {
             for (AligoCategoryApiResponse.CategoryItem item : data.secondBusinessType()) {
                 List<GetAligoCategoryTreeResult.CategoryResult> children = thirdByParent.getOrDefault(
-                        item.code(), List.of()
+                    item.code(), List.of()
                 );
                 secondByParent.computeIfAbsent(item.parentCode(), k -> new ArrayList<>())
-                        .add(new GetAligoCategoryTreeResult.CategoryResult(item.code(), item.name(), children));
+                    .add(new GetAligoCategoryTreeResult.CategoryResult(item.code(), item.name(), children));
             }
         }
 
@@ -60,7 +60,7 @@ public class AligoCategoryExternalAdapter implements GetAligoCategoryExternalPor
         if (FormatValidator.hasValue(data.firstBusinessType())) {
             for (AligoCategoryApiResponse.CategoryItem item : data.firstBusinessType()) {
                 List<GetAligoCategoryTreeResult.CategoryResult> children = secondByParent.getOrDefault(
-                        item.code(), List.of()
+                    item.code(), List.of()
                 );
                 result.add(new GetAligoCategoryTreeResult.CategoryResult(item.code(), item.name(), children));
             }
@@ -70,7 +70,7 @@ public class AligoCategoryExternalAdapter implements GetAligoCategoryExternalPor
     }
 
     private Map<String, List<GetAligoCategoryTreeResult.CategoryResult>> groupByParentCode(
-            List<AligoCategoryApiResponse.CategoryItem> items
+        List<AligoCategoryApiResponse.CategoryItem> items
     ) {
         Map<String, List<GetAligoCategoryTreeResult.CategoryResult>> grouped = new LinkedHashMap<>();
         if (FormatValidator.hasNoValue(items)) {
@@ -78,7 +78,7 @@ public class AligoCategoryExternalAdapter implements GetAligoCategoryExternalPor
         }
         for (AligoCategoryApiResponse.CategoryItem item : items) {
             grouped.computeIfAbsent(item.parentCode(), k -> new ArrayList<>())
-                    .add(new GetAligoCategoryTreeResult.CategoryResult(item.code(), item.name(), List.of()));
+                .add(new GetAligoCategoryTreeResult.CategoryResult(item.code(), item.name(), List.of()));
         }
         return grouped;
     }

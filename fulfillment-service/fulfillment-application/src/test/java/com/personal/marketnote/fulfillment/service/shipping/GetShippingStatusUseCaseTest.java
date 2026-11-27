@@ -90,28 +90,28 @@ class GetShippingStatusUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getShippingStatusService.getShippingStatus(
-                new GetShippingStatusCommand(999L)
+            new GetShippingStatusCommand(999L)
         )).isInstanceOf(ShippingTrackerNotFoundException.class);
     }
 
     private ShippingTracker createTracker(
-            Long orderId,
-            ShippingStatus status,
-            String trackingNumber,
-            String carrierCode,
-            LocalDateTime lastPolledAt
+        Long orderId,
+        ShippingStatus status,
+        String trackingNumber,
+        String carrierCode,
+        LocalDateTime lastPolledAt
     ) {
         return ShippingTracker.from(ShippingTrackerSnapshotState.builder()
-                .id(1L)
-                .orderId(orderId)
-                // 순수 null 체크 — 빈 문자열은 TrackingNumber/CarrierCode의 도메인 검증을 통과해야 하므로 blank 검사 포함 FormatValidator는 부적합
-                .trackingNumber(trackingNumber != null ? TrackingNumber.of(trackingNumber) : null)
-                .carrierCode(carrierCode != null ? CarrierCode.of(carrierCode) : null)
-                .shippingStatus(status)
-                .pollingActive(!status.isTerminal())
-                .lastPolledAt(lastPolledAt)
-                .createdAt(LocalDateTime.of(2026, 4, 8, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 9, 10, 0))
-                .build());
+            .id(1L)
+            .orderId(orderId)
+            // 순수 null 체크 — 빈 문자열은 TrackingNumber/CarrierCode의 도메인 검증을 통과해야 하므로 blank 검사 포함 FormatValidator는 부적합
+            .trackingNumber(trackingNumber != null ? TrackingNumber.of(trackingNumber) : null)
+            .carrierCode(carrierCode != null ? CarrierCode.of(carrierCode) : null)
+            .shippingStatus(status)
+            .pollingActive(!status.isTerminal())
+            .lastPolledAt(lastPolledAt)
+            .createdAt(LocalDateTime.of(2026, 4, 8, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 9, 10, 0))
+            .build());
     }
 }

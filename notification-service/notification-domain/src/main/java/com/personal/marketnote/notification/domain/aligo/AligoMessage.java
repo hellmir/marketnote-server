@@ -44,27 +44,27 @@ public class AligoMessage extends BaseDomain {
     public static AligoMessage from(AligoMessageCreateState state) {
         validate(state);
         List<AligoMessageRecipient> recipients = state.getRecipients().stream()
-                .map(AligoMessageRecipient::from)
-                .toList();
+            .map(AligoMessageRecipient::from)
+            .toList();
 
         AligoMessage message = AligoMessage.builder()
-                .senderKey(state.getSenderKey())
-                .templateCode(state.getTemplateCode())
-                .sender(state.getSender())
-                .messageType(state.getMessageType())
-                .content(state.getContent())
-                .title(state.getTitle())
-                .buttons(state.getButtons())
-                .messageStatus(AligoMessageStatus.REQUESTED)
-                .successCount(0)
-                .failCount(0)
-                .failoverUsed(false)
-                .failoverSubject(state.getFailoverSubject())
-                .failoverMessageBody(state.getFailoverMessageBody())
-                .requestedAt(state.getRequestedAt())
-                .sendDate(state.getSendDate())
-                .recipients(recipients)
-                .build();
+            .senderKey(state.getSenderKey())
+            .templateCode(state.getTemplateCode())
+            .sender(state.getSender())
+            .messageType(state.getMessageType())
+            .content(state.getContent())
+            .title(state.getTitle())
+            .buttons(state.getButtons())
+            .messageStatus(AligoMessageStatus.REQUESTED)
+            .successCount(0)
+            .failCount(0)
+            .failoverUsed(false)
+            .failoverSubject(state.getFailoverSubject())
+            .failoverMessageBody(state.getFailoverMessageBody())
+            .requestedAt(state.getRequestedAt())
+            .sendDate(state.getSendDate())
+            .recipients(recipients)
+            .build();
         message.activate();
         return message;
     }
@@ -73,33 +73,33 @@ public class AligoMessage extends BaseDomain {
         List<AligoMessageRecipient> recipients = List.of();
         if (FormatValidator.hasValue(state.getRecipients())) {
             recipients = state.getRecipients().stream()
-                    .map(AligoMessageRecipient::from)
-                    .toList();
+                .map(AligoMessageRecipient::from)
+                .toList();
         }
 
         AligoMessage message = AligoMessage.builder()
-                .id(state.getId())
-                .senderKey(state.getSenderKey())
-                .templateCode(state.getTemplateCode())
-                .sender(state.getSender())
-                .messageType(state.getMessageType())
-                .content(state.getContent())
-                .title(state.getTitle())
-                .buttons(state.getButtons())
-                .messageStatus(state.getMessageStatus())
-                .aligoMid(state.getAligoMid())
-                .successCount(state.getSuccessCount())
-                .failCount(state.getFailCount())
-                .failoverUsed(state.isFailoverUsed())
-                .failoverSubject(state.getFailoverSubject())
-                .failoverMessageBody(state.getFailoverMessageBody())
-                .requestedAt(state.getRequestedAt())
-                .sendDate(state.getSendDate())
-                .sentAt(state.getSentAt())
-                .recipients(recipients)
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .senderKey(state.getSenderKey())
+            .templateCode(state.getTemplateCode())
+            .sender(state.getSender())
+            .messageType(state.getMessageType())
+            .content(state.getContent())
+            .title(state.getTitle())
+            .buttons(state.getButtons())
+            .messageStatus(state.getMessageStatus())
+            .aligoMid(state.getAligoMid())
+            .successCount(state.getSuccessCount())
+            .failCount(state.getFailCount())
+            .failoverUsed(state.isFailoverUsed())
+            .failoverSubject(state.getFailoverSubject())
+            .failoverMessageBody(state.getFailoverMessageBody())
+            .requestedAt(state.getRequestedAt())
+            .sendDate(state.getSendDate())
+            .sentAt(state.getSentAt())
+            .recipients(recipients)
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
         message.status = state.getStatus();
         return message;
     }
@@ -205,9 +205,9 @@ public class AligoMessage extends BaseDomain {
     }
 
     public void updateRecipientResult(
-            String receiver, AligoMessageRecipientStatus targetStatus,
-            String msgId, String rslt, String rsltMessage,
-            LocalDateTime sentAt, LocalDateTime resultAt, LocalDateTime reportAt
+        String receiver, AligoMessageRecipientStatus targetStatus,
+        String msgId, String rslt, String rsltMessage,
+        LocalDateTime sentAt, LocalDateTime resultAt, LocalDateTime reportAt
     ) {
         if (FormatValidator.hasNoValue(recipients)) {
             return;

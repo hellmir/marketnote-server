@@ -49,21 +49,21 @@ class GetPostByIdUseCaseTest {
         when(findPostPort.findById(postId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> getPostService.getPost(postId))
-                .isInstanceOf(PostNotFoundException.class);
+            .isInstanceOf(PostNotFoundException.class);
     }
 
     private Post buildPost(Long id) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(1L)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .title("문의 제목")
-                .content("문의 내용")
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(1L)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .title("문의 제목")
+            .content("문의 내용")
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 }

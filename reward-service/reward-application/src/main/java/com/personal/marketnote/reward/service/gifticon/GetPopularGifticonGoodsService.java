@@ -29,22 +29,22 @@ public class GetPopularGifticonGoodsService implements GetPopularGifticonGoodsUs
         List<GifticonGoods> goods = findGifticonGoodsPort.findAllPopularAndExposed(POPULAR_GOODS_LIMIT);
 
         List<PopularGifticonGoodsItem> items = goods.stream()
-                .map(this::mapToItem)
-                .toList();
+            .map(this::mapToItem)
+            .toList();
 
         return new GetPopularGifticonGoodsResult(items);
     }
 
     private PopularGifticonGoodsItem mapToItem(GifticonGoods goods) {
         return new PopularGifticonGoodsItem(
-                goods.getGoodsCode().getValue(),
-                goods.getGoodsName(),
-                toBrandCodeValue(goods.getBrandCode()),
-                goods.getBrandName(),
-                goods.getBrandImageUrl(),
-                goods.getSalePrice().getValue(),
-                goods.getCashPrice().getValue(),
-                goods.getImageUrl()
+            goods.getGoodsCode().getValue(),
+            goods.getGoodsName(),
+            toBrandCodeValue(goods.getBrandCode()),
+            goods.getBrandName(),
+            goods.getBrandImageUrl(),
+            goods.getSalePrice().getValue(),
+            goods.getCashPrice().getValue(),
+            goods.getImageUrl()
         );
     }
 

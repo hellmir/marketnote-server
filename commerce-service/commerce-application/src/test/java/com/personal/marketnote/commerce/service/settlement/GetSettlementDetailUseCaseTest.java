@@ -36,20 +36,20 @@ class GetSettlementDetailUseCaseTest {
 
     private Settlement createSettlement(Long id) {
         return Settlement.from(SettlementSnapshotState.builder()
-                .id(id)
-                .sellerId(10L)
-                .year(2026)
-                .month(2)
-                .totalAllocatedAmount(100000L)
-                .pgFeeAmount(3000L)
-                .platformFeeAmount(5000L)
-                .sellerPayoutAmount(92000L)
-                .status(SettlementStatus.COMPLETED)
-                .version(0L)
-                .createdAt(LocalDateTime.of(2026, 2, 16, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 2, 16, 10, 0))
-                .shippingFee(0L)
-                .build());
+            .id(id)
+            .sellerId(10L)
+            .year(2026)
+            .month(2)
+            .totalAllocatedAmount(100000L)
+            .pgFeeAmount(3000L)
+            .platformFeeAmount(5000L)
+            .sellerPayoutAmount(92000L)
+            .status(SettlementStatus.COMPLETED)
+            .version(0L)
+            .createdAt(LocalDateTime.of(2026, 2, 16, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 2, 16, 10, 0))
+            .shippingFee(0L)
+            .build());
     }
 
     private PaymentAllocation createAllocation(Long id, Long orderId, Long sellerId,
@@ -57,17 +57,17 @@ class GetSettlementDetailUseCaseTest {
                                                PaymentAllocationTransactionType transactionType,
                                                PaymentAllocationTargetType targetType) {
         return PaymentAllocation.from(PaymentAllocationSnapshotState.builder()
-                .id(id)
-                .orderId(orderId)
-                .sellerId(sellerId)
-                .allocatedAmount(allocatedAmount)
-                .shippingFee(0L)
-                .settlementId(settlementId)
-                .transactionType(transactionType)
-                .targetType(targetType)
-                .idempotencyKey(IdempotencyKey.of("key-" + id))
-                .createdAt(LocalDateTime.of(2026, 2, 15, 14, 30))
-                .build());
+            .id(id)
+            .orderId(orderId)
+            .sellerId(sellerId)
+            .allocatedAmount(allocatedAmount)
+            .shippingFee(0L)
+            .settlementId(settlementId)
+            .transactionType(transactionType)
+            .targetType(targetType)
+            .idempotencyKey(IdempotencyKey.of("key-" + id))
+            .createdAt(LocalDateTime.of(2026, 2, 15, 14, 30))
+            .build());
     }
 
     @Test
@@ -77,13 +77,13 @@ class GetSettlementDetailUseCaseTest {
         Long settlementId = 1L;
         Settlement settlement = createSettlement(settlementId);
         PaymentAllocation allocation1 = createAllocation(1L, 100L, 10L, 50000L, settlementId,
-                PaymentAllocationTransactionType.ORDER_REGISTRATION, PaymentAllocationTargetType.ORDER);
+            PaymentAllocationTransactionType.ORDER_REGISTRATION, PaymentAllocationTargetType.ORDER);
         PaymentAllocation allocation2 = createAllocation(2L, 101L, 10L, 50000L, settlementId,
-                PaymentAllocationTransactionType.ORDER_REGISTRATION, PaymentAllocationTargetType.ORDER);
+            PaymentAllocationTransactionType.ORDER_REGISTRATION, PaymentAllocationTargetType.ORDER);
 
         when(findSettlementPort.findById(settlementId)).thenReturn(Optional.of(settlement));
         when(findPaymentAllocationPort.findBySettlementId(settlementId))
-                .thenReturn(List.of(allocation1, allocation2));
+            .thenReturn(List.of(allocation1, allocation2));
 
         // when
         List<GetSettlementDetailResult> results = getSettlementDetailService.getSettlementAllocations(settlementId);
@@ -126,7 +126,7 @@ class GetSettlementDetailUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getSettlementDetailService.getSettlementAllocations(settlementId))
-                .isInstanceOf(SettlementNotFoundException.class);
+            .isInstanceOf(SettlementNotFoundException.class);
         verify(findSettlementPort).findById(settlementId);
         verifyNoInteractions(findPaymentAllocationPort);
     }
@@ -138,7 +138,7 @@ class GetSettlementDetailUseCaseTest {
         Long settlementId = 1L;
         Settlement settlement = createSettlement(settlementId);
         PaymentAllocation allocation = createAllocation(5L, 200L, 15L, 75000L, settlementId,
-                PaymentAllocationTransactionType.ORDER_REGISTRATION, PaymentAllocationTargetType.ORDER);
+            PaymentAllocationTransactionType.ORDER_REGISTRATION, PaymentAllocationTargetType.ORDER);
 
         when(findSettlementPort.findById(settlementId)).thenReturn(Optional.of(settlement));
         when(findPaymentAllocationPort.findBySettlementId(settlementId)).thenReturn(List.of(allocation));
@@ -164,13 +164,13 @@ class GetSettlementDetailUseCaseTest {
         Long settlementId = 1L;
         Settlement settlement = createSettlement(settlementId);
         PaymentAllocation orderAllocation = createAllocation(1L, 100L, 10L, 50000L, settlementId,
-                PaymentAllocationTransactionType.ORDER_REGISTRATION, PaymentAllocationTargetType.ORDER);
+            PaymentAllocationTransactionType.ORDER_REGISTRATION, PaymentAllocationTargetType.ORDER);
         PaymentAllocation cancelAllocation = createAllocation(2L, 100L, 10L, 50000L, settlementId,
-                PaymentAllocationTransactionType.CANCELLATION, PaymentAllocationTargetType.ORDER);
+            PaymentAllocationTransactionType.CANCELLATION, PaymentAllocationTargetType.ORDER);
 
         when(findSettlementPort.findById(settlementId)).thenReturn(Optional.of(settlement));
         when(findPaymentAllocationPort.findBySettlementId(settlementId))
-                .thenReturn(List.of(orderAllocation, cancelAllocation));
+            .thenReturn(List.of(orderAllocation, cancelAllocation));
 
         // when
         List<GetSettlementDetailResult> results = getSettlementDetailService.getSettlementAllocations(settlementId);

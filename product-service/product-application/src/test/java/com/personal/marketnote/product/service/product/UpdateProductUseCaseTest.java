@@ -3,11 +3,7 @@ package com.personal.marketnote.product.service.product;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
 import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
-import com.personal.marketnote.product.domain.product.FasstoProductCodeGenerator;
-import com.personal.marketnote.product.domain.product.Product;
-import com.personal.marketnote.product.domain.product.ProductSnapshotState;
-import com.personal.marketnote.product.domain.product.ProductTag;
-import com.personal.marketnote.product.domain.product.ProductTagSnapshotState;
+import com.personal.marketnote.product.domain.product.*;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.exception.ProductInfoNoValueException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
@@ -58,8 +54,8 @@ class UpdateProductUseCaseTest {
         when(findProductPort.existsByIdAndSellerId(10L, userId)).thenReturn(false);
 
         assertThatThrownBy(() -> updateProductService.update(userId, false, command))
-                .isInstanceOf(NotProductOwnerException.class)
-                .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
+            .isInstanceOf(NotProductOwnerException.class)
+            .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(findProductPort).existsByIdAndSellerId(10L, userId);
         verifyNoInteractions(getProductUseCase, updateProductPort, publishProductEventPort);
@@ -71,8 +67,8 @@ class UpdateProductUseCaseTest {
         UpdateProductCommand command = buildCommand(11L, null);
         Product product = buildProduct(11L, "기존 상품");
         Product refreshed = buildProductWithTags(11L, List.of(
-                buildPersistedTag(101L, "tag-1", 1L),
-                buildPersistedTag(102L, "tag-2", 2L)
+            buildPersistedTag(101L, "tag-1", 1L),
+            buildPersistedTag(102L, "tag-2", 2L)
         ));
 
         when(getProductUseCase.getProduct(11L)).thenReturn(product);
@@ -89,21 +85,21 @@ class UpdateProductUseCaseTest {
         assertThat(updated.getDetail()).isEqualTo(command.detail());
         assertThat(updated.isFindAllOptionsYn()).isEqualTo(command.isFindAllOptions());
         assertThat(updated.getProductTags())
-                .extracting(ProductTag::getName)
-                .containsExactly("tag-1", "tag-2");
+            .extracting(ProductTag::getName)
+            .containsExactly("tag-1", "tag-2");
         assertThat(updated.getProductTags())
-                .extracting(ProductTag::getStatus)
-                .containsOnly(EntityStatus.ACTIVE);
+            .extracting(ProductTag::getStatus)
+            .containsOnly(EntityStatus.ACTIVE);
         assertThat(updated.getProductTags())
-                .extracting(ProductTag::getProductId)
-                .containsOnly(11L);
+            .extracting(ProductTag::getProductId)
+            .containsOnly(11L);
 
         verify(getProductUseCase).getProduct(11L);
         verify(findProductPort).findById(11L);
         verify(publishProductEventPort).publishProductTagChangedEvent(
-                eq(11L),
-                anyList(),
-                eq(ProductTagChangedEvent.Action.UPDATED)
+            eq(11L),
+            anyList(),
+            eq(ProductTagChangedEvent.Action.UPDATED)
         );
         verifyNoMoreInteractions(publishProductEventPort);
     }
@@ -116,8 +112,8 @@ class UpdateProductUseCaseTest {
         UpdateProductCommand command = buildCommand(20L, options);
         Product product = buildProduct(20L, "기존 상품");
         Product refreshed = buildProductWithTags(20L, List.of(
-                buildPersistedTag(201L, "tag-1", 1L),
-                buildPersistedTag(202L, "tag-2", 2L)
+            buildPersistedTag(201L, "tag-1", 1L),
+            buildPersistedTag(202L, "tag-2", 2L)
         ));
 
         when(findProductPort.existsByIdAndSellerId(20L, userId)).thenReturn(true);
@@ -139,16 +135,16 @@ class UpdateProductUseCaseTest {
         assertThat(capturedEvent.giftDivision()).isEqualTo(options.giftDivision());
 
         ArgumentCaptor<List<ProductTagChangedEvent.ProductTagSnapshot>> tagCaptor
-                = ArgumentCaptor.forClass(List.class);
+            = ArgumentCaptor.forClass(List.class);
         verify(publishProductEventPort).publishProductTagChangedEvent(
-                eq(20L), tagCaptor.capture(), eq(ProductTagChangedEvent.Action.UPDATED)
+            eq(20L), tagCaptor.capture(), eq(ProductTagChangedEvent.Action.UPDATED)
         );
         assertThat(tagCaptor.getValue())
-                .extracting(ProductTagChangedEvent.ProductTagSnapshot::id)
-                .containsExactly(201L, 202L);
+            .extracting(ProductTagChangedEvent.ProductTagSnapshot::id)
+            .containsExactly(201L, 202L);
         assertThat(tagCaptor.getValue())
-                .extracting(ProductTagChangedEvent.ProductTagSnapshot::name)
-                .containsExactly("tag-1", "tag-2");
+            .extracting(ProductTagChangedEvent.ProductTagSnapshot::name)
+            .containsExactly("tag-1", "tag-2");
     }
 
     @Test
@@ -176,7 +172,7 @@ class UpdateProductUseCaseTest {
         when(getProductUseCase.getProduct(30L)).thenThrow(exception);
 
         assertThatThrownBy(() -> updateProductService.update(1L, true, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(getProductUseCase).getProduct(30L);
         verifyNoInteractions(findProductPort, updateProductPort, publishProductEventPort);
@@ -196,7 +192,7 @@ class UpdateProductUseCaseTest {
         doThrow(exception).when(updateProductPort).update(product);
 
         assertThatThrownBy(() -> updateProductService.update(userId, false, command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(updateProductPort).update(product);
         verifyNoInteractions(publishProductEventPort);
@@ -212,8 +208,8 @@ class UpdateProductUseCaseTest {
         when(getProductUseCase.getProduct(60L)).thenReturn(product);
 
         assertThatThrownBy(() -> updateProductService.update(1L, true, command))
-                .isInstanceOf(ProductInfoNoValueException.class)
-                .hasMessageContaining("상품 ID가 존재하지 않습니다");
+            .isInstanceOf(ProductInfoNoValueException.class)
+            .hasMessageContaining("상품 ID가 존재하지 않습니다");
 
         verify(updateProductPort).update(product);
         verifyNoInteractions(publishProductEventPort);
@@ -229,8 +225,8 @@ class UpdateProductUseCaseTest {
         when(getProductUseCase.getProduct(70L)).thenReturn(product);
 
         assertThatThrownBy(() -> updateProductService.update(1L, true, command))
-                .isInstanceOf(ProductInfoNoValueException.class)
-                .hasMessageContaining("상품명이 존재하지 않습니다");
+            .isInstanceOf(ProductInfoNoValueException.class)
+            .hasMessageContaining("상품명이 존재하지 않습니다");
 
         verify(updateProductPort).update(product);
         verifyNoInteractions(publishProductEventPort);
@@ -241,105 +237,105 @@ class UpdateProductUseCaseTest {
     }
 
     private UpdateProductCommand buildCommandWithName(
-            Long id,
-            String name,
-            FulfillmentVendorGoodsOptionCommand fulfillmentVendorGoods
+        Long id,
+        String name,
+        FulfillmentVendorGoodsOptionCommand fulfillmentVendorGoods
     ) {
         return UpdateProductCommand.builder()
-                .id(id)
-                .name(name)
-                .brandName("변경 브랜드")
-                .detail("변경 상세 설명")
-                .isFindAllOptions(true)
-                .tags(List.of("tag-1", "tag-2"))
-                .fulfillmentVendorGoods(fulfillmentVendorGoods)
-                .build();
+            .id(id)
+            .name(name)
+            .brandName("변경 브랜드")
+            .detail("변경 상세 설명")
+            .isFindAllOptions(true)
+            .tags(List.of("tag-1", "tag-2"))
+            .fulfillmentVendorGoods(fulfillmentVendorGoods)
+            .build();
     }
 
     private Product buildProduct(Long id, String name) {
         UUID productKey = UUID.randomUUID();
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(id)
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name(name)
-                        .brandName("기존 브랜드")
-                        .detail("기존 상세")
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(id)
+                .productKey(productKey)
+                .sellerId(1L)
+                .name(name)
+                .brandName("기존 브랜드")
+                .detail("기존 상세")
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
     }
 
     private Product buildProductWithTags(Long id, List<ProductTag> tags) {
         UUID productKey = UUID.randomUUID();
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(id)
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name("변경 상품")
-                        .brandName("변경 브랜드")
-                        .detail("변경 상세 설명")
-                        .findAllOptionsYn(true)
-                        .productTags(tags)
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(id)
+                .productKey(productKey)
+                .sellerId(1L)
+                .name("변경 상품")
+                .brandName("변경 브랜드")
+                .detail("변경 상세 설명")
+                .findAllOptionsYn(true)
+                .productTags(tags)
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
     }
 
     private ProductTag buildPersistedTag(Long id, String name, Long orderNum) {
         return ProductTag.from(
-                ProductTagSnapshotState.builder()
-                        .id(id)
-                        .productId(11L)
-                        .name(name)
-                        .orderNum(orderNum)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            ProductTagSnapshotState.builder()
+                .id(id)
+                .productId(11L)
+                .name(name)
+                .orderNum(orderNum)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 
     private FulfillmentVendorGoodsOptionCommand buildFulfillmentOptions() {
         return FulfillmentVendorGoodsOptionCommand.builder()
-                .goodsType("2")
-                .giftDivision("99")
-                .goodsOptionCode1("opt1")
-                .goodsOptionCode2("opt2")
-                .invoiceGoodsNameEnabled("Y")
-                .invoiceGoodsName("상품명")
-                .supplierCode("SUP")
-                .categoryCode("CATE")
-                .seasonCode("2024")
-                .genderCode("M")
-                .manufactureYear("2024")
-                .unitPrice("12000")
-                .supplyPrice("9000")
-                .salePrice("10000")
-                .handlingTemperature("ROOM")
-                .pickingFacility("A1")
-                .goodsBarcode("BARCODE")
-                .boxWeight("2.5")
-                .origin("KR")
-                .expirationDateManagementEnabled("Y")
-                .shelfLifeDays("30")
-                .outboundAvailableDays("7")
-                .inboundAvailableDays("7")
-                .outboundBoxType("BOX")
-                .cushioningEnabled("N")
-                .loadingDirection("UP")
-                .subsidiaryMaterialCode("COTTON")
-                .enabled("Y")
-                .safetyStock("10")
-                .feeApplied("N")
-                .saleUnitQuantity("1")
-                .customerGoodsImageUrl("https://example.com/image.jpg")
-                .externalGoodsImageUrl("https://example.com/external.jpg")
-                .build();
+            .goodsType("2")
+            .giftDivision("99")
+            .goodsOptionCode1("opt1")
+            .goodsOptionCode2("opt2")
+            .invoiceGoodsNameEnabled("Y")
+            .invoiceGoodsName("상품명")
+            .supplierCode("SUP")
+            .categoryCode("CATE")
+            .seasonCode("2024")
+            .genderCode("M")
+            .manufactureYear("2024")
+            .unitPrice("12000")
+            .supplyPrice("9000")
+            .salePrice("10000")
+            .handlingTemperature("ROOM")
+            .pickingFacility("A1")
+            .goodsBarcode("BARCODE")
+            .boxWeight("2.5")
+            .origin("KR")
+            .expirationDateManagementEnabled("Y")
+            .shelfLifeDays("30")
+            .outboundAvailableDays("7")
+            .inboundAvailableDays("7")
+            .outboundBoxType("BOX")
+            .cushioningEnabled("N")
+            .loadingDirection("UP")
+            .subsidiaryMaterialCode("COTTON")
+            .enabled("Y")
+            .safetyStock("10")
+            .feeApplied("N")
+            .saleUnitQuantity("1")
+            .customerGoodsImageUrl("https://example.com/image.jpg")
+            .externalGoodsImageUrl("https://example.com/external.jpg")
+            .build();
     }
 
 }

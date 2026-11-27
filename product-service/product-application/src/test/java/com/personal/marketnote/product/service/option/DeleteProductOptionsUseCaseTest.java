@@ -33,10 +33,10 @@ class DeleteProductOptionsUseCaseTest {
         when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(false);
 
         assertThatThrownBy(() -> deleteProductOptionsService.deleteProductOptions(
-                userId, false, productId, optionCategoryId
+            userId, false, productId, optionCategoryId
         ))
-                .isInstanceOf(NotProductOwnerException.class)
-                .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
+            .isInstanceOf(NotProductOwnerException.class)
+            .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(findProductPort).existsByIdAndSellerId(productId, userId);
         verifyNoInteractions(deleteProductOptionCategoryPort);
@@ -82,7 +82,7 @@ class DeleteProductOptionsUseCaseTest {
         doThrow(exception).when(deleteProductOptionCategoryPort).deleteById(optionCategoryId);
 
         assertThatThrownBy(() -> deleteProductOptionsService.deleteProductOptions(
-                userId, false, productId, optionCategoryId
+            userId, false, productId, optionCategoryId
         )).isSameAs(exception);
 
         verify(findProductPort).existsByIdAndSellerId(productId, userId);

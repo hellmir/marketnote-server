@@ -10,10 +10,10 @@ public enum SwaggerServiceSubdomain {
     NOTIFICATIONS("notifications", "알림 서비스", "/swagger-ui/index.html", ""),
     FILES("files", "파일 서비스", "/swagger-ui/index.html", ""),
     MONITORING(
-            "monitoring",
-            "모니터링 대시보드",
-            "/d/spring_boot_21/spring-boot-3-x-statistics",
-            " (인증 필요)"
+        "monitoring",
+        "모니터링 대시보드",
+        "/d/spring_boot_21/spring-boot-3-x-statistics",
+        " (인증 필요)"
     );
 
     private final String subdomain;

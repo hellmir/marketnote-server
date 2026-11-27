@@ -42,8 +42,8 @@ class UserSignupCompletedNotificationPreferenceConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long userId, String userKey) {
         UserSignupCompletedEvent event = new UserSignupCompletedEvent(userId, userKey, null, null);
         EventEnvelope<UserSignupCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "user.user.signup-completed", "user-service",
-                LocalDateTime.of(2026, 4, 9, 10, 0), event
+            "test-event-id", "user.user.signup-completed", "user-service",
+            LocalDateTime.of(2026, 4, 9, 10, 0), event
         );
         return new ConsumerRecord<>("user.user.signup-completed", 0, 0L, "key-1", envelope);
     }
@@ -59,7 +59,7 @@ class UserSignupCompletedNotificationPreferenceConsumerTest {
 
         // then
         ArgumentCaptor<InitializeNotificationPreferenceCommand> captor = ArgumentCaptor.forClass(
-                InitializeNotificationPreferenceCommand.class
+            InitializeNotificationPreferenceCommand.class
         );
         verify(initializeNotificationPreferenceUseCase).initializeNotificationPreference(captor.capture());
 
@@ -74,7 +74,7 @@ class UserSignupCompletedNotificationPreferenceConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "user.user.signup-completed", 0, 0L, "1", null
+            "user.user.signup-completed", 0, 0L, "1", null
         );
 
         // when
@@ -91,11 +91,11 @@ class UserSignupCompletedNotificationPreferenceConsumerTest {
         // given
         UserSignupCompletedEvent event = new UserSignupCompletedEvent(1L, "user-key-123", null, null);
         EventEnvelope<UserSignupCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "user-service",
-                LocalDateTime.of(2026, 4, 9, 10, 0), event
+            "test-event-id", "wrong.event.type", "user-service",
+            LocalDateTime.of(2026, 4, 9, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "user.user.signup-completed", 0, 0L, "key-1", envelope
+            "user.user.signup-completed", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -140,16 +140,16 @@ class UserSignupCompletedNotificationPreferenceConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "user-key-123");
         doThrow(new DuplicateNotificationPreferenceException())
-                .when(initializeNotificationPreferenceUseCase).initializeNotificationPreference(
-                        any(InitializeNotificationPreferenceCommand.class)
-                );
+            .when(initializeNotificationPreferenceUseCase).initializeNotificationPreference(
+                any(InitializeNotificationPreferenceCommand.class)
+            );
 
         // when
         consumer.handleUserSignupCompletedEvent(record, acknowledgment);
 
         // then
         verify(initializeNotificationPreferenceUseCase).initializeNotificationPreference(
-                any(InitializeNotificationPreferenceCommand.class)
+            any(InitializeNotificationPreferenceCommand.class)
         );
         verify(acknowledgment).acknowledge();
     }
@@ -160,13 +160,13 @@ class UserSignupCompletedNotificationPreferenceConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "user-key-123");
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(initializeNotificationPreferenceUseCase).initializeNotificationPreference(
-                        any(InitializeNotificationPreferenceCommand.class)
-                );
+            .when(initializeNotificationPreferenceUseCase).initializeNotificationPreference(
+                any(InitializeNotificationPreferenceCommand.class)
+            );
 
         // when & then
         assertThatThrownBy(() ->
-                consumer.handleUserSignupCompletedEvent(record, acknowledgment)
+            consumer.handleUserSignupCompletedEvent(record, acknowledgment)
         ).isInstanceOf(RuntimeException.class);
 
         verifyNoInteractions(acknowledgment);

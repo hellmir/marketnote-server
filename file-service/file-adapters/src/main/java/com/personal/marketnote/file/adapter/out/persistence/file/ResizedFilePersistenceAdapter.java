@@ -40,15 +40,15 @@ public class ResizedFilePersistenceAdapter implements SaveResizedFilesPort, Find
     public List<ResizedFile> findByFileIds(List<Long> fileIds) {
         if (FormatValidator.hasValue(fileIds)) {
             return resizedFileJpaRepository.findAllByFile_IdIn(fileIds).stream()
-                    .map(e -> ResizedFile.from(ResizedFileSnapshotState.builder()
-                            .id(e.getId())
-                            .fileId(e.getFile().getId())
-                            .size(e.getSize())
-                            .storageUrl(e.getStorageUrl())
-                            .createdAt(e.getCreatedAt())
-                            .status(e.getStatus())
-                            .build()
-                    )).toList();
+                .map(e -> ResizedFile.from(ResizedFileSnapshotState.builder()
+                    .id(e.getId())
+                    .fileId(e.getFile().getId())
+                    .size(e.getSize())
+                    .storageUrl(e.getStorageUrl())
+                    .createdAt(e.getCreatedAt())
+                    .status(e.getStatus())
+                    .build()
+                )).toList();
         }
 
         return List.of();

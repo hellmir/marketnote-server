@@ -23,12 +23,12 @@ public class FulfillmentGoodsSyncedReadModelConsumer {
     private final SaveFulfillmentGoodsReadModelPort saveFulfillmentGoodsReadModelPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.FULFILLMENT_GOODS_SYNCED,
-            groupId = "product-fulfillment-goods-read-model"
+        topics = KafkaTopicConstants.FULFILLMENT_GOODS_SYNCED,
+        groupId = "product-fulfillment-goods-read-model"
     )
     public void handleFulfillmentGoodsSyncedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -45,7 +45,7 @@ public class FulfillmentGoodsSyncedReadModelConsumer {
         FulfillmentGoodsSyncedEvent payload = envelope.getPayloadAs(FulfillmentGoodsSyncedEvent.class, objectMapper);
 
         log.info("풀필먼트 상품 동기화 이벤트 수신. eventId={}, customerGoodsCode={}",
-                envelope.eventId(), payload.customerGoodsCode()
+            envelope.eventId(), payload.customerGoodsCode()
         );
 
         if (FormatValidator.hasNoValue(payload.customerGoodsCode())) {

@@ -29,170 +29,170 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
     @Override
     public List<PostJpaEntity> findByBoardAndFilters(
-            Board board,
-            String category,
-            PostTargetGroupType targetGroupType,
-            Long targetGroupId,
-            Long cursor,
-            boolean isDesc,
-            Boolean isPublicOnly,
-            Long filterUserId,
-            boolean isAnsweredOnly,
-            boolean searchInTitle,
-            boolean searchInContent,
-            String searchKeywordPattern,
-            EntityStatus status,
-            Pageable pageable,
-            PostSortProperty sortProperty
+        Board board,
+        String category,
+        PostTargetGroupType targetGroupType,
+        Long targetGroupId,
+        Long cursor,
+        boolean isDesc,
+        Boolean isPublicOnly,
+        Long filterUserId,
+        boolean isAnsweredOnly,
+        boolean searchInTitle,
+        boolean searchInContent,
+        String searchKeywordPattern,
+        EntityStatus status,
+        Pageable pageable,
+        PostSortProperty sortProperty
     ) {
         return queryFactory
-                .selectFrom(post)
-                .where(
-                        post.status.eq(status),
-                        post.board.eq(board),
-                        post.parentId.isNull(),
-                        categoryEq(category),
-                        targetGroupTypeEq(targetGroupType),
-                        targetGroupIdEq(targetGroupId),
-                        publicOnlyCondition(isPublicOnly),
-                        userIdEq(filterUserId),
-                        answeredOnlyCondition(isAnsweredOnly),
-                        searchKeywordCondition(searchInTitle, searchInContent, searchKeywordPattern),
-                        cursorCondition(cursor, isDesc)
-                )
-                .orderBy(resolveOrderSpecifiers(sortProperty, isDesc))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+            .selectFrom(post)
+            .where(
+                post.status.eq(status),
+                post.board.eq(board),
+                post.parentId.isNull(),
+                categoryEq(category),
+                targetGroupTypeEq(targetGroupType),
+                targetGroupIdEq(targetGroupId),
+                publicOnlyCondition(isPublicOnly),
+                userIdEq(filterUserId),
+                answeredOnlyCondition(isAnsweredOnly),
+                searchKeywordCondition(searchInTitle, searchInContent, searchKeywordPattern),
+                cursorCondition(cursor, isDesc)
+            )
+            .orderBy(resolveOrderSpecifiers(sortProperty, isDesc))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
     }
 
     @Override
     public long countByBoardAndFilters(
-            Board board,
-            String category,
-            PostTargetGroupType targetGroupType,
-            Long targetGroupId,
-            Boolean isPublicOnly,
-            Long filterUserId,
-            boolean isAnsweredOnly,
-            boolean searchInTitle,
-            boolean searchInContent,
-            String searchKeywordPattern,
-            EntityStatus status
+        Board board,
+        String category,
+        PostTargetGroupType targetGroupType,
+        Long targetGroupId,
+        Boolean isPublicOnly,
+        Long filterUserId,
+        boolean isAnsweredOnly,
+        boolean searchInTitle,
+        boolean searchInContent,
+        String searchKeywordPattern,
+        EntityStatus status
     ) {
         Long count = queryFactory
-                .select(post.count())
-                .from(post)
-                .where(
-                        post.status.eq(status),
-                        post.board.eq(board),
-                        post.parentId.isNull(),
-                        categoryEq(category),
-                        targetGroupTypeEq(targetGroupType),
-                        targetGroupIdEq(targetGroupId),
-                        publicOnlyCondition(isPublicOnly),
-                        userIdEq(filterUserId),
-                        answeredOnlyCondition(isAnsweredOnly),
-                        searchKeywordCondition(searchInTitle, searchInContent, searchKeywordPattern)
-                )
-                .fetchOne();
+            .select(post.count())
+            .from(post)
+            .where(
+                post.status.eq(status),
+                post.board.eq(board),
+                post.parentId.isNull(),
+                categoryEq(category),
+                targetGroupTypeEq(targetGroupType),
+                targetGroupIdEq(targetGroupId),
+                publicOnlyCondition(isPublicOnly),
+                userIdEq(filterUserId),
+                answeredOnlyCondition(isAnsweredOnly),
+                searchKeywordCondition(searchInTitle, searchInContent, searchKeywordPattern)
+            )
+            .fetchOne();
         return FormatValidator.hasValue(count) ? count : 0L;
     }
 
     @Override
     public long countByUserIdAndBoard(
-            Long userId,
-            Board board,
-            boolean isAnsweredOnly,
-            boolean searchInTitle,
-            boolean searchInContent,
-            String searchKeywordPattern,
-            EntityStatus status
+        Long userId,
+        Board board,
+        boolean isAnsweredOnly,
+        boolean searchInTitle,
+        boolean searchInContent,
+        String searchKeywordPattern,
+        EntityStatus status
     ) {
         Long count = queryFactory
-                .select(post.count())
-                .from(post)
-                .where(
-                        post.status.eq(status),
-                        post.board.eq(board),
-                        post.userId.eq(userId),
-                        post.parentId.isNull(),
-                        answeredOnlyCondition(isAnsweredOnly),
-                        searchKeywordCondition(searchInTitle, searchInContent, searchKeywordPattern)
-                )
-                .fetchOne();
+            .select(post.count())
+            .from(post)
+            .where(
+                post.status.eq(status),
+                post.board.eq(board),
+                post.userId.eq(userId),
+                post.parentId.isNull(),
+                answeredOnlyCondition(isAnsweredOnly),
+                searchKeywordCondition(searchInTitle, searchInContent, searchKeywordPattern)
+            )
+            .fetchOne();
         return FormatValidator.hasValue(count) ? count : 0L;
     }
 
     @Override
     public List<PostJpaEntity> findByUserIdAndBoard(
-            Long userId,
-            Board board,
-            Long cursor,
-            boolean isDesc,
-            boolean isAnsweredOnly,
-            boolean searchInTitle,
-            boolean searchInContent,
-            String searchKeywordPattern,
-            EntityStatus status,
-            Pageable pageable,
-            PostSortProperty sortProperty
+        Long userId,
+        Board board,
+        Long cursor,
+        boolean isDesc,
+        boolean isAnsweredOnly,
+        boolean searchInTitle,
+        boolean searchInContent,
+        String searchKeywordPattern,
+        EntityStatus status,
+        Pageable pageable,
+        PostSortProperty sortProperty
     ) {
         return queryFactory
-                .selectFrom(post)
-                .where(
-                        post.status.eq(status),
-                        post.board.eq(board),
-                        post.userId.eq(userId),
-                        post.parentId.isNull(),
-                        answeredOnlyCondition(isAnsweredOnly),
-                        searchKeywordCondition(searchInTitle, searchInContent, searchKeywordPattern),
-                        cursorCondition(cursor, isDesc)
-                )
-                .orderBy(resolveOrderSpecifiers(sortProperty, isDesc))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+            .selectFrom(post)
+            .where(
+                post.status.eq(status),
+                post.board.eq(board),
+                post.userId.eq(userId),
+                post.parentId.isNull(),
+                answeredOnlyCondition(isAnsweredOnly),
+                searchKeywordCondition(searchInTitle, searchInContent, searchKeywordPattern),
+                cursorCondition(cursor, isDesc)
+            )
+            .orderBy(resolveOrderSpecifiers(sortProperty, isDesc))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
     }
 
     @Override
     public List<PostJpaEntity> findByUserIdAndBoardByOffset(
-            Long userId,
-            Board board,
-            EntityStatus status,
-            Pageable pageable
+        Long userId,
+        Board board,
+        EntityStatus status,
+        Pageable pageable
     ) {
         JPAQuery<PostJpaEntity> query = queryFactory
-                .selectFrom(post)
-                .where(
-                        post.status.eq(status),
-                        post.board.eq(board),
-                        post.userId.eq(userId),
-                        post.parentId.isNull()
-                );
+            .selectFrom(post)
+            .where(
+                post.status.eq(status),
+                post.board.eq(board),
+                post.userId.eq(userId),
+                post.parentId.isNull()
+            );
         applyPageableSort(query, pageable);
         return query
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
     }
 
     @Override
     public List<PostJpaEntity> findRepliesByParentIds(List<Long> parentIds, EntityStatus status) {
         QPostJpaEntity child = new QPostJpaEntity("child");
         return queryFactory
-                .selectFrom(post)
-                .where(post.id.in(
-                        JPAExpressions.select(child.id.max())
-                                .from(child)
-                                .where(
-                                        child.parentId.in(parentIds),
-                                        child.status.eq(status)
-                                )
-                                .groupBy(child.parentId)
-                ))
-                .orderBy(post.id.desc())
-                .fetch();
+            .selectFrom(post)
+            .where(post.id.in(
+                JPAExpressions.select(child.id.max())
+                    .from(child)
+                    .where(
+                        child.parentId.in(parentIds),
+                        child.status.eq(status)
+                    )
+                    .groupBy(child.parentId)
+            ))
+            .orderBy(post.id.desc())
+            .fetch();
     }
 
     private BooleanExpression categoryEq(String category) {
@@ -229,9 +229,9 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     }
 
     private BooleanExpression searchKeywordCondition(
-            boolean searchInTitle,
-            boolean searchInContent,
-            String searchKeywordPattern
+        boolean searchInTitle,
+        boolean searchInContent,
+        String searchKeywordPattern
     ) {
         if (FormatValidator.hasNoValue(searchKeywordPattern)) {
             return null;
@@ -270,8 +270,8 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
     private OrderSpecifier<Integer> hasReplyOrder(boolean isDesc) {
         NumberExpression<Integer> hasReplyAsNumber = new CaseBuilder()
-                .when(post.hasReply.isTrue()).then(1)
-                .otherwise(0);
+            .when(post.hasReply.isTrue()).then(1)
+            .otherwise(0);
         return isDesc ? hasReplyAsNumber.desc() : hasReplyAsNumber.asc();
     }
 

@@ -20,18 +20,18 @@ public class LoggingAspect {
     private static final Logger log = LoggerFactory.getLogger(LoggingAspect.class);
 
     private static final String SERVICE_LOGGING_EXECUTION_POINTCUT
-            = "execution(* com.personal.marketnote..service.*.*(..))";
+        = "execution(* com.personal.marketnote..service.*.*(..))";
     private static final String CLIENT_LOGGING_EXECUTION_POINTCUT
-            = "execution(* com.personal.marketnote..client.*.*(..))";
+        = "execution(* com.personal.marketnote..client.*.*(..))";
 
     private static final String START
-            = "Beginning to '{}.{}' task with parameters: {}";
+        = "Beginning to '{}.{}' task with parameters: {}";
     private static final String END
-            = "'{}.{}' task was executed successfully by {}: '{}', ";
+        = "'{}.{}' task was executed successfully by {}: '{}', ";
 
     private static final Set<String> SENSITIVE_PARAM_NAMES = Set.of(
-            "password", "secret", "token", "key", "credential",
-            "authorization", "accesstoken", "refreshtoken", "apikey"
+        "password", "secret", "token", "key", "credential",
+        "authorization", "accesstoken", "refreshtoken", "apikey"
     );
     private static final String MASKED_VALUE = "***MASKED***";
 
@@ -58,8 +58,8 @@ public class LoggingAspect {
                 params.append(", ");
             }
             String paramValue = isSensitiveParam(parameterNames[i])
-                    ? MASKED_VALUE
-                    : String.valueOf(parameterValues[i]);
+                ? MASKED_VALUE
+                : String.valueOf(parameterValues[i]);
             params.append(parameterNames[i]).append(": ").append(paramValue);
         }
 
@@ -74,9 +74,9 @@ public class LoggingAspect {
         long memoryUsage = PerformanceMeasurer.computeUsedMemory(beforeMemory);
 
         log.info(END + PERFORMANCE_MEASUREMENT,
-                joinPoint.getSignature().getDeclaringType().getSimpleName(),
-                joinPoint.getSignature().getName(), className, methodName,
-                elapsedTime, memoryUsage
+            joinPoint.getSignature().getDeclaringType().getSimpleName(),
+            joinPoint.getSignature().getName(), className, methodName,
+            elapsedTime, memoryUsage
         );
 
         return process;

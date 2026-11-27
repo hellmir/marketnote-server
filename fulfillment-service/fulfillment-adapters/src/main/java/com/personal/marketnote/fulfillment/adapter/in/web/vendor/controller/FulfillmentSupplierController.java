@@ -57,22 +57,22 @@ public class FulfillmentSupplierController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RegisterFulfillmentSupplierApiDocs
     public ResponseEntity<BaseResponse<RegisterFulfillmentSupplierResponse>> registerSupplier(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @Valid @RequestBody RegisterFulfillmentSupplierRequest request
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @Valid @RequestBody RegisterFulfillmentSupplierRequest request
     ) {
         RegisterFulfillmentSupplierResult result = registerFulfillmentSupplierUseCase.registerSupplier(
-                FulfillmentSupplierRequestToCommandMapper.mapToRegisterCommand(customerCode, accessToken, request)
+            FulfillmentSupplierRequestToCommandMapper.mapToRegisterCommand(customerCode, accessToken, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterFulfillmentSupplierResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 공급사 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterFulfillmentSupplierResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 공급사 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -89,21 +89,21 @@ public class FulfillmentSupplierController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentSuppliersApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentSuppliersResponse>> getSuppliers(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken
     ) {
         GetFulfillmentSuppliersResult result = getFulfillmentSuppliersUseCase.getSuppliers(
-                FulfillmentSupplierRequestToCommandMapper.mapToSuppliersCommand(customerCode, accessToken)
+            FulfillmentSupplierRequestToCommandMapper.mapToSuppliersCommand(customerCode, accessToken)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentSuppliersResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 공급사 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentSuppliersResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 공급사 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -121,22 +121,22 @@ public class FulfillmentSupplierController {
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdateFulfillmentSupplierApiDocs
     public ResponseEntity<BaseResponse<UpdateFulfillmentSupplierResponse>> updateSupplier(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @Valid @RequestBody UpdateFulfillmentSupplierRequest request
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @Valid @RequestBody UpdateFulfillmentSupplierRequest request
     ) {
         UpdateFulfillmentSupplierResult result = updateFulfillmentSupplierUseCase.updateSupplier(
-                FulfillmentSupplierRequestToCommandMapper.mapToUpdateCommand(customerCode, accessToken, request)
+            FulfillmentSupplierRequestToCommandMapper.mapToUpdateCommand(customerCode, accessToken, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        UpdateFulfillmentSupplierResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 공급사 수정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                UpdateFulfillmentSupplierResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 공급사 수정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

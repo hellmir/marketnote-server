@@ -60,31 +60,31 @@ public class CommunityServiceCommunicationHistoryJpaEntity {
 
     public static CommunityServiceCommunicationHistoryJpaEntity from(CommunityServiceCommunicationHistory history) {
         return CommunityServiceCommunicationHistoryJpaEntity.builder()
-                .id(history.getId())
-                .targetType(history.getTargetType())
-                .targetId(history.getTargetId())
-                .communicationType(history.getCommunicationType())
-                .sender(history.getSender())
-                .exception(history.getException())
-                .payload(history.getPayload())
-                .payloadJson(history.getPayloadJson())
-                .createdAt(history.getCreatedAt())
-                .build();
+            .id(history.getId())
+            .targetType(history.getTargetType())
+            .targetId(history.getTargetId())
+            .communicationType(history.getCommunicationType())
+            .sender(history.getSender())
+            .exception(history.getException())
+            .payload(history.getPayload())
+            .payloadJson(history.getPayloadJson())
+            .createdAt(history.getCreatedAt())
+            .build();
     }
 
     public CommunityServiceCommunicationHistory toDomain() {
         return CommunityServiceCommunicationHistory.from(
-                CommunityServiceCommunicationHistorySnapshotState.builder()
-                        .id(id)
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .communicationType(communicationType)
-                        .sender(sender)
-                        .exception(exception)
-                        .payload(payload)
-                        .payloadJson(payloadJson)
-                        .createdAt(createdAt)
-                        .build()
+            CommunityServiceCommunicationHistorySnapshotState.builder()
+                .id(id)
+                .targetType(targetType)
+                .targetId(targetId)
+                .communicationType(communicationType)
+                .sender(sender)
+                .exception(exception)
+                .payload(payload)
+                .payloadJson(payloadJson)
+                .createdAt(createdAt)
+                .build()
         );
     }
 }

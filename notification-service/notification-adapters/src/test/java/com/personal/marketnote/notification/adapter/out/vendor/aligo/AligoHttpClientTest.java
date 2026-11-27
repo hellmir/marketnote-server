@@ -29,12 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class AligoHttpClientTest {
@@ -73,7 +69,7 @@ class AligoHttpClientTest {
         ObjectMapper objectMapper = new ObjectMapper();
         externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
         aligoHttpClient = AligoHttpClientTestSupport.newClient(
-                restClient, objectMapper, properties, externalCallLogger
+            restClient, objectMapper, properties, externalCallLogger
         );
 
         aligoLogger = (Logger) LoggerFactory.getLogger(ExternalSystem.ALIGO.loggerName());
@@ -99,9 +95,9 @@ class AligoHttpClientTest {
     void shouldInjectCommonParameters() {
         String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
         mockServer.expect(requestTo("http://localhost/send/"))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("receiver", RECIPIENT_PHONE);
@@ -118,9 +114,9 @@ class AligoHttpClientTest {
     void shouldSendFormEncodedPostBody() {
         String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
         mockServer.expect(requestTo("http://localhost/send/"))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("receiver", RECIPIENT_PHONE);
@@ -137,13 +133,13 @@ class AligoHttpClientTest {
     void shouldThrowDomainExceptionOnApiError() {
         String responseBody = "{\"result_code\":-101,\"message\":\"인증 오류\"}";
         mockServer.expect(requestTo("http://localhost/send/"))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         assertThatThrownBy(() -> aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class))
-                .isInstanceOf(AligoAuthenticationException.class);
+            .isInstanceOf(AligoAuthenticationException.class);
         mockServer.verify();
     }
 
@@ -152,13 +148,13 @@ class AligoHttpClientTest {
     void shouldWrapParsingErrorAsAligoApiRequestFailedException() {
         String responseBody = "invalid json";
         mockServer.expect(requestTo("http://localhost/send/"))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         assertThatThrownBy(() -> aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class))
-                .isInstanceOf(AligoApiRequestFailedException.class);
+            .isInstanceOf(AligoApiRequestFailedException.class);
         mockServer.verify();
     }
 
@@ -167,7 +163,7 @@ class AligoHttpClientTest {
     void shouldEmitDebugLogWithOperationAndPathOnSuccess() {
         String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
         mockServer.expect(requestTo("http://localhost/send/"))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("receiver", RECIPIENT_PHONE);
@@ -175,9 +171,9 @@ class AligoHttpClientTest {
         aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class);
 
         boolean hasDebugWithOperationAndPath = appender.list.stream()
-                .anyMatch(event -> event.getLevel() == Level.DEBUG
-                        && event.getFormattedMessage().contains(OPERATION)
-                        && event.getFormattedMessage().contains(PATH));
+            .anyMatch(event -> event.getLevel() == Level.DEBUG
+                && event.getFormattedMessage().contains(OPERATION)
+                && event.getFormattedMessage().contains(PATH));
         assertThat(hasDebugWithOperationAndPath).isTrue();
     }
 
@@ -186,7 +182,7 @@ class AligoHttpClientTest {
     void shouldNotLeakRecipientPhoneInAligoLog() {
         String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
         mockServer.expect(requestTo("http://localhost/send/"))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("receiver", RECIPIENT_PHONE);
@@ -194,7 +190,7 @@ class AligoHttpClientTest {
         aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class);
 
         boolean leaksPhone = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains(RECIPIENT_PHONE));
+            .anyMatch(event -> event.getFormattedMessage().contains(RECIPIENT_PHONE));
         assertThat(leaksPhone).isFalse();
     }
 
@@ -203,8 +199,8 @@ class AligoHttpClientTest {
     void shouldDelegateToRecordSensitiveOnPostWithSensitivePath() {
         String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
         mockServer.expect(requestTo("http://localhost" + SENSITIVE_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("receiver", RECIPIENT_PHONE);
@@ -212,10 +208,10 @@ class AligoHttpClientTest {
         aligoHttpClient.post(OPERATION, SENSITIVE_PATH, params, AligoApiResponse.class);
 
         verify(externalCallLogger).recordSensitive(
-                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+            eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
         );
         verify(externalCallLogger, never()).record(
-                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+            eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
         );
     }
 
@@ -224,8 +220,8 @@ class AligoHttpClientTest {
     void shouldDelegateToRecordOnPostWithNonSensitivePath() {
         String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
         mockServer.expect(requestTo("http://localhost" + PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("receiver", RECIPIENT_PHONE);
@@ -233,10 +229,10 @@ class AligoHttpClientTest {
         aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class);
 
         verify(externalCallLogger).record(
-                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+            eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
         );
         verify(externalCallLogger, never()).recordSensitive(
-                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+            eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
         );
     }
 
@@ -245,8 +241,8 @@ class AligoHttpClientTest {
     void shouldDelegateToRecordSensitiveOnPostMultipartWithSensitivePath() {
         String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
         mockServer.expect(requestTo("http://localhost" + SENSITIVE_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.add("receiver", RECIPIENT_PHONE);
@@ -254,10 +250,10 @@ class AligoHttpClientTest {
         aligoHttpClient.postMultipart(OPERATION, SENSITIVE_PATH, params, AligoApiResponse.class);
 
         verify(externalCallLogger).recordSensitive(
-                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+            eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
         );
         verify(externalCallLogger, never()).record(
-                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+            eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
         );
     }
 
@@ -266,8 +262,8 @@ class AligoHttpClientTest {
     void shouldDelegateToRecordOnPostMultipartWithNonSensitivePath() {
         String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
         mockServer.expect(requestTo("http://localhost" + PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.add("receiver", RECIPIENT_PHONE);
@@ -275,10 +271,10 @@ class AligoHttpClientTest {
         aligoHttpClient.postMultipart(OPERATION, PATH, params, AligoApiResponse.class);
 
         verify(externalCallLogger).record(
-                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+            eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
         );
         verify(externalCallLogger, never()).recordSensitive(
-                eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
+            eq(ExternalSystem.ALIGO), eq(OPERATION), any(), any()
         );
     }
 
@@ -287,17 +283,17 @@ class AligoHttpClientTest {
     void shouldEmitErrorLogWithResultCodeOnApiError() {
         String responseBody = "{\"result_code\":-101,\"message\":\"인증 오류\"}";
         mockServer.expect(requestTo("http://localhost/send/"))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         assertThatThrownBy(() -> aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class))
-                .isInstanceOf(AligoAuthenticationException.class);
+            .isInstanceOf(AligoAuthenticationException.class);
 
         boolean hasErrorWithResultCode = appender.list.stream()
-                .anyMatch(event -> event.getLevel() == Level.ERROR
-                        && event.getFormattedMessage().contains(OPERATION)
-                        && event.getFormattedMessage().contains("-101"));
+            .anyMatch(event -> event.getLevel() == Level.ERROR
+                && event.getFormattedMessage().contains(OPERATION)
+                && event.getFormattedMessage().contains("-101"));
         assertThat(hasErrorWithResultCode).isTrue();
     }
 }

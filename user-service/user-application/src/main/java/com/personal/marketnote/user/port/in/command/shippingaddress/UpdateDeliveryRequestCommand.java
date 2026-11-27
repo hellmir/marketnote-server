@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record UpdateDeliveryRequestCommand(
-        DeliveryRequestType deliveryRequestType,
-        String deliveryRequestMessage
+    DeliveryRequestType deliveryRequestType,
+    String deliveryRequestMessage
 ) {
 }

@@ -34,12 +34,12 @@ class OutboxQueryUseCaseTest {
     void queryFailedEvents_returnsListWhenFailedEventsExist() {
         // given
         OutboxEventJpaEntity entity = createFailedEntity(
-                1L, "event-1", "commerce.payment.approved", "order-123",
-                "PaymentApproved", "commerce-service",
-                5, 5, FIXED_TIME, FIXED_TIME, "Kafka send failed"
+            1L, "event-1", "commerce.payment.approved", "order-123",
+            "PaymentApproved", "commerce-service",
+            5, 5, FIXED_TIME, FIXED_TIME, "Kafka send failed"
         );
         when(outboxEventJpaRepository.findByStatusOrderByCreatedAtAsc(OutboxEventStatus.FAILED))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         // when
         List<OutboxEventResponse> result = outboxQueryService.queryFailedEvents(null);
@@ -67,12 +67,12 @@ class OutboxQueryUseCaseTest {
         // given
         String targetTopic = "commerce.payment.approved";
         OutboxEventJpaEntity entity = createFailedEntity(
-                2L, "event-2", targetTopic, "order-456",
-                "PaymentApproved", "commerce-service",
-                3, 5, FIXED_TIME, FIXED_TIME, "Connection timeout"
+            2L, "event-2", targetTopic, "order-456",
+            "PaymentApproved", "commerce-service",
+            3, 5, FIXED_TIME, FIXED_TIME, "Connection timeout"
         );
         when(outboxEventJpaRepository.findByStatusAndTopicOrderByCreatedAtAsc(OutboxEventStatus.FAILED, targetTopic))
-                .thenReturn(List.of(entity));
+            .thenReturn(List.of(entity));
 
         // when
         List<OutboxEventResponse> result = outboxQueryService.queryFailedEvents(targetTopic);
@@ -89,7 +89,7 @@ class OutboxQueryUseCaseTest {
     void queryFailedEvents_returnsEmptyListWhenNoFailedEvents() {
         // given
         when(outboxEventJpaRepository.findByStatusOrderByCreatedAtAsc(OutboxEventStatus.FAILED))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         List<OutboxEventResponse> result = outboxQueryService.queryFailedEvents(null);
@@ -104,11 +104,11 @@ class OutboxQueryUseCaseTest {
     void queryFailedSummary_returnsTopicSummaries() {
         // given
         List<Object[]> rows = List.of(
-                new Object[]{"commerce.order.created", 1L},
-                new Object[]{"commerce.payment.approved", 3L}
+            new Object[]{"commerce.order.created", 1L},
+            new Object[]{"commerce.payment.approved", 3L}
         );
         when(outboxEventJpaRepository.countByStatusGroupByTopic(OutboxEventStatus.FAILED))
-                .thenReturn(rows);
+            .thenReturn(rows);
 
         // when
         List<OutboxTopicSummaryResponse> result = outboxQueryService.queryFailedSummary();
@@ -127,7 +127,7 @@ class OutboxQueryUseCaseTest {
     void queryFailedSummary_returnsEmptyWhenNoFailedEvents() {
         // given
         when(outboxEventJpaRepository.countByStatusGroupByTopic(OutboxEventStatus.FAILED))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         List<OutboxTopicSummaryResponse> result = outboxQueryService.queryFailedSummary();

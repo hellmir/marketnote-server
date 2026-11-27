@@ -88,14 +88,14 @@ class KcpPaymentVendorAdapterRegisterTradeTest {
         void shouldReturnSuccessResult() {
             // given
             TradeRegisterVendorCommand command = TradeRegisterVendorCommand.builder()
-                    .orderKey(ORDER_KEY)
-                    .orderAmount("10000")
-                    .payMethod("CARD")
-                    .goodName("테스트 상품")
-                    .build();
+                .orderKey(ORDER_KEY)
+                .orderAmount("10000")
+                .payMethod("CARD")
+                .goodName("테스트 상품")
+                .build();
 
             KcpTradeRegisterResponse response = new KcpTradeRegisterResponse(
-                    "0000", "정상 처리", "APPROVAL_KEY_1", "https://pg/pay", "TRACE_1", "CARD"
+                "0000", "정상 처리", "APPROVAL_KEY_1", "https://pg/pay", "TRACE_1", "CARD"
             );
             when(kcpApiClient.registerTrade(any())).thenReturn(response);
 
@@ -110,15 +110,15 @@ class KcpPaymentVendorAdapterRegisterTradeTest {
             assertThat(result.traceNo()).isEqualTo("TRACE_1");
             verify(kcpApiClient).registerTrade(any());
             verify(vendorCommunicationRecorder, org.mockito.Mockito.atLeast(2))
-                    .record(
-                            any(CommerceVendorCommunicationTargetType.class),
-                            any(CommerceVendorCommunicationType.class),
-                            any(CommerceVendorCommunicationSenderType.class),
-                            any(String.class),
-                            any(CommerceVendorName.class),
-                            any(String.class),
-                            any(JsonNode.class)
-                    );
+                .record(
+                    any(CommerceVendorCommunicationTargetType.class),
+                    any(CommerceVendorCommunicationType.class),
+                    any(CommerceVendorCommunicationSenderType.class),
+                    any(String.class),
+                    any(CommerceVendorName.class),
+                    any(String.class),
+                    any(JsonNode.class)
+                );
         }
 
         @Test
@@ -126,14 +126,14 @@ class KcpPaymentVendorAdapterRegisterTradeTest {
         void shouldReturnFailureResultWhenResponseNotSuccess() {
             // given
             TradeRegisterVendorCommand command = TradeRegisterVendorCommand.builder()
-                    .orderKey(ORDER_KEY)
-                    .orderAmount("10000")
-                    .payMethod("CARD")
-                    .goodName("테스트 상품")
-                    .build();
+                .orderKey(ORDER_KEY)
+                .orderAmount("10000")
+                .payMethod("CARD")
+                .goodName("테스트 상품")
+                .build();
 
             KcpTradeRegisterResponse response = new KcpTradeRegisterResponse(
-                    "9999", "오류", null, null, null, null
+                "9999", "오류", null, null, null, null
             );
             when(kcpApiClient.registerTrade(any())).thenReturn(response);
 
@@ -151,30 +151,30 @@ class KcpPaymentVendorAdapterRegisterTradeTest {
         void shouldRecordErrorAndRethrow() {
             // given
             TradeRegisterVendorCommand command = TradeRegisterVendorCommand.builder()
-                    .orderKey(ORDER_KEY)
-                    .orderAmount("10000")
-                    .payMethod("CARD")
-                    .goodName("테스트 상품")
-                    .build();
+                .orderKey(ORDER_KEY)
+                .orderAmount("10000")
+                .payMethod("CARD")
+                .goodName("테스트 상품")
+                .build();
 
             KcpCommunicationException exception = new KcpCommunicationException("통신 실패", new RuntimeException());
             when(kcpApiClient.registerTrade(any())).thenThrow(exception);
 
             // when & then
             assertThatThrownBy(() -> adapter.registerTrade(command))
-                    .isInstanceOf(KcpCommunicationException.class);
+                .isInstanceOf(KcpCommunicationException.class);
 
             verify(vendorCommunicationRecorder)
-                    .record(
-                            any(CommerceVendorCommunicationTargetType.class),
-                            any(CommerceVendorCommunicationType.class),
-                            any(CommerceVendorCommunicationSenderType.class),
-                            any(String.class),
-                            any(CommerceVendorName.class),
-                            any(String.class),
-                            any(JsonNode.class),
-                            any(String.class)
-                    );
+                .record(
+                    any(CommerceVendorCommunicationTargetType.class),
+                    any(CommerceVendorCommunicationType.class),
+                    any(CommerceVendorCommunicationSenderType.class),
+                    any(String.class),
+                    any(CommerceVendorName.class),
+                    any(String.class),
+                    any(JsonNode.class),
+                    any(String.class)
+                );
             verify(kcpCertificateLoader, never()).loadCertInfo();
         }
     }

@@ -31,7 +31,7 @@ public class GetBrandTalkTemplateListService implements GetBrandTalkTemplateList
     @Override
     public GetBrandTalkTemplateListResult getTemplateList(String senderKey, int page, int pageSize) {
         GetBrandTalkTemplateListResult.ExternalListResponse externalResponse =
-                getTemplateListExternalPort.getTemplateList(senderKey, page, pageSize);
+            getTemplateListExternalPort.getTemplateList(senderKey, page, pageSize);
 
         transactionTemplate.execute(status -> {
             syncTemplates(senderKey, externalResponse.templates());
@@ -39,19 +39,19 @@ public class GetBrandTalkTemplateListService implements GetBrandTalkTemplateList
         });
 
         List<GetBrandTalkTemplateListResult.BrandTalkTemplateItem> items = externalResponse.templates().stream()
-                .map(this::toItem)
-                .toList();
+            .map(this::toItem)
+            .toList();
 
         return new GetBrandTalkTemplateListResult(externalResponse.pageInfo(), items);
     }
 
     private void syncTemplates(
-            String senderKey,
-            List<GetBrandTalkTemplateListResult.ExternalTemplateItem> externalTemplates
+        String senderKey,
+        List<GetBrandTalkTemplateListResult.ExternalTemplateItem> externalTemplates
     ) {
         List<AligoBrandTalkTemplate> localTemplates = findBrandTalkTemplateListPort.findAllBySenderKey(senderKey);
         Map<String, AligoBrandTalkTemplate> localMap = localTemplates.stream()
-                .collect(Collectors.toMap(AligoBrandTalkTemplate::getTemplateCode, t -> t));
+            .collect(Collectors.toMap(AligoBrandTalkTemplate::getTemplateCode, t -> t));
 
         for (GetBrandTalkTemplateListResult.ExternalTemplateItem external : externalTemplates) {
             AligoBrandTalkTemplate local = localMap.get(external.templateCode());
@@ -66,16 +66,16 @@ public class GetBrandTalkTemplateListService implements GetBrandTalkTemplateList
     }
 
     private void saveNewTemplate(
-            String senderKey, GetBrandTalkTemplateListResult.ExternalTemplateItem external
+        String senderKey, GetBrandTalkTemplateListResult.ExternalTemplateItem external
     ) {
         AligoBrandTalkTemplate newTemplate = AligoBrandTalkTemplate.from(
-                AligoBrandTalkTemplateCommandToStateMapper.mapToSnapshotState(senderKey, external)
+            AligoBrandTalkTemplateCommandToStateMapper.mapToSnapshotState(senderKey, external)
         );
         saveBrandTalkTemplatePort.save(newTemplate);
     }
 
     private void updateExistingTemplate(
-            AligoBrandTalkTemplate local, GetBrandTalkTemplateListResult.ExternalTemplateItem external
+        AligoBrandTalkTemplate local, GetBrandTalkTemplateListResult.ExternalTemplateItem external
     ) {
         BrandTalkTemplateStatus externalStatus = BrandTalkTemplateStatus.from(external.templateStatus());
         if (local.hasTemplateStatus(externalStatus)) {
@@ -86,15 +86,15 @@ public class GetBrandTalkTemplateListService implements GetBrandTalkTemplateList
     }
 
     private GetBrandTalkTemplateListResult.BrandTalkTemplateItem toItem(
-            GetBrandTalkTemplateListResult.ExternalTemplateItem external
+        GetBrandTalkTemplateListResult.ExternalTemplateItem external
     ) {
         return new GetBrandTalkTemplateListResult.BrandTalkTemplateItem(
-                external.templateCode(),
-                external.templateName(),
-                external.templateType(),
-                external.templateStatus(),
-                external.sendVariable(),
-                external.createdAt()
+            external.templateCode(),
+            external.templateName(),
+            external.templateType(),
+            external.templateStatus(),
+            external.sendVariable(),
+            external.createdAt()
         );
     }
 }

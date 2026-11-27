@@ -48,8 +48,8 @@ class ReserveInventoryUseCaseTest {
 
     @Spy
     private Clock clock = Clock.fixed(
-            Instant.parse("2026-04-05T10:00:00Z"),
-            ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-04-05T10:00:00Z"),
+        ZoneId.of("Asia/Seoul")
     );
 
     @InjectMocks
@@ -67,7 +67,7 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("단일 주문 상품 재고 예약 시 reserved가 올바르게 증가한다")
         void reserveInventory_singleProduct_increasesReserved() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 3)
             ));
             Inventory inventory = buildInventory(1L, 100L, 10);
 
@@ -84,15 +84,15 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("서로 다른 가격 정책의 복수 주문 상품 재고 예약 시 각각의 reserved가 올바르게 증가한다")
         void reserveInventory_differentPolicies_reservesEach() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 2),
-                    buildOrderProductItem(200L, 5)
+                buildOrderProductItem(100L, 2),
+                buildOrderProductItem(200L, 5)
             ));
             Inventory inventory1 = buildInventory(1L, 100L, 10);
             Inventory inventory2 = buildInventory(2L, 200L, 20);
 
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(Set.of(inventory1, inventory2));
+                .thenReturn(Set.of(inventory1, inventory2));
 
             reserveInventoryService.reserveInventory(command);
 
@@ -104,8 +104,8 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("동일 가격 정책의 복수 주문 상품 예약 시 수량을 합산하여 예약한다")
         void reserveInventory_samePolicy_sumsQuantity() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 2),
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 2),
+                buildOrderProductItem(100L, 3)
             ));
             Inventory inventory = buildInventory(1L, 100L, 10);
 
@@ -122,7 +122,7 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("전체 가용재고만큼 예약 시 가용재고가 0이 된다")
         void reserveInventory_entireAvailableStock_availableStockBecomesZero() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 10)
+                buildOrderProductItem(100L, 10)
             ));
             Inventory inventory = buildInventory(1L, 100L, 10);
 
@@ -148,7 +148,7 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("단일 가격 정책 예약 성공 시 StockReservedEvent를 1회 발행한다")
         void reserveInventory_singleProduct_publishesStockReservedEventOnce() {
             ReserveInventoryCommand command = buildCommand(500L, List.of(
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 3)
             ));
             Inventory inventory = buildInventory(7L, 100L, 10);
 
@@ -164,15 +164,15 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("복수 가격 정책 예약 성공 시 각 재고별로 StockReservedEvent를 발행한다")
         void reserveInventory_multiplePolicies_publishesStockReservedEventForEach() {
             ReserveInventoryCommand command = buildCommand(800L, List.of(
-                    buildOrderProductItem(100L, 2),
-                    buildOrderProductItem(200L, 5)
+                buildOrderProductItem(100L, 2),
+                buildOrderProductItem(200L, 5)
             ));
             Inventory inventory1 = buildInventory(1L, 100L, 10);
             Inventory inventory2 = buildInventory(2L, 200L, 20);
 
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(Set.of(inventory1, inventory2));
+                .thenReturn(Set.of(inventory1, inventory2));
 
             reserveInventoryService.reserveInventory(command);
 
@@ -184,8 +184,8 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("동일 가격 정책 복수 주문 상품은 합산 수량으로 StockReservedEvent를 1회 발행한다")
         void reserveInventory_samePolicyMultipleItems_publishesOnceWithSummedQuantity() {
             ReserveInventoryCommand command = buildCommand(500L, List.of(
-                    buildOrderProductItem(100L, 2),
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 2),
+                buildOrderProductItem(100L, 3)
             ));
             Inventory inventory = buildInventory(7L, 100L, 10);
 
@@ -201,7 +201,7 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("가용재고 부족 시 StockReservedEvent를 발행하지 않는다")
         void reserveInventory_insufficientStock_doesNotPublishEvent() {
             ReserveInventoryCommand command = buildCommand(500L, List.of(
-                    buildOrderProductItem(100L, 11)
+                buildOrderProductItem(100L, 11)
             ));
             Inventory inventory = buildInventory(7L, 100L, 10);
 
@@ -209,7 +209,7 @@ class ReserveInventoryUseCaseTest {
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> reserveInventoryService.reserveInventory(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                .isInstanceOf(InsufficientAvailableStockException.class);
 
             verifyNoInteractions(publishInventoryEventPort);
         }
@@ -228,14 +228,14 @@ class ReserveInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void reserveInventory_passesCorrectPricePolicyIdsToLock() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 2),
-                    buildOrderProductItem(200L, 3)
+                buildOrderProductItem(100L, 2),
+                buildOrderProductItem(200L, 3)
             ));
 
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventory(1L, 100L, 10),
-                    buildInventory(2L, 200L, 20)
+                buildInventory(1L, 100L, 10),
+                buildInventory(2L, 200L, 20)
             ));
 
             reserveInventoryService.reserveInventory(command);
@@ -249,7 +249,7 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("분산 락이 작업을 실행하지 않으면 내부 Port를 호출하지 않는다")
         void reserveInventory_lockNotExecuted_doesNotCallInternalPorts() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 3)
             ));
 
             reserveInventoryService.reserveInventory(command);
@@ -265,28 +265,28 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("분산 락 획득 실패 시 InventoryLockAcquisitionException을 전파한다")
         void reserveInventory_lockAcquisitionFails_throwsException() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 3)
             ));
             InventoryLockAcquisitionException exception = new InventoryLockAcquisitionException(100L);
 
             doThrow(exception).when(inventoryLockPort).executeWithLock(any(), any());
 
             assertThatThrownBy(() -> reserveInventoryService.reserveInventory(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
         @DisplayName("분산 락 획득 실패 시 내부 Port를 호출하지 않는다")
         void reserveInventory_lockAcquisitionFails_doesNotCallInternalPorts() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 3)
             ));
 
             doThrow(new InventoryLockAcquisitionException(100L))
-                    .when(inventoryLockPort).executeWithLock(any(), any());
+                .when(inventoryLockPort).executeWithLock(any(), any());
 
             assertThatThrownBy(() -> reserveInventoryService.reserveInventory(command))
-                    .isInstanceOf(InventoryLockAcquisitionException.class);
+                .isInstanceOf(InventoryLockAcquisitionException.class);
 
             verifyNoInteractions(findInventoryPort);
             verifyNoInteractions(updateInventoryPort);
@@ -308,7 +308,7 @@ class ReserveInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void reserveInventory_passesUpdatedInventoriesToUpdatePort() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 3)
             ));
             Inventory inventory = buildInventory(1L, 100L, 10);
 
@@ -340,16 +340,16 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("재고 예약 시 각 가격 정책별 InventoryReservation을 저장한다")
         void reserveInventory_savesReservationForEachPolicy() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 2),
-                    buildOrderProductItem(200L, 5)
+                buildOrderProductItem(100L, 2),
+                buildOrderProductItem(200L, 5)
             ));
 
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(Set.of(
-                            buildInventory(1L, 100L, 10),
-                            buildInventory(2L, 200L, 20)
-                    ));
+                .thenReturn(Set.of(
+                    buildInventory(1L, 100L, 10),
+                    buildInventory(2L, 200L, 20)
+                ));
 
             reserveInventoryService.reserveInventory(command);
 
@@ -359,19 +359,19 @@ class ReserveInventoryUseCaseTest {
 
             assertThat(reservations).hasSize(2);
             assertThat(reservations).extracting(InventoryReservation::getPricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L);
+                .containsExactlyInAnyOrder(100L, 200L);
         }
 
         @Test
         @DisplayName("재고 예약 시 올바른 orderId, pricePolicyId, quantity로 InventoryReservation을 생성한다")
         void reserveInventory_createsReservationWithCorrectFields() {
             ReserveInventoryCommand command = buildCommand(99L, List.of(
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 3)
             ));
 
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L)))
-                    .thenReturn(Set.of(buildInventory(1L, 100L, 10)));
+                .thenReturn(Set.of(buildInventory(1L, 100L, 10)));
 
             reserveInventoryService.reserveInventory(command);
 
@@ -391,13 +391,13 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("동일 가격 정책의 복수 주문 상품 예약 시 합산된 수량으로 단일 InventoryReservation을 생성한다")
         void reserveInventory_samePolicyMultipleItems_createsSingleReservationWithSummedQuantity() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 2),
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 2),
+                buildOrderProductItem(100L, 3)
             ));
 
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L)))
-                    .thenReturn(Set.of(buildInventory(1L, 100L, 10)));
+                .thenReturn(Set.of(buildInventory(1L, 100L, 10)));
 
             reserveInventoryService.reserveInventory(command);
 
@@ -423,7 +423,7 @@ class ReserveInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void reserveInventory_savesUpdatedInventoriesToCache() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 3)
             ));
             Inventory inventory = buildInventory(1L, 100L, 10);
 
@@ -454,33 +454,33 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("요청된 pricePolicyId에 해당하는 재고가 DB에 없으면 InventoryNotFoundException이 발생한다")
         void reserveInventory_inventoryNotFound_throwsException() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 3),
-                    buildOrderProductItem(200L, 2)
+                buildOrderProductItem(100L, 3),
+                buildOrderProductItem(200L, 2)
             ));
 
             stubLockToExecuteTask();
             // 100L만 조회됨, 200L은 DB에 없음
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(Set.of(buildInventory(1L, 100L, 10)));
+                .thenReturn(Set.of(buildInventory(1L, 100L, 10)));
 
             assertThatThrownBy(() -> reserveInventoryService.reserveInventory(command))
-                    .isInstanceOf(InventoryNotFoundException.class);
+                .isInstanceOf(InventoryNotFoundException.class);
         }
 
         @Test
         @DisplayName("재고가 DB에 없으면 후속 Port를 호출하지 않는다")
         void reserveInventory_inventoryNotFound_doesNotCallSubsequentPorts() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 3),
-                    buildOrderProductItem(200L, 2)
+                buildOrderProductItem(100L, 3),
+                buildOrderProductItem(200L, 2)
             ));
 
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(Set.of(buildInventory(1L, 100L, 10)));
+                .thenReturn(Set.of(buildInventory(1L, 100L, 10)));
 
             assertThatThrownBy(() -> reserveInventoryService.reserveInventory(command))
-                    .isInstanceOf(InventoryNotFoundException.class);
+                .isInstanceOf(InventoryNotFoundException.class);
 
             verifyNoInteractions(updateInventoryPort);
             verifyNoInteractions(saveInventoryReservationPort);
@@ -491,7 +491,7 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("가용재고 부족 시 InsufficientAvailableStockException을 전파한다")
         void reserveInventory_insufficientAvailableStock_throwsException() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 11)
+                buildOrderProductItem(100L, 11)
             ));
             Inventory inventory = buildInventory(1L, 100L, 10);
 
@@ -499,14 +499,14 @@ class ReserveInventoryUseCaseTest {
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> reserveInventoryService.reserveInventory(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                .isInstanceOf(InsufficientAvailableStockException.class);
         }
 
         @Test
         @DisplayName("가용재고 부족 시 후속 Port를 호출하지 않는다")
         void reserveInventory_insufficientAvailableStock_doesNotCallSubsequentPorts() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 11)
+                buildOrderProductItem(100L, 11)
             ));
             Inventory inventory = buildInventory(1L, 100L, 10);
 
@@ -514,7 +514,7 @@ class ReserveInventoryUseCaseTest {
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> reserveInventoryService.reserveInventory(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                .isInstanceOf(InsufficientAvailableStockException.class);
 
             verifyNoInteractions(updateInventoryPort);
             verifyNoInteractions(saveInventoryReservationPort);
@@ -525,7 +525,7 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("이미 예약된 재고가 있을 때 추가 예약으로 가용재고를 초과하면 예외가 발생한다")
         void reserveInventory_existingReserved_exceedsAvailableStock_throwsException() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 6)
+                buildOrderProductItem(100L, 6)
             ));
             // stock=10, reserved=5 → available=5, request=6 → 부족
             Inventory inventory = buildInventoryWithReserved(1L, 100L, 10, 5);
@@ -534,14 +534,14 @@ class ReserveInventoryUseCaseTest {
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> reserveInventoryService.reserveInventory(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                .isInstanceOf(InsufficientAvailableStockException.class);
         }
 
         @Test
         @DisplayName("재고 조회 중 예외 발생 시 예외를 전파한다")
         void reserveInventory_findPortFails_propagates() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 3)
             ));
             RuntimeException exception = new RuntimeException("find fail");
 
@@ -549,14 +549,14 @@ class ReserveInventoryUseCaseTest {
             when(findInventoryPort.findByPricePolicyIds(any())).thenThrow(exception);
 
             assertThatThrownBy(() -> reserveInventoryService.reserveInventory(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
         @DisplayName("재고 업데이트 중 예외 발생 시 예외를 전파한다")
         void reserveInventory_updatePortFails_propagates() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 3)
             ));
             Inventory inventory = buildInventory(1L, 100L, 10);
             RuntimeException exception = new RuntimeException("update fail");
@@ -566,14 +566,14 @@ class ReserveInventoryUseCaseTest {
             doThrow(exception).when(updateInventoryPort).update(any());
 
             assertThatThrownBy(() -> reserveInventoryService.reserveInventory(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
         @DisplayName("재고 업데이트 중 예외 발생 시 예약 레코드 저장과 캐시 저장을 호출하지 않는다")
         void reserveInventory_updatePortFails_doesNotCallSubsequentPorts() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 3)
             ));
             Inventory inventory = buildInventory(1L, 100L, 10);
 
@@ -582,7 +582,7 @@ class ReserveInventoryUseCaseTest {
             doThrow(new RuntimeException("update fail")).when(updateInventoryPort).update(any());
 
             assertThatThrownBy(() -> reserveInventoryService.reserveInventory(command))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verifyNoInteractions(saveInventoryReservationPort);
             verifyNoInteractions(saveCacheStockPort);
@@ -601,7 +601,7 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("동일 orderId/pricePolicyId로 중복 예약 시 DuplicateInventoryReservationException이 발생한다")
         void reserveInventory_duplicateReservation_throwsException() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 3)
             ));
             Inventory inventory = buildInventory(1L, 100L, 10);
             DuplicateInventoryReservationException exception = new DuplicateInventoryReservationException(1L);
@@ -611,7 +611,7 @@ class ReserveInventoryUseCaseTest {
             doThrow(exception).when(saveInventoryReservationPort).save(any());
 
             assertThatThrownBy(() -> reserveInventoryService.reserveInventory(command))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
     }
 
@@ -627,7 +627,7 @@ class ReserveInventoryUseCaseTest {
         @DisplayName("락 내부에서 조회 → 예약(reserve) → 업데이트 → 예약레코드 저장 → 캐시 저장 순서로 호출된다")
         void reserveInventory_callsPortsInCorrectOrder() {
             ReserveInventoryCommand command = buildCommand(1L, List.of(
-                    buildOrderProductItem(100L, 3)
+                buildOrderProductItem(100L, 3)
             ));
             Inventory inventory = buildInventory(1L, 100L, 10);
 
@@ -637,7 +637,7 @@ class ReserveInventoryUseCaseTest {
             reserveInventoryService.reserveInventory(command);
 
             org.mockito.InOrder inOrder = inOrder(
-                    findInventoryPort, updateInventoryPort, saveInventoryReservationPort, saveCacheStockPort
+                findInventoryPort, updateInventoryPort, saveInventoryReservationPort, saveCacheStockPort
             );
             inOrder.verify(findInventoryPort).findByPricePolicyIds(any());
             inOrder.verify(updateInventoryPort).update(any());
@@ -661,16 +661,16 @@ class ReserveInventoryUseCaseTest {
     private ReserveInventoryCommand buildCommand(Long orderId,
                                                  List<ReserveInventoryCommand.OrderProductItem> orderProducts) {
         return ReserveInventoryCommand.builder()
-                .orderId(orderId)
-                .orderProducts(orderProducts)
-                .build();
+            .orderId(orderId)
+            .orderProducts(orderProducts)
+            .build();
     }
 
     private ReserveInventoryCommand.OrderProductItem buildOrderProductItem(Long pricePolicyId, int quantity) {
         return ReserveInventoryCommand.OrderProductItem.builder()
-                .pricePolicyId(pricePolicyId)
-                .quantity(quantity)
-                .build();
+            .pricePolicyId(pricePolicyId)
+            .quantity(quantity)
+            .build();
     }
 
     private Inventory buildInventory(Long productId, Long pricePolicyId, int stock) {
@@ -679,13 +679,13 @@ class ReserveInventoryUseCaseTest {
 
     private Inventory buildInventoryWithReserved(Long productId, Long pricePolicyId, int stock, int reserved) {
         return Inventory.from(
-                com.personal.marketnote.commerce.domain.inventory.InventorySnapshotState.builder()
-                        .productId(productId)
-                        .pricePolicyId(pricePolicyId)
-                        .stock(stock)
-                        .version(0L)
-                        .reserved(reserved)
-                        .build()
+            com.personal.marketnote.commerce.domain.inventory.InventorySnapshotState.builder()
+                .productId(productId)
+                .pricePolicyId(pricePolicyId)
+                .stock(stock)
+                .version(0L)
+                .reserved(reserved)
+                .build()
         );
     }
 }

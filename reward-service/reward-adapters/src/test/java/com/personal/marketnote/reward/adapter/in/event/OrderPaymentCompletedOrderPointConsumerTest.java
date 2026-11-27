@@ -43,16 +43,16 @@ class OrderPaymentCompletedOrderPointConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long orderId, Long buyerId, Long pointAmount
+        Long orderId, Long buyerId, Long pointAmount
     ) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, 50000L, pointAmount,
-                null, null, null, null, null, null,
-                List.of(), null
+            orderId, buyerId, 50000L, pointAmount,
+            null, null, null, null, null, null,
+            List.of(), null
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.payment-completed", "commerce-service",
-                LocalDateTime.of(2026, 3, 8, 10, 0), event
+            "test-event-id", "commerce.order.payment-completed", "commerce-service",
+            LocalDateTime.of(2026, 3, 8, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.payment-completed", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -157,7 +157,7 @@ class OrderPaymentCompletedOrderPointConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 5000L);
         doThrow(new DuplicateUserPointHistoryException())
-                .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+            .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // when
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
@@ -172,7 +172,7 @@ class OrderPaymentCompletedOrderPointConsumerTest {
     void handleOrderPaymentCompletedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "1", null
+            "commerce.order.payment-completed", 0, 0L, "1", null
         );
 
         // when
@@ -188,16 +188,16 @@ class OrderPaymentCompletedOrderPointConsumerTest {
     void handleOrderPaymentCompletedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                1L, 100L, 50000L, 5000L,
-                null, null, null, null, null, null,
-                List.of(), null
+            1L, 100L, 50000L, 5000L,
+            null, null, null, null, null, null,
+            List.of(), null
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 3, 8, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 3, 8, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.payment-completed", 0, 0L, "1", envelope
+            "commerce.order.payment-completed", 0, 0L, "1", envelope
         );
 
         // when
@@ -270,12 +270,12 @@ class OrderPaymentCompletedOrderPointConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 5000L);
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+            .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderPaymentCompletedEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 실패");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 실패");
 
         verify(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
         verify(acknowledgment, never()).acknowledge();

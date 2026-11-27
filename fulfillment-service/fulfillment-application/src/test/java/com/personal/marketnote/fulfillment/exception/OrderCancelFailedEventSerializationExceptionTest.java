@@ -15,15 +15,15 @@ class OrderCancelFailedEventSerializationExceptionTest {
         };
 
         OrderCancelFailedEventSerializationException ex = new OrderCancelFailedEventSerializationException(
-                "order.cancel.failed", "12345", "evt-1", root
+            "order.cancel.failed", "12345", "evt-1", root
         );
 
         assertThat(ex.getMessage())
-                .contains("ERR_ORDER_CANCEL_FAILED_EVENT_01")
-                .contains("주문 취소 실패 이벤트")
-                .contains("topic=order.cancel.failed")
-                .contains("partitionKey=12345")
-                .contains("eventId=evt-1");
+            .contains("ERR_ORDER_CANCEL_FAILED_EVENT_01")
+            .contains("주문 취소 실패 이벤트")
+            .contains("topic=order.cancel.failed")
+            .contains("partitionKey=12345")
+            .contains("eventId=evt-1");
         assertThat(ex.getCause()).isSameAs(root);
         assertThat(ex).hasCause(root);
         assertThat(ex).hasRootCause(root);

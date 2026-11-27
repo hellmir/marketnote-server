@@ -14,18 +14,18 @@ import java.util.regex.Pattern;
 public class OAuth2WebUtils {
     private static final String FRONTEND_REDIRECTION_PATH = "/redirection";
     private static final Pattern REDIRECTION_DESTINATION_PATTERN
-            = Pattern.compile("^(http|https)://[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*(:\\d{1,5})?$");
+        = Pattern.compile("^(http|https)://[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*(:\\d{1,5})?$");
 
     public static String buildAfterLoginRedirectionUrl(
-            String redirectionDestination, LoginResult loginResult, String authVendor
+        String redirectionDestination, LoginResult loginResult, String authVendor
     ) {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(redirectionDestination)
-                .path(FRONTEND_REDIRECTION_PATH)
-                .queryParam("type", "oauth2")
-                .queryParam("is-success", true)
-                .queryParam("access-token", loginResult.getAccessToken())
-                .queryParam("is-guest", loginResult.isNewUser())
-                .queryParam("auth-vendor", authVendor);
+            .path(FRONTEND_REDIRECTION_PATH)
+            .queryParam("type", "oauth2")
+            .queryParam("is-success", true)
+            .queryParam("access-token", loginResult.getAccessToken())
+            .queryParam("is-guest", loginResult.isNewUser())
+            .queryParam("auth-vendor", authVendor);
 
         uriComponentsBuilder = addUserParam(uriComponentsBuilder, loginResult);
 
@@ -61,7 +61,7 @@ public class OAuth2WebUtils {
         String redirectionTarget = uri.getScheme() + "://" + uri.getAuthority();
 
         return FormatValidator.isValid(redirectionTarget, REDIRECTION_DESTINATION_PATTERN)
-                ? redirectionTarget
-                : null;
+            ? redirectionTarget
+            : null;
     }
 }

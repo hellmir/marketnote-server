@@ -41,11 +41,11 @@ public class ImageEventKafkaProducer implements PublishImageEventPort {
     private void publishEvents(List<ImageEventCommand> events, ImageChangeAction action) {
         for (ImageEventCommand event : events) {
             List<ImageChangedEvent.ResizedImageInfo> resizedImages = event.resizedImages().stream()
-                    .map(resized -> new ImageChangedEvent.ResizedImageInfo(resized.size(), resized.storageUrl()))
-                    .toList();
+                .map(resized -> new ImageChangedEvent.ResizedImageInfo(resized.size(), resized.storageUrl()))
+                .toList();
             ImageChangedEvent payload = new ImageChangedEvent(
-                    event.imageId(), event.targetId(), event.targetType(),
-                    event.fileSort(), event.imageUrl(), event.sortOrder(), resizedImages, action
+                event.imageId(), event.targetId(), event.targetType(),
+                event.fileSort(), event.imageUrl(), event.sortOrder(), resizedImages, action
             );
             String topic = KafkaTopicConstants.FILE_IMAGE_CHANGED;
             EventEnvelope<ImageChangedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
@@ -57,12 +57,12 @@ public class ImageEventKafkaProducer implements PublishImageEventPort {
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
         String payloadJson = serializePayload(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(), topic, partitionKey,
-                envelope.eventType(), SOURCE, payloadJson, clock
+            envelope.eventId(), topic, partitionKey,
+            envelope.eventType(), SOURCE, payloadJson, clock
         );
         saveOutboxEventPort.save(outboxEvent);
         log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}",
-                topic, partitionKey, envelope.eventId());
+            topic, partitionKey, envelope.eventId());
     }
 
     private <T> String serializePayload(EventEnvelope<T> envelope, String topic, String partitionKey) {

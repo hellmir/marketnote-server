@@ -50,7 +50,7 @@ class InternalOrderControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    internalOrderController.verifyOrderOwnership(orderId, buyerId);
+                internalOrderController.verifyOrderOwnership(orderId, buyerId);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -72,7 +72,7 @@ class InternalOrderControllerTest {
 
             // when & then
             assertThatThrownBy(() -> internalOrderController.verifyOrderOwnership(orderId, buyerId))
-                    .isInstanceOf(InvalidOrderStatusForReviewException.class);
+                .isInstanceOf(InvalidOrderStatusForReviewException.class);
         }
 
         @Test
@@ -87,7 +87,7 @@ class InternalOrderControllerTest {
 
             // when & then
             assertThatThrownBy(() -> internalOrderController.verifyOrderOwnership(orderId, buyerId))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
         }
     }
 
@@ -107,7 +107,7 @@ class InternalOrderControllerTest {
 
             // when
             ResponseEntity<BaseResponse<InternalOrderProductResponse>> response =
-                    internalOrderController.getOrderProduct(orderId, pricePolicyId);
+                internalOrderController.getOrderProduct(orderId, pricePolicyId);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

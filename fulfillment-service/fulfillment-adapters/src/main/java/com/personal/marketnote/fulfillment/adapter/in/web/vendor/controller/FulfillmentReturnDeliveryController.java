@@ -59,22 +59,22 @@ public class FulfillmentReturnDeliveryController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RegisterFulfillmentReturnDeliveryApiDocs
     public ResponseEntity<BaseResponse<RegisterFulfillmentReturnDeliveryResponse>> registerReturnDelivery(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @Valid @RequestBody List<RegisterFulfillmentReturnDeliveryRequest> request
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @Valid @RequestBody List<RegisterFulfillmentReturnDeliveryRequest> request
     ) {
         RegisterFulfillmentDeliveryResult result = registerFulfillmentReturnDeliveryUseCase.registerReturnDelivery(
-                FulfillmentReturnDeliveryRequestToCommandMapper.mapToRegisterCommand(customerCode, accessToken, request)
+            FulfillmentReturnDeliveryRequestToCommandMapper.mapToRegisterCommand(customerCode, accessToken, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterFulfillmentReturnDeliveryResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 반품 예약 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterFulfillmentReturnDeliveryResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 반품 예약 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -92,22 +92,22 @@ public class FulfillmentReturnDeliveryController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RegisterFulfillmentDirectReturnDeliveryApiDocs
     public ResponseEntity<BaseResponse<RegisterFulfillmentDirectReturnDeliveryResponse>> registerDirectReturnDelivery(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @Valid @RequestBody List<RegisterFulfillmentDirectReturnDeliveryRequest> request
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @Valid @RequestBody List<RegisterFulfillmentDirectReturnDeliveryRequest> request
     ) {
         RegisterFulfillmentDeliveryResult result = registerFulfillmentDirectReturnDeliveryUseCase.registerDirectReturnDelivery(
-                FulfillmentDirectReturnDeliveryRequestToCommandMapper.mapToRegisterCommand(customerCode, accessToken, request)
+            FulfillmentDirectReturnDeliveryRequestToCommandMapper.mapToRegisterCommand(customerCode, accessToken, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterFulfillmentDirectReturnDeliveryResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 반품 택배사 미지정 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterFulfillmentDirectReturnDeliveryResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 반품 택배사 미지정 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -128,27 +128,27 @@ public class FulfillmentReturnDeliveryController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFulfillmentReturnGodDetailApiDocs
     public ResponseEntity<BaseResponse<GetFulfillmentReturnGodDetailResponse>> getReturnGodDetail(
-            @PathVariable String customerCode,
-            @RequestHeader("accessToken") String accessToken,
-            @RequestParam(required = false) String strDt,
-            @RequestParam(required = false) String endDt,
-            @RequestParam(required = false) String rtnSlipNoList,
-            @RequestParam(required = false) String whCd
+        @PathVariable String customerCode,
+        @RequestHeader("accessToken") String accessToken,
+        @RequestParam(required = false) String strDt,
+        @RequestParam(required = false) String endDt,
+        @RequestParam(required = false) String rtnSlipNoList,
+        @RequestParam(required = false) String whCd
     ) {
         GetFulfillmentReturnGodDetailResult result = getFulfillmentReturnGodDetailUseCase.getReturnGodDetail(
-                FulfillmentReturnDeliveryRequestToCommandMapper.mapToReturnGodDetailCommand(
-                        customerCode, accessToken, strDt, endDt, rtnSlipNoList, whCd
-                )
+            FulfillmentReturnDeliveryRequestToCommandMapper.mapToReturnGodDetailCommand(
+                customerCode, accessToken, strDt, endDt, rtnSlipNoList, whCd
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetFulfillmentReturnGodDetailResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 반품 완료 상품 상세 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetFulfillmentReturnGodDetailResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 반품 완료 상품 상세 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

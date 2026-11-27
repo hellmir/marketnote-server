@@ -3,27 +3,28 @@
 -- ProductCatalogReadModel: 상품 목록 조회 전용 비정규화 테이블
 -- (price_policy + product + review/stock/image 집계)
 -- ============================================================
-CREATE TABLE product_catalog_read_models (
-    id BIGSERIAL PRIMARY KEY,
-    status VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP(6) NOT NULL,
-    modified_at TIMESTAMP(6),
-    price_policy_id BIGINT NOT NULL,
-    product_id BIGINT NOT NULL,
-    seller_id BIGINT NOT NULL,
-    primary_category_id BIGINT,
-    name VARCHAR(255) NOT NULL,
-    brand_name VARCHAR(255),
-    price BIGINT NOT NULL,
-    discount_price BIGINT NOT NULL,
-    accumulated_point BIGINT NOT NULL,
-    accumulated_point_rate NUMERIC(4, 1) NOT NULL,
-    order_num BIGINT NOT NULL DEFAULT 0,
-    popularity BIGINT NOT NULL DEFAULT 0,
+CREATE TABLE product_catalog_read_models
+(
+    id                       BIGSERIAL PRIMARY KEY,
+    status                   VARCHAR(255)  NOT NULL,
+    created_at               TIMESTAMP(6)  NOT NULL,
+    modified_at              TIMESTAMP(6),
+    price_policy_id          BIGINT        NOT NULL,
+    product_id               BIGINT        NOT NULL,
+    seller_id                BIGINT        NOT NULL,
+    primary_category_id      BIGINT,
+    name                     VARCHAR(255)  NOT NULL,
+    brand_name               VARCHAR(255),
+    price                    BIGINT        NOT NULL,
+    discount_price           BIGINT        NOT NULL,
+    accumulated_point        BIGINT        NOT NULL,
+    accumulated_point_rate   NUMERIC(4, 1) NOT NULL,
+    order_num                BIGINT        NOT NULL DEFAULT 0,
+    popularity               BIGINT        NOT NULL DEFAULT 0,
     representative_image_url VARCHAR(511),
-    stock_quantity INTEGER NOT NULL DEFAULT 0,
-    review_count INTEGER NOT NULL DEFAULT 0,
-    review_average_rating REAL NOT NULL DEFAULT 0,
+    stock_quantity           INTEGER       NOT NULL DEFAULT 0,
+    review_count             INTEGER       NOT NULL DEFAULT 0,
+    review_average_rating    REAL          NOT NULL DEFAULT 0,
     CONSTRAINT uk_product_catalog_read_model_price_policy_id UNIQUE (price_policy_id)
 );
 

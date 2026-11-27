@@ -7,15 +7,15 @@ import java.util.List;
 import java.util.UUID;
 
 public record ProductInfoResult(
-        Long id,
-        UUID productKey,
-        Long sellerId,
-        String name,
-        String brandName,
-        Long price,
-        Long discountPrice,
-        Long accumulatedPoint,
-        List<ProductOptionInfoResult> selectedOptions
+    Long id,
+    UUID productKey,
+    Long sellerId,
+    String name,
+    String brandName,
+    Long price,
+    Long discountPrice,
+    Long accumulatedPoint,
+    List<ProductOptionInfoResult> selectedOptions
 ) {
     /**
      * 실제 판매가를 반환한다.

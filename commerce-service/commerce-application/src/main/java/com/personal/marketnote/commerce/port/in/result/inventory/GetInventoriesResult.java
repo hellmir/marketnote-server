@@ -9,13 +9,13 @@ import java.util.stream.Collectors;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetInventoriesResult(
-        Set<GetInventoryResult> inventories
+    Set<GetInventoryResult> inventories
 ) {
     public static GetInventoriesResult from(Set<Inventory> inventories) {
         return new GetInventoriesResult(
-                inventories.stream()
-                        .map(GetInventoryResult::from)
-                        .collect(Collectors.toSet())
+            inventories.stream()
+                .map(GetInventoryResult::from)
+                .collect(Collectors.toSet())
         );
     }
 }

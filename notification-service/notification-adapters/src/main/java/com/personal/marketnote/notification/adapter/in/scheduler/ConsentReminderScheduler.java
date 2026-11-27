@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(
-        prefix = "notification.consent-reminder", name = "enabled", havingValue = "true", matchIfMissing = true
+    prefix = "notification.consent-reminder", name = "enabled", havingValue = "true", matchIfMissing = true
 )
 public class ConsentReminderScheduler {
 

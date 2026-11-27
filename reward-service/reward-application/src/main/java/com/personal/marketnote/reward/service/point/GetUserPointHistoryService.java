@@ -33,16 +33,16 @@ public class GetUserPointHistoryService implements GetUserPointHistoryUseCase {
         validatePageSize(command.pageSize());
 
         UserPointHistoryFilter targetFilter = FormatValidator.hasValue(command.filter())
-                ? command.filter()
-                : UserPointHistoryFilter.ALL;
+            ? command.filter()
+            : UserPointHistoryFilter.ALL;
 
         LocalDate startDate = FormatValidator.hasValue(command.startDate())
-                ? command.startDate()
-                : DEFAULT_START_DATE;
+            ? command.startDate()
+            : DEFAULT_START_DATE;
 
         LocalDate endDate = FormatValidator.hasValue(command.endDate())
-                ? command.endDate()
-                : DEFAULT_END_DATE;
+            ? command.endDate()
+            : DEFAULT_END_DATE;
 
         if (startDate.isAfter(endDate)) {
             throw new InvalidPointHistoryDateRangeException(startDate, endDate);
@@ -50,18 +50,18 @@ public class GetUserPointHistoryService implements GetUserPointHistoryUseCase {
 
         int fetchSize = command.pageSize() + 1;
         List<UserPointHistory> histories = findUserPointHistoryPort.findByUserId(
-                command.userId(), targetFilter, startDate, endDate, command.cursor(), fetchSize
+            command.userId(), targetFilter, startDate, endDate, command.cursor(), fetchSize
         );
 
         boolean hasNext = histories.size() > command.pageSize();
         List<UserPointHistory> pagedHistories = hasNext
-                ? histories.subList(0, command.pageSize())
-                : histories;
+            ? histories.subList(0, command.pageSize())
+            : histories;
 
         Long nextCursor = pagedHistories.isEmpty() ? null : pagedHistories.getLast().getId();
 
         Long totalElements = resolveTotalElements(
-                command, targetFilter, startDate, endDate, hasNext, pagedHistories.size()
+            command, targetFilter, startDate, endDate, hasNext, pagedHistories.size()
         );
 
         return GetUserPointHistoryResult.from(totalElements, hasNext, nextCursor, pagedHistories);
@@ -74,10 +74,10 @@ public class GetUserPointHistoryService implements GetUserPointHistoryUseCase {
     }
 
     private Long resolveTotalElements(
-            GetUserPointHistoryCommand command,
-            UserPointHistoryFilter filter,
-            LocalDate startDate, LocalDate endDate,
-            boolean hasNext, int currentSize
+        GetUserPointHistoryCommand command,
+        UserPointHistoryFilter filter,
+        LocalDate startDate, LocalDate endDate,
+        boolean hasNext, int currentSize
     ) {
         if (FormatValidator.hasValue(command.cursor())) {
             return null;

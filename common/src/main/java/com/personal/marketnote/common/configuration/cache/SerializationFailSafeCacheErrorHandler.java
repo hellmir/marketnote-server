@@ -58,16 +58,16 @@ public class SerializationFailSafeCacheErrorHandler implements CacheErrorHandler
             throw exception;
         }
         log.warn(
-                "[CacheFailSafe] GET 직렬화 결함 — polluted entry evict. cache={}, key={}, exception={}",
-                cache.getName(), key, exception.getClass().getName(), exception
+            "[CacheFailSafe] GET 직렬화 결함 — polluted entry evict. cache={}, key={}, exception={}",
+            cache.getName(), key, exception.getClass().getName(), exception
         );
         recordFailure(cache.getName(), exception);
         try {
             cache.evict(key);
         } catch (RuntimeException evictException) {
             log.warn(
-                    "[CacheFailSafe] polluted entry evict 실패 — swallow. cache={}, key={}",
-                    cache.getName(), key, evictException
+                "[CacheFailSafe] polluted entry evict 실패 — swallow. cache={}, key={}",
+                cache.getName(), key, evictException
             );
         }
     }
@@ -75,24 +75,24 @@ public class SerializationFailSafeCacheErrorHandler implements CacheErrorHandler
     @Override
     public void handleCachePutError(RuntimeException exception, Cache cache, Object key, Object value) {
         log.warn(
-                "[CacheFailSafe] PUT 실패 — swallow. cache={}, key={}, exception={}",
-                cache.getName(), key, exception.getClass().getName(), exception
+            "[CacheFailSafe] PUT 실패 — swallow. cache={}, key={}, exception={}",
+            cache.getName(), key, exception.getClass().getName(), exception
         );
     }
 
     @Override
     public void handleCacheEvictError(RuntimeException exception, Cache cache, Object key) {
         log.warn(
-                "[CacheFailSafe] EVICT 실패 — swallow. cache={}, key={}, exception={}",
-                cache.getName(), key, exception.getClass().getName(), exception
+            "[CacheFailSafe] EVICT 실패 — swallow. cache={}, key={}, exception={}",
+            cache.getName(), key, exception.getClass().getName(), exception
         );
     }
 
     @Override
     public void handleCacheClearError(RuntimeException exception, Cache cache) {
         log.warn(
-                "[CacheFailSafe] CLEAR 실패 — swallow. cache={}, exception={}",
-                cache.getName(), exception.getClass().getName(), exception
+            "[CacheFailSafe] CLEAR 실패 — swallow. cache={}, exception={}",
+            cache.getName(), exception.getClass().getName(), exception
         );
     }
 
@@ -135,10 +135,10 @@ public class SerializationFailSafeCacheErrorHandler implements CacheErrorHandler
      */
     private void recordFailure(String cacheName, RuntimeException exception) {
         Counter.builder(METRIC_NAME)
-                .description(METRIC_DESCRIPTION)
-                .tag(TAG_CACHE, cacheName)
-                .tag(TAG_EXCEPTION, exception.getClass().getSimpleName())
-                .register(meterRegistry)
-                .increment();
+            .description(METRIC_DESCRIPTION)
+            .tag(TAG_CACHE, cacheName)
+            .tag(TAG_EXCEPTION, exception.getClass().getSimpleName())
+            .register(meterRegistry)
+            .increment();
     }
 }

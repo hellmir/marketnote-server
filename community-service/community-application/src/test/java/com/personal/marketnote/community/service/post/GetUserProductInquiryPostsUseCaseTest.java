@@ -48,11 +48,11 @@ class GetUserProductInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         Posts posts = Posts.from(List.of(
-                buildProductInquiryPost(1L, userId, 100L),
-                buildProductInquiryPost(2L, userId, 200L)
+            buildProductInquiryPost(1L, userId, 100L),
+            buildProductInquiryPost(2L, userId, 200L)
         ));
         mockFindUserPostsByOffset(posts);
         when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(2L);
@@ -74,7 +74,7 @@ class GetUserProductInquiryPostsUseCaseTest {
     void getUserProductInquiryPosts_emptyResult_returnsEmptyListAndZeroPages() {
         // given
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                1L, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            1L, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
         when(findPostPort.countUserPosts(1L, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(0L);
@@ -95,12 +95,12 @@ class GetUserProductInquiryPostsUseCaseTest {
     void getUserProductInquiryPosts_totalPagesComputedCorrectly() {
         // given
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                1L, 1, 3, Sort.Direction.DESC, PostSortProperty.ID
+            1L, 1, 3, Sort.Direction.DESC, PostSortProperty.ID
         );
         Posts posts = Posts.from(List.of(
-                buildProductInquiryPost(1L, 1L, 100L),
-                buildProductInquiryPost(2L, 1L, 200L),
-                buildProductInquiryPost(3L, 1L, 300L)
+            buildProductInquiryPost(1L, 1L, 100L),
+            buildProductInquiryPost(2L, 1L, 200L),
+            buildProductInquiryPost(3L, 1L, 300L)
         ));
         mockFindUserPostsByOffset(posts);
         when(findPostPort.countUserPosts(1L, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(7L);
@@ -118,7 +118,7 @@ class GetUserProductInquiryPostsUseCaseTest {
     void getUserProductInquiryPosts_pageAndPageSizeReflected() {
         // given
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                1L, 2, 5, Sort.Direction.ASC, PostSortProperty.ID
+            1L, 2, 5, Sort.Direction.ASC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
         when(findPostPort.countUserPosts(1L, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(10L);
@@ -140,7 +140,7 @@ class GetUserProductInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
         when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(0L);
@@ -150,7 +150,7 @@ class GetUserProductInquiryPostsUseCaseTest {
 
         // then
         verify(findPostPort).findUserPostsByOffset(
-                userId, Board.PRODUCT_INQUERY, 1, 10, true, PostSortProperty.ID
+            userId, Board.PRODUCT_INQUERY, 1, 10, true, PostSortProperty.ID
         );
     }
 
@@ -160,7 +160,7 @@ class GetUserProductInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
         when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(0L);
@@ -181,14 +181,14 @@ class GetUserProductInquiryPostsUseCaseTest {
         Long userId = 1L;
         Long targetId = 100L;
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         Posts posts = Posts.from(List.of(buildProductInquiryPost(1L, userId, targetId)));
         mockFindUserPostsByOffset(posts);
         when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(1L);
         ProductInfoResult productInfo = buildProductInfo(999L);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(targetId)))
-                .thenReturn(Map.of(targetId, productInfo));
+            .thenReturn(Map.of(targetId, productInfo));
 
         // when
         GetUserProductInquiryPostsResult result = getUserProductInquiryPostsService.getUserProductInquiryPosts(command);
@@ -205,7 +205,7 @@ class GetUserProductInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         Posts posts = Posts.from(List.of(buildProductInquiryPostWithoutTarget(1L, userId)));
         mockFindUserPostsByOffset(posts);
@@ -228,7 +228,7 @@ class GetUserProductInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         Post photoPost = buildPhotoProductInquiryPost(1L, userId, 100L);
         Posts posts = Posts.from(List.of(photoPost));
@@ -236,10 +236,10 @@ class GetUserProductInquiryPostsUseCaseTest {
         when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(1L);
         mockProductInfoPort(Map.of());
         GetFileResult fileResult = new GetFileResult(
-                1L, "POST_IMAGE", "jpg", "image.jpg", "https://s3/image.jpg", List.of(), 1L
+            1L, "POST_IMAGE", "jpg", "image.jpg", "https://s3/image.jpg", List.of(), 1L
         );
         when(findPostImagesPort.findImagesByPostIdAndSort(1L, POST_IMAGE))
-                .thenReturn(Optional.of(new GetFilesResult(List.of(fileResult))));
+            .thenReturn(Optional.of(new GetFilesResult(List.of(fileResult))));
 
         // when
         GetUserProductInquiryPostsResult result = getUserProductInquiryPostsService.getUserProductInquiryPosts(command);
@@ -255,7 +255,7 @@ class GetUserProductInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         Posts posts = Posts.from(List.of(buildProductInquiryPost(1L, userId, 100L)));
         mockFindUserPostsByOffset(posts);
@@ -278,7 +278,7 @@ class GetUserProductInquiryPostsUseCaseTest {
         Long userId = 1L;
         Long targetId = 100L;
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         Post parentPost = buildProductInquiryPost(1L, userId, targetId);
         Post replyPost = buildProductInquiryPost(2L, userId, targetId);
@@ -305,10 +305,10 @@ class GetUserProductInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         Posts posts = Posts.from(List.of(
-                buildProductInquiryPostWithWriterName(1L, userId, 100L, "작성자이름")
+            buildProductInquiryPostWithWriterName(1L, userId, 100L, "작성자이름")
         ));
         mockFindUserPostsByOffset(posts);
         when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(1L);
@@ -328,10 +328,10 @@ class GetUserProductInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         Posts posts = Posts.from(List.of(
-                buildProductInquiryPostWithWriterName(1L, userId, 100L, "작성자이름")
+            buildProductInquiryPostWithWriterName(1L, userId, 100L, "작성자이름")
         ));
         mockFindUserPostsByOffset(posts);
         when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(1L);
@@ -346,8 +346,8 @@ class GetUserProductInquiryPostsUseCaseTest {
         // writerName만 포함되어 있는지 검증
         assertThat(result.posts().getFirst().getWriterName()).isNotNull();
         assertThat(result.posts().getFirst()).hasNoNullFieldsOrPropertiesExcept(
-                "parentId", "category", "targetType", "targetId", "productImageUrl",
-                "images", "product", "replies"
+            "parentId", "category", "targetType", "targetId", "productImageUrl",
+            "images", "product", "replies"
         );
     }
 
@@ -359,7 +359,7 @@ class GetUserProductInquiryPostsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
-                userId, 1, 10, Sort.Direction.ASC, PostSortProperty.ID
+            userId, 1, 10, Sort.Direction.ASC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
         when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(0L);
@@ -369,7 +369,7 @@ class GetUserProductInquiryPostsUseCaseTest {
 
         // then
         verify(findPostPort).findUserPostsByOffset(
-                userId, Board.PRODUCT_INQUERY, 1, 10, false, PostSortProperty.ID
+            userId, Board.PRODUCT_INQUERY, 1, 10, false, PostSortProperty.ID
         );
     }
 
@@ -377,71 +377,71 @@ class GetUserProductInquiryPostsUseCaseTest {
 
     private Post buildProductInquiryPost(Long id, Long userId, Long targetId) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(userId)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .targetType(PostTargetType.PRICE_POLICY)
-                .targetId(targetId)
-                .title("상품 문의 제목")
-                .content("상품 문의 내용")
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(userId)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .targetType(PostTargetType.PRICE_POLICY)
+            .targetId(targetId)
+            .title("상품 문의 제목")
+            .content("상품 문의 내용")
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildProductInquiryPostWithoutTarget(Long id, Long userId) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(userId)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .title("상품 문의 제목")
-                .content("상품 문의 내용")
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(userId)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .title("상품 문의 제목")
+            .content("상품 문의 내용")
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildProductInquiryPostWithWriterName(Long id, Long userId, Long targetId, String writerName) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(userId)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .targetType(PostTargetType.PRICE_POLICY)
-                .targetId(targetId)
-                .writerName(writerName)
-                .maskedWriterName("작*자")
-                .title("상품 문의 제목")
-                .content("상품 문의 내용")
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(userId)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .targetType(PostTargetType.PRICE_POLICY)
+            .targetId(targetId)
+            .writerName(writerName)
+            .maskedWriterName("작*자")
+            .title("상품 문의 제목")
+            .content("상품 문의 내용")
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildPhotoProductInquiryPost(Long id, Long userId, Long targetId) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(userId)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .targetType(PostTargetType.PRICE_POLICY)
-                .targetId(targetId)
-                .title("사진 상품 문의")
-                .content("내용")
-                .isPhoto(true)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(userId)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .targetType(PostTargetType.PRICE_POLICY)
+            .targetId(targetId)
+            .title("사진 상품 문의")
+            .content("내용")
+            .isPhoto(true)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private ProductInfoResult buildProductInfo(Long sellerId) {
@@ -456,7 +456,7 @@ class GetUserProductInquiryPostsUseCaseTest {
 
     private void mockFindUserPostsByOffset(Posts posts) {
         when(findPostPort.findUserPostsByOffset(
-                anyLong(), any(Board.class), anyInt(), anyInt(), anyBoolean(), any(PostSortProperty.class)
+            anyLong(), any(Board.class), anyInt(), anyInt(), anyBoolean(), any(PostSortProperty.class)
         )).thenReturn(posts);
     }
 

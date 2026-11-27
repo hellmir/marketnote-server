@@ -51,26 +51,26 @@ public class DeviceTokenController {
     @PostMapping
     @RegisterDeviceTokenApiDocs
     public ResponseEntity<BaseResponse<RegisterDeviceTokenResponse>> registerDeviceToken(
-            @Valid @RequestBody RegisterDeviceTokenRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody RegisterDeviceTokenRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         RegisterDeviceTokenResult result = registerDeviceTokenUseCase.registerDeviceToken(
-                new RegisterDeviceTokenCommand(
-                        ElementExtractor.extractUserId(principal),
-                        request.token(),
-                        request.platform(),
-                        request.deviceId()
-                )
+            new RegisterDeviceTokenCommand(
+                ElementExtractor.extractUserId(principal),
+                request.token(),
+                request.platform(),
+                request.deviceId()
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterDeviceTokenResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "디바이스 토큰 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterDeviceTokenResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "디바이스 토큰 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -87,24 +87,24 @@ public class DeviceTokenController {
     @DeleteMapping("/{deviceId}")
     @DeleteDeviceTokenApiDocs
     public ResponseEntity<BaseResponse<Void>> deleteDeviceToken(
-            @PathVariable String deviceId,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable String deviceId,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         deleteDeviceTokenUseCase.deleteDeviceToken(
-                new DeleteDeviceTokenCommand(
-                        ElementExtractor.extractUserId(principal),
-                        deviceId
-                )
+            new DeleteDeviceTokenCommand(
+                ElementExtractor.extractUserId(principal),
+                deviceId
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "디바이스 토큰 삭제 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "디바이스 토큰 삭제 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

@@ -64,7 +64,7 @@ class ShippingAddressReadModelPersistenceAdapterTest {
         void throwsNotFoundForNonExistentId() {
             // when & then
             assertThatThrownBy(() -> adapter.findByIdAndUserId(999L, 100L))
-                    .isInstanceOf(ShippingAddressNotFoundException.class);
+                .isInstanceOf(ShippingAddressNotFoundException.class);
         }
 
         @Test
@@ -76,7 +76,7 @@ class ShippingAddressReadModelPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.findByIdAndUserId(1L, 100L))
-                    .isInstanceOf(ShippingAddressNotFoundException.class);
+                .isInstanceOf(ShippingAddressNotFoundException.class);
         }
 
         @Test
@@ -87,7 +87,7 @@ class ShippingAddressReadModelPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.findByIdAndUserId(1L, 999L))
-                    .isInstanceOf(ShippingAddressNotFoundException.class);
+                .isInstanceOf(ShippingAddressNotFoundException.class);
         }
     }
 
@@ -103,7 +103,7 @@ class ShippingAddressReadModelPersistenceAdapterTest {
 
             // then
             Optional<ShippingAddressReadModelJpaEntity> entity =
-                    repository.findByShippingAddressIdAndUserIdAndStatus(1L, 100L, EntityStatus.ACTIVE);
+                repository.findByShippingAddressIdAndUserIdAndStatus(1L, 100L, EntityStatus.ACTIVE);
             assertThat(entity).isPresent();
             assertThat(entity.get().getShippingAddressId()).isEqualTo(1L);
             assertThat(entity.get().getUserId()).isEqualTo(100L);
@@ -125,7 +125,7 @@ class ShippingAddressReadModelPersistenceAdapterTest {
 
             // then
             Optional<ShippingAddressReadModelJpaEntity> entity =
-                    repository.findByShippingAddressIdAndUserIdAndStatus(1L, 100L, EntityStatus.ACTIVE);
+                repository.findByShippingAddressIdAndUserIdAndStatus(1L, 100L, EntityStatus.ACTIVE);
             assertThat(entity).isPresent();
             assertThat(entity.get().getRecipientName()).isEqualTo("김철수");
             assertThat(entity.get().getRecipientPhoneNumber()).isEqualTo("01098765432");
@@ -145,7 +145,7 @@ class ShippingAddressReadModelPersistenceAdapterTest {
 
             // then
             Optional<ShippingAddressReadModelJpaEntity> entity =
-                    repository.findByShippingAddressIdAndUserIdAndStatus(1L, 100L, EntityStatus.ACTIVE);
+                repository.findByShippingAddressIdAndUserIdAndStatus(1L, 100L, EntityStatus.ACTIVE);
             assertThat(entity).isPresent();
             assertThat(entity.get().getRecipientName()).isEqualTo("김철수");
             assertThat(entity.get().getStatus()).isEqualTo(EntityStatus.ACTIVE);

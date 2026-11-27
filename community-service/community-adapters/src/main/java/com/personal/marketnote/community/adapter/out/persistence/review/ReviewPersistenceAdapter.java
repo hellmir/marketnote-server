@@ -48,8 +48,8 @@ public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort,
             return ReviewJpaEntityToDomainMapper.mapToDomain(savedEntity).orElse(null);
         } catch (DataIntegrityViolationException dive) {
             log.warn(
-                    "이미 해당 주문에 대한 리뷰가 존재합니다. orderId={}, pricePolicyId={}",
-                    review.getOrderId(), review.getPricePolicyId(), dive
+                "이미 해당 주문에 대한 리뷰가 존재합니다. orderId={}, pricePolicyId={}",
+                review.getOrderId(), review.getPricePolicyId(), dive
             );
             throw new ReviewAlreadyExistsException(dive);
         }
@@ -87,40 +87,40 @@ public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort,
 
     @Override
     @Cacheable(
-            value = "review:photo:list:first",
-            key = "#productId + ':' + #pageable.getPageSize() + ':' + #sortProperty.name() + ':' + #pageable.getSort().iterator().next().getDirection().name()",
-            condition = "#isPhoto != null && #isPhoto && #cursor == null"
+        value = "review:photo:list:first",
+        key = "#productId + ':' + #pageable.getPageSize() + ':' + #sortProperty.name() + ':' + #pageable.getSort().iterator().next().getDirection().name()",
+        condition = "#isPhoto != null && #isPhoto && #cursor == null"
     )
     public Reviews findProductReviews(
-            Long productId, Boolean isPhoto, Long cursor, Pageable pageable, ReviewSortProperty sortProperty
+        Long productId, Boolean isPhoto, Long cursor, Pageable pageable, ReviewSortProperty sortProperty
     ) {
         boolean isAsc = isAscending(pageable, sortProperty);
 
         if (isPhoto) {
             List<ReviewJpaEntity> entities = reviewJpaRepository.findProductPhotoReviewsByCursor(
-                    productId,
-                    cursor,
-                    pageable,
-                    sortProperty.getCamelCaseValue(),
-                    isAsc
-            );
-
-            return Reviews.from(entities.stream()
-                    .map(entity -> ReviewJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
-                    .toList());
-        }
-
-        List<ReviewJpaEntity> entities = reviewJpaRepository.findProductReviewsByCursor(
                 productId,
                 cursor,
                 pageable,
                 sortProperty.getCamelCaseValue(),
                 isAsc
+            );
+
+            return Reviews.from(entities.stream()
+                .map(entity -> ReviewJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
+                .toList());
+        }
+
+        List<ReviewJpaEntity> entities = reviewJpaRepository.findProductReviewsByCursor(
+            productId,
+            cursor,
+            pageable,
+            sortProperty.getCamelCaseValue(),
+            isAsc
         );
 
         return Reviews.from(entities.stream()
-                .map(entity -> ReviewJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
-                .toList());
+            .map(entity -> ReviewJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
+            .toList());
     }
 
     @Override
@@ -135,7 +135,7 @@ public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort,
     @Override
     public Optional<ProductReviewAggregate> findProductReviewAggregateByProductId(Long productId) {
         return ProductReviewAggregateJpaEntityToDomainMapper.mapToDomain(
-                productReviewAggregateJpaRepository.findByProductId(productId).orElse(null)
+            productReviewAggregateJpaRepository.findByProductId(productId).orElse(null)
         );
     }
 
@@ -146,13 +146,13 @@ public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort,
         }
 
         return productReviewAggregateJpaRepository.findByProductIdIn(productIds).stream()
-                .map(entity -> ProductReviewAggregateJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
-                .filter(FormatValidator::hasValue)
-                .collect(Collectors.toMap(
-                        ProductReviewAggregate::getProductId,
-                        aggregate -> aggregate,
-                        (existing, replacement) -> existing
-                ));
+            .map(entity -> ProductReviewAggregateJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
+            .filter(FormatValidator::hasValue)
+            .collect(Collectors.toMap(
+                ProductReviewAggregate::getProductId,
+                aggregate -> aggregate,
+                (existing, replacement) -> existing
+            ));
     }
 
     @Override
@@ -160,16 +160,16 @@ public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort,
         boolean isAsc = isAscending(pageable, sortProperty);
 
         List<ReviewJpaEntity> entities = reviewJpaRepository.findUserReviewsByCursor(
-                userId,
-                cursor,
-                pageable,
-                sortProperty.getCamelCaseValue(),
-                isAsc
+            userId,
+            cursor,
+            pageable,
+            sortProperty.getCamelCaseValue(),
+            isAsc
         );
 
         return Reviews.from(entities.stream()
-                .map(entity -> ReviewJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
-                .toList());
+            .map(entity -> ReviewJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
+            .toList());
     }
 
     @Override
@@ -179,11 +179,11 @@ public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort,
 
     @Override
     public Reviews findUserReviewsByOffset(
-            Long reviewerId,
-            int page,
-            int pageSize,
-            boolean isDesc,
-            ReviewSortProperty sortProperty
+        Long reviewerId,
+        int page,
+        int pageSize,
+        boolean isDesc,
+        ReviewSortProperty sortProperty
     ) {
         String sortField = sortProperty.getCamelCaseValue();
         Sort sort = isDesc ? Sort.by(Sort.Direction.DESC, sortField) : Sort.by(Sort.Direction.ASC, sortField);
@@ -192,8 +192,8 @@ public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort,
         List<ReviewJpaEntity> entities = reviewJpaRepository.findUserReviewsByOffset(reviewerId, pageable);
 
         return Reviews.from(entities.stream()
-                .map(entity -> ReviewJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
-                .toList());
+            .map(entity -> ReviewJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
+            .toList());
     }
 
     @Override
@@ -210,19 +210,19 @@ public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort,
 
     private ReviewJpaEntity findEntityById(Long id) throws ReviewNotFoundException {
         return reviewJpaRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("리뷰를 찾을 수 없습니다. reviewId={}", id);
-                    return new ReviewNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("리뷰를 찾을 수 없습니다. reviewId={}", id);
+                return new ReviewNotFoundException();
+            });
     }
 
     private ProductReviewAggregateJpaEntity findEntityByProductId(Long productId)
-            throws ProductReviewAggregateNotFoundException {
+        throws ProductReviewAggregateNotFoundException {
         return productReviewAggregateJpaRepository.findByProductId(productId)
-                .orElseThrow(() -> {
-                    log.warn("상품 리뷰 집계 정보를 찾을 수 없습니다. productId={}", productId);
-                    return new ProductReviewAggregateNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("상품 리뷰 집계 정보를 찾을 수 없습니다. productId={}", productId);
+                return new ProductReviewAggregateNotFoundException();
+            });
     }
 
     private boolean isAscending(Pageable pageable, ReviewSortProperty sortProperty) {

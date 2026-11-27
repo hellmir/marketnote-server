@@ -15,11 +15,11 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(
-        name = "saga_step",
-        indexes = @Index(
-                name = "idx_saga_step_instance_id_index",
-                columnList = "saga_instance_id, step_index"
-        )
+    name = "saga_step",
+    indexes = @Index(
+        name = "idx_saga_step_instance_id_index",
+        columnList = "saga_instance_id, step_index"
+    )
 )
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -65,8 +65,8 @@ public class SagaStepJpaEntity {
     private LocalDateTime modifiedAt;
 
     private SagaStepJpaEntity(
-            Long sagaInstanceId, String stepName, int stepIndex,
-            SagaStepStatus status, String request
+        Long sagaInstanceId, String stepName, int stepIndex,
+        SagaStepStatus status, String request
     ) {
         this.sagaInstanceId = sagaInstanceId;
         this.stepName = stepName;
@@ -77,11 +77,11 @@ public class SagaStepJpaEntity {
 
     public static SagaStepJpaEntity from(com.personal.marketnote.common.saga.SagaStep step) {
         return new SagaStepJpaEntity(
-                step.getSagaInstanceId(),
-                step.getStepName(),
-                step.getStepIndex(),
-                step.getStatus(),
-                step.getRequest()
+            step.getSagaInstanceId(),
+            step.getStepName(),
+            step.getStepIndex(),
+            step.getStatus(),
+            step.getRequest()
         );
     }
 

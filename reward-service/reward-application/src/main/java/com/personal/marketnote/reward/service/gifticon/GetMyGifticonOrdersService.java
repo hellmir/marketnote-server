@@ -39,7 +39,7 @@ public class GetMyGifticonOrdersService implements GetMyGifticonOrdersUseCase {
         int fetchSize = command.pageSize() + 1;
 
         List<GifticonOrder> fetched = findGifticonOrderPort.findByUserIdAndStatuses(
-                command.userId(), statuses, sortType, command.cursor(), fetchSize
+            command.userId(), statuses, sortType, command.cursor(), fetchSize
         );
 
         boolean hasNext = fetched.size() > command.pageSize();
@@ -47,19 +47,19 @@ public class GetMyGifticonOrdersService implements GetMyGifticonOrdersUseCase {
         Long nextCursor = resolveNextCursor(sortType, hasNext, orders, command);
 
         long availableCount = findGifticonOrderPort.countByUserIdAndStatuses(
-                command.userId(), GifticonOrderStatusFilter.AVAILABLE.toStatuses()
+            command.userId(), GifticonOrderStatusFilter.AVAILABLE.toStatuses()
         );
         long completedOrExpiredCount = findGifticonOrderPort.countByUserIdAndStatuses(
-                command.userId(), GifticonOrderStatusFilter.COMPLETED_OR_EXPIRED.toStatuses()
+            command.userId(), GifticonOrderStatusFilter.COMPLETED_OR_EXPIRED.toStatuses()
         );
 
         LocalDate now = LocalDate.now(clock);
         List<MyGifticonOrderItem> items = orders.stream()
-                .map(order -> toItem(order, now))
-                .toList();
+            .map(order -> toItem(order, now))
+            .toList();
 
         return new GetMyGifticonOrdersResult(
-                availableCount, completedOrExpiredCount, hasNext, nextCursor, items
+            availableCount, completedOrExpiredCount, hasNext, nextCursor, items
         );
     }
 
@@ -70,8 +70,8 @@ public class GetMyGifticonOrdersService implements GetMyGifticonOrdersUseCase {
     }
 
     private Long resolveNextCursor(
-            GifticonOrderSortType sortType, boolean hasNext,
-            List<GifticonOrder> orders, GetMyGifticonOrdersCommand command
+        GifticonOrderSortType sortType, boolean hasNext,
+        List<GifticonOrder> orders, GetMyGifticonOrdersCommand command
     ) {
         if (!hasNext) {
             return null;
@@ -85,16 +85,16 @@ public class GetMyGifticonOrdersService implements GetMyGifticonOrdersUseCase {
 
     private MyGifticonOrderItem toItem(GifticonOrder order, LocalDate now) {
         return new MyGifticonOrderItem(
-                order.getId(),
-                order.getGoodsName(),
-                order.getBrandName(),
-                order.getProductImageUrl(),
-                order.getCashPrice().getValue(),
-                order.formatExpiryDate(),
-                order.calculateDaysRemaining(now),
-                order.resolveStatusLabel(),
-                order.getOrderStatus().name(),
-                order.getCreatedAt()
+            order.getId(),
+            order.getGoodsName(),
+            order.getBrandName(),
+            order.getProductImageUrl(),
+            order.getCashPrice().getValue(),
+            order.formatExpiryDate(),
+            order.calculateDaysRemaining(now),
+            order.resolveStatusLabel(),
+            order.getOrderStatus().name(),
+            order.getCreatedAt()
         );
     }
 }

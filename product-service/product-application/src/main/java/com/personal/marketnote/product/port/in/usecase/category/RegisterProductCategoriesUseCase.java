@@ -21,6 +21,6 @@ public interface RegisterProductCategoriesUseCase {
      * @Description 상품 카테고리를 등록합니다.
      */
     RegisterProductCategoriesResult registerProductCategories(
-            Long userId, boolean isAdmin, RegisterProductCategoriesCommand command
+        Long userId, boolean isAdmin, RegisterProductCategoriesCommand command
     );
 }

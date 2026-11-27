@@ -14,15 +14,15 @@ public class FulfillmentDeliveryOutOrdGoodsDetailQuery {
     private String outOrdSlipNo;
 
     public static FulfillmentDeliveryOutOrdGoodsDetailQuery of(
-            String customerCode,
-            String accessToken,
-            String outOrdSlipNo
+        String customerCode,
+        String accessToken,
+        String outOrdSlipNo
     ) {
         FulfillmentDeliveryOutOrdGoodsDetailQuery query = FulfillmentDeliveryOutOrdGoodsDetailQuery.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .outOrdSlipNo(outOrdSlipNo)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .outOrdSlipNo(outOrdSlipNo)
+            .build();
         query.validate();
         return query;
     }

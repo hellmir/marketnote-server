@@ -18,7 +18,7 @@ public class GetFulfillmentWarehousingAbnormalImageService implements GetFulfill
 
     @Override
     public GetFulfillmentWarehousingAbnormalImageResult getWarehousingAbnormalImage(
-            GetFulfillmentWarehousingAbnormalImageCommand command
+        GetFulfillmentWarehousingAbnormalImageCommand command
     ) {
         return getFulfillmentWarehousingAbnormalImagePort.getWarehousingAbnormalImage(command);
     }

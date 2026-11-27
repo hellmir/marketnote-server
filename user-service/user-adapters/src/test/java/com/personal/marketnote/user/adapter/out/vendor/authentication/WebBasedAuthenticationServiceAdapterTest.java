@@ -60,13 +60,13 @@ class WebBasedAuthenticationServiceAdapterTest {
     @BeforeEach
     void setUp() {
         adapter = new WebBasedAuthenticationServiceAdapter(
-                oauth2LoginUseCase,
-                tokenSupport,
-                "https://api.example.com",
-                List.of("https://www.example.com"),
-                httpCookieUtils,
-                jwtUtil,
-                saveRefreshTokenPort
+            oauth2LoginUseCase,
+            tokenSupport,
+            "https://api.example.com",
+            List.of("https://www.example.com"),
+            httpCookieUtils,
+            jwtUtil,
+            saveRefreshTokenPort
         );
         ReflectionTestUtils.setField(adapter, "refreshTokenTtlMillis", 1209600000L);
     }
@@ -81,7 +81,7 @@ class WebBasedAuthenticationServiceAdapterTest {
             // given
             String refreshToken = "valid-refresh-token";
             GrantedTokenInfo grantedTokenInfo = new GrantedTokenInfo(
-                    "new-access-token", "new-refresh-token", "1", AuthVendor.NATIVE, null, null, null
+                "new-access-token", "new-refresh-token", "1", AuthVendor.NATIVE, null, null, null
             );
             when(tokenSupport.refreshToken(refreshToken)).thenReturn(grantedTokenInfo);
 
@@ -92,7 +92,7 @@ class WebBasedAuthenticationServiceAdapterTest {
             HttpCookieObject cookieObject = mock(HttpCookieObject.class);
             when(cookieObject.asSetCookieHeaderValue()).thenReturn("refresh_token=valid-refresh-token; HttpOnly; Secure");
             when(httpCookieUtils.generateHttpOnlyCookie(eq(HttpCookieName.REFRESH_TOKEN), anyString(), anyLong()))
-                    .thenReturn(cookieObject);
+                .thenReturn(cookieObject);
 
             // when
             WebBasedTokenRefreshResponse response = adapter.issueNewAccessToken(refreshToken);
@@ -108,7 +108,7 @@ class WebBasedAuthenticationServiceAdapterTest {
             // given
             String refreshToken = "expiring-refresh-token";
             GrantedTokenInfo grantedTokenInfo = new GrantedTokenInfo(
-                    "new-access-token", "new-refresh-token", "5", AuthVendor.NATIVE, null, null, null
+                "new-access-token", "new-refresh-token", "5", AuthVendor.NATIVE, null, null, null
             );
             when(tokenSupport.refreshToken(refreshToken)).thenReturn(grantedTokenInfo);
 
@@ -119,7 +119,7 @@ class WebBasedAuthenticationServiceAdapterTest {
             HttpCookieObject cookieObject = mock(HttpCookieObject.class);
             when(cookieObject.asSetCookieHeaderValue()).thenReturn("refresh_token=new-refresh-token; HttpOnly; Secure");
             when(httpCookieUtils.generateHttpOnlyCookie(eq(HttpCookieName.REFRESH_TOKEN), anyString(), anyLong()))
-                    .thenReturn(cookieObject);
+                .thenReturn(cookieObject);
 
             // when
             adapter.issueNewAccessToken(refreshToken);
@@ -134,7 +134,7 @@ class WebBasedAuthenticationServiceAdapterTest {
             // given
             String refreshToken = "fresh-refresh-token";
             GrantedTokenInfo grantedTokenInfo = new GrantedTokenInfo(
-                    "new-access-token", "new-refresh-token", "1", AuthVendor.NATIVE, null, null, null
+                "new-access-token", "new-refresh-token", "1", AuthVendor.NATIVE, null, null, null
             );
             when(tokenSupport.refreshToken(refreshToken)).thenReturn(grantedTokenInfo);
 
@@ -145,7 +145,7 @@ class WebBasedAuthenticationServiceAdapterTest {
             HttpCookieObject cookieObject = mock(HttpCookieObject.class);
             when(cookieObject.asSetCookieHeaderValue()).thenReturn("refresh_token=fresh-refresh-token; HttpOnly; Secure");
             when(httpCookieUtils.generateHttpOnlyCookie(eq(HttpCookieName.REFRESH_TOKEN), anyString(), anyLong()))
-                    .thenReturn(cookieObject);
+                .thenReturn(cookieObject);
 
             // when
             adapter.issueNewAccessToken(refreshToken);
@@ -159,7 +159,7 @@ class WebBasedAuthenticationServiceAdapterTest {
         void shouldThrowExceptionWhenRefreshTokenIsNull() {
             // when & then
             assertThatThrownBy(() -> adapter.issueNewAccessToken(null))
-                    .isInstanceOf(InvalidRefreshTokenException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
         }
 
         @Test
@@ -167,7 +167,7 @@ class WebBasedAuthenticationServiceAdapterTest {
         void shouldThrowExceptionWhenRefreshTokenIsEmpty() {
             // when & then
             assertThatThrownBy(() -> adapter.issueNewAccessToken(""))
-                    .isInstanceOf(InvalidRefreshTokenException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
         }
     }
 
@@ -181,16 +181,16 @@ class WebBasedAuthenticationServiceAdapterTest {
             // given
             String refreshToken = "invalid-refresh-token";
             InvalidRefreshTokenException vendor4xx = new InvalidRefreshTokenException(
-                    "vendor responded with 401",
-                    HttpClientErrorException.create(
-                            HttpStatus.UNAUTHORIZED, "Unauthorized", null, null, null
-                    )
+                "vendor responded with 401",
+                HttpClientErrorException.create(
+                    HttpStatus.UNAUTHORIZED, "Unauthorized", null, null, null
+                )
             );
             when(tokenSupport.refreshToken(refreshToken)).thenThrow(vendor4xx);
 
             // when & then
             assertThatThrownBy(() -> adapter.issueNewAccessToken(refreshToken))
-                    .isInstanceOf(InvalidRefreshTokenException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
             verify(tokenSupport).refreshToken(refreshToken);
             verifyNoInteractions(saveRefreshTokenPort);
         }
@@ -201,13 +201,13 @@ class WebBasedAuthenticationServiceAdapterTest {
             // given
             String refreshToken = "any-refresh-token";
             HttpServerErrorException vendor5xx = HttpServerErrorException.create(
-                    HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", null, null, null
+                HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", null, null, null
             );
             when(tokenSupport.refreshToken(refreshToken)).thenThrow(vendor5xx);
 
             // when & then
             assertThatThrownBy(() -> adapter.issueNewAccessToken(refreshToken))
-                    .isInstanceOf(HttpServerErrorException.class);
+                .isInstanceOf(HttpServerErrorException.class);
             verify(tokenSupport).refreshToken(refreshToken);
             verifyNoInteractions(saveRefreshTokenPort);
         }
@@ -220,15 +220,15 @@ class WebBasedAuthenticationServiceAdapterTest {
             when(servletRequest.getRequestURI()).thenReturn("/api/v1/oauth2/login");
 
             OAuth2LoginRequest loginRequest = new OAuth2LoginRequest(
-                    "KAKAO", "bad-code", null, servletRequest
+                "KAKAO", "bad-code", null, servletRequest
             );
 
             when(oauth2LoginUseCase.loginByOAuth2("bad-code", "https://api.example.com/api/v1/oauth2/login", AuthVendor.KAKAO))
-                    .thenThrow(new UnsupportedCodeException("invalid auth code"));
+                .thenThrow(new UnsupportedCodeException("invalid auth code"));
 
             // when & then
             assertThatThrownBy(() -> adapter.loginByOAuth2(loginRequest))
-                    .isInstanceOf(UnsupportedCodeException.class);
+                .isInstanceOf(UnsupportedCodeException.class);
         }
 
         @Test
@@ -239,21 +239,21 @@ class WebBasedAuthenticationServiceAdapterTest {
             when(servletRequest.getRequestURI()).thenReturn("/api/v1/oauth2/login");
 
             OAuth2LoginRequest loginRequest = new OAuth2LoginRequest(
-                    "GOOGLE", "auth-code", null, servletRequest
+                "GOOGLE", "auth-code", null, servletRequest
             );
 
             InvalidRefreshTokenException vendor4xx = new InvalidRefreshTokenException(
-                    "google responded with 400",
-                    HttpClientErrorException.create(
-                            HttpStatus.BAD_REQUEST, "Bad Request", null, null, null
-                    )
+                "google responded with 400",
+                HttpClientErrorException.create(
+                    HttpStatus.BAD_REQUEST, "Bad Request", null, null, null
+                )
             );
             when(oauth2LoginUseCase.loginByOAuth2("auth-code", "https://api.example.com/api/v1/oauth2/login", AuthVendor.GOOGLE))
-                    .thenThrow(vendor4xx);
+                .thenThrow(vendor4xx);
 
             // when & then
             assertThatThrownBy(() -> adapter.loginByOAuth2(loginRequest))
-                    .isInstanceOf(InvalidRefreshTokenException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
         }
     }
 
@@ -269,18 +269,18 @@ class WebBasedAuthenticationServiceAdapterTest {
             when(servletRequest.getRequestURI()).thenReturn("/api/v1/oauth2/login");
 
             OAuth2LoginRequest loginRequest = new OAuth2LoginRequest(
-                    "KAKAO", "auth-code", null, servletRequest
+                "KAKAO", "auth-code", null, servletRequest
             );
 
             LoginResult loginResult = LoginResult.of(true, "access-token", "refresh-token", "테스터");
             when(oauth2LoginUseCase.loginByOAuth2("auth-code", "https://api.example.com/api/v1/oauth2/login", AuthVendor.KAKAO))
-                    .thenReturn(loginResult);
+                .thenReturn(loginResult);
 
             HttpCookieObject cookieObject = mock(HttpCookieObject.class);
             when(cookieObject.asSetCookieHeaderValue())
-                    .thenReturn("refresh_token=refresh-token; HttpOnly; Secure; Max-Age=2592000");
+                .thenReturn("refresh_token=refresh-token; HttpOnly; Secure; Max-Age=2592000");
             when(httpCookieUtils.generateHttpOnlyCookie(eq(HttpCookieName.REFRESH_TOKEN), eq("refresh-token"), anyLong()))
-                    .thenReturn(cookieObject);
+                .thenReturn(cookieObject);
 
             // when
             OAuth2LoginResponse response = adapter.loginByOAuth2(loginRequest);
@@ -303,18 +303,18 @@ class WebBasedAuthenticationServiceAdapterTest {
             when(servletRequest.getRequestURI()).thenReturn("/api/v1/oauth2/login");
 
             OAuth2LoginRequest loginRequest = new OAuth2LoginRequest(
-                    "GOOGLE", "auth-code", "https://custom.example.com/path", servletRequest
+                "GOOGLE", "auth-code", "https://custom.example.com/path", servletRequest
             );
 
             LoginResult loginResult = LoginResult.of(false, "access-token", "refresh-token", null);
             when(oauth2LoginUseCase.loginByOAuth2("auth-code", "https://api.example.com/api/v1/oauth2/login", AuthVendor.GOOGLE))
-                    .thenReturn(loginResult);
+                .thenReturn(loginResult);
 
             HttpCookieObject cookieObject = mock(HttpCookieObject.class);
             when(cookieObject.asSetCookieHeaderValue())
-                    .thenReturn("refresh_token=refresh-token; HttpOnly; Secure");
+                .thenReturn("refresh_token=refresh-token; HttpOnly; Secure");
             when(httpCookieUtils.generateHttpOnlyCookie(eq(HttpCookieName.REFRESH_TOKEN), eq("refresh-token"), anyLong()))
-                    .thenReturn(cookieObject);
+                .thenReturn(cookieObject);
 
             // when
             OAuth2LoginResponse response = adapter.loginByOAuth2(loginRequest);
@@ -333,18 +333,18 @@ class WebBasedAuthenticationServiceAdapterTest {
             when(servletRequest.getRequestURI()).thenReturn("/api/v1/oauth2/login");
 
             OAuth2LoginRequest loginRequest = new OAuth2LoginRequest(
-                    "APPLE", "auth-code", "", servletRequest
+                "APPLE", "auth-code", "", servletRequest
             );
 
             LoginResult loginResult = LoginResult.of(true, "access-token", "refresh-token", "tester");
             when(oauth2LoginUseCase.loginByOAuth2("auth-code", "https://api.example.com/api/v1/oauth2/login", AuthVendor.APPLE))
-                    .thenReturn(loginResult);
+                .thenReturn(loginResult);
 
             HttpCookieObject cookieObject = mock(HttpCookieObject.class);
             when(cookieObject.asSetCookieHeaderValue())
-                    .thenReturn("refresh_token=refresh-token; HttpOnly; Secure");
+                .thenReturn("refresh_token=refresh-token; HttpOnly; Secure");
             when(httpCookieUtils.generateHttpOnlyCookie(eq(HttpCookieName.REFRESH_TOKEN), eq("refresh-token"), anyLong()))
-                    .thenReturn(cookieObject);
+                .thenReturn(cookieObject);
 
             // when
             OAuth2LoginResponse response = adapter.loginByOAuth2(loginRequest);
@@ -363,18 +363,18 @@ class WebBasedAuthenticationServiceAdapterTest {
             when(servletRequest.getRequestURI()).thenReturn("/api/v1/oauth2/login");
 
             OAuth2LoginRequest loginRequest = new OAuth2LoginRequest(
-                    "KAKAO", "auth-code", null, servletRequest
+                "KAKAO", "auth-code", null, servletRequest
             );
 
             LoginResult loginResult = LoginResult.of(false, "access-token", "refresh-token", null);
             when(oauth2LoginUseCase.loginByOAuth2(anyString(), anyString(), eq(AuthVendor.KAKAO)))
-                    .thenReturn(loginResult);
+                .thenReturn(loginResult);
 
             HttpCookieObject cookieObject = mock(HttpCookieObject.class);
             when(cookieObject.asSetCookieHeaderValue())
-                    .thenReturn("refresh_token=refresh-token; HttpOnly; Secure");
+                .thenReturn("refresh_token=refresh-token; HttpOnly; Secure");
             when(httpCookieUtils.generateHttpOnlyCookie(eq(HttpCookieName.REFRESH_TOKEN), eq("refresh-token"), anyLong()))
-                    .thenReturn(cookieObject);
+                .thenReturn(cookieObject);
 
             // when
             OAuth2LoginResponse response = adapter.loginByOAuth2(loginRequest);

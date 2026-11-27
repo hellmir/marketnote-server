@@ -28,11 +28,11 @@ public class JsonTokenSupport implements TokenSupport {
         String trimmedCode = code.substring(0, 20);
         String token = URLEncoder.encode(String.format("{ \"id\": \"%s\", \"name\": \"안유진\", \"profileImageUrl\": \"https://dimg.donga.com/wps/NEWS/IMAGE/2020/12/09/104244741.2.jpg\"}", trimmedCode), StandardCharsets.UTF_8);
         return GrantedTokenInfo.builder()
-                .accessToken(token)
-                .refreshToken(token)
-                .id(trimmedCode)
-                .authVendor(AuthVendor.NATIVE)
-                .build();
+            .accessToken(token)
+            .refreshToken(token)
+            .id(trimmedCode)
+            .authVendor(AuthVendor.NATIVE)
+            .build();
     }
 
     @Override
@@ -42,8 +42,8 @@ public class JsonTokenSupport implements TokenSupport {
             });
 
             return OAuth2AuthenticationInfo.builder()
-                    .id(result.get("id"))
-                    .build();
+                .id(result.get("id"))
+                .build();
         } catch (JsonProcessingException e) {
             throw new InvalidAccessTokenException(e.getMessage(), e);
         }
@@ -61,10 +61,10 @@ public class JsonTokenSupport implements TokenSupport {
     @Override
     public GrantedTokenInfo refreshToken(String refreshToken) throws InvalidRefreshTokenException {
         return GrantedTokenInfo.builder()
-                .accessToken(refreshToken)
-                .refreshToken(refreshToken)
-                .id(authenticate(refreshToken).id())
-                .authVendor(AuthVendor.NATIVE)
-                .build();
+            .accessToken(refreshToken)
+            .refreshToken(refreshToken)
+            .id(authenticate(refreshToken).id())
+            .authVendor(AuthVendor.NATIVE)
+            .build();
     }
 }

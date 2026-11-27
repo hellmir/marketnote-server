@@ -51,9 +51,9 @@ class BrandTalkButtonTest {
     void shouldRestoreFromSnapshotWithNullName() {
         // given
         BrandTalkButtonSnapshotState snapshot = BrandTalkButtonSnapshotState.builder()
-                .name(null)
-                .linkType(AligoTemplateButtonLinkType.AC)
-                .build();
+            .name(null)
+            .linkType(AligoTemplateButtonLinkType.AC)
+            .build();
 
         // when
         BrandTalkButton button = BrandTalkButton.from(snapshot);
@@ -68,11 +68,11 @@ class BrandTalkButtonTest {
     void shouldRestoreFromSnapshotWlWithNullLinks() {
         // given
         BrandTalkButtonSnapshotState snapshot = BrandTalkButtonSnapshotState.builder()
-                .name("웹링크")
-                .linkType(AligoTemplateButtonLinkType.WL)
-                .linkM(null)
-                .linkP(null)
-                .build();
+            .name("웹링크")
+            .linkType(AligoTemplateButtonLinkType.WL)
+            .linkM(null)
+            .linkP(null)
+            .build();
 
         // when
         BrandTalkButton button = BrandTalkButton.from(snapshot);
@@ -88,11 +88,11 @@ class BrandTalkButtonTest {
     void shouldRestoreFromSnapshotAlWithNullLinks() {
         // given
         BrandTalkButtonSnapshotState snapshot = BrandTalkButtonSnapshotState.builder()
-                .name("앱링크")
-                .linkType(AligoTemplateButtonLinkType.AL)
-                .linkI(null)
-                .linkA(null)
-                .build();
+            .name("앱링크")
+            .linkType(AligoTemplateButtonLinkType.AL)
+            .linkI(null)
+            .linkA(null)
+            .build();
 
         // when
         BrandTalkButton button = BrandTalkButton.from(snapshot);
@@ -108,13 +108,13 @@ class BrandTalkButtonTest {
     void shouldRestoreAllFieldsFromSnapshot() {
         // given
         BrandTalkButtonSnapshotState snapshot = BrandTalkButtonSnapshotState.builder()
-                .name("혼합 버튼")
-                .linkType(AligoTemplateButtonLinkType.WL)
-                .linkM("https://m.example.com")
-                .linkP("https://www.example.com")
-                .linkI("ios://app")
-                .linkA("android://app")
-                .build();
+            .name("혼합 버튼")
+            .linkType(AligoTemplateButtonLinkType.WL)
+            .linkM("https://m.example.com")
+            .linkP("https://www.example.com")
+            .linkI("ios://app")
+            .linkA("android://app")
+            .build();
 
         // when
         BrandTalkButton button = BrandTalkButton.from(snapshot);

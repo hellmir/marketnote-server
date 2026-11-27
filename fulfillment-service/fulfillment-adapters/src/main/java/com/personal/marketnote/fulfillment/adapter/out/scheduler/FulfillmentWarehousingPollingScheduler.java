@@ -44,14 +44,14 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
     public void schedule(ScheduleFulfillmentWarehousingPollingCommand command) {
         Instant requestAt = clock.instant();
         if (FormatValidator.hasNoValue(command)
-                || FormatValidator.hasNoValue(command.customerCode())
-                || FormatValidator.hasNoValue(command.orderNumber())) {
+            || FormatValidator.hasNoValue(command.customerCode())
+            || FormatValidator.hasNoValue(command.orderNumber())) {
             return;
         }
 
         PollingContext context = PollingContext.from(command, requestAt);
         if (FormatValidator.hasNoValue(context.startDate())
-                || FormatValidator.hasNoValue(context.endDate())) {
+            || FormatValidator.hasNoValue(context.endDate())) {
             log.warn("Warehousing polling skipped due to invalid date: ordNo={}", context.ordNo());
             return;
         }
@@ -87,18 +87,18 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
 
         try {
             FulfillmentWarehousingInfoResult completed = fulfillmentAuthenticatedCaller.call(accessToken ->
-                    resolveCompletedWarehousing(accessToken, context, COMPLETED_WORK_STATUS_CONFIRMED)
+                resolveCompletedWarehousing(accessToken, context, COMPLETED_WORK_STATUS_CONFIRMED)
             );
             if (FormatValidator.hasNoValue(completed)) {
                 completed = fulfillmentAuthenticatedCaller.call(accessToken ->
-                        resolveCompletedWarehousing(accessToken, context, COMPLETED_WORK_STATUS_COMPLETED)
+                    resolveCompletedWarehousing(accessToken, context, COMPLETED_WORK_STATUS_COMPLETED)
                 );
             }
             if (FormatValidator.hasValue(completed)) {
                 String warehouseCode = completed.warehouseCode();
                 if (FormatValidator.hasValue(warehouseCode)) {
                     syncFulfillmentAllStockUseCase.syncAll(
-                            SyncFulfillmentAllStockCommand.of(context.customerCode(), warehouseCode)
+                        SyncFulfillmentAllStockCommand.of(context.customerCode(), warehouseCode)
                     );
                     stopPolling(context.ordNo());
                     return;
@@ -113,28 +113,28 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
     }
 
     private FulfillmentWarehousingInfoResult resolveCompletedWarehousing(
-            String accessToken,
-            PollingContext context,
-            String workStatus
+        String accessToken,
+        PollingContext context,
+        String workStatus
     ) {
         GetFulfillmentWarehousingResult result = getFulfillmentWarehousingUseCase.getWarehousing(
-                GetFulfillmentWarehousingCommand.builder()
-                        .customerCode(context.customerCode())
-                        .accessToken(accessToken)
-                        .startDate(context.startDate())
-                        .endDate(context.endDate())
-                        .orderNumber(context.ordNo())
-                        .workStatus(workStatus)
-                        .build()
+            GetFulfillmentWarehousingCommand.builder()
+                .customerCode(context.customerCode())
+                .accessToken(accessToken)
+                .startDate(context.startDate())
+                .endDate(context.endDate())
+                .orderNumber(context.ordNo())
+                .workStatus(workStatus)
+                .build()
         );
         if (FormatValidator.hasNoValue(result) || FormatValidator.hasNoValue(result.warehousing())) {
             return null;
         }
 
         return result.warehousing().stream()
-                .filter(item -> FormatValidator.hasValue(item) && workStatus.equals(item.workStatus()))
-                .findFirst()
-                .orElse(null);
+            .filter(item -> FormatValidator.hasValue(item) && workStatus.equals(item.workStatus()))
+            .findFirst()
+            .orElse(null);
     }
 
     private void stopPolling(String ordNo) {
@@ -158,8 +158,8 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
 
     private Instant resolveNextRunAt(PollingContext context, Instant now) {
         Instant next = ZonedDateTime.ofInstant(now, DEFAULT_ZONE)
-                .plusMinutes(POLLING_INTERVAL_MINUTES)
-                .toInstant();
+            .plusMinutes(POLLING_INTERVAL_MINUTES)
+            .toInstant();
         if (next.isAfter(context.windowEnd())) {
             return null;
         }
@@ -181,13 +181,13 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
     }
 
     private record PollingContext(
-            String customerCode,
-            String ordNo,
-            String startDate,
-            String endDate,
-            LocalDate requestDate,
-            Instant windowStart,
-            Instant windowEnd
+        String customerCode,
+        String ordNo,
+        String startDate,
+        String endDate,
+        LocalDate requestDate,
+        Instant windowStart,
+        Instant windowEnd
     ) {
         private static PollingContext from(ScheduleFulfillmentWarehousingPollingCommand command, Instant requestAt) {
             LocalDate requestDate = resolveRequestDate(requestAt);
@@ -195,13 +195,13 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
             Instant windowStart = ZonedDateTime.of(requestDate, POLLING_START_TIME, DEFAULT_ZONE).toInstant();
             Instant windowEnd = ZonedDateTime.of(requestDate, POLLING_END_TIME, DEFAULT_ZONE).toInstant();
             return new PollingContext(
-                    command.customerCode(),
-                    command.orderNumber(),
-                    normalizedDate,
-                    normalizedDate,
-                    requestDate,
-                    windowStart,
-                    windowEnd
+                command.customerCode(),
+                command.orderNumber(),
+                normalizedDate,
+                normalizedDate,
+                requestDate,
+                windowStart,
+                windowEnd
             );
         }
 

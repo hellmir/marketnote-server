@@ -25,27 +25,27 @@ class FasstoShopCommandToRequestMapperTest {
         void shouldMapAllFields() {
             // given
             RegisterFulfillmentShopCommand command = RegisterFulfillmentShopCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("token")
-                    .shopName("쇼핑몰명")
-                    .customerShopCode("CSTSHOP001")
-                    .dealStartDate("20260101")
-                    .dealEndDate("20261231")
-                    .zipCode("06000")
-                    .address1("서울시 강남구")
-                    .address2("101호")
-                    .ceoName("김대표")
-                    .businessNumber("123-45-67890")
-                    .phoneNumber("02-1234-5678")
-                    .unloadMethod("하차방식")
-                    .inspectionMethod("검수방식")
-                    .standbyYn("Y")
-                    .formType("일반")
-                    .managerName("담당자")
-                    .managerPosition("직책")
-                    .managerPhoneNumber("010-1111-2222")
-                    .useYn("Y")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("token")
+                .shopName("쇼핑몰명")
+                .customerShopCode("CSTSHOP001")
+                .dealStartDate("20260101")
+                .dealEndDate("20261231")
+                .zipCode("06000")
+                .address1("서울시 강남구")
+                .address2("101호")
+                .ceoName("김대표")
+                .businessNumber("123-45-67890")
+                .phoneNumber("02-1234-5678")
+                .unloadMethod("하차방식")
+                .inspectionMethod("검수방식")
+                .standbyYn("Y")
+                .formType("일반")
+                .managerName("담당자")
+                .managerPosition("직책")
+                .managerPhoneNumber("010-1111-2222")
+                .useYn("Y")
+                .build();
 
             // when
             FulfillmentShopMapper mapper = FasstoShopCommandToRequestMapper.mapToRegisterRequest(command);
@@ -55,25 +55,25 @@ class FasstoShopCommandToRequestMapperTest {
             assertThat(mapper.getAccessToken()).isEqualTo("token");
             Map<String, Object> payload = mapper.toPayload();
             assertThat(payload)
-                    .containsEntry("shopCd", "registration")
-                    .containsEntry("shopNm", "쇼핑몰명")
-                    .containsEntry("cstShopCd", "CSTSHOP001")
-                    .containsEntry("dealStrDt", "20260101")
-                    .containsEntry("dealEndDt", "20261231")
-                    .containsEntry("zipNo", "06000")
-                    .containsEntry("addr1", "서울시 강남구")
-                    .containsEntry("addr2", "101호")
-                    .containsEntry("ceoNm", "김대표")
-                    .containsEntry("busNo", "123-45-67890")
-                    .containsEntry("telNo", "02-1234-5678")
-                    .containsEntry("unloadWay", "하차방식")
-                    .containsEntry("checkWay", "검수방식")
-                    .containsEntry("standYn", "Y")
-                    .containsEntry("formType", "일반")
-                    .containsEntry("empNm", "담당자")
-                    .containsEntry("empPosit", "직책")
-                    .containsEntry("empTelNo", "010-1111-2222")
-                    .containsEntry("useYn", "Y");
+                .containsEntry("shopCd", "registration")
+                .containsEntry("shopNm", "쇼핑몰명")
+                .containsEntry("cstShopCd", "CSTSHOP001")
+                .containsEntry("dealStrDt", "20260101")
+                .containsEntry("dealEndDt", "20261231")
+                .containsEntry("zipNo", "06000")
+                .containsEntry("addr1", "서울시 강남구")
+                .containsEntry("addr2", "101호")
+                .containsEntry("ceoNm", "김대표")
+                .containsEntry("busNo", "123-45-67890")
+                .containsEntry("telNo", "02-1234-5678")
+                .containsEntry("unloadWay", "하차방식")
+                .containsEntry("checkWay", "검수방식")
+                .containsEntry("standYn", "Y")
+                .containsEntry("formType", "일반")
+                .containsEntry("empNm", "담당자")
+                .containsEntry("empPosit", "직책")
+                .containsEntry("empTelNo", "010-1111-2222")
+                .containsEntry("useYn", "Y");
         }
 
         @Test
@@ -81,10 +81,10 @@ class FasstoShopCommandToRequestMapperTest {
         void shouldOmitNullOptionalFields() {
             // given
             RegisterFulfillmentShopCommand command = RegisterFulfillmentShopCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("token")
-                    .shopName("쇼핑몰명")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("token")
+                .shopName("쇼핑몰명")
+                .build();
 
             // when
             FulfillmentShopMapper mapper = FasstoShopCommandToRequestMapper.mapToRegisterRequest(command);
@@ -104,28 +104,28 @@ class FasstoShopCommandToRequestMapperTest {
         void shouldMapShopCode() {
             // given
             UpdateFulfillmentShopCommand command = UpdateFulfillmentShopCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("token")
-                    .shopCode("SHOP001")
-                    .shopName("쇼핑몰명")
-                    .customerShopCode("CSTSHOP001")
-                    .dealStartDate("20260101")
-                    .dealEndDate("20261231")
-                    .zipCode("06000")
-                    .address1("서울시 강남구")
-                    .address2("101호")
-                    .ceoName("김대표")
-                    .businessNumber("123-45-67890")
-                    .phoneNumber("02-1234-5678")
-                    .unloadMethod("하차방식")
-                    .inspectionMethod("검수방식")
-                    .standbyYn("Y")
-                    .formType("일반")
-                    .managerName("담당자")
-                    .managerPosition("직책")
-                    .managerPhoneNumber("010-1111-2222")
-                    .useYn("Y")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("token")
+                .shopCode("SHOP001")
+                .shopName("쇼핑몰명")
+                .customerShopCode("CSTSHOP001")
+                .dealStartDate("20260101")
+                .dealEndDate("20261231")
+                .zipCode("06000")
+                .address1("서울시 강남구")
+                .address2("101호")
+                .ceoName("김대표")
+                .businessNumber("123-45-67890")
+                .phoneNumber("02-1234-5678")
+                .unloadMethod("하차방식")
+                .inspectionMethod("검수방식")
+                .standbyYn("Y")
+                .formType("일반")
+                .managerName("담당자")
+                .managerPosition("직책")
+                .managerPhoneNumber("010-1111-2222")
+                .useYn("Y")
+                .build();
 
             // when
             FulfillmentShopMapper mapper = FasstoShopCommandToRequestMapper.mapToUpdateRequest(command);

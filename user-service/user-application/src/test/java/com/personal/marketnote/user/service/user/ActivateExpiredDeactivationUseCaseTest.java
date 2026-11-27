@@ -45,7 +45,7 @@ class ActivateExpiredDeactivationUseCaseTest {
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
         service = new ActivateExpiredDeactivationService(
-                fixedClock, findUserPort, updateUserPort, saveUserStatusHistoryPort
+            fixedClock, findUserPort, updateUserPort, saveUserStatusHistoryPort
         );
     }
 
@@ -73,7 +73,7 @@ class ActivateExpiredDeactivationUseCaseTest {
         // given
         Long userId = 10L;
         User inactiveUser = createInactiveUserWithDeactivatedUntil(
-                userId, NOW.minusDays(1)
+            userId, NOW.minusDays(1)
         );
         when(findUserPort.findAllByDeactivatedUntilExpired(NOW)).thenReturn(List.of(inactiveUser));
         when(saveUserStatusHistoryPort.save(any(UserStatusHistory.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -132,7 +132,7 @@ class ActivateExpiredDeactivationUseCaseTest {
         when(saveUserStatusHistoryPort.save(any(UserStatusHistory.class))).thenAnswer(inv -> inv.getArgument(0));
 
         org.mockito.Mockito.doThrow(new RuntimeException("DB error"))
-                .when(updateUserPort).update(user1);
+            .when(updateUserPort).update(user1);
 
         // when
         ActivateExpiredDeactivationResult result = service.activateExpiredDeactivations();
@@ -148,20 +148,20 @@ class ActivateExpiredDeactivationUseCaseTest {
 
     private User createInactiveUserWithDeactivatedUntil(Long id, LocalDateTime deactivatedUntil) {
         return UserTestObjectFactory.createUser(
-                id,
-                "user" + id,
-                "user" + id + "@test.com",
-                "테스터" + id,
-                "0109000000" + (id % 10),
-                "REF0" + String.format("%02d", id % 100),
-                com.personal.marketnote.user.domain.authentication.Role.getBuyer(),
-                List.of(),
-                LocalDateTime.of(2024, 1, 1, 0, 0),
-                LocalDateTime.of(2024, 1, 2, 0, 0),
-                EntityStatus.INACTIVE,
-                false,
-                0L,
-                deactivatedUntil
+            id,
+            "user" + id,
+            "user" + id + "@test.com",
+            "테스터" + id,
+            "0109000000" + (id % 10),
+            "REF0" + String.format("%02d", id % 100),
+            com.personal.marketnote.user.domain.authentication.Role.getBuyer(),
+            List.of(),
+            LocalDateTime.of(2024, 1, 1, 0, 0),
+            LocalDateTime.of(2024, 1, 2, 0, 0),
+            EntityStatus.INACTIVE,
+            false,
+            0L,
+            deactivatedUntil
         );
     }
 }

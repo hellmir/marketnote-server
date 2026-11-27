@@ -147,7 +147,7 @@ class GifticonPinEncryptAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.decrypt(tampered))
-                    .isInstanceOf(GifticonPinDecryptionFailedException.class);
+                .isInstanceOf(GifticonPinDecryptionFailedException.class);
         }
 
         @Test
@@ -162,7 +162,7 @@ class GifticonPinEncryptAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.decrypt(tampered))
-                    .isInstanceOf(GifticonPinDecryptionFailedException.class);
+                .isInstanceOf(GifticonPinDecryptionFailedException.class);
         }
 
         @Test
@@ -177,7 +177,7 @@ class GifticonPinEncryptAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.decrypt(tampered))
-                    .isInstanceOf(GifticonPinDecryptionFailedException.class);
+                .isInstanceOf(GifticonPinDecryptionFailedException.class);
         }
 
         @Test
@@ -208,8 +208,8 @@ class GifticonPinEncryptAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.decrypt(legacyEncrypted))
-                    .isInstanceOf(GifticonPinDecryptionFailedException.class)
-                    .hasNoCause();
+                .isInstanceOf(GifticonPinDecryptionFailedException.class)
+                .hasNoCause();
         }
     }
 
@@ -221,7 +221,7 @@ class GifticonPinEncryptAdapterTest {
         @DisplayName("잘못된 Base64 문자열 복호화 시 GifticonPinDecryptionFailedException이 발생한다")
         void throwsWhenDecryptingInvalidBase64() {
             assertThatThrownBy(() -> adapter.decrypt("!!!-not-valid-base64-!!!"))
-                    .isInstanceOf(GifticonPinDecryptionFailedException.class);
+                .isInstanceOf(GifticonPinDecryptionFailedException.class);
         }
 
         @Test
@@ -229,13 +229,13 @@ class GifticonPinEncryptAdapterTest {
         void throwsWhenDecryptingWithDifferentKey() {
             // given
             GifticonPinEncryptAdapter otherAdapter = buildAdapter(
-                    "FEDCBA9876543210FEDCBA9876543210", new SimpleMeterRegistry()
+                "FEDCBA9876543210FEDCBA9876543210", new SimpleMeterRegistry()
             );
             String encrypted = otherAdapter.encrypt("비밀-핀");
 
             // when & then
             assertThatThrownBy(() -> adapter.decrypt(encrypted))
-                    .isInstanceOf(GifticonPinDecryptionFailedException.class);
+                .isInstanceOf(GifticonPinDecryptionFailedException.class);
         }
     }
 
@@ -276,7 +276,7 @@ class GifticonPinEncryptAdapterTest {
         void acceptsAes256Key() {
             // given
             GifticonPinEncryptAdapter adapter = buildAdapter(
-                    "0123456789ABCDEF0123456789ABCDEF", new SimpleMeterRegistry()
+                "0123456789ABCDEF0123456789ABCDEF", new SimpleMeterRegistry()
             );
 
             // when
@@ -291,38 +291,38 @@ class GifticonPinEncryptAdapterTest {
         @DisplayName("15바이트 키이면 InvalidGifticonPinEncryptKeyException이 발생하고 메시지에 actualLength=15가 포함된다")
         void rejectsFifteenByteKey() {
             assertThatThrownBy(() -> buildAdapter("0123456789ABCDE", new SimpleMeterRegistry()))
-                    .isInstanceOf(InvalidGifticonPinEncryptKeyException.class)
-                    .hasMessageContaining("actualLength=15");
+                .isInstanceOf(InvalidGifticonPinEncryptKeyException.class)
+                .hasMessageContaining("actualLength=15");
         }
 
         @Test
         @DisplayName("17바이트 키이면 InvalidGifticonPinEncryptKeyException이 발생하고 메시지에 actualLength=17이 포함된다")
         void rejectsSeventeenByteKey() {
             assertThatThrownBy(() -> buildAdapter("0123456789ABCDEF0", new SimpleMeterRegistry()))
-                    .isInstanceOf(InvalidGifticonPinEncryptKeyException.class)
-                    .hasMessageContaining("actualLength=17");
+                .isInstanceOf(InvalidGifticonPinEncryptKeyException.class)
+                .hasMessageContaining("actualLength=17");
         }
 
         @Test
         @DisplayName("21바이트 키이면 InvalidGifticonPinEncryptKeyException이 발생하고 메시지에 actualLength=21이 포함된다 (기존 기본값 부적절 증명)")
         void rejectsLegacyDefaultKey() {
             assertThatThrownBy(() -> buildAdapter("dev-pin-key-change-me", new SimpleMeterRegistry()))
-                    .isInstanceOf(InvalidGifticonPinEncryptKeyException.class)
-                    .hasMessageContaining("actualLength=21");
+                .isInstanceOf(InvalidGifticonPinEncryptKeyException.class)
+                .hasMessageContaining("actualLength=21");
         }
 
         @Test
         @DisplayName("빈 문자열 키이면 GifticonPinEncryptKeyNoValueException이 발생한다")
         void rejectsEmptyKey() {
             assertThatThrownBy(() -> buildAdapter("", new SimpleMeterRegistry()))
-                    .isInstanceOf(GifticonPinEncryptKeyNoValueException.class);
+                .isInstanceOf(GifticonPinEncryptKeyNoValueException.class);
         }
 
         @Test
         @DisplayName("null 키이면 GifticonPinEncryptKeyNoValueException이 발생한다")
         void rejectsNullKey() {
             assertThatThrownBy(() -> buildAdapter(null, new SimpleMeterRegistry()))
-                    .isInstanceOf(GifticonPinEncryptKeyNoValueException.class);
+                .isInstanceOf(GifticonPinEncryptKeyNoValueException.class);
         }
     }
 
@@ -338,7 +338,7 @@ class GifticonPinEncryptAdapterTest {
 
             // when
             assertThatThrownBy(() -> adapter.decrypt(legacyEncrypted))
-                    .isInstanceOf(GifticonPinDecryptionFailedException.class);
+                .isInstanceOf(GifticonPinDecryptionFailedException.class);
 
             // then
             assertThat(meterRegistry.counter(LEGACY_CBC_REJECTED_COUNTER).count()).isEqualTo(1.0);

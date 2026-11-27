@@ -39,17 +39,17 @@ class ShippingPolicyChangedReadModelConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(EventEnvelope<?> envelope) {
         return new ConsumerRecord<>(
-                KafkaTopicConstants.SHIPPING_POLICY_CHANGED, 0, 0, "10", envelope
+            KafkaTopicConstants.SHIPPING_POLICY_CHANGED, 0, 0, "10", envelope
         );
     }
 
     private EventEnvelope<ShippingPolicyChangedEvent> createEnvelope(ShippingPolicyChangedEvent payload) {
         return new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.SHIPPING_POLICY_CHANGED,
-                "product-service",
-                LocalDateTime.of(2026, 3, 31, 10, 0),
-                payload
+            "test-event-id",
+            KafkaTopicConstants.SHIPPING_POLICY_CHANGED,
+            "product-service",
+            LocalDateTime.of(2026, 3, 31, 10, 0),
+            payload
         );
     }
 
@@ -58,7 +58,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_created_upsertsReadModel() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
+            10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -76,7 +76,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_updated_upsertsReadModel() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                20L, 2500L, 30000L, 4000L, 6000L, ShippingPolicyChangeAction.UPDATED
+            20L, 2500L, 30000L, 4000L, 6000L, ShippingPolicyChangeAction.UPDATED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -94,7 +94,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_deleted_deactivatesReadModel() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.DELETED
+            10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.DELETED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -113,7 +113,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_nullEnvelope_acknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.SHIPPING_POLICY_CHANGED, 0, 0, "10", null
+            KafkaTopicConstants.SHIPPING_POLICY_CHANGED, 0, 0, "10", null
         );
 
         // when
@@ -129,14 +129,14 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_eventTypeMismatch_acknowledges() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
+            10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = new EventEnvelope<>(
-                "test-event-id",
-                "wrong.event.type",
-                "product-service",
-                LocalDateTime.of(2026, 3, 31, 10, 0),
-                payload
+            "test-event-id",
+            "wrong.event.type",
+            "product-service",
+            LocalDateTime.of(2026, 3, 31, 10, 0),
+            payload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -153,7 +153,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_nullSellerId_acknowledges() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                null, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
+            null, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -171,7 +171,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_zeroSellerId_acknowledges() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                0L, 3000L, 20000L, 0L, 0L, ShippingPolicyChangeAction.CREATED
+            0L, 3000L, 20000L, 0L, 0L, ShippingPolicyChangeAction.CREATED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -189,7 +189,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_negativeSellerId_acknowledges() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                -1L, 3000L, 20000L, 0L, 0L, ShippingPolicyChangeAction.CREATED
+            -1L, 3000L, 20000L, 0L, 0L, ShippingPolicyChangeAction.CREATED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -207,19 +207,19 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_deserializationFailure_propagatesException() {
         // given
         EventEnvelope<String> envelope = new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.SHIPPING_POLICY_CHANGED,
-                "product-service",
-                LocalDateTime.of(2026, 3, 31, 10, 0),
-                "invalid-payload"
+            "test-event-id",
+            KafkaTopicConstants.SHIPPING_POLICY_CHANGED,
+            "product-service",
+            LocalDateTime.of(2026, 3, 31, 10, 0),
+            "invalid-payload"
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.SHIPPING_POLICY_CHANGED, 0, 0, "10", envelope
+            KafkaTopicConstants.SHIPPING_POLICY_CHANGED, 0, 0, "10", envelope
         );
 
         // when & then
         assertThatThrownBy(() -> consumer.handleShippingPolicyChangedEvent(record, acknowledgment))
-                .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(IllegalArgumentException.class);
 
         verify(acknowledgment, never()).acknowledge();
     }

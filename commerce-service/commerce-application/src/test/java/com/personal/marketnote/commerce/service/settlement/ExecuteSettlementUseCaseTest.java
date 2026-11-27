@@ -46,29 +46,29 @@ class ExecuteSettlementUseCaseTest {
 
     private PaymentAllocation createAllocation(Long id, Long sellerId, Long allocatedAmount) {
         return PaymentAllocation.from(PaymentAllocationSnapshotState.builder()
-                .id(id)
-                .orderId(100L)
-                .sellerId(sellerId)
-                .allocatedAmount(allocatedAmount)
-                .shippingFee(0L)
-                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                .targetType(PaymentAllocationTargetType.ORDER)
-                .idempotencyKey(IdempotencyKey.of("TEST:" + id))
-                .createdAt(LocalDateTime.of(2026, 2, 15, 10, 0))
-                .build());
+            .id(id)
+            .orderId(100L)
+            .sellerId(sellerId)
+            .allocatedAmount(allocatedAmount)
+            .shippingFee(0L)
+            .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+            .targetType(PaymentAllocationTargetType.ORDER)
+            .idempotencyKey(IdempotencyKey.of("TEST:" + id))
+            .createdAt(LocalDateTime.of(2026, 2, 15, 10, 0))
+            .build());
     }
 
     private SettlementPolicy createPolicy(Long sellerId, Integer pgFeeRate, Integer platformFeeRate) {
         return SettlementPolicy.from(SettlementPolicySnapshotState.builder()
-                .id(1L)
-                .sellerId(sellerId)
-                .pgFeeRate(FeeRate.of(pgFeeRate))
-                .platformFeeRate(FeeRate.of(platformFeeRate))
-                .settlementCycle(SettlementCycle.MONTHLY)
-                .minPayoutAmount(0L)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
-                .build());
+            .id(1L)
+            .sellerId(sellerId)
+            .pgFeeRate(FeeRate.of(pgFeeRate))
+            .platformFeeRate(FeeRate.of(platformFeeRate))
+            .settlementCycle(SettlementCycle.MONTHLY)
+            .minPayoutAmount(0L)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
+            .build());
     }
 
     @Nested
@@ -88,12 +88,12 @@ class ExecuteSettlementUseCaseTest {
             PaymentAllocation allocation = createAllocation(1L, 10L, 5000L);
 
             when(findPaymentAllocationPort.findUnsettledAllocations(2026, 2))
-                    .thenReturn(List.of(allocation));
+                .thenReturn(List.of(allocation));
             when(findSettlementPolicyPort.findActiveBySellerIdIn(List.of(10L)))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).build();
+                .year(2026).month(2).build();
 
             // when
             executeSettlementService.executeSettlement(command);
@@ -110,12 +110,12 @@ class ExecuteSettlementUseCaseTest {
             SettlementPolicy policy = createPolicy(10L, 200, 400);
 
             when(findPaymentAllocationPort.findUnsettledAllocations(2026, 2))
-                    .thenReturn(List.of(allocation));
+                .thenReturn(List.of(allocation));
             when(findSettlementPolicyPort.findActiveBySellerIdIn(List.of(10L)))
-                    .thenReturn(Map.of(10L, policy));
+                .thenReturn(Map.of(10L, policy));
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).build();
+                .year(2026).month(2).build();
 
             // when
             executeSettlementService.executeSettlement(command);
@@ -133,12 +133,12 @@ class ExecuteSettlementUseCaseTest {
             SettlementPolicy policy = createPolicy(10L, 150, 350);
 
             when(findPaymentAllocationPort.findUnsettledAllocations(2026, 2))
-                    .thenReturn(List.of(seller10Alloc, seller20Alloc));
+                .thenReturn(List.of(seller10Alloc, seller20Alloc));
             when(findSettlementPolicyPort.findActiveBySellerIdIn(anyList()))
-                    .thenReturn(Map.of(10L, policy));
+                .thenReturn(Map.of(10L, policy));
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).build();
+                .year(2026).month(2).build();
 
             // when
             executeSettlementService.executeSettlement(command);
@@ -167,23 +167,23 @@ class ExecuteSettlementUseCaseTest {
             PaymentAllocation seller20Alloc = createAllocation(2L, 20L, 20000L);
 
             when(findPaymentAllocationPort.findUnsettledAllocations(2026, 2))
-                    .thenReturn(List.of(seller10Alloc, seller20Alloc));
+                .thenReturn(List.of(seller10Alloc, seller20Alloc));
             when(findSettlementPolicyPort.findActiveBySellerIdIn(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             doThrow(new RuntimeException("분개 기록 실패"))
-                    .doNothing()
-                    .when(processSellerSettlementService).process(any(), anyLong(), anyList(), anyInt(), anyInt());
+                .doNothing()
+                .when(processSellerSettlementService).process(any(), anyLong(), anyList(), anyInt(), anyInt());
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).build();
+                .year(2026).month(2).build();
 
             // when
             executeSettlementService.executeSettlement(command);
 
             // then
             verify(processSellerSettlementService, times(2)).process(
-                    eq(command), anyLong(), anyList(), anyInt(), anyInt()
+                eq(command), anyLong(), anyList(), anyInt(), anyInt()
             );
         }
 
@@ -194,15 +194,15 @@ class ExecuteSettlementUseCaseTest {
             PaymentAllocation seller10Alloc = createAllocation(1L, 10L, 10000L);
 
             when(findPaymentAllocationPort.findUnsettledAllocations(2026, 2))
-                    .thenReturn(List.of(seller10Alloc));
+                .thenReturn(List.of(seller10Alloc));
             when(findSettlementPolicyPort.findActiveBySellerIdIn(anyList()))
-                    .thenReturn(Map.of());
+                .thenReturn(Map.of());
 
             doThrow(new RuntimeException("분개 기록 실패"))
-                    .when(processSellerSettlementService).process(any(), anyLong(), anyList(), anyInt(), anyInt());
+                .when(processSellerSettlementService).process(any(), anyLong(), anyList(), anyInt(), anyInt());
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).build();
+                .year(2026).month(2).build();
 
             // when
             executeSettlementService.executeSettlement(command);
@@ -221,14 +221,14 @@ class ExecuteSettlementUseCaseTest {
         void shouldThrowWhenNoUnsettledAllocations() {
             // given
             when(findPaymentAllocationPort.findUnsettledAllocations(2026, 2))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).build();
+                .year(2026).month(2).build();
 
             // when & then
             assertThatThrownBy(() -> executeSettlementService.executeSettlement(command))
-                    .isInstanceOf(NoUnsettledAllocationException.class);
+                .isInstanceOf(NoUnsettledAllocationException.class);
 
             verifyNoInteractions(processSellerSettlementService);
         }

@@ -4,19 +4,19 @@ import com.personal.marketnote.common.configuration.kafka.DltReprocessResult;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 
 public record ReprocessDltResponse(
-        String originalTopic,
-        String dltTopic,
-        int reprocessedCount,
-        int failedCount,
-        int skippedCount
+    String originalTopic,
+    String dltTopic,
+    int reprocessedCount,
+    int failedCount,
+    int skippedCount
 ) {
     public static ReprocessDltResponse from(String originalTopic, DltReprocessResult result) {
         return new ReprocessDltResponse(
-                originalTopic,
-                originalTopic + KafkaTopicConstants.DLT_SUFFIX,
-                result.reprocessedCount(),
-                result.failedCount(),
-                result.skippedCount()
+            originalTopic,
+            originalTopic + KafkaTopicConstants.DLT_SUFFIX,
+            result.reprocessedCount(),
+            result.failedCount(),
+            result.skippedCount()
         );
     }
 }

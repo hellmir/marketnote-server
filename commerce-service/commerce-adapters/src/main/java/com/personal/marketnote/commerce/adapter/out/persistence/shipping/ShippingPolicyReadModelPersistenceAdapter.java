@@ -35,16 +35,16 @@ public class ShippingPolicyReadModelPersistenceAdapter implements FindShippingPo
         }
 
         List<ShippingPolicyReadModelJpaEntity> entities =
-                shippingPolicyReadModelJpaRepository.findAllBySellerIdInAndStatus(sellerIds, EntityStatus.ACTIVE);
+            shippingPolicyReadModelJpaRepository.findAllBySellerIdInAndStatus(sellerIds, EntityStatus.ACTIVE);
 
         Map<Long, ShippingPolicyInfoResult> result = new HashMap<>();
         for (ShippingPolicyReadModelJpaEntity entity : entities) {
             result.put(entity.getSellerId(), new ShippingPolicyInfoResult(
-                    entity.getSellerId(),
-                    entity.getShippingFee(),
-                    entity.getFreeShippingThreshold(),
-                    entity.getJejuSurcharge(),
-                    entity.getIslandSurcharge()
+                entity.getSellerId(),
+                entity.getShippingFee(),
+                entity.getFreeShippingThreshold(),
+                entity.getJejuSurcharge(),
+                entity.getIslandSurcharge()
             ));
         }
 
@@ -54,11 +54,11 @@ public class ShippingPolicyReadModelPersistenceAdapter implements FindShippingPo
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public void upsert(
-            Long sellerId, Long shippingFee, Long freeShippingThreshold,
-            Long jejuSurcharge, Long islandSurcharge
+        Long sellerId, Long shippingFee, Long freeShippingThreshold,
+        Long jejuSurcharge, Long islandSurcharge
     ) {
         Optional<ShippingPolicyReadModelJpaEntity> existing =
-                shippingPolicyReadModelJpaRepository.findBySellerId(sellerId);
+            shippingPolicyReadModelJpaRepository.findBySellerId(sellerId);
 
         if (existing.isPresent()) {
             existing.get().updateFrom(shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge);
@@ -67,16 +67,16 @@ public class ShippingPolicyReadModelPersistenceAdapter implements FindShippingPo
 
         try {
             ShippingPolicyReadModelJpaEntity entity = ShippingPolicyReadModelJpaEntity.of(
-                    sellerId, shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge
+                sellerId, shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge
             );
             shippingPolicyReadModelJpaRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException ignored) {
             // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회 후 업데이트로 복원
             log.info("배송비 정책 Read Model 중복 저장 (멱등 처리). sellerId={}", sellerId);
             shippingPolicyReadModelJpaRepository.findBySellerId(sellerId)
-                    .ifPresent(entity -> entity.updateFrom(
-                            shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge
-                    ));
+                .ifPresent(entity -> entity.updateFrom(
+                    shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge
+                ));
         }
     }
 
@@ -84,6 +84,6 @@ public class ShippingPolicyReadModelPersistenceAdapter implements FindShippingPo
     @Transactional(isolation = READ_COMMITTED)
     public void deactivateBySellerId(Long sellerId) {
         shippingPolicyReadModelJpaRepository.findBySellerId(sellerId)
-                .ifPresent(ShippingPolicyReadModelJpaEntity::markInactive);
+            .ifPresent(ShippingPolicyReadModelJpaEntity::markInactive);
     }
 }

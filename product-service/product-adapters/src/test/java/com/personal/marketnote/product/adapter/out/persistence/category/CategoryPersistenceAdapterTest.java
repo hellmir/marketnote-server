@@ -101,7 +101,7 @@ class CategoryPersistenceAdapterTest {
         @DisplayName("ACTIVE 상태로 조회한다")
         void callsRepositoryWithActiveStatus() {
             when(categoryJpaRepository.findAllByIdInAndStatus(List.of(1L, 2L), EntityStatus.ACTIVE))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             List<Category> result = adapter.findAllActiveByIds(List.of(1L, 2L));
 
@@ -161,7 +161,7 @@ class CategoryPersistenceAdapterTest {
         @DisplayName("자식 카테고리 존재 여부를 ACTIVE 상태로 확인한다")
         void checksActiveChildren() {
             when(categoryJpaRepository.existsByParentCategoryIdAndStatus(1L, EntityStatus.ACTIVE))
-                    .thenReturn(true);
+                .thenReturn(true);
 
             boolean result = adapter.existsChildren(1L);
 
@@ -191,12 +191,12 @@ class CategoryPersistenceAdapterTest {
         @DisplayName("카테고리가 존재하면 엔티티를 업데이트한다")
         void updatesExisting() {
             Category category = Category.from(
-                    CategorySnapshotState.builder()
-                            .id(1L)
-                            .parentCategoryId(2L)
-                            .name("업데이트")
-                            .status(EntityStatus.ACTIVE)
-                            .build()
+                CategorySnapshotState.builder()
+                    .id(1L)
+                    .parentCategoryId(2L)
+                    .name("업데이트")
+                    .status(EntityStatus.ACTIVE)
+                    .build()
             );
             CategoryJpaEntity entity = mock(CategoryJpaEntity.class);
             when(categoryJpaRepository.findById(1L)).thenReturn(Optional.of(entity));
@@ -210,17 +210,17 @@ class CategoryPersistenceAdapterTest {
         @DisplayName("카테고리가 없으면 CategoryNotFoundException을 던진다")
         void throwsWhenNotFound() {
             Category category = Category.from(
-                    CategorySnapshotState.builder()
-                            .id(99L)
-                            .parentCategoryId(2L)
-                            .name("없는 카테고리")
-                            .status(EntityStatus.ACTIVE)
-                            .build()
+                CategorySnapshotState.builder()
+                    .id(99L)
+                    .parentCategoryId(2L)
+                    .name("없는 카테고리")
+                    .status(EntityStatus.ACTIVE)
+                    .build()
             );
             when(categoryJpaRepository.findById(99L)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> adapter.update(category))
-                    .isInstanceOf(CategoryNotFoundException.class);
+                .isInstanceOf(CategoryNotFoundException.class);
         }
     }
 }

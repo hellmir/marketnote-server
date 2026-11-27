@@ -59,12 +59,12 @@ class ConfirmOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ConfirmOrderCommand command = ConfirmOrderCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatCode(() -> confirmOrderService.confirmOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -76,12 +76,12 @@ class ConfirmOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ConfirmOrderCommand command = ConfirmOrderCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatCode(() -> confirmOrderService.confirmOrder(command))
-                    .doesNotThrowAnyException();
+                .doesNotThrowAnyException();
         }
 
         @Test
@@ -93,9 +93,9 @@ class ConfirmOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ConfirmOrderCommand command = ConfirmOrderCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             confirmOrderService.confirmOrder(command);
 
@@ -111,14 +111,14 @@ class ConfirmOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ConfirmOrderCommand command = ConfirmOrderCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             confirmOrderService.confirmOrder(command);
 
             verify(publishOrderEventPort).publishOrderPurchaseConfirmedEvent(
-                    eq(orderId), eq(buyerId), anyList(), eq(false), anyList());
+                eq(orderId), eq(buyerId), anyList(), eq(false), anyList());
         }
     }
 
@@ -140,12 +140,12 @@ class ConfirmOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ConfirmOrderCommand command = ConfirmOrderCommand.builder()
-                    .id(orderId)
-                    .buyerId(attackerBuyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(attackerBuyerId)
+                .build();
 
             assertThatThrownBy(() -> confirmOrderService.confirmOrder(command))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
         }
 
         @Test
@@ -158,12 +158,12 @@ class ConfirmOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ConfirmOrderCommand command = ConfirmOrderCommand.builder()
-                    .id(orderId)
-                    .buyerId(attackerBuyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(attackerBuyerId)
+                .build();
 
             assertThatThrownBy(() -> confirmOrderService.confirmOrder(command))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);
@@ -187,12 +187,12 @@ class ConfirmOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ConfirmOrderCommand command = ConfirmOrderCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatThrownBy(() -> confirmOrderService.confirmOrder(command))
-                    .isInstanceOf(OrderStatusAlreadyChangedException.class);
+                .isInstanceOf(OrderStatusAlreadyChangedException.class);
         }
 
         @Test
@@ -204,12 +204,12 @@ class ConfirmOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ConfirmOrderCommand command = ConfirmOrderCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatThrownBy(() -> confirmOrderService.confirmOrder(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
         }
 
         @Test
@@ -221,12 +221,12 @@ class ConfirmOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ConfirmOrderCommand command = ConfirmOrderCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatThrownBy(() -> confirmOrderService.confirmOrder(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
         }
 
         @Test
@@ -238,12 +238,12 @@ class ConfirmOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ConfirmOrderCommand command = ConfirmOrderCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatThrownBy(() -> confirmOrderService.confirmOrder(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
         }
 
         @Test
@@ -255,12 +255,12 @@ class ConfirmOrderUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ConfirmOrderCommand command = ConfirmOrderCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .build();
 
             assertThatThrownBy(() -> confirmOrderService.confirmOrder(command))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);
@@ -273,56 +273,56 @@ class ConfirmOrderUseCaseTest {
 
     private Order createOrderWithBuyerId(Long orderId, Long buyerId, OrderStatus status) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(100L)
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(status)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(status)
+                .accumulatedPoint(0L)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 
     private Order createOrderWithSharerKey(Long orderId, Long buyerId, OrderStatus status) {
         List<OrderProductSnapshotState> productStates = List.of(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(100L)
-                        .sharerKey(UUID.randomUUID())
-                        .quantity(1)
-                        .unitAmount(50000L)
-                        .orderStatus(status)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .sharerKey(UUID.randomUUID())
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(status)
+                .accumulatedPoint(0L)
+                .build()
         );
 
         return Order.from(OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(status)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-" + orderId))
+            .orderStatus(status)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
     }
 }

@@ -14,10 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @DisplayName("AsyncSchedulerLoggingAspect 테스트")
 class AsyncSchedulerLoggingAspectTest {
@@ -100,7 +97,7 @@ class AsyncSchedulerLoggingAspectTest {
         when(pjp.proceed()).thenThrow(cause);
 
         assertThatThrownBy(() -> aspect.logAsyncOrScheduled(pjp))
-                .isSameAs(cause);
+            .isSameAs(cause);
 
         verify(pjp, times(1)).proceed();
         assertThat(appender.list).hasSize(2);
@@ -110,6 +107,6 @@ class AsyncSchedulerLoggingAspectTest {
         assertThat(appender.list.get(1).getFormattedMessage()).contains("cause=IllegalStateException");
         assertThat(appender.list.get(1).getThrowableProxy()).isNotNull();
         assertThat(appender.list.get(1).getThrowableProxy().getClassName())
-                .isEqualTo(IllegalStateException.class.getName());
+            .isEqualTo(IllegalStateException.class.getName());
     }
 }

@@ -34,8 +34,8 @@ class RequestFulfillmentAuthUseCaseTest {
     @BeforeEach
     void setUp() {
         Clock fixedClock = Clock.fixed(
-                Instant.parse("2026-01-01T11:00:00Z"),
-                ZoneOffset.UTC
+            Instant.parse("2026-01-01T11:00:00Z"),
+            ZoneOffset.UTC
         );
         service = new RequestFulfillmentAuthService(requestFulfillmentAuthPort, fixedClock);
     }
@@ -78,8 +78,8 @@ class RequestFulfillmentAuthUseCaseTest {
             FulfillmentAccessToken expiredToken = FulfillmentAccessToken.of("expired", "20250101120000");
             FulfillmentAccessToken newToken = FulfillmentAccessToken.of("new-token", "20270101120000");
             when(requestFulfillmentAuthPort.requestAccessToken())
-                    .thenReturn(expiredToken)
-                    .thenReturn(newToken);
+                .thenReturn(expiredToken)
+                .thenReturn(newToken);
 
             FulfillmentAccessToken first = service.requestAccessToken();
             FulfillmentAccessToken second = service.requestAccessToken();
@@ -93,24 +93,24 @@ class RequestFulfillmentAuthUseCaseTest {
         @DisplayName("캐시 토큰이 만료 buffer 이내이면 선제 갱신한다")
         void requestAccessToken_whenCachedTokenExpiringSoon_reissuesViaPort() {
             Clock clockNearExpiry = Clock.fixed(
-                    Instant.parse("2026-01-01T11:59:30Z"),
-                    ZoneOffset.UTC
+                Instant.parse("2026-01-01T11:59:30Z"),
+                ZoneOffset.UTC
             );
             RequestFulfillmentAuthService nearExpiryService = new RequestFulfillmentAuthService(
-                    requestFulfillmentAuthPort,
-                    clockNearExpiry
+                requestFulfillmentAuthPort,
+                clockNearExpiry
             );
             FulfillmentAccessToken nearExpiryToken = FulfillmentAccessToken.of(
-                    "near-expiry",
-                    "20260101120000"
+                "near-expiry",
+                "20260101120000"
             );
             FulfillmentAccessToken refreshedToken = FulfillmentAccessToken.of(
-                    "refreshed",
-                    "20270101120000"
+                "refreshed",
+                "20270101120000"
             );
             when(requestFulfillmentAuthPort.requestAccessToken())
-                    .thenReturn(nearExpiryToken)
-                    .thenReturn(refreshedToken);
+                .thenReturn(nearExpiryToken)
+                .thenReturn(refreshedToken);
 
             FulfillmentAccessToken first = nearExpiryService.requestAccessToken();
             FulfillmentAccessToken second = nearExpiryService.requestAccessToken();
@@ -174,8 +174,8 @@ class RequestFulfillmentAuthUseCaseTest {
             FulfillmentAccessToken first = FulfillmentAccessToken.of("first", "20270101120000");
             FulfillmentAccessToken second = FulfillmentAccessToken.of("second", "20270101120000");
             when(requestFulfillmentAuthPort.requestAccessToken())
-                    .thenReturn(first)
-                    .thenReturn(second);
+                .thenReturn(first)
+                .thenReturn(second);
 
             FulfillmentAccessToken initial = service.requestAccessToken();
             service.invalidateCache();

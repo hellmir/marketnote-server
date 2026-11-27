@@ -36,23 +36,23 @@ class OrderPaymentCompletedSagaStarterTest {
     @DisplayName("SAGA를 시작하면 ORDER_PAYMENT_COMPLETED:{orderId} 형식의 sagaId로 start가 호출된다")
     void shouldStartSagaWithCorrectSagaId() {
         OrderPaymentCompletedSagaContext context = OrderPaymentCompletedSagaContext.builder()
-                .orderId(1L)
-                .buyerId(100L)
-                .totalAmount(60000L)
-                .pointAmount(10000L)
-                .totalAccumulatedPoint(500L)
-                .orderProducts(List.of(
-                        new OrderProductItem(10L, 1000L, null, null, 2, 25000L)
-                ))
-                .build();
+            .orderId(1L)
+            .buyerId(100L)
+            .totalAmount(60000L)
+            .pointAmount(10000L)
+            .totalAccumulatedPoint(500L)
+            .orderProducts(List.of(
+                new OrderProductItem(10L, 1000L, null, null, 2, 25000L)
+            ))
+            .build();
 
         starter.start(context);
 
         ArgumentCaptor<String> sagaIdCaptor = ArgumentCaptor.forClass(String.class);
         verify(sagaOrchestrator).start(
-                eq(definition),
-                sagaIdCaptor.capture(),
-                eq(context)
+            eq(definition),
+            sagaIdCaptor.capture(),
+            eq(context)
         );
         assertThat(sagaIdCaptor.getValue()).isEqualTo("ORDER_PAYMENT_COMPLETED:1");
     }
@@ -61,29 +61,29 @@ class OrderPaymentCompletedSagaStarterTest {
     @DisplayName("SAGA를 시작하면 전달받은 컨텍스트가 그대로 전달된다")
     void shouldPassContextToOrchestrator() {
         OrderPaymentCompletedSagaContext context = OrderPaymentCompletedSagaContext.builder()
-                .orderId(42L)
-                .buyerId(200L)
-                .totalAmount(120000L)
-                .pointAmount(20000L)
-                .totalAccumulatedPoint(1000L)
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .orderProducts(List.of(
-                        new OrderProductItem(
-                                10L, 1000L, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 1, 50000L
-                        )
-                ))
-                .build();
+            .orderId(42L)
+            .buyerId(200L)
+            .totalAmount(120000L)
+            .pointAmount(20000L)
+            .totalAccumulatedPoint(1000L)
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .orderProducts(List.of(
+                new OrderProductItem(
+                    10L, 1000L, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 1, 50000L
+                )
+            ))
+            .build();
 
         starter.start(context);
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<OrderPaymentCompletedSagaContext> contextCaptor =
-                ArgumentCaptor.forClass(OrderPaymentCompletedSagaContext.class);
+            ArgumentCaptor.forClass(OrderPaymentCompletedSagaContext.class);
         verify(sagaOrchestrator).start(
-                any(OrderPaymentCompletedSagaDefinition.class),
-                eq("ORDER_PAYMENT_COMPLETED:42"),
-                contextCaptor.capture()
+            any(OrderPaymentCompletedSagaDefinition.class),
+            eq("ORDER_PAYMENT_COMPLETED:42"),
+            contextCaptor.capture()
         );
         OrderPaymentCompletedSagaContext captured = contextCaptor.getValue();
         assertThat(captured.orderId()).isEqualTo(42L);

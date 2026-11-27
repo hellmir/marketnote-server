@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record RegisterFulfillmentShopDataResponse(
-        String msg,
-        String code,
-        String shopCd
+    String msg,
+    String code,
+    String shopCd
 ) {
     private static final String SUCCESS_CODE = "200";
 

@@ -28,7 +28,7 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "gifticonPinEncryptKey", "");
 
         assertThatCode(() -> validator.validateSecurityProperties())
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -38,7 +38,7 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "gifticonPinEncryptKey", "strong-encrypt-key-value");
 
         assertThatCode(() -> validator.validateSecurityProperties())
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -48,8 +48,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "gifticonPinEncryptKey", "");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("gifticon.pin.encrypt-key");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("gifticon.pin.encrypt-key");
     }
 
     @Test
@@ -59,8 +59,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "gifticonPinEncryptKey", "dev-pin-key-change-me");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("gifticon.pin.encrypt-key");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("gifticon.pin.encrypt-key");
     }
 
     @Test
@@ -70,8 +70,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "gifticonPinEncryptKey", "dev-pin-key-change-me-0123456789");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("gifticon.pin.encrypt-key");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("gifticon.pin.encrypt-key");
     }
 
     @Test
@@ -80,8 +80,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "kafkaSaslEnabled", false);
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("spring.kafka.sasl.enabled");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("spring.kafka.sasl.enabled");
     }
 
     @Test
@@ -90,8 +90,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "kafkaSaslProtocol", "SASL_PLAINTEXT");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("spring.kafka.sasl.protocol");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("spring.kafka.sasl.protocol");
     }
 
     @Test
@@ -100,8 +100,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "kafkaSaslProtocol", "");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("spring.kafka.sasl.protocol");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("spring.kafka.sasl.protocol");
     }
 
     @Test
@@ -113,7 +113,7 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "kafkaSaslPassword", "kafka-password");
 
         assertThatCode(() -> validator.validateSecurityProperties())
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -122,8 +122,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "kafkaSaslUsername", "");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("spring.kafka.sasl.username");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("spring.kafka.sasl.username");
     }
 
     @Test
@@ -132,8 +132,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "redisPassword", "");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("spring.data.redis.password");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("spring.data.redis.password");
     }
 
     @Test
@@ -142,8 +142,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "redisPassword", null);
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("spring.data.redis.password");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("spring.data.redis.password");
     }
 
     @Test
@@ -152,8 +152,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "redisPassword", "password");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("spring.data.redis.password");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("spring.data.redis.password");
     }
 
     @Test
@@ -162,7 +162,7 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "redisPassword", "strong-redis-password-value");
 
         assertThatCode(() -> validator.validateSecurityProperties())
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -171,8 +171,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "jwtSecret", "");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("spring.jwt.secret");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("spring.jwt.secret");
     }
 
     @Test
@@ -181,8 +181,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "jwtSecret", "dev-secret-change-me");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("spring.jwt.secret");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("spring.jwt.secret");
     }
 
     @Test
@@ -191,8 +191,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "adminAccessToken", "");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("spring.jwt.admin-access-token");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("spring.jwt.admin-access-token");
     }
 
     @Test
@@ -201,8 +201,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "dbPassword", "");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("spring.datasource.password");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("spring.datasource.password");
     }
 
     @Test
@@ -211,8 +211,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "hmacSecretKey", "");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("spring.hmac.secret-key");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("spring.hmac.secret-key");
     }
 
     @Test
@@ -221,8 +221,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "kafkaSaslPassword", "");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("spring.kafka.sasl.password");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("spring.kafka.sasl.password");
     }
 
     @Test
@@ -233,7 +233,7 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "aligoUserId", "aligo-user");
 
         assertThatCode(() -> validator.validateSecurityProperties())
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -244,8 +244,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "aligoUserId", "aligo-user");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("aligo.api-key");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("aligo.api-key");
     }
 
     @Test
@@ -256,8 +256,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "aligoUserId", "");
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("aligo.user-id");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("aligo.user-id");
     }
 
     @Test
@@ -266,7 +266,7 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "oauth2AllowedAudiencesValidationEnabled", false);
 
         assertThatCode(() -> validator.validateSecurityProperties())
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -278,7 +278,7 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "appleAllowedAudiences", List.of("real-apple-audience"));
 
         assertThatCode(() -> validator.validateSecurityProperties())
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -290,8 +290,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "appleAllowedAudiences", List.of("real-apple-audience"));
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("oauth2.kakao.allowed-audiences");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("oauth2.kakao.allowed-audiences");
     }
 
     @Test
@@ -303,8 +303,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "appleAllowedAudiences", List.of("real-apple-audience"));
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("oauth2.google.allowed-audiences");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("oauth2.google.allowed-audiences");
     }
 
     @Test
@@ -316,8 +316,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "appleAllowedAudiences", List.of("*"));
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("와일드카드");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("와일드카드");
     }
 
     @Test
@@ -329,8 +329,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "appleAllowedAudiences", List.of("real-apple-audience"));
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("기본 플레이스홀더");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("기본 플레이스홀더");
     }
 
     @Test
@@ -342,8 +342,8 @@ class SecurityPropertiesValidatorTest {
         ReflectionTestUtils.setField(validator, "appleAllowedAudiences", List.of("real-apple-audience"));
 
         assertThatThrownBy(() -> validator.validateSecurityProperties())
-                .isInstanceOf(SecurityConfigurationValidationException.class)
-                .hasMessageContaining("빈 값");
+            .isInstanceOf(SecurityConfigurationValidationException.class)
+            .hasMessageContaining("빈 값");
     }
 
     private void setCommonRequiredFields(SecurityPropertiesValidator validator) {

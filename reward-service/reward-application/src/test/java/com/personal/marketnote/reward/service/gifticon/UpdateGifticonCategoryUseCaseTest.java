@@ -39,7 +39,7 @@ class UpdateGifticonCategoryUseCaseTest {
         GifticonCategory category = createCategory(1L, "커피", null, null);
         when(findGifticonCategoryPort.findById(1L)).thenReturn(Optional.of(category));
         UpdateGifticonCategoryCommand command = new UpdateGifticonCategoryCommand(
-                1L, "편의점/마트", true, "https://cdn.example.com/icon.png", true
+            1L, "편의점/마트", true, "https://cdn.example.com/icon.png", true
         );
 
         // when
@@ -58,7 +58,7 @@ class UpdateGifticonCategoryUseCaseTest {
         GifticonCategory category = createCategory(1L, "커피", null, "https://old.com/icon.png");
         when(findGifticonCategoryPort.findById(1L)).thenReturn(Optional.of(category));
         UpdateGifticonCategoryCommand command = new UpdateGifticonCategoryCommand(
-                1L, "카페/음료", true, null, false
+            1L, "카페/음료", true, null, false
         );
 
         // when
@@ -77,7 +77,7 @@ class UpdateGifticonCategoryUseCaseTest {
         GifticonCategory category = createCategory(1L, "커피", "카페/음료", null);
         when(findGifticonCategoryPort.findById(1L)).thenReturn(Optional.of(category));
         UpdateGifticonCategoryCommand command = new UpdateGifticonCategoryCommand(
-                1L, "", true, null, false
+            1L, "", true, null, false
         );
 
         // when
@@ -94,12 +94,12 @@ class UpdateGifticonCategoryUseCaseTest {
         // given
         when(findGifticonCategoryPort.findById(999L)).thenReturn(Optional.empty());
         UpdateGifticonCategoryCommand command = new UpdateGifticonCategoryCommand(
-                999L, "테스트", true, null, false
+            999L, "테스트", true, null, false
         );
 
         // when & then
         assertThatThrownBy(() -> updateGifticonCategoryService.updateGifticonCategory(command))
-                .isInstanceOf(GifticonCategoryNotFoundException.class);
+            .isInstanceOf(GifticonCategoryNotFoundException.class);
         verify(updateGifticonCategoryPort, never()).update(any());
     }
 
@@ -110,7 +110,7 @@ class UpdateGifticonCategoryUseCaseTest {
         GifticonCategory category = createCategory(1L, "커피", "카페/음료", "https://old.com/icon.png");
         when(findGifticonCategoryPort.findById(1L)).thenReturn(Optional.of(category));
         UpdateGifticonCategoryCommand command = new UpdateGifticonCategoryCommand(
-                1L, null, false, null, false
+            1L, null, false, null, false
         );
 
         // when
@@ -124,15 +124,15 @@ class UpdateGifticonCategoryUseCaseTest {
 
     private GifticonCategory createCategory(Long id, String categoryName, String displayName, String iconUrl) {
         return GifticonCategory.from(GifticonCategorySnapshotState.builder()
-                .id(id)
-                .categoryCode("1")
-                .categoryName(categoryName)
-                .displayName(displayName)
-                .iconUrl(iconUrl)
-                .exposed(false)
-                .createdAt(LocalDateTime.of(2026, 4, 3, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 3, 10, 0))
-                .build()
+            .id(id)
+            .categoryCode("1")
+            .categoryName(categoryName)
+            .displayName(displayName)
+            .iconUrl(iconUrl)
+            .exposed(false)
+            .createdAt(LocalDateTime.of(2026, 4, 3, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 3, 10, 0))
+            .build()
         );
     }
 }

@@ -31,10 +31,10 @@ class GetAligoCategoryUseCaseTest {
     void shouldReturnCategoryTreeFromExternalPort() {
         // given
         GetAligoCategoryTreeResult.CategoryResult child = new GetAligoCategoryTreeResult.CategoryResult(
-                "001001", "병원", List.of()
+            "001001", "병원", List.of()
         );
         GetAligoCategoryTreeResult.CategoryResult parent = new GetAligoCategoryTreeResult.CategoryResult(
-                "001", "건강", List.of(child)
+            "001", "건강", List.of(child)
         );
         GetAligoCategoryTreeResult expected = new GetAligoCategoryTreeResult(List.of(parent));
 
@@ -57,11 +57,11 @@ class GetAligoCategoryUseCaseTest {
     void shouldPropagateExceptionFromExternalPort() {
         // given
         when(getAligoCategoryExternalPort.getCategoryTree())
-                .thenThrow(new AligoApiRequestFailedException("알리고 API 호출 실패"));
+            .thenThrow(new AligoApiRequestFailedException("알리고 API 호출 실패"));
 
         // when & then
         assertThatThrownBy(() -> getAligoCategoryService.getCategoryTree())
-                .isInstanceOf(AligoApiRequestFailedException.class);
+            .isInstanceOf(AligoApiRequestFailedException.class);
         verify(getAligoCategoryExternalPort).getCategoryTree();
     }
 }

@@ -22,14 +22,14 @@ public class GetUserStatusHistoryService implements GetUserStatusHistoryUseCase 
 
     @Override
     public Page<GetUserStatusHistoryResult> getUserStatusHistories(
-            Long userId,
-            int pageSize,
-            int pageNumber,
-            Sort.Direction sortDirection,
-            UserStatusHistorySortProperty sortProperty
+        Long userId,
+        int pageSize,
+        int pageNumber,
+        Sort.Direction sortDirection,
+        UserStatusHistorySortProperty sortProperty
     ) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getLowerValue()));
         return findUserStatusHistoryPort.findUserStatusHistoriesByUserId(pageable, userId)
-                .map(GetUserStatusHistoryResult::from);
+            .map(GetUserStatusHistoryResult::from);
     }
 }

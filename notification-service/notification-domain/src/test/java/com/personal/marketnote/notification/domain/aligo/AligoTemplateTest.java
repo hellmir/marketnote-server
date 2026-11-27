@@ -15,13 +15,13 @@ class AligoTemplateTest {
     void shouldInitializeWithRegAndWaitingStatus() {
         // given
         AligoTemplateCreateState state = AligoTemplateCreateState.builder()
-                .senderKey("test-sender-key")
-                .templateCode("TPL001")
-                .templateName("테스트 템플릿")
-                .templateContent("안녕하세요 #{이름}님")
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .build();
+            .senderKey("test-sender-key")
+            .templateCode("TPL001")
+            .templateName("테스트 템플릿")
+            .templateContent("안녕하세요 #{이름}님")
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .build();
 
         // when
         AligoTemplate template = AligoTemplate.from(state);
@@ -38,14 +38,14 @@ class AligoTemplateTest {
     void shouldCreateAdTypeTemplate() {
         // given
         AligoTemplateCreateState state = AligoTemplateCreateState.builder()
-                .senderKey("test-sender-key")
-                .templateCode("TPL_AD")
-                .templateName("광고 템플릿")
-                .templateContent("광고 내용")
-                .templateType(AligoTemplateType.AD)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .templateAdvert(true)
-                .build();
+            .senderKey("test-sender-key")
+            .templateCode("TPL_AD")
+            .templateName("광고 템플릿")
+            .templateContent("광고 내용")
+            .templateType(AligoTemplateType.AD)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .templateAdvert(true)
+            .build();
 
         // when
         AligoTemplate template = AligoTemplate.from(state);
@@ -60,26 +60,26 @@ class AligoTemplateTest {
     void shouldThrowExceptionWhenButtonsExceedMax() {
         // given
         List<AligoTemplateButton> buttons = List.of(
-                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(1).name("1").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/1").linkPc("https://example.com/1").build()),
-                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(2).name("2").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/2").linkPc("https://example.com/2").build()),
-                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(3).name("3").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/3").linkPc("https://example.com/3").build()),
-                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(4).name("4").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/4").linkPc("https://example.com/4").build()),
-                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(5).name("5").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/5").linkPc("https://example.com/5").build()),
-                AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(6).name("6").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/6").linkPc("https://example.com/6").build())
+            AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(1).name("1").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/1").linkPc("https://example.com/1").build()),
+            AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(2).name("2").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/2").linkPc("https://example.com/2").build()),
+            AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(3).name("3").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/3").linkPc("https://example.com/3").build()),
+            AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(4).name("4").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/4").linkPc("https://example.com/4").build()),
+            AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(5).name("5").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/5").linkPc("https://example.com/5").build()),
+            AligoTemplateButton.from(AligoTemplateButtonCreateState.builder().ordering(6).name("6").linkType(AligoTemplateButtonLinkType.WL).linkMo("https://m.example.com/6").linkPc("https://example.com/6").build())
         );
         AligoTemplateCreateState state = AligoTemplateCreateState.builder()
-                .senderKey("test-sender-key")
-                .templateCode("TPL001")
-                .templateName("테스트")
-                .templateContent("내용")
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .buttons(buttons)
-                .build();
+            .senderKey("test-sender-key")
+            .templateCode("TPL001")
+            .templateName("테스트")
+            .templateContent("내용")
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .buttons(buttons)
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoTemplate.from(state))
-                .isInstanceOf(InvalidAligoTemplateException.class);
+            .isInstanceOf(InvalidAligoTemplateException.class);
     }
 
     @Test
@@ -87,17 +87,17 @@ class AligoTemplateTest {
     void shouldRestoreFromSnapshotWithoutValidation() {
         // given
         AligoTemplateSnapshotState state = AligoTemplateSnapshotState.builder()
-                .id(1L)
-                .senderKey("sender")
-                .templateCode("TPL001")
-                .templateName("이름")
-                .templateContent("내용")
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .inspStatus("APR")
-                .templateStatus(AligoTemplateStatus.A)
-                .buttons(List.of())
-                .build();
+            .id(1L)
+            .senderKey("sender")
+            .templateCode("TPL001")
+            .templateName("이름")
+            .templateContent("내용")
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .inspStatus("APR")
+            .templateStatus(AligoTemplateStatus.A)
+            .buttons(List.of())
+            .build();
 
         // when
         AligoTemplate template = AligoTemplate.from(state);
@@ -132,7 +132,7 @@ class AligoTemplateTest {
 
         // when & then
         assertThatThrownBy(() -> template.updateContent("이름", "내용", null, null, List.of()))
-                .isInstanceOf(InvalidAligoTemplateModificationException.class);
+            .isInstanceOf(InvalidAligoTemplateModificationException.class);
     }
 
     @Test
@@ -143,7 +143,7 @@ class AligoTemplateTest {
 
         // when & then
         assertThatThrownBy(() -> template.validateDeletion())
-                .isInstanceOf(InvalidAligoTemplateDeletionException.class);
+            .isInstanceOf(InvalidAligoTemplateDeletionException.class);
     }
 
     @Test
@@ -207,7 +207,7 @@ class AligoTemplateTest {
 
         // when & then
         assertThatThrownBy(() -> template.markAsRequested())
-                .isInstanceOf(InvalidAligoTemplateTransitionException.class);
+            .isInstanceOf(InvalidAligoTemplateTransitionException.class);
     }
 
     @Test
@@ -218,7 +218,7 @@ class AligoTemplateTest {
 
         // when & then
         assertThatThrownBy(() -> template.markAsApproved())
-                .isInstanceOf(InvalidAligoTemplateTransitionException.class);
+            .isInstanceOf(InvalidAligoTemplateTransitionException.class);
     }
 
     @Test
@@ -226,17 +226,17 @@ class AligoTemplateTest {
     void shouldMapFromExternalState() {
         // given
         AligoTemplateExternalState state = AligoTemplateExternalState.builder()
-                .senderKey("SK")
-                .templateCode("TPL001")
-                .templateName("이름")
-                .templateContent("본문")
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .inspStatus("APR")
-                .templateStatus(AligoTemplateStatus.A)
-                .comments("코멘트")
-                .buttons(List.of())
-                .build();
+            .senderKey("SK")
+            .templateCode("TPL001")
+            .templateName("이름")
+            .templateContent("본문")
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .inspStatus("APR")
+            .templateStatus(AligoTemplateStatus.A)
+            .comments("코멘트")
+            .buttons(List.of())
+            .build();
 
         // when
         AligoTemplate template = AligoTemplate.from(state);
@@ -259,16 +259,16 @@ class AligoTemplateTest {
     void shouldMapNullButtonsToEmptyListFromExternalState() {
         // given
         AligoTemplateExternalState state = AligoTemplateExternalState.builder()
-                .senderKey("SK")
-                .templateCode("TPL001")
-                .templateName("이름")
-                .templateContent("본문")
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .inspStatus("REG")
-                .templateStatus(AligoTemplateStatus.R)
-                .buttons(null)
-                .build();
+            .senderKey("SK")
+            .templateCode("TPL001")
+            .templateName("이름")
+            .templateContent("본문")
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .inspStatus("REG")
+            .templateStatus(AligoTemplateStatus.R)
+            .buttons(null)
+            .build();
 
         // when
         AligoTemplate template = AligoTemplate.from(state);
@@ -282,19 +282,19 @@ class AligoTemplateTest {
     void shouldThrowExceptionWhenExternalStateTemplateCodeMissing() {
         // given
         AligoTemplateExternalState state = AligoTemplateExternalState.builder()
-                .senderKey("SK")
-                .templateName("이름")
-                .templateContent("본문")
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .inspStatus("REG")
-                .templateStatus(AligoTemplateStatus.R)
-                .buttons(List.of())
-                .build();
+            .senderKey("SK")
+            .templateName("이름")
+            .templateContent("본문")
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .inspStatus("REG")
+            .templateStatus(AligoTemplateStatus.R)
+            .buttons(List.of())
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoTemplate.from(state))
-                .isInstanceOf(InvalidAligoTemplateException.class);
+            .isInstanceOf(InvalidAligoTemplateException.class);
     }
 
     @Test
@@ -302,19 +302,19 @@ class AligoTemplateTest {
     void shouldThrowExceptionWhenExternalStateTemplateNameMissing() {
         // given
         AligoTemplateExternalState state = AligoTemplateExternalState.builder()
-                .senderKey("SK")
-                .templateCode("TPL001")
-                .templateContent("본문")
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .inspStatus("REG")
-                .templateStatus(AligoTemplateStatus.R)
-                .buttons(List.of())
-                .build();
+            .senderKey("SK")
+            .templateCode("TPL001")
+            .templateContent("본문")
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .inspStatus("REG")
+            .templateStatus(AligoTemplateStatus.R)
+            .buttons(List.of())
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoTemplate.from(state))
-                .isInstanceOf(InvalidAligoTemplateException.class);
+            .isInstanceOf(InvalidAligoTemplateException.class);
     }
 
     @Test
@@ -322,19 +322,19 @@ class AligoTemplateTest {
     void shouldThrowExceptionWhenExternalStateTemplateContentMissing() {
         // given
         AligoTemplateExternalState state = AligoTemplateExternalState.builder()
-                .senderKey("SK")
-                .templateCode("TPL001")
-                .templateName("이름")
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .inspStatus("REG")
-                .templateStatus(AligoTemplateStatus.R)
-                .buttons(List.of())
-                .build();
+            .senderKey("SK")
+            .templateCode("TPL001")
+            .templateName("이름")
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .inspStatus("REG")
+            .templateStatus(AligoTemplateStatus.R)
+            .buttons(List.of())
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoTemplate.from(state))
-                .isInstanceOf(InvalidAligoTemplateException.class);
+            .isInstanceOf(InvalidAligoTemplateException.class);
     }
 
     @Test
@@ -342,35 +342,35 @@ class AligoTemplateTest {
     void shouldThrowExceptionWhenExternalStateTemplateTypeMissing() {
         // given
         AligoTemplateExternalState state = AligoTemplateExternalState.builder()
-                .senderKey("SK")
-                .templateCode("TPL001")
-                .templateName("이름")
-                .templateContent("본문")
-                .templateEmType(AligoTemplateEmType.NONE)
-                .inspStatus("REG")
-                .templateStatus(AligoTemplateStatus.R)
-                .buttons(List.of())
-                .build();
+            .senderKey("SK")
+            .templateCode("TPL001")
+            .templateName("이름")
+            .templateContent("본문")
+            .templateEmType(AligoTemplateEmType.NONE)
+            .inspStatus("REG")
+            .templateStatus(AligoTemplateStatus.R)
+            .buttons(List.of())
+            .build();
 
         // when & then
         assertThatThrownBy(() -> AligoTemplate.from(state))
-                .isInstanceOf(InvalidAligoTemplateException.class);
+            .isInstanceOf(InvalidAligoTemplateException.class);
     }
 
     private AligoTemplate createTemplateWithInspStatus(String inspStatus) {
         return AligoTemplate.from(
-                AligoTemplateSnapshotState.builder()
-                        .id(1L)
-                        .senderKey("sender")
-                        .templateCode("TPL001")
-                        .templateName("이름")
-                        .templateContent("내용")
-                        .templateType(AligoTemplateType.BA)
-                        .templateEmType(AligoTemplateEmType.NONE)
-                        .inspStatus(inspStatus)
-                        .templateStatus(AligoTemplateStatus.R)
-                        .buttons(List.of())
-                        .build()
+            AligoTemplateSnapshotState.builder()
+                .id(1L)
+                .senderKey("sender")
+                .templateCode("TPL001")
+                .templateName("이름")
+                .templateContent("내용")
+                .templateType(AligoTemplateType.BA)
+                .templateEmType(AligoTemplateEmType.NONE)
+                .inspStatus(inspStatus)
+                .templateStatus(AligoTemplateStatus.R)
+                .buttons(List.of())
+                .build()
         );
     }
 }

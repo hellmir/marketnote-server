@@ -42,67 +42,67 @@ public class OrderCancelSagaDefinition implements SagaDefinition<OrderCancelSaga
     @Override
     public List<SagaStepDefinition<OrderCancelSagaContext>> getSteps() {
         return List.of(
-                new SagaStepDefinition<>(
-                        STEP_CANCEL_FULFILLMENT_RELEASE,
-                        KafkaTopicConstants.SAGA_ORDER_CANCEL_FULFILLMENT,
-                        this::buildFulfillmentCancelAction,
-                        null
-                ),
-                new SagaStepDefinition<>(
-                        STEP_REFUND_PAYMENT,
-                        KafkaTopicConstants.SAGA_ORDER_CANCEL_REFUND,
-                        this::buildRefundPaymentAction,
-                        null
-                ),
-                new SagaStepDefinition<>(
-                        STEP_COMPLETE_CANCELLATION,
-                        KafkaTopicConstants.SAGA_ORDER_CANCEL_COMPLETED,
-                        this::buildCompleteCancellationAction,
-                        null
-                )
+            new SagaStepDefinition<>(
+                STEP_CANCEL_FULFILLMENT_RELEASE,
+                KafkaTopicConstants.SAGA_ORDER_CANCEL_FULFILLMENT,
+                this::buildFulfillmentCancelAction,
+                null
+            ),
+            new SagaStepDefinition<>(
+                STEP_REFUND_PAYMENT,
+                KafkaTopicConstants.SAGA_ORDER_CANCEL_REFUND,
+                this::buildRefundPaymentAction,
+                null
+            ),
+            new SagaStepDefinition<>(
+                STEP_COMPLETE_CANCELLATION,
+                KafkaTopicConstants.SAGA_ORDER_CANCEL_COMPLETED,
+                this::buildCompleteCancellationAction,
+                null
+            )
         );
     }
 
     private String buildFulfillmentCancelAction(OrderCancelSagaContext context) {
         return serialize(Map.ofEntries(
-                entry("orderId", context.orderId()),
-                entry("buyerId", context.buyerId()),
-                entry("originalStatus", context.originalStatus()),
-                entry("productKeys",
-                        FormatValidator.hasNoValue(context.productKeys()) ? List.of() : context.productKeys())
+            entry("orderId", context.orderId()),
+            entry("buyerId", context.buyerId()),
+            entry("originalStatus", context.originalStatus()),
+            entry("productKeys",
+                FormatValidator.hasNoValue(context.productKeys()) ? List.of() : context.productKeys())
         ));
     }
 
     private String buildRefundPaymentAction(OrderCancelSagaContext context) {
         return serialize(Map.ofEntries(
-                entry("orderId", context.orderId()),
-                entry("orderKey", context.orderKey()),
-                entry("buyerId", context.buyerId()),
-                entry("cancelAmount", context.cancelAmount()),
-                entry("paymentAmount", context.paymentAmount()),
-                entry("pointAmount", context.pointAmount()),
-                entry("shippingFee", context.shippingFee()),
-                entry("isFullCancel", context.isFullCancel()),
-                entry("alreadyRefunded", context.alreadyRefunded())
+            entry("orderId", context.orderId()),
+            entry("orderKey", context.orderKey()),
+            entry("buyerId", context.buyerId()),
+            entry("cancelAmount", context.cancelAmount()),
+            entry("paymentAmount", context.paymentAmount()),
+            entry("pointAmount", context.pointAmount()),
+            entry("shippingFee", context.shippingFee()),
+            entry("isFullCancel", context.isFullCancel()),
+            entry("alreadyRefunded", context.alreadyRefunded())
         ));
     }
 
     private String buildCompleteCancellationAction(OrderCancelSagaContext context) {
         return serialize(Map.ofEntries(
-                entry("orderId", context.orderId()),
-                entry("orderKey", context.orderKey()),
-                entry("buyerId", context.buyerId()),
-                entry("cancelAmount", context.cancelAmount()),
-                entry("paymentAmount", context.paymentAmount()),
-                entry("pointAmount", context.pointAmount()),
-                entry("shippingFee", context.shippingFee()),
-                entry("isFullCancel", context.isFullCancel()),
-                entry("alreadyRefunded", context.alreadyRefunded()),
-                entry("reasonCategory", context.reasonCategory()),
-                entry("reason", context.reason()),
-                entry("orderProducts", context.orderProducts()),
-                entry("cancelProducts", context.cancelProducts()),
-                entry("cancelId", context.cancelId())
+            entry("orderId", context.orderId()),
+            entry("orderKey", context.orderKey()),
+            entry("buyerId", context.buyerId()),
+            entry("cancelAmount", context.cancelAmount()),
+            entry("paymentAmount", context.paymentAmount()),
+            entry("pointAmount", context.pointAmount()),
+            entry("shippingFee", context.shippingFee()),
+            entry("isFullCancel", context.isFullCancel()),
+            entry("alreadyRefunded", context.alreadyRefunded()),
+            entry("reasonCategory", context.reasonCategory()),
+            entry("reason", context.reason()),
+            entry("orderProducts", context.orderProducts()),
+            entry("cancelProducts", context.cancelProducts()),
+            entry("cancelId", context.cancelId())
         ));
     }
 

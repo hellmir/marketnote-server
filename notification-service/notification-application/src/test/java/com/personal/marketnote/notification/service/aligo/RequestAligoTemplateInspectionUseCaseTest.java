@@ -63,7 +63,7 @@ class RequestAligoTemplateInspectionUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> requestAligoTemplateInspectionService.requestInspection(templateCode))
-                .isInstanceOf(InvalidAligoTemplateTransitionException.class);
+            .isInstanceOf(InvalidAligoTemplateTransitionException.class);
         verifyNoInteractions(requestAligoTemplateInspectionExternalPort);
         verifyNoInteractions(updateAligoTemplatePort);
     }
@@ -77,24 +77,24 @@ class RequestAligoTemplateInspectionUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> requestAligoTemplateInspectionService.requestInspection(templateCode))
-                .isInstanceOf(AligoTemplateNotFoundException.class);
+            .isInstanceOf(AligoTemplateNotFoundException.class);
         verifyNoInteractions(requestAligoTemplateInspectionExternalPort);
         verifyNoInteractions(updateAligoTemplatePort);
     }
 
     private AligoTemplate createTemplate(String templateCode, String inspStatus) {
         return AligoTemplate.from(AligoTemplateSnapshotState.builder()
-                .id(1L)
-                .senderKey("sender-key-1")
-                .templateCode(templateCode)
-                .templateName("테스트 템플릿")
-                .templateContent("안녕하세요")
-                .templateType(AligoTemplateType.BA)
-                .templateEmType(AligoTemplateEmType.NONE)
-                .inspStatus(inspStatus)
-                .templateStatus(AligoTemplateStatus.R)
-                .status(EntityStatus.ACTIVE)
-                .buttons(List.of())
-                .build());
+            .id(1L)
+            .senderKey("sender-key-1")
+            .templateCode(templateCode)
+            .templateName("테스트 템플릿")
+            .templateContent("안녕하세요")
+            .templateType(AligoTemplateType.BA)
+            .templateEmType(AligoTemplateEmType.NONE)
+            .inspStatus(inspStatus)
+            .templateStatus(AligoTemplateStatus.R)
+            .status(EntityStatus.ACTIVE)
+            .buttons(List.of())
+            .build());
     }
 }

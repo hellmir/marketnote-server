@@ -9,19 +9,19 @@ public class FasstoStockCommandToRequestMapper {
 
     public static FulfillmentStockQuery mapToQuery(GetFulfillmentStocksCommand command) {
         return FulfillmentStockQuery.of(
-                command.customerCode(),
-                command.accessToken(),
-                command.outOfStockYn(),
-                command.warehouseCode()
+            command.customerCode(),
+            command.accessToken(),
+            command.outOfStockYn(),
+            command.warehouseCode()
         );
     }
 
     public static FulfillmentStockDetailQuery mapToDetailQuery(GetFulfillmentStockDetailCommand command) {
         return FulfillmentStockDetailQuery.of(
-                command.customerCode(),
-                command.accessToken(),
-                command.fasstoProductCode(),
-                command.outOfStockYn()
+            command.customerCode(),
+            command.accessToken(),
+            command.fasstoProductCode(),
+            command.outOfStockYn()
         );
     }
 }

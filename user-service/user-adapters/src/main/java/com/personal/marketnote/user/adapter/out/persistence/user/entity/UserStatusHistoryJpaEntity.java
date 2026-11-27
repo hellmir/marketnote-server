@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_status_histories", indexes = {
-        @Index(name = "idx_user_status_histories_user_id", columnList = "user_id")
+    @Index(name = "idx_user_status_histories_user_id", columnList = "user_id")
 })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -45,28 +45,28 @@ public class UserStatusHistoryJpaEntity extends BaseEntity {
 
     public static UserStatusHistoryJpaEntity from(UserStatusHistory history) {
         return UserStatusHistoryJpaEntity.builder()
-                .id(history.getId())
-                .userId(history.getUserId())
-                .statusAction(history.getStatusAction())
-                .reason(history.getReason())
-                .deactivatedUntil(history.getDeactivatedUntil())
-                .actor(history.getActor())
-                .createdBy(history.getCreatedBy())
-                .build();
+            .id(history.getId())
+            .userId(history.getUserId())
+            .statusAction(history.getStatusAction())
+            .reason(history.getReason())
+            .deactivatedUntil(history.getDeactivatedUntil())
+            .actor(history.getActor())
+            .createdBy(history.getCreatedBy())
+            .build();
     }
 
     public UserStatusHistory toDomain() {
         return UserStatusHistory.from(
-                UserStatusHistorySnapshotState.builder()
-                        .id(id)
-                        .userId(userId)
-                        .statusAction(statusAction)
-                        .reason(reason)
-                        .deactivatedUntil(deactivatedUntil)
-                        .actor(actor)
-                        .createdBy(createdBy)
-                        .createdAt(getCreatedAt())
-                        .build()
+            UserStatusHistorySnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .statusAction(statusAction)
+                .reason(reason)
+                .deactivatedUntil(deactivatedUntil)
+                .actor(actor)
+                .createdBy(createdBy)
+                .createdAt(getCreatedAt())
+                .build()
         );
     }
 }

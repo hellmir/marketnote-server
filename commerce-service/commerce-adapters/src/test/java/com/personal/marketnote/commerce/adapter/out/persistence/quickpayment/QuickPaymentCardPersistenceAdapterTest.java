@@ -48,16 +48,16 @@ class QuickPaymentCardPersistenceAdapterTest {
 
     private QuickPaymentCard createAndSaveCard(Long userId, String batchKey) {
         QuickPaymentCard card = QuickPaymentCard.from(
-                QuickPaymentCardCreateState.builder()
-                        .userId(userId)
-                        .batchKey(batchKey)
-                        .groupId("GROUP_001")
-                        .cardCode("01")
-                        .cardName("테스트카드")
-                        .maskedCardNumber(MaskedCardNumber.of("1234-****-****-5678"))
-                        .cardBinType01("1")
-                        .cardBinType02("2")
-                        .build()
+            QuickPaymentCardCreateState.builder()
+                .userId(userId)
+                .batchKey(batchKey)
+                .groupId("GROUP_001")
+                .cardCode("01")
+                .cardName("테스트카드")
+                .maskedCardNumber(MaskedCardNumber.of("1234-****-****-5678"))
+                .cardBinType01("1")
+                .cardBinType02("2")
+                .build()
         );
         return adapter.save(card);
     }
@@ -160,22 +160,22 @@ class QuickPaymentCardPersistenceAdapterTest {
         void shouldThrowWhenCardNotFound() {
             // given
             QuickPaymentCard nonExistent = QuickPaymentCard.from(
-                    QuickPaymentCardCreateState.builder()
-                            .userId(1L)
-                            .batchKey("BATCH_KEY_999")
-                            .groupId("GROUP_001")
-                            .cardCode("01")
-                            .cardName("테스트카드")
-                            .maskedCardNumber(MaskedCardNumber.of("1234-****-****-5678"))
-                            .cardBinType01("01")
-                            .cardBinType02("02")
-                            .build()
+                QuickPaymentCardCreateState.builder()
+                    .userId(1L)
+                    .batchKey("BATCH_KEY_999")
+                    .groupId("GROUP_001")
+                    .cardCode("01")
+                    .cardName("테스트카드")
+                    .maskedCardNumber(MaskedCardNumber.of("1234-****-****-5678"))
+                    .cardBinType01("01")
+                    .cardBinType02("02")
+                    .build()
             );
             QuickPaymentCard wrapped = createNonPersistedCardWithId(nonExistent, 999L);
 
             // when & then
             assertThatThrownBy(() -> adapter.deactivate(wrapped))
-                    .isInstanceOf(QuickPaymentCardNotFoundException.class);
+                .isInstanceOf(QuickPaymentCardNotFoundException.class);
         }
 
         private QuickPaymentCard createNonPersistedCardWithId(QuickPaymentCard original, Long id) {

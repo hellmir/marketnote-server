@@ -44,19 +44,19 @@ class PostPersistenceAdapterTest {
     @BeforeEach
     void setUp() {
         samplePost = Post.from(
-                PostCreateState.builder()
-                        .userId(10L)
-                        .parentId(null)
-                        .board(Board.PRODUCT_INQUERY)
-                        .category("PRODUCT_QUESTION")
-                        .targetGroupType(PostTargetGroupType.PRODUCT)
-                        .targetGroupId(100L)
-                        .writerName("작성자")
-                        .title("질문 제목")
-                        .content("질문 내용")
-                        .isPrivate(false)
-                        .isPhoto(false)
-                        .build()
+            PostCreateState.builder()
+                .userId(10L)
+                .parentId(null)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .targetGroupType(PostTargetGroupType.PRODUCT)
+                .targetGroupId(100L)
+                .writerName("작성자")
+                .title("질문 제목")
+                .content("질문 내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .build()
         );
     }
 
@@ -103,39 +103,39 @@ class PostPersistenceAdapterTest {
         @DisplayName("ID 정렬 시 통합 쿼리에 필터/검색/sortProperty=ID를 전달한다")
         void delegatesToDefaultQueryForIdSort() {
             when(postJpaRepository.findByBoardAndFilters(
-                    eq(Board.PRODUCT_INQUERY),
-                    eq("PRODUCT_QUESTION"),
-                    eq(PostTargetGroupType.PRODUCT),
-                    eq(100L),
-                    eq(50L),
-                    eq(true),
-                    eq(true),
-                    eq(null),
-                    eq(false),
-                    eq(true),
-                    eq(false),
-                    eq("%keyword%"),
-                    eq(EntityStatus.ACTIVE),
-                    eq(pageable),
-                    eq(PostSortProperty.ID)
+                eq(Board.PRODUCT_INQUERY),
+                eq("PRODUCT_QUESTION"),
+                eq(PostTargetGroupType.PRODUCT),
+                eq(100L),
+                eq(50L),
+                eq(true),
+                eq(true),
+                eq(null),
+                eq(false),
+                eq(true),
+                eq(false),
+                eq("%keyword%"),
+                eq(EntityStatus.ACTIVE),
+                eq(pageable),
+                eq(PostSortProperty.ID)
             )).thenReturn(List.of(newPersistedEntity(1L, samplePost, "PRODUCT_QUESTION")));
             when(postJpaRepository.findRepliesByParentIds(anyList(), eq(EntityStatus.ACTIVE)))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             Posts result = adapter.findPublicPosts(
-                    Board.PRODUCT_INQUERY,
-                    "PRODUCT_QUESTION",
-                    PostTargetGroupType.PRODUCT,
-                    100L,
-                    50L,
-                    pageable,
-                    true,
-                    PostSortProperty.ID,
-                    null,
-                    PostFilterCategory.IS_PUBLIC,
-                    PostFilterValue.TRUE,
-                    PostSearchTarget.TITLE,
-                    "KeyWord"
+                Board.PRODUCT_INQUERY,
+                "PRODUCT_QUESTION",
+                PostTargetGroupType.PRODUCT,
+                100L,
+                50L,
+                pageable,
+                true,
+                PostSortProperty.ID,
+                null,
+                PostFilterCategory.IS_PUBLIC,
+                PostFilterValue.TRUE,
+                PostSearchTarget.TITLE,
+                "KeyWord"
             );
 
             assertThat(result.size()).isEqualTo(1);
@@ -146,25 +146,25 @@ class PostPersistenceAdapterTest {
         void passesIsAnsweredSortPropertyThrough() {
             ArgumentCaptor<PostSortProperty> sortCaptor = ArgumentCaptor.forClass(PostSortProperty.class);
             when(postJpaRepository.findByBoardAndFilters(
-                    any(), any(), any(), any(), any(), anyBoolean(), any(), any(),
-                    anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any(),
-                    sortCaptor.capture()
+                any(), any(), any(), any(), any(), anyBoolean(), any(), any(),
+                anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any(),
+                sortCaptor.capture()
             )).thenReturn(List.of());
 
             Posts result = adapter.findPublicPosts(
-                    Board.PRODUCT_INQUERY,
-                    null,
-                    null,
-                    null,
-                    null,
-                    pageable,
-                    true,
-                    PostSortProperty.IS_ANSWERED,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
+                Board.PRODUCT_INQUERY,
+                null,
+                null,
+                null,
+                null,
+                pageable,
+                true,
+                PostSortProperty.IS_ANSWERED,
+                null,
+                null,
+                null,
+                null,
+                null
             );
 
             assertThat(result.size()).isZero();
@@ -176,25 +176,25 @@ class PostPersistenceAdapterTest {
         void setsFilterUserIdWhenIsMine() {
             ArgumentCaptor<Long> filterUserIdCaptor = ArgumentCaptor.forClass(Long.class);
             when(postJpaRepository.findByBoardAndFilters(
-                    any(), any(), any(), any(), any(), anyBoolean(), any(),
-                    filterUserIdCaptor.capture(),
-                    anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any(), any()
+                any(), any(), any(), any(), any(), anyBoolean(), any(),
+                filterUserIdCaptor.capture(),
+                anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any(), any()
             )).thenReturn(List.of());
 
             adapter.findPublicPosts(
-                    Board.PRODUCT_INQUERY,
-                    null,
-                    null,
-                    null,
-                    null,
-                    pageable,
-                    true,
-                    PostSortProperty.ID,
-                    777L,
-                    PostFilterCategory.IS_MINE,
-                    PostFilterValue.TRUE,
-                    null,
-                    null
+                Board.PRODUCT_INQUERY,
+                null,
+                null,
+                null,
+                null,
+                pageable,
+                true,
+                PostSortProperty.ID,
+                777L,
+                PostFilterCategory.IS_MINE,
+                PostFilterValue.TRUE,
+                null,
+                null
             );
 
             assertThat(filterUserIdCaptor.getValue()).isEqualTo(777L);
@@ -205,25 +205,25 @@ class PostPersistenceAdapterTest {
         void setsIsAnsweredOnlyFlag() {
             ArgumentCaptor<Boolean> isAnsweredCaptor = ArgumentCaptor.forClass(Boolean.class);
             when(postJpaRepository.findByBoardAndFilters(
-                    any(), any(), any(), any(), any(), anyBoolean(), any(), any(),
-                    isAnsweredCaptor.capture(),
-                    anyBoolean(), anyBoolean(), any(), any(), any(), any()
+                any(), any(), any(), any(), any(), anyBoolean(), any(), any(),
+                isAnsweredCaptor.capture(),
+                anyBoolean(), anyBoolean(), any(), any(), any(), any()
             )).thenReturn(List.of());
 
             adapter.findPublicPosts(
-                    Board.PRODUCT_INQUERY,
-                    null,
-                    null,
-                    null,
-                    null,
-                    pageable,
-                    true,
-                    PostSortProperty.ID,
-                    1L,
-                    PostFilterCategory.IS_ANSWERED,
-                    PostFilterValue.TRUE,
-                    null,
-                    null
+                Board.PRODUCT_INQUERY,
+                null,
+                null,
+                null,
+                null,
+                pageable,
+                true,
+                PostSortProperty.ID,
+                1L,
+                PostFilterCategory.IS_ANSWERED,
+                PostFilterValue.TRUE,
+                null,
+                null
             );
 
             assertThat(isAnsweredCaptor.getValue()).isTrue();
@@ -234,20 +234,20 @@ class PostPersistenceAdapterTest {
         void passesNullPatternWhenKeywordMissing() {
             ArgumentCaptor<String> patternCaptor = ArgumentCaptor.forClass(String.class);
             when(postJpaRepository.findByBoardAndFilters(
-                    any(), any(), any(), any(), any(), anyBoolean(), any(), any(),
-                    anyBoolean(), anyBoolean(), anyBoolean(),
-                    patternCaptor.capture(),
-                    any(), any(), any()
+                any(), any(), any(), any(), any(), anyBoolean(), any(), any(),
+                anyBoolean(), anyBoolean(), anyBoolean(),
+                patternCaptor.capture(),
+                any(), any(), any()
             )).thenReturn(List.of());
 
             adapter.findPublicPosts(
-                    Board.PRODUCT_INQUERY,
-                    null, null, null, null,
-                    pageable,
-                    true,
-                    PostSortProperty.ID,
-                    null, null, null, null,
-                    null
+                Board.PRODUCT_INQUERY,
+                null, null, null, null,
+                pageable,
+                true,
+                PostSortProperty.ID,
+                null, null, null, null,
+                null
             );
 
             assertThat(patternCaptor.getValue()).isNull();
@@ -259,20 +259,20 @@ class PostPersistenceAdapterTest {
             ArgumentCaptor<Boolean> inTitle = ArgumentCaptor.forClass(Boolean.class);
             ArgumentCaptor<Boolean> inContent = ArgumentCaptor.forClass(Boolean.class);
             when(postJpaRepository.findByBoardAndFilters(
-                    any(), any(), any(), any(), any(), anyBoolean(), any(), any(), anyBoolean(),
-                    inTitle.capture(), inContent.capture(),
-                    any(), any(), any(), any()
+                any(), any(), any(), any(), any(), anyBoolean(), any(), any(), anyBoolean(),
+                inTitle.capture(), inContent.capture(),
+                any(), any(), any(), any()
             )).thenReturn(List.of());
 
             adapter.findPublicPosts(
-                    Board.PRODUCT_INQUERY,
-                    null, null, null, null,
-                    pageable,
-                    true,
-                    PostSortProperty.ID,
-                    null, null, null,
-                    null,
-                    "abc"
+                Board.PRODUCT_INQUERY,
+                null, null, null, null,
+                pageable,
+                true,
+                PostSortProperty.ID,
+                null, null, null,
+                null,
+                "abc"
             );
 
             assertThat(inTitle.getValue()).isTrue();
@@ -285,20 +285,20 @@ class PostPersistenceAdapterTest {
             ArgumentCaptor<Boolean> inTitle = ArgumentCaptor.forClass(Boolean.class);
             ArgumentCaptor<Boolean> inContent = ArgumentCaptor.forClass(Boolean.class);
             when(postJpaRepository.findByBoardAndFilters(
-                    any(), any(), any(), any(), any(), anyBoolean(), any(), any(), anyBoolean(),
-                    inTitle.capture(), inContent.capture(),
-                    any(), any(), any(), any()
+                any(), any(), any(), any(), any(), anyBoolean(), any(), any(), anyBoolean(),
+                inTitle.capture(), inContent.capture(),
+                any(), any(), any(), any()
             )).thenReturn(List.of());
 
             adapter.findPublicPosts(
-                    Board.PRODUCT_INQUERY,
-                    null, null, null, null,
-                    pageable,
-                    true,
-                    PostSortProperty.ID,
-                    null, null, null,
-                    PostSearchTarget.CONTENT,
-                    "abc"
+                Board.PRODUCT_INQUERY,
+                null, null, null, null,
+                pageable,
+                true,
+                PostSortProperty.ID,
+                null, null, null,
+                PostSearchTarget.CONTENT,
+                "abc"
             );
 
             assertThat(inTitle.getValue()).isFalse();
@@ -312,15 +312,15 @@ class PostPersistenceAdapterTest {
             PostJpaEntity reply = replyEntity(2L, 1L);
 
             when(postJpaRepository.findByBoardAndFilters(
-                    any(), any(), any(), any(), any(), anyBoolean(), any(), any(),
-                    anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any(), any()
+                any(), any(), any(), any(), any(), anyBoolean(), any(), any(),
+                anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any(), any()
             )).thenReturn(List.of(parent));
             when(postJpaRepository.findRepliesByParentIds(List.of(1L), EntityStatus.ACTIVE))
-                    .thenReturn(List.of(reply));
+                .thenReturn(List.of(reply));
 
             Posts result = adapter.findPublicPosts(
-                    Board.PRODUCT_INQUERY, null, null, null, null, pageable,
-                    true, PostSortProperty.ID, null, null, null, null, null
+                Board.PRODUCT_INQUERY, null, null, null, null, pageable,
+                true, PostSortProperty.ID, null, null, null, null, null
             );
 
             assertThat(result.size()).isEqualTo(1);
@@ -342,16 +342,16 @@ class PostPersistenceAdapterTest {
         void passesUserIsAnsweredSortPropertyThrough() {
             ArgumentCaptor<PostSortProperty> sortCaptor = ArgumentCaptor.forClass(PostSortProperty.class);
             when(postJpaRepository.findByUserIdAndBoard(
-                    eq(9L), eq(Board.PRODUCT_INQUERY), any(), anyBoolean(),
-                    anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any(),
-                    sortCaptor.capture()
+                eq(9L), eq(Board.PRODUCT_INQUERY), any(), anyBoolean(),
+                anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any(),
+                sortCaptor.capture()
             )).thenReturn(List.of());
 
             Posts result = adapter.findUserPosts(
-                    9L, Board.PRODUCT_INQUERY, null, pageable, true,
-                    PostSortProperty.IS_ANSWERED,
-                    PostFilterCategory.IS_ANSWERED, PostFilterValue.TRUE,
-                    null, null
+                9L, Board.PRODUCT_INQUERY, null, pageable, true,
+                PostSortProperty.IS_ANSWERED,
+                PostFilterCategory.IS_ANSWERED, PostFilterValue.TRUE,
+                null, null
             );
 
             assertThat(result.size()).isZero();
@@ -363,17 +363,17 @@ class PostPersistenceAdapterTest {
         void delegatesToUserDefaultQueryForIdSort() {
             ArgumentCaptor<Boolean> isAnsweredCaptor = ArgumentCaptor.forClass(Boolean.class);
             when(postJpaRepository.findByUserIdAndBoard(
-                    eq(9L), eq(Board.PRODUCT_INQUERY), eq(null), eq(true),
-                    isAnsweredCaptor.capture(),
-                    anyBoolean(), anyBoolean(), any(), any(), any(),
-                    eq(PostSortProperty.ID)
+                eq(9L), eq(Board.PRODUCT_INQUERY), eq(null), eq(true),
+                isAnsweredCaptor.capture(),
+                anyBoolean(), anyBoolean(), any(), any(), any(),
+                eq(PostSortProperty.ID)
             )).thenReturn(List.of());
 
             adapter.findUserPosts(
-                    9L, Board.PRODUCT_INQUERY, null, pageable, true,
-                    PostSortProperty.ID,
-                    PostFilterCategory.IS_ANSWERED, PostFilterValue.TRUE,
-                    null, null
+                9L, Board.PRODUCT_INQUERY, null, pageable, true,
+                PostSortProperty.ID,
+                PostFilterCategory.IS_ANSWERED, PostFilterValue.TRUE,
+                null, null
             );
 
             assertThat(isAnsweredCaptor.getValue()).isTrue();
@@ -390,19 +390,19 @@ class PostPersistenceAdapterTest {
             ArgumentCaptor<Boolean> isPublicOnlyCaptor = ArgumentCaptor.forClass(Boolean.class);
             ArgumentCaptor<Long> filterUserIdCaptor = ArgumentCaptor.forClass(Long.class);
             when(postJpaRepository.countByBoardAndFilters(
-                    eq(Board.PRODUCT_INQUERY), eq("PRODUCT_QUESTION"),
-                    eq(PostTargetGroupType.PRODUCT), eq(100L),
-                    isPublicOnlyCaptor.capture(),
-                    filterUserIdCaptor.capture(),
-                    anyBoolean(), anyBoolean(), anyBoolean(), any(), eq(EntityStatus.ACTIVE)
+                eq(Board.PRODUCT_INQUERY), eq("PRODUCT_QUESTION"),
+                eq(PostTargetGroupType.PRODUCT), eq(100L),
+                isPublicOnlyCaptor.capture(),
+                filterUserIdCaptor.capture(),
+                anyBoolean(), anyBoolean(), anyBoolean(), any(), eq(EntityStatus.ACTIVE)
             )).thenReturn(5L);
 
             long count = adapter.countPublicPosts(
-                    Board.PRODUCT_INQUERY, "PRODUCT_QUESTION",
-                    PostTargetGroupType.PRODUCT, 100L,
-                    777L,
-                    PostFilterCategory.IS_PUBLIC, PostFilterValue.TRUE,
-                    PostSearchTarget.TITLE, "word"
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION",
+                PostTargetGroupType.PRODUCT, 100L,
+                777L,
+                PostFilterCategory.IS_PUBLIC, PostFilterValue.TRUE,
+                PostSearchTarget.TITLE, "word"
             );
 
             assertThat(count).isEqualTo(5L);
@@ -419,14 +419,14 @@ class PostPersistenceAdapterTest {
         @DisplayName("사용자 및 보드 조건으로 count 쿼리를 호출한다")
         void delegatesUserCountToRepository() {
             when(postJpaRepository.countByUserIdAndBoard(
-                    eq(9L), eq(Board.PRODUCT_INQUERY), anyBoolean(),
-                    anyBoolean(), anyBoolean(), any(), eq(EntityStatus.ACTIVE)
+                eq(9L), eq(Board.PRODUCT_INQUERY), anyBoolean(),
+                anyBoolean(), anyBoolean(), any(), eq(EntityStatus.ACTIVE)
             )).thenReturn(3L);
 
             long count = adapter.countUserPosts(
-                    9L, Board.PRODUCT_INQUERY,
-                    null, null,
-                    null, null
+                9L, Board.PRODUCT_INQUERY,
+                null, null,
+                null, null
             );
 
             assertThat(count).isEqualTo(3L);
@@ -443,13 +443,13 @@ class PostPersistenceAdapterTest {
             PostJpaEntity entity = newPersistedEntity(1L, samplePost, "PRODUCT_QUESTION");
             ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
             when(postJpaRepository.findByUserIdAndBoardByOffset(
-                    eq(9L), eq(Board.PRODUCT_INQUERY), eq(EntityStatus.ACTIVE), pageableCaptor.capture()
+                eq(9L), eq(Board.PRODUCT_INQUERY), eq(EntityStatus.ACTIVE), pageableCaptor.capture()
             )).thenReturn(List.of(entity));
             when(postJpaRepository.findRepliesByParentIds(anyList(), eq(EntityStatus.ACTIVE)))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             Posts result = adapter.findUserPostsByOffset(
-                    9L, Board.PRODUCT_INQUERY, 2, 30, true, PostSortProperty.ID
+                9L, Board.PRODUCT_INQUERY, 2, 30, true, PostSortProperty.ID
             );
 
             assertThat(result.size()).isEqualTo(1);
@@ -466,11 +466,11 @@ class PostPersistenceAdapterTest {
         void buildsAscPageableWhenIsNotDesc() {
             ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
             when(postJpaRepository.findByUserIdAndBoardByOffset(
-                    any(), any(), any(), pageableCaptor.capture()
+                any(), any(), any(), pageableCaptor.capture()
             )).thenReturn(List.of());
 
             adapter.findUserPostsByOffset(
-                    9L, Board.PRODUCT_INQUERY, 1, 10, false, PostSortProperty.ORDER_NUM
+                9L, Board.PRODUCT_INQUERY, 1, 10, false, PostSortProperty.ORDER_NUM
             );
 
             Pageable pageable = pageableCaptor.getValue();
@@ -492,7 +492,7 @@ class PostPersistenceAdapterTest {
             PostJpaEntity reply = replyEntity(20L, 10L);
             when(postJpaRepository.findById(10L)).thenReturn(Optional.of(parent));
             when(postJpaRepository.findRepliesByParentIds(List.of(10L), EntityStatus.ACTIVE))
-                    .thenReturn(List.of(reply));
+                .thenReturn(List.of(reply));
 
             Optional<Post> result = adapter.findByIdWithReplies(10L);
 
@@ -563,17 +563,17 @@ class PostPersistenceAdapterTest {
         @DisplayName("중요 공지 엔티티를 조회하면 isImportant=true로 매핑된다")
         void mapsIsImportantTrue() {
             Post importantNotice = Post.from(
-                    PostCreateState.builder()
-                            .userId(10L)
-                            .board(Board.NOTICE)
-                            .category("ANNOUNCEMENT")
-                            .writerName("관리자")
-                            .title("중요 공지")
-                            .content("내용")
-                            .isPrivate(false)
-                            .isPhoto(false)
-                            .isImportant(true)
-                            .build()
+                PostCreateState.builder()
+                    .userId(10L)
+                    .board(Board.NOTICE)
+                    .category("ANNOUNCEMENT")
+                    .writerName("관리자")
+                    .title("중요 공지")
+                    .content("내용")
+                    .isPrivate(false)
+                    .isPhoto(false)
+                    .isImportant(true)
+                    .build()
             );
             PostJpaEntity entity = newPersistedEntity(30L, importantNotice, "ANNOUNCEMENT");
             when(postJpaRepository.findById(30L)).thenReturn(Optional.of(entity));
@@ -588,17 +588,17 @@ class PostPersistenceAdapterTest {
         @DisplayName("일반 공지 엔티티를 조회하면 isImportant=false로 매핑된다")
         void mapsIsImportantFalseForRegularNotice() {
             Post regularNotice = Post.from(
-                    PostCreateState.builder()
-                            .userId(10L)
-                            .board(Board.NOTICE)
-                            .category("ANNOUNCEMENT")
-                            .writerName("관리자")
-                            .title("일반 공지")
-                            .content("내용")
-                            .isPrivate(false)
-                            .isPhoto(false)
-                            .isImportant(false)
-                            .build()
+                PostCreateState.builder()
+                    .userId(10L)
+                    .board(Board.NOTICE)
+                    .category("ANNOUNCEMENT")
+                    .writerName("관리자")
+                    .title("일반 공지")
+                    .content("내용")
+                    .isPrivate(false)
+                    .isPhoto(false)
+                    .isImportant(false)
+                    .build()
             );
             PostJpaEntity entity = newPersistedEntity(31L, regularNotice, "ANNOUNCEMENT");
             when(postJpaRepository.findById(31L)).thenReturn(Optional.of(entity));
@@ -631,17 +631,17 @@ class PostPersistenceAdapterTest {
         @DisplayName("중요 공지 Post를 저장하면 엔티티에 isImportant=true가 매핑된다")
         void savesIsImportantTrueIntoEntity() {
             Post importantNotice = Post.from(
-                    PostCreateState.builder()
-                            .userId(10L)
-                            .board(Board.NOTICE)
-                            .category("ANNOUNCEMENT")
-                            .writerName("관리자")
-                            .title("중요 공지")
-                            .content("내용")
-                            .isPrivate(false)
-                            .isPhoto(false)
-                            .isImportant(true)
-                            .build()
+                PostCreateState.builder()
+                    .userId(10L)
+                    .board(Board.NOTICE)
+                    .category("ANNOUNCEMENT")
+                    .writerName("관리자")
+                    .title("중요 공지")
+                    .content("내용")
+                    .isPrivate(false)
+                    .isPhoto(false)
+                    .isImportant(true)
+                    .build()
             );
             ArgumentCaptor<PostJpaEntity> entityCaptor = ArgumentCaptor.forClass(PostJpaEntity.class);
             PostJpaEntity savedEntity = newPersistedEntity(50L, importantNotice, "ANNOUNCEMENT");
@@ -656,17 +656,17 @@ class PostPersistenceAdapterTest {
         @DisplayName("일반 공지 Post를 저장하면 엔티티에 isImportant=false가 매핑된다")
         void savesIsImportantFalseIntoEntity() {
             Post regularNotice = Post.from(
-                    PostCreateState.builder()
-                            .userId(10L)
-                            .board(Board.NOTICE)
-                            .category("ANNOUNCEMENT")
-                            .writerName("관리자")
-                            .title("일반 공지")
-                            .content("내용")
-                            .isPrivate(false)
-                            .isPhoto(false)
-                            .isImportant(false)
-                            .build()
+                PostCreateState.builder()
+                    .userId(10L)
+                    .board(Board.NOTICE)
+                    .category("ANNOUNCEMENT")
+                    .writerName("관리자")
+                    .title("일반 공지")
+                    .content("내용")
+                    .isPrivate(false)
+                    .isPhoto(false)
+                    .isImportant(false)
+                    .build()
             );
             ArgumentCaptor<PostJpaEntity> entityCaptor = ArgumentCaptor.forClass(PostJpaEntity.class);
             PostJpaEntity savedEntity = newPersistedEntity(51L, regularNotice, "ANNOUNCEMENT");
@@ -686,33 +686,33 @@ class PostPersistenceAdapterTest {
         @DisplayName("공지 게시글의 isImportant를 true로 변경하면 엔티티의 is_important가 true로 업데이트된다")
         void updatesIsImportantTrue() {
             Post existing = Post.from(PostCreateState.builder()
-                    .userId(10L)
-                    .board(Board.NOTICE)
-                    .category("ANNOUNCEMENT")
-                    .writerName("관리자")
-                    .title("공지")
-                    .content("내용")
-                    .isPrivate(false)
-                    .isPhoto(false)
-                    .isImportant(false)
-                    .build());
+                .userId(10L)
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("관리자")
+                .title("공지")
+                .content("내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .isImportant(false)
+                .build());
             PostJpaEntity entity = newPersistedEntity(60L, existing, "ANNOUNCEMENT");
             when(postJpaRepository.findById(60L)).thenReturn(Optional.of(entity));
 
             existing.updateImportance(Boolean.TRUE);
             Post updated = Post.from(PostSnapshotState.builder()
-                    .id(60L)
-                    .userId(10L)
-                    .postKey(existing.getPostKey())
-                    .board(Board.NOTICE)
-                    .category("ANNOUNCEMENT")
-                    .writerName("관리자")
-                    .maskedWriterName("관*자")
-                    .title("공지")
-                    .content("내용")
-                    .isImportant(true)
-                    .status(EntityStatus.ACTIVE)
-                    .build());
+                .id(60L)
+                .userId(10L)
+                .postKey(existing.getPostKey())
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("관리자")
+                .maskedWriterName("관*자")
+                .title("공지")
+                .content("내용")
+                .isImportant(true)
+                .status(EntityStatus.ACTIVE)
+                .build());
 
             adapter.update(updated);
 
@@ -723,32 +723,32 @@ class PostPersistenceAdapterTest {
         @DisplayName("공지 게시글의 isImportant를 false로 변경하면 엔티티의 is_important가 false로 업데이트된다")
         void updatesIsImportantFalse() {
             Post existing = Post.from(PostCreateState.builder()
-                    .userId(10L)
-                    .board(Board.NOTICE)
-                    .category("ANNOUNCEMENT")
-                    .writerName("관리자")
-                    .title("공지")
-                    .content("내용")
-                    .isPrivate(false)
-                    .isPhoto(false)
-                    .isImportant(true)
-                    .build());
+                .userId(10L)
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("관리자")
+                .title("공지")
+                .content("내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .isImportant(true)
+                .build());
             PostJpaEntity entity = newPersistedEntity(61L, existing, "ANNOUNCEMENT");
             when(postJpaRepository.findById(61L)).thenReturn(Optional.of(entity));
 
             Post updated = Post.from(PostSnapshotState.builder()
-                    .id(61L)
-                    .userId(10L)
-                    .postKey(existing.getPostKey())
-                    .board(Board.NOTICE)
-                    .category("ANNOUNCEMENT")
-                    .writerName("관리자")
-                    .maskedWriterName("관*자")
-                    .title("공지")
-                    .content("내용")
-                    .isImportant(false)
-                    .status(EntityStatus.ACTIVE)
-                    .build());
+                .id(61L)
+                .userId(10L)
+                .postKey(existing.getPostKey())
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("관리자")
+                .maskedWriterName("관*자")
+                .title("공지")
+                .content("내용")
+                .isImportant(false)
+                .status(EntityStatus.ACTIVE)
+                .build());
 
             adapter.update(updated);
 
@@ -767,23 +767,23 @@ class PostPersistenceAdapterTest {
             when(postJpaRepository.findById(1L)).thenReturn(Optional.of(entity));
 
             Post persisted = Post.from(
-                    PostSnapshotState.builder()
-                            .id(1L)
-                            .userId(samplePost.getUserId())
-                            .postKey(samplePost.getPostKey())
-                            .board(samplePost.getBoard())
-                            .category("PRODUCT_QUESTION")
-                            .writerName(samplePost.getWriterName())
-                            .maskedWriterName(samplePost.getMaskedWriterName())
-                            .title("updated title")
-                            .content("updated content")
-                            .isPrivate(false)
-                            .isPhoto(false)
-                            .status(EntityStatus.ACTIVE)
-                            .createdAt(LocalDateTime.now())
-                            .modifiedAt(LocalDateTime.now())
-                            .orderNum(1L)
-                            .build()
+                PostSnapshotState.builder()
+                    .id(1L)
+                    .userId(samplePost.getUserId())
+                    .postKey(samplePost.getPostKey())
+                    .board(samplePost.getBoard())
+                    .category("PRODUCT_QUESTION")
+                    .writerName(samplePost.getWriterName())
+                    .maskedWriterName(samplePost.getMaskedWriterName())
+                    .title("updated title")
+                    .content("updated content")
+                    .isPrivate(false)
+                    .isPhoto(false)
+                    .status(EntityStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .modifiedAt(LocalDateTime.now())
+                    .orderNum(1L)
+                    .build()
             );
             persisted.update("updated title", "updated content");
 
@@ -799,24 +799,24 @@ class PostPersistenceAdapterTest {
             when(postJpaRepository.findById(404L)).thenReturn(Optional.empty());
 
             Post missing = Post.from(
-                    PostSnapshotState.builder()
-                            .id(404L)
-                            .userId(samplePost.getUserId())
-                            .postKey(UUID.randomUUID())
-                            .board(samplePost.getBoard())
-                            .category("PRODUCT_QUESTION")
-                            .writerName(samplePost.getWriterName())
-                            .maskedWriterName(samplePost.getMaskedWriterName())
-                            .title("t")
-                            .content("c")
-                            .isPrivate(false)
-                            .isPhoto(false)
-                            .status(EntityStatus.ACTIVE)
-                            .build()
+                PostSnapshotState.builder()
+                    .id(404L)
+                    .userId(samplePost.getUserId())
+                    .postKey(UUID.randomUUID())
+                    .board(samplePost.getBoard())
+                    .category("PRODUCT_QUESTION")
+                    .writerName(samplePost.getWriterName())
+                    .maskedWriterName(samplePost.getMaskedWriterName())
+                    .title("t")
+                    .content("c")
+                    .isPrivate(false)
+                    .isPhoto(false)
+                    .status(EntityStatus.ACTIVE)
+                    .build()
             );
 
             assertThatThrownBy(() -> adapter.update(missing))
-                    .isInstanceOf(PostNotFoundException.class);
+                .isInstanceOf(PostNotFoundException.class);
         }
     }
 
@@ -832,19 +832,19 @@ class PostPersistenceAdapterTest {
 
     private PostJpaEntity replyEntity(Long id, Long parentId) {
         Post reply = Post.from(
-                PostCreateState.builder()
-                        .userId(11L)
-                        .parentId(parentId)
-                        .board(Board.PRODUCT_INQUERY)
-                        .category("PRODUCT_QUESTION")
-                        .targetGroupType(PostTargetGroupType.PRODUCT)
-                        .targetGroupId(100L)
-                        .writerName("답변자")
-                        .title("대댓글")
-                        .content("대댓글 내용")
-                        .isPrivate(false)
-                        .isPhoto(false)
-                        .build()
+            PostCreateState.builder()
+                .userId(11L)
+                .parentId(parentId)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .targetGroupType(PostTargetGroupType.PRODUCT)
+                .targetGroupId(100L)
+                .writerName("답변자")
+                .title("대댓글")
+                .content("대댓글 내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .build()
         );
         return newPersistedEntity(id, reply, "PRODUCT_QUESTION");
     }

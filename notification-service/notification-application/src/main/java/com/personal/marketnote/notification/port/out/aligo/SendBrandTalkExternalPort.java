@@ -9,8 +9,8 @@ public interface SendBrandTalkExternalPort {
     BrandTalkSendResponse send(AligoBrandTalkMessage message, List<byte[]> failoverImages, List<String> failoverImageFileNames);
 
     record BrandTalkSendResponse(
-            String mid, int successCount, int failCount,
-            String costType, int unitCost, int totalCost
+        String mid, int successCount, int failCount,
+        String costType, int unitCost, int totalCost
     ) {
     }
 }

@@ -23,9 +23,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ManageGifticonGoodsCashPriceUseCaseTest {
@@ -46,16 +44,16 @@ class ManageGifticonGoodsCashPriceUseCaseTest {
         GifticonGoods goods1 = createGoods("G00001", 3500L);
         GifticonGoods goods2 = createGoods("G00002", 4000L);
         ManageGifticonGoodsCashPriceCommand command = new ManageGifticonGoodsCashPriceCommand(
-                List.of(
-                        new CashPriceItem("G00001", 2900L),
-                        new CashPriceItem("G00002", 3300L)
-                )
+            List.of(
+                new CashPriceItem("G00001", 2900L),
+                new CashPriceItem("G00002", 3300L)
+            )
         );
 
         when(findGifticonGoodsPort.findByGoodsCode("G00001"))
-                .thenReturn(Optional.of(goods1));
+            .thenReturn(Optional.of(goods1));
         when(findGifticonGoodsPort.findByGoodsCode("G00002"))
-                .thenReturn(Optional.of(goods2));
+            .thenReturn(Optional.of(goods2));
 
         // when
         manageGifticonGoodsCashPriceService.manageCashPrice(command);
@@ -72,15 +70,15 @@ class ManageGifticonGoodsCashPriceUseCaseTest {
     void shouldThrowExceptionWhenGoodsNotFound() {
         // given
         ManageGifticonGoodsCashPriceCommand command = new ManageGifticonGoodsCashPriceCommand(
-                List.of(new CashPriceItem("G99999", 1000L))
+            List.of(new CashPriceItem("G99999", 1000L))
         );
 
         when(findGifticonGoodsPort.findByGoodsCode("G99999"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> manageGifticonGoodsCashPriceService.manageCashPrice(command))
-                .isInstanceOf(GifticonGoodsNotFoundException.class);
+            .isInstanceOf(GifticonGoodsNotFoundException.class);
         verify(updateGifticonGoodsPort, never()).update(any());
     }
 
@@ -90,20 +88,20 @@ class ManageGifticonGoodsCashPriceUseCaseTest {
         // given
         GifticonGoods goods1 = createGoods("G00001", 3500L);
         ManageGifticonGoodsCashPriceCommand command = new ManageGifticonGoodsCashPriceCommand(
-                List.of(
-                        new CashPriceItem("G00001", 2900L),
-                        new CashPriceItem("G99999", 1000L)
-                )
+            List.of(
+                new CashPriceItem("G00001", 2900L),
+                new CashPriceItem("G99999", 1000L)
+            )
         );
 
         when(findGifticonGoodsPort.findByGoodsCode("G00001"))
-                .thenReturn(Optional.of(goods1));
+            .thenReturn(Optional.of(goods1));
         when(findGifticonGoodsPort.findByGoodsCode("G99999"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> manageGifticonGoodsCashPriceService.manageCashPrice(command))
-                .isInstanceOf(GifticonGoodsNotFoundException.class);
+            .isInstanceOf(GifticonGoodsNotFoundException.class);
 
         // 첫 항목은 도메인 변경 + update 호출까지 완료 (실제 DB 롤백은 @Transactional이 처리)
         assertThat(goods1.getCashPrice()).isEqualTo(Money.of(2900L));
@@ -112,25 +110,25 @@ class ManageGifticonGoodsCashPriceUseCaseTest {
 
     private GifticonGoods createGoods(String goodsCode, Long cashPrice) {
         return GifticonGoods.from(GifticonGoodsSnapshotState.builder()
-                .id(1L)
-                .goodsCode(goodsCode)
-                .goodsName("테스트 상품")
-                .brandCode("BR001")
-                .brandName("스타벅스")
-                .brandImageUrl("https://img.com/brand.png")
-                .categoryCode("1")
-                .realPrice(5000L)
-                .salePrice(4500L)
-                .cashPrice(cashPrice)
-                .imageUrl("https://img.com/goods.png")
-                .description("설명")
-                .validDays(30)
-                .goodsStatus(GoodsStatus.SALE)
-                .exposed(false)
-                .orderNum(null)
-                .createdAt(LocalDateTime.of(2026, 4, 26, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 26, 10, 0))
-                .build()
+            .id(1L)
+            .goodsCode(goodsCode)
+            .goodsName("테스트 상품")
+            .brandCode("BR001")
+            .brandName("스타벅스")
+            .brandImageUrl("https://img.com/brand.png")
+            .categoryCode("1")
+            .realPrice(5000L)
+            .salePrice(4500L)
+            .cashPrice(cashPrice)
+            .imageUrl("https://img.com/goods.png")
+            .description("설명")
+            .validDays(30)
+            .goodsStatus(GoodsStatus.SALE)
+            .exposed(false)
+            .orderNum(null)
+            .createdAt(LocalDateTime.of(2026, 4, 26, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 26, 10, 0))
+            .build()
         );
     }
 }

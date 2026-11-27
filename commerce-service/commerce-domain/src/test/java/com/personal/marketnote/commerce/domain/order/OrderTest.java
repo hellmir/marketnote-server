@@ -40,11 +40,11 @@ class OrderTest {
     @DisplayName("CreateState에 orderProductStates가 null이면 빈 리스트로 설정된다")
     void shouldSetEmptyProductsWhenCreateStateProductsIsNull() {
         OrderCreateState state = OrderCreateState.builder()
-                .buyerId(1L)
-                .amount(createOrderAmount())
-                .shippingAddress(createShippingAddress())
-                .orderProductStates(null)
-                .build();
+            .buyerId(1L)
+            .amount(createOrderAmount())
+            .shippingAddress(createShippingAddress())
+            .orderProductStates(null)
+            .build();
 
         Order order = Order.from(state);
 
@@ -58,20 +58,20 @@ class OrderTest {
         LocalDateTime modifiedAt = LocalDateTime.of(2026, 4, 1, 12, 0);
         UUID orderKey = UUID.randomUUID();
         OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(1L)
-                .buyerId(100L)
-                .orderKey(orderKey)
-                .orderNumber(OrderNumber.of("ORD-20260101-001"))
-                .orderStatus(OrderStatus.PAID)
-                .statusChangeReasonCategory(null)
-                .statusChangeReason(null)
-                .amount(createOrderAmount())
-                .shippingAddress(createShippingAddress())
-                .pickupAddress(null)
-                .orderProductStates(List.of())
-                .createdAt(createdAt)
-                .modifiedAt(modifiedAt)
-                .build();
+            .id(1L)
+            .buyerId(100L)
+            .orderKey(orderKey)
+            .orderNumber(OrderNumber.of("ORD-20260101-001"))
+            .orderStatus(OrderStatus.PAID)
+            .statusChangeReasonCategory(null)
+            .statusChangeReason(null)
+            .amount(createOrderAmount())
+            .shippingAddress(createShippingAddress())
+            .pickupAddress(null)
+            .orderProductStates(List.of())
+            .createdAt(createdAt)
+            .modifiedAt(modifiedAt)
+            .build();
 
         Order order = Order.from(state);
 
@@ -188,7 +188,7 @@ class OrderTest {
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAID);
         order.getOrderProducts().forEach(product ->
-                assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.PAID)
+            assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.PAID)
         );
     }
 
@@ -199,7 +199,7 @@ class OrderTest {
         LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
 
         assertThatThrownBy(() -> order.changeAllProductsStatus(OrderStatus.PAID, now, 0L))
-                .isInstanceOf(InvalidOrderStatusTransitionException.class);
+            .isInstanceOf(InvalidOrderStatusTransitionException.class);
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_PENDING);
     }
 
@@ -213,7 +213,7 @@ class OrderTest {
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_EXECUTING);
         order.getOrderProducts().forEach(product ->
-                assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_EXECUTING)
+            assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_EXECUTING)
         );
     }
 
@@ -235,7 +235,7 @@ class OrderTest {
         LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
 
         assertThatThrownBy(() -> order.changeAllProductsStatus(OrderStatus.CANCELLED, now, 0L))
-                .isInstanceOf(InvalidOrderStatusTransitionException.class);
+            .isInstanceOf(InvalidOrderStatusTransitionException.class);
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED);
     }
 
@@ -249,7 +249,7 @@ class OrderTest {
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.RETURN_IN_PROGRESS);
         order.getOrderProducts().forEach(product ->
-                assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.RETURN_IN_PROGRESS)
+            assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.RETURN_IN_PROGRESS)
         );
     }
 
@@ -300,7 +300,7 @@ class OrderTest {
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED);
         order.getOrderProducts().forEach(product ->
-                assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED)
+            assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED)
         );
     }
 
@@ -327,7 +327,7 @@ class OrderTest {
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED);
         order.getOrderProducts().forEach(product ->
-                assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED)
+            assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED)
         );
     }
 
@@ -371,9 +371,9 @@ class OrderTest {
         order.changeProductsStatus(List.of(1L), OrderStatus.DELIVERED, now, autoConfirmDays);
 
         OrderProduct target = order.getOrderProducts().stream()
-                .filter(p -> p.getPricePolicyId().equals(1L)).findFirst().orElseThrow();
+            .filter(p -> p.getPricePolicyId().equals(1L)).findFirst().orElseThrow();
         OrderProduct untouched = order.getOrderProducts().stream()
-                .filter(p -> p.getPricePolicyId().equals(2L)).findFirst().orElseThrow();
+            .filter(p -> p.getPricePolicyId().equals(2L)).findFirst().orElseThrow();
 
         assertThat(target.getScheduledAutoConfirmAt()).isEqualTo(now.plusDays(autoConfirmDays));
         assertThat(untouched.getScheduledAutoConfirmAt()).isNull();
@@ -433,16 +433,16 @@ class OrderTest {
     void shouldRestoreScheduledAutoConfirmAtFromSnapshotState() {
         LocalDateTime scheduledAutoConfirmAt = LocalDateTime.of(2026, 4, 18, 12, 0);
         OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(1L)
-                .buyerId(100L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-20260101-001"))
-                .orderStatus(OrderStatus.DELIVERED)
-                .amount(createOrderAmount())
-                .shippingAddress(createShippingAddress())
-                .orderProductStates(List.of())
-                .scheduledAutoConfirmAt(scheduledAutoConfirmAt)
-                .build();
+            .id(1L)
+            .buyerId(100L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-20260101-001"))
+            .orderStatus(OrderStatus.DELIVERED)
+            .amount(createOrderAmount())
+            .shippingAddress(createShippingAddress())
+            .orderProductStates(List.of())
+            .scheduledAutoConfirmAt(scheduledAutoConfirmAt)
+            .build();
 
         Order order = Order.from(state);
 
@@ -451,118 +451,118 @@ class OrderTest {
 
     private OrderCreateState createDefaultOrderCreateState() {
         return OrderCreateState.builder()
-                .buyerId(1L)
-                .amount(createOrderAmount())
-                .shippingAddress(createShippingAddress())
-                .orderProductStates(List.of(
-                        OrderProductCreateState.builder()
-                                .sellerId(10L)
-                                .pricePolicyId(1L)
-                                .quantity(1)
-                                .unitAmount(10000L)
-                                .accumulatedPoint(0L)
-                                .build()
-                ))
-                .build();
+            .buyerId(1L)
+            .amount(createOrderAmount())
+            .shippingAddress(createShippingAddress())
+            .orderProductStates(List.of(
+                OrderProductCreateState.builder()
+                    .sellerId(10L)
+                    .pricePolicyId(1L)
+                    .quantity(1)
+                    .unitAmount(10000L)
+                    .accumulatedPoint(0L)
+                    .build()
+            ))
+            .build();
     }
 
     private Order createOrderWithStatus(OrderStatus status) {
         return Order.from(OrderSnapshotState.builder()
-                .id(1L)
-                .buyerId(100L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-20260101-001"))
-                .orderStatus(status)
-                .amount(createOrderAmount())
-                .shippingAddress(createShippingAddress())
-                .orderProductStates(List.of())
-                .build());
+            .id(1L)
+            .buyerId(100L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-20260101-001"))
+            .orderStatus(status)
+            .amount(createOrderAmount())
+            .shippingAddress(createShippingAddress())
+            .orderProductStates(List.of())
+            .build());
     }
 
     private Order createOrderWithProducts(OrderStatus status) {
         return Order.from(OrderSnapshotState.builder()
-                .id(1L)
-                .buyerId(100L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-20260101-001"))
-                .orderStatus(status)
-                .amount(createOrderAmount())
-                .shippingAddress(createShippingAddress())
-                .orderProductStates(List.of(
-                        OrderProductSnapshotState.builder()
-                                .orderId(1L).sellerId(10L).pricePolicyId(1L)
-                                .quantity(1).unitAmount(10000L).accumulatedPoint(0L).orderStatus(status).build(),
-                        OrderProductSnapshotState.builder()
-                                .orderId(1L).sellerId(10L).pricePolicyId(2L)
-                                .quantity(2).unitAmount(20000L).accumulatedPoint(0L).orderStatus(status).build()
-                ))
-                .build());
+            .id(1L)
+            .buyerId(100L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-20260101-001"))
+            .orderStatus(status)
+            .amount(createOrderAmount())
+            .shippingAddress(createShippingAddress())
+            .orderProductStates(List.of(
+                OrderProductSnapshotState.builder()
+                    .orderId(1L).sellerId(10L).pricePolicyId(1L)
+                    .quantity(1).unitAmount(10000L).accumulatedPoint(0L).orderStatus(status).build(),
+                OrderProductSnapshotState.builder()
+                    .orderId(1L).sellerId(10L).pricePolicyId(2L)
+                    .quantity(2).unitAmount(20000L).accumulatedPoint(0L).orderStatus(status).build()
+            ))
+            .build());
     }
 
     private Order createOrderWithDeliveredProducts() {
         return Order.from(OrderSnapshotState.builder()
-                .id(1L)
-                .buyerId(100L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-20260101-001"))
-                .orderStatus(OrderStatus.DELIVERED)
-                .amount(createOrderAmount())
-                .shippingAddress(createShippingAddress())
-                .orderProductStates(List.of(
-                        OrderProductSnapshotState.builder()
-                                .orderId(1L).sellerId(10L).pricePolicyId(1L)
-                                .quantity(1).unitAmount(10000L).accumulatedPoint(0L)
-                                .orderStatus(OrderStatus.DELIVERED).build(),
-                        OrderProductSnapshotState.builder()
-                                .orderId(1L).sellerId(10L).pricePolicyId(2L)
-                                .quantity(2).unitAmount(20000L).accumulatedPoint(0L)
-                                .orderStatus(OrderStatus.DELIVERED).build()
-                ))
-                .build());
+            .id(1L)
+            .buyerId(100L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-20260101-001"))
+            .orderStatus(OrderStatus.DELIVERED)
+            .amount(createOrderAmount())
+            .shippingAddress(createShippingAddress())
+            .orderProductStates(List.of(
+                OrderProductSnapshotState.builder()
+                    .orderId(1L).sellerId(10L).pricePolicyId(1L)
+                    .quantity(1).unitAmount(10000L).accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.DELIVERED).build(),
+                OrderProductSnapshotState.builder()
+                    .orderId(1L).sellerId(10L).pricePolicyId(2L)
+                    .quantity(2).unitAmount(20000L).accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.DELIVERED).build()
+            ))
+            .build());
     }
 
     private Order createOrderWithPartiallyReturnRequestedProducts() {
         return Order.from(OrderSnapshotState.builder()
-                .id(1L)
-                .buyerId(100L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-20260101-001"))
-                .orderStatus(OrderStatus.PARTIALLY_RETURN_REQUESTED)
-                .amount(createOrderAmount())
-                .shippingAddress(createShippingAddress())
-                .orderProductStates(List.of(
-                        OrderProductSnapshotState.builder()
-                                .orderId(1L).sellerId(10L).pricePolicyId(1L)
-                                .quantity(1).unitAmount(10000L).accumulatedPoint(0L)
-                                .orderStatus(OrderStatus.RETURN_REQUESTED).build(),
-                        OrderProductSnapshotState.builder()
-                                .orderId(1L).sellerId(10L).pricePolicyId(2L)
-                                .quantity(2).unitAmount(20000L).accumulatedPoint(0L)
-                                .orderStatus(OrderStatus.DELIVERED).build()
-                ))
-                .build());
+            .id(1L)
+            .buyerId(100L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-20260101-001"))
+            .orderStatus(OrderStatus.PARTIALLY_RETURN_REQUESTED)
+            .amount(createOrderAmount())
+            .shippingAddress(createShippingAddress())
+            .orderProductStates(List.of(
+                OrderProductSnapshotState.builder()
+                    .orderId(1L).sellerId(10L).pricePolicyId(1L)
+                    .quantity(1).unitAmount(10000L).accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.RETURN_REQUESTED).build(),
+                OrderProductSnapshotState.builder()
+                    .orderId(1L).sellerId(10L).pricePolicyId(2L)
+                    .quantity(2).unitAmount(20000L).accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.DELIVERED).build()
+            ))
+            .build());
     }
 
     private Order createOrderWithReturnInProgressProducts() {
         return Order.from(OrderSnapshotState.builder()
-                .id(1L)
-                .buyerId(100L)
-                .orderKey(UUID.randomUUID())
-                .orderNumber(OrderNumber.of("ORD-20260101-001"))
-                .orderStatus(OrderStatus.RETURN_IN_PROGRESS)
-                .amount(createOrderAmount())
-                .shippingAddress(createShippingAddress())
-                .orderProductStates(List.of(
-                        OrderProductSnapshotState.builder()
-                                .orderId(1L).sellerId(10L).pricePolicyId(1L)
-                                .quantity(1).unitAmount(10000L).accumulatedPoint(0L)
-                                .orderStatus(OrderStatus.RETURN_IN_PROGRESS).build(),
-                        OrderProductSnapshotState.builder()
-                                .orderId(1L).sellerId(10L).pricePolicyId(2L)
-                                .quantity(2).unitAmount(20000L).accumulatedPoint(0L)
-                                .orderStatus(OrderStatus.RETURN_IN_PROGRESS).build()
-                ))
-                .build());
+            .id(1L)
+            .buyerId(100L)
+            .orderKey(UUID.randomUUID())
+            .orderNumber(OrderNumber.of("ORD-20260101-001"))
+            .orderStatus(OrderStatus.RETURN_IN_PROGRESS)
+            .amount(createOrderAmount())
+            .shippingAddress(createShippingAddress())
+            .orderProductStates(List.of(
+                OrderProductSnapshotState.builder()
+                    .orderId(1L).sellerId(10L).pricePolicyId(1L)
+                    .quantity(1).unitAmount(10000L).accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.RETURN_IN_PROGRESS).build(),
+                OrderProductSnapshotState.builder()
+                    .orderId(1L).sellerId(10L).pricePolicyId(2L)
+                    .quantity(2).unitAmount(20000L).accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.RETURN_IN_PROGRESS).build()
+            ))
+            .build());
     }
 
     @SuppressWarnings("deprecation")

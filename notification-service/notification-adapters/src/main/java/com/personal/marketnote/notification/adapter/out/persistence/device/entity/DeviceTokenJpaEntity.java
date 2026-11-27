@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "device_token", indexes = {
-        @Index(name = "idx_device_token_device_id", columnList = "device_id", unique = true),
-        @Index(name = "idx_device_token_user_id", columnList = "user_id")
+    @Index(name = "idx_device_token_device_id", columnList = "device_id", unique = true),
+    @Index(name = "idx_device_token_user_id", columnList = "user_id")
 })
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,12 +39,12 @@ public class DeviceTokenJpaEntity extends BaseGeneralEntity {
 
     public static DeviceTokenJpaEntity from(DeviceToken deviceToken) {
         return DeviceTokenJpaEntity.builder()
-                .userId(deviceToken.getUserId())
-                .token(deviceToken.getToken())
-                .platform(deviceToken.getPlatform())
-                .deviceId(deviceToken.getDeviceId())
-                .lastUsedAt(deviceToken.getLastUsedAt())
-                .build();
+            .userId(deviceToken.getUserId())
+            .token(deviceToken.getToken())
+            .platform(deviceToken.getPlatform())
+            .deviceId(deviceToken.getDeviceId())
+            .lastUsedAt(deviceToken.getLastUsedAt())
+            .build();
     }
 
     public void updateFrom(DeviceToken deviceToken) {

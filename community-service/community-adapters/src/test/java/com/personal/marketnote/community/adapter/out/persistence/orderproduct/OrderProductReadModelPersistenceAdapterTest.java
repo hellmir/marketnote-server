@@ -46,7 +46,7 @@ class OrderProductReadModelPersistenceAdapterTest {
 
             // then
             Optional<OrderProductReadModelJpaEntity> entity =
-                    repository.findByOrderIdAndPricePolicyId(10L, 100L);
+                repository.findByOrderIdAndPricePolicyId(10L, 100L);
             assertThat(entity).isPresent();
             assertThat(entity.get().getOrderId()).isEqualTo(10L);
             assertThat(entity.get().getPricePolicyId()).isEqualTo(100L);
@@ -66,7 +66,7 @@ class OrderProductReadModelPersistenceAdapterTest {
 
             // then
             Optional<OrderProductReadModelJpaEntity> entity =
-                    repository.findByOrderIdAndPricePolicyId(10L, 100L);
+                repository.findByOrderIdAndPricePolicyId(10L, 100L);
             assertThat(entity).isPresent();
             assertThat(entity.get().getUnitAmount()).isEqualTo(20000L);
             assertThat(repository.findAll()).hasSize(1);
@@ -78,14 +78,14 @@ class OrderProductReadModelPersistenceAdapterTest {
             // given
             adapter.upsert(10L, 100L, 1L, 10000L);
             repository.findByOrderIdAndPricePolicyId(10L, 100L)
-                    .ifPresent(OrderProductReadModelJpaEntity::markInactive);
+                .ifPresent(OrderProductReadModelJpaEntity::markInactive);
 
             // when
             adapter.upsert(10L, 100L, 1L, 10000L);
 
             // then
             Optional<OrderProductReadModelJpaEntity> entity =
-                    repository.findByOrderIdAndPricePolicyId(10L, 100L);
+                repository.findByOrderIdAndPricePolicyId(10L, 100L);
             assertThat(entity).isPresent();
             assertThat(entity.get().getStatus()).isEqualTo(EntityStatus.ACTIVE);
         }
@@ -137,7 +137,7 @@ class OrderProductReadModelPersistenceAdapterTest {
             // given
             adapter.upsert(10L, 100L, 1L, 12345L);
             repository.findByOrderIdAndPricePolicyId(10L, 100L)
-                    .ifPresent(OrderProductReadModelJpaEntity::markInactive);
+                .ifPresent(OrderProductReadModelJpaEntity::markInactive);
 
             // when
             Optional<Long> unitAmount = adapter.findUnitAmountByOrderIdAndPricePolicyId(10L, 100L);

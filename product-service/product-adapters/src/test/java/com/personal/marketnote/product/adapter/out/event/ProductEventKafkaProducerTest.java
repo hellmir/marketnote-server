@@ -22,10 +22,7 @@ import java.time.ZoneId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProductEventKafkaProducerTest {
@@ -106,11 +103,11 @@ class ProductEventKafkaProducerTest {
 
         // when
         productEventKafkaProducer.publishPricePolicyCreatedEvent(
-                new PricePolicyCreatedEvent(
-                        1L, java.util.UUID.randomUUID(), 2L, 3L, "상품", "브랜드",
-                        10000L, 9000L, 100L, 0L,
-                        java.util.List.of(), java.util.List.of()
-                )
+            new PricePolicyCreatedEvent(
+                1L, java.util.UUID.randomUUID(), 2L, 3L, "상품", "브랜드",
+                10000L, 9000L, 100L, 0L,
+                java.util.List.of(), java.util.List.of()
+            )
         );
 
         // then
@@ -131,19 +128,19 @@ class ProductEventKafkaProducerTest {
         setUpClock("2026-02-27T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
         java.util.List<PricePolicyCreatedEvent.ProductTagSnapshot> tags = java.util.List.of(
-                new PricePolicyCreatedEvent.ProductTagSnapshot(1L, "NEW", 1L)
+            new PricePolicyCreatedEvent.ProductTagSnapshot(1L, "NEW", 1L)
         );
         java.util.List<PricePolicyCreatedEvent.ProductOptionSnapshot> options = java.util.List.of(
-                new PricePolicyCreatedEvent.ProductOptionSnapshot(500L, "색상: 빨강")
+            new PricePolicyCreatedEvent.ProductOptionSnapshot(500L, "색상: 빨강")
         );
 
         // when
         productEventKafkaProducer.publishPricePolicyCreatedEvent(
-                new PricePolicyCreatedEvent(
-                        10L, java.util.UUID.randomUUID(), 20L, 30L, "상품명", "브랜드명",
-                        20000L, 18000L, 200L, 0L,
-                        tags, options
-                )
+            new PricePolicyCreatedEvent(
+                10L, java.util.UUID.randomUUID(), 20L, 30L, "상품명", "브랜드명",
+                20000L, 18000L, 200L, 0L,
+                tags, options
+            )
         );
 
         // then
@@ -272,9 +269,9 @@ class ProductEventKafkaProducerTest {
 
         // when
         productEventKafkaProducer.publishProductTagChangedEvent(
-                42L,
-                java.util.List.of(new ProductTagChangedEvent.ProductTagSnapshot(1L, "겨울", 1L)),
-                ProductTagChangedEvent.Action.UPDATED
+            42L,
+            java.util.List.of(new ProductTagChangedEvent.ProductTagSnapshot(1L, "겨울", 1L)),
+            ProductTagChangedEvent.Action.UPDATED
         );
 
         // then
@@ -296,13 +293,13 @@ class ProductEventKafkaProducerTest {
         setUpClock("2026-10-18T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
         java.util.List<ProductTagChangedEvent.ProductTagSnapshot> tags = java.util.List.of(
-                new ProductTagChangedEvent.ProductTagSnapshot(10L, "봄", 1L),
-                new ProductTagChangedEvent.ProductTagSnapshot(11L, "세일", 2L)
+            new ProductTagChangedEvent.ProductTagSnapshot(10L, "봄", 1L),
+            new ProductTagChangedEvent.ProductTagSnapshot(11L, "세일", 2L)
         );
 
         // when
         productEventKafkaProducer.publishProductTagChangedEvent(
-                7L, tags, ProductTagChangedEvent.Action.REORDERED
+            7L, tags, ProductTagChangedEvent.Action.REORDERED
         );
 
         // then
@@ -330,12 +327,12 @@ class ProductEventKafkaProducerTest {
         setUpClock("2026-11-21T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
         doThrow(new RuntimeException("DB connection failed"))
-                .when(saveOutboxEventPort).save(any(OutboxEvent.class));
+            .when(saveOutboxEventPort).save(any(OutboxEvent.class));
 
         // when & then
         assertThatThrownBy(() -> productEventKafkaProducer.publishProductDeletedEvent(1L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("DB connection failed");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("DB connection failed");
     }
 
     @Test
@@ -344,12 +341,12 @@ class ProductEventKafkaProducerTest {
         // given
         setUpClock("2026-11-21T10:00:00Z");
         when(objectMapper.writeValueAsString(any()))
-                .thenThrow(new TestJsonProcessingException("Serialization failed"));
+            .thenThrow(new TestJsonProcessingException("Serialization failed"));
 
         // when & then
         assertThatThrownBy(() -> productEventKafkaProducer.publishProductDeletedEvent(1L))
-                .isInstanceOf(ProductEventSerializationException.class)
-                .hasCauseInstanceOf(JsonProcessingException.class);
+            .isInstanceOf(ProductEventSerializationException.class)
+            .hasCauseInstanceOf(JsonProcessingException.class);
         verifyNoInteractions(saveOutboxEventPort);
     }
 

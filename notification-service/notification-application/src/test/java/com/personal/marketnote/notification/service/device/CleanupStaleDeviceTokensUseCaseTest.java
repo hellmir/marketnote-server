@@ -31,8 +31,8 @@ class CleanupStaleDeviceTokensUseCaseTest {
 
     @Spy
     private Clock clock = Clock.fixed(
-            Instant.parse("2026-09-03T05:00:00Z"),
-            ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-09-03T05:00:00Z"),
+        ZoneId.of("Asia/Seoul")
     );
 
     @Test
@@ -40,7 +40,7 @@ class CleanupStaleDeviceTokensUseCaseTest {
     void shouldCallDeactivateWithCorrectThreshold() {
         // given
         when(deleteDeviceTokenPort.deactivateStaleTokens(any(LocalDateTime.class)))
-                .thenReturn(5);
+            .thenReturn(5);
 
         // when
         int result = cleanupStaleDeviceTokensService.cleanupStaleDeviceTokens();
@@ -60,7 +60,7 @@ class CleanupStaleDeviceTokensUseCaseTest {
     void shouldReturnZeroWhenNoStaleTokens() {
         // given
         when(deleteDeviceTokenPort.deactivateStaleTokens(any(LocalDateTime.class)))
-                .thenReturn(0);
+            .thenReturn(0);
 
         // when
         int result = cleanupStaleDeviceTokensService.cleanupStaleDeviceTokens();

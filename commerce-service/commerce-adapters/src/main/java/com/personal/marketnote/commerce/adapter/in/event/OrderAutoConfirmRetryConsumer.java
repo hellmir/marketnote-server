@@ -25,12 +25,12 @@ public class OrderAutoConfirmRetryConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_AUTO_CONFIRM_FAILED,
-            groupId = "commerce-auto-confirm-retry"
+        topics = KafkaTopicConstants.ORDER_AUTO_CONFIRM_FAILED,
+        groupId = "commerce-auto-confirm-retry"
     )
     public void handleOrderAutoConfirmFailedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -46,38 +46,38 @@ public class OrderAutoConfirmRetryConsumer {
 
         try {
             OrderAutoConfirmFailedEvent payload = envelope.getPayloadAs(
-                    OrderAutoConfirmFailedEvent.class, objectMapper
+                OrderAutoConfirmFailedEvent.class, objectMapper
             );
 
             log.info(
-                    "자동 확정 실패 이벤트 수신 (재시도). eventId={}, orderId={}, buyerId={}, reason={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId(), payload.reason()
+                "자동 확정 실패 이벤트 수신 (재시도). eventId={}, orderId={}, buyerId={}, reason={}",
+                envelope.eventId(), payload.orderId(), payload.buyerId(), payload.reason()
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                    envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
             )) {
                 acknowledgment.acknowledge();
                 return;
             }
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(payload.orderId())
-                    .orderStatus(OrderStatus.CONFIRMED)
-                    .build();
+                .id(payload.orderId())
+                .orderStatus(OrderStatus.CONFIRMED)
+                .build();
             changeOrderStatusUseCase.changeOrderStatus(command);
 
             log.info("자동 확정 재시도 성공. orderId={}", payload.orderId());
         } catch (OrderStatusAlreadyChangedException e) {
             log.warn(
-                    "자동 확정 재시도 skip: 이미 주문 상태가 변경됨. eventId={}, key={}, message={}",
-                    envelope.eventId(), record.key(), e.getMessage()
+                "자동 확정 재시도 skip: 이미 주문 상태가 변경됨. eventId={}, key={}, message={}",
+                envelope.eventId(), record.key(), e.getMessage()
             );
         } catch (Exception e) {
             // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수
             log.error(
-                    "자동 확정 재시도 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e
+                "자동 확정 재시도 실패. eventId={}, key={}, error={}",
+                envelope.eventId(), record.key(), e.getMessage(), e
             );
             throw e;
         }

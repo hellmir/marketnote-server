@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(
-        name = "review_aggregate_read_models",
-        uniqueConstraints = @UniqueConstraint(name = "uk_review_aggregate_read_model_product_id", columnNames = "productId")
+    name = "review_aggregate_read_models",
+    uniqueConstraints = @UniqueConstraint(name = "uk_review_aggregate_read_model_product_id", columnNames = "productId")
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -31,10 +31,10 @@ public class ReviewAggregateReadModelJpaEntity extends BaseGeneralEntity {
 
     public static ReviewAggregateReadModelJpaEntity of(Long productId, Integer totalCount, BigDecimal averageRating) {
         return ReviewAggregateReadModelJpaEntity.builder()
-                .productId(productId)
-                .totalCount(totalCount)
-                .averageRating(averageRating)
-                .build();
+            .productId(productId)
+            .totalCount(totalCount)
+            .averageRating(averageRating)
+            .build();
     }
 
     public void updateFrom(Integer totalCount, BigDecimal averageRating) {

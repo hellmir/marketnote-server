@@ -32,15 +32,15 @@ public class RegisterShippingPolicyService implements RegisterShippingPolicyUseC
         validateNoDuplicatePolicy(sellerId);
 
         ShippingPolicy shippingPolicy = ShippingPolicy.from(
-                ShippingPolicyCommandToStateMapper.mapToState(sellerId, command)
+            ShippingPolicyCommandToStateMapper.mapToState(sellerId, command)
         );
 
         Long savedId = saveShippingPolicyPort.save(shippingPolicy);
 
         publishShippingPolicyEventPort.publishShippingPolicyChangedEvent(
-                sellerId, shippingPolicy.getShippingFee().getValue(), shippingPolicy.getFreeShippingThreshold().getValue(),
-                shippingPolicy.getJejuSurcharge().getValue(), shippingPolicy.getIslandSurcharge().getValue(),
-                ShippingPolicyChangeAction.CREATED
+            sellerId, shippingPolicy.getShippingFee().getValue(), shippingPolicy.getFreeShippingThreshold().getValue(),
+            shippingPolicy.getJejuSurcharge().getValue(), shippingPolicy.getIslandSurcharge().getValue(),
+            ShippingPolicyChangeAction.CREATED
         );
 
         return RegisterShippingPolicyResult.of(savedId);
@@ -48,9 +48,9 @@ public class RegisterShippingPolicyService implements RegisterShippingPolicyUseC
 
     private void validateNoDuplicatePolicy(Long sellerId) {
         findShippingPolicyPort.findActiveBySellerId(sellerId)
-                .ifPresent(existing -> {
-                    log.warn("해당 판매자의 배송비 정책이 이미 존재합니다. sellerId={}", sellerId);
-                    throw new ShippingPolicyAlreadyExistsException();
-                });
+            .ifPresent(existing -> {
+                log.warn("해당 판매자의 배송비 정책이 이미 존재합니다. sellerId={}", sellerId);
+                throw new ShippingPolicyAlreadyExistsException();
+            });
     }
 }

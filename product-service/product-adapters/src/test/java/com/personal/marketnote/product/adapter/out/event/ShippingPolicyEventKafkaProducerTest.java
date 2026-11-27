@@ -24,10 +24,7 @@ import java.time.ZoneId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ShippingPolicyEventKafkaProducer 테스트")
@@ -60,7 +57,7 @@ class ShippingPolicyEventKafkaProducerTest {
 
         // when
         shippingPolicyEventKafkaProducer.publishShippingPolicyChangedEvent(
-                10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
+            10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
         );
 
         // then
@@ -84,7 +81,7 @@ class ShippingPolicyEventKafkaProducerTest {
 
         // when
         shippingPolicyEventKafkaProducer.publishShippingPolicyChangedEvent(
-                10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
+            10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
         );
 
         // then
@@ -116,7 +113,7 @@ class ShippingPolicyEventKafkaProducerTest {
 
         // when
         shippingPolicyEventKafkaProducer.publishShippingPolicyChangedEvent(
-                20L, 2500L, 30000L, 4000L, 6000L, ShippingPolicyChangeAction.UPDATED
+            20L, 2500L, 30000L, 4000L, 6000L, ShippingPolicyChangeAction.UPDATED
         );
 
         // then
@@ -139,14 +136,14 @@ class ShippingPolicyEventKafkaProducerTest {
         setUpClock("2026-11-21T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
         doThrow(new RuntimeException("DB connection failed"))
-                .when(saveOutboxEventPort).save(any(OutboxEvent.class));
+            .when(saveOutboxEventPort).save(any(OutboxEvent.class));
 
         // when & then
         assertThatThrownBy(() -> shippingPolicyEventKafkaProducer.publishShippingPolicyChangedEvent(
-                10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
+            10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
         ))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("DB connection failed");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("DB connection failed");
     }
 
     @Test
@@ -155,14 +152,14 @@ class ShippingPolicyEventKafkaProducerTest {
         // given
         setUpClock("2026-11-21T10:00:00Z");
         when(objectMapper.writeValueAsString(any()))
-                .thenThrow(new TestJsonProcessingException("Serialization failed"));
+            .thenThrow(new TestJsonProcessingException("Serialization failed"));
 
         // when & then
         assertThatThrownBy(() -> shippingPolicyEventKafkaProducer.publishShippingPolicyChangedEvent(
-                10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
+            10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
         ))
-                .isInstanceOf(ShippingPolicyEventSerializationException.class)
-                .hasCauseInstanceOf(JsonProcessingException.class);
+            .isInstanceOf(ShippingPolicyEventSerializationException.class)
+            .hasCauseInstanceOf(JsonProcessingException.class);
         verifyNoInteractions(saveOutboxEventPort);
     }
 

@@ -30,12 +30,12 @@ public class ProductUpdatedFulfillmentConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PRODUCT_UPDATED,
-            groupId = "fulfillment-service"
+        topics = KafkaTopicConstants.PRODUCT_UPDATED,
+        groupId = "fulfillment-service"
     )
     public void handleProductUpdatedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -66,51 +66,51 @@ public class ProductUpdatedFulfillmentConsumer {
         }
 
         UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.builder()
-                .productKey(payload.productKey())
-                .fasstoProductCode(payload.fasstoProductCode())
-                .productName(payload.productName())
-                .productType(payload.goodsType())
-                .giftDivision(payload.giftDivision())
-                .productOptionCode1(payload.goodsOptionCode1())
-                .productOptionCode2(payload.goodsOptionCode2())
-                .inventoryProductNameUseYn(payload.invoiceGoodsNameEnabled())
-                .inventoryProductName(payload.invoiceGoodsName())
-                .supplierCode(payload.supplierCode())
-                .categoryCode(payload.categoryCode())
-                .seasonCode(payload.seasonCode())
-                .genderCode(payload.genderCode())
-                .manufactureYear(payload.manufactureYear())
-                .productPrice(payload.unitPrice())
-                .inboundPrice(payload.supplyPrice())
-                .salePrice(payload.salePrice())
-                .dealTemperature(payload.handlingTemperature())
-                .pickFactor(payload.pickingFacility())
-                .productBarcode(payload.goodsBarcode())
-                .boxWeight(payload.boxWeight())
-                .origin(payload.origin())
-                .expirationManagementYn(payload.expirationDateManagementEnabled())
-                .shelfLifeDays(payload.shelfLifeDays())
-                .outboundCancelDays(payload.outboundAvailableDays())
-                .inboundCancelDays(payload.inboundAvailableDays())
-                .boxDivision(payload.outboundBoxType())
-                .bufferProductYn(payload.cushioningEnabled())
-                .loadingDirection(payload.loadingDirection())
-                .subMaterial(payload.subsidiaryMaterialCode())
-                .useYn(payload.enabled())
-                .safetyStock(payload.safetyStock())
-                .feeYn(payload.feeApplied())
-                .saleUnitQuantity(payload.saleUnitQuantity())
-                .customerProductImageUrl(payload.customerGoodsImageUrl())
-                .externalProductImageUrl(payload.externalGoodsImageUrl())
-                .build();
+            .productKey(payload.productKey())
+            .fasstoProductCode(payload.fasstoProductCode())
+            .productName(payload.productName())
+            .productType(payload.goodsType())
+            .giftDivision(payload.giftDivision())
+            .productOptionCode1(payload.goodsOptionCode1())
+            .productOptionCode2(payload.goodsOptionCode2())
+            .inventoryProductNameUseYn(payload.invoiceGoodsNameEnabled())
+            .inventoryProductName(payload.invoiceGoodsName())
+            .supplierCode(payload.supplierCode())
+            .categoryCode(payload.categoryCode())
+            .seasonCode(payload.seasonCode())
+            .genderCode(payload.genderCode())
+            .manufactureYear(payload.manufactureYear())
+            .productPrice(payload.unitPrice())
+            .inboundPrice(payload.supplyPrice())
+            .salePrice(payload.salePrice())
+            .dealTemperature(payload.handlingTemperature())
+            .pickFactor(payload.pickingFacility())
+            .productBarcode(payload.goodsBarcode())
+            .boxWeight(payload.boxWeight())
+            .origin(payload.origin())
+            .expirationManagementYn(payload.expirationDateManagementEnabled())
+            .shelfLifeDays(payload.shelfLifeDays())
+            .outboundCancelDays(payload.outboundAvailableDays())
+            .inboundCancelDays(payload.inboundAvailableDays())
+            .boxDivision(payload.outboundBoxType())
+            .bufferProductYn(payload.cushioningEnabled())
+            .loadingDirection(payload.loadingDirection())
+            .subMaterial(payload.subsidiaryMaterialCode())
+            .useYn(payload.enabled())
+            .safetyStock(payload.safetyStock())
+            .feeYn(payload.feeApplied())
+            .saleUnitQuantity(payload.saleUnitQuantity())
+            .customerProductImageUrl(payload.customerGoodsImageUrl())
+            .externalProductImageUrl(payload.externalGoodsImageUrl())
+            .build();
 
         fulfillmentAuthenticatedCaller.call(token -> {
             updateFulfillmentGoodsUseCase.updateGoods(
-                    UpdateFulfillmentGoodsCommand.of(
-                            fasstoAuthProperties.getCustomerCode(),
-                            token,
-                            List.of(itemCommand)
-                    )
+                UpdateFulfillmentGoodsCommand.of(
+                    fasstoAuthProperties.getCustomerCode(),
+                    token,
+                    List.of(itemCommand)
+                )
             );
             return null;
         });

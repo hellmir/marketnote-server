@@ -23,29 +23,29 @@ public class FulfillmentVendorCommunicationHistory {
 
     public static FulfillmentVendorCommunicationHistory from(FulfillmentVendorCommunicationHistoryCreateState state) {
         return FulfillmentVendorCommunicationHistory.builder()
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .vendorName(state.getVendorName())
-                .communicationType(state.getCommunicationType())
-                .sender(state.getSender())
-                .exception(state.getException())
-                .payload(state.getPayload())
-                .payloadJson(state.getPayloadJson())
-                .build();
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .vendorName(state.getVendorName())
+            .communicationType(state.getCommunicationType())
+            .sender(state.getSender())
+            .exception(state.getException())
+            .payload(state.getPayload())
+            .payloadJson(state.getPayloadJson())
+            .build();
     }
 
     public static FulfillmentVendorCommunicationHistory from(FulfillmentVendorCommunicationHistorySnapshotState state) {
         return FulfillmentVendorCommunicationHistory.builder()
-                .id(state.getId())
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .vendorName(state.getVendorName())
-                .communicationType(state.getCommunicationType())
-                .sender(state.getSender())
-                .exception(state.getException())
-                .payload(state.getPayload())
-                .payloadJson(state.getPayloadJson())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .vendorName(state.getVendorName())
+            .communicationType(state.getCommunicationType())
+            .sender(state.getSender())
+            .exception(state.getException())
+            .payload(state.getPayload())
+            .payloadJson(state.getPayloadJson())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 }

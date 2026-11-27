@@ -29,20 +29,20 @@ public class InventoryReadModelPersistenceAdapter implements FindStockPort, Save
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public Set<GetInventoryResult> findByPricePolicyIds(List<Long> pricePolicyIds) {
         List<InventoryReadModelJpaEntity> entities =
-                inventoryReadModelJpaRepository.findByPricePolicyIdInAndStatus(pricePolicyIds, EntityStatus.ACTIVE);
+            inventoryReadModelJpaRepository.findByPricePolicyIdInAndStatus(pricePolicyIds, EntityStatus.ACTIVE);
 
         Set<Long> foundPricePolicyIds = entities.stream()
-                .map(InventoryReadModelJpaEntity::getPricePolicyId)
-                .collect(Collectors.toSet());
+            .map(InventoryReadModelJpaEntity::getPricePolicyId)
+            .collect(Collectors.toSet());
 
         Set<GetInventoryResult> results = entities.stream()
-                .map(entity -> GetInventoryResult.of(entity.getPricePolicyId(), entity.getStockQuantity()))
-                .collect(Collectors.toSet());
+            .map(entity -> GetInventoryResult.of(entity.getPricePolicyId(), entity.getStockQuantity()))
+            .collect(Collectors.toSet());
 
         pricePolicyIds.stream()
-                .filter(id -> !foundPricePolicyIds.contains(id))
-                .map(GetInventoryResult::generateResultWithoutStock)
-                .forEach(results::add);
+            .filter(id -> !foundPricePolicyIds.contains(id))
+            .map(GetInventoryResult::generateResultWithoutStock)
+            .forEach(results::add);
 
         return results;
     }
@@ -51,7 +51,7 @@ public class InventoryReadModelPersistenceAdapter implements FindStockPort, Save
     @Transactional(isolation = READ_COMMITTED)
     public void upsert(Long pricePolicyId, Long productId, Integer stockQuantity) {
         Optional<InventoryReadModelJpaEntity> existing =
-                inventoryReadModelJpaRepository.findByPricePolicyId(pricePolicyId);
+            inventoryReadModelJpaRepository.findByPricePolicyId(pricePolicyId);
 
         if (existing.isPresent()) {
             existing.get().updateFrom(stockQuantity);
@@ -65,7 +65,7 @@ public class InventoryReadModelPersistenceAdapter implements FindStockPort, Save
             // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회 후 업데이트로 복원
             log.info("재고 Read Model 중복 저장 (멱등 처리). pricePolicyId={}", pricePolicyId);
             inventoryReadModelJpaRepository.findByPricePolicyId(pricePolicyId)
-                    .ifPresent(entity -> entity.updateFrom(stockQuantity));
+                .ifPresent(entity -> entity.updateFrom(stockQuantity));
         }
     }
 }

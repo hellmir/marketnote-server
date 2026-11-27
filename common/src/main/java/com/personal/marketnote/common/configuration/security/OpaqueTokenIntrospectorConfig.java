@@ -16,8 +16,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -42,9 +42,9 @@ public class OpaqueTokenIntrospectorConfig {
 
     @Bean
     public HmacAuthenticationFilter hmacAuthenticationFilter(
-            @Value("${spring.hmac.secret-key}") String hmacSecretKey,
-            HmacNonceValidator hmacNonceValidator,
-            Clock clock
+        @Value("${spring.hmac.secret-key}") String hmacSecretKey,
+        HmacNonceValidator hmacNonceValidator,
+        Clock clock
     ) {
         return new HmacAuthenticationFilter(hmacSecretKey, hmacNonceValidator, clock);
     }
@@ -61,71 +61,71 @@ public class OpaqueTokenIntrospectorConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            BearerTokenResolver resolver,
-            AuthenticationEntryPoint entryPoint,
-            HmacAuthenticationFilter hmacAuthenticationFilter
+        HttpSecurity http,
+        BearerTokenResolver resolver,
+        AuthenticationEntryPoint entryPoint,
+        HmacAuthenticationFilter hmacAuthenticationFilter
     ) throws Exception {
         http.addFilterBefore(hmacAuthenticationFilter, BearerTokenAuthenticationFilter.class)
-                .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
-                .headers(headers -> headers
-                        .frameOptions(frame -> frame.deny())
-                        .contentTypeOptions(Customizer.withDefaults())
-                        .httpStrictTransportSecurity(hsts -> hsts
-                                .includeSubDomains(true)
-                                .maxAgeInSeconds(31536000))
-                        .cacheControl(Customizer.withDefaults())
-                        .contentSecurityPolicy(csp -> csp.policyDirectives(CSP_POLICY_DIRECTIVES)))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/authentication/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/authentication/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/actuator/health/**", "/actuator/prometheus").permitAll()
-                        .requestMatchers("/actuator/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/users/sign-up").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/users/sign-in").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/users/sign-out").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/authentication/access-token/refresh").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/terms").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/categories").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/boards/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/*/post-key").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/{id}").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/offerwalls/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/offerwalls/adiscope/callback").permitAll()
-                        .requestMatchers("/api/v1/internal/**").hasAuthority("ROLE_SERVICE")
-                        .anyRequest().authenticated())
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .authenticationEntryPoint(entryPoint)
-                        .bearerTokenResolver(resolver)
-                        .opaqueToken(Customizer.withDefaults()));
+            .csrf(csrf -> csrf.disable())
+            .cors(Customizer.withDefaults())
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.deny())
+                .contentTypeOptions(Customizer.withDefaults())
+                .httpStrictTransportSecurity(hsts -> hsts
+                    .includeSubDomains(true)
+                    .maxAgeInSeconds(31536000))
+                .cacheControl(Customizer.withDefaults())
+                .contentSecurityPolicy(csp -> csp.policyDirectives(CSP_POLICY_DIRECTIVES)))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/authentication/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/authentication/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/actuator/health/**", "/actuator/prometheus").permitAll()
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/v1/users/sign-up").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/users/sign-in").permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/users/sign-out").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/authentication/access-token/refresh").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/terms").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/categories").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/boards/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/posts/*/post-key").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/reviews/{id}").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/offerwalls/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/offerwalls/adiscope/callback").permitAll()
+                .requestMatchers("/api/v1/internal/**").hasAuthority("ROLE_SERVICE")
+                .anyRequest().authenticated())
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .formLogin(AbstractHttpConfigurer::disable)
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .authenticationEntryPoint(entryPoint)
+                .bearerTokenResolver(resolver)
+                .opaqueToken(Customizer.withDefaults()));
 
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource(
-            @Value("${client.cors.allowed-origins}") String allowedOrigins
+        @Value("${client.cors.allowed-origins}") String allowedOrigins
     ) {
         CorsConfiguration config = new CorsConfiguration();
         List<String> origins = Arrays.stream(allowedOrigins.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .toList();
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .toList();
         config.setAllowedOriginPatterns(origins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of(
-                "Authorization", "Content-Type", "Accept",
-                "X-Requested-With", "X-HTTP-Method-Override",
-                HmacHeaderConstants.HEADER_SIGNATURE,
-                HmacHeaderConstants.HEADER_TIMESTAMP,
-                HmacHeaderConstants.HEADER_NONCE
+            "Authorization", "Content-Type", "Accept",
+            "X-Requested-With", "X-HTTP-Method-Override",
+            HmacHeaderConstants.HEADER_SIGNATURE,
+            HmacHeaderConstants.HEADER_TIMESTAMP,
+            HmacHeaderConstants.HEADER_NONCE
         ));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

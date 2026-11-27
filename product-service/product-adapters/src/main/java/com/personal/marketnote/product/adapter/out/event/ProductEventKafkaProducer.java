@@ -28,18 +28,18 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
 
     @Override
     public void publishProductRegisteredEvent(
-            Long productId, UUID productKey, Long pricePolicyId, Long sellerId, String productName, String goodsType,
-            String brandName, Long price, Long discountPrice, Long accumulatedPoint,
-            Long sales,
-            List<ProductRegisteredEvent.ProductTagSnapshot> productTags,
-            List<ProductRegisteredEvent.ProductOptionSnapshot> selectedOptions,
-            String fasstoProductCode,
-            boolean imported
+        Long productId, UUID productKey, Long pricePolicyId, Long sellerId, String productName, String goodsType,
+        String brandName, Long price, Long discountPrice, Long accumulatedPoint,
+        Long sales,
+        List<ProductRegisteredEvent.ProductTagSnapshot> productTags,
+        List<ProductRegisteredEvent.ProductOptionSnapshot> selectedOptions,
+        String fasstoProductCode,
+        boolean imported
     ) {
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                productId, productKey, pricePolicyId, sellerId, productName, goodsType, brandName,
-                price, discountPrice, accumulatedPoint,
-                sales, productTags, selectedOptions, fasstoProductCode, imported
+            productId, productKey, pricePolicyId, sellerId, productName, goodsType, brandName,
+            price, discountPrice, accumulatedPoint,
+            sales, productTags, selectedOptions, fasstoProductCode, imported
         );
         String topic = KafkaTopicConstants.PRODUCT_REGISTERED;
         EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
@@ -83,9 +83,9 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
 
     @Override
     public void publishProductTagChangedEvent(
-            Long productId,
-            List<ProductTagChangedEvent.ProductTagSnapshot> productTags,
-            ProductTagChangedEvent.Action action
+        Long productId,
+        List<ProductTagChangedEvent.ProductTagSnapshot> productTags,
+        ProductTagChangedEvent.Action action
     ) {
         ProductTagChangedEvent payload = new ProductTagChangedEvent(productId, productTags, action);
         String topic = KafkaTopicConstants.PRODUCT_TAG_CHANGED;
@@ -97,8 +97,8 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
         String payloadJson = serializePayload(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(), topic, partitionKey,
-                envelope.eventType(), SOURCE, payloadJson, clock
+            envelope.eventId(), topic, partitionKey,
+            envelope.eventType(), SOURCE, payloadJson, clock
         );
         saveOutboxEventPort.save(outboxEvent);
         log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());

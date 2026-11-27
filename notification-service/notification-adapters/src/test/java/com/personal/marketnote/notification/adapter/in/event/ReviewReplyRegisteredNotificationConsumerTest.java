@@ -39,8 +39,8 @@ class ReviewReplyRegisteredNotificationConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long userId, Long reviewId, String productName) {
         ReviewReplyRegisteredEvent event = new ReviewReplyRegisteredEvent(userId, reviewId, productName);
         EventEnvelope<ReviewReplyRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "community.review.reply-registered", "community-service",
-                LocalDateTime.of(2026, 4, 10, 10, 0), event
+            "test-event-id", "community.review.reply-registered", "community-service",
+            LocalDateTime.of(2026, 4, 10, 10, 0), event
         );
         return new ConsumerRecord<>("community.review.reply-registered", 0, 0L, "key-1", envelope);
     }
@@ -73,7 +73,7 @@ class ReviewReplyRegisteredNotificationConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "community.review.reply-registered", 0, 0L, "1", null
+            "community.review.reply-registered", 0, 0L, "1", null
         );
 
         // when
@@ -90,11 +90,11 @@ class ReviewReplyRegisteredNotificationConsumerTest {
         // given
         ReviewReplyRegisteredEvent event = new ReviewReplyRegisteredEvent(1L, 100L, "테스트 상품");
         EventEnvelope<ReviewReplyRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "community-service",
-                LocalDateTime.of(2026, 4, 10, 10, 0), event
+            "test-event-id", "wrong.event.type", "community-service",
+            LocalDateTime.of(2026, 4, 10, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "community.review.reply-registered", 0, 0L, "key-1", envelope
+            "community.review.reply-registered", 0, 0L, "key-1", envelope
         );
 
         // when

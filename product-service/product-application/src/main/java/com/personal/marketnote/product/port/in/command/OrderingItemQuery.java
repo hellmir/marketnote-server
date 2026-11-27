@@ -7,17 +7,17 @@ import java.util.UUID;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record OrderingItemQuery(
-        Long pricePolicyId,
-        UUID sharerKey,
-        Short quantity,
-        String imageUrl
+    Long pricePolicyId,
+    UUID sharerKey,
+    Short quantity,
+    String imageUrl
 ) {
     public static OrderingItemQuery of(Long pricePolicyId, UUID sharerKey, Short quantity, String imageUrl) {
         return OrderingItemQuery.builder()
-                .pricePolicyId(pricePolicyId)
-                .sharerKey(sharerKey)
-                .quantity(quantity)
-                .imageUrl(imageUrl)
-                .build();
+            .pricePolicyId(pricePolicyId)
+            .sharerKey(sharerKey)
+            .quantity(quantity)
+            .imageUrl(imageUrl)
+            .build();
     }
 }

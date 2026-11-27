@@ -29,20 +29,20 @@ public class FulfillmentDeliveryWorkStatusChangedEventOutboxAdapter implements P
         String topic = KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED;
         String partitionKey = String.valueOf(event.orderId());
         EventEnvelope<FulfillmentDeliveryWorkStatusChangedEvent> envelope = EventEnvelope.of(
-                topic,
-                EVENT_SOURCE,
-                event,
-                clock
+            topic,
+            EVENT_SOURCE,
+            event,
+            clock
         );
         String payload = serialize(envelope, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(),
-                topic,
-                partitionKey,
-                FulfillmentDeliveryWorkStatusChangedEvent.class.getSimpleName(),
-                EVENT_SOURCE,
-                payload,
-                clock
+            envelope.eventId(),
+            topic,
+            partitionKey,
+            FulfillmentDeliveryWorkStatusChangedEvent.class.getSimpleName(),
+            EVENT_SOURCE,
+            payload,
+            clock
         );
         saveOutboxEventPort.save(outboxEvent);
     }
@@ -52,7 +52,7 @@ public class FulfillmentDeliveryWorkStatusChangedEventOutboxAdapter implements P
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
             throw new FulfillmentDeliveryWorkStatusChangedEventSerializationException(
-                    envelope.eventType(), partitionKey, envelope.eventId(), e
+                envelope.eventType(), partitionKey, envelope.eventId(), e
             );
         }
     }

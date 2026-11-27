@@ -52,12 +52,12 @@ class OrderReturnedSettlementConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, String returnId) {
         OrderReturnedEvent event = new OrderReturnedEvent(
-                orderId, "order-key-1", 1L, 50000L, 50000L, 0L, 3000L,
-                true, 2500L, List.of(), returnId
+            orderId, "order-key-1", 1L, 50000L, 50000L, 0L, 3000L,
+            true, 2500L, List.of(), returnId
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.returned", "commerce-service",
-                LocalDateTime.of(2026, 4, 9, 10, 0), event
+            "test-event-id", "commerce.order.returned", "commerce-service",
+            LocalDateTime.of(2026, 4, 9, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.returned", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -65,16 +65,16 @@ class OrderReturnedSettlementConsumerTest {
     private PaymentAllocation createOriginalAllocation(Long id, Long orderId, Long sellerId,
                                                        Long allocatedAmount, Long shippingFee) {
         return PaymentAllocation.from(PaymentAllocationSnapshotState.builder()
-                .id(id)
-                .orderId(orderId)
-                .sellerId(sellerId)
-                .allocatedAmount(allocatedAmount)
-                .shippingFee(shippingFee)
-                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                .targetType(PaymentAllocationTargetType.ORDER)
-                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:" + orderId + ":" + sellerId))
-                .createdAt(LocalDateTime.of(2026, 4, 7, 10, 0))
-                .build());
+            .id(id)
+            .orderId(orderId)
+            .sellerId(sellerId)
+            .allocatedAmount(allocatedAmount)
+            .shippingFee(shippingFee)
+            .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+            .targetType(PaymentAllocationTargetType.ORDER)
+            .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:" + orderId + ":" + sellerId))
+            .createdAt(LocalDateTime.of(2026, 4, 7, 10, 0))
+            .build());
     }
 
     @Test
@@ -173,7 +173,7 @@ class OrderReturnedSettlementConsumerTest {
     void handleOrderReturnedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.returned", 0, 0L, "1", null
+            "commerce.order.returned", 0, 0L, "1", null
         );
 
         // when
@@ -206,7 +206,7 @@ class OrderReturnedSettlementConsumerTest {
 
         assertThat(returnAllocations).hasSize(1);
         assertThat(returnAllocations.get(0).getIdempotencyKey().getValue())
-                .isEqualTo("ORDER_RETURN_ALLOCATION:300:10:RET-20260418-001");
+            .isEqualTo("ORDER_RETURN_ALLOCATION:300:10:RET-20260418-001");
 
         verify(acknowledgment).acknowledge();
     }
@@ -232,7 +232,7 @@ class OrderReturnedSettlementConsumerTest {
 
         assertThat(returnAllocations).hasSize(1);
         assertThat(returnAllocations.get(0).getIdempotencyKey().getValue())
-                .isEqualTo("ORDER_RETURN_ALLOCATION:400:10");
+            .isEqualTo("ORDER_RETURN_ALLOCATION:400:10");
 
         verify(acknowledgment).acknowledge();
     }
@@ -261,9 +261,9 @@ class OrderReturnedSettlementConsumerTest {
         List<List<PaymentAllocation>> allSaves = captor.getAllValues();
 
         assertThat(allSaves.get(0).get(0).getIdempotencyKey().getValue())
-                .isEqualTo("ORDER_RETURN_ALLOCATION:500:10:RET-001");
+            .isEqualTo("ORDER_RETURN_ALLOCATION:500:10:RET-001");
         assertThat(allSaves.get(1).get(0).getIdempotencyKey().getValue())
-                .isEqualTo("ORDER_RETURN_ALLOCATION:500:10:RET-002");
+            .isEqualTo("ORDER_RETURN_ALLOCATION:500:10:RET-002");
 
         verify(acknowledgment, times(2)).acknowledge();
     }
@@ -273,15 +273,15 @@ class OrderReturnedSettlementConsumerTest {
     void handleOrderReturnedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         OrderReturnedEvent event = new OrderReturnedEvent(
-                1L, "order-key-1", 1L, 50000L, 50000L, 0L, 3000L,
-                true, 2500L, List.of(), null
+            1L, "order-key-1", 1L, 50000L, 50000L, 0L, 3000L,
+            true, 2500L, List.of(), null
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 9, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 9, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.returned", 0, 0L, "1", envelope
+            "commerce.order.returned", 0, 0L, "1", envelope
         );
 
         // when

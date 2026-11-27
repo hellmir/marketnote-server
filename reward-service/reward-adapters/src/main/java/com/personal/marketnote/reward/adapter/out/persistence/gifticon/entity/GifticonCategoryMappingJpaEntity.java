@@ -23,8 +23,8 @@ public class GifticonCategoryMappingJpaEntity extends BaseEntity {
 
     public static GifticonCategoryMappingJpaEntity of(String giftishowCategorySeq, Long gifticonCategoryId) {
         return GifticonCategoryMappingJpaEntity.builder()
-                .giftishowCategorySeq(giftishowCategorySeq)
-                .gifticonCategoryId(gifticonCategoryId)
-                .build();
+            .giftishowCategorySeq(giftishowCategorySeq)
+            .gifticonCategoryId(gifticonCategoryId)
+            .build();
     }
 }

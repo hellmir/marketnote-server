@@ -40,25 +40,25 @@ class OrderPaymentCompletedOrderProductReadModelConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(EventEnvelope<?> envelope) {
         return new ConsumerRecord<>(
-                KafkaTopicConstants.ORDER_PAYMENT_COMPLETED, 0, 0, "1", envelope
+            KafkaTopicConstants.ORDER_PAYMENT_COMPLETED, 0, 0, "1", envelope
         );
     }
 
     private EventEnvelope<OrderPaymentCompletedEvent> createEnvelope(OrderPaymentCompletedEvent payload) {
         return new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
-                "commerce-service",
-                LocalDateTime.parse("2026-10-17T10:00:00"),
-                payload
+            "test-event-id",
+            KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
+            "commerce-service",
+            LocalDateTime.parse("2026-10-17T10:00:00"),
+            payload
         );
     }
 
     private OrderPaymentCompletedEvent buildEvent(Long orderId, Long buyerId, List<OrderProductItem> items) {
         return new OrderPaymentCompletedEvent(
-                orderId, buyerId, 10000L, 0L,
-                "홍길동", "01012345678", "12345", "서울시 강남구", "역삼동",
-                "요청 사항", items, 100L
+            orderId, buyerId, 10000L, 0L,
+            "홍길동", "01012345678", "12345", "서울시 강남구", "역삼동",
+            "요청 사항", items, 100L
         );
     }
 
@@ -86,7 +86,7 @@ class OrderPaymentCompletedOrderProductReadModelConsumerTest {
     void handleEvent_nullEnvelope_acknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.ORDER_PAYMENT_COMPLETED, 0, 0, "1", null
+            KafkaTopicConstants.ORDER_PAYMENT_COMPLETED, 0, 0, "1", null
         );
 
         // when
@@ -104,8 +104,8 @@ class OrderPaymentCompletedOrderProductReadModelConsumerTest {
         OrderProductItem item = new OrderProductItem(100L, 1L, null, UUID.randomUUID(), 1, 10000L);
         OrderPaymentCompletedEvent payload = buildEvent(10L, 1L, List.of(item));
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.parse("2026-10-17T10:00:00"), payload
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.parse("2026-10-17T10:00:00"), payload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 

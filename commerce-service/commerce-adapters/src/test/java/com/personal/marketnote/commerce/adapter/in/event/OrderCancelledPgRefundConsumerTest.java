@@ -48,15 +48,15 @@ class OrderCancelledPgRefundConsumerTest {
                                                                  boolean isFullCancel, Long cancelAmount,
                                                                  Long paymentAmount, Long alreadyRefunded) {
         OrderCancelledEvent event = new OrderCancelledEvent(
-                orderId, orderKey, 50L, cancelAmount, paymentAmount, 1000L, 3000L,
-                isFullCancel, alreadyRefunded,
-                List.of(new OrderProductItem(100L, SHARER_KEY, 2, 30000L)),
-                List.of(new OrderProductItem(100L, SHARER_KEY, 2, 30000L)),
-                null
+            orderId, orderKey, 50L, cancelAmount, paymentAmount, 1000L, 3000L,
+            isFullCancel, alreadyRefunded,
+            List.of(new OrderProductItem(100L, SHARER_KEY, 2, 30000L)),
+            List.of(new OrderProductItem(100L, SHARER_KEY, 2, 30000L)),
+            null
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.cancelled", "commerce-service",
-                LocalDateTime.of(2026, 4, 8, 10, 0), event
+            "test-event-id", "commerce.order.cancelled", "commerce-service",
+            LocalDateTime.of(2026, 4, 8, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.cancelled", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -114,7 +114,7 @@ class OrderCancelledPgRefundConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", true, 60000L, 80000L, 0L);
         doThrow(new PaymentAlreadyRefundedException("order-key-1"))
-                .when(refundPaymentUseCase).refund(any(RefundPaymentCommand.class));
+            .when(refundPaymentUseCase).refund(any(RefundPaymentCommand.class));
 
         // when
         consumer.handleOrderCancelledEvent(record, acknowledgment);
@@ -129,7 +129,7 @@ class OrderCancelledPgRefundConsumerTest {
     void handleOrderCancelledEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.cancelled", 0, 0L, "1", null
+            "commerce.order.cancelled", 0, 0L, "1", null
         );
 
         // when
@@ -145,15 +145,15 @@ class OrderCancelledPgRefundConsumerTest {
     void handleOrderCancelledEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         OrderCancelledEvent event = new OrderCancelledEvent(
-                1L, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
-                true, 0L, List.of(), List.of(), null
+            1L, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
+            true, 0L, List.of(), List.of(), null
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 8, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 8, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.cancelled", 0, 0L, "1", envelope
+            "commerce.order.cancelled", 0, 0L, "1", envelope
         );
 
         // when
@@ -212,12 +212,12 @@ class OrderCancelledPgRefundConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", true, 60000L, 80000L, 0L);
         doThrow(new RuntimeException("DB 연결 오류"))
-                .when(refundPaymentUseCase).refund(any(RefundPaymentCommand.class));
+            .when(refundPaymentUseCase).refund(any(RefundPaymentCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderCancelledEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 오류");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 오류");
 
         verify(refundPaymentUseCase).refund(any(RefundPaymentCommand.class));
         verify(acknowledgment, never()).acknowledge();

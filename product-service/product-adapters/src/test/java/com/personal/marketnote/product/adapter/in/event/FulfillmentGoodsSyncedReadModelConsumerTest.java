@@ -41,35 +41,35 @@ class FulfillmentGoodsSyncedReadModelConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(EventEnvelope<?> envelope) {
         return new ConsumerRecord<>(
-                KafkaTopicConstants.FULFILLMENT_GOODS_SYNCED, 0, 0, "1", envelope
+            KafkaTopicConstants.FULFILLMENT_GOODS_SYNCED, 0, 0, "1", envelope
         );
     }
 
     private EventEnvelope<FulfillmentGoodsSyncedEvent> createEnvelope(FulfillmentGoodsSyncedEvent payload) {
         return new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.FULFILLMENT_GOODS_SYNCED,
-                "fulfillment-service",
-                LocalDateTime.now(Clock.fixed(Instant.parse("2026-09-17T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
-                payload
+            "test-event-id",
+            KafkaTopicConstants.FULFILLMENT_GOODS_SYNCED,
+            "fulfillment-service",
+            LocalDateTime.now(Clock.fixed(Instant.parse("2026-09-17T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
+            payload
         );
     }
 
     private FulfillmentGoodsSyncedEvent createValidEvent(String customerGoodsCode) {
         return new FulfillmentGoodsSyncedEvent(
-                customerGoodsCode, "GD001", "테스트 상품", "SINGLE", "단품",
-                "Y", null, null, "CUST001", "테스트 고객",
-                null, null, null, null, null,
-                null, "10000", "8000", "12000", null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, "8801234567890", null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null,
-                null, "Y", null, null, "Y",
-                null, List.of()
+            customerGoodsCode, "GD001", "테스트 상품", "SINGLE", "단품",
+            "Y", null, null, "CUST001", "테스트 고객",
+            null, null, null, null, null,
+            null, "10000", "8000", "12000", null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, "8801234567890", null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, "Y", null, null, "Y",
+            null, List.of()
         );
     }
 
@@ -78,7 +78,7 @@ class FulfillmentGoodsSyncedReadModelConsumerTest {
     void nullEnvelope_acknowledgesWithoutUpsert() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.FULFILLMENT_GOODS_SYNCED, 0, 0, "1", null
+            KafkaTopicConstants.FULFILLMENT_GOODS_SYNCED, 0, 0, "1", null
         );
 
         // when
@@ -95,11 +95,11 @@ class FulfillmentGoodsSyncedReadModelConsumerTest {
         // given
         FulfillmentGoodsSyncedEvent payload = createValidEvent("CGC001");
         EventEnvelope<FulfillmentGoodsSyncedEvent> envelope = new EventEnvelope<>(
-                "test-event-id",
-                "wrong.event.type",
-                "fulfillment-service",
-                LocalDateTime.now(),
-                payload
+            "test-event-id",
+            "wrong.event.type",
+            "fulfillment-service",
+            LocalDateTime.now(),
+            payload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 

@@ -5,10 +5,10 @@ import com.personal.marketnote.reward.port.in.result.gifticon.PurchaseGifticonRe
 public record PurchaseGifticonResponse(Long orderId, String orderNo, Long cashAmount, String goodsName) {
     public static PurchaseGifticonResponse from(PurchaseGifticonResult result) {
         return new PurchaseGifticonResponse(
-                result.orderId(),
-                result.orderNo(),
-                result.cashAmount(),
-                result.goodsName()
+            result.orderId(),
+            result.orderNo(),
+            result.cashAmount(),
+            result.goodsName()
         );
     }
 }

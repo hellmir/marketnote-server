@@ -23,12 +23,12 @@ public class ProductUpdatedReadModelConsumer {
     private final ProductReadModelPersistenceAdapter productReadModelPersistenceAdapter;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PRODUCT_UPDATED,
-            groupId = "commerce-product-read-model"
+        topics = KafkaTopicConstants.PRODUCT_UPDATED,
+        groupId = "commerce-product-read-model"
     )
     public void handleProductUpdatedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -47,8 +47,8 @@ public class ProductUpdatedReadModelConsumer {
         log.info("상품 수정 이벤트 수신 (Read Model). eventId={}, productId={}", envelope.eventId(), payload.productId());
 
         if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(),
-                EventPayloadValidator.id("productId", payload.productId())
+            envelope.eventId(),
+            EventPayloadValidator.id("productId", payload.productId())
         )) {
             acknowledgment.acknowledge();
             return;

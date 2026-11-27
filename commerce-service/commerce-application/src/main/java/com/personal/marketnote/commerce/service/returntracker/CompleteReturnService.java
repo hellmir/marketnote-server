@@ -77,7 +77,7 @@ public class CompleteReturnService implements CompleteReturnUseCase {
     private void validateReturnableStatus(Order order) {
         OrderStatus currentStatus = order.getOrderStatus();
         if (currentStatus.isReturnRequested()
-                || currentStatus.isPartiallyReturnRequested()) {
+            || currentStatus.isPartiallyReturnRequested()) {
             return;
         }
         if (!currentStatus.canTransitionTo(OrderStatus.RETURNED)) {
@@ -87,10 +87,10 @@ public class CompleteReturnService implements CompleteReturnUseCase {
 
     private List<Long> collectReturnTargetPricePolicyIds(Order order) {
         return order.getOrderProducts().stream()
-                .filter(p -> p.getOrderStatus().isReturnRequested()
-                        || p.getOrderStatus().canTransitionTo(OrderStatus.RETURNED))
-                .map(OrderProduct::getPricePolicyId)
-                .toList();
+            .filter(p -> p.getOrderStatus().isReturnRequested()
+                || p.getOrderStatus().canTransitionTo(OrderStatus.RETURNED))
+            .map(OrderProduct::getPricePolicyId)
+            .toList();
     }
 
     private void transitionToReturned(Order order, List<Long> returnPricePolicyIds, LocalDateTime now) {
@@ -100,7 +100,7 @@ public class CompleteReturnService implements CompleteReturnUseCase {
 
     private OrderStatusHistory createReturnedHistory(Long orderId, Order order) {
         return OrderStatusHistory.from(OrderStatusHistoryCreateState.of(
-                orderId, order.getOrderStatus(), order.getStatusChangeReasonCategory(), null
+            orderId, order.getOrderStatus(), order.getStatusChangeReasonCategory(), null
         ));
     }
 
@@ -108,58 +108,58 @@ public class CompleteReturnService implements CompleteReturnUseCase {
         CalculateReturnShippingFeeCommand feeCommand = CalculateReturnShippingFeeCommand.of(order, returnPricePolicyIds);
 
         CalculateReturnShippingFeeResult feeResult =
-                calculateReturnShippingFeeUseCase.calculateReturnShippingFee(feeCommand);
+            calculateReturnShippingFeeUseCase.calculateReturnShippingFee(feeCommand);
 
         return feeResult.returnShippingFee();
     }
 
     private boolean resolveIsFullReturn(Order order) {
         return order.getOrderProducts().stream()
-                .allMatch(product -> product.getOrderStatus().isReturned());
+            .allMatch(product -> product.getOrderStatus().isReturned());
     }
 
     private List<OrderProduct> filterReturnedProducts(Order order, List<Long> returnPricePolicyIds) {
         return order.getOrderProducts().stream()
-                .filter(p -> returnPricePolicyIds.contains(p.getPricePolicyId()))
-                .toList();
+            .filter(p -> returnPricePolicyIds.contains(p.getPricePolicyId()))
+            .toList();
     }
 
     private void startReturnSaga(
-            Order order, List<OrderProduct> returnProducts,
-            long returnShippingFee, boolean isFullReturn
+        Order order, List<OrderProduct> returnProducts,
+        long returnShippingFee, boolean isFullReturn
     ) {
         OrderAmount amount = order.getAmount();
         long returnAmount = calculateReturnAmount(returnProducts);
         long refundPointAmount = resolveRefundPointAmount(
-                amount.getPointAmount().getValue(),
-                returnAmount,
-                amount.getPaidAmount().getValue(),
-                isFullReturn,
-                order.getId()
+            amount.getPointAmount().getValue(),
+            returnAmount,
+            amount.getPaidAmount().getValue(),
+            isFullReturn,
+            order.getId()
         );
 
         List<ReturnProductItem> sagaReturnProducts = returnProducts.stream()
-                .map(p -> new ReturnProductItem(
-                        p.getPricePolicyId(),
-                        p.getSharerKey(),
-                        p.getQuantity().getValue(),
-                        p.getUnitAmount().getValue()
-                ))
-                .toList();
+            .map(p -> new ReturnProductItem(
+                p.getPricePolicyId(),
+                p.getSharerKey(),
+                p.getQuantity().getValue(),
+                p.getUnitAmount().getValue()
+            ))
+            .toList();
 
         OrderReturnSagaContext context = new OrderReturnSagaContext(
-                order.getId(),
-                order.getOrderKey().toString(),
-                order.getBuyerId(),
-                returnAmount,
-                amount.getPaidAmount().getValue(),
-                amount.getPointAmount().getValue(),
-                amount.getShippingFee().getValue(),
-                isFullReturn,
-                returnShippingFee,
-                refundPointAmount,
-                sagaReturnProducts,
-                UUID.randomUUID().toString()
+            order.getId(),
+            order.getOrderKey().toString(),
+            order.getBuyerId(),
+            returnAmount,
+            amount.getPaidAmount().getValue(),
+            amount.getPointAmount().getValue(),
+            amount.getShippingFee().getValue(),
+            isFullReturn,
+            returnShippingFee,
+            refundPointAmount,
+            sagaReturnProducts,
+            UUID.randomUUID().toString()
         );
 
         orderReturnSagaStarter.get().start(context);
@@ -167,12 +167,12 @@ public class CompleteReturnService implements CompleteReturnUseCase {
 
     private long calculateReturnAmount(List<OrderProduct> returnProducts) {
         return returnProducts.stream()
-                .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().getValue()).getValue())
-                .reduce(0L, Math::addExact);
+            .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().getValue()).getValue())
+            .reduce(0L, Math::addExact);
     }
 
     private long resolveRefundPointAmount(
-            long pointAmount, long returnAmount, long paymentAmount, boolean isFullReturn, Long orderId
+        long pointAmount, long returnAmount, long paymentAmount, boolean isFullReturn, Long orderId
     ) {
         if (pointAmount <= 0) {
             return 0L;
@@ -182,8 +182,8 @@ public class CompleteReturnService implements CompleteReturnUseCase {
         }
         if (paymentAmount <= 0) {
             log.warn(
-                    "부분 반품 포인트 환불 계산 불가 - paymentAmount가 0 이하입니다. orderId={}, paymentAmount={}, pointAmount={}, returnAmount={}",
-                    orderId, paymentAmount, pointAmount, returnAmount
+                "부분 반품 포인트 환불 계산 불가 - paymentAmount가 0 이하입니다. orderId={}, paymentAmount={}, pointAmount={}, returnAmount={}",
+                orderId, paymentAmount, pointAmount, returnAmount
             );
             return 0L;
         }
@@ -191,30 +191,30 @@ public class CompleteReturnService implements CompleteReturnUseCase {
             return pointAmount;
         }
         return BigDecimal.valueOf(pointAmount)
-                .multiply(BigDecimal.valueOf(returnAmount))
-                .divide(BigDecimal.valueOf(paymentAmount), 0, RoundingMode.DOWN)
-                .longValue();
+            .multiply(BigDecimal.valueOf(returnAmount))
+            .divide(BigDecimal.valueOf(paymentAmount), 0, RoundingMode.DOWN)
+            .longValue();
     }
 
     private void publishReturnedEvent(
-            Order order, List<OrderProduct> returnProducts,
-            long returnShippingFee, boolean isFullReturn
+        Order order, List<OrderProduct> returnProducts,
+        long returnShippingFee, boolean isFullReturn
     ) {
         OrderAmount amount = order.getAmount();
         long returnAmount = calculateReturnAmount(returnProducts);
 
         publishOrderEventPort.publishOrderReturnedEvent(
-                order.getId(),
-                order.getOrderKey().toString(),
-                order.getBuyerId(),
-                returnAmount,
-                amount.getPaidAmount().getValue(),
-                amount.getPointAmount().getValue(),
-                amount.getShippingFee().getValue(),
-                isFullReturn,
-                returnShippingFee,
-                returnProducts,
-                UUID.randomUUID().toString()
+            order.getId(),
+            order.getOrderKey().toString(),
+            order.getBuyerId(),
+            returnAmount,
+            amount.getPaidAmount().getValue(),
+            amount.getPointAmount().getValue(),
+            amount.getShippingFee().getValue(),
+            isFullReturn,
+            returnShippingFee,
+            returnProducts,
+            UUID.randomUUID().toString()
         );
     }
 }

@@ -45,15 +45,15 @@ class UpdateShippingPolicyUseCaseTest {
 
     private ShippingPolicy createExistingPolicy(Long sellerId) {
         return ShippingPolicy.from(ShippingPolicySnapshotState.builder()
-                .id(1L)
-                .sellerId(sellerId)
-                .deliveryCompany("한진택배")
-                .shippingFee(3000L)
-                .freeShippingThreshold(20000L)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.of(2026, 3, 10, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 3, 10, 10, 0))
-                .build());
+            .id(1L)
+            .sellerId(sellerId)
+            .deliveryCompany("한진택배")
+            .shippingFee(3000L)
+            .freeShippingThreshold(20000L)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.of(2026, 3, 10, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 3, 10, 10, 0))
+            .build());
     }
 
     @Test
@@ -63,10 +63,10 @@ class UpdateShippingPolicyUseCaseTest {
         Long sellerId = 10L;
         ShippingPolicy existingPolicy = createExistingPolicy(sellerId);
         when(findShippingPolicyPort.findActiveBySellerId(sellerId))
-                .thenReturn(Optional.of(existingPolicy));
+            .thenReturn(Optional.of(existingPolicy));
 
         UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
-                "CJ대한통운", 2500L, 30000L, 4000L, 6000L
+            "CJ대한통운", 2500L, 30000L, 4000L, 6000L
         );
 
         // when
@@ -89,15 +89,15 @@ class UpdateShippingPolicyUseCaseTest {
         // given
         Long sellerId = 10L;
         when(findShippingPolicyPort.findActiveBySellerId(sellerId))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
-                "CJ대한통운", 2500L, 30000L, 4000L, 6000L
+            "CJ대한통운", 2500L, 30000L, 4000L, 6000L
         );
 
         // when & then
         assertThatThrownBy(() -> updateShippingPolicyService.updateShippingPolicy(sellerId, command))
-                .isInstanceOf(ShippingPolicyNotFoundException.class);
+            .isInstanceOf(ShippingPolicyNotFoundException.class);
 
         verify(updateShippingPolicyPort, never()).update(any());
     }
@@ -109,15 +109,15 @@ class UpdateShippingPolicyUseCaseTest {
         Long sellerId = 10L;
         ShippingPolicy existingPolicy = createExistingPolicy(sellerId);
         when(findShippingPolicyPort.findActiveBySellerId(sellerId))
-                .thenReturn(Optional.of(existingPolicy));
+            .thenReturn(Optional.of(existingPolicy));
 
         UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
-                "CJ대한통운", -1L, 30000L, 0L, 0L
+            "CJ대한통운", -1L, 30000L, 0L, 0L
         );
 
         // when & then
         assertThatThrownBy(() -> updateShippingPolicyService.updateShippingPolicy(sellerId, command))
-                .isInstanceOf(InvalidShippingFeeException.class);
+            .isInstanceOf(InvalidShippingFeeException.class);
 
         verify(updateShippingPolicyPort, never()).update(any());
     }
@@ -129,15 +129,15 @@ class UpdateShippingPolicyUseCaseTest {
         Long sellerId = 10L;
         ShippingPolicy existingPolicy = createExistingPolicy(sellerId);
         when(findShippingPolicyPort.findActiveBySellerId(sellerId))
-                .thenReturn(Optional.of(existingPolicy));
+            .thenReturn(Optional.of(existingPolicy));
 
         UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
-                "CJ대한통운", 2500L, -1L, 0L, 0L
+            "CJ대한통운", 2500L, -1L, 0L, 0L
         );
 
         // when & then
         assertThatThrownBy(() -> updateShippingPolicyService.updateShippingPolicy(sellerId, command))
-                .isInstanceOf(InvalidFreeShippingThresholdException.class);
+            .isInstanceOf(InvalidFreeShippingThresholdException.class);
 
         verify(updateShippingPolicyPort, never()).update(any());
     }
@@ -149,10 +149,10 @@ class UpdateShippingPolicyUseCaseTest {
         Long sellerId = 10L;
         ShippingPolicy existingPolicy = createExistingPolicy(sellerId);
         when(findShippingPolicyPort.findActiveBySellerId(sellerId))
-                .thenReturn(Optional.of(existingPolicy));
+            .thenReturn(Optional.of(existingPolicy));
 
         UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
-                "CJ대한통운", 2500L, 30000L, 4000L, 6000L
+            "CJ대한통운", 2500L, 30000L, 4000L, 6000L
         );
 
         // when
@@ -160,7 +160,7 @@ class UpdateShippingPolicyUseCaseTest {
 
         // then
         verify(publishShippingPolicyEventPort).publishShippingPolicyChangedEvent(
-                sellerId, 2500L, 30000L, 4000L, 6000L, ShippingPolicyChangeAction.UPDATED
+            sellerId, 2500L, 30000L, 4000L, 6000L, ShippingPolicyChangeAction.UPDATED
         );
     }
 
@@ -170,15 +170,15 @@ class UpdateShippingPolicyUseCaseTest {
         // given
         Long sellerId = 10L;
         when(findShippingPolicyPort.findActiveBySellerId(sellerId))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
-                "CJ대한통운", 2500L, 30000L, 4000L, 6000L
+            "CJ대한통운", 2500L, 30000L, 4000L, 6000L
         );
 
         // when & then
         assertThatThrownBy(() -> updateShippingPolicyService.updateShippingPolicy(sellerId, command))
-                .isInstanceOf(ShippingPolicyNotFoundException.class);
+            .isInstanceOf(ShippingPolicyNotFoundException.class);
 
         verifyNoInteractions(publishShippingPolicyEventPort);
     }

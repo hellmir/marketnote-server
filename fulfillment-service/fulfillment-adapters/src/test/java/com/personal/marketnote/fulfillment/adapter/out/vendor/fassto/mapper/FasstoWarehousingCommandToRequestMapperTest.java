@@ -1,8 +1,8 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingAbnormalImageQuery;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.FulfillmentWarehousingMapper;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -27,16 +27,16 @@ class FasstoWarehousingCommandToRequestMapperTest {
             UUID productKey = UUID.randomUUID();
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             RegisterFulfillmentWarehousingGoodsCommand goods = RegisterFulfillmentWarehousingGoodsCommand.of(
-                    productKey, "GOD001", encoded, "20260420", 10
+                productKey, "GOD001", encoded, "20260420", 10
             );
             RegisterFulfillmentWarehousingItemCommand item = RegisterFulfillmentWarehousingItemCommand.builder()
-                    .orderDate("20260420")
-                    .orderNumber("ORD001")
-                    .warehousingMethod("NORMAL")
-                    .products(List.of(goods))
-                    .build();
+                .orderDate("20260420")
+                .orderNumber("ORD001")
+                .warehousingMethod("NORMAL")
+                .products(List.of(goods))
+                .build();
             RegisterFulfillmentWarehousingCommand command = RegisterFulfillmentWarehousingCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
@@ -60,17 +60,17 @@ class FasstoWarehousingCommandToRequestMapperTest {
             UUID productKey = UUID.randomUUID();
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             UpdateFulfillmentWarehousingGoodsCommand goods = UpdateFulfillmentWarehousingGoodsCommand.of(
-                    productKey, "GOD001", encoded, "20260420", 10
+                productKey, "GOD001", encoded, "20260420", 10
             );
             UpdateFulfillmentWarehousingItemCommand item = UpdateFulfillmentWarehousingItemCommand.builder()
-                    .orderDate("20260420")
-                    .orderNumber("ORD001")
-                    .warehousingMethod("NORMAL")
-                    .slipNumber("SLIP001")
-                    .products(List.of(goods))
-                    .build();
+                .orderDate("20260420")
+                .orderNumber("ORD001")
+                .warehousingMethod("NORMAL")
+                .slipNumber("SLIP001")
+                .products(List.of(goods))
+                .build();
             UpdateFulfillmentWarehousingCommand command = UpdateFulfillmentWarehousingCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
@@ -94,20 +94,20 @@ class FasstoWarehousingCommandToRequestMapperTest {
             UUID productKey = UUID.randomUUID();
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             GetFulfillmentWarehousingAbnormalImageCommand command =
-                    GetFulfillmentWarehousingAbnormalImageCommand.builder()
-                            .accessToken("token")
-                            .slipNumber("SLIP001")
-                            .productKey(productKey)
-                            .productCode("GOD001")
-                            .fasstoProductCode(encoded)
-                            .goodsSerialNo("SN001")
-                            .fileSeq("1")
-                            .imageNumber("IMG001")
-                            .build();
+                GetFulfillmentWarehousingAbnormalImageCommand.builder()
+                    .accessToken("token")
+                    .slipNumber("SLIP001")
+                    .productKey(productKey)
+                    .productCode("GOD001")
+                    .fasstoProductCode(encoded)
+                    .goodsSerialNo("SN001")
+                    .fileSeq("1")
+                    .imageNumber("IMG001")
+                    .build();
 
             // when
             FulfillmentWarehousingAbnormalImageQuery query =
-                    FasstoWarehousingCommandToRequestMapper.mapToAbnormalImageQuery(command);
+                FasstoWarehousingCommandToRequestMapper.mapToAbnormalImageQuery(command);
 
             // then
             assertThat(query.getGodCd()).isEqualTo(encoded);

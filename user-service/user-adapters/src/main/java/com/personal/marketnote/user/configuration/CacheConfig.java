@@ -61,9 +61,9 @@ public class CacheConfig implements CachingConfigurer {
         ObjectMapper mapper = objectMapper.copy();
         // 폴리모픽 화이트리스트 정책(#4856) — CachePolymorphicTypeValidatorFactory javadoc 참조.
         mapper.activateDefaultTyping(
-                CachePolymorphicTypeValidatorFactory.createDefault(),
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
+            CachePolymorphicTypeValidatorFactory.createDefault(),
+            ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY
         );
         mapper.registerModule(new Jdk8Module());
         mapper.registerModule(new Hibernate5JakartaModule());
@@ -76,17 +76,17 @@ public class CacheConfig implements CachingConfigurer {
     @Bean
     public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration redisCacheConfiguration = defaultCacheConfig()
-                .serializeKeysWith(RedisSerializationContext
-                        .SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext
-                        .SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper())))
-                .entryTtl(defaultCacheConfig().entryTtl(Duration.ofDays(1L)).getTtl());
+            .serializeKeysWith(RedisSerializationContext
+                .SerializationPair.fromSerializer(new StringRedisSerializer()))
+            .serializeValuesWith(RedisSerializationContext
+                .SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper())))
+            .entryTtl(defaultCacheConfig().entryTtl(Duration.ofDays(1L)).getTtl());
 
         return RedisCacheManager.RedisCacheManagerBuilder
-                .fromConnectionFactory(redisConnectionFactory)
-                .cacheDefaults(redisCacheConfiguration)
-                .enableStatistics()
-                .build();
+            .fromConnectionFactory(redisConnectionFactory)
+            .cacheDefaults(redisCacheConfiguration)
+            .enableStatistics()
+            .build();
     }
 
     @Bean

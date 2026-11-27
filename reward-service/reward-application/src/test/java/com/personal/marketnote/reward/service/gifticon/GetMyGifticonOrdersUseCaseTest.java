@@ -38,8 +38,8 @@ class GetMyGifticonOrdersUseCaseTest {
 
     @Spy
     private Clock clock = Clock.fixed(
-            Instant.parse("2026-04-06T03:00:00Z"),
-            ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-04-06T03:00:00Z"),
+        ZoneId.of("Asia/Seoul")
     );
 
     private static final Long USER_ID = 100L;
@@ -52,16 +52,16 @@ class GetMyGifticonOrdersUseCaseTest {
         GifticonOrder issuedOrder = createOrder(1L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 4));
 
         when(findGifticonOrderPort.findByUserIdAndStatuses(
-                eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
+            eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
         )).thenReturn(List.of(issuedOrder));
 
         when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(1L);
         when(findGifticonOrderPort.countByUserIdAndStatuses(
-                USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+            USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
         )).thenReturn(3L);
 
         GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
+            USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
         );
 
         // when
@@ -79,22 +79,22 @@ class GetMyGifticonOrdersUseCaseTest {
     void shouldReturnTerminalOrdersWhenFilterIsCompletedOrExpired() {
         // given
         List<GifticonOrderStatus> terminalStatuses = List.of(
-                GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED
+            GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED
         );
         GifticonOrder usedOrder = createOrder(1L, GifticonOrderStatus.USED, LocalDate.of(2026, 3, 1));
         GifticonOrder expiredOrder = createOrder(2L, GifticonOrderStatus.EXPIRED, LocalDate.of(2026, 3, 15));
 
         when(findGifticonOrderPort.findByUserIdAndStatuses(
-                eq(USER_ID), eq(terminalStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
+            eq(USER_ID), eq(terminalStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
         )).thenReturn(List.of(usedOrder, expiredOrder));
 
         when(findGifticonOrderPort.countByUserIdAndStatuses(
-                USER_ID, List.of(GifticonOrderStatus.ISSUED)
+            USER_ID, List.of(GifticonOrderStatus.ISSUED)
         )).thenReturn(2L);
         when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, terminalStatuses)).thenReturn(5L);
 
         GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                USER_ID, "COMPLETED_OR_EXPIRED", "PURCHASE_LATEST", -1L, 10
+            USER_ID, "COMPLETED_OR_EXPIRED", "PURCHASE_LATEST", -1L, 10
         );
 
         // when
@@ -112,22 +112,22 @@ class GetMyGifticonOrdersUseCaseTest {
         // given
         List<GifticonOrderStatus> availableStatuses = List.of(GifticonOrderStatus.ISSUED);
         List<GifticonOrder> orders = List.of(
-                createOrder(10L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 4)),
-                createOrder(9L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 3)),
-                createOrder(8L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 2))
+            createOrder(10L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 4)),
+            createOrder(9L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 3)),
+            createOrder(8L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 2))
         );
 
         when(findGifticonOrderPort.findByUserIdAndStatuses(
-                eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(3)
+            eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(3)
         )).thenReturn(orders);
 
         when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(5L);
         when(findGifticonOrderPort.countByUserIdAndStatuses(
-                USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+            USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
         )).thenReturn(0L);
 
         GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 2
+            USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 2
         );
 
         // when
@@ -147,16 +147,16 @@ class GetMyGifticonOrdersUseCaseTest {
         GifticonOrder order = createOrder(1L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 4));
 
         when(findGifticonOrderPort.findByUserIdAndStatuses(
-                eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
+            eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
         )).thenReturn(List.of(order));
 
         when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(1L);
         when(findGifticonOrderPort.countByUserIdAndStatuses(
-                USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+            USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
         )).thenReturn(0L);
 
         GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
+            USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
         );
 
         // when
@@ -175,16 +175,16 @@ class GetMyGifticonOrdersUseCaseTest {
         GifticonOrder order = createOrder(1L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 4));
 
         when(findGifticonOrderPort.findByUserIdAndStatuses(
-                eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
+            eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
         )).thenReturn(List.of(order));
 
         when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(1L);
         when(findGifticonOrderPort.countByUserIdAndStatuses(
-                USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+            USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
         )).thenReturn(0L);
 
         GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
+            USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
         );
 
         // when
@@ -199,23 +199,23 @@ class GetMyGifticonOrdersUseCaseTest {
     void shouldReturnCorrectStatusLabel() {
         // given
         List<GifticonOrderStatus> terminalStatuses = List.of(
-                GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED
+            GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED
         );
         GifticonOrder usedOrder = createOrder(1L, GifticonOrderStatus.USED, LocalDate.of(2026, 3, 1));
         GifticonOrder expiredOrder = createOrder(2L, GifticonOrderStatus.EXPIRED, LocalDate.of(2026, 3, 15));
         GifticonOrder cancelledOrder = createOrder(3L, GifticonOrderStatus.CANCELLED, LocalDate.of(2026, 4, 1));
 
         when(findGifticonOrderPort.findByUserIdAndStatuses(
-                eq(USER_ID), eq(terminalStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
+            eq(USER_ID), eq(terminalStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
         )).thenReturn(List.of(usedOrder, expiredOrder, cancelledOrder));
 
         when(findGifticonOrderPort.countByUserIdAndStatuses(
-                USER_ID, List.of(GifticonOrderStatus.ISSUED)
+            USER_ID, List.of(GifticonOrderStatus.ISSUED)
         )).thenReturn(0L);
         when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, terminalStatuses)).thenReturn(3L);
 
         GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                USER_ID, "COMPLETED_OR_EXPIRED", "PURCHASE_LATEST", -1L, 10
+            USER_ID, "COMPLETED_OR_EXPIRED", "PURCHASE_LATEST", -1L, 10
         );
 
         // when
@@ -235,16 +235,16 @@ class GetMyGifticonOrdersUseCaseTest {
         GifticonOrder order = createOrder(1L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 4));
 
         when(findGifticonOrderPort.findByUserIdAndStatuses(
-                eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
+            eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
         )).thenReturn(List.of(order));
 
         when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(1L);
         when(findGifticonOrderPort.countByUserIdAndStatuses(
-                USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+            USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
         )).thenReturn(0L);
 
         GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
+            USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
         );
 
         // when
@@ -261,16 +261,16 @@ class GetMyGifticonOrdersUseCaseTest {
         List<GifticonOrderStatus> availableStatuses = List.of(GifticonOrderStatus.ISSUED);
 
         when(findGifticonOrderPort.findByUserIdAndStatuses(
-                eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
+            eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
         )).thenReturn(Collections.emptyList());
 
         when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(0L);
         when(findGifticonOrderPort.countByUserIdAndStatuses(
-                USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+            USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
         )).thenReturn(0L);
 
         GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
+            USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
         );
 
         // when
@@ -291,16 +291,16 @@ class GetMyGifticonOrdersUseCaseTest {
         List<GifticonOrderStatus> availableStatuses = List.of(GifticonOrderStatus.ISSUED);
 
         when(findGifticonOrderPort.findByUserIdAndStatuses(
-                eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.EXPIRY_SOONEST), eq(-1L), eq(11)
+            eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.EXPIRY_SOONEST), eq(-1L), eq(11)
         )).thenReturn(Collections.emptyList());
 
         when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(0L);
         when(findGifticonOrderPort.countByUserIdAndStatuses(
-                USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+            USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
         )).thenReturn(0L);
 
         GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                USER_ID, "AVAILABLE", "EXPIRY_SOONEST", -1L, 10
+            USER_ID, "AVAILABLE", "EXPIRY_SOONEST", -1L, 10
         );
 
         // when
@@ -308,7 +308,7 @@ class GetMyGifticonOrdersUseCaseTest {
 
         // then
         verify(findGifticonOrderPort).findByUserIdAndStatuses(
-                USER_ID, availableStatuses, GifticonOrderSortType.EXPIRY_SOONEST, -1L, 11
+            USER_ID, availableStatuses, GifticonOrderSortType.EXPIRY_SOONEST, -1L, 11
         );
     }
 
@@ -318,22 +318,22 @@ class GetMyGifticonOrdersUseCaseTest {
         // given
         List<GifticonOrderStatus> availableStatuses = List.of(GifticonOrderStatus.ISSUED);
         List<GifticonOrder> orders = List.of(
-                createOrder(5L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 1)),
-                createOrder(3L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 2)),
-                createOrder(7L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 3))
+            createOrder(5L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 1)),
+            createOrder(3L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 2)),
+            createOrder(7L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 3))
         );
 
         when(findGifticonOrderPort.findByUserIdAndStatuses(
-                eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.EXPIRY_SOONEST), eq(-1L), eq(3)
+            eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.EXPIRY_SOONEST), eq(-1L), eq(3)
         )).thenReturn(orders);
 
         when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(5L);
         when(findGifticonOrderPort.countByUserIdAndStatuses(
-                USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+            USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
         )).thenReturn(0L);
 
         GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                USER_ID, "AVAILABLE", "EXPIRY_SOONEST", -1L, 2
+            USER_ID, "AVAILABLE", "EXPIRY_SOONEST", -1L, 2
         );
 
         // when
@@ -353,16 +353,16 @@ class GetMyGifticonOrdersUseCaseTest {
         GifticonOrder order = createOrder(1L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 4));
 
         when(findGifticonOrderPort.findByUserIdAndStatuses(
-                eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
+            eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
         )).thenReturn(List.of(order));
 
         when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(1L);
         when(findGifticonOrderPort.countByUserIdAndStatuses(
-                USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+            USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
         )).thenReturn(0L);
 
         GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
+            USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
         );
 
         // when
@@ -380,16 +380,16 @@ class GetMyGifticonOrdersUseCaseTest {
         GifticonOrder order = createOrder(1L, GifticonOrderStatus.ISSUED, LocalDate.of(2026, 5, 4));
 
         when(findGifticonOrderPort.findByUserIdAndStatuses(
-                eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
+            eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(11)
         )).thenReturn(List.of(order));
 
         when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(1L);
         when(findGifticonOrderPort.countByUserIdAndStatuses(
-                USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+            USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
         )).thenReturn(0L);
 
         GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
+            USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 10
         );
 
         // when
@@ -407,22 +407,22 @@ class GetMyGifticonOrdersUseCaseTest {
 
     private GifticonOrder createOrder(Long id, GifticonOrderStatus status, LocalDate validEndDate) {
         return GifticonOrder.from(GifticonOrderSnapshotState.builder()
-                .id(id)
-                .userId(USER_ID)
-                .goodsCode("G00000280811")
-                .goodsName("테스트 기프티콘")
-                .brandName("세븐일레븐")
-                .productImageUrl("https://example.com/goods.jpg")
-                .trId("NC100_260401100000")
-                .orderNo("20260401000001")
-                .cashPrice(5000L)
-                .orderStatus(status)
-                .couponImageUrl("https://example.com/coupon.jpg")
-                .pinNo("encryptedPin")
-                .validEndDate(validEndDate)
-                .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .build()
+            .id(id)
+            .userId(USER_ID)
+            .goodsCode("G00000280811")
+            .goodsName("테스트 기프티콘")
+            .brandName("세븐일레븐")
+            .productImageUrl("https://example.com/goods.jpg")
+            .trId("NC100_260401100000")
+            .orderNo("20260401000001")
+            .cashPrice(5000L)
+            .orderStatus(status)
+            .couponImageUrl("https://example.com/coupon.jpg")
+            .pinNo("encryptedPin")
+            .validEndDate(validEndDate)
+            .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
+            .build()
         );
     }
 
@@ -435,12 +435,12 @@ class GetMyGifticonOrdersUseCaseTest {
         void shouldThrowExceptionWhenPageSizeIsZero() {
             // given
             GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                    USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 0
+                USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 0
             );
 
             // when & then
             assertThatThrownBy(() -> getMyGifticonOrdersService.getMyGifticonOrders(command))
-                    .isInstanceOf(InvalidGifticonOrderPageSizeException.class);
+                .isInstanceOf(InvalidGifticonOrderPageSizeException.class);
 
             verifyNoInteractions(findGifticonOrderPort);
         }
@@ -450,12 +450,12 @@ class GetMyGifticonOrdersUseCaseTest {
         void shouldThrowExceptionWhenPageSizeIsNegative() {
             // given
             GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                    USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, -1
+                USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, -1
             );
 
             // when & then
             assertThatThrownBy(() -> getMyGifticonOrdersService.getMyGifticonOrders(command))
-                    .isInstanceOf(InvalidGifticonOrderPageSizeException.class);
+                .isInstanceOf(InvalidGifticonOrderPageSizeException.class);
 
             verifyNoInteractions(findGifticonOrderPort);
         }
@@ -465,12 +465,12 @@ class GetMyGifticonOrdersUseCaseTest {
         void shouldThrowExceptionWhenPageSizeExceedsMax() {
             // given
             GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                    USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 101
+                USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 101
             );
 
             // when & then
             assertThatThrownBy(() -> getMyGifticonOrdersService.getMyGifticonOrders(command))
-                    .isInstanceOf(InvalidGifticonOrderPageSizeException.class);
+                .isInstanceOf(InvalidGifticonOrderPageSizeException.class);
 
             verifyNoInteractions(findGifticonOrderPort);
         }
@@ -482,16 +482,16 @@ class GetMyGifticonOrdersUseCaseTest {
             List<GifticonOrderStatus> availableStatuses = List.of(GifticonOrderStatus.ISSUED);
 
             when(findGifticonOrderPort.findByUserIdAndStatuses(
-                    eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(2)
+                eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(2)
             )).thenReturn(Collections.emptyList());
 
             when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(0L);
             when(findGifticonOrderPort.countByUserIdAndStatuses(
-                    USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+                USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
             )).thenReturn(0L);
 
             GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                    USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 1
+                USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 1
             );
 
             // when
@@ -500,7 +500,7 @@ class GetMyGifticonOrdersUseCaseTest {
             // then
             assertThat(result.items()).isEmpty();
             verify(findGifticonOrderPort).findByUserIdAndStatuses(
-                    USER_ID, availableStatuses, GifticonOrderSortType.PURCHASE_LATEST, -1L, 2
+                USER_ID, availableStatuses, GifticonOrderSortType.PURCHASE_LATEST, -1L, 2
             );
         }
 
@@ -511,16 +511,16 @@ class GetMyGifticonOrdersUseCaseTest {
             List<GifticonOrderStatus> availableStatuses = List.of(GifticonOrderStatus.ISSUED);
 
             when(findGifticonOrderPort.findByUserIdAndStatuses(
-                    eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(101)
+                eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(101)
             )).thenReturn(Collections.emptyList());
 
             when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(0L);
             when(findGifticonOrderPort.countByUserIdAndStatuses(
-                    USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+                USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
             )).thenReturn(0L);
 
             GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
-                    USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 100
+                USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 100
             );
 
             // when
@@ -529,7 +529,7 @@ class GetMyGifticonOrdersUseCaseTest {
             // then
             assertThat(result.items()).isEmpty();
             verify(findGifticonOrderPort).findByUserIdAndStatuses(
-                    USER_ID, availableStatuses, GifticonOrderSortType.PURCHASE_LATEST, -1L, 101
+                USER_ID, availableStatuses, GifticonOrderSortType.PURCHASE_LATEST, -1L, 101
             );
         }
     }

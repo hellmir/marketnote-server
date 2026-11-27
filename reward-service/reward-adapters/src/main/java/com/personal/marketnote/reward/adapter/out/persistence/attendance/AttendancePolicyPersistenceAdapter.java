@@ -20,7 +20,7 @@ public class AttendancePolicyPersistenceAdapter implements FindAttendancePolicyP
     @Override
     public Optional<AttendancePolicy> findById(Short id) {
         return repository.findById(id)
-                .map(AttendancePolicyJpaEntity::toDomain);
+            .map(AttendancePolicyJpaEntity::toDomain);
     }
 
     @Override
@@ -30,23 +30,23 @@ public class AttendancePolicyPersistenceAdapter implements FindAttendancePolicyP
 
     @Override
     public Optional<AttendancePolicy> findByContinuousPeriodAndAttendenceDate(
-            short continuousPeriod, LocalDate attendedDate
+        short continuousPeriod, LocalDate attendedDate
     ) {
         return repository.findTop1ByContinuousPeriodAndAttendenceDate(continuousPeriod, attendedDate)
-                .map(AttendancePolicyJpaEntity::toDomain);
+            .map(AttendancePolicyJpaEntity::toDomain);
     }
 
     @Override
     public Optional<AttendancePolicy> findByContinuousPeriodAndAttendenceDateIsNull(short continuousPeriod) {
         return repository.findTop1ByContinuousPeriodAndAttendenceDateIsNullOrderByOrderNumDesc(continuousPeriod)
-                .map(AttendancePolicyJpaEntity::toDomain);
+            .map(AttendancePolicyJpaEntity::toDomain);
     }
 
     @Override
     public AttendancePolicy save(AttendancePolicy attendancePolicy) {
         AttendancePolicyJpaEntity savedEntity = java.util.Objects.requireNonNull(
-                repository.save(AttendancePolicyJpaEntity.from(attendancePolicy)),
-                "출석 정책 저장에 실패했습니다."
+            repository.save(AttendancePolicyJpaEntity.from(attendancePolicy)),
+            "출석 정책 저장에 실패했습니다."
         );
         savedEntity.setIdToOrderNum();
 
@@ -57,7 +57,7 @@ public class AttendancePolicyPersistenceAdapter implements FindAttendancePolicyP
     public void update(AttendancePolicy attendancePolicy) {
         Short id = attendancePolicy.getId();
         AttendancePolicyJpaEntity entity = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("출석 정책을 찾을 수 없습니다. id: " + id));
+            .orElseThrow(() -> new IllegalArgumentException("출석 정책을 찾을 수 없습니다. id: " + id));
 
         entity.updateFrom(attendancePolicy);
     }
@@ -65,8 +65,8 @@ public class AttendancePolicyPersistenceAdapter implements FindAttendancePolicyP
     @Override
     public java.util.List<AttendancePolicy> findAllOrderByOrderNumDesc() {
         return repository.findAllByOrderByOrderNumDesc()
-                .stream()
-                .map(AttendancePolicyJpaEntity::toDomain)
-                .toList();
+            .stream()
+            .map(AttendancePolicyJpaEntity::toDomain)
+            .toList();
     }
 }

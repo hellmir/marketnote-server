@@ -43,15 +43,15 @@ public class UpdateProductService implements UpdateProductUseCase {
 
         Product product = getProductUseCase.getProduct(id);
         product.update(
-                command.name(), command.brandName(), command.detail(),
-                Boolean.TRUE.equals(command.isFindAllOptions()), command.tags()
+            command.name(), command.brandName(), command.detail(),
+            Boolean.TRUE.equals(command.isFindAllOptions()), command.tags()
         );
 
         updateProductPort.update(product);
 
         if (FormatValidator.hasValue(command.fulfillmentVendorGoods())) {
             ProductUpdatedEvent productUpdatedEvent =
-                    ProductUpdatedEventMapper.mapToEvent(product, command.fulfillmentVendorGoods());
+                ProductUpdatedEventMapper.mapToEvent(product, command.fulfillmentVendorGoods());
 
             publishProductEventPort.publishProductUpdatedEvent(productUpdatedEvent);
         }
@@ -68,7 +68,7 @@ public class UpdateProductService implements UpdateProductUseCase {
         }
         List<ProductTagChangedEvent.ProductTagSnapshot> productTags = toTagSnapshots(refreshed.getProductTags());
         publishProductEventPort.publishProductTagChangedEvent(
-                productId, productTags, ProductTagChangedEvent.Action.UPDATED
+            productId, productTags, ProductTagChangedEvent.Action.UPDATED
         );
     }
 
@@ -77,9 +77,9 @@ public class UpdateProductService implements UpdateProductUseCase {
             return List.of();
         }
         return productTags.stream()
-                .map(tag -> new ProductTagChangedEvent.ProductTagSnapshot(
-                        tag.getId(), tag.getName(), tag.getOrderNum()
-                ))
-                .toList();
+            .map(tag -> new ProductTagChangedEvent.ProductTagSnapshot(
+                tag.getId(), tag.getName(), tag.getOrderNum()
+            ))
+            .toList();
     }
 }

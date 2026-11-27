@@ -17,23 +17,23 @@ public class FulfillmentReturnDeliveryMapper {
     private List<FulfillmentReturnDeliveryItemMapper> returnDeliveryRequests;
 
     public static FulfillmentReturnDeliveryMapper register(
-            String customerCode,
-            String accessToken,
-            List<FulfillmentReturnDeliveryItemMapper> returnDeliveryRequests
+        String customerCode,
+        String accessToken,
+        List<FulfillmentReturnDeliveryItemMapper> returnDeliveryRequests
     ) {
         FulfillmentReturnDeliveryMapper mapper = FulfillmentReturnDeliveryMapper.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .returnDeliveryRequests(returnDeliveryRequests)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .returnDeliveryRequests(returnDeliveryRequests)
+            .build();
         mapper.validate();
         return mapper;
     }
 
     public List<Map<String, Object>> toPayload() {
         return returnDeliveryRequests.stream()
-                .map(FulfillmentReturnDeliveryItemMapper::toPayload)
-                .toList();
+            .map(FulfillmentReturnDeliveryItemMapper::toPayload)
+            .toList();
     }
 
     public String getOrdNo() {

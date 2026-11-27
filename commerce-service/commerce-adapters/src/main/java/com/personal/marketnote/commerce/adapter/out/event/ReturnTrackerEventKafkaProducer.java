@@ -30,7 +30,7 @@ public class ReturnTrackerEventKafkaProducer implements PublishReturnTrackerEven
         ReturnInspectionCompletedEvent payload = new ReturnInspectionCompletedEvent(orderId);
         String topic = KafkaTopicConstants.RETURN_INSPECTION_COMPLETED;
         EventEnvelope<ReturnInspectionCompletedEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         saveToOutbox(envelope, topic, orderId.toString());
@@ -39,8 +39,8 @@ public class ReturnTrackerEventKafkaProducer implements PublishReturnTrackerEven
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
         String payloadJson = serializeEnvelope(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(), topic, partitionKey,
-                envelope.eventType(), SOURCE, payloadJson, clock
+            envelope.eventId(), topic, partitionKey,
+            envelope.eventType(), SOURCE, payloadJson, clock
         );
         saveOutboxEventPort.save(outboxEvent);
         log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());

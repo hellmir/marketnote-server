@@ -31,7 +31,7 @@ class SyncConfirmedOrderSalesUseCaseTest {
     @DisplayName("주문 상품 목록이 없으면 판매량 동기화를 건너뛴다")
     void skipsWhenOrderProductsEmpty() {
         OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(
-                1L, 10L, List.of(), false, List.of()
+            1L, 10L, List.of(), false, List.of()
         );
 
         service.syncSales(event);
@@ -58,7 +58,7 @@ class SyncConfirmedOrderSalesUseCaseTest {
         OrderPurchaseConfirmedEvent event = buildEventWithSingleItem(100L, 1L, 3);
         when(orderSalesSyncLogPort.isProcessed(100L)).thenReturn(false);
         doThrow(new DataIntegrityViolationException("duplicate"))
-                .when(orderSalesSyncLogPort).markProcessed(100L);
+            .when(orderSalesSyncLogPort).markProcessed(100L);
 
         service.syncSales(event);
 
@@ -70,11 +70,11 @@ class SyncConfirmedOrderSalesUseCaseTest {
     @DisplayName("신규 주문이면 각 주문 상품의 pricePolicyId 에 quantity 만큼 판매량을 증가시킨다")
     void increasesSalesForEachItem() {
         OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(
-                100L, 10L, List.of(), false,
-                List.of(
-                        new OrderPurchaseConfirmedEvent.OrderProductItem(1L, 11L, 3),
-                        new OrderPurchaseConfirmedEvent.OrderProductItem(2L, 12L, 5)
-                )
+            100L, 10L, List.of(), false,
+            List.of(
+                new OrderPurchaseConfirmedEvent.OrderProductItem(1L, 11L, 3),
+                new OrderPurchaseConfirmedEvent.OrderProductItem(2L, 12L, 5)
+            )
         );
         when(orderSalesSyncLogPort.isProcessed(100L)).thenReturn(false);
 
@@ -90,12 +90,12 @@ class SyncConfirmedOrderSalesUseCaseTest {
     @DisplayName("pricePolicyId 또는 quantity 가 null 인 항목은 건너뛴다")
     void skipsItemsWithMissingFields() {
         OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(
-                100L, 10L, List.of(), false,
-                List.of(
-                        new OrderPurchaseConfirmedEvent.OrderProductItem(null, 11L, 3),
-                        new OrderPurchaseConfirmedEvent.OrderProductItem(2L, 12L, null),
-                        new OrderPurchaseConfirmedEvent.OrderProductItem(3L, 13L, 7)
-                )
+            100L, 10L, List.of(), false,
+            List.of(
+                new OrderPurchaseConfirmedEvent.OrderProductItem(null, 11L, 3),
+                new OrderPurchaseConfirmedEvent.OrderProductItem(2L, 12L, null),
+                new OrderPurchaseConfirmedEvent.OrderProductItem(3L, 13L, 7)
+            )
         );
         when(orderSalesSyncLogPort.isProcessed(100L)).thenReturn(false);
 
@@ -107,8 +107,8 @@ class SyncConfirmedOrderSalesUseCaseTest {
 
     private OrderPurchaseConfirmedEvent buildEventWithSingleItem(Long orderId, Long pricePolicyId, int quantity) {
         return new OrderPurchaseConfirmedEvent(
-                orderId, 10L, List.of(), false,
-                List.of(new OrderPurchaseConfirmedEvent.OrderProductItem(pricePolicyId, 99L, quantity))
+            orderId, 10L, List.of(), false,
+            List.of(new OrderPurchaseConfirmedEvent.OrderProductItem(pricePolicyId, 99L, quantity))
         );
     }
 }

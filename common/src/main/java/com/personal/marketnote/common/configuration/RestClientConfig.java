@@ -18,8 +18,8 @@ public class RestClientConfig {
     private final int readTimeout;
 
     public RestClientConfig(
-            @Value("${rest-client.connect-timeout:5000}") int connectTimeout,
-            @Value("${rest-client.read-timeout:10000}") int readTimeout
+        @Value("${rest-client.connect-timeout:5000}") int connectTimeout,
+        @Value("${rest-client.read-timeout:10000}") int readTimeout
     ) {
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;
@@ -37,8 +37,8 @@ public class RestClientConfig {
 
     @Bean
     public RestClientCustomizer restClientCustomizer(
-            RestClientLoggingInterceptor loggingInterceptor,
-            TraceIdPropagationInterceptor traceIdPropagationInterceptor
+        RestClientLoggingInterceptor loggingInterceptor,
+        TraceIdPropagationInterceptor traceIdPropagationInterceptor
     ) {
         return builder -> {
             SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
@@ -46,9 +46,9 @@ public class RestClientConfig {
             requestFactory.setReadTimeout(Duration.ofMillis(readTimeout));
 
             builder.requestFactory(requestFactory)
-                    .requestInterceptor(traceIdPropagationInterceptor)
-                    .requestInterceptor(loggingInterceptor)
-                    .defaultStatusHandler(RestClientErrorHandler::isError, RestClientErrorHandler.noOpErrorHandler());
+                .requestInterceptor(traceIdPropagationInterceptor)
+                .requestInterceptor(loggingInterceptor)
+                .defaultStatusHandler(RestClientErrorHandler::isError, RestClientErrorHandler.noOpErrorHandler());
         };
     }
 }

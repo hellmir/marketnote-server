@@ -21,18 +21,18 @@ public class FulfillmentDeliveryRegistration {
             throw new FulfillmentQueryParameterNoValueException("orderId");
         }
         return FulfillmentDeliveryRegistration.builder()
-                .orderId(state.getOrderId())
-                .workStatus(FulfillmentWorkStatus.REGISTERED)
-                .build();
+            .orderId(state.getOrderId())
+            .workStatus(FulfillmentWorkStatus.REGISTERED)
+            .build();
     }
 
     public static FulfillmentDeliveryRegistration from(FulfillmentDeliveryRegistrationSnapshotState state) {
         return FulfillmentDeliveryRegistration.builder()
-                .id(state.getId())
-                .orderId(state.getOrderId())
-                .workStatus(state.getWorkStatus())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .orderId(state.getOrderId())
+            .workStatus(state.getWorkStatus())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 
     public boolean isCancellable() {

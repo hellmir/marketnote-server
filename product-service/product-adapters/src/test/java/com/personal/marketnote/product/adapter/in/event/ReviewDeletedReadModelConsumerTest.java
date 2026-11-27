@@ -41,17 +41,17 @@ class ReviewDeletedReadModelConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(EventEnvelope<?> envelope) {
         return new ConsumerRecord<>(
-                KafkaTopicConstants.REVIEW_DELETED, 0, 0, "1", envelope
+            KafkaTopicConstants.REVIEW_DELETED, 0, 0, "1", envelope
         );
     }
 
     private EventEnvelope<ReviewDeletedEvent> createEnvelope(ReviewDeletedEvent payload) {
         return new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.REVIEW_DELETED,
-                "community-service",
-                LocalDateTime.now(Clock.fixed(Instant.parse("2026-03-31T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
-                payload
+            "test-event-id",
+            KafkaTopicConstants.REVIEW_DELETED,
+            "community-service",
+            LocalDateTime.now(Clock.fixed(Instant.parse("2026-03-31T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
+            payload
         );
     }
 
@@ -76,7 +76,7 @@ class ReviewDeletedReadModelConsumerTest {
     void handleReviewDeletedEvent_nullEnvelope_acknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.REVIEW_DELETED, 0, 0, "1", null
+            KafkaTopicConstants.REVIEW_DELETED, 0, 0, "1", null
         );
 
         // when
@@ -93,11 +93,11 @@ class ReviewDeletedReadModelConsumerTest {
         // given
         ReviewDeletedEvent payload = new ReviewDeletedEvent(1L, 50L, 9, new BigDecimal("4.20"), 100L);
         EventEnvelope<ReviewDeletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id",
-                "wrong.event.type",
-                "community-service",
-                LocalDateTime.now(),
-                payload
+            "test-event-id",
+            "wrong.event.type",
+            "community-service",
+            LocalDateTime.now(),
+            payload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 

@@ -71,24 +71,24 @@ class HandleOfferwallRewardUseCaseTest {
             RegisterOfferwallRewardCommand command = buildCommand();
             RuntimeException exception = new RuntimeException("등록 실패");
             OfferwallMapper previousFailed = OfferwallMapper.from(
-                    OfferwallMapperSnapshotState.builder()
-                            .id(10L)
-                            .offerwallType(OfferwallType.ADPOPCORN)
-                            .rewardKey("reward-key")
-                            .userKey("user-key")
-                            .isSuccess(false)
-                            .failureCount((short) 3)
-                            .build()
+                OfferwallMapperSnapshotState.builder()
+                    .id(10L)
+                    .offerwallType(OfferwallType.ADPOPCORN)
+                    .rewardKey("reward-key")
+                    .userKey("user-key")
+                    .isSuccess(false)
+                    .failureCount((short) 3)
+                    .build()
             );
 
             when(registerOfferwallRewardUseCase.register(command)).thenThrow(exception);
             when(getOfferwallMapperUseCase.findTopFailedOfferwallMapper(
-                    command.offerwallType(), command.rewardKey()
+                command.offerwallType(), command.rewardKey()
             )).thenReturn(Optional.of(previousFailed));
 
             // when & then
             assertThatThrownBy(() -> handleOfferwallRewardService.handle(command))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verify(saveOfferwallMapperPort).save(any(OfferwallMapper.class));
         }
@@ -102,12 +102,12 @@ class HandleOfferwallRewardUseCaseTest {
 
             when(registerOfferwallRewardUseCase.register(command)).thenThrow(exception);
             when(getOfferwallMapperUseCase.findTopFailedOfferwallMapper(
-                    command.offerwallType(), command.rewardKey()
+                command.offerwallType(), command.rewardKey()
             )).thenReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> handleOfferwallRewardService.handle(command))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verify(saveOfferwallMapperPort).save(any(OfferwallMapper.class));
         }
@@ -115,12 +115,12 @@ class HandleOfferwallRewardUseCaseTest {
 
     private RegisterOfferwallRewardCommand buildCommand() {
         return RegisterOfferwallRewardCommand.builder()
-                .offerwallType(OfferwallType.ADPOPCORN)
-                .rewardKey("reward-key")
-                .userKey("user-key")
-                .userDeviceType(UserDeviceType.ANDROID)
-                .campaignKey("campaign-1")
-                .quantity(100L)
-                .build();
+            .offerwallType(OfferwallType.ADPOPCORN)
+            .rewardKey("reward-key")
+            .userKey("user-key")
+            .userDeviceType(UserDeviceType.ANDROID)
+            .campaignKey("campaign-1")
+            .quantity(100L)
+            .build();
     }
 }

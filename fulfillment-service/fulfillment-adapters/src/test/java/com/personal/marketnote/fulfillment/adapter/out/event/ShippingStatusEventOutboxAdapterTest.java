@@ -25,9 +25,7 @@ import java.time.ZoneId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ShippingStatusEventOutboxAdapter 테스트")
@@ -58,18 +56,18 @@ class ShippingStatusEventOutboxAdapterTest {
             when(clock.getZone()).thenReturn(fixedClock.getZone());
 
             ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                    100L,
-                    1L,
-                    "SHIPPING",
-                    "INV001",
-                    "CJ",
-                    LocalDateTime.of(2026, 4, 9, 10, 0),
-                    null,
-                    null
+                100L,
+                1L,
+                "SHIPPING",
+                "INV001",
+                "CJ",
+                LocalDateTime.of(2026, 4, 9, 10, 0),
+                null,
+                null
             );
             ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
             when(objectMapper.writeValueAsString(envelopeCaptor.capture()))
-                    .thenReturn("{\"eventType\":\"shipping.status.changed\"}");
+                .thenReturn("{\"eventType\":\"shipping.status.changed\"}");
 
             // when
             adapter.publish(event);
@@ -108,26 +106,26 @@ class ShippingStatusEventOutboxAdapterTest {
             when(clock.getZone()).thenReturn(fixedClock.getZone());
 
             ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                    300L,
-                    3L,
-                    "DELIVERY_FAILED",
-                    "INV003",
-                    "CJ",
-                    LocalDateTime.of(2026, 4, 9, 14, 0),
-                    null,
-                    null
+                300L,
+                3L,
+                "DELIVERY_FAILED",
+                "INV003",
+                "CJ",
+                LocalDateTime.of(2026, 4, 9, 14, 0),
+                null,
+                null
             );
             when(objectMapper.writeValueAsString(any(EventEnvelope.class)))
-                    .thenThrow(new JsonProcessingException("test failure") {
-                    });
+                .thenThrow(new JsonProcessingException("test failure") {
+                });
 
             // when & then
             assertThatThrownBy(() -> adapter.publish(event))
-                    .isInstanceOf(ShippingStatusEventSerializationException.class)
-                    .hasMessageContaining("ERR_SHIPPING_STATUS_EVENT_01")
-                    .hasMessageContaining("배송 상태 변경 이벤트")
-                    .hasMessageContaining("partitionKey=300")
-                    .hasMessageContaining("eventId=");
+                .isInstanceOf(ShippingStatusEventSerializationException.class)
+                .hasMessageContaining("ERR_SHIPPING_STATUS_EVENT_01")
+                .hasMessageContaining("배송 상태 변경 이벤트")
+                .hasMessageContaining("partitionKey=300")
+                .hasMessageContaining("eventId=");
             verifyNoInteractions(saveOutboxEventPort);
         }
     }

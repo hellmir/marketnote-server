@@ -78,9 +78,9 @@ public class PublishScheduledNotificationsService implements PublishScheduledNot
         try {
             long unreadCount = findNotificationPort.countUnreadByUserId(userId);
             publishSseEventPort.publish(
-                    userId,
-                    NotificationSseEventType.UNREAD_COUNT_CHANGED,
-                    UnreadCountChangedPayload.of(unreadCount)
+                userId,
+                NotificationSseEventType.UNREAD_COUNT_CHANGED,
+                UnreadCountChangedPayload.of(unreadCount)
             );
         } catch (Exception e) {
             log.error("SSE unreadCount 이벤트 발행 실패: userId={}", userId, e);
@@ -100,14 +100,14 @@ public class PublishScheduledNotificationsService implements PublishScheduledNot
 
         for (DeviceToken deviceToken : deviceTokens) {
             SendPushNotificationCommand pushCommand = new SendPushNotificationCommand(
-                    deviceToken.getToken(), notification.getTitle(), notification.getBody(),
-                    notification.getLandingUrl(), deviceToken.getPlatform());
+                deviceToken.getToken(), notification.getTitle(), notification.getBody(),
+                notification.getLandingUrl(), deviceToken.getPlatform());
             try {
                 SendPushNotificationResult pushResult = sendPushNotificationPort.send(pushCommand);
                 vendorCommunicationRecorder.recordFcmSendResult(
-                        notification, deviceToken,
-                        notification.getTitle(), notification.getBody(), notification.getLandingUrl(),
-                        pushResult
+                    notification, deviceToken,
+                    notification.getTitle(), notification.getBody(), notification.getLandingUrl(),
+                    pushResult
                 );
                 if (pushResult.success()) {
                     sentCount++;
@@ -119,11 +119,11 @@ public class PublishScheduledNotificationsService implements PublishScheduledNot
                 }
             } catch (FcmSendFailedException fsfe) {
                 log.error("FCM 발송 중 예외 발생: notificationId={}, deviceId={}",
-                        notification.getId(), deviceToken.getDeviceId(), fsfe);
+                    notification.getId(), deviceToken.getDeviceId(), fsfe);
                 vendorCommunicationRecorder.recordFcmSendException(
-                        notification, deviceToken,
-                        notification.getTitle(), notification.getBody(), notification.getLandingUrl(),
-                        fsfe
+                    notification, deviceToken,
+                    notification.getTitle(), notification.getBody(), notification.getLandingUrl(),
+                    fsfe
                 );
                 failedCount++;
             }

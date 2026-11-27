@@ -39,15 +39,15 @@ class CommerceServiceCommunicationHistoryPersistenceAdapterTest {
 
     private CommerceServiceCommunicationHistory buildHistory(String payloadJson) {
         return CommerceServiceCommunicationHistory.from(
-                CommerceServiceCommunicationHistoryCreateState.builder()
-                        .targetType(CommerceServiceCommunicationTargetType.PRODUCT_INFO)
-                        .targetId("123")
-                        .communicationType(CommerceServiceCommunicationType.REQUEST)
-                        .sender(CommerceServiceCommunicationSenderType.COMMERCE)
-                        .exception(null)
-                        .payload("{\"key\":\"value\"}")
-                        .payloadJson(payloadJson)
-                        .build()
+            CommerceServiceCommunicationHistoryCreateState.builder()
+                .targetType(CommerceServiceCommunicationTargetType.PRODUCT_INFO)
+                .targetId("123")
+                .communicationType(CommerceServiceCommunicationType.REQUEST)
+                .sender(CommerceServiceCommunicationSenderType.COMMERCE)
+                .exception(null)
+                .payload("{\"key\":\"value\"}")
+                .payloadJson(payloadJson)
+                .build()
         );
     }
 
@@ -61,7 +61,7 @@ class CommerceServiceCommunicationHistoryPersistenceAdapterTest {
             // given
             CommerceServiceCommunicationHistory history = buildHistory("{\"key\":\"value\"}");
             when(repository.save(any(CommerceServiceCommunicationHistoryJpaEntity.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             CommerceServiceCommunicationHistory saved = adapter.save(history);
@@ -71,7 +71,7 @@ class CommerceServiceCommunicationHistoryPersistenceAdapterTest {
             assertThat(saved.getTargetType()).isEqualTo(CommerceServiceCommunicationTargetType.PRODUCT_INFO);
             assertThat(saved.getTargetId()).isEqualTo("123");
             ArgumentCaptor<CommerceServiceCommunicationHistoryJpaEntity> captor =
-                    ArgumentCaptor.forClass(CommerceServiceCommunicationHistoryJpaEntity.class);
+                ArgumentCaptor.forClass(CommerceServiceCommunicationHistoryJpaEntity.class);
             verify(repository).save(captor.capture());
             assertThat(captor.getValue().getPayloadJson()).isNotNull();
             assertThat(captor.getValue().getPayloadJson().get("key").asText()).isEqualTo("value");
@@ -83,14 +83,14 @@ class CommerceServiceCommunicationHistoryPersistenceAdapterTest {
             // given
             CommerceServiceCommunicationHistory history = buildHistory(null);
             when(repository.save(any(CommerceServiceCommunicationHistoryJpaEntity.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             adapter.save(history);
 
             // then
             ArgumentCaptor<CommerceServiceCommunicationHistoryJpaEntity> captor =
-                    ArgumentCaptor.forClass(CommerceServiceCommunicationHistoryJpaEntity.class);
+                ArgumentCaptor.forClass(CommerceServiceCommunicationHistoryJpaEntity.class);
             verify(repository).save(captor.capture());
             assertThat(captor.getValue().getPayloadJson()).isNull();
         }
@@ -101,14 +101,14 @@ class CommerceServiceCommunicationHistoryPersistenceAdapterTest {
             // given
             CommerceServiceCommunicationHistory history = buildHistory("invalid-json-{");
             when(repository.save(any(CommerceServiceCommunicationHistoryJpaEntity.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             adapter.save(history);
 
             // then
             ArgumentCaptor<CommerceServiceCommunicationHistoryJpaEntity> captor =
-                    ArgumentCaptor.forClass(CommerceServiceCommunicationHistoryJpaEntity.class);
+                ArgumentCaptor.forClass(CommerceServiceCommunicationHistoryJpaEntity.class);
             verify(repository).save(captor.capture());
             assertThat(captor.getValue().getPayloadJson()).isNull();
         }

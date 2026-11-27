@@ -19,7 +19,7 @@ class RestClientConfigTest {
 
         // when
         RestClientCustomizer customizer = config.restClientCustomizer(
-                new RestClientLoggingInterceptor(), new TraceIdPropagationInterceptor()
+            new RestClientLoggingInterceptor(), new TraceIdPropagationInterceptor()
         );
 
         // then
@@ -32,7 +32,7 @@ class RestClientConfigTest {
         // given
         RestClientConfig config = new RestClientConfig(3000, 8000);
         RestClientCustomizer customizer = config.restClientCustomizer(
-                new RestClientLoggingInterceptor(), new TraceIdPropagationInterceptor()
+            new RestClientLoggingInterceptor(), new TraceIdPropagationInterceptor()
         );
 
         // when & then

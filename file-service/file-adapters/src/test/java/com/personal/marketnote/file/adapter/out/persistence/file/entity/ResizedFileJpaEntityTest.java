@@ -18,17 +18,17 @@ class ResizedFileJpaEntityTest {
 
     private FileJpaEntity buildFileEntity() {
         FileDomain domain = FileDomain.from(FileDomainSnapshotState.builder()
-                .id(1L)
-                .ownerType(OwnerType.PRODUCT)
-                .ownerId(100L)
-                .sort(FileSort.PRODUCT_CATALOG_IMAGE)
-                .extension("png")
-                .name("name.png")
-                .status(EntityStatus.ACTIVE)
-                .orderNum(1L)
-                .userId(200L)
-                .ownerKey("owner-key")
-                .build());
+            .id(1L)
+            .ownerType(OwnerType.PRODUCT)
+            .ownerId(100L)
+            .sort(FileSort.PRODUCT_CATALOG_IMAGE)
+            .extension("png")
+            .name("name.png")
+            .status(EntityStatus.ACTIVE)
+            .orderNum(1L)
+            .userId(200L)
+            .ownerKey("owner-key")
+            .build());
         return FileJpaEntity.from(domain, "https://cdn.example.com/a.png");
     }
 
@@ -76,13 +76,13 @@ class ResizedFileJpaEntityTest {
             FileJpaEntity file = buildFileEntity();
             ResizedFileJpaEntity entity = ResizedFileJpaEntity.of(file, "MEDIUM", "url");
             ResizedFile active = ResizedFile.from(
-                    ResizedFileSnapshotState.builder()
-                            .id(1L)
-                            .fileId(1L)
-                            .size("MEDIUM")
-                            .storageUrl("url")
-                            .status(EntityStatus.ACTIVE)
-                            .build()
+                ResizedFileSnapshotState.builder()
+                    .id(1L)
+                    .fileId(1L)
+                    .size("MEDIUM")
+                    .storageUrl("url")
+                    .status(EntityStatus.ACTIVE)
+                    .build()
             );
 
             entity.updateFrom(active);
@@ -96,13 +96,13 @@ class ResizedFileJpaEntityTest {
             FileJpaEntity file = buildFileEntity();
             ResizedFileJpaEntity entity = ResizedFileJpaEntity.of(file, "MEDIUM", "url");
             ResizedFile inactive = ResizedFile.from(
-                    ResizedFileSnapshotState.builder()
-                            .id(1L)
-                            .fileId(1L)
-                            .size("MEDIUM")
-                            .storageUrl("url")
-                            .status(EntityStatus.INACTIVE)
-                            .build()
+                ResizedFileSnapshotState.builder()
+                    .id(1L)
+                    .fileId(1L)
+                    .size("MEDIUM")
+                    .storageUrl("url")
+                    .status(EntityStatus.INACTIVE)
+                    .build()
             );
 
             entity.updateFrom(inactive);
@@ -116,13 +116,13 @@ class ResizedFileJpaEntityTest {
             FileJpaEntity file = buildFileEntity();
             ResizedFileJpaEntity entity = ResizedFileJpaEntity.of(file, "MEDIUM", "url");
             ResizedFile hidden = ResizedFile.from(
-                    ResizedFileSnapshotState.builder()
-                            .id(1L)
-                            .fileId(1L)
-                            .size("MEDIUM")
-                            .storageUrl("url")
-                            .status(EntityStatus.UNEXPOSED)
-                            .build()
+                ResizedFileSnapshotState.builder()
+                    .id(1L)
+                    .fileId(1L)
+                    .size("MEDIUM")
+                    .storageUrl("url")
+                    .status(EntityStatus.UNEXPOSED)
+                    .build()
             );
 
             entity.updateFrom(hidden);

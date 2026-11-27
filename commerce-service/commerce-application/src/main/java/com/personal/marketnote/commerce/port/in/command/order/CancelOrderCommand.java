@@ -7,10 +7,10 @@ import java.util.List;
 
 @Builder
 public record CancelOrderCommand(
-        Long id,
-        OrderStatusReasonCategory reasonCategory,
-        String reason,
-        Long buyerId,
-        List<Long> pricePolicyIds
+    Long id,
+    OrderStatusReasonCategory reasonCategory,
+    String reason,
+    Long buyerId,
+    List<Long> pricePolicyIds
 ) {
 }

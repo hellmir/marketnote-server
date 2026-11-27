@@ -11,7 +11,7 @@ public final class MaskedCardNumber {
     private static final Pattern ALLOWED_PATTERN = Pattern.compile("^[0-9*\\-]{12,20}$");
     private static final String NO_VALUE_MESSAGE = "마스킹 카드번호는 필수값입니다.";
     private static final String INVALID_FORMAT_MESSAGE =
-            "마스킹 카드번호 형식이 올바르지 않습니다. 길이 " + MIN_LENGTH + "~" + MAX_LENGTH + " 사이의 숫자/별표/하이픈만 허용됩니다.";
+        "마스킹 카드번호 형식이 올바르지 않습니다. 길이 " + MIN_LENGTH + "~" + MAX_LENGTH + " 사이의 숫자/별표/하이픈만 허용됩니다.";
     private static final String MISSING_MASK_MESSAGE = "마스킹 카드번호에는 마스킹 문자(*)가 최소 1개 포함되어야 합니다.";
 
     private final String value;

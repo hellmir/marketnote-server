@@ -54,24 +54,24 @@ class LedgerQueryPersistenceAdapterTest {
 
     private LedgerTransaction saveTransaction(LedgerTransactionType type, String idempotencyKey) {
         LedgerTransaction transaction = LedgerTransaction.from(
-                LedgerTransactionCreateState.builder()
-                        .transactionType(type)
-                        .targetType("ORDER")
-                        .targetId(1L)
-                        .description("테스트")
-                        .idempotencyKey(IdempotencyKey.of(idempotencyKey))
-                        .build()
+            LedgerTransactionCreateState.builder()
+                .transactionType(type)
+                .targetType("ORDER")
+                .targetId(1L)
+                .description("테스트")
+                .idempotencyKey(IdempotencyKey.of(idempotencyKey))
+                .build()
         );
         return adapter.save(transaction);
     }
 
     private void saveEntries(Long transactionId, Long accountId, Long amount, TransactionType type) {
         LedgerEntry entry = LedgerEntry.from(
-                LedgerEntryCreateState.builder()
-                        .accountId(accountId)
-                        .amount(amount)
-                        .transactionType(type)
-                        .build()
+            LedgerEntryCreateState.builder()
+                .accountId(accountId)
+                .amount(amount)
+                .transactionType(type)
+                .build()
         );
         entry.assignTransaction(transactionId);
         adapter.saveAll(List.of(entry));
@@ -165,7 +165,7 @@ class LedgerQueryPersistenceAdapterTest {
 
             // when
             List<LedgerTransaction> result = queryAdapter.findByFilters(
-                    start, end, LedgerTransactionType.SELLER_SETTLEMENT
+                start, end, LedgerTransactionType.SELLER_SETTLEMENT
             );
 
             // then

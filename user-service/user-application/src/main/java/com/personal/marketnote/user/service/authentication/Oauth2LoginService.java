@@ -33,7 +33,7 @@ public class Oauth2LoginService implements Oauth2LoginUseCase {
 
     @Override
     public LoginResult loginByOAuth2(String code, String redirectUri, AuthVendor authVendor)
-            throws UnsupportedCodeException {
+        throws UnsupportedCodeException {
         GrantedTokenInfo grantedTokenInfo = tokenSupport.grantToken(code, redirectUri, authVendor);
         Optional<User> user = findUserPort.findAllStatusUserByAuthVendorAndOidcId(grantedTokenInfo.authVendor(), grantedTokenInfo.id());
 
@@ -45,7 +45,7 @@ public class Oauth2LoginService implements Oauth2LoginUseCase {
             }
 
             return LoginResult.of(
-                    false, grantedTokenInfo.accessToken(), grantedTokenInfo.refreshToken(), toNicknameValue(signedUpUser.getNickname())
+                false, grantedTokenInfo.accessToken(), grantedTokenInfo.refreshToken(), toNicknameValue(signedUpUser.getNickname())
             );
         }
 

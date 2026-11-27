@@ -36,12 +36,12 @@ class FulfillmentDeliveryRegistrationPersistenceAdapterTest {
 
     private FulfillmentDeliveryRegistration buildRegistration(Long id, Long orderId, FulfillmentWorkStatus workStatus) {
         return FulfillmentDeliveryRegistration.from(
-                FulfillmentDeliveryRegistrationSnapshotState.builder()
-                        .id(id)
-                        .orderId(orderId)
-                        .workStatus(workStatus)
-                        .createdAt(LocalDateTime.of(2026, 4, 14, 10, 0))
-                        .build()
+            FulfillmentDeliveryRegistrationSnapshotState.builder()
+                .id(id)
+                .orderId(orderId)
+                .workStatus(workStatus)
+                .createdAt(LocalDateTime.of(2026, 4, 14, 10, 0))
+                .build()
         );
     }
 
@@ -73,11 +73,11 @@ class FulfillmentDeliveryRegistrationPersistenceAdapterTest {
             // given
             FulfillmentDeliveryRegistration registration = buildRegistration(null, 100L, FulfillmentWorkStatus.REGISTERED);
             when(repository.saveAndFlush(any(FulfillmentDeliveryRegistrationJpaEntity.class)))
-                    .thenThrow(new DataIntegrityViolationException("Unique constraint violation"));
+                .thenThrow(new DataIntegrityViolationException("Unique constraint violation"));
 
             // when & then
             assertThatThrownBy(() -> adapter.save(registration))
-                    .isInstanceOf(FulfillmentDeliveryAlreadyRegisteredException.class);
+                .isInstanceOf(FulfillmentDeliveryAlreadyRegisteredException.class);
         }
     }
 
@@ -90,7 +90,7 @@ class FulfillmentDeliveryRegistrationPersistenceAdapterTest {
         void shouldReturnDomainWhenEntityExists() {
             // given
             FulfillmentDeliveryRegistrationJpaEntity entity = FulfillmentDeliveryRegistrationJpaEntity.from(
-                    buildRegistration(1L, 200L, FulfillmentWorkStatus.REGISTERED)
+                buildRegistration(1L, 200L, FulfillmentWorkStatus.REGISTERED)
             );
             when(repository.findByOrderId(200L)).thenReturn(Optional.of(entity));
 

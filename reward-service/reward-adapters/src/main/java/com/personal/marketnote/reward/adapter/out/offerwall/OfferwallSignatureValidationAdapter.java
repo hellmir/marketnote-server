@@ -29,22 +29,22 @@ public class OfferwallSignatureValidationAdapter implements ValidateOfferwallSig
 
     @Override
     public void validateSignature(
-            OfferwallType offerwallType,
-            UserDeviceType userDeviceType,
-            String signedValue,
-            String userKey,
-            String rewardKey,
-            Long quantity,
-            String campaignKey,
-            String rewardUnit
+        OfferwallType offerwallType,
+        UserDeviceType userDeviceType,
+        String signedValue,
+        String userKey,
+        String rewardKey,
+        Long quantity,
+        String campaignKey,
+        String rewardUnit
     ) {
         String hashKey = resolveHashKey(offerwallType, userDeviceType);
         String plainText = buildPlainText(
-                offerwallType, hashKey, userKey, rewardKey, quantity, campaignKey, rewardUnit
+            offerwallType, hashKey, userKey, rewardKey, quantity, campaignKey, rewardUnit
         );
 
         Map<OfferwallType, Runnable> signatureValidators = buildSignatureValidators(
-                hashKey, plainText, signedValue
+            hashKey, plainText, signedValue
         );
 
         Runnable validator = signatureValidators.get(offerwallType);
@@ -56,29 +56,29 @@ public class OfferwallSignatureValidationAdapter implements ValidateOfferwallSig
     }
 
     private Map<OfferwallType, Runnable> buildSignatureValidators(
-            String hashKey,
-            String plainText,
-            String signedValue
+        String hashKey,
+        String plainText,
+        String signedValue
     ) {
         Map<OfferwallType, Runnable> validators = new EnumMap<>(OfferwallType.class);
         validators.put(OfferwallType.ADPOPCORN,
-                () -> VendorVerificationProcessor.validateSignature(hashKey, plainText, signedValue)
+            () -> VendorVerificationProcessor.validateSignature(hashKey, plainText, signedValue)
         );
         validators.put(OfferwallType.TNK, () -> VendorVerificationProcessor.validateSignature(plainText, signedValue));
         validators.put(OfferwallType.ADISCOPE,
-                () -> VendorVerificationProcessor.validateSignature(hashKey, plainText, signedValue)
+            () -> VendorVerificationProcessor.validateSignature(hashKey, plainText, signedValue)
         );
         return validators;
     }
 
     private String buildPlainText(
-            OfferwallType offerwallType,
-            String hashKey,
-            String userKey,
-            String rewardKey,
-            Long quantity,
-            String campaignKey,
-            String rewardUnit
+        OfferwallType offerwallType,
+        String hashKey,
+        String userKey,
+        String rewardKey,
+        Long quantity,
+        String campaignKey,
+        String rewardUnit
     ) {
         Map<OfferwallType, Function<Void, String>> plainTextBuilders = new EnumMap<>(OfferwallType.class);
         plainTextBuilders.put(OfferwallType.ADPOPCORN, unused -> userKey + rewardKey + quantity + campaignKey);
@@ -104,8 +104,8 @@ public class OfferwallSignatureValidationAdapter implements ValidateOfferwallSig
         String hashKey = deviceHashKeys.get(userDeviceType);
         if (FormatValidator.hasNoValue(hashKey)) {
             log.warn(
-                    "오퍼월 리워드 지급 대상 디바이스 정보가 없습니다. offerwallType={}, userDeviceType={}",
-                    offerwallType, userDeviceType
+                "오퍼월 리워드 지급 대상 디바이스 정보가 없습니다. offerwallType={}, userDeviceType={}",
+                offerwallType, userDeviceType
             );
             throw new RewardTargetInfoNotFoundException();
         }

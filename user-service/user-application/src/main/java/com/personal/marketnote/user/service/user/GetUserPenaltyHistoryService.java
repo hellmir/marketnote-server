@@ -22,14 +22,14 @@ public class GetUserPenaltyHistoryService implements GetUserPenaltyHistoryUseCas
 
     @Override
     public Page<GetUserPenaltyHistoryResult> getUserPenaltyHistories(
-            Long userId,
-            int pageSize,
-            int pageNumber,
-            Sort.Direction sortDirection,
-            UserPenaltyHistorySortProperty sortProperty
+        Long userId,
+        int pageSize,
+        int pageNumber,
+        Sort.Direction sortDirection,
+        UserPenaltyHistorySortProperty sortProperty
     ) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getLowerValue()));
         return findUserPenaltyHistoryPort.findUserPenaltyHistoriesByUserId(pageable, userId)
-                .map(GetUserPenaltyHistoryResult::from);
+            .map(GetUserPenaltyHistoryResult::from);
     }
 }

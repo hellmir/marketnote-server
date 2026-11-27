@@ -41,17 +41,17 @@ class PaymentCancelledLedgerConsumerTest {
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long orderId, boolean isFullCancel, Long cancelAmount, String cancelId
+        Long orderId, boolean isFullCancel, Long cancelAmount, String cancelId
     ) {
         PaymentCancelledEvent event = new PaymentCancelledEvent(
-                orderId, "order-key-1", 1L, cancelAmount, 100000L, 0L,
-                isFullCancel, 0L, cancelId,
-                List.of(new PaymentCancelledEvent.OrderProductItem(1L, null, 2, 50000L)),
-                null, null
+            orderId, "order-key-1", 1L, cancelAmount, 100000L, 0L,
+            isFullCancel, 0L, cancelId,
+            List.of(new PaymentCancelledEvent.OrderProductItem(1L, null, 2, 50000L)),
+            null, null
         );
         EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.payment.cancelled", "commerce-service",
-                LocalDateTime.of(2026, 3, 9, 10, 0), event
+            "test-event-id", "commerce.payment.cancelled", "commerce-service",
+            LocalDateTime.of(2026, 3, 9, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.payment.cancelled", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -67,7 +67,7 @@ class PaymentCancelledLedgerConsumerTest {
 
         // then
         verify(recordLedgerEntryUseCase).recordPaymentCancellation(
-                1L, 50000L, "PAYMENT_CANCELLATION:1"
+            1L, 50000L, "PAYMENT_CANCELLATION:1"
         );
         verify(acknowledgment).acknowledge();
     }
@@ -83,7 +83,7 @@ class PaymentCancelledLedgerConsumerTest {
 
         // then
         verify(recordLedgerEntryUseCase).recordPaymentCancellation(
-                1L, 30000L, "PAYMENT_PARTIAL_REFUND:1:cancel-id-abc"
+            1L, 30000L, "PAYMENT_PARTIAL_REFUND:1:cancel-id-abc"
         );
         verify(acknowledgment).acknowledge();
     }
@@ -94,7 +94,7 @@ class PaymentCancelledLedgerConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true);
         doThrow(new DuplicateLedgerTransactionException("PAYMENT_CANCELLATION:1"))
-                .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1");
+            .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1");
 
         // when
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
@@ -151,7 +151,7 @@ class PaymentCancelledLedgerConsumerTest {
     void handlePaymentCancelledEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.cancelled", 0, 0L, "1", null
+            "commerce.payment.cancelled", 0, 0L, "1", null
         );
 
         // when
@@ -167,17 +167,17 @@ class PaymentCancelledLedgerConsumerTest {
     void handlePaymentCancelledEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         PaymentCancelledEvent event = new PaymentCancelledEvent(
-                1L, "order-key-1", 1L, 50000L, 100000L, 0L,
-                true, 0L, "cancel-id-1",
-                List.of(new PaymentCancelledEvent.OrderProductItem(1L, null, 2, 50000L)),
-                null, null
+            1L, "order-key-1", 1L, 50000L, 100000L, 0L,
+            true, 0L, "cancel-id-1",
+            List.of(new PaymentCancelledEvent.OrderProductItem(1L, null, 2, 50000L)),
+            null, null
         );
         EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 3, 9, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 3, 9, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.cancelled", 0, 0L, "1", envelope
+            "commerce.payment.cancelled", 0, 0L, "1", envelope
         );
 
         // when
@@ -193,16 +193,16 @@ class PaymentCancelledLedgerConsumerTest {
     void handlePaymentCancelledEvent_deserializationFailure_propagatesForRetry() {
         // given
         EventEnvelope<String> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.payment.cancelled", "commerce-service",
-                LocalDateTime.of(2026, 3, 9, 10, 0), "invalid-payload"
+            "test-event-id", "commerce.payment.cancelled", "commerce-service",
+            LocalDateTime.of(2026, 3, 9, 10, 0), "invalid-payload"
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.payment.cancelled", 0, 0L, "1", envelope
+            "commerce.payment.cancelled", 0, 0L, "1", envelope
         );
 
         // when & then
         assertThatThrownBy(() -> consumer.handlePaymentCancelledEvent(record, acknowledgment))
-                .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(IllegalArgumentException.class);
 
         verify(acknowledgment, never()).acknowledge();
     }

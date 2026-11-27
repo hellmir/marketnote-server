@@ -46,34 +46,34 @@ class ProductEventKafkaListenerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long productId, Long pricePolicyId, Long sellerId
+        Long productId, Long pricePolicyId, Long sellerId
     ) {
         return buildRecord(productId, null, pricePolicyId, sellerId);
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long productId, UUID productKey, Long pricePolicyId, Long sellerId
+        Long productId, UUID productKey, Long pricePolicyId, Long sellerId
     ) {
         ProductRegisteredEvent event = new ProductRegisteredEvent(
-                productId, productKey, pricePolicyId, sellerId, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
+            productId, productKey, pricePolicyId, sellerId, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "product.product.registered", "product-service",
-                LocalDateTime.of(2026, 2, 27, 10, 0), event
+            "test-event-id", "product.product.registered", "product-service",
+            LocalDateTime.of(2026, 2, 27, 10, 0), event
         );
         return new ConsumerRecord<>("product.product.registered", 0, 0L, "key-1", envelope);
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildUpdatedRecord(
-            Long productId, UUID productKey
+        Long productId, UUID productKey
     ) {
         ProductUpdatedEvent event = new ProductUpdatedEvent(
-                productId, productKey, "이름", null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, null, null
+            productId, productKey, "이름", null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null, null, null, null
         );
         EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "product.product.updated", "product-service",
-                LocalDateTime.of(2026, 2, 27, 10, 0), event
+            "test-event-id", "product.product.updated", "product-service",
+            LocalDateTime.of(2026, 2, 27, 10, 0), event
         );
         return new ConsumerRecord<>("product.product.updated", 0, 0L, "key-1", envelope);
     }
@@ -127,7 +127,7 @@ class ProductEventKafkaListenerTest {
 
         // then
         ArgumentCaptor<BackfillInventoryProductKeyCommand> captor =
-                ArgumentCaptor.forClass(BackfillInventoryProductKeyCommand.class);
+            ArgumentCaptor.forClass(BackfillInventoryProductKeyCommand.class);
         verify(backfillInventoryProductKeyUseCase).backfillProductKey(captor.capture());
         assertThat(captor.getValue().productId()).isEqualTo(10L);
         assertThat(captor.getValue().productKey()).isEqualTo(productKey);
@@ -195,7 +195,7 @@ class ProductEventKafkaListenerTest {
     void handleProductRegisteredEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "product.product.registered", 0, 0L, "key-1", null
+            "product.product.registered", 0, 0L, "key-1", null
         );
 
         // when
@@ -211,13 +211,13 @@ class ProductEventKafkaListenerTest {
     void handleProductRegisteredEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         ProductRegisteredEvent event = new ProductRegisteredEvent(
-                1L, null, 2L, 3L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
+            1L, null, 2L, 3L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, null, false);
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "product-service",
-                LocalDateTime.of(2026, 2, 27, 10, 0), event
+            "test-event-id", "wrong.event.type", "product-service",
+            LocalDateTime.of(2026, 2, 27, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "product.product.registered", 0, 0L, "key-1", envelope
+            "product.product.registered", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -290,7 +290,7 @@ class ProductEventKafkaListenerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L, 3L);
         doThrow(new InventoryAlreadyExistsException())
-                .when(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
+            .when(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
 
         // when
         productEventKafkaListener.handleProductRegisteredEvent(record, acknowledgment);
@@ -306,12 +306,12 @@ class ProductEventKafkaListenerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L, 3L);
         doThrow(new RuntimeException("네트워크 오류"))
-                .when(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
+            .when(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
 
         // when & then
         assertThatThrownBy(() -> productEventKafkaListener.handleProductRegisteredEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("네트워크 오류");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("네트워크 오류");
 
         verify(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
         verify(acknowledgment, never()).acknowledge();

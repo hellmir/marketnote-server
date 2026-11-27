@@ -26,7 +26,7 @@ class GoodsCodeTest {
     @DisplayName("null/빈 문자열/공백으로 생성 시 GoodsCodeNoValueException이 발생한다")
     void createWithBlank(String value) {
         assertThatThrownBy(() -> GoodsCode.of(value))
-                .isInstanceOf(GoodsCodeNoValueException.class);
+            .isInstanceOf(GoodsCodeNoValueException.class);
     }
 
     @Test

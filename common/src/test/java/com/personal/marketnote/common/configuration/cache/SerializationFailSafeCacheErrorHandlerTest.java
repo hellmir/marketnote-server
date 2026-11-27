@@ -14,13 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cache.Cache;
 import org.springframework.data.redis.serializer.SerializationException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * SerializationFailSafeCacheErrorHandler 단위 테스트.
@@ -57,7 +52,7 @@ class SerializationFailSafeCacheErrorHandlerTest {
         SerializationException exception = new SerializationException("형식 변경 잔존 데이터");
 
         assertThatCode(() -> handler.handleCacheGetError(exception, cache, "k1"))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
 
         verify(cache).evict("k1");
     }
@@ -66,12 +61,12 @@ class SerializationFailSafeCacheErrorHandlerTest {
     @DisplayName("GET 시 SerializationException(cause=MismatchedInputException) cause 재귀 추적으로 evict 한다")
     void handleCacheGetError_nestedMismatchedInput_evicts() {
         MismatchedInputException mismatched = MismatchedInputException.from(
-                (com.fasterxml.jackson.core.JsonParser) null, "type id 미발견"
+            (com.fasterxml.jackson.core.JsonParser) null, "type id 미발견"
         );
         SerializationException exception = new SerializationException("redis 역직렬화 실패", mismatched);
 
         assertThatCode(() -> handler.handleCacheGetError(exception, cache, "k2"))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
 
         verify(cache).evict("k2");
     }
@@ -80,12 +75,12 @@ class SerializationFailSafeCacheErrorHandlerTest {
     @DisplayName("GET 시 RuntimeException(cause=JsonMappingException) cause 재귀 추적으로 evict 한다")
     void handleCacheGetError_nestedJsonMappingException_evicts() {
         JsonMappingException mappingException = JsonMappingException.from(
-                (com.fasterxml.jackson.core.JsonParser) null, "필드 매핑 실패"
+            (com.fasterxml.jackson.core.JsonParser) null, "필드 매핑 실패"
         );
         RuntimeException exception = new RuntimeException("wrapper", mappingException);
 
         assertThatCode(() -> handler.handleCacheGetError(exception, cache, "k3"))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
 
         verify(cache).evict("k3");
     }
@@ -96,7 +91,7 @@ class SerializationFailSafeCacheErrorHandlerTest {
         IllegalStateException exception = new IllegalStateException("커넥션 단절");
 
         assertThatThrownBy(() -> handler.handleCacheGetError(exception, cache, "k4"))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(cache, never()).evict("k4");
     }
@@ -108,7 +103,7 @@ class SerializationFailSafeCacheErrorHandlerTest {
         doThrow(new RuntimeException("redis 단절")).when(cache).evict("k5");
 
         assertThatCode(() -> handler.handleCacheGetError(exception, cache, "k5"))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
 
         verify(cache).evict("k5");
     }
@@ -119,7 +114,7 @@ class SerializationFailSafeCacheErrorHandlerTest {
         SerializationException exception = new SerializationException("PUT 실패");
 
         assertThatCode(() -> handler.handleCachePutError(exception, cache, "k6", "value"))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -128,7 +123,7 @@ class SerializationFailSafeCacheErrorHandlerTest {
         RuntimeException exception = new RuntimeException("EVICT 실패");
 
         assertThatCode(() -> handler.handleCacheEvictError(exception, cache, "k7"))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -137,7 +132,7 @@ class SerializationFailSafeCacheErrorHandlerTest {
         RuntimeException exception = new RuntimeException("CLEAR 실패");
 
         assertThatCode(() -> handler.handleCacheClearError(exception, cache))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -160,9 +155,9 @@ class SerializationFailSafeCacheErrorHandlerTest {
         handler.handleCacheGetError(exception, cache, "k2");
 
         Counter counter = meterRegistry.find(FAILURE_METRIC)
-                .tag("cache", "test-cache")
-                .tag("exception", "SerializationException")
-                .counter();
+            .tag("cache", "test-cache")
+            .tag("exception", "SerializationException")
+            .counter();
         assertThat(counter).isNotNull();
         assertThat(counter.count()).isEqualTo(1.0);
     }
@@ -173,7 +168,7 @@ class SerializationFailSafeCacheErrorHandlerTest {
         IllegalStateException exception = new IllegalStateException("커넥션 단절");
 
         assertThatThrownBy(() -> handler.handleCacheGetError(exception, cache, "k3"))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         Counter counter = meterRegistry.find(FAILURE_METRIC).counter();
         assertThat(counter).isNull();
@@ -183,15 +178,15 @@ class SerializationFailSafeCacheErrorHandlerTest {
     @DisplayName("cause 체인의 MismatchedInputException 도 outermost 예외 클래스명으로 태깅된다")
     void handleCacheGetError_nestedMismatchedInput_taggedByOutermostException() {
         MismatchedInputException mismatched = MismatchedInputException.from(
-                (com.fasterxml.jackson.core.JsonParser) null, "type id 미발견"
+            (com.fasterxml.jackson.core.JsonParser) null, "type id 미발견"
         );
         SerializationException exception = new SerializationException("redis 역직렬화 실패", mismatched);
 
         handler.handleCacheGetError(exception, cache, "k4");
 
         Counter counter = meterRegistry.find(FAILURE_METRIC)
-                .tag("exception", "SerializationException")
-                .counter();
+            .tag("exception", "SerializationException")
+            .counter();
         assertThat(counter).isNotNull();
         assertThat(counter.count()).isEqualTo(1.0);
     }

@@ -36,7 +36,7 @@ class GetAdminGifticonCategoriesUseCaseTest {
         GifticonCategory category2 = createCategory(2L, "2", "편의점", "편의점/마트", true, 2);
         GifticonCategory category3 = createCategory(3L, "3", "외식", null, false, null);
         when(findGifticonCategoryPort.findAllOrderByOrderNumAsc())
-                .thenReturn(List.of(category1, category2, category3));
+            .thenReturn(List.of(category1, category2, category3));
 
         // when
         GetAdminGifticonCategoriesResult result = getAdminGifticonCategoriesService.getAdminGifticonCategories();
@@ -64,7 +64,7 @@ class GetAdminGifticonCategoriesUseCaseTest {
     void shouldReturnEmptyListWhenNoCategoriesExist() {
         // given
         when(findGifticonCategoryPort.findAllOrderByOrderNumAsc())
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         GetAdminGifticonCategoriesResult result = getAdminGifticonCategoriesService.getAdminGifticonCategories();
@@ -77,15 +77,15 @@ class GetAdminGifticonCategoriesUseCaseTest {
     private GifticonCategory createCategory(Long id, String categoryCode, String categoryName,
                                             String displayName, boolean exposed, Integer orderNum) {
         return GifticonCategory.from(GifticonCategorySnapshotState.builder()
-                .id(id)
-                .categoryCode(categoryCode)
-                .categoryName(categoryName)
-                .displayName(displayName)
-                .exposed(exposed)
-                .orderNum(orderNum)
-                .createdAt(LocalDateTime.of(2026, 4, 3, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 3, 10, 0))
-                .build()
+            .id(id)
+            .categoryCode(categoryCode)
+            .categoryName(categoryName)
+            .displayName(displayName)
+            .exposed(exposed)
+            .orderNum(orderNum)
+            .createdAt(LocalDateTime.of(2026, 4, 3, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 3, 10, 0))
+            .build()
         );
     }
 }

@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record SettlementExecutedEvent(
-        Long settlementId,
-        Long sellerId,
-        Long totalAllocatedAmount,
-        Long shippingFee,
-        Long pgFeeAmount,
-        Long platformFeeAmount,
-        Long sellerPayoutAmount
+    Long settlementId,
+    Long sellerId,
+    Long totalAllocatedAmount,
+    Long shippingFee,
+    Long pgFeeAmount,
+    Long platformFeeAmount,
+    Long sellerPayoutAmount
 ) {
 }

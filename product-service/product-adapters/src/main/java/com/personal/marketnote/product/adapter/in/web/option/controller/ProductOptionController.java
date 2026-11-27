@@ -63,24 +63,24 @@ public class ProductOptionController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @RegisterProductOptionsApiDocs
     public ResponseEntity<BaseResponse<UpsertProductOptionsResponse>> registerProductOptionCategories(
-            @PathVariable("productId") Long productId,
-            @Valid @RequestBody UpdateProductOptionsRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("productId") Long productId,
+        @Valid @RequestBody UpdateProductOptionsRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         UpdateProductOptionsResult result = registerProductOptionsUseCase.registerProductOptions(
-                ElementExtractor.extractUserId(principal),
-                AuthorityValidator.hasAdminRole(principal),
-                ProductRequestToCommandMapper.mapToCommand(productId, request)
+            ElementExtractor.extractUserId(principal),
+            AuthorityValidator.hasAdminRole(principal),
+            ProductRequestToCommandMapper.mapToCommand(productId, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        UpsertProductOptionsResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 카테고리 및 옵션 목록 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                UpsertProductOptionsResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "상품 카테고리 및 옵션 목록 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -96,17 +96,17 @@ public class ProductOptionController {
     @GetMapping("/option-categories")
     @GetProductOptionsApiDocs
     public ResponseEntity<BaseResponse<GetProductOptionsResponse>> getProductOptions(
-            @PathVariable("productId") Long productId
+        @PathVariable("productId") Long productId
     ) {
         GetProductOptionsResult result = getProductOptionsUseCase.getProductOptions(productId);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetProductOptionsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 옵션 카테고리 및 옵션 목록 조회 성공"
-                )
+            BaseResponse.of(
+                GetProductOptionsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 옵션 카테고리 및 옵션 목록 조회 성공"
+            )
         );
     }
 
@@ -125,24 +125,24 @@ public class ProductOptionController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @UpdateProductOptionsApiDocs
     public ResponseEntity<BaseResponse<UpsertProductOptionsResponse>> updateProductOptionCategories(
-            @PathVariable("productId") Long productId,
-            @PathVariable("id") Long id,
-            @Valid @RequestBody UpdateProductOptionsRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("productId") Long productId,
+        @PathVariable("id") Long id,
+        @Valid @RequestBody UpdateProductOptionsRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         UpdateProductOptionsResult result = updateProductOptionsUseCase.updateProductOptions(
-                ElementExtractor.extractUserId(principal),
-                AuthorityValidator.hasAdminRole(principal),
-                ProductRequestToCommandMapper.mapToUpdateCommand(productId, id, request)
+            ElementExtractor.extractUserId(principal),
+            AuthorityValidator.hasAdminRole(principal),
+            ProductRequestToCommandMapper.mapToUpdateCommand(productId, id, request)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        UpsertProductOptionsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 옵션 카테고리 수정 성공"
-                )
+            BaseResponse.of(
+                UpsertProductOptionsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 옵션 카테고리 수정 성공"
+            )
         );
     }
 
@@ -160,23 +160,23 @@ public class ProductOptionController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @DeleteProductOptionsApiDocs
     public ResponseEntity<BaseResponse<Void>> deleteProductOptionCategories(
-            @PathVariable("productId") Long productId,
-            @PathVariable("id") Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("productId") Long productId,
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         deleteProductOptionsUseCase.deleteProductOptions(
-                ElementExtractor.extractUserId(principal),
-                AuthorityValidator.hasAdminRole(principal),
-                productId,
-                id
+            ElementExtractor.extractUserId(principal),
+            AuthorityValidator.hasAdminRole(principal),
+            productId,
+            id
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 옵션 삭제 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 옵션 삭제 성공"
+            )
         );
     }
 }

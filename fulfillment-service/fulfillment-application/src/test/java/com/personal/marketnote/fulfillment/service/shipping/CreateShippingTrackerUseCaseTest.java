@@ -54,6 +54,6 @@ class CreateShippingTrackerUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> createShippingTrackerService.createShippingTracker(command))
-                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+            .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
     }
 }

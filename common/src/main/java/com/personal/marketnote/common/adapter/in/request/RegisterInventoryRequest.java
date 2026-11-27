@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 @Getter
 public class RegisterInventoryRequest {
     @Schema(
-            name = "productId",
-            description = "상품 ID",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "productId",
+        description = "상품 ID",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "상품 ID는 필수값입니다.")
     @Min(value = 1, message = "상품 ID는 1 이상이어야 합니다.")
@@ -23,9 +23,9 @@ public class RegisterInventoryRequest {
     private Long productId;
 
     @Schema(
-            name = "pricePolicyId",
-            description = "가격 정책 ID",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "pricePolicyId",
+        description = "가격 정책 ID",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "가격 정책 ID는 필수값입니다.")
     @Min(value = 1, message = "가격 정책 ID는 1 이상이어야 합니다.")

@@ -6,18 +6,18 @@ import com.personal.marketnote.notification.port.in.result.notification.GetNotif
 import java.util.List;
 
 public record GetNotificationHistoryResponse(
-        CursorResponse<NotificationItemResponse> notifications
+    CursorResponse<NotificationItemResponse> notifications
 ) {
     public static GetNotificationHistoryResponse from(GetNotificationHistoryResult result) {
         List<NotificationItemResponse> items = result.notifications().stream()
-                .map(NotificationItemResponse::from)
-                .toList();
+            .map(NotificationItemResponse::from)
+            .toList();
 
         CursorResponse<NotificationItemResponse> cursorResponse = new CursorResponse<>(
-                result.totalElements(),
-                result.hasNext(),
-                result.nextCursor(),
-                items
+            result.totalElements(),
+            result.hasNext(),
+            result.nextCursor(),
+            items
         );
 
         return new GetNotificationHistoryResponse(cursorResponse);

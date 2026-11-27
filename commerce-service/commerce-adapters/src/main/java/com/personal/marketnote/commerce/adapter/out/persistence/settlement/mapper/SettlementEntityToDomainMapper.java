@@ -11,21 +11,21 @@ public class SettlementEntityToDomainMapper {
 
     public static Settlement toDomain(SettlementJpaEntity entity) {
         return Settlement.from(
-                SettlementSnapshotState.builder()
-                        .id(entity.getId())
-                        .sellerId(entity.getSellerId())
-                        .year(entity.getYear())
-                        .month(entity.getMonth())
-                        .totalAllocatedAmount(entity.getTotalAllocatedAmount())
-                        .shippingFee(entity.getShippingFee())
-                        .pgFeeAmount(entity.getPgFeeAmount())
-                        .platformFeeAmount(entity.getPlatformFeeAmount())
-                        .sellerPayoutAmount(entity.getSellerPayoutAmount())
-                        .status(entity.getStatus())
-                        .version(entity.getVersion())
-                        .createdAt(entity.getCreatedAt())
-                        .modifiedAt(entity.getModifiedAt())
-                        .build()
+            SettlementSnapshotState.builder()
+                .id(entity.getId())
+                .sellerId(entity.getSellerId())
+                .year(entity.getYear())
+                .month(entity.getMonth())
+                .totalAllocatedAmount(entity.getTotalAllocatedAmount())
+                .shippingFee(entity.getShippingFee())
+                .pgFeeAmount(entity.getPgFeeAmount())
+                .platformFeeAmount(entity.getPlatformFeeAmount())
+                .sellerPayoutAmount(entity.getSellerPayoutAmount())
+                .status(entity.getStatus())
+                .version(entity.getVersion())
+                .createdAt(entity.getCreatedAt())
+                .modifiedAt(entity.getModifiedAt())
+                .build()
         );
     }
 }

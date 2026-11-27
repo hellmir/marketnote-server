@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ReviewReplyRegisteredEvent(
-        Long userId,
-        Long reviewId,
-        String productName
+    Long userId,
+    Long reviewId,
+    String productName
 ) {
 }

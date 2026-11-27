@@ -45,7 +45,7 @@ class SyncGifticonCouponStatusUseCaseTest {
     void shouldCompleteWithoutApiCallWhenNoIssuedOrders() {
         // given
         when(findGifticonOrderPort.findAllByOrderStatus(GifticonOrderStatus.ISSUED))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         syncGifticonCouponStatusService.syncCouponStatuses();
@@ -61,12 +61,12 @@ class SyncGifticonCouponStatusUseCaseTest {
         // given
         GifticonOrder order = createIssuedOrder("TR001");
         when(findGifticonOrderPort.findAllByOrderStatus(GifticonOrderStatus.ISSUED))
-                .thenReturn(List.of(order));
+            .thenReturn(List.of(order));
         when(queryGifticonCouponStatusPort.queryStatus("TR001"))
-                .thenReturn(successResult("02"));
+            .thenReturn(successResult("02"));
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
             invocation.getArgument(0, org.springframework.transaction.support.TransactionCallback.class)
-                    .doInTransaction(null);
+                .doInTransaction(null);
             return null;
         });
 
@@ -83,12 +83,12 @@ class SyncGifticonCouponStatusUseCaseTest {
         // given
         GifticonOrder order = createIssuedOrder("TR002");
         when(findGifticonOrderPort.findAllByOrderStatus(GifticonOrderStatus.ISSUED))
-                .thenReturn(List.of(order));
+            .thenReturn(List.of(order));
         when(queryGifticonCouponStatusPort.queryStatus("TR002"))
-                .thenReturn(successResult("08"));
+            .thenReturn(successResult("08"));
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
             invocation.getArgument(0, org.springframework.transaction.support.TransactionCallback.class)
-                    .doInTransaction(null);
+                .doInTransaction(null);
             return null;
         });
 
@@ -105,12 +105,12 @@ class SyncGifticonCouponStatusUseCaseTest {
         // given
         GifticonOrder order = createIssuedOrder("TR003");
         when(findGifticonOrderPort.findAllByOrderStatus(GifticonOrderStatus.ISSUED))
-                .thenReturn(List.of(order));
+            .thenReturn(List.of(order));
         when(queryGifticonCouponStatusPort.queryStatus("TR003"))
-                .thenReturn(successResult("11"));
+            .thenReturn(successResult("11"));
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
             invocation.getArgument(0, org.springframework.transaction.support.TransactionCallback.class)
-                    .doInTransaction(null);
+                .doInTransaction(null);
             return null;
         });
 
@@ -127,12 +127,12 @@ class SyncGifticonCouponStatusUseCaseTest {
         // given
         GifticonOrder order = createIssuedOrder("TR004");
         when(findGifticonOrderPort.findAllByOrderStatus(GifticonOrderStatus.ISSUED))
-                .thenReturn(List.of(order));
+            .thenReturn(List.of(order));
         when(queryGifticonCouponStatusPort.queryStatus("TR004"))
-                .thenReturn(successResult("07"));
+            .thenReturn(successResult("07"));
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
             invocation.getArgument(0, org.springframework.transaction.support.TransactionCallback.class)
-                    .doInTransaction(null);
+                .doInTransaction(null);
             return null;
         });
 
@@ -149,12 +149,12 @@ class SyncGifticonCouponStatusUseCaseTest {
         // given
         GifticonOrder order = createIssuedOrder("TR005");
         when(findGifticonOrderPort.findAllByOrderStatus(GifticonOrderStatus.ISSUED))
-                .thenReturn(List.of(order));
+            .thenReturn(List.of(order));
         when(queryGifticonCouponStatusPort.queryStatus("TR005"))
-                .thenReturn(successResult("03"));
+            .thenReturn(successResult("03"));
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
             invocation.getArgument(0, org.springframework.transaction.support.TransactionCallback.class)
-                    .doInTransaction(null);
+                .doInTransaction(null);
             return null;
         });
 
@@ -171,9 +171,9 @@ class SyncGifticonCouponStatusUseCaseTest {
         // given
         GifticonOrder order = createIssuedOrder("TR006");
         when(findGifticonOrderPort.findAllByOrderStatus(GifticonOrderStatus.ISSUED))
-                .thenReturn(List.of(order));
+            .thenReturn(List.of(order));
         when(queryGifticonCouponStatusPort.queryStatus("TR006"))
-                .thenReturn(successResult("01"));
+            .thenReturn(successResult("01"));
 
         // when
         syncGifticonCouponStatusService.syncCouponStatuses();
@@ -189,9 +189,9 @@ class SyncGifticonCouponStatusUseCaseTest {
         // given
         GifticonOrder order = createIssuedOrder("TR007");
         when(findGifticonOrderPort.findAllByOrderStatus(GifticonOrderStatus.ISSUED))
-                .thenReturn(List.of(order));
+            .thenReturn(List.of(order));
         when(queryGifticonCouponStatusPort.queryStatus("TR007"))
-                .thenReturn(successResult("06"));
+            .thenReturn(successResult("06"));
 
         // when
         syncGifticonCouponStatusService.syncCouponStatuses();
@@ -207,9 +207,9 @@ class SyncGifticonCouponStatusUseCaseTest {
         // given
         GifticonOrder order = createIssuedOrder("TR008");
         when(findGifticonOrderPort.findAllByOrderStatus(GifticonOrderStatus.ISSUED))
-                .thenReturn(List.of(order));
+            .thenReturn(List.of(order));
         when(queryGifticonCouponStatusPort.queryStatus("TR008"))
-                .thenReturn(successResult("04"));
+            .thenReturn(successResult("04"));
 
         // when
         syncGifticonCouponStatusService.syncCouponStatuses();
@@ -226,14 +226,14 @@ class SyncGifticonCouponStatusUseCaseTest {
         GifticonOrder failOrder = createIssuedOrder("TR_FAIL");
         GifticonOrder successOrder = createIssuedOrder("TR_SUCCESS");
         when(findGifticonOrderPort.findAllByOrderStatus(GifticonOrderStatus.ISSUED))
-                .thenReturn(List.of(failOrder, successOrder));
+            .thenReturn(List.of(failOrder, successOrder));
         when(queryGifticonCouponStatusPort.queryStatus("TR_FAIL"))
-                .thenReturn(failureResult());
+            .thenReturn(failureResult());
         when(queryGifticonCouponStatusPort.queryStatus("TR_SUCCESS"))
-                .thenReturn(successResult("02"));
+            .thenReturn(successResult("02"));
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
             invocation.getArgument(0, org.springframework.transaction.support.TransactionCallback.class)
-                    .doInTransaction(null);
+                .doInTransaction(null);
             return null;
         });
 
@@ -252,14 +252,14 @@ class SyncGifticonCouponStatusUseCaseTest {
         GifticonOrder exceptionOrder = createIssuedOrder("TR_EX");
         GifticonOrder normalOrder = createIssuedOrder("TR_NORMAL");
         when(findGifticonOrderPort.findAllByOrderStatus(GifticonOrderStatus.ISSUED))
-                .thenReturn(List.of(exceptionOrder, normalOrder));
+            .thenReturn(List.of(exceptionOrder, normalOrder));
         when(queryGifticonCouponStatusPort.queryStatus("TR_EX"))
-                .thenThrow(new RuntimeException("연결 오류"));
+            .thenThrow(new RuntimeException("연결 오류"));
         when(queryGifticonCouponStatusPort.queryStatus("TR_NORMAL"))
-                .thenReturn(successResult("02"));
+            .thenReturn(successResult("02"));
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
             invocation.getArgument(0, org.springframework.transaction.support.TransactionCallback.class)
-                    .doInTransaction(null);
+                .doInTransaction(null);
             return null;
         });
 
@@ -272,37 +272,37 @@ class SyncGifticonCouponStatusUseCaseTest {
 
     private GifticonOrder createIssuedOrder(String trId) {
         return GifticonOrder.from(GifticonOrderSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .goodsCode("G001")
-                .goodsName("테스트 상품")
-                .brandName("테스트 브랜드")
-                .productImageUrl("https://example.com/img.jpg")
-                .trId(trId)
-                .orderNo("ORD001")
-                .cashPrice(10000L)
-                .orderStatus(GifticonOrderStatus.ISSUED)
-                .couponImageUrl("https://example.com/coupon.jpg")
-                .pinNo("encrypted-pin")
-                .validEndDate(LocalDate.of(2026, 5, 1))
-                .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .build()
+            .id(1L)
+            .userId(100L)
+            .goodsCode("G001")
+            .goodsName("테스트 상품")
+            .brandName("테스트 브랜드")
+            .productImageUrl("https://example.com/img.jpg")
+            .trId(trId)
+            .orderNo("ORD001")
+            .cashPrice(10000L)
+            .orderStatus(GifticonOrderStatus.ISSUED)
+            .couponImageUrl("https://example.com/coupon.jpg")
+            .pinNo("encrypted-pin")
+            .validEndDate(LocalDate.of(2026, 5, 1))
+            .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
+            .build()
         );
     }
 
     private CouponStatusResult successResult(String pinStatusCd) {
         return CouponStatusResult.builder()
-                .success(true)
-                .pinStatusCd(pinStatusCd)
-                .build();
+            .success(true)
+            .pinStatusCd(pinStatusCd)
+            .build();
     }
 
     private CouponStatusResult failureResult() {
         return CouponStatusResult.builder()
-                .success(false)
-                .errorCode("ERR0000")
-                .errorMessage("조회 실패")
-                .build();
+            .success(false)
+            .errorCode("ERR0000")
+            .errorMessage("조회 실패")
+            .build();
     }
 }

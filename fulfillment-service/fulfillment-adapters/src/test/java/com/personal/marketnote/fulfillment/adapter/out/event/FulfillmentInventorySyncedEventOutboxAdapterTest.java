@@ -56,10 +56,10 @@ class FulfillmentInventorySyncedEventOutboxAdapterTest {
             when(clock.getZone()).thenReturn(fixedClock.getZone());
 
             FulfillmentInventorySyncedEvent event = new FulfillmentInventorySyncedEvent(
-                    List.of(
-                            new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 100),
-                            new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 50)
-                    )
+                List.of(
+                    new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 100),
+                    new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 50)
+                )
             );
             ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
             when(objectMapper.writeValueAsString(envelopeCaptor.capture())).thenReturn("{\"eventType\":\"fulfillment.inventory.synced\"}");
@@ -101,12 +101,12 @@ class FulfillmentInventorySyncedEventOutboxAdapterTest {
 
             FulfillmentInventorySyncedEvent event = new FulfillmentInventorySyncedEvent(List.of());
             when(objectMapper.writeValueAsString(any(EventEnvelope.class)))
-                    .thenThrow(new JsonProcessingException("직렬화 실패") {
-                    });
+                .thenThrow(new JsonProcessingException("직렬화 실패") {
+                });
 
             // when & then
             assertThatThrownBy(() -> adapter.publish(event))
-                    .isInstanceOf(FulfillmentInventorySyncedEventSerializationException.class);
+                .isInstanceOf(FulfillmentInventorySyncedEventSerializationException.class);
             verifyNoInteractions(saveOutboxEventPort);
         }
     }

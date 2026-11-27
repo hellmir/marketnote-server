@@ -35,17 +35,17 @@ class NotificationVendorCommunicationHistoryPersistenceAdapterTest {
     void shouldDelegateSaveWithMappedEntity() {
         NotificationVendorCommunicationHistory history = buildHistory();
         given(repository.save(any(NotificationVendorCommunicationHistoryJpaEntity.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
+            .willAnswer(invocation -> invocation.getArgument(0));
 
         adapter.save(history);
 
         ArgumentCaptor<NotificationVendorCommunicationHistoryJpaEntity> captor =
-                ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryJpaEntity.class);
+            ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryJpaEntity.class);
         verify(repository).save(captor.capture());
         verifyNoMoreInteractions(repository);
         NotificationVendorCommunicationHistoryJpaEntity captured = captor.getValue();
         assertThat(captured.getTargetType())
-                .isEqualTo(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION);
+            .isEqualTo(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION);
         assertThat(captured.getTargetId()).isEqualTo("100");
         assertThat(captured.getVendorName()).isEqualTo(NotificationVendorName.FCM);
         assertThat(captured.getCommunicationType()).isEqualTo(NotificationVendorCommunicationType.REQUEST);
@@ -60,19 +60,19 @@ class NotificationVendorCommunicationHistoryPersistenceAdapterTest {
         NotificationVendorCommunicationHistory history = buildHistory();
         LocalDateTime savedAt = LocalDateTime.of(2026, 4, 15, 12, 30);
         given(repository.save(any(NotificationVendorCommunicationHistoryJpaEntity.class)))
-                .willAnswer(invocation -> {
-                    NotificationVendorCommunicationHistoryJpaEntity arg = invocation.getArgument(0);
-                    ReflectionTestUtils.setField(arg, "id", 777L);
-                    ReflectionTestUtils.setField(arg, "createdAt", savedAt);
-                    return arg;
-                });
+            .willAnswer(invocation -> {
+                NotificationVendorCommunicationHistoryJpaEntity arg = invocation.getArgument(0);
+                ReflectionTestUtils.setField(arg, "id", 777L);
+                ReflectionTestUtils.setField(arg, "createdAt", savedAt);
+                return arg;
+            });
 
         NotificationVendorCommunicationHistory saved = adapter.save(history);
 
         assertThat(saved.getId()).isEqualTo(777L);
         assertThat(saved.getCreatedAt()).isEqualTo(savedAt);
         assertThat(saved.getTargetType())
-                .isEqualTo(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION);
+            .isEqualTo(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION);
         assertThat(saved.getTargetId()).isEqualTo("100");
         assertThat(saved.getVendorName()).isEqualTo(NotificationVendorName.FCM);
         assertThat(saved.getCommunicationType()).isEqualTo(NotificationVendorCommunicationType.REQUEST);
@@ -85,17 +85,17 @@ class NotificationVendorCommunicationHistoryPersistenceAdapterTest {
 
     private NotificationVendorCommunicationHistory buildHistory() {
         return NotificationVendorCommunicationHistory.from(
-                NotificationVendorCommunicationHistoryCreateState.builder()
-                        .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
-                        .targetId("100")
-                        .vendorName(NotificationVendorName.FCM)
-                        .communicationType(NotificationVendorCommunicationType.REQUEST)
-                        .sender(NotificationVendorCommunicationSenderType.SERVER)
-                        .exception("UNREGISTERED")
-                        .payload("{\"k\":\"v\"}")
-                        .payloadJson(null)
-                        .attemptCount(1)
-                        .build()
+            NotificationVendorCommunicationHistoryCreateState.builder()
+                .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
+                .targetId("100")
+                .vendorName(NotificationVendorName.FCM)
+                .communicationType(NotificationVendorCommunicationType.REQUEST)
+                .sender(NotificationVendorCommunicationSenderType.SERVER)
+                .exception("UNREGISTERED")
+                .payload("{\"k\":\"v\"}")
+                .payloadJson(null)
+                .attemptCount(1)
+                .build()
         );
     }
 }

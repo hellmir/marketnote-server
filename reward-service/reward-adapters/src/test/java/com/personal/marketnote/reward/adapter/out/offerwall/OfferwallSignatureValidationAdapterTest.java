@@ -65,8 +65,8 @@ class OfferwallSignatureValidationAdapterTest {
             String signature = hmacMd5(ADPOPCORN_ANDROID_KEY, plainText);
 
             assertThatCode(() -> adapter.validateSignature(
-                    OfferwallType.ADPOPCORN, UserDeviceType.ANDROID,
-                    signature, userKey, rewardKey, quantity, campaignKey, "KRW"
+                OfferwallType.ADPOPCORN, UserDeviceType.ANDROID,
+                signature, userKey, rewardKey, quantity, campaignKey, "KRW"
             )).doesNotThrowAnyException();
         }
 
@@ -74,8 +74,8 @@ class OfferwallSignatureValidationAdapterTest {
         @DisplayName("잘못된 서명이면 VendorVerificationFailedException이 발생한다")
         void invalidSignatureFails() {
             assertThatThrownBy(() -> adapter.validateSignature(
-                    OfferwallType.ADPOPCORN, UserDeviceType.ANDROID,
-                    "wrong-signature", userKey, rewardKey, quantity, campaignKey, "KRW"
+                OfferwallType.ADPOPCORN, UserDeviceType.ANDROID,
+                "wrong-signature", userKey, rewardKey, quantity, campaignKey, "KRW"
             )).isInstanceOf(VendorVerificationFailedException.class);
         }
 
@@ -86,8 +86,8 @@ class OfferwallSignatureValidationAdapterTest {
             String iosSignature = hmacMd5(ADPOPCORN_IOS_KEY, plainText);
 
             assertThatCode(() -> adapter.validateSignature(
-                    OfferwallType.ADPOPCORN, UserDeviceType.IOS,
-                    iosSignature, userKey, rewardKey, quantity, campaignKey, "KRW"
+                OfferwallType.ADPOPCORN, UserDeviceType.IOS,
+                iosSignature, userKey, rewardKey, quantity, campaignKey, "KRW"
             )).doesNotThrowAnyException();
         }
     }
@@ -104,8 +104,8 @@ class OfferwallSignatureValidationAdapterTest {
             String signature = md5Hex(plainText);
 
             assertThatCode(() -> adapter.validateSignature(
-                    OfferwallType.TNK, UserDeviceType.ANDROID,
-                    signature, userKey, rewardKey, 50L, "camp", "KRW"
+                OfferwallType.TNK, UserDeviceType.ANDROID,
+                signature, userKey, rewardKey, 50L, "camp", "KRW"
             )).doesNotThrowAnyException();
         }
 
@@ -113,8 +113,8 @@ class OfferwallSignatureValidationAdapterTest {
         @DisplayName("잘못된 서명이면 VendorVerificationFailedException이 발생한다")
         void invalidSignatureFails() {
             assertThatThrownBy(() -> adapter.validateSignature(
-                    OfferwallType.TNK, UserDeviceType.ANDROID,
-                    "wrong", "user", "reward", 50L, "camp", "KRW"
+                OfferwallType.TNK, UserDeviceType.ANDROID,
+                "wrong", "user", "reward", 50L, "camp", "KRW"
             )).isInstanceOf(VendorVerificationFailedException.class);
         }
     }
@@ -133,8 +133,8 @@ class OfferwallSignatureValidationAdapterTest {
             String signature = hmacMd5(ADISCOPE_ANDROID_KEY, plainText);
 
             assertThatCode(() -> adapter.validateSignature(
-                    OfferwallType.ADISCOPE, UserDeviceType.ANDROID,
-                    signature, userKey, rewardKey, quantity, "camp", rewardUnit
+                OfferwallType.ADISCOPE, UserDeviceType.ANDROID,
+                signature, userKey, rewardKey, quantity, "camp", rewardUnit
             )).doesNotThrowAnyException();
         }
 
@@ -142,8 +142,8 @@ class OfferwallSignatureValidationAdapterTest {
         @DisplayName("잘못된 서명이면 VendorVerificationFailedException이 발생한다")
         void invalidSignatureFails() {
             assertThatThrownBy(() -> adapter.validateSignature(
-                    OfferwallType.ADISCOPE, UserDeviceType.ANDROID,
-                    "wrong", "user", "reward", 200L, "camp", "POINT"
+                OfferwallType.ADISCOPE, UserDeviceType.ANDROID,
+                "wrong", "user", "reward", 200L, "camp", "POINT"
             )).isInstanceOf(VendorVerificationFailedException.class);
         }
     }
@@ -158,12 +158,12 @@ class OfferwallSignatureValidationAdapterTest {
             props.setAndroid(ADPOPCORN_ANDROID_KEY);
             props.setIos(null);
             OfferwallSignatureValidationAdapter customAdapter = new OfferwallSignatureValidationAdapter(
-                    props, tnkProps, adiscopeProps
+                props, tnkProps, adiscopeProps
             );
 
             assertThatThrownBy(() -> customAdapter.validateSignature(
-                    OfferwallType.ADPOPCORN, UserDeviceType.IOS,
-                    "sig", "user", "reward", 10L, "camp", "KRW"
+                OfferwallType.ADPOPCORN, UserDeviceType.IOS,
+                "sig", "user", "reward", 10L, "camp", "KRW"
             )).isInstanceOf(RewardTargetInfoNotFoundException.class);
         }
     }

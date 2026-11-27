@@ -19,13 +19,13 @@ public class Account {
 
     public static Account from(AccountSnapshotState state) {
         return Account.builder()
-                .id(state.getId())
-                .name(state.getName())
-                .accountType(state.getAccountType())
-                .status(state.getStatus())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .name(state.getName())
+            .accountType(state.getAccountType())
+            .status(state.getStatus())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public boolean isActive() {

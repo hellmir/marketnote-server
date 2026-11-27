@@ -19,45 +19,45 @@ public class ReviewProductQueryRepositoryImpl implements ReviewProductQueryRepos
 
     @Override
     public List<ReviewJpaEntity> findProductReviewsByCursor(
-            Long productId,
-            Long cursor,
-            Pageable pageable,
-            String sortProperty,
-            Boolean isAsc
+        Long productId,
+        Long cursor,
+        Pageable pageable,
+        String sortProperty,
+        Boolean isAsc
     ) {
         return queryFactory
-                .selectFrom(review)
-                .where(
-                        review.productId.eq(productId),
-                        review.status.eq(EntityStatus.ACTIVE),
-                        ReviewQueryExpressions.cursorCondition(cursor, sortProperty, isAsc, review)
-                )
-                .orderBy(ReviewQueryExpressions.orderSpecifiers(sortProperty, isAsc, review))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+            .selectFrom(review)
+            .where(
+                review.productId.eq(productId),
+                review.status.eq(EntityStatus.ACTIVE),
+                ReviewQueryExpressions.cursorCondition(cursor, sortProperty, isAsc, review)
+            )
+            .orderBy(ReviewQueryExpressions.orderSpecifiers(sortProperty, isAsc, review))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
     }
 
     @Override
     public List<ReviewJpaEntity> findProductPhotoReviewsByCursor(
-            Long productId,
-            Long cursor,
-            Pageable pageable,
-            String sortProperty,
-            Boolean isAsc
+        Long productId,
+        Long cursor,
+        Pageable pageable,
+        String sortProperty,
+        Boolean isAsc
     ) {
         return queryFactory
-                .selectFrom(review)
-                .where(
-                        review.productId.eq(productId),
-                        photoOnly(),
-                        review.status.eq(EntityStatus.ACTIVE),
-                        ReviewQueryExpressions.cursorCondition(cursor, sortProperty, isAsc, review)
-                )
-                .orderBy(ReviewQueryExpressions.orderSpecifiers(sortProperty, isAsc, review))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+            .selectFrom(review)
+            .where(
+                review.productId.eq(productId),
+                photoOnly(),
+                review.status.eq(EntityStatus.ACTIVE),
+                ReviewQueryExpressions.cursorCondition(cursor, sortProperty, isAsc, review)
+            )
+            .orderBy(ReviewQueryExpressions.orderSpecifiers(sortProperty, isAsc, review))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
     }
 
     private BooleanExpression photoOnly() {

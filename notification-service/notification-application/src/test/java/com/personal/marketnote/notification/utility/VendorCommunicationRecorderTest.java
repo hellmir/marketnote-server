@@ -6,11 +6,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.notification.domain.device.DeviceToken;
 import com.personal.marketnote.notification.domain.device.DeviceTokenSnapshotState;
 import com.personal.marketnote.notification.domain.device.Platform;
-import com.personal.marketnote.notification.domain.notification.DeliveryChannel;
-import com.personal.marketnote.notification.domain.notification.FcmSendFailedException;
-import com.personal.marketnote.notification.domain.notification.Notification;
-import com.personal.marketnote.notification.domain.notification.NotificationSnapshotState;
-import com.personal.marketnote.notification.domain.notification.SendStatus;
+import com.personal.marketnote.notification.domain.notification.*;
 import com.personal.marketnote.notification.domain.template.NotificationType;
 import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationSenderType;
 import com.personal.marketnote.notification.domain.vendorcommunication.NotificationVendorCommunicationTargetType;
@@ -31,10 +27,10 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("VendorCommunicationRecorder 테스트")
@@ -50,7 +46,7 @@ class VendorCommunicationRecorderTest {
     @BeforeEach
     void setUp() {
         recorder = new VendorCommunicationRecorder(
-                notificationRecordVendorCommunicationHistoryUseCase, objectMapper
+            notificationRecordVendorCommunicationHistoryUseCase, objectMapper
         );
     }
 
@@ -67,7 +63,7 @@ class VendorCommunicationRecorderTest {
 
         // then
         ArgumentCaptor<NotificationVendorCommunicationHistoryCommand> captor =
-                ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
+            ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
         verify(notificationRecordVendorCommunicationHistoryUseCase).record(captor.capture());
         NotificationVendorCommunicationHistoryCommand cmd = captor.getValue();
         assertThat(cmd.getTargetType()).isEqualTo(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION);
@@ -92,7 +88,7 @@ class VendorCommunicationRecorderTest {
 
         // then
         ArgumentCaptor<NotificationVendorCommunicationHistoryCommand> captor =
-                ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
+            ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
         verify(notificationRecordVendorCommunicationHistoryUseCase).record(captor.capture());
         assertThat(captor.getValue().getException()).isEqualTo("ERR_QUOTA_EXCEEDED");
     }
@@ -107,12 +103,12 @@ class VendorCommunicationRecorderTest {
 
         // when
         recorder.recordFcmSendResult(
-                notification, deviceToken, "제목", "본문", "https://landing", result
+            notification, deviceToken, "제목", "본문", "https://landing", result
         );
 
         // then
         ArgumentCaptor<NotificationVendorCommunicationHistoryCommand> captor =
-                ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
+            ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
         verify(notificationRecordVendorCommunicationHistoryUseCase).record(captor.capture());
         JsonNode payload = captor.getValue().getPayloadJson();
         assertThat(payload.get("request").get("deviceTokenId").asLong()).isEqualTo(12L);
@@ -138,7 +134,7 @@ class VendorCommunicationRecorderTest {
 
         // then
         ArgumentCaptor<NotificationVendorCommunicationHistoryCommand> captor =
-                ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
+            ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
         verify(notificationRecordVendorCommunicationHistoryUseCase).record(captor.capture());
         String maskedToken = captor.getValue().getPayloadJson().get("request").get("deviceToken").asText();
         assertThat(maskedToken).isEqualTo("abcd***XYZW");
@@ -157,7 +153,7 @@ class VendorCommunicationRecorderTest {
 
         // then
         ArgumentCaptor<NotificationVendorCommunicationHistoryCommand> captor =
-                ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
+            ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
         verify(notificationRecordVendorCommunicationHistoryUseCase).record(captor.capture());
         String maskedToken = captor.getValue().getPayloadJson().get("request").get("deviceToken").asText();
         assertThat(maskedToken).isEqualTo("********");
@@ -176,7 +172,7 @@ class VendorCommunicationRecorderTest {
 
         // then
         ArgumentCaptor<NotificationVendorCommunicationHistoryCommand> captor =
-                ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
+            ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
         verify(notificationRecordVendorCommunicationHistoryUseCase).record(captor.capture());
         NotificationVendorCommunicationHistoryCommand cmd = captor.getValue();
         assertThat(cmd.getException()).isEqualTo(exception.getMessage());
@@ -193,8 +189,8 @@ class VendorCommunicationRecorderTest {
         DeviceToken deviceToken = buildDeviceToken(30L, "abcdefghij1234567890token");
         SendPushNotificationResult result = SendPushNotificationResult.success("MSG-EX");
         willThrow(new RuntimeException("DB error"))
-                .given(notificationRecordVendorCommunicationHistoryUseCase)
-                .record(any(NotificationVendorCommunicationHistoryCommand.class));
+            .given(notificationRecordVendorCommunicationHistoryUseCase)
+            .record(any(NotificationVendorCommunicationHistoryCommand.class));
 
         // when
         recorder.recordFcmSendResult(notification, deviceToken, "T", "B", null, result);
@@ -211,8 +207,8 @@ class VendorCommunicationRecorderTest {
         DeviceToken deviceToken = buildDeviceToken(31L, "abcdefghij1234567890token");
         FcmSendFailedException exception = new FcmSendFailedException("FCM 전송 실패");
         willThrow(new RuntimeException("DB error"))
-                .given(notificationRecordVendorCommunicationHistoryUseCase)
-                .record(any(NotificationVendorCommunicationHistoryCommand.class));
+            .given(notificationRecordVendorCommunicationHistoryUseCase)
+            .record(any(NotificationVendorCommunicationHistoryCommand.class));
 
         // when
         recorder.recordFcmSendException(notification, deviceToken, "T", "B", null, exception);
@@ -229,15 +225,15 @@ class VendorCommunicationRecorderTest {
         DeviceToken deviceToken = buildDeviceToken(40L, "abcdefghij1234567890token");
         SendPushNotificationResult result = SendPushNotificationResult.success("MSG-NULL");
         willAnswer(invocation -> null)
-                .given(notificationRecordVendorCommunicationHistoryUseCase)
-                .record(any(NotificationVendorCommunicationHistoryCommand.class));
+            .given(notificationRecordVendorCommunicationHistoryUseCase)
+            .record(any(NotificationVendorCommunicationHistoryCommand.class));
 
         // when
         recorder.recordFcmSendResult(notification, deviceToken, "T", "B", null, result);
 
         // then
         ArgumentCaptor<NotificationVendorCommunicationHistoryCommand> captor =
-                ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
+            ArgumentCaptor.forClass(NotificationVendorCommunicationHistoryCommand.class);
         verify(notificationRecordVendorCommunicationHistoryUseCase).record(captor.capture());
         assertThat(captor.getValue().getTargetId()).isNull();
     }
@@ -254,39 +250,39 @@ class VendorCommunicationRecorderTest {
 
         // then
         verify(notificationRecordVendorCommunicationHistoryUseCase, never())
-                .record(any(NotificationVendorCommunicationHistoryCommand.class));
+            .record(any(NotificationVendorCommunicationHistoryCommand.class));
     }
 
     private Notification buildNotification(Long id) {
         return Notification.from(
-                NotificationSnapshotState.builder()
-                        .id(id)
-                        .userId(1L)
-                        .notificationType(NotificationType.NOTICE)
-                        .title("제목")
-                        .body("본문")
-                        .data("{}")
-                        .deliveryChannel(DeliveryChannel.PUSH_ONLY)
-                        .isRead(false)
-                        .landingUrl("https://app/landing")
-                        .sendStatus(SendStatus.PENDING)
-                        .scheduledAt(LocalDateTime.of(2026, 4, 28, 9, 0))
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            NotificationSnapshotState.builder()
+                .id(id)
+                .userId(1L)
+                .notificationType(NotificationType.NOTICE)
+                .title("제목")
+                .body("본문")
+                .data("{}")
+                .deliveryChannel(DeliveryChannel.PUSH_ONLY)
+                .isRead(false)
+                .landingUrl("https://app/landing")
+                .sendStatus(SendStatus.PENDING)
+                .scheduledAt(LocalDateTime.of(2026, 4, 28, 9, 0))
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 
     private DeviceToken buildDeviceToken(Long id, String token) {
         return DeviceToken.from(
-                DeviceTokenSnapshotState.builder()
-                        .id(id)
-                        .userId(1L)
-                        .token(token)
-                        .platform(Platform.ANDROID)
-                        .deviceId("DEVICE-1")
-                        .lastUsedAt(LocalDateTime.of(2026, 4, 28, 8, 0))
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            DeviceTokenSnapshotState.builder()
+                .id(id)
+                .userId(1L)
+                .token(token)
+                .platform(Platform.ANDROID)
+                .deviceId("DEVICE-1")
+                .lastUsedAt(LocalDateTime.of(2026, 4, 28, 8, 0))
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

@@ -53,16 +53,16 @@ class ExpireInventoryReservationUseCaseTest {
     @BeforeEach
     void setUp() {
         expireInventoryReservationService = new ExpireInventoryReservationService(
-                findExpiredInventoryReservationPort,
-                findInventoryReservationPort,
-                findInventoryPort,
-                updateInventoryPort,
-                deleteInventoryReservationPort,
-                saveInventoryRestorationHistoryPort,
-                saveCacheStockPort,
-                inventoryLockPort,
-                publishInventoryEventPort,
-                transactionManager
+            findExpiredInventoryReservationPort,
+            findInventoryReservationPort,
+            findInventoryPort,
+            updateInventoryPort,
+            deleteInventoryReservationPort,
+            saveInventoryRestorationHistoryPort,
+            saveCacheStockPort,
+            inventoryLockPort,
+            publishInventoryEventPort,
+            transactionManager
         );
     }
 
@@ -103,7 +103,7 @@ class ExpireInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findExpiredInventoryReservationPort.findExpiredBefore(CUTOFF)).thenReturn(List.of(reservation));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(1L, Set.of(100L)))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
 
             // when
@@ -125,7 +125,7 @@ class ExpireInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findExpiredInventoryReservationPort.findExpiredBefore(CUTOFF)).thenReturn(List.of(reservation));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(1L, Set.of(100L)))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
 
             // when
@@ -146,7 +146,7 @@ class ExpireInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findExpiredInventoryReservationPort.findExpiredBefore(CUTOFF)).thenReturn(List.of(reservation));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(1L, Set.of(100L)))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
 
             // when
@@ -167,7 +167,7 @@ class ExpireInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findExpiredInventoryReservationPort.findExpiredBefore(CUTOFF)).thenReturn(List.of(reservation));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(1L, Set.of(100L)))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
 
             // when
@@ -176,7 +176,7 @@ class ExpireInventoryReservationUseCaseTest {
             // then
             verify(saveCacheStockPort).save(any(Set.class));
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    100L, 1L, 10, InventoryChangeAction.UPDATED
+                100L, 1L, 10, InventoryChangeAction.UPDATED
             );
         }
 
@@ -191,7 +191,7 @@ class ExpireInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findExpiredInventoryReservationPort.findExpiredBefore(CUTOFF)).thenReturn(List.of(reservation));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(1L, Set.of(100L)))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
 
             // when
@@ -199,7 +199,7 @@ class ExpireInventoryReservationUseCaseTest {
 
             // then
             verify(publishInventoryEventPort).publishStockReleasedEvent(
-                    100L, 1L, 3, "RESERVATION_EXPIRED", 1L
+                100L, 1L, 3, "RESERVATION_EXPIRED", 1L
             );
         }
 
@@ -214,7 +214,7 @@ class ExpireInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findExpiredInventoryReservationPort.findExpiredBefore(CUTOFF)).thenReturn(List.of(reservation));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(1L, Set.of(100L)))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
 
             // when
@@ -243,7 +243,7 @@ class ExpireInventoryReservationUseCaseTest {
             stubLockToExecuteTask();
             when(findExpiredInventoryReservationPort.findExpiredBefore(CUTOFF)).thenReturn(List.of(reservation));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(1L, Set.of(100L)))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             // when
             expireInventoryReservationService.expireTimedOutReservations(CUTOFF);
@@ -275,11 +275,11 @@ class ExpireInventoryReservationUseCaseTest {
             stubTransactionTemplate();
             stubLockToExecuteTask();
             when(findExpiredInventoryReservationPort.findExpiredBefore(CUTOFF))
-                    .thenReturn(List.of(reservation1, reservation2));
+                .thenReturn(List.of(reservation1, reservation2));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(1L, Set.of(100L, 200L)))
-                    .thenReturn(List.of(reservation1, reservation2));
+                .thenReturn(List.of(reservation1, reservation2));
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
-                    .thenReturn(Set.of(inventory1, inventory2));
+                .thenReturn(Set.of(inventory1, inventory2));
 
             // when
             expireInventoryReservationService.expireTimedOutReservations(CUTOFF);
@@ -303,11 +303,11 @@ class ExpireInventoryReservationUseCaseTest {
             stubTransactionTemplate();
             stubLockToExecuteTask();
             when(findExpiredInventoryReservationPort.findExpiredBefore(CUTOFF))
-                    .thenReturn(List.of(reservation1, reservation2));
+                .thenReturn(List.of(reservation1, reservation2));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(1L, Set.of(100L)))
-                    .thenReturn(List.of(reservation1));
+                .thenReturn(List.of(reservation1));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(2L, Set.of(200L)))
-                    .thenReturn(List.of(reservation2));
+                .thenReturn(List.of(reservation2));
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory1));
             when(findInventoryPort.findByPricePolicyIds(Set.of(200L))).thenReturn(Set.of(inventory2));
 
@@ -330,15 +330,15 @@ class ExpireInventoryReservationUseCaseTest {
             stubTransactionTemplate();
             stubLockToExecuteTask();
             when(findExpiredInventoryReservationPort.findExpiredBefore(CUTOFF))
-                    .thenReturn(List.of(reservation1, reservation2));
+                .thenReturn(List.of(reservation1, reservation2));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(1L, Set.of(100L)))
-                    .thenReturn(List.of(reservation1));
+                .thenReturn(List.of(reservation1));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(2L, Set.of(200L)))
-                    .thenReturn(List.of(reservation2));
+                .thenReturn(List.of(reservation2));
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L)))
-                    .thenThrow(new RuntimeException("DB 오류"));
+                .thenThrow(new RuntimeException("DB 오류"));
             when(findInventoryPort.findByPricePolicyIds(Set.of(200L)))
-                    .thenReturn(Set.of(inventory2));
+                .thenReturn(Set.of(inventory2));
 
             // when
             expireInventoryReservationService.expireTimedOutReservations(CUTOFF);
@@ -366,21 +366,21 @@ class ExpireInventoryReservationUseCaseTest {
 
     private Inventory buildInventoryWithReserved(Long productId, Long pricePolicyId, int stock, int reserved) {
         return Inventory.from(InventorySnapshotState.builder()
-                .productId(productId)
-                .pricePolicyId(pricePolicyId)
-                .stock(stock)
-                .version(0L)
-                .reserved(reserved)
-                .build());
+            .productId(productId)
+            .pricePolicyId(pricePolicyId)
+            .stock(stock)
+            .version(0L)
+            .reserved(reserved)
+            .build());
     }
 
     private InventoryReservation buildReservation(Long orderId, Long pricePolicyId, int quantity) {
         return InventoryReservation.from(InventoryReservationSnapshotState.builder()
-                .id(1L)
-                .orderId(orderId)
-                .pricePolicyId(pricePolicyId)
-                .quantity(quantity)
-                .reservedAt(LocalDateTime.of(2026, 4, 2, 8, 30, 0))
-                .build());
+            .id(1L)
+            .orderId(orderId)
+            .pricePolicyId(pricePolicyId)
+            .quantity(quantity)
+            .reservedAt(LocalDateTime.of(2026, 4, 2, 8, 30, 0))
+            .build());
     }
 }

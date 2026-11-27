@@ -40,12 +40,12 @@ class OrderCancelledNotificationConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId) {
         OrderCancelledEvent event = new OrderCancelledEvent(
-                orderId, "order-key-123", buyerId, 50000L, 50000L, 0L, 0L, true, 0L,
-                List.of(), List.of(), null
+            orderId, "order-key-123", buyerId, 50000L, 50000L, 0L, 0L, true, 0L,
+            List.of(), List.of(), null
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.cancelled", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 15, 0), event
+            "test-event-id", "commerce.order.cancelled", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 15, 0), event
         );
         return new ConsumerRecord<>("commerce.order.cancelled", 0, 0L, "key-1", envelope);
     }
@@ -78,7 +78,7 @@ class OrderCancelledNotificationConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.cancelled", 0, 0L, "1", null
+            "commerce.order.cancelled", 0, 0L, "1", null
         );
 
         // when
@@ -94,15 +94,15 @@ class OrderCancelledNotificationConsumerTest {
     void shouldSkipWhenEventTypeMismatch() {
         // given
         OrderCancelledEvent event = new OrderCancelledEvent(
-                100L, "order-key-123", 1L, 50000L, 50000L, 0L, 0L, true, 0L,
-                List.of(), List.of(), null
+            100L, "order-key-123", 1L, 50000L, 50000L, 0L, 0L, true, 0L,
+            List.of(), List.of(), null
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 10, 15, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 10, 15, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.cancelled", 0, 0L, "key-1", envelope
+            "commerce.order.cancelled", 0, 0L, "key-1", envelope
         );
 
         // when

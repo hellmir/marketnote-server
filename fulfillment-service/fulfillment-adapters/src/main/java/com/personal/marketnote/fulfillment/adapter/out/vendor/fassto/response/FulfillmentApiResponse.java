@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 public interface FulfillmentApiResponse {
     String INVALID_ACCESS_TOKEN_MARKER = "INVALID_ACCESS";
     Pattern INVALID_ACCESS_WORD_PATTERN =
-            Pattern.compile("(?i)(^|[^A-Z0-9_])INVALID_ACCESS($|[^A-Z0-9_])");
+        Pattern.compile("(?i)(^|[^A-Z0-9_])INVALID_ACCESS($|[^A-Z0-9_])");
 
     FulfillmentResponseHeader header();
 
@@ -19,11 +19,11 @@ public interface FulfillmentApiResponse {
 
     default boolean isInvalidAccess() {
         if (equalsInvalidAccessMarker(extractErrorCode())
-                || equalsInvalidAccessMarker(extractHeaderCode())) {
+            || equalsInvalidAccessMarker(extractHeaderCode())) {
             return true;
         }
         return containsInvalidAccessMarker(extractErrorMessage())
-                || containsInvalidAccessMarker(extractHeaderMessage());
+            || containsInvalidAccessMarker(extractHeaderMessage());
     }
 
     private String extractErrorCode() {

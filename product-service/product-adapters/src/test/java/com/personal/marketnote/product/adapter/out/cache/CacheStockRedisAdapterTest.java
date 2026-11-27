@@ -71,7 +71,7 @@ class CacheStockRedisAdapterTest {
             when(valueOperations.get("pricePolicy:100:stock")).thenReturn("invalid");
 
             assertThatThrownBy(() -> adapter.findByPricePolicyId(100L))
-                    .isInstanceOf(ParsingIntegerException.class);
+                .isInstanceOf(ParsingIntegerException.class);
         }
     }
 

@@ -4,9 +4,9 @@ import lombok.Builder;
 
 @Builder
 public record IssueBatchKeyCommand(
-        Long userId,
-        String encData,
-        String encInfo,
-        String maskedCardNumber
+    Long userId,
+    String encData,
+    String encInfo,
+    String maskedCardNumber
 ) {
 }

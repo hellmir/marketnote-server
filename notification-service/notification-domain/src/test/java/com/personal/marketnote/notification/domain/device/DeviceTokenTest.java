@@ -17,12 +17,12 @@ class DeviceTokenTest {
     @DisplayName("CreateState로 디바이스 토큰을 생성한다")
     void shouldCreateDeviceTokenFromCreateState() {
         DeviceToken deviceToken = DeviceToken.from(DeviceTokenCreateState.builder()
-                .userId(100L)
-                .token("fcm-token-value")
-                .platform(Platform.ANDROID)
-                .deviceId("device-uuid-001")
-                .lastUsedAt(NOW)
-                .build());
+            .userId(100L)
+            .token("fcm-token-value")
+            .platform(Platform.ANDROID)
+            .deviceId("device-uuid-001")
+            .lastUsedAt(NOW)
+            .build());
 
         assertThat(deviceToken.getUserId()).isEqualTo(100L);
         assertThat(deviceToken.getToken()).isEqualTo("fcm-token-value");
@@ -36,76 +36,76 @@ class DeviceTokenTest {
     @DisplayName("userId가 null이면 예외를 던진다")
     void shouldThrowExceptionWhenUserIdIsNull() {
         DeviceTokenCreateState state = DeviceTokenCreateState.builder()
-                .userId(null)
-                .token("fcm-token-value")
-                .platform(Platform.ANDROID)
-                .deviceId("device-uuid-001")
-                .lastUsedAt(NOW)
-                .build();
+            .userId(null)
+            .token("fcm-token-value")
+            .platform(Platform.ANDROID)
+            .deviceId("device-uuid-001")
+            .lastUsedAt(NOW)
+            .build();
 
         assertThatThrownBy(() -> DeviceToken.from(state))
-                .isInstanceOf(InvalidDeviceTokenException.class);
+            .isInstanceOf(InvalidDeviceTokenException.class);
     }
 
     @Test
     @DisplayName("token이 비어있으면 예외를 던진다")
     void shouldThrowExceptionWhenTokenIsBlank() {
         DeviceTokenCreateState state = DeviceTokenCreateState.builder()
-                .userId(100L)
-                .token(" ")
-                .platform(Platform.ANDROID)
-                .deviceId("device-uuid-001")
-                .lastUsedAt(NOW)
-                .build();
+            .userId(100L)
+            .token(" ")
+            .platform(Platform.ANDROID)
+            .deviceId("device-uuid-001")
+            .lastUsedAt(NOW)
+            .build();
 
         assertThatThrownBy(() -> DeviceToken.from(state))
-                .isInstanceOf(InvalidDeviceTokenException.class);
+            .isInstanceOf(InvalidDeviceTokenException.class);
     }
 
     @Test
     @DisplayName("deviceId가 비어있으면 예외를 던진다")
     void shouldThrowExceptionWhenDeviceIdIsBlank() {
         DeviceTokenCreateState state = DeviceTokenCreateState.builder()
-                .userId(100L)
-                .token("fcm-token-value")
-                .platform(Platform.ANDROID)
-                .deviceId("")
-                .lastUsedAt(NOW)
-                .build();
+            .userId(100L)
+            .token("fcm-token-value")
+            .platform(Platform.ANDROID)
+            .deviceId("")
+            .lastUsedAt(NOW)
+            .build();
 
         assertThatThrownBy(() -> DeviceToken.from(state))
-                .isInstanceOf(InvalidDeviceTokenException.class);
+            .isInstanceOf(InvalidDeviceTokenException.class);
     }
 
     @Test
     @DisplayName("platform이 null이면 예외를 던진다")
     void shouldThrowExceptionWhenPlatformIsNull() {
         DeviceTokenCreateState state = DeviceTokenCreateState.builder()
-                .userId(100L)
-                .token("fcm-token-value")
-                .platform(null)
-                .deviceId("device-uuid-001")
-                .lastUsedAt(NOW)
-                .build();
+            .userId(100L)
+            .token("fcm-token-value")
+            .platform(null)
+            .deviceId("device-uuid-001")
+            .lastUsedAt(NOW)
+            .build();
 
         assertThatThrownBy(() -> DeviceToken.from(state))
-                .isInstanceOf(InvalidDeviceTokenException.class);
+            .isInstanceOf(InvalidDeviceTokenException.class);
     }
 
     @Test
     @DisplayName("SnapshotState로 디바이스 토큰을 복원한다")
     void shouldRestoreDeviceTokenFromSnapshotState() {
         DeviceToken deviceToken = DeviceToken.from(DeviceTokenSnapshotState.builder()
-                .id(1L)
-                .userId(100L)
-                .token("fcm-token-value")
-                .platform(Platform.IOS)
-                .deviceId("device-uuid-001")
-                .lastUsedAt(NOW)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(NOW)
-                .modifiedAt(NOW)
-                .build());
+            .id(1L)
+            .userId(100L)
+            .token("fcm-token-value")
+            .platform(Platform.IOS)
+            .deviceId("device-uuid-001")
+            .lastUsedAt(NOW)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(NOW)
+            .modifiedAt(NOW)
+            .build());
 
         assertThat(deviceToken.getId()).isEqualTo(1L);
         assertThat(deviceToken.getUserId()).isEqualTo(100L);
@@ -134,7 +134,7 @@ class DeviceTokenTest {
         DeviceToken deviceToken = activeDeviceToken();
 
         assertThatThrownBy(() -> deviceToken.updateToken("", Platform.IOS, NOW))
-                .isInstanceOf(InvalidDeviceTokenException.class);
+            .isInstanceOf(InvalidDeviceTokenException.class);
     }
 
     @Test
@@ -148,11 +148,11 @@ class DeviceTokenTest {
 
     private DeviceToken activeDeviceToken() {
         return DeviceToken.from(DeviceTokenCreateState.builder()
-                .userId(100L)
-                .token("fcm-token-value")
-                .platform(Platform.ANDROID)
-                .deviceId("device-uuid-001")
-                .lastUsedAt(NOW)
-                .build());
+            .userId(100L)
+            .token("fcm-token-value")
+            .platform(Platform.ANDROID)
+            .deviceId("device-uuid-001")
+            .lastUsedAt(NOW)
+            .build());
     }
 }

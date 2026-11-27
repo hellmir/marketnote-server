@@ -23,7 +23,7 @@ public class DeleteDeviceTokenService implements DeleteDeviceTokenUseCase {
     @Transactional(isolation = READ_COMMITTED)
     public void deleteDeviceToken(DeleteDeviceTokenCommand command) {
         DeviceToken deviceToken = findDeviceTokenPort.findActiveByDeviceId(command.deviceId())
-                .orElseThrow(DeviceTokenNotFoundException::new);
+            .orElseThrow(DeviceTokenNotFoundException::new);
 
         if (!deviceToken.isOwnedBy(command.userId())) {
             throw new DeviceTokenNotFoundException();

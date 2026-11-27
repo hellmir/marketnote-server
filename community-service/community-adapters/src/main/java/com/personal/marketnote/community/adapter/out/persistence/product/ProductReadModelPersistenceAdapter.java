@@ -34,25 +34,25 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
         }
 
         List<ProductReadModelJpaEntity> entities =
-                productReadModelJpaRepository.findByPricePolicyIdInAndStatus(pricePolicyIds, EntityStatus.ACTIVE);
+            productReadModelJpaRepository.findByPricePolicyIdInAndStatus(pricePolicyIds, EntityStatus.ACTIVE);
 
         Map<Long, ProductInfoResult> result = new HashMap<>();
         for (ProductReadModelJpaEntity entity : entities) {
             ProductPricePolicyInfoResult pricePolicy = new ProductPricePolicyInfoResult(
-                    entity.getPricePolicyId(),
-                    entity.getPrice(),
-                    entity.getDiscountPrice(),
-                    null,
-                    entity.getAccumulatedPoint()
+                entity.getPricePolicyId(),
+                entity.getPrice(),
+                entity.getDiscountPrice(),
+                null,
+                entity.getAccumulatedPoint()
             );
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    entity.getSellerId(),
-                    entity.getName(),
-                    entity.getBrandName(),
-                    pricePolicy,
-                    List.of(),
-                    null
+                entity.getSellerId(),
+                entity.getName(),
+                entity.getBrandName(),
+                pricePolicy,
+                List.of(),
+                null
             );
 
             result.put(entity.getPricePolicyId(), productInfo);
@@ -64,11 +64,11 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public void upsert(
-            Long pricePolicyId, Long productId, Long sellerId, String name,
-            String brandName, Long price, Long discountPrice, Long accumulatedPoint
+        Long pricePolicyId, Long productId, Long sellerId, String name,
+        String brandName, Long price, Long discountPrice, Long accumulatedPoint
     ) {
         Optional<ProductReadModelJpaEntity> existing =
-                productReadModelJpaRepository.findByPricePolicyId(pricePolicyId);
+            productReadModelJpaRepository.findByPricePolicyId(pricePolicyId);
 
         if (existing.isPresent()) {
             existing.get().updateFrom(productId, sellerId, name, brandName, price, discountPrice, accumulatedPoint);
@@ -77,16 +77,16 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
 
         try {
             ProductReadModelJpaEntity entity = ProductReadModelJpaEntity.of(
-                    pricePolicyId, productId, sellerId, name, brandName, price, discountPrice, accumulatedPoint
+                pricePolicyId, productId, sellerId, name, brandName, price, discountPrice, accumulatedPoint
             );
             productReadModelJpaRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException ignored) {
             // 멱등 Upsert: 동시 INSERT race로 중복 발생 시 기존 엔티티를 조회해 update로 전환
             log.info("상품 Read Model 중복 저장 (멱등 처리). pricePolicyId={}", pricePolicyId);
             productReadModelJpaRepository.findByPricePolicyId(pricePolicyId)
-                    .ifPresent(entity -> entity.updateFrom(
-                            productId, sellerId, name, brandName, price, discountPrice, accumulatedPoint
-                    ));
+                .ifPresent(entity -> entity.updateFrom(
+                    productId, sellerId, name, brandName, price, discountPrice, accumulatedPoint
+                ));
         }
     }
 
@@ -94,6 +94,6 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
     @Transactional(isolation = READ_COMMITTED)
     public void deactivateByPricePolicyId(Long pricePolicyId) {
         productReadModelJpaRepository.findByPricePolicyId(pricePolicyId)
-                .ifPresent(ProductReadModelJpaEntity::markInactive);
+            .ifPresent(ProductReadModelJpaEntity::markInactive);
     }
 }

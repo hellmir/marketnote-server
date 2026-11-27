@@ -32,23 +32,23 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
         }
 
         List<ProductReadModelJpaEntity> entities =
-                productReadModelJpaRepository.findByPricePolicyIdInAndStatus(pricePolicyIds, EntityStatus.ACTIVE);
+            productReadModelJpaRepository.findByPricePolicyIdInAndStatus(pricePolicyIds, EntityStatus.ACTIVE);
 
         Map<Long, ProductInfoResult> resultMap = new HashMap<>();
         for (ProductReadModelJpaEntity entity : entities) {
             resultMap.put(
-                    entity.getPricePolicyId(),
-                    new ProductInfoResult(
-                            entity.getProductId(),
-                            entity.getProductKey(),
-                            entity.getSellerId(),
-                            entity.getName(),
-                            entity.getBrandName(),
-                            entity.getPrice(),
-                            entity.getDiscountPrice(),
-                            entity.getAccumulatedPoint(),
-                            List.of()
-                    )
+                entity.getPricePolicyId(),
+                new ProductInfoResult(
+                    entity.getProductId(),
+                    entity.getProductKey(),
+                    entity.getSellerId(),
+                    entity.getName(),
+                    entity.getBrandName(),
+                    entity.getPrice(),
+                    entity.getDiscountPrice(),
+                    entity.getAccumulatedPoint(),
+                    List.of()
+                )
             );
         }
 
@@ -58,11 +58,11 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public void upsert(
-            Long pricePolicyId, Long productId, UUID productKey, Long sellerId,
-            String name, String brandName, Long price, Long discountPrice, Long accumulatedPoint
+        Long pricePolicyId, Long productId, UUID productKey, Long sellerId,
+        String name, String brandName, Long price, Long discountPrice, Long accumulatedPoint
     ) {
         Optional<ProductReadModelJpaEntity> existing =
-                productReadModelJpaRepository.findByPricePolicyId(pricePolicyId);
+            productReadModelJpaRepository.findByPricePolicyId(pricePolicyId);
 
         if (existing.isPresent()) {
             existing.get().updateFrom(productKey, name, brandName, price, discountPrice, accumulatedPoint);
@@ -71,17 +71,17 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
 
         try {
             ProductReadModelJpaEntity entity = ProductReadModelJpaEntity.of(
-                    pricePolicyId, productId, productKey, sellerId,
-                    name, brandName, price, discountPrice, accumulatedPoint
+                pricePolicyId, productId, productKey, sellerId,
+                name, brandName, price, discountPrice, accumulatedPoint
             );
             productReadModelJpaRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException ignored) {
             // 동시 처리로 인한 멱등 저장 충돌 — 기존 엔티티 재조회 후 업데이트로 복원
             log.info("상품 Read Model 중복 저장 (멱등 처리). pricePolicyId={}", pricePolicyId);
             productReadModelJpaRepository.findByPricePolicyId(pricePolicyId)
-                    .ifPresent(entity -> entity.updateFrom(
-                            productKey, name, brandName, price, discountPrice, accumulatedPoint
-                    ));
+                .ifPresent(entity -> entity.updateFrom(
+                    productKey, name, brandName, price, discountPrice, accumulatedPoint
+                ));
         }
     }
 
@@ -89,7 +89,7 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
     @Transactional(isolation = READ_COMMITTED)
     public void deactivateByPricePolicyId(Long pricePolicyId) {
         productReadModelJpaRepository.findByPricePolicyId(pricePolicyId)
-                .ifPresent(ProductReadModelJpaEntity::markInactive);
+            .ifPresent(ProductReadModelJpaEntity::markInactive);
     }
 
     @Transactional(isolation = READ_COMMITTED)

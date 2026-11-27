@@ -10,14 +10,14 @@ import lombok.RequiredArgsConstructor;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class NotificationVendorCommunicationHistoryPersistenceAdapter
-        implements SaveNotificationVendorCommunicationHistoryPort {
+    implements SaveNotificationVendorCommunicationHistoryPort {
 
     private final NotificationVendorCommunicationHistoryJpaRepository repository;
 
     @Override
     public NotificationVendorCommunicationHistory save(NotificationVendorCommunicationHistory history) {
         NotificationVendorCommunicationHistoryJpaEntity saved = repository.save(
-                NotificationVendorCommunicationHistoryJpaEntity.from(history)
+            NotificationVendorCommunicationHistoryJpaEntity.from(history)
         );
         return saved.toDomain();
     }

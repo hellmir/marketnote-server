@@ -23,10 +23,7 @@ import java.time.ZoneId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CommunityEventKafkaProducerTest {
@@ -266,12 +263,12 @@ class CommunityEventKafkaProducerTest {
         setUpClock("2026-11-21T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
         doThrow(new RuntimeException("DB connection failed"))
-                .when(saveOutboxEventPort).save(any(OutboxEvent.class));
+            .when(saveOutboxEventPort).save(any(OutboxEvent.class));
 
         // when & then
         assertThatThrownBy(() -> communityEventKafkaProducer.publishNoticeRegisteredEvent(1L, "공지", true))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("DB connection failed");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("DB connection failed");
     }
 
     @Test
@@ -280,12 +277,12 @@ class CommunityEventKafkaProducerTest {
         // given
         setUpClock("2026-11-21T10:00:00Z");
         when(objectMapper.writeValueAsString(any()))
-                .thenThrow(new TestJsonProcessingException("Serialization failed"));
+            .thenThrow(new TestJsonProcessingException("Serialization failed"));
 
         // when & then
         assertThatThrownBy(() -> communityEventKafkaProducer.publishNoticeRegisteredEvent(1L, "공지", true))
-                .isInstanceOf(CommunityEventSerializationException.class)
-                .hasCauseInstanceOf(JsonProcessingException.class);
+            .isInstanceOf(CommunityEventSerializationException.class)
+            .hasCauseInstanceOf(JsonProcessingException.class);
         verifyNoInteractions(saveOutboxEventPort);
     }
 

@@ -2,24 +2,9 @@ package com.personal.marketnote.reward.adapter.in.web.point;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
-import com.personal.marketnote.reward.adapter.in.web.point.request.CancelPendingPointRequest;
-import com.personal.marketnote.reward.adapter.in.web.point.request.ClaimReferralBonusRequest;
-import com.personal.marketnote.reward.adapter.in.web.point.request.ConfirmPendingPointRequest;
-import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyPendingPointRequest;
-import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyUserPointRequest;
-import com.personal.marketnote.reward.adapter.in.web.point.response.ClaimReferralBonusResponse;
-import com.personal.marketnote.reward.adapter.in.web.point.response.GetMyPointReponse;
-import com.personal.marketnote.reward.adapter.in.web.point.response.GetReferralStatusResponse;
-import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointByIdResponse;
-import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointHistoryResponse;
-import com.personal.marketnote.reward.adapter.in.web.point.response.UpdateUserPointResponse;
-import com.personal.marketnote.reward.domain.point.PointAmount;
-import com.personal.marketnote.reward.domain.point.ReferralBonusTier;
-import com.personal.marketnote.reward.domain.point.UserPoint;
-import com.personal.marketnote.reward.domain.point.UserPointChangeType;
-import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
-import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
-import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.adapter.in.web.point.request.*;
+import com.personal.marketnote.reward.adapter.in.web.point.response.*;
+import com.personal.marketnote.reward.domain.point.*;
 import com.personal.marketnote.reward.port.in.command.point.RegisterUserPointCommand;
 import com.personal.marketnote.reward.port.in.result.point.ClaimReferralBonusResult;
 import com.personal.marketnote.reward.port.in.result.point.GetReferralStatusResult;
@@ -78,9 +63,9 @@ class PointControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(String userId, String roleName) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                userId,
-                Map.of("name", userId),
-                List.of(new SimpleGrantedAuthority(roleName))
+            userId,
+            Map.of("name", userId),
+            List.of(new SimpleGrantedAuthority(roleName))
         );
     }
 
@@ -90,11 +75,11 @@ class PointControllerTest {
         // given
         OAuth2AuthenticatedPrincipal admin = buildPrincipal("100", "ROLE_ADMIN");
         given(getUserPointHistoryUseCase.getUserPointHistories(any()))
-                .willReturn(GetUserPointHistoryResult.from(0L, false, -1L, List.of()));
+            .willReturn(GetUserPointHistoryResult.from(0L, false, -1L, List.of()));
 
         // when
         ResponseEntity<BaseResponse<GetUserPointHistoryResponse>> response = controller.getUserPointHistories(
-                999L, admin, UserPointHistoryFilter.ALL, null, null, null, 20
+            999L, admin, UserPointHistoryFilter.ALL, null, null, null, 20
         );
 
         // then
@@ -107,11 +92,11 @@ class PointControllerTest {
         // given
         OAuth2AuthenticatedPrincipal owner = buildPrincipal("999", "ROLE_BUYER");
         given(getUserPointHistoryUseCase.getUserPointHistories(any()))
-                .willReturn(GetUserPointHistoryResult.from(0L, false, -1L, List.of()));
+            .willReturn(GetUserPointHistoryResult.from(0L, false, -1L, List.of()));
 
         // when
         ResponseEntity<BaseResponse<GetUserPointHistoryResponse>> response = controller.getUserPointHistories(
-                999L, owner, UserPointHistoryFilter.ALL, null, null, null, 20
+            999L, owner, UserPointHistoryFilter.ALL, null, null, null, 20
         );
 
         // then
@@ -124,7 +109,7 @@ class PointControllerTest {
         OAuth2AuthenticatedPrincipal other = buildPrincipal("100", "ROLE_BUYER");
 
         assertThatThrownBy(() -> controller.getUserPointHistories(
-                999L, other, UserPointHistoryFilter.ALL, null, null, null, 20
+            999L, other, UserPointHistoryFilter.ALL, null, null, null, 20
         )).isInstanceOf(AccessDeniedException.class);
     }
 
@@ -134,7 +119,7 @@ class PointControllerTest {
         OAuth2AuthenticatedPrincipal seller = buildPrincipal("100", "ROLE_SELLER");
 
         assertThatThrownBy(() -> controller.getUserPointHistories(
-                999L, seller, UserPointHistoryFilter.ALL, null, null, null, 20
+            999L, seller, UserPointHistoryFilter.ALL, null, null, null, 20
         )).isInstanceOf(AccessDeniedException.class);
     }
 
@@ -142,9 +127,9 @@ class PointControllerTest {
     @DisplayName("getUserPointHistories 메서드에 @RateLimited(key=user-point-histories, maxRequests=60, windowSeconds=60)이 부착되어 있다")
     void getUserPointHistoriesHasRateLimited() throws NoSuchMethodException {
         Method method = PointController.class.getMethod(
-                "getUserPointHistories",
-                Long.class, OAuth2AuthenticatedPrincipal.class, UserPointHistoryFilter.class,
-                LocalDate.class, LocalDate.class, Long.class, int.class
+            "getUserPointHistories",
+            Long.class, OAuth2AuthenticatedPrincipal.class, UserPointHistoryFilter.class,
+            LocalDate.class, LocalDate.class, Long.class, int.class
         );
 
         RateLimited rateLimited = method.getAnnotation(RateLimited.class);
@@ -159,7 +144,7 @@ class PointControllerTest {
     @DisplayName("registerUserPoint는 RegisterUserPointUseCase에 userId/userKey Command를 위임하고 201을 반환한다")
     void registerUserPointDelegatesWithCommandAndReturnsCreated() {
         org.mockito.ArgumentCaptor<RegisterUserPointCommand> captor =
-                org.mockito.ArgumentCaptor.forClass(RegisterUserPointCommand.class);
+            org.mockito.ArgumentCaptor.forClass(RegisterUserPointCommand.class);
 
         ResponseEntity<BaseResponse<Void>> response = controller.registerUserPoint(999L, "user-key-abc");
 
@@ -202,11 +187,11 @@ class PointControllerTest {
     @DisplayName("modifyPendingPoint는 적립 예정 포인트 수정 결과를 반환한다")
     void modifyPendingPointReturnsUpdatedResult() {
         ModifyPendingPointRequest request = new ModifyPendingPointRequest(
-                UserPointChangeType.ACCRUAL,
-                100L,
-                UserPointSourceType.ORDER,
-                1L,
-                "주문 적립"
+            UserPointChangeType.ACCRUAL,
+            100L,
+            UserPointSourceType.ORDER,
+            1L,
+            "주문 적립"
         );
         UpdateUserPointResult result = UpdateUserPointResult.from(sampleUserPoint(999L, 0L, 100L));
         given(modifyPendingPointUseCase.modifyPending(any())).willReturn(result);
@@ -221,9 +206,9 @@ class PointControllerTest {
     @DisplayName("confirmPendingPoint는 적립 예정 포인트 확정 결과를 반환한다")
     void confirmPendingPointReturnsConfirmedResult() {
         ConfirmPendingPointRequest request = new ConfirmPendingPointRequest(
-                UserPointSourceType.ORDER,
-                1L,
-                "확정 사유"
+            UserPointSourceType.ORDER,
+            1L,
+            "확정 사유"
         );
         UpdateUserPointResult result = UpdateUserPointResult.from(sampleUserPoint(999L, 100L, 0L));
         given(confirmPendingPointUseCase.confirmPending(any())).willReturn(result);
@@ -238,9 +223,9 @@ class PointControllerTest {
     @DisplayName("cancelPendingPoint는 적립 예정 포인트 취소 결과를 반환한다")
     void cancelPendingPointReturnsCancelledResult() {
         CancelPendingPointRequest request = new CancelPendingPointRequest(
-                UserPointSourceType.ORDER,
-                1L,
-                "취소 사유"
+            UserPointSourceType.ORDER,
+            1L,
+            "취소 사유"
         );
         UpdateUserPointResult result = UpdateUserPointResult.from(sampleUserPoint(999L, 0L, 0L));
         given(cancelPendingPointUseCase.cancelPending(any())).willReturn(result);
@@ -255,11 +240,11 @@ class PointControllerTest {
     @DisplayName("modifyUserPoint는 회원 포인트 수정 결과를 반환한다")
     void modifyUserPointReturnsUpdatedResult() {
         ModifyUserPointRequest request = new ModifyUserPointRequest(
-                UserPointChangeType.DEDUCTION,
-                50L,
-                UserPointSourceType.USER,
-                1L,
-                "수동 차감"
+            UserPointChangeType.DEDUCTION,
+            50L,
+            UserPointSourceType.USER,
+            1L,
+            "수동 차감"
         );
         UpdateUserPointResult result = UpdateUserPointResult.from(sampleUserPoint(999L, 950L, 0L));
         given(modifyUserPointUseCase.modify(any())).willReturn(result);
@@ -293,7 +278,7 @@ class PointControllerTest {
         given(claimReferralBonusUseCase.claim(any())).willReturn(result);
 
         ResponseEntity<BaseResponse<ClaimReferralBonusResponse>> response =
-                controller.claimReferralBonus(principal, request);
+            controller.claimReferralBonus(principal, request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(claimReferralBonusUseCase).claim(any());
@@ -301,13 +286,13 @@ class PointControllerTest {
 
     private UserPoint sampleUserPoint(long userId, long amount, long addExpected) {
         return UserPoint.from(
-                UserPointSnapshotState.builder()
-                        .userId(userId)
-                        .userKey("user-key-" + userId)
-                        .amount(PointAmount.of(amount))
-                        .addExpectedAmount(PointAmount.of(addExpected))
-                        .expireExpectedAmount(PointAmount.of(0L))
-                        .build()
+            UserPointSnapshotState.builder()
+                .userId(userId)
+                .userKey("user-key-" + userId)
+                .amount(PointAmount.of(amount))
+                .addExpectedAmount(PointAmount.of(addExpected))
+                .expireExpectedAmount(PointAmount.of(0L))
+                .build()
         );
     }
 }

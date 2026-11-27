@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public record GetUserTermsResult(
-        List<UpdateUserTermResult> userTerms
+    List<UpdateUserTermResult> userTerms
 ) {
     public static GetUserTermsResult from(List<UserTerms> userTerms) {
         return new GetUserTermsResult(
-                userTerms.stream().map(UpdateUserTermResult::from)
-                        .collect(Collectors.toList())
+            userTerms.stream().map(UpdateUserTermResult::from)
+                .collect(Collectors.toList())
         );
     }
 }

@@ -7,15 +7,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public record UpdateProductOptionsResult(
-        Long id,
-        List<Long> optionIds
+    Long id,
+    List<Long> optionIds
 ) {
     public static UpdateProductOptionsResult from(ProductOptionCategory productOptionCategory) {
         return new UpdateProductOptionsResult(
-                productOptionCategory.getId(),
-                productOptionCategory.getOptions().stream()
-                        .map(ProductOption::getId)
-                        .collect(Collectors.toList())
+            productOptionCategory.getId(),
+            productOptionCategory.getOptions().stream()
+                .map(ProductOption::getId)
+                .collect(Collectors.toList())
         );
     }
 }

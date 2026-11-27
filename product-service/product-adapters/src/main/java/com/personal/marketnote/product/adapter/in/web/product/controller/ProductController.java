@@ -74,20 +74,20 @@ public class ProductController {
     @PreAuthorize(ADMIN_OR_SELLER_PRINCIPAL_POINTCUT)
     @RegisterProductApiDocs
     public ResponseEntity<BaseResponse<RegisterProductResponse>> registerProduct(
-            @Valid @RequestBody RegisterProductRequest request
+        @Valid @RequestBody RegisterProductRequest request
     ) {
         RegisterProductResult result = registerProductUseCase.registerProduct(
-                ProductRequestToCommandMapper.mapToCommand(request)
+            ProductRequestToCommandMapper.mapToCommand(request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterProductResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterProductResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "상품 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -99,26 +99,26 @@ public class ProductController {
      * @Author 성효빈
      * @Date 2026-11-22
      * @Description 파스토에 이미 등록된 상품의 운영코드(cstGodCd)를 입력받아 자사 카탈로그에 등록합니다.
-     *              Fastto 송신은 스킵합니다.
+     * Fastto 송신은 스킵합니다.
      */
     @PostMapping("/admin/import")
     @PreAuthorize(ADMIN_POINTCUT)
     @ImportProductApiDocs
     public ResponseEntity<BaseResponse<RegisterProductResponse>> importProduct(
-            @Valid @RequestBody ImportProductRequest request
+        @Valid @RequestBody ImportProductRequest request
     ) {
         RegisterProductResult result = registerProductUseCase.registerProduct(
-                ProductRequestToCommandMapper.mapToCommand(request)
+            ProductRequestToCommandMapper.mapToCommand(request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterProductResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "파스토 기등록 상품 import 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterProductResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "파스토 기등록 상품 import 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -136,12 +136,12 @@ public class ProductController {
         GetProductSortPropertiesResult result = getProductSortPropertiesUseCase.getProductSortProperties();
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetProductSortPropertiesResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 정렬 속성 목록 조회 성공"
-                )
+            BaseResponse.of(
+                GetProductSortPropertiesResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 정렬 속성 목록 조회 성공"
+            )
         );
     }
 
@@ -159,12 +159,12 @@ public class ProductController {
         GetProductSearchTargetsResult result = getProductSearchTargetsUseCase.getProductSearchTargets();
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetProductSearchTargetsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 검색 대상 목록 조회 성공"
-                )
+            BaseResponse.of(
+                GetProductSearchTargetsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 검색 대상 목록 조회 성공"
+            )
         );
     }
 
@@ -188,33 +188,33 @@ public class ProductController {
     @GetProductsApiDocs
     @RateLimited(key = "products-cursor", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetProductsResponse>> getProducts(
-            @RequestParam(value = "categoryId", required = false) Long categoryId,
-            @RequestParam(value = "pricePolicyIds", required = false) List<Long> pricePolicyIds,
-            @RequestParam(value = "cursor", required = false) Long cursor,
-            @RequestParam(value = "pageSize", required = false, defaultValue = GET_PRODUCTS_DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
-            @RequestParam(required = false, defaultValue = "ORDER_NUM") ProductSortProperty sortProperty,
-            @RequestParam(required = false, defaultValue = "NAME") ProductSearchTarget searchTarget,
-            @RequestParam(required = false) String searchKeyword
+        @RequestParam(value = "categoryId", required = false) Long categoryId,
+        @RequestParam(value = "pricePolicyIds", required = false) List<Long> pricePolicyIds,
+        @RequestParam(value = "cursor", required = false) Long cursor,
+        @RequestParam(value = "pageSize", required = false, defaultValue = GET_PRODUCTS_DEFAULT_PAGE_SIZE) int pageSize,
+        @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+        @RequestParam(required = false, defaultValue = "ORDER_NUM") ProductSortProperty sortProperty,
+        @RequestParam(required = false, defaultValue = "NAME") ProductSearchTarget searchTarget,
+        @RequestParam(required = false) String searchKeyword
     ) {
         GetProductsResult result = getProductUseCase.getProducts(
-                categoryId,
-                pricePolicyIds,
-                cursor,
-                pageSize,
-                sortDirection,
-                sortProperty,
-                searchTarget,
-                searchKeyword
+            categoryId,
+            pricePolicyIds,
+            cursor,
+            pageSize,
+            sortDirection,
+            sortProperty,
+            searchTarget,
+            searchKeyword
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetProductsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 목록 조회 성공"
-                )
+            BaseResponse.of(
+                GetProductsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 목록 조회 성공"
+            )
         );
     }
 
@@ -238,33 +238,33 @@ public class ProductController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetAdminProductsApiDocs
     public ResponseEntity<BaseResponse<GetAdminProductsResponse>> getAdminProducts(
-            @RequestParam(value = "categoryId", required = false) Long categoryId,
-            @RequestParam(value = "pricePolicyIds", required = false) List<Long> pricePolicyIds,
-            @RequestParam(value = "page", required = false, defaultValue = "0") @Min(0) int page,
-            @RequestParam(value = "page-size", required = false, defaultValue = GET_PRODUCTS_DEFAULT_PAGE_SIZE) @Min(1) int pageSize,
-            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
-            @RequestParam(required = false, defaultValue = "ORDER_NUM") ProductSortProperty sortProperty,
-            @RequestParam(required = false, defaultValue = "NAME") ProductSearchTarget searchTarget,
-            @RequestParam(required = false) String searchKeyword
+        @RequestParam(value = "categoryId", required = false) Long categoryId,
+        @RequestParam(value = "pricePolicyIds", required = false) List<Long> pricePolicyIds,
+        @RequestParam(value = "page", required = false, defaultValue = "0") @Min(0) int page,
+        @RequestParam(value = "page-size", required = false, defaultValue = GET_PRODUCTS_DEFAULT_PAGE_SIZE) @Min(1) int pageSize,
+        @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+        @RequestParam(required = false, defaultValue = "ORDER_NUM") ProductSortProperty sortProperty,
+        @RequestParam(required = false, defaultValue = "NAME") ProductSearchTarget searchTarget,
+        @RequestParam(required = false) String searchKeyword
     ) {
         GetAdminProductsResult result = getAdminProductsUseCase.getAdminProducts(
-                categoryId,
-                pricePolicyIds,
-                page,
-                pageSize,
-                sortDirection,
-                sortProperty,
-                searchTarget,
-                searchKeyword
+            categoryId,
+            pricePolicyIds,
+            page,
+            pageSize,
+            sortDirection,
+            sortProperty,
+            searchTarget,
+            searchKeyword
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetAdminProductsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "관리자 상품 목록 조회 성공"
-                )
+            BaseResponse.of(
+                GetAdminProductsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "관리자 상품 목록 조회 성공"
+            )
         );
     }
 
@@ -282,8 +282,8 @@ public class ProductController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetAdminProductDetailApiDocs
     public ResponseEntity<BaseResponse<GetAdminProductDetailResponse>> getAdminProductDetail(
-            @PathVariable("id") Long id,
-            @RequestParam(value = "selectedOptionIds", required = false) List<Long> selectedOptionIds
+        @PathVariable("id") Long id,
+        @RequestParam(value = "selectedOptionIds", required = false) List<Long> selectedOptionIds
     ) {
         if (FormatValidator.hasNoValue(selectedOptionIds)) {
             selectedOptionIds = List.of();
@@ -292,12 +292,12 @@ public class ProductController {
         GetAdminProductDetailResult result = getAdminProductDetailUseCase.getAdminProductDetail(id, selectedOptionIds);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetAdminProductDetailResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "관리자 상품 상세 정보 조회 성공"
-                )
+            BaseResponse.of(
+                GetAdminProductDetailResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "관리자 상품 상세 정보 조회 성공"
+            )
         );
     }
 
@@ -313,18 +313,18 @@ public class ProductController {
     @GetMapping("/price-policies/{pricePolicyId}")
     @GetProductInfoByPricePolicyIdApiDocs
     public ResponseEntity<BaseResponse<GetProductInfoResponse>> getProductInfoByPricePolicyId(
-            @PathVariable("pricePolicyId") Long pricePolicyId
+        @PathVariable("pricePolicyId") Long pricePolicyId
     ) {
         GetProductInfoWithOptionsResult getProductInfoWithOptionsResult
-                = getProductUseCase.getProductInfo(pricePolicyId);
+            = getProductUseCase.getProductInfo(pricePolicyId);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetProductInfoResponse.from(getProductInfoWithOptionsResult),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 상세 정보 조회 성공"
-                )
+            BaseResponse.of(
+                GetProductInfoResponse.from(getProductInfoWithOptionsResult),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 상세 정보 조회 성공"
+            )
         );
     }
 
@@ -341,22 +341,22 @@ public class ProductController {
     @GetMapping("/{id}")
     @GetProductInfoApiDocs
     public ResponseEntity<BaseResponse<GetProductInfoResponse>> getProductInfo(
-            @PathVariable("id") Long id,
-            @RequestParam(value = "selectedOptionIds", required = false) List<Long> selectedOptionIds
+        @PathVariable("id") Long id,
+        @RequestParam(value = "selectedOptionIds", required = false) List<Long> selectedOptionIds
     ) {
         if (FormatValidator.hasNoValue(selectedOptionIds)) {
             selectedOptionIds = List.of();
         }
         GetProductInfoWithOptionsResult getProductInfoWithOptionsResult
-                = getProductUseCase.getProductInfo(id, selectedOptionIds);
+            = getProductUseCase.getProductInfo(id, selectedOptionIds);
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetProductInfoResponse.from(getProductInfoWithOptionsResult),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 상세 정보 조회 성공"
-                )
+            BaseResponse.of(
+                GetProductInfoResponse.from(getProductInfoWithOptionsResult),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 상세 정보 조회 성공"
+            )
         );
     }
 
@@ -374,22 +374,22 @@ public class ProductController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @GetProductKeyApiDocs
     public ResponseEntity<BaseResponse<GetProductKeyResponse>> getProductKey(
-            @PathVariable("id") Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         GetProductKeyResult result = getProductKeyUseCase.getProductKey(
-                id,
-                ElementExtractor.extractUserId(principal),
-                AuthorityValidator.hasAdminRole(principal)
+            id,
+            ElementExtractor.extractUserId(principal),
+            AuthorityValidator.hasAdminRole(principal)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetProductKeyResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 productKey 조회 성공"
-                )
+            BaseResponse.of(
+                GetProductKeyResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 productKey 조회 성공"
+            )
         );
     }
 
@@ -406,23 +406,23 @@ public class ProductController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @UpdateProductApiDocs
     public ResponseEntity<BaseResponse<UpdateProductResponse>> updateProduct(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody UpdateProductRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @Valid @RequestBody UpdateProductRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         UpdateProductResult result = updateProductUseCase.update(
-                ElementExtractor.extractUserId(principal),
-                AuthorityValidator.hasAdminRole(principal),
-                ProductRequestToCommandMapper.mapToCommand(id, request)
+            ElementExtractor.extractUserId(principal),
+            AuthorityValidator.hasAdminRole(principal),
+            ProductRequestToCommandMapper.mapToCommand(id, request)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        UpdateProductResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 정보 수정 성공"
-                )
+            BaseResponse.of(
+                UpdateProductResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 정보 수정 성공"
+            )
         );
     }
 
@@ -440,23 +440,23 @@ public class ProductController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @ReorderProductTagsApiDocs
     public ResponseEntity<BaseResponse<Void>> reorderProductTags(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody ReorderProductTagsRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @Valid @RequestBody ReorderProductTagsRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         reorderProductTagsUseCase.reorderProductTags(
-                ElementExtractor.extractUserId(principal),
-                AuthorityValidator.hasAdminRole(principal),
-                ProductRequestToCommandMapper.mapToCommand(id, request)
+            ElementExtractor.extractUserId(principal),
+            AuthorityValidator.hasAdminRole(principal),
+            ProductRequestToCommandMapper.mapToCommand(id, request)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 태그 순서 변경 성공"
-                )
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 태그 순서 변경 성공"
+            )
         );
     }
 
@@ -472,22 +472,22 @@ public class ProductController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @DeleteProductImageApiDocs
     public ResponseEntity<BaseResponse<Void>> deleteProductImage(
-            @PathVariable("id") Long id,
-            @PathVariable("fileId") Long fileId,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @PathVariable("fileId") Long fileId,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         deleteProductImageUseCase.delete(
-                ElementExtractor.extractUserId(principal),
-                AuthorityValidator.hasAdminRole(principal),
-                DeleteProductImageCommand.of(id, fileId)
+            ElementExtractor.extractUserId(principal),
+            AuthorityValidator.hasAdminRole(principal),
+            DeleteProductImageCommand.of(id, fileId)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 이미지 삭제 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 이미지 삭제 성공"
+            )
         );
     }
 
@@ -503,21 +503,21 @@ public class ProductController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @DeleteProductApiDocs
     public ResponseEntity<BaseResponse<Void>> deleteProduct(
-            @PathVariable("id") Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         deleteProductUseCase.delete(
-                ElementExtractor.extractUserId(principal),
-                AuthorityValidator.hasAdminRole(principal),
-                DeleteProductCommand.of(id)
+            ElementExtractor.extractUserId(principal),
+            AuthorityValidator.hasAdminRole(principal),
+            DeleteProductCommand.of(id)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 삭제 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 삭제 성공"
+            )
         );
     }
 }

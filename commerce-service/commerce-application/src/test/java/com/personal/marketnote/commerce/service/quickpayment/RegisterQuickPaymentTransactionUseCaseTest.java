@@ -44,7 +44,7 @@ class RegisterQuickPaymentTransactionUseCaseTest {
             RegisterQuickPaymentTransactionPortResult portResult = createSuccessPortResult();
 
             when(registerQuickPaymentTransactionPort.registerTransaction(argThat(c ->
-                    isValidUUID(c.transactionId())
+                isValidUUID(c.transactionId())
             ))).thenReturn(portResult);
 
             RegisterQuickPaymentTransactionResult result = registerQuickPaymentTransactionService.register(command);
@@ -61,7 +61,7 @@ class RegisterQuickPaymentTransactionUseCaseTest {
             RegisterQuickPaymentTransactionPortResult portResult = createSuccessPortResult();
 
             when(registerQuickPaymentTransactionPort.registerTransaction(argThat(c ->
-                    isValidUUID(c.transactionId())
+                isValidUUID(c.transactionId())
             ))).thenReturn(portResult);
 
             RegisterQuickPaymentTransactionResult result = registerQuickPaymentTransactionService.register(command);
@@ -69,7 +69,7 @@ class RegisterQuickPaymentTransactionUseCaseTest {
             assertThat(result.transactionId()).isNotNull();
             assertThat(isValidUUID(result.transactionId())).isTrue();
             verify(registerQuickPaymentTransactionPort).registerTransaction(argThat(c ->
-                    isValidUUID(c.transactionId())
+                isValidUUID(c.transactionId())
             ));
         }
     }
@@ -85,11 +85,11 @@ class RegisterQuickPaymentTransactionUseCaseTest {
             RegisterQuickPaymentTransactionPortResult portResult = createFailurePortResult();
 
             when(registerQuickPaymentTransactionPort.registerTransaction(argThat(c ->
-                    isValidUUID(c.transactionId())
+                isValidUUID(c.transactionId())
             ))).thenReturn(portResult);
 
             assertThatThrownBy(() -> registerQuickPaymentTransactionService.register(command))
-                    .isInstanceOf(QuickPaymentTransactionFailedException.class);
+                .isInstanceOf(QuickPaymentTransactionFailedException.class);
         }
 
         @Test
@@ -99,13 +99,13 @@ class RegisterQuickPaymentTransactionUseCaseTest {
             RegisterQuickPaymentTransactionPortResult portResult = createFailurePortResult();
 
             when(registerQuickPaymentTransactionPort.registerTransaction(argThat(c ->
-                    isValidUUID(c.transactionId())
+                isValidUUID(c.transactionId())
             ))).thenReturn(portResult);
 
             assertThatThrownBy(() -> registerQuickPaymentTransactionService.register(command))
-                    .isInstanceOf(QuickPaymentTransactionFailedException.class)
-                    .hasMessageContaining("9999")
-                    .hasMessageContaining("시스템 오류");
+                .isInstanceOf(QuickPaymentTransactionFailedException.class)
+                .hasMessageContaining("9999")
+                .hasMessageContaining("시스템 오류");
         }
 
         @Test
@@ -114,40 +114,40 @@ class RegisterQuickPaymentTransactionUseCaseTest {
             RegisterQuickPaymentTransactionCommand command = createCommand();
 
             when(registerQuickPaymentTransactionPort.registerTransaction(argThat(c ->
-                    isValidUUID(c.transactionId())
+                isValidUUID(c.transactionId())
             ))).thenThrow(new RuntimeException("KCP 통신 실패"));
 
             assertThatThrownBy(() -> registerQuickPaymentTransactionService.register(command))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessageContaining("KCP 통신 실패");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("KCP 통신 실패");
         }
     }
 
     private RegisterQuickPaymentTransactionCommand createCommand() {
         return RegisterQuickPaymentTransactionCommand.builder()
-                .userId(USER_ID)
-                .build();
+            .userId(USER_ID)
+            .build();
     }
 
     private RegisterQuickPaymentTransactionPortResult createSuccessPortResult() {
         return RegisterQuickPaymentTransactionPortResult.builder()
-                .success(true)
-                .resultCode("0000")
-                .resultMessage("성공")
-                .approvalKey("approval_key_123")
-                .payUrl("https://testsmpay.kcp.co.kr/pay/mobileGW.kcp")
-                .traceNo("T0000MGABJUXLY81")
-                .rawResponse("{}")
-                .build();
+            .success(true)
+            .resultCode("0000")
+            .resultMessage("성공")
+            .approvalKey("approval_key_123")
+            .payUrl("https://testsmpay.kcp.co.kr/pay/mobileGW.kcp")
+            .traceNo("T0000MGABJUXLY81")
+            .rawResponse("{}")
+            .build();
     }
 
     private RegisterQuickPaymentTransactionPortResult createFailurePortResult() {
         return RegisterQuickPaymentTransactionPortResult.builder()
-                .success(false)
-                .resultCode("9999")
-                .resultMessage("시스템 오류")
-                .rawResponse("{}")
-                .build();
+            .success(false)
+            .resultCode("9999")
+            .resultMessage("시스템 오류")
+            .rawResponse("{}")
+            .build();
     }
 
     private boolean isValidUUID(String value) {

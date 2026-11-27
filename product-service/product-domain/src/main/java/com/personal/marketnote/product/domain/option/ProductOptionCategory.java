@@ -23,28 +23,28 @@ public class ProductOptionCategory {
 
     public static ProductOptionCategory from(ProductOptionCategoryCreateState state) {
         List<ProductOption> optionList = FormatValidator.hasValue(state.getOptionStates())
-                ? state.getOptionStates()
-                .stream()
-                .map(ProductOption::from)
-                .toList()
-                : List.of();
+            ? state.getOptionStates()
+            .stream()
+            .map(ProductOption::from)
+            .toList()
+            : List.of();
 
         return ProductOptionCategory.builder()
-                .product(state.getProduct())
-                .name(state.getName())
-                .options(optionList)
-                .status(EntityStatus.ACTIVE)
-                .build();
+            .product(state.getProduct())
+            .name(state.getName())
+            .options(optionList)
+            .status(EntityStatus.ACTIVE)
+            .build();
     }
 
     public static ProductOptionCategory from(ProductOptionCategorySnapshotState state) {
         return ProductOptionCategory.builder()
-                .id(state.getId())
-                .product(state.getProduct())
-                .name(state.getName())
-                .options(state.getOptions())
-                .orderNum(state.getOrderNum())
-                .status(state.getStatus())
-                .build();
+            .id(state.getId())
+            .product(state.getProduct())
+            .name(state.getName())
+            .options(state.getOptions())
+            .orderNum(state.getOrderNum())
+            .status(state.getStatus())
+            .build();
     }
 }

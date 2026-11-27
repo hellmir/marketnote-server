@@ -25,9 +25,9 @@ public enum Month {
 
     public static Month from(int month) {
         return Arrays.stream(values())
-                .filter(it -> it.value == month)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 월입니다. month: " + month));
+            .filter(it -> it.value == month)
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 월입니다. month: " + month));
     }
 }
 

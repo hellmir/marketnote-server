@@ -8,13 +8,13 @@ import java.util.UUID;
 
 @Builder
 public record ModifyPendingSharedPointCommand(
-        Long buyerId,
-        UUID sharerKey,
-        UserPointChangeType changeType,
-        Long amount,
-        UserPointSourceType sourceType,
-        Long sourceId,
-        String reason
+    Long buyerId,
+    UUID sharerKey,
+    UserPointChangeType changeType,
+    Long amount,
+    UserPointSourceType sourceType,
+    Long sourceId,
+    String reason
 ) {
     public boolean isAccrual() {
         return changeType.isAccrual();

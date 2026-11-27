@@ -25,8 +25,8 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 @RestController
 @RequestMapping("/api/v1/admin/remote-areas")
 @Tag(
-        name = "도서산간 지역 관리자 API",
-        description = "도서산간 지역 관련 관리자 API"
+    name = "도서산간 지역 관리자 API",
+    description = "도서산간 지역 관련 관리자 API"
 )
 @RequiredArgsConstructor
 public class RemoteAreaAdminController {
@@ -39,21 +39,21 @@ public class RemoteAreaAdminController {
     @PreAuthorize(ADMIN_POINTCUT)
     @RegisterRemoteAreaApiDocs
     public ResponseEntity<BaseResponse<Void>> registerRemoteArea(
-            @Valid @RequestBody RegisterRemoteAreaRequest request
+        @Valid @RequestBody RegisterRemoteAreaRequest request
     ) {
         RegisterRemoteAreaCommand command = new RegisterRemoteAreaCommand(
-                request.getProvince(),
-                request.getDistrict(),
-                request.getVillage(),
-                request.getSubarea(),
-                request.getRegionType()
+            request.getProvince(),
+            request.getDistrict(),
+            request.getVillage(),
+            request.getSubarea(),
+            request.getRegionType()
         );
 
         registerRemoteAreaUseCase.registerRemoteArea(command);
 
         return new ResponseEntity<>(
-                BaseResponse.of(null, HttpStatus.CREATED, DEFAULT_SUCCESS_CODE, "도서산간 지역 등록 성공"),
-                HttpStatus.CREATED
+            BaseResponse.of(null, HttpStatus.CREATED, DEFAULT_SUCCESS_CODE, "도서산간 지역 등록 성공"),
+            HttpStatus.CREATED
         );
     }
 
@@ -65,8 +65,8 @@ public class RemoteAreaAdminController {
         GetRemoteAreaResponse response = GetRemoteAreaResponse.from(result);
 
         return new ResponseEntity<>(
-                BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "도서산간 지역 목록 조회 성공"),
-                HttpStatus.OK
+            BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "도서산간 지역 목록 조회 성공"),
+            HttpStatus.OK
         );
     }
 
@@ -74,13 +74,13 @@ public class RemoteAreaAdminController {
     @PreAuthorize(ADMIN_POINTCUT)
     @DeleteRemoteAreaApiDocs
     public ResponseEntity<BaseResponse<Void>> deleteRemoteArea(
-            @PathVariable Long id
+        @PathVariable Long id
     ) {
         deleteRemoteAreaUseCase.deleteRemoteArea(id);
 
         return new ResponseEntity<>(
-                BaseResponse.of(null, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "도서산간 지역 삭제 성공"),
-                HttpStatus.OK
+            BaseResponse.of(null, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "도서산간 지역 삭제 성공"),
+            HttpStatus.OK
         );
     }
 }

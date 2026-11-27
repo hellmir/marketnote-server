@@ -24,12 +24,12 @@ public class UserSignupCompletedNotificationPreferenceConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.USER_SIGNUP_COMPLETED,
-            groupId = "notification-preference"
+        topics = KafkaTopicConstants.USER_SIGNUP_COMPLETED,
+        groupId = "notification-preference"
     )
     public void handleUserSignupCompletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -47,16 +47,16 @@ public class UserSignupCompletedNotificationPreferenceConsumer {
             UserSignupCompletedEvent payload = envelope.getPayloadAs(UserSignupCompletedEvent.class, objectMapper);
 
             log.info("회원가입 완료 이벤트 수신 (알림 수신 설정 초기화). eventId={}, userId={}",
-                    envelope.eventId(), payload.userId());
+                envelope.eventId(), payload.userId());
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("userId", payload.userId()))) {
+                EventPayloadValidator.id("userId", payload.userId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
 
             InitializeNotificationPreferenceCommand command = new InitializeNotificationPreferenceCommand(
-                    payload.userId()
+                payload.userId()
             );
             initializeNotificationPreferenceUseCase.initializeNotificationPreference(command);
 
@@ -64,7 +64,7 @@ public class UserSignupCompletedNotificationPreferenceConsumer {
         } catch (DuplicateNotificationPreferenceException ignored) {
             // 회원가입 이벤트 재처리(at-least-once) 시 이미 초기화된 알림 수신 설정에 대한 멱등 처리
             log.info("알림 수신 설정이 이미 존재합니다 (멱등 처리). eventId={}, key={}",
-                    envelope.eventId(), record.key());
+                envelope.eventId(), record.key());
         }
 
         acknowledgment.acknowledge();

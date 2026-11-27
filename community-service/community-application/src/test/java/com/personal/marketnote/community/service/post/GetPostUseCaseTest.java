@@ -71,7 +71,7 @@ class GetPostUseCaseTest {
         GetPostQuery query = buildQuery(Board.ONE_ON_ONE_INQUERY, null, 1L, postId);
 
         assertThatThrownBy(() -> getPostService.getPost(query))
-                .isInstanceOf(PostNotFoundException.class);
+            .isInstanceOf(PostNotFoundException.class);
     }
 
     @Test
@@ -83,8 +83,8 @@ class GetPostUseCaseTest {
         GetPostQuery query = buildQuery(Board.NOTICE, null, 1L, postId);
 
         assertThatThrownBy(() -> getPostService.getPost(query))
-                .isInstanceOf(PostBoardMismatchException.class)
-                .hasMessageContaining("게시판");
+            .isInstanceOf(PostBoardMismatchException.class)
+            .hasMessageContaining("게시판");
     }
 
     // ========== B. targetId 없는 게시글 ==========
@@ -143,7 +143,7 @@ class GetPostUseCaseTest {
         mockFindByIdWithReplies(postId, post);
         ProductInfoResult productInfo = buildProductInfo(1L);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(targetId)))
-                .thenReturn(Map.of(targetId, productInfo));
+            .thenReturn(Map.of(targetId, productInfo));
         GetPostQuery query = buildQuery(Board.PRODUCT_INQUERY, null, 1L, postId);
 
         PostItemResult result = getPostService.getPost(query);
@@ -189,7 +189,7 @@ class GetPostUseCaseTest {
         Post post = buildProductInqueryPost(postId, 1L, targetId, false);
         mockFindByIdWithReplies(postId, post);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(targetId)))
-                .thenReturn(Map.of());
+            .thenReturn(Map.of());
         GetPostQuery query = buildQuery(Board.PRODUCT_INQUERY, null, 1L, postId);
 
         PostItemResult result = getPostService.getPost(query);
@@ -258,12 +258,12 @@ class GetPostUseCaseTest {
         mockProductInfoForTarget(targetId, 777L);
         OAuth2AuthenticatedPrincipal adminPrincipal = buildAdminPrincipal();
         GetPostQuery query = GetPostQuery.builder()
-                .principal(adminPrincipal)
-                .userId(1L)
-                .board(Board.PRODUCT_INQUERY)
-                .targetType(PostTargetType.PRICE_POLICY)
-                .id(postId)
-                .build();
+            .principal(adminPrincipal)
+            .userId(1L)
+            .board(Board.PRODUCT_INQUERY)
+            .targetType(PostTargetType.PRICE_POLICY)
+            .id(postId)
+            .build();
 
         PostItemResult result = getPostService.getPost(query);
 
@@ -337,10 +337,10 @@ class GetPostUseCaseTest {
         Post photoPost = buildPhotoPost(postId, Board.ONE_ON_ONE_INQUERY, "ORDER_PAYMENT");
         mockFindByIdWithReplies(postId, photoPost);
         GetFileResult fileResult = new GetFileResult(
-                1L, "POST_IMAGE", "jpg", "image.jpg", "https://s3/image.jpg", List.of(), 1L
+            1L, "POST_IMAGE", "jpg", "image.jpg", "https://s3/image.jpg", List.of(), 1L
         );
         when(findPostImagesPort.findImagesByPostIdAndSort(eq(postId), eq(POST_IMAGE)))
-                .thenReturn(Optional.of(new GetFilesResult(List.of(fileResult))));
+            .thenReturn(Optional.of(new GetFilesResult(List.of(fileResult))));
         GetPostQuery query = buildQuery(Board.ONE_ON_ONE_INQUERY, null, 1L, postId);
 
         PostItemResult result = getPostService.getPost(query);
@@ -373,7 +373,7 @@ class GetPostUseCaseTest {
         GetPostQuery query = buildQuery(Board.ONE_ON_ONE_INQUERY, null, 1L, postId);
 
         assertThatThrownBy(() -> getPostService.getPost(query))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     @Test
@@ -385,108 +385,108 @@ class GetPostUseCaseTest {
         mockFindByIdWithReplies(postId, post);
         RuntimeException exception = new RuntimeException("product service error");
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(targetId)))
-                .thenThrow(exception);
+            .thenThrow(exception);
         GetPostQuery query = buildQuery(Board.PRODUCT_INQUERY, null, 1L, postId);
 
         assertThatThrownBy(() -> getPostService.getPost(query))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     // ========== Query Builder ==========
 
     private GetPostQuery buildQuery(Board board, PostTargetType targetType, Long userId, Long postId) {
         return GetPostQuery.builder()
-                .principal(null)
-                .userId(userId)
-                .board(board)
-                .targetType(targetType)
-                .id(postId)
-                .build();
+            .principal(null)
+            .userId(userId)
+            .board(board)
+            .targetType(targetType)
+            .id(postId)
+            .build();
     }
 
     // ========== Post Builders ==========
 
     private Post buildOneOnOnePost(Long id, Long userId) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(userId)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .title("문의 제목")
-                .content("문의 내용")
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(userId)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .title("문의 제목")
+            .content("문의 내용")
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildOneOnOnePostWithTargetId(Long id, Long userId, Long targetId) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(userId)
-                .board(Board.ONE_ON_ONE_INQUERY)
-                .category("ORDER_PAYMENT")
-                .targetType(PostTargetType.PRICE_POLICY)
-                .targetId(targetId)
-                .title("문의 제목")
-                .content("문의 내용")
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(userId)
+            .board(Board.ONE_ON_ONE_INQUERY)
+            .category("ORDER_PAYMENT")
+            .targetType(PostTargetType.PRICE_POLICY)
+            .targetId(targetId)
+            .title("문의 제목")
+            .content("문의 내용")
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildProductInqueryPost(Long id, Long userId, Long targetId, boolean isPrivate) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(userId)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .targetType(PostTargetType.PRICE_POLICY)
-                .targetId(targetId)
-                .title("상품 문의 제목")
-                .content("상품 문의 내용")
-                .isPrivate(isPrivate)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(userId)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .targetType(PostTargetType.PRICE_POLICY)
+            .targetId(targetId)
+            .title("상품 문의 제목")
+            .content("상품 문의 내용")
+            .isPrivate(isPrivate)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildProductInqueryPostWithNullTargetType(Long id, Long userId, Long targetId) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(userId)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .targetType(null)
-                .targetId(targetId)
-                .title("상품 문의 제목")
-                .content("상품 문의 내용")
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(userId)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .targetType(null)
+            .targetId(targetId)
+            .title("상품 문의 제목")
+            .content("상품 문의 내용")
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Post buildPhotoPost(Long id, Board board, String category) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(1L)
-                .board(board)
-                .category(category)
-                .title("사진 게시글")
-                .content("내용")
-                .isPhoto(true)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .userId(1L)
+            .board(board)
+            .category(category)
+            .title("사진 게시글")
+            .content("내용")
+            .isPhoto(true)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private ProductInfoResult buildProductInfo(Long sellerId) {
@@ -502,14 +502,14 @@ class GetPostUseCaseTest {
     private void mockProductInfoForTarget(Long targetId, Long sellerId) {
         ProductInfoResult productInfo = buildProductInfo(sellerId);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(targetId)))
-                .thenReturn(Map.of(targetId, productInfo));
+            .thenReturn(Map.of(targetId, productInfo));
     }
 
     @SuppressWarnings("unchecked")
     private OAuth2AuthenticatedPrincipal buildAdminPrincipal() {
         OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
         doReturn(List.of(new SimpleGrantedAuthority("ROLE_ADMIN")))
-                .when(principal).getAuthorities();
+            .when(principal).getAuthorities();
         return principal;
     }
 }

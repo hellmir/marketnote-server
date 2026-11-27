@@ -29,12 +29,12 @@ public class PurchaseConfirmationRequestNotificationConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SHIPPING_STATUS_CHANGED,
-            groupId = "notification-purchase-confirmation"
+        topics = KafkaTopicConstants.SHIPPING_STATUS_CHANGED,
+        groupId = "notification-purchase-confirmation"
     )
     public void handleShippingStatusChangedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -56,11 +56,11 @@ public class PurchaseConfirmationRequestNotificationConsumer {
         }
 
         log.info("배송 완료 이벤트 수신 (구매 확정 요청 알림 예약). eventId={}, orderId={}, buyerId={}",
-                envelope.eventId(), payload.orderId(), payload.buyerId());
+            envelope.eventId(), payload.orderId(), payload.buyerId());
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()),
-                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+            EventPayloadValidator.id("orderId", payload.orderId()),
+            EventPayloadValidator.id("buyerId", payload.buyerId()))) {
             acknowledgment.acknowledge();
             return;
         }
@@ -75,19 +75,19 @@ public class PurchaseConfirmationRequestNotificationConsumer {
             LocalDateTime scheduledAt = payload.occurredAt().plusDays(1);
 
             SendNotificationCommand command = new SendNotificationCommand(
-                    payload.buyerId(),
-                    "PURCHASE_CONFIRMATION_REQUEST",
-                    Map.of("order_id", String.valueOf(payload.orderId())),
-                    "PUSH_AND_IN_APP",
-                    scheduledAt
+                payload.buyerId(),
+                "PURCHASE_CONFIRMATION_REQUEST",
+                Map.of("order_id", String.valueOf(payload.orderId())),
+                "PUSH_AND_IN_APP",
+                scheduledAt
             );
             sendNotificationUseCase.sendNotification(command);
 
             log.info("구매 확정 요청 알림 예약 완료. orderId={}, buyerId={}, scheduledAt={}",
-                    payload.orderId(), payload.buyerId(), scheduledAt);
+                payload.orderId(), payload.buyerId(), scheduledAt);
         } catch (Exception e) {
             log.error("구매 확정 요청 알림 발송 실패. eventId={}, orderId={}, buyerId={}, error={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId(), e.getMessage(), e);
+                envelope.eventId(), payload.orderId(), payload.buyerId(), e.getMessage(), e);
         }
 
         acknowledgment.acknowledge();

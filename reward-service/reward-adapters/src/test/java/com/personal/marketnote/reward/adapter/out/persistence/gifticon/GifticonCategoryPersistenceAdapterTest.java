@@ -39,16 +39,16 @@ class GifticonCategoryPersistenceAdapterTest {
 
     private GifticonCategoryJpaEntity buildEntity(Long id, String code) {
         GifticonCategory restored = GifticonCategory.from(GifticonCategorySnapshotState.builder()
-                .id(id)
-                .categoryCode(code)
-                .categoryName("카테고리")
-                .displayName("카테고리 표시명")
-                .iconUrl("http://img.test.com/icon.png")
-                .exposed(true)
-                .orderNum(1)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
+            .id(id)
+            .categoryCode(code)
+            .categoryName("카테고리")
+            .displayName("카테고리 표시명")
+            .iconUrl("http://img.test.com/icon.png")
+            .exposed(true)
+            .orderNum(1)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .build());
         return GifticonCategoryJpaEntity.from(restored);
     }
 
@@ -73,7 +73,7 @@ class GifticonCategoryPersistenceAdapterTest {
     @DisplayName("findAllOrderByOrderNumAsc는 정렬된 카테고리 목록을 반환한다")
     void shouldFindAllOrderedByOrderNum() {
         given(categoryRepository.findAllByOrderByOrderNumAsc())
-                .willReturn(List.of(buildEntity(1L, "C001"), buildEntity(2L, "C002")));
+            .willReturn(List.of(buildEntity(1L, "C001"), buildEntity(2L, "C002")));
         List<GifticonCategory> result = adapter.findAllOrderByOrderNumAsc();
         assertThat(result).hasSize(2);
     }
@@ -82,7 +82,7 @@ class GifticonCategoryPersistenceAdapterTest {
     @DisplayName("findAllExposed는 노출 카테고리 목록을 반환한다")
     void shouldFindAllExposed() {
         given(categoryRepository.findAllExposed())
-                .willReturn(List.of(buildEntity(1L, "C001")));
+            .willReturn(List.of(buildEntity(1L, "C001")));
         List<GifticonCategory> result = adapter.findAllExposed();
         assertThat(result).hasSize(1);
     }
@@ -115,7 +115,7 @@ class GifticonCategoryPersistenceAdapterTest {
             GifticonCategoryJpaEntity sample = buildEntity(99L, "C099");
             given(categoryRepository.findById(99L)).willReturn(Optional.empty());
             assertThatThrownBy(() -> adapter.update(sample.toDomain()))
-                    .isInstanceOf(GifticonCategoryNotFoundException.class);
+                .isInstanceOf(GifticonCategoryNotFoundException.class);
         }
     }
 

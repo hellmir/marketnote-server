@@ -31,18 +31,18 @@ class RegisterAttendancePolicyUseCaseTest {
     void shouldRegisterAttendancePolicyAndReturnId() {
         // given
         RegisterAttendancePolicyCommand command = RegisterAttendancePolicyCommand.builder()
-                .continuousPeriod((short) 3)
-                .rewardType(AttendanceRewardType.POINT)
-                .rewardQuantity(100L)
-                .build();
+            .continuousPeriod((short) 3)
+            .rewardType(AttendanceRewardType.POINT)
+            .rewardQuantity(100L)
+            .build();
 
         AttendancePolicy savedPolicy = AttendancePolicy.from(
-                AttendancePolicySnapshotState.builder()
-                        .id((short) 1)
-                        .continuousPeriod(ContinuousPeriod.of((short) 3))
-                        .rewardType(AttendanceRewardType.POINT)
-                        .rewardQuantity(RewardQuantity.of(100L))
-                        .build()
+            AttendancePolicySnapshotState.builder()
+                .id((short) 1)
+                .continuousPeriod(ContinuousPeriod.of((short) 3))
+                .rewardType(AttendanceRewardType.POINT)
+                .rewardQuantity(RewardQuantity.of(100L))
+                .build()
         );
 
         when(saveAttendancePolicyPort.save(any(AttendancePolicy.class))).thenReturn(savedPolicy);

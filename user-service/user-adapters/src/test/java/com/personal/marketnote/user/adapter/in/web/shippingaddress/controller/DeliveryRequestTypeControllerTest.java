@@ -35,19 +35,19 @@ class DeliveryRequestTypeControllerTest {
     void returnsDeliveryRequestTypeList() {
         // given
         List<GetDeliveryRequestTypesResult> results = List.of(
-                new GetDeliveryRequestTypesResult(DeliveryRequestType.NONE, DeliveryRequestType.NONE.getDescription()),
-                new GetDeliveryRequestTypesResult(
-                        DeliveryRequestType.LEAVE_AT_DOOR, DeliveryRequestType.LEAVE_AT_DOOR.getDescription()
-                ),
-                new GetDeliveryRequestTypesResult(
-                        DeliveryRequestType.CUSTOM, DeliveryRequestType.CUSTOM.getDescription()
-                )
+            new GetDeliveryRequestTypesResult(DeliveryRequestType.NONE, DeliveryRequestType.NONE.getDescription()),
+            new GetDeliveryRequestTypesResult(
+                DeliveryRequestType.LEAVE_AT_DOOR, DeliveryRequestType.LEAVE_AT_DOOR.getDescription()
+            ),
+            new GetDeliveryRequestTypesResult(
+                DeliveryRequestType.CUSTOM, DeliveryRequestType.CUSTOM.getDescription()
+            )
         );
         when(getDeliveryRequestTypesUseCase.getDeliveryRequestTypes()).thenReturn(results);
 
         // when
         ResponseEntity<BaseResponse<List<GetDeliveryRequestTypesResponse>>> response =
-                controller.getDeliveryRequestTypes();
+            controller.getDeliveryRequestTypes();
 
         // then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -64,7 +64,7 @@ class DeliveryRequestTypeControllerTest {
 
         // when
         ResponseEntity<BaseResponse<List<GetDeliveryRequestTypesResponse>>> response =
-                controller.getDeliveryRequestTypes();
+            controller.getDeliveryRequestTypes();
 
         // then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

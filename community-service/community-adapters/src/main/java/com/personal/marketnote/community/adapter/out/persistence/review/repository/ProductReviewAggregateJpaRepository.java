@@ -10,16 +10,16 @@ import java.util.Optional;
 
 public interface ProductReviewAggregateJpaRepository extends JpaRepository<ProductReviewAggregateJpaEntity, Long> {
     @Query("""
-            SELECT p
-            FROM ProductReviewAggregateJpaEntity p
-            WHERE p.productId = :productId
-            """)
+        SELECT p
+        FROM ProductReviewAggregateJpaEntity p
+        WHERE p.productId = :productId
+        """)
     Optional<ProductReviewAggregateJpaEntity> findByProductId(@Param("productId") Long productId);
 
     @Query("""
-            SELECT p
-            FROM ProductReviewAggregateJpaEntity p
-            WHERE p.productId IN :productIds
-            """)
+        SELECT p
+        FROM ProductReviewAggregateJpaEntity p
+        WHERE p.productId IN :productIds
+        """)
     List<ProductReviewAggregateJpaEntity> findByProductIdIn(@Param("productIds") List<Long> productIds);
 }

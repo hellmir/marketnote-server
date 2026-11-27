@@ -19,13 +19,13 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "offerwall_mapper",
-        indexes = {
-                @Index(
-                        name = "idx_offerwall_type_reward_key_success_failure_desc",
-                        columnList = "offerwall_type, reward_key, success_yn, failure_count DESC"
-                )
-        }
+    name = "offerwall_mapper",
+    indexes = {
+        @Index(
+            name = "idx_offerwall_type_reward_key_success_failure_desc",
+            columnList = "offerwall_type, reward_key, success_yn, failure_count DESC"
+        )
+    }
 )
 @EntityListeners(value = AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -95,49 +95,49 @@ public class OfferwallMapperJpaEntity {
 
     public static OfferwallMapperJpaEntity from(OfferwallMapper offerwallMapper) {
         return OfferwallMapperJpaEntity.builder()
-                .id(offerwallMapper.getId())
-                .offerwallType(offerwallMapper.getOfferwallType())
-                .rewardKey(offerwallMapper.getRewardKey())
-                .userKey(offerwallMapper.getUserKey())
-                .userDeviceType(offerwallMapper.getUserDeviceType())
-                .campaignKey(offerwallMapper.getCampaignKey())
-                .campaignType(offerwallMapper.getCampaignType())
-                .campaignName(offerwallMapper.getCampaignName())
-                .quantity(offerwallMapper.getQuantityValue())
-                .signedValue(offerwallMapper.getSignedValue())
-                .appKey(offerwallMapper.getAppKey())
-                .appName(offerwallMapper.getAppName())
-                .adid(offerwallMapper.getAdid())
-                .idfa(offerwallMapper.getIdfa())
-                .isSuccess(offerwallMapper.getIsSuccess())
-                .failureCount(offerwallMapper.getFailureCount())
-                .attendedAt(offerwallMapper.getAttendedAt())
-                .createdAt(offerwallMapper.getCreatedAt())
-                .build();
+            .id(offerwallMapper.getId())
+            .offerwallType(offerwallMapper.getOfferwallType())
+            .rewardKey(offerwallMapper.getRewardKey())
+            .userKey(offerwallMapper.getUserKey())
+            .userDeviceType(offerwallMapper.getUserDeviceType())
+            .campaignKey(offerwallMapper.getCampaignKey())
+            .campaignType(offerwallMapper.getCampaignType())
+            .campaignName(offerwallMapper.getCampaignName())
+            .quantity(offerwallMapper.getQuantityValue())
+            .signedValue(offerwallMapper.getSignedValue())
+            .appKey(offerwallMapper.getAppKey())
+            .appName(offerwallMapper.getAppName())
+            .adid(offerwallMapper.getAdid())
+            .idfa(offerwallMapper.getIdfa())
+            .isSuccess(offerwallMapper.getIsSuccess())
+            .failureCount(offerwallMapper.getFailureCount())
+            .attendedAt(offerwallMapper.getAttendedAt())
+            .createdAt(offerwallMapper.getCreatedAt())
+            .build();
     }
 
     public OfferwallMapper toDomain() {
         return OfferwallMapper.from(
-                OfferwallMapperSnapshotState.builder()
-                        .id(id)
-                        .offerwallType(offerwallType)
-                        .rewardKey(rewardKey)
-                        .userKey(userKey)
-                        .userDeviceType(userDeviceType)
-                        .campaignKey(campaignKey)
-                        .campaignType(campaignType)
-                        .campaignName(campaignName)
-                        .quantity(FormatValidator.hasNoValue(quantity) ? null : RewardQuantity.of(quantity))
-                        .signedValue(signedValue)
-                        .appKey(appKey)
-                        .appName(appName)
-                        .adid(adid)
-                        .idfa(idfa)
-                        .isSuccess(isSuccess)
-                        .failureCount(failureCount)
-                        .attendedAt(attendedAt)
-                        .createdAt(createdAt)
-                        .build()
+            OfferwallMapperSnapshotState.builder()
+                .id(id)
+                .offerwallType(offerwallType)
+                .rewardKey(rewardKey)
+                .userKey(userKey)
+                .userDeviceType(userDeviceType)
+                .campaignKey(campaignKey)
+                .campaignType(campaignType)
+                .campaignName(campaignName)
+                .quantity(FormatValidator.hasNoValue(quantity) ? null : RewardQuantity.of(quantity))
+                .signedValue(signedValue)
+                .appKey(appKey)
+                .appName(appName)
+                .adid(adid)
+                .idfa(idfa)
+                .isSuccess(isSuccess)
+                .failureCount(failureCount)
+                .attendedAt(attendedAt)
+                .createdAt(createdAt)
+                .build()
         );
     }
 }

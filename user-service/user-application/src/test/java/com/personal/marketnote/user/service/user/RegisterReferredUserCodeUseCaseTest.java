@@ -49,10 +49,10 @@ class RegisterReferredUserCodeUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage(String.format(
-                        USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, referredUserCode
-                ));
+            .isInstanceOf(UserNotFoundException.class)
+            .hasMessage(String.format(
+                USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, referredUserCode
+            ));
 
         verify(getUserUseCase).existsUser(referredUserCode);
         verifyNoMoreInteractions(getUserUseCase);
@@ -67,7 +67,7 @@ class RegisterReferredUserCodeUseCaseTest {
         String referredUserCode = "REF456";
         Long referredUserId = 2L;
         User requestUser = spy(UserTestObjectFactory.createDefaultUser(
-                requestUserId, EntityStatus.ACTIVE, false, List.of()
+            requestUserId, EntityStatus.ACTIVE, false, List.of()
         ));
         User referredUser = mock(User.class);
 
@@ -101,7 +101,7 @@ class RegisterReferredUserCodeUseCaseTest {
         Long requestUserId = 1L;
         String referredUserCode = "REF456";
         User requestUser = spy(UserTestObjectFactory.createDefaultUser(
-                requestUserId, EntityStatus.ACTIVE, false, List.of()
+            requestUserId, EntityStatus.ACTIVE, false, List.of()
         ));
         requestUser.skipReferredUserCodeInput(LocalDateTime.of(2026, 4, 27, 10, 0));
         User referredUser = mock(User.class);
@@ -112,7 +112,7 @@ class RegisterReferredUserCodeUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
-                .isInstanceOf(ReferredUserCodeInputAlreadySkippedException.class);
+            .isInstanceOf(ReferredUserCodeInputAlreadySkippedException.class);
 
         verify(getUserUseCase).existsUser(referredUserCode);
         verify(getUserUseCase).getUser(requestUserId);
@@ -131,7 +131,7 @@ class RegisterReferredUserCodeUseCaseTest {
         Long requestUserId = 1L;
         String referredUserCode = "REF456";
         User requestUser = spy(UserTestObjectFactory.createDefaultUser(
-                requestUserId, EntityStatus.ACTIVE, false, List.of()
+            requestUserId, EntityStatus.ACTIVE, false, List.of()
         ));
         requestUser.registerReferredUserCode(ReferenceCode.of("EXIST1"));
         User referredUser = mock(User.class);
@@ -142,8 +142,8 @@ class RegisterReferredUserCodeUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
-                .isInstanceOf(ReferredUserCodeAlreadyExistsException.class)
-                .hasMessage(new ReferredUserCodeAlreadyExistsException().getMessage());
+            .isInstanceOf(ReferredUserCodeAlreadyExistsException.class)
+            .hasMessage(new ReferredUserCodeAlreadyExistsException().getMessage());
 
         verify(getUserUseCase).existsUser(referredUserCode);
         verify(getUserUseCase).getUser(requestUserId);
@@ -168,7 +168,7 @@ class RegisterReferredUserCodeUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(getUserUseCase).existsUser(referredUserCode);
         verify(getUserUseCase).getUser(requestUserId);
@@ -184,7 +184,7 @@ class RegisterReferredUserCodeUseCaseTest {
         Long requestUserId = 1L;
         String referredUserCode = "REF456";
         User requestUser = spy(UserTestObjectFactory.createDefaultUser(
-                requestUserId, EntityStatus.ACTIVE, false, List.of()
+            requestUserId, EntityStatus.ACTIVE, false, List.of()
         ));
         UserNotFoundException exception = new UserNotFoundException();
 
@@ -194,7 +194,7 @@ class RegisterReferredUserCodeUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(getUserUseCase).existsUser(referredUserCode);
         verify(getUserUseCase).getUser(requestUserId);
@@ -212,7 +212,7 @@ class RegisterReferredUserCodeUseCaseTest {
         Long requestUserId = 1L;
         String referredUserCode = "REF123"; // requestUser의 referenceCode와 동일
         User requestUser = spy(UserTestObjectFactory.createDefaultUser(
-                requestUserId, EntityStatus.ACTIVE, false, List.of()
+            requestUserId, EntityStatus.ACTIVE, false, List.of()
         ));
 
         when(getUserUseCase.existsUser(referredUserCode)).thenReturn(true);
@@ -220,8 +220,8 @@ class RegisterReferredUserCodeUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
-                .isInstanceOf(SelfReferralNotAllowedException.class)
-                .hasMessage(new SelfReferralNotAllowedException(FIRST_ERROR_CODE).getMessage());
+            .isInstanceOf(SelfReferralNotAllowedException.class)
+            .hasMessage(new SelfReferralNotAllowedException(FIRST_ERROR_CODE).getMessage());
 
         verify(getUserUseCase).existsUser(referredUserCode);
         verify(getUserUseCase).getUser(requestUserId);
@@ -239,7 +239,7 @@ class RegisterReferredUserCodeUseCaseTest {
         Long requestUserId = 1L;
         String referredUserCode = "REF456";
         User requestUser = spy(UserTestObjectFactory.createDefaultUser(
-                requestUserId, EntityStatus.ACTIVE, false, List.of()
+            requestUserId, EntityStatus.ACTIVE, false, List.of()
         ));
         User referredUser = mock(User.class);
 
@@ -251,8 +251,8 @@ class RegisterReferredUserCodeUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
-                .isInstanceOf(MutualReferralNotAllowedException.class)
-                .hasMessage(new MutualReferralNotAllowedException(FIRST_ERROR_CODE).getMessage());
+            .isInstanceOf(MutualReferralNotAllowedException.class)
+            .hasMessage(new MutualReferralNotAllowedException(FIRST_ERROR_CODE).getMessage());
 
         verify(getUserUseCase).existsUser(referredUserCode);
         verify(getUserUseCase).getUser(requestUserId);

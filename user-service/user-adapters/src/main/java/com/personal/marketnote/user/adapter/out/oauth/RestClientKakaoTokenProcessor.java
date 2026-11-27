@@ -60,16 +60,16 @@ public class RestClientKakaoTokenProcessor implements TokenProcessor {
     private final ExternalCallLogger externalCallLogger;
 
     public RestClientKakaoTokenProcessor(
-            RestClient.Builder restClientBuilder,
-            @Value("${oauth2.kakao.client-id}") String kakaoClientId,
-            @Value("${oauth2.kakao.client-secret}") String kakaoClientSecret,
-            ExternalCallLogger externalCallLogger
+        RestClient.Builder restClientBuilder,
+        @Value("${oauth2.kakao.client-id}") String kakaoClientId,
+        @Value("${oauth2.kakao.client-secret}") String kakaoClientSecret,
+        ExternalCallLogger externalCallLogger
     ) {
         this.restClient = restClientBuilder.build();
         this.kakaoClientId = kakaoClientId;
         this.kakaoClientSecret = "empty".equals(kakaoClientSecret)
-                ? null
-                : kakaoClientSecret;
+            ? null
+            : kakaoClientSecret;
         this.externalCallLogger = externalCallLogger;
     }
 
@@ -78,38 +78,38 @@ public class RestClientKakaoTokenProcessor implements TokenProcessor {
         MultiValueMap<String, String> requestBody = buildTokenRequestBody(code, redirectUri);
 
         Map<String, String> tags = Map.of(
-                TAG_PROVIDER, PROVIDER_TAG,
-                TAG_CODE, ValueMasker.mask(code)
+            TAG_PROVIDER, PROVIDER_TAG,
+            TAG_CODE, ValueMasker.mask(code)
         );
 
         OAuth2GrantedToken responseBody = externalCallLogger.record(
-                ExternalSystem.KAKAO_OAUTH, OPERATION_GRANT_TOKEN, tags,
-                () -> {
-                    ResponseEntity<OAuth2GrantedToken> responseEntity = restClient.post()
-                            .uri(KAKAO_TOKEN_REQUEST_URL)
-                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                            .body(requestBody)
-                            .retrieve()
-                            .toEntity(OAuth2GrantedToken.class);
+            ExternalSystem.KAKAO_OAUTH, OPERATION_GRANT_TOKEN, tags,
+            () -> {
+                ResponseEntity<OAuth2GrantedToken> responseEntity = restClient.post()
+                    .uri(KAKAO_TOKEN_REQUEST_URL)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(requestBody)
+                    .retrieve()
+                    .toEntity(OAuth2GrantedToken.class);
 
-                    if (responseEntity.getStatusCode().is4xxClientError()) {
-                        throw new UnsupportedCodeException("Code is not supported.");
-                    }
-                    return responseEntity.getBody();
+                if (responseEntity.getStatusCode().is4xxClientError()) {
+                    throw new UnsupportedCodeException("Code is not supported.");
                 }
+                return responseEntity.getBody();
+            }
         );
 
         if (FormatValidator.hasValue(responseBody)) {
             return GrantedTokenInfo.builder()
-                    .accessToken(responseBody.getAccessToken())
-                    .refreshToken(responseBody.getRefreshToken())
-                    .id(extractIdFromIdToken(responseBody.getIdToken()))
-                    .authVendor(AuthVendor.KAKAO)
-                    .build();
+                .accessToken(responseBody.getAccessToken())
+                .refreshToken(responseBody.getRefreshToken())
+                .id(extractIdFromIdToken(responseBody.getIdToken()))
+                .authVendor(AuthVendor.KAKAO)
+                .build();
         }
 
         return GrantedTokenInfo.builder()
-                .build();
+            .build();
     }
 
     private MultiValueMap<String, String> buildTokenRequestBody(String code, String redirectUri) {
@@ -130,87 +130,87 @@ public class RestClientKakaoTokenProcessor implements TokenProcessor {
 
     private String extractIdFromIdToken(String idToken) {
         Map<String, String> tags = Map.of(
-                TAG_PROVIDER, PROVIDER_TAG,
-                TAG_ID_TOKEN, ValueMasker.mask(idToken)
+            TAG_PROVIDER, PROVIDER_TAG,
+            TAG_ID_TOKEN, ValueMasker.mask(idToken)
         );
 
         return externalCallLogger.record(
-                ExternalSystem.KAKAO_OAUTH, OPERATION_VERIFY_ID_TOKEN, tags,
-                () -> {
-                    String payload = idToken.split("\\.")[1];
-                    byte[] decoded = Base64.getDecoder().decode(payload);
-                    char[] chars = new char[decoded.length];
+            ExternalSystem.KAKAO_OAUTH, OPERATION_VERIFY_ID_TOKEN, tags,
+            () -> {
+                String payload = idToken.split("\\.")[1];
+                byte[] decoded = Base64.getDecoder().decode(payload);
+                char[] chars = new char[decoded.length];
 
-                    for (int i = 0; i < chars.length; i++) {
-                        chars[i] = (char) decoded[i];
-                    }
-
-                    return new JSONObject(String.valueOf(chars)).getString(SUB_CLAIM_KEY);
+                for (int i = 0; i < chars.length; i++) {
+                    chars[i] = (char) decoded[i];
                 }
+
+                return new JSONObject(String.valueOf(chars)).getString(SUB_CLAIM_KEY);
+            }
         );
     }
 
     @Override
     public OAuth2AuthenticationInfo authenticate(String accessToken) throws InvalidAccessTokenException {
         Map<String, String> tags = Map.of(
-                TAG_PROVIDER, PROVIDER_TAG,
-                TAG_ACCESS_TOKEN, ValueMasker.mask(accessToken)
+            TAG_PROVIDER, PROVIDER_TAG,
+            TAG_ACCESS_TOKEN, ValueMasker.mask(accessToken)
         );
 
         String responseBody = externalCallLogger.record(
-                ExternalSystem.KAKAO_OAUTH, OPERATION_AUTHENTICATE, tags,
-                () -> {
-                    ResponseEntity<String> responseEntity = restClient.get()
-                            .uri(KAKAO_OIDC_USER_INFO_URL)
-                            .header(HttpHeaders.AUTHORIZATION, AUTHENTICATION_SCHEME + accessToken)
-                            .retrieve()
-                            .toEntity(String.class);
+            ExternalSystem.KAKAO_OAUTH, OPERATION_AUTHENTICATE, tags,
+            () -> {
+                ResponseEntity<String> responseEntity = restClient.get()
+                    .uri(KAKAO_OIDC_USER_INFO_URL)
+                    .header(HttpHeaders.AUTHORIZATION, AUTHENTICATION_SCHEME + accessToken)
+                    .retrieve()
+                    .toEntity(String.class);
 
-                    if (responseEntity.getStatusCode().is4xxClientError()) {
-                        throw new InvalidAccessTokenException("Access token not valid");
-                    }
-                    return responseEntity.getBody();
+                if (responseEntity.getStatusCode().is4xxClientError()) {
+                    throw new InvalidAccessTokenException("Access token not valid");
                 }
+                return responseEntity.getBody();
+            }
         );
 
         JSONObject json = new JSONObject(responseBody);
 
         return OAuth2AuthenticationInfo.builder()
-                .id(json.getString(SUB_CLAIM_KEY))
-                .authVendor(AuthVendor.KAKAO)
-                .build();
+            .id(json.getString(SUB_CLAIM_KEY))
+            .authVendor(AuthVendor.KAKAO)
+            .build();
     }
 
     @Override
     public OAuth2UserInfo retrieveUserInfo(String accessToken) throws InvalidAccessTokenException {
         Map<String, String> tags = Map.of(
-                TAG_PROVIDER, PROVIDER_TAG,
-                TAG_ACCESS_TOKEN, ValueMasker.mask(accessToken)
+            TAG_PROVIDER, PROVIDER_TAG,
+            TAG_ACCESS_TOKEN, ValueMasker.mask(accessToken)
         );
 
         String responseBody = externalCallLogger.record(
-                ExternalSystem.KAKAO_OAUTH, OPERATION_RETRIEVE_USER_INFO, tags,
-                () -> {
-                    ResponseEntity<String> responseEntity = restClient.get()
-                            .uri(KAKAO_ME_URL)
-                            .header(HttpHeaders.AUTHORIZATION, AUTHENTICATION_SCHEME + accessToken)
-                            .retrieve()
-                            .toEntity(String.class);
+            ExternalSystem.KAKAO_OAUTH, OPERATION_RETRIEVE_USER_INFO, tags,
+            () -> {
+                ResponseEntity<String> responseEntity = restClient.get()
+                    .uri(KAKAO_ME_URL)
+                    .header(HttpHeaders.AUTHORIZATION, AUTHENTICATION_SCHEME + accessToken)
+                    .retrieve()
+                    .toEntity(String.class);
 
-                    if (responseEntity.getStatusCode().is4xxClientError()) {
-                        throw new InvalidAccessTokenException("Access Token is not valid");
-                    }
-                    return responseEntity.getBody();
+                if (responseEntity.getStatusCode().is4xxClientError()) {
+                    throw new InvalidAccessTokenException("Access Token is not valid");
                 }
+                return responseEntity.getBody();
+            }
         );
 
         JSONObject json = new JSONObject(responseBody);
         JSONObject kakaoAccount = json.getJSONObject("kakao_account");
 
         return OAuth2UserInfo.builder()
-                .id(String.valueOf(json.getLong("id")))
-                .name(kakaoAccount.isNull("name") ? null : kakaoAccount.getString("name"))
-                .build();
+            .id(String.valueOf(json.getLong("id")))
+            .name(kakaoAccount.isNull("name") ? null : kakaoAccount.getString("name"))
+            .build();
     }
 
     @Override
@@ -222,33 +222,33 @@ public class RestClientKakaoTokenProcessor implements TokenProcessor {
         bodyParams.add("client_secret", kakaoClientSecret);
 
         Map<String, String> tags = Map.of(
-                TAG_PROVIDER, PROVIDER_TAG,
-                TAG_REFRESH_TOKEN, ValueMasker.mask(refreshToken)
+            TAG_PROVIDER, PROVIDER_TAG,
+            TAG_REFRESH_TOKEN, ValueMasker.mask(refreshToken)
         );
 
         OAuth2GrantedToken responseBody = externalCallLogger.record(
-                ExternalSystem.KAKAO_OAUTH, OPERATION_REFRESH_TOKEN, tags,
-                () -> {
-                    ResponseEntity<OAuth2GrantedToken> responseEntity = restClient.post()
-                            .uri(KAKAO_TOKEN_REQUEST_URL)
-                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                            .body(bodyParams)
-                            .retrieve()
-                            .toEntity(OAuth2GrantedToken.class);
+            ExternalSystem.KAKAO_OAUTH, OPERATION_REFRESH_TOKEN, tags,
+            () -> {
+                ResponseEntity<OAuth2GrantedToken> responseEntity = restClient.post()
+                    .uri(KAKAO_TOKEN_REQUEST_URL)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(bodyParams)
+                    .retrieve()
+                    .toEntity(OAuth2GrantedToken.class);
 
-                    if (responseEntity.getStatusCode().is4xxClientError()) {
-                        throw new InvalidRefreshTokenException("Refresh token not valid");
-                    }
-                    return responseEntity.getBody();
+                if (responseEntity.getStatusCode().is4xxClientError()) {
+                    throw new InvalidRefreshTokenException("Refresh token not valid");
                 }
+                return responseEntity.getBody();
+            }
         );
 
         return GrantedTokenInfo.builder()
-                .accessToken(responseBody.getAccessToken())
-                .refreshToken(responseBody.getRefreshToken())
-                .id(extractIdFromIdToken(responseBody.getIdToken()))
-                .authVendor(AuthVendor.KAKAO)
-                .build();
+            .accessToken(responseBody.getAccessToken())
+            .refreshToken(responseBody.getRefreshToken())
+            .id(extractIdFromIdToken(responseBody.getIdToken()))
+            .authVendor(AuthVendor.KAKAO)
+            .build();
     }
 
     @Override

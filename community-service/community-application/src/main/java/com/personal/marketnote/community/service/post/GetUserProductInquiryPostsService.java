@@ -42,16 +42,16 @@ public class GetUserProductInquiryPostsService implements GetUserProductInquiryP
         boolean isDesc = Sort.Direction.DESC.equals(command.sortDirection());
 
         Posts posts = findPostPort.findUserPostsByOffset(
-                command.userId(),
-                Board.PRODUCT_INQUERY,
-                command.page(),
-                command.pageSize(),
-                isDesc,
-                command.sortProperty()
+            command.userId(),
+            Board.PRODUCT_INQUERY,
+            command.page(),
+            command.pageSize(),
+            isDesc,
+            command.sortProperty()
         );
 
         long totalElements = findPostPort.countUserPosts(
-                command.userId(), Board.PRODUCT_INQUERY, null, null, null, null
+            command.userId(), Board.PRODUCT_INQUERY, null, null, null, null
         );
 
         int totalPages = computeTotalPages(totalElements, command.pageSize());
@@ -63,22 +63,22 @@ public class GetUserProductInquiryPostsService implements GetUserProductInquiryP
         Map<Long, List<GetFileResult>> postImagesByPostId = findPostImages(postList);
 
         List<UserProductInquiryPostItemResult> postItems = postList.stream()
-                .map(post -> toPostItemResult(post, productInfoMap, postImagesByPostId))
-                .toList();
+            .map(post -> toPostItemResult(post, productInfoMap, postImagesByPostId))
+            .toList();
 
         return GetUserProductInquiryPostsResult.of(
-                command.page(),
-                command.pageSize(),
-                totalElements,
-                totalPages,
-                postItems
+            command.page(),
+            command.pageSize(),
+            totalElements,
+            totalPages,
+            postItems
         );
     }
 
     private UserProductInquiryPostItemResult toPostItemResult(
-            Post post,
-            Map<Long, ProductInfoResult> productInfoMap,
-            Map<Long, List<GetFileResult>> postImagesByPostId
+        Post post,
+        Map<Long, ProductInfoResult> productInfoMap,
+        Map<Long, List<GetFileResult>> postImagesByPostId
     ) {
         List<GetFileResult> images = postImagesByPostId.get(post.getId());
 
@@ -92,9 +92,9 @@ public class GetUserProductInquiryPostsService implements GetUserProductInquiryP
 
         ProductInfoResult productInfoResult = productInfoMap.get(post.getTargetId());
         UserProductInquiryPostItemResult postItemResult = UserProductInquiryPostItemResult.from(
-                post,
-                PostProductInfoResult.from(productInfoResult),
-                images
+            post,
+            PostProductInfoResult.from(productInfoResult),
+            images
         );
 
         if (post.hasReplies()) {
@@ -113,11 +113,11 @@ public class GetUserProductInquiryPostsService implements GetUserProductInquiryP
 
     private Map<Long, ProductInfoResult> getProductInfo(List<Post> posts) {
         List<Long> pricePolicyIds = posts.stream()
-                .filter(post -> PostTargetType.PRICE_POLICY.equals(post.getTargetType()))
-                .map(Post::getTargetId)
-                .filter(FormatValidator::hasValue)
-                .distinct()
-                .toList();
+            .filter(post -> PostTargetType.PRICE_POLICY.equals(post.getTargetType()))
+            .map(Post::getTargetId)
+            .filter(FormatValidator::hasValue)
+            .distinct()
+            .toList();
 
         return findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
     }
@@ -130,19 +130,19 @@ public class GetUserProductInquiryPostsService implements GetUserProductInquiryP
         Map<Long, List<GetFileResult>> postImages = new ConcurrentHashMap<>();
 
         List<Post> photoPosts = posts.stream()
-                .flatMap(post -> {
-                    Stream<Post> replies = post.hasReplies() ? post.getReplies().stream() : Stream.empty();
-                    return Stream.concat(Stream.of(post), replies);
-                })
-                .filter(Post::isPhoto)
-                .toList();
+            .flatMap(post -> {
+                Stream<Post> replies = post.hasReplies() ? post.getReplies().stream() : Stream.empty();
+                return Stream.concat(Stream.of(post), replies);
+            })
+            .filter(Post::isPhoto)
+            .toList();
 
         List<CompletableFuture<Void>> futures = photoPosts.stream()
-                .map(post -> CompletableFuture.runAsync(
-                        () -> findPostImagesPort.findImagesByPostIdAndSort(post.getId(), POST_IMAGE)
-                                .ifPresent(result -> postImages.put(post.getId(), result.images()))
-                ))
-                .toList();
+            .map(post -> CompletableFuture.runAsync(
+                () -> findPostImagesPort.findImagesByPostIdAndSort(post.getId(), POST_IMAGE)
+                    .ifPresent(result -> postImages.put(post.getId(), result.images()))
+            ))
+            .toList();
 
         if (FormatValidator.hasValue(futures)) {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();

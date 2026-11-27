@@ -15,12 +15,12 @@ import java.util.List;
 public class RegisterFulfillmentDeliveryDataDeserializer extends JsonDeserializer<List<RegisterFulfillmentDeliveryItemResponse>> {
     @Override
     public List<RegisterFulfillmentDeliveryItemResponse> deserialize(JsonParser parser, DeserializationContext ctxt)
-            throws IOException {
+        throws IOException {
         ObjectCodec codec = parser.getCodec();
         if (!(codec instanceof ObjectMapper mapper)) {
             throw new IOException(
-                    "Jackson codec must be ObjectMapper, got: " +
-                            (FormatValidator.hasNoValue(codec) ? "null" : codec.getClass().getName())
+                "Jackson codec must be ObjectMapper, got: " +
+                    (FormatValidator.hasNoValue(codec) ? "null" : codec.getClass().getName())
             );
         }
         JsonNode node = mapper.readTree(parser);
@@ -50,8 +50,8 @@ public class RegisterFulfillmentDeliveryDataDeserializer extends JsonDeserialize
 
     private boolean hasItemFields(JsonNode node) {
         return node.hasNonNull("code")
-                || node.hasNonNull("msg")
-                || node.hasNonNull("slipNo")
-                || node.hasNonNull("ordNo");
+            || node.hasNonNull("msg")
+            || node.hasNonNull("slipNo")
+            || node.hasNonNull("ordNo");
     }
 }

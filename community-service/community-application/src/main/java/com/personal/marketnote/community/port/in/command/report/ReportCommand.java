@@ -5,16 +5,16 @@ import lombok.Builder;
 
 @Builder
 public record ReportCommand(
-        ReportTargetType targetType,
+    ReportTargetType targetType,
+    Long targetId,
+    Long reporterId,
+    String reason
+) {
+    public static ReportCommand of(
+        ReportTargetType reportTargetType,
         Long targetId,
         Long reporterId,
         String reason
-) {
-    public static ReportCommand of(
-            ReportTargetType reportTargetType,
-            Long targetId,
-            Long reporterId,
-            String reason
     ) {
         return new ReportCommand(reportTargetType, targetId, reporterId, reason);
     }

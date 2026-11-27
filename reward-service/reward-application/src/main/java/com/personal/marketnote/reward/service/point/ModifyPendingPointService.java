@@ -31,25 +31,25 @@ public class ModifyPendingPointService implements ModifyPendingPointUseCase {
 
     @Override
     @Retryable(
-            retryFor = ObjectOptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
+        retryFor = ObjectOptimisticLockingFailureException.class,
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
     )
     public UpdateUserPointResult modifyPending(ModifyPendingPointCommand command) {
         UserPoint userPoint = findUserPointPort.findByUserIdForUpdate(command.userId())
-                .orElseThrow(() -> {
-                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userId={}", command.userId());
-                    return new UserPointNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("회원 포인트 정보를 찾을 수 없습니다. userId={}", command.userId());
+                return new UserPointNotFoundException();
+            });
         addOrDeductExpectedPoint(userPoint, command);
         UserPoint updatedPoint = updateUserPointPort.update(userPoint);
 
         saveUserPointHistoryPort.save(
-                UserPointHistory.from(
-                        RewardCommandToStateMapper.mapToPendingPointHistoryCreateState(
-                                command, updatedPoint.getUserId(), updatedPoint.getModifiedAt()
-                        )
+            UserPointHistory.from(
+                RewardCommandToStateMapper.mapToPendingPointHistoryCreateState(
+                    command, updatedPoint.getUserId(), updatedPoint.getModifiedAt()
                 )
+            )
         );
 
         return UpdateUserPointResult.from(updatedPoint);

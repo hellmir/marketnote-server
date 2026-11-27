@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record AligoApiResponse(
-        @JsonProperty("result_code") @JsonAlias("code") int resultCode,
-        String message
+    @JsonProperty("result_code") @JsonAlias("code") int resultCode,
+    String message
 ) {
 }

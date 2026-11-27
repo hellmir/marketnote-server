@@ -52,7 +52,7 @@ class OrderQueryRepositoryImplTest {
             flushAndClear();
 
             List<Long> results = orderJpaRepository.findIdsByBuyerIdWithFilters(
-                    DEFAULT_BUYER_ID, null, null, List.of("IGNORED"), 0
+                DEFAULT_BUYER_ID, null, null, List.of("IGNORED"), 0
             );
 
             assertThat(results).containsExactly(second, first);
@@ -67,7 +67,7 @@ class OrderQueryRepositoryImplTest {
             flushAndClear();
 
             List<Long> results = orderJpaRepository.findIdsByBuyerIdWithFilters(
-                    DEFAULT_BUYER_ID, base, null, List.of("IGNORED"), 0
+                DEFAULT_BUYER_ID, base, null, List.of("IGNORED"), 0
             );
 
             assertThat(results).containsExactly(recent);
@@ -83,7 +83,7 @@ class OrderQueryRepositoryImplTest {
             flushAndClear();
 
             List<Long> results = orderJpaRepository.findIdsByBuyerIdWithFilters(
-                    DEFAULT_BUYER_ID, null, base, List.of("IGNORED"), 0
+                DEFAULT_BUYER_ID, null, base, List.of("IGNORED"), 0
             );
 
             assertThat(results).containsExactly(past);
@@ -101,7 +101,7 @@ class OrderQueryRepositoryImplTest {
             flushAndClear();
 
             List<Long> results = orderJpaRepository.findIdsByBuyerIdWithFilters(
-                    DEFAULT_BUYER_ID, start, end, List.of("IGNORED"), 0
+                DEFAULT_BUYER_ID, start, end, List.of("IGNORED"), 0
             );
 
             assertThat(results).containsExactly(inRange);
@@ -118,7 +118,7 @@ class OrderQueryRepositoryImplTest {
 
             List<String> statuses = List.of(OrderStatus.PAID.name(), OrderStatus.DELIVERED.name());
             List<Long> results = orderJpaRepository.findIdsByBuyerIdWithFilters(
-                    DEFAULT_BUYER_ID, null, null, statuses, statuses.size()
+                DEFAULT_BUYER_ID, null, null, statuses, statuses.size()
             );
 
             assertThat(results).containsExactlyInAnyOrder(paid, delivered);
@@ -133,7 +133,7 @@ class OrderQueryRepositoryImplTest {
             flushAndClear();
 
             List<Long> results = orderJpaRepository.findIdsByBuyerIdWithFilters(
-                    DEFAULT_BUYER_ID, null, null, List.of("IGNORED"), 0
+                DEFAULT_BUYER_ID, null, null, List.of("IGNORED"), 0
             );
 
             assertThat(results).containsExactly(third, second, first);
@@ -161,10 +161,10 @@ class OrderQueryRepositoryImplTest {
         @DisplayName("sellerId 필터가 있으면 해당 seller의 상품을 포함한 주문만 반환한다")
         void filtersBySellerId() {
             Long matchingOrderId = saveOrderWithProduct(
-                    DEFAULT_BUYER_ID, OrderStatus.PAID, DEFAULT_SELLER_ID, LocalDateTime.now()
+                DEFAULT_BUYER_ID, OrderStatus.PAID, DEFAULT_SELLER_ID, LocalDateTime.now()
             );
             saveOrderWithProduct(
-                    DEFAULT_BUYER_ID, OrderStatus.PAID, OTHER_SELLER_ID, LocalDateTime.now()
+                DEFAULT_BUYER_ID, OrderStatus.PAID, OTHER_SELLER_ID, LocalDateTime.now()
             );
             flushAndClear();
 
@@ -196,7 +196,7 @@ class OrderQueryRepositoryImplTest {
             flushAndClear();
 
             List<Long> results = orderJpaRepository.findIdsByAdminFilters(
-                    null, null, null, OrderStatus.PAID.name()
+                null, null, null, OrderStatus.PAID.name()
             );
 
             assertThat(results).containsExactly(paid);
@@ -211,20 +211,20 @@ class OrderQueryRepositoryImplTest {
         @DisplayName("ids에 포함된 주문을 LEFT JOIN FETCH로 조회한다")
         void returnsOrdersInIds() {
             Long first = saveOrderWithProduct(
-                    DEFAULT_BUYER_ID, OrderStatus.PAID, DEFAULT_SELLER_ID, LocalDateTime.now()
+                DEFAULT_BUYER_ID, OrderStatus.PAID, DEFAULT_SELLER_ID, LocalDateTime.now()
             );
             Long second = saveOrderWithProduct(
-                    OTHER_BUYER_ID, OrderStatus.DELIVERED, OTHER_SELLER_ID, LocalDateTime.now()
+                OTHER_BUYER_ID, OrderStatus.DELIVERED, OTHER_SELLER_ID, LocalDateTime.now()
             );
             flushAndClear();
 
             List<OrderJpaEntity> results = orderJpaRepository.findWithProductsByIds(List.of(first, second));
 
             assertThat(results)
-                    .extracting(OrderJpaEntity::getId)
-                    .containsExactlyInAnyOrder(first, second);
+                .extracting(OrderJpaEntity::getId)
+                .containsExactlyInAnyOrder(first, second);
             assertThat(results)
-                    .allSatisfy(order -> assertThat(order.getOrderProductJpaEntities()).hasSize(1));
+                .allSatisfy(order -> assertThat(order.getOrderProductJpaEntities()).hasSize(1));
         }
 
         @Test
@@ -282,8 +282,8 @@ class OrderQueryRepositoryImplTest {
         void excludesOrdersNotDelivered() {
             LocalDateTime now = LocalDateTime.of(2026, 4, 1, 0, 0);
             saveOrderAndProduct(
-                    DEFAULT_BUYER_ID, OrderStatus.SHIPPING, DEFAULT_SELLER_ID,
-                    LocalDateTime.now(), OrderStatus.DELIVERED, now.minusDays(1)
+                DEFAULT_BUYER_ID, OrderStatus.SHIPPING, DEFAULT_SELLER_ID,
+                LocalDateTime.now(), OrderStatus.DELIVERED, now.minusDays(1)
             );
             flushAndClear();
 
@@ -297,8 +297,8 @@ class OrderQueryRepositoryImplTest {
         void excludesOrdersWithProductNotDelivered() {
             LocalDateTime now = LocalDateTime.of(2026, 4, 1, 0, 0);
             saveOrderAndProduct(
-                    DEFAULT_BUYER_ID, OrderStatus.DELIVERED, DEFAULT_SELLER_ID,
-                    LocalDateTime.now(), OrderStatus.SHIPPING, now.minusDays(1)
+                DEFAULT_BUYER_ID, OrderStatus.DELIVERED, DEFAULT_SELLER_ID,
+                LocalDateTime.now(), OrderStatus.SHIPPING, now.minusDays(1)
             );
             flushAndClear();
 
@@ -312,8 +312,8 @@ class OrderQueryRepositoryImplTest {
         void excludesOrdersWithNullScheduledAutoConfirmAt() {
             LocalDateTime now = LocalDateTime.of(2026, 4, 1, 0, 0);
             saveOrderAndProduct(
-                    DEFAULT_BUYER_ID, OrderStatus.DELIVERED, DEFAULT_SELLER_ID,
-                    LocalDateTime.now(), OrderStatus.DELIVERED, null
+                DEFAULT_BUYER_ID, OrderStatus.DELIVERED, DEFAULT_SELLER_ID,
+                LocalDateTime.now(), OrderStatus.DELIVERED, null
             );
             flushAndClear();
 
@@ -377,12 +377,12 @@ class OrderQueryRepositoryImplTest {
     }
 
     private Long saveOrderAndProduct(
-            Long buyerId,
-            OrderStatus orderStatus,
-            Long sellerId,
-            LocalDateTime createdAt,
-            OrderStatus productStatus,
-            LocalDateTime scheduledAutoConfirmAt
+        Long buyerId,
+        OrderStatus orderStatus,
+        Long sellerId,
+        LocalDateTime createdAt,
+        OrderStatus productStatus,
+        LocalDateTime scheduledAutoConfirmAt
     ) {
         Long orderId = insertOrderRow(buyerId, orderStatus, createdAt);
         insertOrderProductRow(orderId, sellerId, productStatus, scheduledAutoConfirmAt);
@@ -391,60 +391,60 @@ class OrderQueryRepositoryImplTest {
 
     private Long insertOrderRow(Long buyerId, OrderStatus status, LocalDateTime createdAt) {
         String sql = """
-                INSERT INTO orders (
-                    buyer_id, order_key, order_number, order_status,
-                    total_amount, paid_amount, shipping_region_type, created_at, modified_at
-                ) VALUES (
-                    :buyerId, :orderKey, :orderNumber, :orderStatus,
-                    :totalAmount, :paidAmount, :shippingRegionType, :createdAt, :modifiedAt
-                )
-                """;
+            INSERT INTO orders (
+                buyer_id, order_key, order_number, order_status,
+                total_amount, paid_amount, shipping_region_type, created_at, modified_at
+            ) VALUES (
+                :buyerId, :orderKey, :orderNumber, :orderStatus,
+                :totalAmount, :paidAmount, :shippingRegionType, :createdAt, :modifiedAt
+            )
+            """;
         UUID orderKey = UUID.randomUUID();
         entityManager.createNativeQuery(sql)
-                .setParameter("buyerId", buyerId)
-                .setParameter("orderKey", orderKey)
-                .setParameter("orderNumber", "ORD-" + System.nanoTime())
-                .setParameter("orderStatus", status.name())
-                .setParameter("totalAmount", 10000L)
-                .setParameter("paidAmount", 10000L)
-                .setParameter("shippingRegionType", "NORMAL")
-                .setParameter("createdAt", createdAt)
-                .setParameter("modifiedAt", createdAt)
-                .executeUpdate();
+            .setParameter("buyerId", buyerId)
+            .setParameter("orderKey", orderKey)
+            .setParameter("orderNumber", "ORD-" + System.nanoTime())
+            .setParameter("orderStatus", status.name())
+            .setParameter("totalAmount", 10000L)
+            .setParameter("paidAmount", 10000L)
+            .setParameter("shippingRegionType", "NORMAL")
+            .setParameter("createdAt", createdAt)
+            .setParameter("modifiedAt", createdAt)
+            .executeUpdate();
 
         Number id = (Number) entityManager.createNativeQuery(
-                "SELECT id FROM orders WHERE order_key = :orderKey"
+            "SELECT id FROM orders WHERE order_key = :orderKey"
         ).setParameter("orderKey", orderKey).getSingleResult();
         return id.longValue();
     }
 
     private void insertOrderProductRow(
-            Long orderId, Long sellerId, OrderStatus status, LocalDateTime scheduledAutoConfirmAt
+        Long orderId, Long sellerId, OrderStatus status, LocalDateTime scheduledAutoConfirmAt
     ) {
         String sql = """
-                INSERT INTO order_product (
-                    price_policy_id, order_id, seller_id, order_product_key,
-                    quantity, unit_amount, order_status, review_yn,
-                    scheduled_auto_confirm_at, created_at, modified_at
-                ) VALUES (
-                    :pricePolicyId, :orderId, :sellerId, :orderProductKey,
-                    :quantity, :unitAmount, :orderStatus, FALSE,
-                    :scheduledAutoConfirmAt, :createdAt, :modifiedAt
-                )
-                """;
+            INSERT INTO order_product (
+                price_policy_id, order_id, seller_id, order_product_key,
+                quantity, unit_amount, order_status, review_yn,
+                scheduled_auto_confirm_at, created_at, modified_at
+            ) VALUES (
+                :pricePolicyId, :orderId, :sellerId, :orderProductKey,
+                :quantity, :unitAmount, :orderStatus, FALSE,
+                :scheduledAutoConfirmAt, :createdAt, :modifiedAt
+            )
+            """;
         LocalDateTime now = LocalDateTime.now();
         entityManager.createNativeQuery(sql)
-                .setParameter("pricePolicyId", System.nanoTime())
-                .setParameter("orderId", orderId)
-                .setParameter("sellerId", sellerId)
-                .setParameter("orderProductKey", UUID.randomUUID())
-                .setParameter("quantity", 1)
-                .setParameter("unitAmount", 10000L)
-                .setParameter("orderStatus", status.name())
-                .setParameter("scheduledAutoConfirmAt", scheduledAutoConfirmAt)
-                .setParameter("createdAt", now)
-                .setParameter("modifiedAt", now)
-                .executeUpdate();
+            .setParameter("pricePolicyId", System.nanoTime())
+            .setParameter("orderId", orderId)
+            .setParameter("sellerId", sellerId)
+            .setParameter("orderProductKey", UUID.randomUUID())
+            .setParameter("quantity", 1)
+            .setParameter("unitAmount", 10000L)
+            .setParameter("orderStatus", status.name())
+            .setParameter("scheduledAutoConfirmAt", scheduledAutoConfirmAt)
+            .setParameter("createdAt", now)
+            .setParameter("modifiedAt", now)
+            .executeUpdate();
     }
 
     private void flushAndClear() {

@@ -24,27 +24,27 @@ public class DeviceToken extends BaseDomain {
         validate(state.getUserId(), state.getToken(), state.getPlatform(), state.getDeviceId());
 
         DeviceToken deviceToken = DeviceToken.builder()
-                .userId(state.getUserId())
-                .token(state.getToken())
-                .platform(state.getPlatform())
-                .deviceId(state.getDeviceId())
-                .lastUsedAt(state.getLastUsedAt())
-                .build();
+            .userId(state.getUserId())
+            .token(state.getToken())
+            .platform(state.getPlatform())
+            .deviceId(state.getDeviceId())
+            .lastUsedAt(state.getLastUsedAt())
+            .build();
         deviceToken.activate();
         return deviceToken;
     }
 
     public static DeviceToken from(DeviceTokenSnapshotState state) {
         DeviceToken deviceToken = DeviceToken.builder()
-                .id(state.getId())
-                .userId(state.getUserId())
-                .token(state.getToken())
-                .platform(state.getPlatform())
-                .deviceId(state.getDeviceId())
-                .lastUsedAt(state.getLastUsedAt())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .userId(state.getUserId())
+            .token(state.getToken())
+            .platform(state.getPlatform())
+            .deviceId(state.getDeviceId())
+            .lastUsedAt(state.getLastUsedAt())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
         deviceToken.status = state.getStatus();
         return deviceToken;
     }

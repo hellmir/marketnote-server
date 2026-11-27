@@ -37,17 +37,17 @@ class ShippingStartedNotificationConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long orderId, Long buyerId, String shippingStatus) {
+        Long orderId, Long buyerId, String shippingStatus) {
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                orderId, buyerId, shippingStatus, "TRACK-001", "CJ",
-                LocalDateTime.of(2026, 4, 10, 15, 0), null, null
+            orderId, buyerId, shippingStatus, "TRACK-001", "CJ",
+            LocalDateTime.of(2026, 4, 10, 15, 0), null, null
         );
         EventEnvelope<ShippingStatusChangedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "fulfillment.shipping.status-changed", "fulfillment-service",
-                LocalDateTime.of(2026, 4, 10, 15, 0), event
+            "test-event-id", "fulfillment.shipping.status-changed", "fulfillment-service",
+            LocalDateTime.of(2026, 4, 10, 15, 0), event
         );
         return new ConsumerRecord<>("fulfillment.shipping.status-changed", 0, 0L,
-                String.valueOf(orderId), envelope);
+            String.valueOf(orderId), envelope);
     }
 
     @Test
@@ -107,7 +107,7 @@ class ShippingStartedNotificationConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "fulfillment.shipping.status-changed", 0, 0L, "1", null
+            "fulfillment.shipping.status-changed", 0, 0L, "1", null
         );
 
         // when
@@ -123,15 +123,15 @@ class ShippingStartedNotificationConsumerTest {
     void shouldSkipWhenEventTypeMismatch() {
         // given
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                100L, 1L, "SHIPPING", "TRACK-001", "CJ",
-                LocalDateTime.of(2026, 4, 10, 15, 0), null, null
+            100L, 1L, "SHIPPING", "TRACK-001", "CJ",
+            LocalDateTime.of(2026, 4, 10, 15, 0), null, null
         );
         EventEnvelope<ShippingStatusChangedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "fulfillment-service",
-                LocalDateTime.of(2026, 4, 10, 15, 0), event
+            "test-event-id", "wrong.event.type", "fulfillment-service",
+            LocalDateTime.of(2026, 4, 10, 15, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "fulfillment.shipping.status-changed", 0, 0L, "100", envelope
+            "fulfillment.shipping.status-changed", 0, 0L, "100", envelope
         );
 
         // when
@@ -176,7 +176,7 @@ class ShippingStartedNotificationConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, 1L, "SHIPPING");
         doThrow(new RuntimeException("FCM 발송 실패"))
-                .when(sendNotificationUseCase).sendNotification(any(SendNotificationCommand.class));
+            .when(sendNotificationUseCase).sendNotification(any(SendNotificationCommand.class));
 
         // when
         consumer.handleShippingStatusChangedEvent(record, acknowledgment);

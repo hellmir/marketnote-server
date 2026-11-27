@@ -25,30 +25,30 @@ public class Payment {
 
     public static Payment from(PaymentCreateState state) {
         return Payment.builder()
-                .orderId(state.getOrderId())
-                .orderKey(state.getOrderKey())
-                .paymentAmount(Money.of(state.getPaymentAmount()))
-                .successYn(null)
-                .refundedYn(false)
-                .refundAmount(Money.zero())
-                .build();
+            .orderId(state.getOrderId())
+            .orderKey(state.getOrderKey())
+            .paymentAmount(Money.of(state.getPaymentAmount()))
+            .successYn(null)
+            .refundedYn(false)
+            .refundAmount(Money.zero())
+            .build();
     }
 
     public static Payment from(PaymentSnapshotState state) {
         return Payment.builder()
-                .id(state.getId())
-                .orderId(state.getOrderId())
-                .orderKey(state.getOrderKey())
-                .pgPaymentKey(state.getPgPaymentKey())
-                .paymentAmount(Money.of(state.getPaymentAmount()))
-                .successYn(state.getSuccessYn())
-                .refundedYn(state.getRefundedYn())
-                .refundAmount(
-                        FormatValidator.hasValue(state.getRefundAmount()) ? Money.of(state.getRefundAmount()) : Money.zero()
-                )
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .orderId(state.getOrderId())
+            .orderKey(state.getOrderKey())
+            .pgPaymentKey(state.getPgPaymentKey())
+            .paymentAmount(Money.of(state.getPaymentAmount()))
+            .successYn(state.getSuccessYn())
+            .refundedYn(state.getRefundedYn())
+            .refundAmount(
+                FormatValidator.hasValue(state.getRefundAmount()) ? Money.of(state.getRefundAmount()) : Money.zero()
+            )
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public void markAsSuccess(String pgPaymentKey) {
@@ -73,8 +73,8 @@ public class Payment {
         Money newRefundAmount = refundAmount.add(amount);
         if (newRefundAmount.isGreaterThan(paymentAmount)) {
             throw new InvalidRefundAmountException(
-                    "누적 환불 금액이 결제 금액을 초과합니다. paymentAmount=" + paymentAmount.getValue()
-                            + ", 현재 환불액=" + refundAmount.getValue() + ", 요청 환불액=" + amount.getValue());
+                "누적 환불 금액이 결제 금액을 초과합니다. paymentAmount=" + paymentAmount.getValue()
+                    + ", 현재 환불액=" + refundAmount.getValue() + ", 요청 환불액=" + amount.getValue());
         }
         refundAmount = newRefundAmount;
         if (refundAmount.equals(paymentAmount)) {

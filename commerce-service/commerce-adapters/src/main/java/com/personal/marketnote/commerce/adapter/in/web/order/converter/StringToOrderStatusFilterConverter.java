@@ -11,7 +11,7 @@ import java.util.Map;
 public class StringToOrderStatusFilterConverter implements Converter<String, OrderStatusFilter> {
 
     private static final Map<String, OrderStatusFilter> LEGACY_MAPPINGS = Map.of(
-            "CANCEL_EXCHANGE_REFUND", OrderStatusFilter.CANCEL_RETURN
+        "CANCEL_EXCHANGE_REFUND", OrderStatusFilter.CANCEL_RETURN
     );
 
     @Override

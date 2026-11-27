@@ -13,15 +13,15 @@ class BaseEventSerializationExceptionTest {
     void message_includesAllContextFields() {
         Throwable cause = new RuntimeException("json error");
         TestEventSerializationException exception = new TestEventSerializationException(
-                "topic-a", "pk-1", "evt-1", cause
+            "topic-a", "pk-1", "evt-1", cause
         );
 
         assertThat(exception.getMessage())
-                .contains("ERR_TEST_EVENT_01")
-                .contains("테스트 이벤트")
-                .contains("topic=topic-a")
-                .contains("partitionKey=pk-1")
-                .contains("eventId=evt-1");
+            .contains("ERR_TEST_EVENT_01")
+            .contains("테스트 이벤트")
+            .contains("topic=topic-a")
+            .contains("partitionKey=pk-1")
+            .contains("eventId=evt-1");
     }
 
     @Test
@@ -29,7 +29,7 @@ class BaseEventSerializationExceptionTest {
     void cause_isPreserved() {
         Throwable cause = new RuntimeException("json error");
         TestEventSerializationException exception = new TestEventSerializationException(
-                "topic-a", "pk-1", "evt-1", cause
+            "topic-a", "pk-1", "evt-1", cause
         );
 
         assertThat(exception.getCause()).isSameAs(cause);
@@ -39,7 +39,7 @@ class BaseEventSerializationExceptionTest {
     @DisplayName("partitionKey가 null이어도 메시지가 정상적으로 구성된다")
     void message_handlesNullPartitionKey() {
         TestEventSerializationException exception = new TestEventSerializationException(
-                "topic-a", null, "evt-1", new RuntimeException()
+            "topic-a", null, "evt-1", new RuntimeException()
         );
 
         assertThat(exception.getMessage()).contains("partitionKey=null");
@@ -49,7 +49,7 @@ class BaseEventSerializationExceptionTest {
     @DisplayName("eventId가 null이어도 메시지가 정상적으로 구성된다")
     void message_handlesNullEventId() {
         TestEventSerializationException exception = new TestEventSerializationException(
-                "topic-a", "pk-1", null, new RuntimeException()
+            "topic-a", "pk-1", null, new RuntimeException()
         );
 
         assertThat(exception.getMessage()).contains("eventId=null");
@@ -59,7 +59,7 @@ class BaseEventSerializationExceptionTest {
     @DisplayName("RuntimeException을 상속한다")
     void extendsRuntimeException() {
         TestEventSerializationException exception = new TestEventSerializationException(
-                "topic-a", "pk-1", "evt-1", new RuntimeException()
+            "topic-a", "pk-1", "evt-1", new RuntimeException()
         );
 
         assertThat(exception).isInstanceOf(RuntimeException.class);

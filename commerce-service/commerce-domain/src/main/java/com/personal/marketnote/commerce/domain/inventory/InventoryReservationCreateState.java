@@ -17,13 +17,13 @@ public class InventoryReservationCreateState {
     private final LocalDateTime reservedAt;
 
     public static InventoryReservationCreateState of(
-            Long orderId, Long pricePolicyId, int quantity, LocalDateTime reservedAt
+        Long orderId, Long pricePolicyId, int quantity, LocalDateTime reservedAt
     ) {
         return InventoryReservationCreateState.builder()
-                .orderId(orderId)
-                .pricePolicyId(pricePolicyId)
-                .quantity(quantity)
-                .reservedAt(reservedAt)
-                .build();
+            .orderId(orderId)
+            .pricePolicyId(pricePolicyId)
+            .quantity(quantity)
+            .reservedAt(reservedAt)
+            .build();
     }
 }

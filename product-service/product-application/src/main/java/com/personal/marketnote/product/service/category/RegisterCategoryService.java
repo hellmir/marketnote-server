@@ -32,17 +32,17 @@ public class RegisterCategoryService implements RegisterCategoryUseCase {
         String name = command.name();
 
         if (
-                FormatValidator.hasValue(parentCategoryId)
-                        && findCategoryPort.findAllActiveByIds(List.of(parentCategoryId)).isEmpty()
+            FormatValidator.hasValue(parentCategoryId)
+                && findCategoryPort.findAllActiveByIds(List.of(parentCategoryId)).isEmpty()
         ) {
             log.warn("존재하지 않는 상위 카테고리입니다. parentCategoryId={}", parentCategoryId);
             throw new CategoryNotFoundException();
         }
 
         Category savedCategory = saveCategoryPort.save(
-                Category.from(
-                        CategoryCreateState.of(parentCategoryId, name)
-                )
+            Category.from(
+                CategoryCreateState.of(parentCategoryId, name)
+            )
         );
 
         return RegisterCategoryResult.from(savedCategory);

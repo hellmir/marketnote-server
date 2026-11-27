@@ -21,12 +21,12 @@ public class ReviewDeletedReadModelConsumer {
     private final SaveReviewAggregateReadModelPort saveReviewAggregateReadModelPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.REVIEW_DELETED,
-            groupId = "product-review-aggregate-read-model"
+        topics = KafkaTopicConstants.REVIEW_DELETED,
+        groupId = "product-review-aggregate-read-model"
     )
     public void handleReviewDeletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -43,13 +43,13 @@ public class ReviewDeletedReadModelConsumer {
         ReviewDeletedEvent payload = envelope.getPayloadAs(ReviewDeletedEvent.class, objectMapper);
 
         log.info("리뷰 삭제 Read Model 이벤트 수신. eventId={}, reviewId={}, productId={}, totalCount={}, averageRating={}",
-                envelope.eventId(), payload.reviewId(), payload.productId(),
-                payload.totalCount(), payload.averageRating()
+            envelope.eventId(), payload.reviewId(), payload.productId(),
+            payload.totalCount(), payload.averageRating()
         );
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("reviewId", payload.reviewId()),
-                EventPayloadValidator.id("productId", payload.productId()))) {
+            EventPayloadValidator.id("reviewId", payload.reviewId()),
+            EventPayloadValidator.id("productId", payload.productId()))) {
             acknowledgment.acknowledge();
             return;
         }

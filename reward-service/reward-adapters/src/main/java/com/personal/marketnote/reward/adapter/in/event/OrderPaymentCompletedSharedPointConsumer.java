@@ -39,12 +39,12 @@ public class OrderPaymentCompletedSharedPointConsumer {
     private final RewardProperties rewardProperties;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
-            groupId = "reward-shared-point"
+        topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
+        groupId = "reward-shared-point"
     )
     public void handleOrderPaymentCompletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -60,22 +60,22 @@ public class OrderPaymentCompletedSharedPointConsumer {
 
         try {
             OrderPaymentCompletedEvent payload = envelope.getPayloadAs(
-                    OrderPaymentCompletedEvent.class, objectMapper
+                OrderPaymentCompletedEvent.class, objectMapper
             );
 
             log.info("주문 결제 완료 이벤트 수신 (공유 포인트 적립). eventId={}, orderId={}, buyerId={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId());
+                envelope.eventId(), payload.orderId(), payload.buyerId());
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()),
-                    EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+                EventPayloadValidator.id("orderId", payload.orderId()),
+                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
 
             if (FormatValidator.hasNoValue(payload.totalAmount()) || payload.totalAmount() <= 0) {
                 log.info("결제 금액이 없는 주문 (공유 포인트 적립 생략). orderId={}, totalAmount={}",
-                        payload.orderId(), payload.totalAmount());
+                    payload.orderId(), payload.totalAmount());
                 acknowledgment.acknowledge();
                 return;
             }
@@ -91,22 +91,22 @@ public class OrderPaymentCompletedSharedPointConsumer {
             long sharePointAmount = calculateSharedPoint(payload.totalAmount(), sharePointRate);
             if (sharePointAmount <= 0) {
                 log.info("공유 포인트 적립 금액이 0 이하 (적립 생략). orderId={}, totalAmount={}, sharePointRate={}",
-                        payload.orderId(), payload.totalAmount(), sharePointRate);
+                    payload.orderId(), payload.totalAmount(), sharePointRate);
                 acknowledgment.acknowledge();
                 return;
             }
 
             for (UUID sharerKey : sharerKeys) {
                 modifyPendingPointIdempotent(
-                        envelope.eventId(), payload.buyerId(), sharerKey, sharePointAmount, payload.orderId()
+                    envelope.eventId(), payload.buyerId(), sharerKey, sharePointAmount, payload.orderId()
                 );
             }
 
             log.info("공유 포인트 적립 완료. orderId={}, sharerKeys={}, sharePointAmount={}",
-                    payload.orderId(), sharerKeys, sharePointAmount);
+                payload.orderId(), sharerKeys, sharePointAmount);
         } catch (Exception e) {
             log.error("공유 포인트 적립 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 
@@ -114,22 +114,22 @@ public class OrderPaymentCompletedSharedPointConsumer {
     }
 
     private void modifyPendingPointIdempotent(
-            String eventId, Long buyerId, UUID sharerKey, long sharePointAmount, Long orderId
+        String eventId, Long buyerId, UUID sharerKey, long sharePointAmount, Long orderId
     ) {
         try {
             ModifyPendingSharedPointCommand command = ModifyPendingSharedPointCommand.builder()
-                    .buyerId(buyerId)
-                    .sharerKey(sharerKey)
-                    .changeType(UserPointChangeType.ACCRUAL)
-                    .amount(sharePointAmount)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(orderId)
-                    .reason(SHARE_PURCHASE_REASON)
-                    .build();
+                .buyerId(buyerId)
+                .sharerKey(sharerKey)
+                .changeType(UserPointChangeType.ACCRUAL)
+                .amount(sharePointAmount)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(orderId)
+                .reason(SHARE_PURCHASE_REASON)
+                .build();
             modifyPendingSharedPointUseCase.modifyPending(command);
         } catch (DuplicateUserPointHistoryException e) {
             log.info("이미 처리된 공유 포인트 적립 이벤트 (멱등 처리). eventId={}, sharerKey={}, message={}",
-                    eventId, sharerKey, e.getMessage());
+                eventId, sharerKey, e.getMessage());
         }
     }
 
@@ -139,16 +139,16 @@ public class OrderPaymentCompletedSharedPointConsumer {
         }
 
         return orderProducts.stream()
-                .map(OrderProductItem::sharerKey)
-                .filter(Objects::nonNull)
-                .distinct()
-                .toList();
+            .map(OrderProductItem::sharerKey)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
     }
 
     private static long calculateSharedPoint(long amount, BigDecimal rate) {
         return BigDecimal.valueOf(amount)
-                .multiply(rate)
-                .setScale(0, RoundingMode.HALF_UP)
-                .longValueExact();
+            .multiply(rate)
+            .setScale(0, RoundingMode.HALF_UP)
+            .longValueExact();
     }
 }

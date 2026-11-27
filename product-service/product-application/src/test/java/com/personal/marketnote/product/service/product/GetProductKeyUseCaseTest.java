@@ -45,8 +45,8 @@ class GetProductKeyUseCaseTest {
         when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(false);
 
         assertThatThrownBy(() -> getProductKeyService.getProductKey(productId, userId, false))
-                .isInstanceOf(NotProductOwnerException.class)
-                .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
+            .isInstanceOf(NotProductOwnerException.class)
+            .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(findProductPort).existsByIdAndSellerId(productId, userId);
         verifyNoInteractions(getProductUseCase);
@@ -93,7 +93,7 @@ class GetProductKeyUseCaseTest {
         when(getProductUseCase.getProduct(productId)).thenThrow(exception);
 
         assertThatThrownBy(() -> getProductKeyService.getProductKey(productId, 99L, true))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(getProductUseCase).getProduct(productId);
         verifyNoInteractions(findProductPort);
@@ -101,18 +101,18 @@ class GetProductKeyUseCaseTest {
 
     private Product buildProduct(Long id, UUID productKey) {
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(id)
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name("상품-" + id)
-                        .brandName("브랜드-" + id)
-                        .detail("설명-" + id)
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(id)
+                .productKey(productKey)
+                .sellerId(1L)
+                .name("상품-" + id)
+                .brandName("브랜드-" + id)
+                .detail("설명-" + id)
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
     }
 }

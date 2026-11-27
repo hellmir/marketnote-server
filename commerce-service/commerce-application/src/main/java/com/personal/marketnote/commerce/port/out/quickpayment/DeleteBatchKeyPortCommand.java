@@ -5,8 +5,8 @@ import lombok.Builder;
 
 @Builder
 public record DeleteBatchKeyPortCommand(
-        String batchKey,
-        String groupId
+    String batchKey,
+    String groupId
 ) {
     public static DeleteBatchKeyPortCommand from(QuickPaymentCard card) {
         return new DeleteBatchKeyPortCommand(card.getBatchKey(), card.getGroupId());

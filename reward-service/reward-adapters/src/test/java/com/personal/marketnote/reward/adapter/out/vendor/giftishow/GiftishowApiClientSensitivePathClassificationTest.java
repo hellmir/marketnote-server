@@ -11,12 +11,12 @@ import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGe
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
 import com.personal.marketnote.reward.utility.VendorCommunicationRecorder;
-import org.mockito.Mockito;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -81,8 +81,8 @@ class GiftishowApiClientSensitivePathClassificationTest {
         VendorCommunicationPayloadGenerator payloadGenerator = new VendorCommunicationPayloadGenerator(objectMapper);
         GiftishowOperationTargetTypeResolver resolver = new GiftishowOperationTargetTypeResolver();
         giftishowApiClient = new GiftishowApiClient(
-                properties, builder.build(), objectMapper, externalCallLogger,
-                vendorCommunicationRecorder, payloadGenerator, resolver
+            properties, builder.build(), objectMapper, externalCallLogger,
+            vendorCommunicationRecorder, payloadGenerator, resolver
         );
 
         clientLogger = (Logger) LoggerFactory.getLogger(GiftishowApiClient.class);
@@ -102,16 +102,16 @@ class GiftishowApiClientSensitivePathClassificationTest {
     void shouldMaskWhenCouponSendPathIsRegisteredAsSensitive() {
         // given
         mockServer.expect(requestTo(BASE_URL + COUPON_SEND_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                "TR_001", "G001", "01012345678", "user1", "msg", "title", null
+            "TR_001", "G001", "01012345678", "user1", "msg", "title", null
         ))
-                .isInstanceOf(GiftishowCommunicationException.class)
-                .hasMessageContaining(COUPON_SEND_PATH)
-                .hasNoCause();
+            .isInstanceOf(GiftishowCommunicationException.class)
+            .hasMessageContaining(COUPON_SEND_PATH)
+            .hasNoCause();
 
         ILoggingEvent errorEvent = findErrorEvent();
         assertThat(errorEvent.getFormattedMessage()).doesNotContain("1234-5678-9012-3456");
@@ -125,14 +125,14 @@ class GiftishowApiClientSensitivePathClassificationTest {
     void shouldMaskWhenCouponDetailPathIsRegisteredAsSensitive() {
         // given
         mockServer.expect(requestTo(BASE_URL + COUPON_DETAIL_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> giftishowApiClient.getCouponDetail("TR_001"))
-                .isInstanceOf(GiftishowCommunicationException.class)
-                .hasMessageContaining(COUPON_DETAIL_PATH)
-                .hasNoCause();
+            .isInstanceOf(GiftishowCommunicationException.class)
+            .hasMessageContaining(COUPON_DETAIL_PATH)
+            .hasNoCause();
 
         ILoggingEvent errorEvent = findErrorEvent();
         assertThat(errorEvent.getFormattedMessage()).doesNotContain("1234-5678-9012-3456");
@@ -146,14 +146,14 @@ class GiftishowApiClientSensitivePathClassificationTest {
     void shouldMaskWhenCouponResendPathIsRegisteredAsSensitive() {
         // given
         mockServer.expect(requestTo(BASE_URL + COUPON_RESEND_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> giftishowApiClient.resendCoupon("TR_001", "01012345678"))
-                .isInstanceOf(GiftishowCommunicationException.class)
-                .hasMessageContaining(COUPON_RESEND_PATH)
-                .hasNoCause();
+            .isInstanceOf(GiftishowCommunicationException.class)
+            .hasMessageContaining(COUPON_RESEND_PATH)
+            .hasNoCause();
 
         ILoggingEvent errorEvent = findErrorEvent();
         assertThat(errorEvent.getFormattedMessage()).doesNotContain("1234-5678-9012-3456");
@@ -167,14 +167,14 @@ class GiftishowApiClientSensitivePathClassificationTest {
     void shouldPreserveCauseWhenCouponCancelPathIsNotRegisteredAsSensitive() {
         // given
         mockServer.expect(requestTo(BASE_URL + COUPON_CANCEL_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> giftishowApiClient.cancelCoupon("TR_001", "user1"))
-                .isInstanceOf(GiftishowCommunicationException.class)
-                .hasMessageContaining(COUPON_CANCEL_PATH)
-                .hasCauseInstanceOf(JsonProcessingException.class);
+            .isInstanceOf(GiftishowCommunicationException.class)
+            .hasMessageContaining(COUPON_CANCEL_PATH)
+            .hasCauseInstanceOf(JsonProcessingException.class);
 
         ILoggingEvent errorEvent = findErrorEvent();
         assertThat(errorEvent.getThrowableProxy()).isNotNull();
@@ -187,14 +187,14 @@ class GiftishowApiClientSensitivePathClassificationTest {
     void shouldPreserveCauseWhenCouponSendFailCancelPathIsNotRegisteredAsSensitive() {
         // given
         mockServer.expect(requestTo(BASE_URL + COUPON_SEND_FAIL_CANCEL_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> giftishowApiClient.cancelSendFailedCoupon("TR_001", "user1"))
-                .isInstanceOf(GiftishowCommunicationException.class)
-                .hasMessageContaining(COUPON_SEND_FAIL_CANCEL_PATH)
-                .hasCauseInstanceOf(JsonProcessingException.class);
+            .isInstanceOf(GiftishowCommunicationException.class)
+            .hasMessageContaining(COUPON_SEND_FAIL_CANCEL_PATH)
+            .hasCauseInstanceOf(JsonProcessingException.class);
 
         ILoggingEvent errorEvent = findErrorEvent();
         assertThat(errorEvent.getThrowableProxy()).isNotNull();
@@ -205,8 +205,8 @@ class GiftishowApiClientSensitivePathClassificationTest {
     private ILoggingEvent findErrorEvent() {
         List<ILoggingEvent> events = listAppender.list;
         return events.stream()
-                .filter(event -> event.getLevel() == Level.ERROR)
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("ERROR 레벨 로그 이벤트를 찾을 수 없습니다."));
+            .filter(event -> event.getLevel() == Level.ERROR)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("ERROR 레벨 로그 이벤트를 찾을 수 없습니다."));
     }
 }

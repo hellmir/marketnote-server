@@ -6,8 +6,8 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentW
 import java.util.List;
 
 public record GetFulfillmentWarehousingInspecDetailResponse(
-        Integer dataCount,
-        List<FulfillmentWarehousingInspecDetailInfoResult> details
+    Integer dataCount,
+    List<FulfillmentWarehousingInspecDetailInfoResult> details
 ) {
     public static GetFulfillmentWarehousingInspecDetailResponse from(GetFulfillmentWarehousingInspecDetailResult result) {
         return new GetFulfillmentWarehousingInspecDetailResponse(result.dataCount(), result.details());

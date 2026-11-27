@@ -18,6 +18,6 @@ public interface DeleteProductOptionsUseCase {
      * @Description 상품 옵션을 삭제합니다.
      */
     void deleteProductOptions(
-            Long userId, boolean isAdmin, Long productId, Long optionCategoryId
+        Long userId, boolean isAdmin, Long productId, Long optionCategoryId
     );
 }

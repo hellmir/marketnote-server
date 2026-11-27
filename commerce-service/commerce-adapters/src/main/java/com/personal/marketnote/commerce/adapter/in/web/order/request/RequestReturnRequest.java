@@ -13,79 +13,79 @@ import java.util.List;
 @Getter
 public class RequestReturnRequest {
     @Schema(
-            name = "reasonCategory",
-            description = "반품 사유 카테고리",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "reasonCategory",
+        description = "반품 사유 카테고리",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     private OrderStatusReasonCategory reasonCategory;
 
     @Schema(
-            name = "pricePolicyIds",
-            description = "반품 대상 가격정책 ID 리스트 (미입력/빈 배열 = 전체 반품)",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "pricePolicyIds",
+        description = "반품 대상 가격정책 ID 리스트 (미입력/빈 배열 = 전체 반품)",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Size(max = 100, message = "반품 대상 상품은 100개를 초과할 수 없습니다.")
     private List<@NotNull(message = "pricePolicyId는 null일 수 없습니다.") Long> pricePolicyIds;
 
     @Schema(
-            name = "reason",
-            description = "반품 사유",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "reason",
+        description = "반품 사유",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Size(max = 500, message = "반품 사유는 500자 이내여야 합니다.")
     private String reason;
 
     @Schema(
-            name = "pickupRecipientName",
-            description = "회수지 수령인명 (미입력 시 배송지 기본값)",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "pickupRecipientName",
+        description = "회수지 수령인명 (미입력 시 배송지 기본값)",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Size(max = 50, message = "회수지 수령인명은 50자 이내여야 합니다.")
     @Pattern(regexp = RegularExpressionConstant.RECIPIENT_NAME_PATTERN, message = "회수지 수령인명 형식이 올바르지 않습니다.")
     private String pickupRecipientName;
 
     @Schema(
-            name = "pickupRecipientPhoneNumber",
-            description = "회수지 연락처 (예: 01012345678 또는 010-1234-5678, 서버 내부 canonical 저장, 미입력 시 배송지 기본값)",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "pickupRecipientPhoneNumber",
+        description = "회수지 연락처 (예: 01012345678 또는 010-1234-5678, 서버 내부 canonical 저장, 미입력 시 배송지 기본값)",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Size(max = 20, message = "회수지 연락처는 20자 이내여야 합니다.")
     @Pattern(
-            regexp = RegularExpressionConstant.PHONE_NUMBER_INPUT_PATTERN,
-            message = "회수지 연락처 형식이 올바르지 않습니다. (예: 01012345678, 010-1234-5678)"
+        regexp = RegularExpressionConstant.PHONE_NUMBER_INPUT_PATTERN,
+        message = "회수지 연락처 형식이 올바르지 않습니다. (예: 01012345678, 010-1234-5678)"
     )
     private String pickupRecipientPhoneNumber;
 
     @Schema(
-            name = "pickupZipCode",
-            description = "회수지 우편번호 (미입력 시 배송지 기본값)",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "pickupZipCode",
+        description = "회수지 우편번호 (미입력 시 배송지 기본값)",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Pattern(regexp = RegularExpressionConstant.ZIP_CODE_PATTERN, message = "회수지 우편번호는 5자리 숫자여야 합니다.")
     private String pickupZipCode;
 
     @Schema(
-            name = "pickupAddress",
-            description = "회수지 주소 (미입력 시 배송지 기본값)",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "pickupAddress",
+        description = "회수지 주소 (미입력 시 배송지 기본값)",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Size(max = 255, message = "회수지 주소는 255자 이내여야 합니다.")
     @Pattern(regexp = RegularExpressionConstant.NO_HTML_TAG_PATTERN, message = "회수지 주소에 허용되지 않는 문자가 포함되어 있습니다.")
     private String pickupAddress;
 
     @Schema(
-            name = "pickupAddressDetail",
-            description = "회수지 상세주소 (미입력 시 배송지 기본값)",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "pickupAddressDetail",
+        description = "회수지 상세주소 (미입력 시 배송지 기본값)",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Size(max = 255, message = "회수지 상세주소는 255자 이내여야 합니다.")
     @Pattern(regexp = RegularExpressionConstant.NO_HTML_TAG_PATTERN, message = "회수지 상세주소에 허용되지 않는 문자가 포함되어 있습니다.")
     private String pickupAddressDetail;
 
     @Schema(
-            name = "pickupRequestMessage",
-            description = "회수 요청사항 (60자 제한)",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "pickupRequestMessage",
+        description = "회수 요청사항 (60자 제한)",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Size(max = 60, message = "회수 요청사항은 60자 이내여야 합니다.")
     @Pattern(regexp = RegularExpressionConstant.NO_HTML_TAG_PATTERN, message = "회수 요청사항에 허용되지 않는 문자가 포함되어 있습니다.")

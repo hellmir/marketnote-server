@@ -25,14 +25,14 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapAllFields() {
             // given
             GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .status("A1")
-                    .releaseType("O")
-                    .orderNumber("ORD001")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .status("A1")
+                .releaseType("O")
+                .orderNumber("ORD001")
+                .build();
 
             // when
             FulfillmentDeliveryQuery query = FasstoDeliveryCommandToRequestMapper.mapToQuery(command);
@@ -52,13 +52,13 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapWhenOrderNumberIsNull() {
             // given
             GetFulfillmentDeliveriesCommand command = GetFulfillmentDeliveriesCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .status("A1")
-                    .releaseType("O")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .status("A1")
+                .releaseType("O")
+                .build();
 
             // when
             FulfillmentDeliveryQuery query = FasstoDeliveryCommandToRequestMapper.mapToQuery(command);
@@ -77,7 +77,7 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapAllFields() {
             // given
             GetFulfillmentDeliveryDetailCommand command = GetFulfillmentDeliveryDetailCommand.of(
-                    "CUST001", "token", "SLIP001", "ORD001"
+                "CUST001", "token", "SLIP001", "ORD001"
             );
 
             // when
@@ -95,7 +95,7 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapWhenOrderNumberIsNull() {
             // given
             GetFulfillmentDeliveryDetailCommand command = GetFulfillmentDeliveryDetailCommand.of(
-                    "CUST001", "token", "SLIP001"
+                "CUST001", "token", "SLIP001"
             );
 
             // when
@@ -115,12 +115,12 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapAllFields() {
             // given
             GetFulfillmentDeliveryStatusesCommand command = GetFulfillmentDeliveryStatusesCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .releaseType("O")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .releaseType("O")
+                .build();
 
             // when
             FulfillmentDeliveryStatusQuery query = FasstoDeliveryCommandToRequestMapper.mapToDeliveryStatusQuery(command);
@@ -143,11 +143,11 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapReleaseOrderSlipNumber() {
             // given
             GetFulfillmentDeliveryOutOrdGoodsDetailCommand command =
-                    GetFulfillmentDeliveryOutOrdGoodsDetailCommand.of("CUST001", "token", "REL001");
+                GetFulfillmentDeliveryOutOrdGoodsDetailCommand.of("CUST001", "token", "REL001");
 
             // when
             FulfillmentDeliveryOutOrdGoodsDetailQuery query =
-                    FasstoDeliveryCommandToRequestMapper.mapToOutOrdGoodsDetailQuery(command);
+                FasstoDeliveryCommandToRequestMapper.mapToOutOrdGoodsDetailQuery(command);
 
             // then
             assertThat(query.getCustomerCode()).isEqualTo("CUST001");
@@ -165,17 +165,17 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapAllFields() {
             // given
             GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command =
-                    GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.builder()
-                            .customerCode("CUST001")
-                            .accessToken("token")
-                            .startDate("20260101")
-                            .endDate("20260131")
-                            .orderNumber("ORD001")
-                            .build();
+                GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.builder()
+                    .customerCode("CUST001")
+                    .accessToken("token")
+                    .startDate("20260101")
+                    .endDate("20260131")
+                    .orderNumber("ORD001")
+                    .build();
 
             // when
             FulfillmentDeliveryOutOrdGoodsByOrdNoQuery query =
-                    FasstoDeliveryCommandToRequestMapper.mapToOutOrdGoodsByOrdNoQuery(command);
+                FasstoDeliveryCommandToRequestMapper.mapToOutOrdGoodsByOrdNoQuery(command);
 
             // then
             assertThat(query.getCustomerCode()).isEqualTo("CUST001");
@@ -195,16 +195,16 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapAllFields() {
             // given
             GetFulfillmentDeliveryGoodDetailCommand command = GetFulfillmentDeliveryGoodDetailCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("token")
-                    .startDate("20260101")
-                    .endDate("20260131")
-                    .orderNumber("ORD001")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("token")
+                .startDate("20260101")
+                .endDate("20260131")
+                .orderNumber("ORD001")
+                .build();
 
             // when
             FulfillmentDeliveryGoodDetailQuery query =
-                    FasstoDeliveryCommandToRequestMapper.mapToDeliveryGoodDetailQuery(command);
+                FasstoDeliveryCommandToRequestMapper.mapToDeliveryGoodDetailQuery(command);
 
             // then
             assertThat(query.getCustomerCode()).isEqualTo("CUST001");
@@ -224,9 +224,9 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapCancelItems() {
             // given
             CancelFulfillmentDeliveryItemCommand item =
-                    CancelFulfillmentDeliveryItemCommand.of("SLIP001", "ORD001", "GOD001");
+                CancelFulfillmentDeliveryItemCommand.of("SLIP001", "ORD001", "GOD001");
             CancelFulfillmentDeliveryCommand command =
-                    CancelFulfillmentDeliveryCommand.of("CUST001", "token", List.of(item));
+                CancelFulfillmentDeliveryCommand.of("CUST001", "token", List.of(item));
 
             // when
             FulfillmentDeliveryCancelMapper mapper = FasstoDeliveryCommandToRequestMapper.mapToCancelRequest(command);
@@ -236,9 +236,9 @@ class FasstoDeliveryCommandToRequestMapperTest {
             assertThat(mapper.getAccessToken()).isEqualTo("token");
             assertThat(mapper.toPayload()).hasSize(1);
             assertThat(mapper.toPayload().getFirst())
-                    .containsEntry("slipNo", "SLIP001")
-                    .containsEntry("ordNo", "ORD001")
-                    .containsEntry("cstGodCd", "GOD001");
+                .containsEntry("slipNo", "SLIP001")
+                .containsEntry("ordNo", "ORD001")
+                .containsEntry("cstGodCd", "GOD001");
         }
 
         @Test
@@ -246,9 +246,9 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldOmitCstGodCdWhenProductKeyAbsent() {
             // given
             CancelFulfillmentDeliveryItemCommand item =
-                    CancelFulfillmentDeliveryItemCommand.of("SLIP001", "ORD001");
+                CancelFulfillmentDeliveryItemCommand.of("SLIP001", "ORD001");
             CancelFulfillmentDeliveryCommand command =
-                    CancelFulfillmentDeliveryCommand.of("CUST001", "token", List.of(item));
+                CancelFulfillmentDeliveryCommand.of("CUST001", "token", List.of(item));
 
             // when
             FulfillmentDeliveryCancelMapper mapper = FasstoDeliveryCommandToRequestMapper.mapToCancelRequest(command);
@@ -269,27 +269,27 @@ class FasstoDeliveryCommandToRequestMapperTest {
             UUID productKey = UUID.randomUUID();
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    productKey, "GOD001", encoded, "20261231", 3
+                productKey, "GOD001", encoded, "20261231", 3
             );
             RegisterFulfillmentDeliveryItemCommand item = RegisterFulfillmentDeliveryItemCommand.builder()
-                    .orderDate("20260101")
-                    .orderNumber("ORD001")
-                    .orderSequence(1)
-                    .slipNumber("SLIP001")
-                    .recipientName("홍길동")
-                    .recipientPhoneNumber("010-1234-5678")
-                    .recipientAddress("서울시 강남구")
-                    .releaseMethod("NORMAL")
-                    .senderName("판매자")
-                    .senderPhoneNumber("010-9876-5432")
-                    .salesChannel("CH01")
-                    .shippingRequest("문앞")
-                    .products(List.of(goods))
-                    .sameDayDeliveryCode("SAMEDAY")
-                    .remark("비고")
-                    .build();
+                .orderDate("20260101")
+                .orderNumber("ORD001")
+                .orderSequence(1)
+                .slipNumber("SLIP001")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .recipientAddress("서울시 강남구")
+                .releaseMethod("NORMAL")
+                .senderName("판매자")
+                .senderPhoneNumber("010-9876-5432")
+                .salesChannel("CH01")
+                .shippingRequest("문앞")
+                .products(List.of(goods))
+                .sameDayDeliveryCode("SAMEDAY")
+                .remark("비고")
+                .build();
             RegisterFulfillmentDeliveryCommand command = RegisterFulfillmentDeliveryCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
@@ -301,20 +301,20 @@ class FasstoDeliveryCommandToRequestMapperTest {
             assertThat(mapper.getOrdNo()).isEqualTo("ORD001");
             Map<String, Object> payload = mapper.toPayload().getFirst();
             assertThat(payload)
-                    .containsEntry("ordDt", "20260101")
-                    .containsEntry("ordNo", "ORD001")
-                    .containsEntry("ordSeq", 1)
-                    .containsEntry("slipNo", "SLIP001")
-                    .containsEntry("custNm", "홍길동")
-                    .containsEntry("custTelNo", "010-1234-5678")
-                    .containsEntry("custAddr", "서울시 강남구")
-                    .containsEntry("outWay", "NORMAL")
-                    .containsEntry("sendNm", "판매자")
-                    .containsEntry("sendTelNo", "010-9876-5432")
-                    .containsEntry("salChanel", "CH01")
-                    .containsEntry("shipReqTerm", "문앞")
-                    .containsEntry("oneDayDeliveryCd", "SAMEDAY")
-                    .containsEntry("remark", "비고");
+                .containsEntry("ordDt", "20260101")
+                .containsEntry("ordNo", "ORD001")
+                .containsEntry("ordSeq", 1)
+                .containsEntry("slipNo", "SLIP001")
+                .containsEntry("custNm", "홍길동")
+                .containsEntry("custTelNo", "010-1234-5678")
+                .containsEntry("custAddr", "서울시 강남구")
+                .containsEntry("outWay", "NORMAL")
+                .containsEntry("sendNm", "판매자")
+                .containsEntry("sendTelNo", "010-9876-5432")
+                .containsEntry("salChanel", "CH01")
+                .containsEntry("shipReqTerm", "문앞")
+                .containsEntry("oneDayDeliveryCd", "SAMEDAY")
+                .containsEntry("remark", "비고");
         }
 
         @Test
@@ -324,19 +324,19 @@ class FasstoDeliveryCommandToRequestMapperTest {
             UUID productKey = UUID.randomUUID();
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    productKey, "GOD001", encoded, "20261231", 3
+                productKey, "GOD001", encoded, "20261231", 3
             );
             RegisterFulfillmentDeliveryItemCommand item = RegisterFulfillmentDeliveryItemCommand.builder()
-                    .orderDate("20260101")
-                    .orderNumber("ORD001")
-                    .recipientName("홍길동")
-                    .recipientPhoneNumber("010-1234-5678")
-                    .recipientAddress("서울시 강남구")
-                    .releaseMethod("NORMAL")
-                    .products(List.of(goods))
-                    .build();
+                .orderDate("20260101")
+                .orderNumber("ORD001")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .recipientAddress("서울시 강남구")
+                .releaseMethod("NORMAL")
+                .products(List.of(goods))
+                .build();
             RegisterFulfillmentDeliveryCommand command = RegisterFulfillmentDeliveryCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
@@ -354,19 +354,19 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldOmitNullOptionalFields() {
             // given
             RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    null, "GOD001", "GOD001", null, 3
+                null, "GOD001", "GOD001", null, 3
             );
             RegisterFulfillmentDeliveryItemCommand item = RegisterFulfillmentDeliveryItemCommand.builder()
-                    .orderDate("20260101")
-                    .orderNumber("ORD001")
-                    .recipientName("홍길동")
-                    .recipientPhoneNumber("010-1234-5678")
-                    .recipientAddress("서울시 강남구")
-                    .releaseMethod("NORMAL")
-                    .products(List.of(goods))
-                    .build();
+                .orderDate("20260101")
+                .orderNumber("ORD001")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .recipientAddress("서울시 강남구")
+                .releaseMethod("NORMAL")
+                .products(List.of(goods))
+                .build();
             RegisterFulfillmentDeliveryCommand command = RegisterFulfillmentDeliveryCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
@@ -375,8 +375,8 @@ class FasstoDeliveryCommandToRequestMapperTest {
             // then
             Map<String, Object> payload = mapper.toPayload().getFirst();
             assertThat(payload).doesNotContainKeys(
-                    "ordSeq", "slipNo", "sendNm", "sendTelNo",
-                    "salChanel", "shipReqTerm", "oneDayDeliveryCd", "remark"
+                "ordSeq", "slipNo", "sendNm", "sendTelNo",
+                "salChanel", "shipReqTerm", "oneDayDeliveryCd", "remark"
             );
         }
     }
@@ -392,20 +392,20 @@ class FasstoDeliveryCommandToRequestMapperTest {
             UUID productKey = UUID.randomUUID();
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    productKey, null, encoded, null, 3
+                productKey, null, encoded, null, 3
             );
             UpdateFulfillmentDeliveryItemCommand item = UpdateFulfillmentDeliveryItemCommand.builder()
-                    .orderDate("20260101")
-                    .orderNumber("ORD001")
-                    .slipNumber("SLIP001")
-                    .recipientName("홍길동")
-                    .recipientPhoneNumber("010-1234-5678")
-                    .recipientAddress("서울시 강남구")
-                    .releaseMethod("NORMAL")
-                    .products(List.of(goods))
-                    .build();
+                .orderDate("20260101")
+                .orderNumber("ORD001")
+                .slipNumber("SLIP001")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .recipientAddress("서울시 강남구")
+                .releaseMethod("NORMAL")
+                .products(List.of(goods))
+                .build();
             UpdateFulfillmentDeliveryCommand command = UpdateFulfillmentDeliveryCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
@@ -426,19 +426,19 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapCarFields() {
             // given
             RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    null, "GOD001", "GOD001", null, 3
+                null, "GOD001", "GOD001", null, 3
             );
             RegisterFulfillmentDeliveryCarItemCommand item = RegisterFulfillmentDeliveryCarItemCommand.builder()
-                    .orderDate("20260101")
-                    .orderNumber("ORD001")
-                    .slipNumber("SLIP001")
-                    .releaseMethod("CAR")
-                    .shopCode("SHOP001")
-                    .products(List.of(goods))
-                    .remark("차량 배송")
-                    .build();
+                .orderDate("20260101")
+                .orderNumber("ORD001")
+                .slipNumber("SLIP001")
+                .releaseMethod("CAR")
+                .shopCode("SHOP001")
+                .products(List.of(goods))
+                .remark("차량 배송")
+                .build();
             RegisterFulfillmentDeliveryCarCommand command = RegisterFulfillmentDeliveryCarCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
@@ -448,12 +448,12 @@ class FasstoDeliveryCommandToRequestMapperTest {
             assertThat(mapper.getOrdNo()).isEqualTo("ORD001");
             Map<String, Object> payload = mapper.toPayload().getFirst();
             assertThat(payload)
-                    .containsEntry("ordDt", "20260101")
-                    .containsEntry("ordNo", "ORD001")
-                    .containsEntry("slipNo", "SLIP001")
-                    .containsEntry("outWay", "CAR")
-                    .containsEntry("cstShopCd", "SHOP001")
-                    .containsEntry("remark", "차량 배송");
+                .containsEntry("ordDt", "20260101")
+                .containsEntry("ordNo", "ORD001")
+                .containsEntry("slipNo", "SLIP001")
+                .containsEntry("outWay", "CAR")
+                .containsEntry("cstShopCd", "SHOP001")
+                .containsEntry("remark", "차량 배송");
         }
     }
 
@@ -466,19 +466,19 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapCarUpdateFields() {
             // given
             RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    null, "GOD001", "GOD001", null, 3
+                null, "GOD001", "GOD001", null, 3
             );
             UpdateFulfillmentDeliveryCarItemCommand item = UpdateFulfillmentDeliveryCarItemCommand.builder()
-                    .orderDate("20260101")
-                    .orderNumber("ORD001")
-                    .slipNumber("SLIP001")
-                    .releaseMethod("CAR")
-                    .shopCode("SHOP001")
-                    .products(List.of(goods))
-                    .remark("수정")
-                    .build();
+                .orderDate("20260101")
+                .orderNumber("ORD001")
+                .slipNumber("SLIP001")
+                .releaseMethod("CAR")
+                .shopCode("SHOP001")
+                .products(List.of(goods))
+                .remark("수정")
+                .build();
             UpdateFulfillmentDeliveryCarCommand command = UpdateFulfillmentDeliveryCarCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
@@ -499,26 +499,26 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapIcsFields() {
             // given
             RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    null, "GOD001", "GOD001", null, 3
+                null, "GOD001", "GOD001", null, 3
             );
             RegisterFulfillmentDeliveryIcsItemCommand item = RegisterFulfillmentDeliveryIcsItemCommand.builder()
-                    .orderDate("20260101")
-                    .orderNumber("ORD001")
-                    .platform("ICS_PLATFORM")
-                    .logisticsCenter("LC01")
-                    .invoiceNumber("INV001")
-                    .recipientName("홍길동")
-                    .recipientPhoneNumber("010-1234-5678")
-                    .recipientAddress("서울시 강남구")
-                    .senderName("판매자")
-                    .senderPhoneNumber("010-9876-5432")
-                    .salesChannel("CH01")
-                    .shippingRequest("문앞")
-                    .remark("비고")
-                    .products(List.of(goods))
-                    .build();
+                .orderDate("20260101")
+                .orderNumber("ORD001")
+                .platform("ICS_PLATFORM")
+                .logisticsCenter("LC01")
+                .invoiceNumber("INV001")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .recipientAddress("서울시 강남구")
+                .senderName("판매자")
+                .senderPhoneNumber("010-9876-5432")
+                .salesChannel("CH01")
+                .shippingRequest("문앞")
+                .remark("비고")
+                .products(List.of(goods))
+                .build();
             RegisterFulfillmentDeliveryIcsCommand command = RegisterFulfillmentDeliveryIcsCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
@@ -528,13 +528,13 @@ class FasstoDeliveryCommandToRequestMapperTest {
             assertThat(mapper.getOrdNo()).isEqualTo("ORD001");
             Map<String, Object> payload = mapper.toPayload().getFirst();
             assertThat(payload)
-                    .containsEntry("ordDt", "20260101")
-                    .containsEntry("ordNo", "ORD001")
-                    .containsEntry("platform", "ICS_PLATFORM")
-                    .containsEntry("logiCenter", "LC01")
-                    .containsEntry("invoiceNo", "INV001")
-                    .containsEntry("custNm", "홍길동")
-                    .containsEntry("sendNm", "판매자");
+                .containsEntry("ordDt", "20260101")
+                .containsEntry("ordNo", "ORD001")
+                .containsEntry("platform", "ICS_PLATFORM")
+                .containsEntry("logiCenter", "LC01")
+                .containsEntry("invoiceNo", "INV001")
+                .containsEntry("custNm", "홍길동")
+                .containsEntry("sendNm", "판매자");
         }
     }
 
@@ -547,15 +547,15 @@ class FasstoDeliveryCommandToRequestMapperTest {
         void shouldMapOrderNumbers() {
             // given
             CompleteFulfillmentDeliveryIcsItemCommand item = CompleteFulfillmentDeliveryIcsItemCommand.of(
-                    List.of("ORD001", "ORD002")
+                List.of("ORD001", "ORD002")
             );
             CompleteFulfillmentDeliveryIcsCommand command = CompleteFulfillmentDeliveryIcsCommand.of(
-                    "CUST001", "token", List.of(item)
+                "CUST001", "token", List.of(item)
             );
 
             // when
             FulfillmentDeliveryIcsCompletionMapper mapper =
-                    FasstoDeliveryCommandToRequestMapper.mapToIcsCompletionRequest(command);
+                FasstoDeliveryCommandToRequestMapper.mapToIcsCompletionRequest(command);
 
             // then
             assertThat(mapper.getCustomerCode()).isEqualTo("CUST001");

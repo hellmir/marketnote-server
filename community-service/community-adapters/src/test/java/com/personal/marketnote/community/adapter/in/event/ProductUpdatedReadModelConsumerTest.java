@@ -43,34 +43,34 @@ class ProductUpdatedReadModelConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(EventEnvelope<?> envelope) {
         return new ConsumerRecord<>(
-                KafkaTopicConstants.PRODUCT_UPDATED, 0, 0, "1", envelope
+            KafkaTopicConstants.PRODUCT_UPDATED, 0, 0, "1", envelope
         );
     }
 
     private EventEnvelope<ProductUpdatedEvent> createEnvelope(ProductUpdatedEvent payload) {
         return new EventEnvelope<>(
-                "test-event-id",
-                KafkaTopicConstants.PRODUCT_UPDATED,
-                "product-service",
-                LocalDateTime.now(Clock.fixed(Instant.parse("2026-03-31T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
-                payload
+            "test-event-id",
+            KafkaTopicConstants.PRODUCT_UPDATED,
+            "product-service",
+            LocalDateTime.now(Clock.fixed(Instant.parse("2026-03-31T10:00:00Z"), ZoneId.of("Asia/Seoul"))),
+            payload
         );
     }
 
     private ProductUpdatedEvent createPayload(Long productId, String productName) {
         return new ProductUpdatedEvent(
-                productId, UUID.randomUUID(), productName, null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null
+            productId, UUID.randomUUID(), productName, null, null, null, null, null, null,
+            null, null, null, null, null, null,
+            null, null, null, null, null, null,
+            null, null, null, null, null, null,
+            null, null, null, null, null, null,
+            null, null, null, null, null
         );
     }
 
     private ProductReadModelJpaEntity createEntity(Long pricePolicyId, Long productId, String name) {
         ProductReadModelJpaEntity entity = ProductReadModelJpaEntity.of(
-                pricePolicyId, productId, 10L, name, "브랜드", 10000L, 8000L, 100L
+            pricePolicyId, productId, 10L, name, "브랜드", 10000L, 8000L, 100L
         );
         ReflectionTestUtils.setField(entity, "id", pricePolicyId);
         return entity;
@@ -100,7 +100,7 @@ class ProductUpdatedReadModelConsumerTest {
     void handleProductUpdatedEvent_nullEnvelope_acknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.PRODUCT_UPDATED, 0, 0, "1", null
+            KafkaTopicConstants.PRODUCT_UPDATED, 0, 0, "1", null
         );
 
         // when
@@ -117,11 +117,11 @@ class ProductUpdatedReadModelConsumerTest {
         // given
         ProductUpdatedEvent payload = createPayload(1L, "상품명");
         EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
-                "test-event-id",
-                "wrong.event.type",
-                "product-service",
-                LocalDateTime.now(),
-                payload
+            "test-event-id",
+            "wrong.event.type",
+            "product-service",
+            LocalDateTime.now(),
+            payload
         );
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 

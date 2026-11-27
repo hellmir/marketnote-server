@@ -8,13 +8,13 @@ import lombok.Builder;
 
 @Builder
 public record CommerceVendorCommunicationHistoryCommand(
-        CommerceVendorCommunicationTargetType targetType,
-        String targetId,
-        CommerceVendorName vendorName,
-        CommerceVendorCommunicationType communicationType,
-        CommerceVendorCommunicationSenderType sender,
-        String exception,
-        String payload,
-        String payloadJson
+    CommerceVendorCommunicationTargetType targetType,
+    String targetId,
+    CommerceVendorName vendorName,
+    CommerceVendorCommunicationType communicationType,
+    CommerceVendorCommunicationSenderType sender,
+    String exception,
+    String payload,
+    String payloadJson
 ) {
 }

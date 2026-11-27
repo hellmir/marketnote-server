@@ -70,14 +70,14 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
     private final Sleeper sleeper;
 
     public FulfillmentSupplierClient(
-            RestClient.Builder restClientBuilder,
-            ObjectMapper objectMapper,
-            FulfillmentAuthProperties properties,
-            VendorCommunicationRecorder vendorCommunicationRecorder,
-            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            ExternalCallLogger externalCallLogger,
-            Sleeper sleeper
+        RestClient.Builder restClientBuilder,
+        ObjectMapper objectMapper,
+        FulfillmentAuthProperties properties,
+        VendorCommunicationRecorder vendorCommunicationRecorder,
+        VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+        VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+        ExternalCallLogger externalCallLogger,
+        Sleeper sleeper
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -148,10 +148,10 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -159,12 +159,12 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -192,22 +192,22 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
             String exception = isSuccess ? null : resolveSuppliersException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -223,9 +223,9 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
             }
 
             log.warn("Fulfillment supplier list request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -242,9 +242,9 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
     }
 
     private RegisterFulfillmentSupplierResult executeSupplierMutation(
-            FulfillmentSupplierMapper request,
-            String action,
-            boolean isUpdate
+        FulfillmentSupplierMapper request,
+        String action,
+        boolean isUpdate
     ) {
         if (FormatValidator.hasNoValue(request)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment supplier request is required.");
@@ -267,11 +267,11 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
             ResponseEntity<String> response;
             try {
                 response = restClient.method(HttpMethod.PATCH)
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
-                        .body(request.toPayload())
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
+                    .body(request.toPayload())
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -279,12 +279,12 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -294,7 +294,7 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
                 }
 
                 logVendorFailureWarn(
-                        "Failed to " + action.toLowerCase() + " Fulfillment supplier", attempt, path, e
+                    "Failed to " + action.toLowerCase() + " Fulfillment supplier", attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -314,29 +314,29 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
             String exception = isSuccess ? null : resolveResponseException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
                 return RegisterFulfillmentSupplierResult.of(
-                        parsedResponse.data().msg(),     // message
-                        parsedResponse.data().code(),    // code
-                        parsedResponse.data().supCd()    // supplierCode
+                    parsedResponse.data().msg(),     // message
+                    parsedResponse.data().code(),    // code
+                    parsedResponse.data().supCd()    // supplierCode
                 );
             }
 
@@ -349,10 +349,10 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
             }
 
             log.warn("Fulfillment supplier {} failed: attempt={}, status={}, exception={}",
-                    action.toLowerCase(),
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                action.toLowerCase(),
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -365,7 +365,7 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
         }
 
         logVendorFailureError(
-                "Failed to " + action.toLowerCase() + " Fulfillment supplier", uri, path, error
+            "Failed to " + action.toLowerCase() + " Fulfillment supplier", uri, path, error
         );
         if (isUpdate) {
             throw new UpdateFulfillmentSupplierFailedException(failureMessage, wrapCauseIfSensitive(path, error));
@@ -376,9 +376,9 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
     private URI buildSupplierUri(String customerCode) {
         validateSupplierProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getSupplierPath())
-                .buildAndExpand(customerCode)
-                .toUri();
+            .path(properties.getSupplierPath())
+            .buildAndExpand(customerCode)
+            .toUri();
     }
 
     private HttpHeaders buildHeaders(String accessToken) {
@@ -427,10 +427,10 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
 
     private boolean isSuccessResponse(ResponseEntity<String> response, RegisterFulfillmentSupplierResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess()
-                && FormatValidator.hasValue(parsedResponse.data());
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess()
+            && FormatValidator.hasValue(parsedResponse.data());
     }
 
     private String resolveResponseException(ResponseEntity<String> response, RegisterFulfillmentSupplierResponse parsedResponse) {
@@ -463,10 +463,10 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
     }
 
     private JsonNode buildRequestPayloadJson(
-            FulfillmentSupplierMapper request,
-            URI uri,
-            int attempt,
-            String action
+        FulfillmentSupplierMapper request,
+        URI uri,
+        int attempt,
+        String action
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.PATCH.name());
@@ -522,14 +522,14 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
 
     private boolean isSuppliersSuccess(ResponseEntity<String> response, FulfillmentSuppliersResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private String resolveSuppliersException(
-            ResponseEntity<String> response,
-            FulfillmentSuppliersResponse parsedResponse
+        ResponseEntity<String> response,
+        FulfillmentSuppliersResponse parsedResponse
     ) {
         if (FormatValidator.hasNoValue(response)) {
             return "NO_RESPONSE";
@@ -551,40 +551,40 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
 
     private GetFulfillmentSuppliersResult mapSuppliersResult(FulfillmentSuppliersResponse response) {
         List<FulfillmentSupplierInfoResult> suppliers = response.data().stream()
-                .map(this::mapSupplierInfo)
-                .toList();
+            .map(this::mapSupplierInfo)
+            .toList();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentSuppliersResult.of(dataCount, suppliers);
     }
 
     private FulfillmentSupplierInfoResult mapSupplierInfo(FulfillmentSuppliersItemResponse item) {
         return FulfillmentSupplierInfoResult.builder()
-                .supplierCode(item.supCd())
-                .supplierName(item.supNm())
-                .customerSupplierCode(item.cstSupCd())
-                .customerCode(item.cstCd())
-                .customerName(item.cstNm())
-                .dealStartDate(item.dealStrDt())
-                .dealEndDate(item.dealEndDt())
-                .zipCode(item.zipNo())
-                .address1(item.addr1())
-                .address2(item.addr2())
-                .ceoName(item.ceoNm())
-                .businessNumber(item.busNo())
-                .businessCategory(item.busSp())
-                .businessType(item.busTp())
-                .phoneNumber(item.telNo())
-                .faxNumber(item.faxNo())
-                .primaryManagerName(item.empNm1())
-                .primaryManagerPosition(item.empPosit1())
-                .primaryManagerPhoneNumber(item.empTelNo1())
-                .primaryManagerEmail(item.empEmail1())
-                .secondaryManagerName(item.empNm2())
-                .secondaryManagerPosition(item.empPosit2())
-                .secondaryManagerPhoneNumber(item.empTelNo2())
-                .secondaryManagerEmail(item.empEmail2())
-                .useYn(item.useYn())
-                .build();
+            .supplierCode(item.supCd())
+            .supplierName(item.supNm())
+            .customerSupplierCode(item.cstSupCd())
+            .customerCode(item.cstCd())
+            .customerName(item.cstNm())
+            .dealStartDate(item.dealStrDt())
+            .dealEndDate(item.dealEndDt())
+            .zipCode(item.zipNo())
+            .address1(item.addr1())
+            .address2(item.addr2())
+            .ceoName(item.ceoNm())
+            .businessNumber(item.busNo())
+            .businessCategory(item.busSp())
+            .businessType(item.busTp())
+            .phoneNumber(item.telNo())
+            .faxNumber(item.faxNo())
+            .primaryManagerName(item.empNm1())
+            .primaryManagerPosition(item.empPosit1())
+            .primaryManagerPhoneNumber(item.empTelNo1())
+            .primaryManagerEmail(item.empEmail1())
+            .secondaryManagerName(item.empNm2())
+            .secondaryManagerPosition(item.empPosit2())
+            .secondaryManagerPhoneNumber(item.empTelNo2())
+            .secondaryManagerEmail(item.empEmail2())
+            .useYn(item.useYn())
+            .build();
     }
 
     private String maskValue(String value) {
@@ -658,8 +658,8 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
     private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
         if (isSensitivePath(path)) {
             log.warn(
-                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, attempt, e.getClass().getSimpleName()
+                "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, attempt, e.getClass().getSimpleName()
             );
             return;
         }
@@ -669,8 +669,8 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
     private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
         if (isSensitivePath(path)) {
             log.error(
-                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, uri, error.getClass().getSimpleName()
+                "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, uri, error.getClass().getSimpleName()
             );
             return;
         }

@@ -96,8 +96,8 @@ class AligoSenderProfilePersistenceAdapterTest {
         // then
         assertThat(result).hasSize(3);
         assertThat(result)
-                .extracting(AligoSenderProfile::getSenderKey)
-                .containsExactlyInAnyOrder("sender-key-all-1", "sender-key-all-2", "sender-key-all-3");
+            .extracting(AligoSenderProfile::getSenderKey)
+            .containsExactlyInAnyOrder("sender-key-all-1", "sender-key-all-2", "sender-key-all-3");
         assertThat(result).allSatisfy(p -> assertThat(p.getId()).isNotNull());
     }
 
@@ -110,20 +110,20 @@ class AligoSenderProfilePersistenceAdapterTest {
         entityManager.clear();
 
         AligoSenderProfile updated = AligoSenderProfile.from(
-                AligoSenderProfileSnapshotState.builder()
-                        .id(initial.getId())
-                        .senderKey("sender-key-update")
-                        .plusId("@plus-update")
-                        .phoneNumber(initial.getPhoneNumber())
-                        .categoryCode("NEW-CATEGORY")
-                        .name("새 이름")
-                        .licenseNum(initial.getLicenseNum())
-                        .profileInspectionStatus(AligoProfileInspectionStatus.B)
-                        .senderProfileStatus(AligoSenderProfileStatus.S)
-                        .alimUseYn(false)
-                        .uuid(initial.getUuid())
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            AligoSenderProfileSnapshotState.builder()
+                .id(initial.getId())
+                .senderKey("sender-key-update")
+                .plusId("@plus-update")
+                .phoneNumber(initial.getPhoneNumber())
+                .categoryCode("NEW-CATEGORY")
+                .name("새 이름")
+                .licenseNum(initial.getLicenseNum())
+                .profileInspectionStatus(AligoProfileInspectionStatus.B)
+                .senderProfileStatus(AligoSenderProfileStatus.S)
+                .alimUseYn(false)
+                .uuid(initial.getUuid())
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
 
         // when
@@ -146,36 +146,36 @@ class AligoSenderProfilePersistenceAdapterTest {
     void shouldThrowWhenUpdatingNonExistentProfile() {
         // given
         AligoSenderProfile missing = AligoSenderProfile.from(
-                AligoSenderProfileSnapshotState.builder()
-                        .id(999L)
-                        .senderKey("sender-key-missing")
-                        .plusId("@plus-missing")
-                        .profileInspectionStatus(AligoProfileInspectionStatus.A)
-                        .senderProfileStatus(AligoSenderProfileStatus.A)
-                        .alimUseYn(true)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            AligoSenderProfileSnapshotState.builder()
+                .id(999L)
+                .senderKey("sender-key-missing")
+                .plusId("@plus-missing")
+                .profileInspectionStatus(AligoProfileInspectionStatus.A)
+                .senderProfileStatus(AligoSenderProfileStatus.A)
+                .alimUseYn(true)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
 
         // when & then
         assertThatThrownBy(() -> adapter.update(missing))
-                .isInstanceOf(AligoSenderProfileNotFoundException.class);
+            .isInstanceOf(AligoSenderProfileNotFoundException.class);
     }
 
     private AligoSenderProfile buildProfile(String senderKey, String plusId) {
         return AligoSenderProfile.from(
-                AligoSenderProfileCreateState.builder()
-                        .senderKey(senderKey)
-                        .plusId(plusId)
-                        .phoneNumber("01011112222")
-                        .categoryCode("CATEGORY-A")
-                        .name("프로필 이름")
-                        .licenseNum("LIC-1234")
-                        .profileInspectionStatus(AligoProfileInspectionStatus.A)
-                        .senderProfileStatus(AligoSenderProfileStatus.A)
-                        .alimUseYn(true)
-                        .uuid("uuid-" + senderKey)
-                        .build()
+            AligoSenderProfileCreateState.builder()
+                .senderKey(senderKey)
+                .plusId(plusId)
+                .phoneNumber("01011112222")
+                .categoryCode("CATEGORY-A")
+                .name("프로필 이름")
+                .licenseNum("LIC-1234")
+                .profileInspectionStatus(AligoProfileInspectionStatus.A)
+                .senderProfileStatus(AligoSenderProfileStatus.A)
+                .alimUseYn(true)
+                .uuid("uuid-" + senderKey)
+                .build()
         );
     }
 }

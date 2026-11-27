@@ -43,26 +43,26 @@ class UpdateDeliveryRequestUseCaseTest {
         Long userId = 100L;
 
         ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(shippingAddressId)
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101동 201호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .deliveryRequestMessage(null)
-                .isDefault(true)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(shippingAddressId)
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101동 201호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .deliveryRequestMessage(null)
+            .isDefault(true)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         UpdateDeliveryRequestCommand command = UpdateDeliveryRequestCommand.builder()
-                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
-                .deliveryRequestMessage(null)
-                .build();
+            .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
+            .deliveryRequestMessage(null)
+            .build();
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.of(shippingAddress));
+            .thenReturn(Optional.of(shippingAddress));
 
         // when
         updateDeliveryRequestService.updateDeliveryRequest(shippingAddressId, userId, command);
@@ -85,26 +85,26 @@ class UpdateDeliveryRequestUseCaseTest {
         String message = "현관 비밀번호 1234 입니다";
 
         ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(shippingAddressId)
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101동 201호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .deliveryRequestMessage(null)
-                .isDefault(true)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(shippingAddressId)
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101동 201호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .deliveryRequestMessage(null)
+            .isDefault(true)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         UpdateDeliveryRequestCommand command = UpdateDeliveryRequestCommand.builder()
-                .deliveryRequestType(DeliveryRequestType.CUSTOM)
-                .deliveryRequestMessage(message)
-                .build();
+            .deliveryRequestType(DeliveryRequestType.CUSTOM)
+            .deliveryRequestMessage(message)
+            .build();
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.of(shippingAddress));
+            .thenReturn(Optional.of(shippingAddress));
 
         // when
         updateDeliveryRequestService.updateDeliveryRequest(shippingAddressId, userId, command);
@@ -124,26 +124,26 @@ class UpdateDeliveryRequestUseCaseTest {
         Long userId = 300L;
 
         ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(shippingAddressId)
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101동 201호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.CUSTOM)
-                .deliveryRequestMessage("기존 요청사항")
-                .isDefault(true)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(shippingAddressId)
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101동 201호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.CUSTOM)
+            .deliveryRequestMessage("기존 요청사항")
+            .isDefault(true)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         UpdateDeliveryRequestCommand command = UpdateDeliveryRequestCommand.builder()
-                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
-                .deliveryRequestMessage("이 메시지는 무시되어야 합니다")
-                .build();
+            .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
+            .deliveryRequestMessage("이 메시지는 무시되어야 합니다")
+            .build();
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.of(shippingAddress));
+            .thenReturn(Optional.of(shippingAddress));
 
         // when
         updateDeliveryRequestService.updateDeliveryRequest(shippingAddressId, userId, command);
@@ -163,17 +163,17 @@ class UpdateDeliveryRequestUseCaseTest {
         Long userId = 100L;
 
         UpdateDeliveryRequestCommand command = UpdateDeliveryRequestCommand.builder()
-                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
-                .deliveryRequestMessage(null)
-                .build();
+            .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
+            .deliveryRequestMessage(null)
+            .build();
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> updateDeliveryRequestService.updateDeliveryRequest(shippingAddressId, userId, command))
-                .isInstanceOf(ShippingAddressNotFoundException.class)
-                .hasMessage("배송지를 찾을 수 없습니다.");
+            .isInstanceOf(ShippingAddressNotFoundException.class)
+            .hasMessage("배송지를 찾을 수 없습니다.");
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoMoreInteractions(findShippingAddressPort);
@@ -188,30 +188,30 @@ class UpdateDeliveryRequestUseCaseTest {
         Long userId = 400L;
 
         ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(shippingAddressId)
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101동 201호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .deliveryRequestMessage(null)
-                .isDefault(true)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(shippingAddressId)
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101동 201호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .deliveryRequestMessage(null)
+            .isDefault(true)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         UpdateDeliveryRequestCommand command = UpdateDeliveryRequestCommand.builder()
-                .deliveryRequestType(DeliveryRequestType.CUSTOM)
-                .deliveryRequestMessage(null)
-                .build();
+            .deliveryRequestType(DeliveryRequestType.CUSTOM)
+            .deliveryRequestMessage(null)
+            .build();
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.of(shippingAddress));
+            .thenReturn(Optional.of(shippingAddress));
 
         // when & then
         assertThatThrownBy(() -> updateDeliveryRequestService.updateDeliveryRequest(shippingAddressId, userId, command))
-                .isInstanceOf(DeliveryRequestMessageNoValueException.class);
+            .isInstanceOf(DeliveryRequestMessageNoValueException.class);
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoInteractions(updateShippingAddressPort);
@@ -226,30 +226,30 @@ class UpdateDeliveryRequestUseCaseTest {
         String longMessage = "가".repeat(61);
 
         ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
-                .id(shippingAddressId)
-                .userId(userId)
-                .addressType(ShippingAddressType.HOME)
-                .address("서울시 강남구 테헤란로 123")
-                .addressDetail("101동 201호")
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .deliveryRequestType(DeliveryRequestType.NONE)
-                .deliveryRequestMessage(null)
-                .isDefault(true)
-                .regionType(ShippingAddressRegionType.NORMAL)
-                .build());
+            .id(shippingAddressId)
+            .userId(userId)
+            .addressType(ShippingAddressType.HOME)
+            .address("서울시 강남구 테헤란로 123")
+            .addressDetail("101동 201호")
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .deliveryRequestType(DeliveryRequestType.NONE)
+            .deliveryRequestMessage(null)
+            .isDefault(true)
+            .regionType(ShippingAddressRegionType.NORMAL)
+            .build());
 
         UpdateDeliveryRequestCommand command = UpdateDeliveryRequestCommand.builder()
-                .deliveryRequestType(DeliveryRequestType.CUSTOM)
-                .deliveryRequestMessage(longMessage)
-                .build();
+            .deliveryRequestType(DeliveryRequestType.CUSTOM)
+            .deliveryRequestMessage(longMessage)
+            .build();
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.of(shippingAddress));
+            .thenReturn(Optional.of(shippingAddress));
 
         // when & then
         assertThatThrownBy(() -> updateDeliveryRequestService.updateDeliveryRequest(shippingAddressId, userId, command))
-                .isInstanceOf(InvalidDeliveryRequestMessageLengthException.class);
+            .isInstanceOf(InvalidDeliveryRequestMessageLengthException.class);
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoInteractions(updateShippingAddressPort);

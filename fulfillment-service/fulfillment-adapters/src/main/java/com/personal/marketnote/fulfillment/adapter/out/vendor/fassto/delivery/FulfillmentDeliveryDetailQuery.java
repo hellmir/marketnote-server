@@ -15,25 +15,25 @@ public class FulfillmentDeliveryDetailQuery {
     private String ordNo;
 
     public static FulfillmentDeliveryDetailQuery of(
-            String customerCode,
-            String accessToken,
-            String slipNo
+        String customerCode,
+        String accessToken,
+        String slipNo
     ) {
         return FulfillmentDeliveryDetailQuery.of(customerCode, accessToken, slipNo, null);
     }
 
     public static FulfillmentDeliveryDetailQuery of(
-            String customerCode,
-            String accessToken,
-            String slipNo,
-            String ordNo
+        String customerCode,
+        String accessToken,
+        String slipNo,
+        String ordNo
     ) {
         FulfillmentDeliveryDetailQuery query = FulfillmentDeliveryDetailQuery.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .slipNo(slipNo)
-                .ordNo(ordNo)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .slipNo(slipNo)
+            .ordNo(ordNo)
+            .build();
         query.validate();
         return query;
     }

@@ -37,12 +37,12 @@ public class PaymentCancelledPartialSharedPointConsumer {
     private final RewardProperties rewardProperties;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PAYMENT_CANCELLED,
-            groupId = "reward-partial-pending-shared-point"
+        topics = KafkaTopicConstants.PAYMENT_CANCELLED,
+        groupId = "reward-partial-pending-shared-point"
     )
     public void handlePaymentCancelledEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -58,14 +58,14 @@ public class PaymentCancelledPartialSharedPointConsumer {
 
         try {
             PaymentCancelledEvent payload = envelope.getPayloadAs(
-                    PaymentCancelledEvent.class, objectMapper
+                PaymentCancelledEvent.class, objectMapper
             );
 
             log.info("결제 취소 이벤트 수신 (부분 공유 적립 예정 포인트 차감). eventId={}, orderId={}, isFullCancel={}",
-                    envelope.eventId(), payload.orderId(), payload.isFullCancel());
+                envelope.eventId(), payload.orderId(), payload.isFullCancel());
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
+                EventPayloadValidator.id("orderId", payload.orderId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -84,26 +84,26 @@ public class PaymentCancelledPartialSharedPointConsumer {
             }
 
             Long proportionalPoint = calculateProportionalSharedPoint(
-                    payload.paymentAmount(), payload.cancelAmount()
+                payload.paymentAmount(), payload.cancelAmount()
             );
             if (FormatValidator.hasNoValue(proportionalPoint) || proportionalPoint <= 0) {
                 log.info("부분 공유 적립 예정 포인트 차감 금액 없음. orderId={}, paymentAmount={}, cancelAmount={}",
-                        payload.orderId(), payload.paymentAmount(), payload.cancelAmount());
+                    payload.orderId(), payload.paymentAmount(), payload.cancelAmount());
                 acknowledgment.acknowledge();
                 return;
             }
 
             for (UUID sharerKey : sharerKeys) {
                 modifyPendingPointIdempotent(
-                        envelope.eventId(), payload.buyerId(), sharerKey, proportionalPoint, payload.orderId()
+                    envelope.eventId(), payload.buyerId(), sharerKey, proportionalPoint, payload.orderId()
                 );
             }
 
             log.info("부분 공유 적립 예정 포인트 차감 완료. orderId={}, sharerKeys={}, proportionalPoint={}",
-                    payload.orderId(), sharerKeys, proportionalPoint);
+                payload.orderId(), sharerKeys, proportionalPoint);
         } catch (Exception e) {
             log.error("부분 공유 적립 예정 포인트 차감 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 
@@ -111,22 +111,22 @@ public class PaymentCancelledPartialSharedPointConsumer {
     }
 
     private void modifyPendingPointIdempotent(
-            String eventId, Long buyerId, UUID sharerKey, Long proportionalPoint, Long orderId
+        String eventId, Long buyerId, UUID sharerKey, Long proportionalPoint, Long orderId
     ) {
         try {
             ModifyPendingSharedPointCommand command = ModifyPendingSharedPointCommand.builder()
-                    .buyerId(buyerId)
-                    .sharerKey(sharerKey)
-                    .changeType(UserPointChangeType.DEDUCTION)
-                    .amount(proportionalPoint)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(orderId)
-                    .reason(PARTIAL_SHARED_DEDUCTION_REASON)
-                    .build();
+                .buyerId(buyerId)
+                .sharerKey(sharerKey)
+                .changeType(UserPointChangeType.DEDUCTION)
+                .amount(proportionalPoint)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(orderId)
+                .reason(PARTIAL_SHARED_DEDUCTION_REASON)
+                .build();
             modifyPendingSharedPointUseCase.modifyPending(command);
         } catch (DuplicateUserPointHistoryException e) {
             log.info("이미 처리된 부분 공유 적립 예정 포인트 차감 이벤트 (멱등 처리). eventId={}, sharerKey={}, message={}",
-                    eventId, sharerKey, e.getMessage());
+                eventId, sharerKey, e.getMessage());
         }
     }
 
@@ -136,15 +136,15 @@ public class PaymentCancelledPartialSharedPointConsumer {
         }
 
         return orderProducts.stream()
-                .map(OrderProductItem::sharerKey)
-                .filter(Objects::nonNull)
-                .distinct()
-                .toList();
+            .map(OrderProductItem::sharerKey)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
     }
 
     private Long calculateProportionalSharedPoint(Long paymentAmount, Long cancelAmount) {
         if (FormatValidator.hasNoValue(paymentAmount) || paymentAmount <= 0
-                || FormatValidator.hasNoValue(cancelAmount) || cancelAmount <= 0) {
+            || FormatValidator.hasNoValue(cancelAmount) || cancelAmount <= 0) {
             return null;
         }
 
@@ -164,8 +164,8 @@ public class PaymentCancelledPartialSharedPointConsumer {
 
     private static long calculateSharedPoint(long amount, BigDecimal rate) {
         return BigDecimal.valueOf(amount)
-                .multiply(rate)
-                .setScale(0, RoundingMode.HALF_UP)
-                .longValueExact();
+            .multiply(rate)
+            .setScale(0, RoundingMode.HALF_UP)
+            .longValueExact();
     }
 }

@@ -10,36 +10,36 @@ public class GifticonToStateMapper {
 
     public static GifticonGoodsCreateState mapToGoodsCreateState(FetchedGifticonGoodsItem item) {
         return GifticonGoodsCreateState.builder()
-                .goodsCode(item.goodsCode())
-                .goodsName(item.goodsName())
-                .brandCode(item.brandCode())
-                .brandName(item.brandName())
-                .brandImageUrl(item.brandIconImg())
-                .categoryCode(item.category1Seq())
-                .realPrice(item.realPrice())
-                .salePrice(item.salePrice())
-                .cashPrice(item.salePrice())
-                .imageUrl(item.goodsImgB())
-                .description(item.content())
-                .validDays(item.limitDay())
-                .goodsStatus(GoodsStatus.from(item.goodsStatus()))
-                .build();
+            .goodsCode(item.goodsCode())
+            .goodsName(item.goodsName())
+            .brandCode(item.brandCode())
+            .brandName(item.brandName())
+            .brandImageUrl(item.brandIconImg())
+            .categoryCode(item.category1Seq())
+            .realPrice(item.realPrice())
+            .salePrice(item.salePrice())
+            .cashPrice(item.salePrice())
+            .imageUrl(item.goodsImgB())
+            .description(item.content())
+            .validDays(item.limitDay())
+            .goodsStatus(GoodsStatus.from(item.goodsStatus()))
+            .build();
     }
 
     public static GifticonGoodsSyncState mapToGoodsSyncState(FetchedGifticonGoodsItem item) {
         return GifticonGoodsSyncState.builder()
-                .goodsName(item.goodsName())
-                .brandCode(item.brandCode())
-                .brandName(item.brandName())
-                .brandImageUrl(item.brandIconImg())
-                .categoryCode(item.category1Seq())
-                .realPrice(item.realPrice())
-                .salePrice(item.salePrice())
-                .imageUrl(item.goodsImgB())
-                .description(item.content())
-                .validDays(item.limitDay())
-                .goodsStatus(GoodsStatus.from(item.goodsStatus()))
-                .build();
+            .goodsName(item.goodsName())
+            .brandCode(item.brandCode())
+            .brandName(item.brandName())
+            .brandImageUrl(item.brandIconImg())
+            .categoryCode(item.category1Seq())
+            .realPrice(item.realPrice())
+            .salePrice(item.salePrice())
+            .imageUrl(item.goodsImgB())
+            .description(item.content())
+            .validDays(item.limitDay())
+            .goodsStatus(GoodsStatus.from(item.goodsStatus()))
+            .build();
     }
 
     /**
@@ -54,17 +54,17 @@ public class GifticonToStateMapper {
      * 헥사고날 의존 방향을 깨뜨린다. 따라서 예외적으로 7개 개별 파라미터를 유지한다.</p>
      */
     public static GifticonOrderCreateState mapToOrderCreateState(
-            Long userId, String goodsCode, String goodsName, String brandName,
-            String productImageUrl, String trId, Long cashPrice
+        Long userId, String goodsCode, String goodsName, String brandName,
+        String productImageUrl, String trId, Long cashPrice
     ) {
         return GifticonOrderCreateState.builder()
-                .userId(userId)
-                .goodsCode(goodsCode)
-                .goodsName(goodsName)
-                .brandName(brandName)
-                .productImageUrl(productImageUrl)
-                .trId(trId)
-                .cashPrice(cashPrice)
-                .build();
+            .userId(userId)
+            .goodsCode(goodsCode)
+            .goodsName(goodsName)
+            .brandName(brandName)
+            .productImageUrl(productImageUrl)
+            .trId(trId)
+            .cashPrice(cashPrice)
+            .build();
     }
 }

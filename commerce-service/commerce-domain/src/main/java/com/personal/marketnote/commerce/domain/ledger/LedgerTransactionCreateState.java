@@ -14,18 +14,18 @@ public class LedgerTransactionCreateState {
     private IdempotencyKey idempotencyKey;
 
     public static LedgerTransactionCreateState forTransaction(
-            LedgerTransactionType transactionType,
-            String targetType,
-            Long targetId,
-            String description,
-            IdempotencyKey idempotencyKey
+        LedgerTransactionType transactionType,
+        String targetType,
+        Long targetId,
+        String description,
+        IdempotencyKey idempotencyKey
     ) {
         return LedgerTransactionCreateState.builder()
-                .transactionType(transactionType)
-                .targetType(targetType)
-                .targetId(targetId)
-                .description(description)
-                .idempotencyKey(idempotencyKey)
-                .build();
+            .transactionType(transactionType)
+            .targetType(targetType)
+            .targetId(targetId)
+            .description(description)
+            .idempotencyKey(idempotencyKey)
+            .build();
     }
 }

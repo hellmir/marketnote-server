@@ -78,7 +78,7 @@ class SettlementSchedulerTest {
         // given
         setUpClock("2026-03-01T02:00:00Z");
         doThrow(new NoUnsettledAllocationException())
-                .when(executeSettlementUseCase).executeSettlement(any(ExecuteSettlementCommand.class));
+            .when(executeSettlementUseCase).executeSettlement(any(ExecuteSettlementCommand.class));
 
         // when & then
         settlementScheduler.executeMonthlySettlement();
@@ -92,7 +92,7 @@ class SettlementSchedulerTest {
         // given
         setUpClock("2026-03-01T02:00:00Z");
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(executeSettlementUseCase).executeSettlement(any(ExecuteSettlementCommand.class));
+            .when(executeSettlementUseCase).executeSettlement(any(ExecuteSettlementCommand.class));
 
         // when & then
         settlementScheduler.executeMonthlySettlement();

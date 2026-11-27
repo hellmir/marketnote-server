@@ -39,13 +39,13 @@ public class CartProductJpaEntity extends BaseEntity {
 
     public static CartProductJpaEntity from(CartProduct cartProduct, PricePolicyJpaEntity pricePolicyJpaEntity) {
         return CartProductJpaEntity.builder()
-                .id(new CartId(cartProduct.getUserId(), pricePolicyJpaEntity.getId()))
-                .pricePolicyJpaEntity(pricePolicyJpaEntity)
-                .sharerKey(cartProduct.getSharerKey())
-                .imageUrl(cartProduct.getImageUrl())
-                .quantity((short) cartProduct.getQuantity().getValue())
-                .status(cartProduct.getStatus())
-                .build();
+            .id(new CartId(cartProduct.getUserId(), pricePolicyJpaEntity.getId()))
+            .pricePolicyJpaEntity(pricePolicyJpaEntity)
+            .sharerKey(cartProduct.getSharerKey())
+            .imageUrl(cartProduct.getImageUrl())
+            .quantity((short) cartProduct.getQuantity().getValue())
+            .status(cartProduct.getStatus())
+            .build();
     }
 
     public void updateFrom(CartProduct cartProduct) {

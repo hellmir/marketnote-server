@@ -8,16 +8,16 @@ public class FulfillmentServiceCommunicationHistoryCommandToStateMapper {
     }
 
     public static FulfillmentServiceCommunicationHistoryCreateState mapToCreateState(
-            FulfillmentServiceCommunicationHistoryCommand command
+        FulfillmentServiceCommunicationHistoryCommand command
     ) {
         return FulfillmentServiceCommunicationHistoryCreateState.builder()
-                .targetType(command.targetType())
-                .targetId(command.targetId())
-                .communicationType(command.communicationType())
-                .sender(command.sender())
-                .exception(command.exception())
-                .payload(command.payload())
-                .payloadJson(command.payloadJson())
-                .build();
+            .targetType(command.targetType())
+            .targetId(command.targetId())
+            .communicationType(command.communicationType())
+            .sender(command.sender())
+            .exception(command.exception())
+            .payload(command.payload())
+            .payloadJson(command.payloadJson())
+            .build();
     }
 }

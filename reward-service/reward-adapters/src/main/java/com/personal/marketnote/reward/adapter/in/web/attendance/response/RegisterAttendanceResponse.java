@@ -15,11 +15,11 @@ public class RegisterAttendanceResponse {
 
     public static RegisterAttendanceResponse from(RegisterAttendanceResult result) {
         return RegisterAttendanceResponse.builder()
-                .id(result.id())
-                .rewardType(result.rewardType())
-                .rewardQuantity(result.rewardQuantity())
-                .continuousPeriod(result.continuousPeriod())
-                .build();
+            .id(result.id())
+            .rewardType(result.rewardType())
+            .rewardQuantity(result.rewardQuantity())
+            .continuousPeriod(result.continuousPeriod())
+            .build();
     }
 }
 

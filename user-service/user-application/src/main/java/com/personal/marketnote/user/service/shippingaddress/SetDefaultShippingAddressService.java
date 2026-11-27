@@ -23,20 +23,20 @@ public class SetDefaultShippingAddressService implements SetDefaultShippingAddre
     @Override
     public void setDefaultShippingAddress(Long shippingAddressId, Long userId) {
         ShippingAddress targetAddress = findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId)
-                .orElseThrow(() -> {
-                    log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}, userId={}", shippingAddressId, userId);
-                    return new ShippingAddressNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}, userId={}", shippingAddressId, userId);
+                return new ShippingAddressNotFoundException();
+            });
 
         if (targetAddress.isDefault()) {
             return;
         }
 
         findShippingAddressPort.findDefaultsByUserId(userId)
-                .forEach(currentDefault -> {
-                    currentDefault.unsetAsDefault();
-                    updateShippingAddressPort.update(currentDefault);
-                });
+            .forEach(currentDefault -> {
+                currentDefault.unsetAsDefault();
+                updateShippingAddressPort.update(currentDefault);
+            });
 
         targetAddress.setAsDefault();
         updateShippingAddressPort.update(targetAddress);

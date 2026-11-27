@@ -8,16 +8,16 @@ public class FileServiceCommunicationHistoryCommandToStateMapper {
     }
 
     public static FileServiceCommunicationHistoryCreateState mapToCreateState(
-            FileServiceCommunicationHistoryCommand command
+        FileServiceCommunicationHistoryCommand command
     ) {
         return FileServiceCommunicationHistoryCreateState.builder()
-                .targetType(command.getTargetType())
-                .targetId(command.getTargetId())
-                .communicationType(command.getCommunicationType())
-                .sender(command.getSender())
-                .exception(command.getException())
-                .payload(command.getPayload())
-                .payloadJson(command.getPayloadJson())
-                .build();
+            .targetType(command.getTargetType())
+            .targetId(command.getTargetId())
+            .communicationType(command.getCommunicationType())
+            .sender(command.getSender())
+            .exception(command.getException())
+            .payload(command.getPayload())
+            .payloadJson(command.getPayloadJson())
+            .build();
     }
 }

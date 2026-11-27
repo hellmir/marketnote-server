@@ -14,43 +14,43 @@ import java.util.Optional;
 public interface AligoMessageJpaRepository extends JpaRepository<AligoMessageJpaEntity, Long> {
 
     @Query("""
-            SELECT DISTINCT m FROM AligoMessageJpaEntity m
-            LEFT JOIN FETCH m.recipients
-            WHERE m.id = :id
-            """)
+        SELECT DISTINCT m FROM AligoMessageJpaEntity m
+        LEFT JOIN FETCH m.recipients
+        WHERE m.id = :id
+        """)
     Optional<AligoMessageJpaEntity> findByIdWithRecipients(@Param("id") Long id);
 
     @Query("""
-            SELECT DISTINCT m FROM AligoMessageJpaEntity m
-            LEFT JOIN FETCH m.recipients
-            WHERE m.messageStatus = :status
-            AND m.createdAt > :after
-            ORDER BY m.createdAt ASC
-            """)
+        SELECT DISTINCT m FROM AligoMessageJpaEntity m
+        LEFT JOIN FETCH m.recipients
+        WHERE m.messageStatus = :status
+        AND m.createdAt > :after
+        ORDER BY m.createdAt ASC
+        """)
     List<AligoMessageJpaEntity> findByMessageStatusAndCreatedAtAfter(
-            @Param("status") AligoMessageStatus status,
-            @Param("after") LocalDateTime after
+        @Param("status") AligoMessageStatus status,
+        @Param("after") LocalDateTime after
     );
 
     @Query("""
-            SELECT m FROM AligoMessageJpaEntity m
-            WHERE m.createdAt >= :startDate
-            AND m.createdAt <= :endDate
-            ORDER BY m.createdAt DESC
-            """)
+        SELECT m FROM AligoMessageJpaEntity m
+        WHERE m.createdAt >= :startDate
+        AND m.createdAt <= :endDate
+        ORDER BY m.createdAt DESC
+        """)
     List<AligoMessageJpaEntity> findByCreatedAtBetween(
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate,
-            Pageable pageable
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate,
+        Pageable pageable
     );
 
     @Query("""
-            SELECT COUNT(m) FROM AligoMessageJpaEntity m
-            WHERE m.createdAt >= :startDate
-            AND m.createdAt <= :endDate
-            """)
+        SELECT COUNT(m) FROM AligoMessageJpaEntity m
+        WHERE m.createdAt >= :startDate
+        AND m.createdAt <= :endDate
+        """)
     long countByCreatedAtBetween(
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate
     );
 }

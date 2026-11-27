@@ -17,11 +17,11 @@ public class CategoryResponse {
 
     public static CategoryResponse from(CategoryItemResult result) {
         return CategoryResponse.builder()
-                .id(result.id())
-                .parentCategoryId(result.parentCategoryId())
-                .name(result.name())
-                .status(result.status())
-                .build();
+            .id(result.id())
+            .parentCategoryId(result.parentCategoryId())
+            .name(result.name())
+            .status(result.status())
+            .build();
     }
 }
 

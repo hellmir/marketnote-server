@@ -35,16 +35,16 @@ class DeleteNotificationTemplateUseCaseTest {
     void shouldDeactivateNotificationTemplate() {
         // given
         NotificationTemplate template = NotificationTemplate.from(NotificationTemplateCreateState.builder()
-                .templateCode("ORDER_PAYMENT_COMPLETED")
-                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                .notificationCategory(NotificationCategory.INFORMATIONAL)
-                .title("주문이 완료되었습니다")
-                .bodyTemplate("본문")
-                .urlTemplate("/order/{orderId}")
-                .build());
+            .templateCode("ORDER_PAYMENT_COMPLETED")
+            .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+            .notificationCategory(NotificationCategory.INFORMATIONAL)
+            .title("주문이 완료되었습니다")
+            .bodyTemplate("본문")
+            .urlTemplate("/order/{orderId}")
+            .build());
 
         when(findNotificationTemplatePort.findActiveById(1L))
-                .thenReturn(Optional.of(template));
+            .thenReturn(Optional.of(template));
 
         // when
         deleteNotificationTemplateService.deleteNotificationTemplate(1L);
@@ -60,11 +60,11 @@ class DeleteNotificationTemplateUseCaseTest {
     void shouldThrowExceptionWhenTemplateNotFound() {
         // given
         when(findNotificationTemplatePort.findActiveById(999L))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> deleteNotificationTemplateService.deleteNotificationTemplate(999L))
-                .isInstanceOf(NotificationTemplateNotFoundException.class);
+            .isInstanceOf(NotificationTemplateNotFoundException.class);
         verify(updateNotificationTemplatePort, never()).update(any());
     }
 }

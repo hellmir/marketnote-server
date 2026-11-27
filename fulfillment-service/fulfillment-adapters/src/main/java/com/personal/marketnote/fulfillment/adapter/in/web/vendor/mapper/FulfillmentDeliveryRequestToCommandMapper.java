@@ -7,166 +7,166 @@ import java.util.List;
 
 public class FulfillmentDeliveryRequestToCommandMapper {
     public static RegisterFulfillmentDeliveryCommand mapToRegisterCommand(
-            String customerCode,
-            String accessToken,
-            List<RegisterFulfillmentDeliveryRequest> request
+        String customerCode,
+        String accessToken,
+        List<RegisterFulfillmentDeliveryRequest> request
     ) {
         List<RegisterFulfillmentDeliveryItemCommand> deliveryRequests = request.stream()
-                .map(FulfillmentDeliveryRequestToCommandMapper::mapItem)
-                .toList();
+            .map(FulfillmentDeliveryRequestToCommandMapper::mapItem)
+            .toList();
 
         return RegisterFulfillmentDeliveryCommand.of(customerCode, accessToken, deliveryRequests);
     }
 
     public static UpdateFulfillmentDeliveryCommand mapToUpdateCommand(
-            String customerCode,
-            String accessToken,
-            List<UpdateFulfillmentDeliveryRequest> request
+        String customerCode,
+        String accessToken,
+        List<UpdateFulfillmentDeliveryRequest> request
     ) {
         List<UpdateFulfillmentDeliveryItemCommand> deliveryRequests = request.stream()
-                .map(FulfillmentDeliveryRequestToCommandMapper::mapUpdateItem)
-                .toList();
+            .map(FulfillmentDeliveryRequestToCommandMapper::mapUpdateItem)
+            .toList();
 
         return UpdateFulfillmentDeliveryCommand.of(customerCode, accessToken, deliveryRequests);
     }
 
     public static RegisterFulfillmentDeliveryCarCommand mapToRegisterCarCommand(
-            String customerCode,
-            String accessToken,
-            List<RegisterFulfillmentDeliveryCarRequest> request
+        String customerCode,
+        String accessToken,
+        List<RegisterFulfillmentDeliveryCarRequest> request
     ) {
         List<RegisterFulfillmentDeliveryCarItemCommand> deliveryRequests = request.stream()
-                .map(FulfillmentDeliveryRequestToCommandMapper::mapCarItem)
-                .toList();
+            .map(FulfillmentDeliveryRequestToCommandMapper::mapCarItem)
+            .toList();
 
         return RegisterFulfillmentDeliveryCarCommand.of(customerCode, accessToken, deliveryRequests);
     }
 
     public static RegisterFulfillmentDeliveryIcsCommand mapToRegisterIcsCommand(
-            String customerCode,
-            String accessToken,
-            List<RegisterFulfillmentDeliveryIcsRequest> request
+        String customerCode,
+        String accessToken,
+        List<RegisterFulfillmentDeliveryIcsRequest> request
     ) {
         List<RegisterFulfillmentDeliveryIcsItemCommand> deliveryRequests = request.stream()
-                .map(FulfillmentDeliveryRequestToCommandMapper::mapIcsItem)
-                .toList();
+            .map(FulfillmentDeliveryRequestToCommandMapper::mapIcsItem)
+            .toList();
 
         return RegisterFulfillmentDeliveryIcsCommand.of(customerCode, accessToken, deliveryRequests);
     }
 
     public static UpdateFulfillmentDeliveryCarCommand mapToUpdateCarCommand(
-            String customerCode,
-            String accessToken,
-            List<UpdateFulfillmentDeliveryCarRequest> request
+        String customerCode,
+        String accessToken,
+        List<UpdateFulfillmentDeliveryCarRequest> request
     ) {
         List<UpdateFulfillmentDeliveryCarItemCommand> deliveryRequests = request.stream()
-                .map(FulfillmentDeliveryRequestToCommandMapper::mapUpdateCarItem)
-                .toList();
+            .map(FulfillmentDeliveryRequestToCommandMapper::mapUpdateCarItem)
+            .toList();
 
         return UpdateFulfillmentDeliveryCarCommand.of(customerCode, accessToken, deliveryRequests);
     }
 
     public static GetFulfillmentDeliveriesCommand mapToDeliveriesCommand(
-            String customerCode,
-            String accessToken,
-            String startDate,
-            String endDate,
-            String status,
-            String outDiv,
-            String ordNo
+        String customerCode,
+        String accessToken,
+        String startDate,
+        String endDate,
+        String status,
+        String outDiv,
+        String ordNo
     ) {
         return GetFulfillmentDeliveriesCommand.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .startDate(startDate)
-                .endDate(endDate)
-                .status(status)
-                .releaseType(outDiv)
-                .orderNumber(ordNo)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .startDate(startDate)
+            .endDate(endDate)
+            .status(status)
+            .releaseType(outDiv)
+            .orderNumber(ordNo)
+            .build();
     }
 
     public static GetFulfillmentDeliveryDetailCommand mapToDeliveryDetailCommand(
-            String customerCode,
-            String accessToken,
-            String slipNo,
-            String ordNo
+        String customerCode,
+        String accessToken,
+        String slipNo,
+        String ordNo
     ) {
         return GetFulfillmentDeliveryDetailCommand.of(customerCode, accessToken, slipNo, ordNo);
     }
 
     public static GetFulfillmentDeliveryStatusesCommand mapToDeliveryStatusesCommand(
-            String customerCode,
-            String accessToken,
-            String startDate,
-            String endDate,
-            String outDiv
+        String customerCode,
+        String accessToken,
+        String startDate,
+        String endDate,
+        String outDiv
     ) {
         return GetFulfillmentDeliveryStatusesCommand.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .startDate(startDate)
-                .endDate(endDate)
-                .releaseType(outDiv)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .startDate(startDate)
+            .endDate(endDate)
+            .releaseType(outDiv)
+            .build();
     }
 
     public static CancelFulfillmentDeliveryCommand mapToCancelCommand(
-            String customerCode,
-            String accessToken,
-            List<CancelFulfillmentDeliveryRequest> request
+        String customerCode,
+        String accessToken,
+        List<CancelFulfillmentDeliveryRequest> request
     ) {
         List<CancelFulfillmentDeliveryItemCommand> cancelRequests = request.stream()
-                .map(item -> CancelFulfillmentDeliveryItemCommand.of(item.getSlipNo(), item.getOrdNo()))
-                .toList();
+            .map(item -> CancelFulfillmentDeliveryItemCommand.of(item.getSlipNo(), item.getOrdNo()))
+            .toList();
 
         return CancelFulfillmentDeliveryCommand.of(customerCode, accessToken, cancelRequests);
     }
 
     public static GetFulfillmentDeliveryOutOrdGoodsDetailCommand mapToOutOrdGoodsDetailCommand(
-            String customerCode,
-            String accessToken,
-            String outOrdSlipNo
+        String customerCode,
+        String accessToken,
+        String outOrdSlipNo
     ) {
         return GetFulfillmentDeliveryOutOrdGoodsDetailCommand.of(customerCode, accessToken, outOrdSlipNo);
     }
 
     public static GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand mapToOutOrdGoodsByOrdNoCommand(
-            String customerCode,
-            String accessToken,
-            String startDate,
-            String endDate,
-            String ordNo
+        String customerCode,
+        String accessToken,
+        String startDate,
+        String endDate,
+        String ordNo
     ) {
         return GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .startDate(startDate)
-                .endDate(endDate)
-                .orderNumber(ordNo)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .startDate(startDate)
+            .endDate(endDate)
+            .orderNumber(ordNo)
+            .build();
     }
 
     public static GetFulfillmentDeliveryGoodDetailCommand mapToDeliveryGoodDetailCommand(
-            String customerCode,
-            String accessToken,
-            String startDate,
-            String endDate,
-            String ordNo
+        String customerCode,
+        String accessToken,
+        String startDate,
+        String endDate,
+        String ordNo
     ) {
         return GetFulfillmentDeliveryGoodDetailCommand.builder()
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .startDate(startDate)
-                .endDate(endDate)
-                .orderNumber(ordNo)
-                .build();
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .startDate(startDate)
+            .endDate(endDate)
+            .orderNumber(ordNo)
+            .build();
     }
 
     public static CompleteFulfillmentDeliveryIcsCommand mapToIcsCompletionCommand(
-            String customerCode,
-            String accessToken,
-            CompleteFulfillmentDeliveryIcsRequest request
+        String customerCode,
+        String accessToken,
+        CompleteFulfillmentDeliveryIcsRequest request
     ) {
         CompleteFulfillmentDeliveryIcsItemCommand itemCommand = CompleteFulfillmentDeliveryIcsItemCommand.of(request.getOrdNoList());
         return CompleteFulfillmentDeliveryIcsCommand.of(customerCode, accessToken, List.of(itemCommand));
@@ -174,105 +174,105 @@ public class FulfillmentDeliveryRequestToCommandMapper {
 
     private static RegisterFulfillmentDeliveryItemCommand mapItem(RegisterFulfillmentDeliveryRequest item) {
         List<RegisterFulfillmentDeliveryGoodsCommand> goods = item.getGodCds().stream()
-                .map(FulfillmentDeliveryRequestToCommandMapper::mapGoods)
-                .toList();
+            .map(FulfillmentDeliveryRequestToCommandMapper::mapGoods)
+            .toList();
 
         return RegisterFulfillmentDeliveryItemCommand.builder()
-                .orderDate(item.getOrdDt())
-                .orderNumber(item.getOrdNo())
-                .orderSequence(item.getOrdSeq())
-                .slipNumber(item.getSlipNo())
-                .recipientName(item.getCustNm())
-                .recipientPhoneNumber(item.getCustTelNo())
-                .recipientAddress(item.getCustAddr())
-                .releaseMethod(item.getOutWay())
-                .senderName(item.getSendNm())
-                .senderPhoneNumber(item.getSendTelNo())
-                .salesChannel(item.getSalChanel())
-                .shippingRequest(item.getShipReqTerm())
-                .products(goods)
-                .sameDayDeliveryCode(item.getOneDayDeliveryCd())
-                .remark(item.getRemark())
-                .build();
+            .orderDate(item.getOrdDt())
+            .orderNumber(item.getOrdNo())
+            .orderSequence(item.getOrdSeq())
+            .slipNumber(item.getSlipNo())
+            .recipientName(item.getCustNm())
+            .recipientPhoneNumber(item.getCustTelNo())
+            .recipientAddress(item.getCustAddr())
+            .releaseMethod(item.getOutWay())
+            .senderName(item.getSendNm())
+            .senderPhoneNumber(item.getSendTelNo())
+            .salesChannel(item.getSalChanel())
+            .shippingRequest(item.getShipReqTerm())
+            .products(goods)
+            .sameDayDeliveryCode(item.getOneDayDeliveryCd())
+            .remark(item.getRemark())
+            .build();
     }
 
     private static UpdateFulfillmentDeliveryItemCommand mapUpdateItem(UpdateFulfillmentDeliveryRequest item) {
         List<RegisterFulfillmentDeliveryGoodsCommand> goods = item.getGodCds().stream()
-                .map(FulfillmentDeliveryRequestToCommandMapper::mapGoods)
-                .toList();
+            .map(FulfillmentDeliveryRequestToCommandMapper::mapGoods)
+            .toList();
 
         return UpdateFulfillmentDeliveryItemCommand.builder()
-                .orderDate(item.getOrdDt())
-                .orderNumber(item.getOrdNo())
-                .orderSequence(item.getOrdSeq())
-                .slipNumber(item.getSlipNo())
-                .recipientName(item.getCustNm())
-                .recipientPhoneNumber(item.getCustTelNo())
-                .recipientAddress(item.getCustAddr())
-                .releaseMethod(item.getOutWay())
-                .senderName(item.getSendNm())
-                .senderPhoneNumber(item.getSendTelNo())
-                .salesChannel(item.getSalChanel())
-                .shippingRequest(item.getShipReqTerm())
-                .products(goods)
-                .sameDayDeliveryCode(item.getOneDayDeliveryCd())
-                .remark(item.getRemark())
-                .build();
+            .orderDate(item.getOrdDt())
+            .orderNumber(item.getOrdNo())
+            .orderSequence(item.getOrdSeq())
+            .slipNumber(item.getSlipNo())
+            .recipientName(item.getCustNm())
+            .recipientPhoneNumber(item.getCustTelNo())
+            .recipientAddress(item.getCustAddr())
+            .releaseMethod(item.getOutWay())
+            .senderName(item.getSendNm())
+            .senderPhoneNumber(item.getSendTelNo())
+            .salesChannel(item.getSalChanel())
+            .shippingRequest(item.getShipReqTerm())
+            .products(goods)
+            .sameDayDeliveryCode(item.getOneDayDeliveryCd())
+            .remark(item.getRemark())
+            .build();
     }
 
     private static RegisterFulfillmentDeliveryCarItemCommand mapCarItem(RegisterFulfillmentDeliveryCarRequest item) {
         List<RegisterFulfillmentDeliveryGoodsCommand> goods = item.getGodCds().stream()
-                .map(FulfillmentDeliveryRequestToCommandMapper::mapGoods)
-                .toList();
+            .map(FulfillmentDeliveryRequestToCommandMapper::mapGoods)
+            .toList();
 
         return RegisterFulfillmentDeliveryCarItemCommand.builder()
-                .orderDate(item.getOrdDt())
-                .orderNumber(item.getOrdNo())
-                .slipNumber(item.getSlipNo())
-                .releaseMethod(item.getOutWay())
-                .shopCode(item.getCstShopCd())
-                .products(goods)
-                .remark(item.getRemark())
-                .build();
+            .orderDate(item.getOrdDt())
+            .orderNumber(item.getOrdNo())
+            .slipNumber(item.getSlipNo())
+            .releaseMethod(item.getOutWay())
+            .shopCode(item.getCstShopCd())
+            .products(goods)
+            .remark(item.getRemark())
+            .build();
     }
 
     private static UpdateFulfillmentDeliveryCarItemCommand mapUpdateCarItem(UpdateFulfillmentDeliveryCarRequest item) {
         List<RegisterFulfillmentDeliveryGoodsCommand> goods = item.getGodCds().stream()
-                .map(FulfillmentDeliveryRequestToCommandMapper::mapGoods)
-                .toList();
+            .map(FulfillmentDeliveryRequestToCommandMapper::mapGoods)
+            .toList();
 
         return UpdateFulfillmentDeliveryCarItemCommand.builder()
-                .orderDate(item.getOrdDt())
-                .orderNumber(item.getOrdNo())
-                .slipNumber(item.getSlipNo())
-                .releaseMethod(item.getOutWay())
-                .shopCode(item.getCstShopCd())
-                .products(goods)
-                .remark(item.getRemark())
-                .build();
+            .orderDate(item.getOrdDt())
+            .orderNumber(item.getOrdNo())
+            .slipNumber(item.getSlipNo())
+            .releaseMethod(item.getOutWay())
+            .shopCode(item.getCstShopCd())
+            .products(goods)
+            .remark(item.getRemark())
+            .build();
     }
 
     private static RegisterFulfillmentDeliveryIcsItemCommand mapIcsItem(RegisterFulfillmentDeliveryIcsRequest item) {
         List<RegisterFulfillmentDeliveryGoodsCommand> goods = item.getGodCds().stream()
-                .map(FulfillmentDeliveryRequestToCommandMapper::mapIcsGoods)
-                .toList();
+            .map(FulfillmentDeliveryRequestToCommandMapper::mapIcsGoods)
+            .toList();
 
         return RegisterFulfillmentDeliveryIcsItemCommand.builder()
-                .orderDate(item.getOrdDt())
-                .orderNumber(item.getOrdNo())
-                .platform(item.getPlatform())
-                .logisticsCenter(item.getLogiCenter())
-                .invoiceNumber(item.getInvoiceNo())
-                .recipientName(item.getCustNm())
-                .recipientPhoneNumber(item.getCustTelNo())
-                .recipientAddress(item.getCustAddr())
-                .senderName(item.getSendNm())
-                .senderPhoneNumber(item.getSendTelNo())
-                .salesChannel(item.getSalChanel())
-                .shippingRequest(item.getShipReqTerm())
-                .remark(item.getRemark())
-                .products(goods)
-                .build();
+            .orderDate(item.getOrdDt())
+            .orderNumber(item.getOrdNo())
+            .platform(item.getPlatform())
+            .logisticsCenter(item.getLogiCenter())
+            .invoiceNumber(item.getInvoiceNo())
+            .recipientName(item.getCustNm())
+            .recipientPhoneNumber(item.getCustTelNo())
+            .recipientAddress(item.getCustAddr())
+            .senderName(item.getSendNm())
+            .senderPhoneNumber(item.getSendTelNo())
+            .salesChannel(item.getSalChanel())
+            .shippingRequest(item.getShipReqTerm())
+            .remark(item.getRemark())
+            .products(goods)
+            .build();
     }
 
     private static RegisterFulfillmentDeliveryGoodsCommand mapGoods(RegisterFulfillmentDeliveryGoodsRequest item) {

@@ -4,10 +4,10 @@ import lombok.Builder;
 
 @Builder
 public record CancelFulfillmentDeliveryItemResult(
-        String fulfillmentSlipNumber,
-        String orderNumber,
-        String message,
-        String code,
-        Object outOfStockGoodsDetail
+    String fulfillmentSlipNumber,
+    String orderNumber,
+    String message,
+    String code,
+    Object outOfStockGoodsDetail
 ) {
 }

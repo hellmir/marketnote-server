@@ -36,15 +36,15 @@ class UserAttendanceHistoryJpaRepositoryTest {
 
     private void persistHistory(Long userAttendanceId, LocalDate attendedDate, LocalDateTime attendedAt) {
         UserAttendanceHistory domain = UserAttendanceHistory.from(UserAttendanceHistorySnapshotState.builder()
-                .userAttendanceId(userAttendanceId)
-                .attendancePolicyId((short) 1)
-                .rewardType(AttendanceRewardType.POINT)
-                .rewardQuantity(RewardQuantity.of(50L))
-                .continuousPeriod(ContinuousPeriod.of((short) 1))
-                .rewardYn(Boolean.TRUE)
-                .attendedDate(attendedDate)
-                .attendedAt(attendedAt)
-                .build());
+            .userAttendanceId(userAttendanceId)
+            .attendancePolicyId((short) 1)
+            .rewardType(AttendanceRewardType.POINT)
+            .rewardQuantity(RewardQuantity.of(50L))
+            .continuousPeriod(ContinuousPeriod.of((short) 1))
+            .rewardYn(Boolean.TRUE)
+            .attendedDate(attendedDate)
+            .attendedAt(attendedAt)
+            .build());
         em.persist(UserAttendanceHistoryJpaEntity.from(domain));
         em.flush();
     }
@@ -58,7 +58,7 @@ class UserAttendanceHistoryJpaRepositoryTest {
         em.clear();
 
         Optional<UserAttendanceHistoryJpaEntity> result = repository
-                .findTop1ByUserAttendanceIdOrderByAttendedAtDesc(10L);
+            .findTop1ByUserAttendanceIdOrderByAttendedAtDesc(10L);
 
         assertThat(result).isPresent();
         assertThat(result.get().getAttendedDate()).isEqualTo(LocalDate.of(2026, 4, 12));
@@ -71,16 +71,16 @@ class UserAttendanceHistoryJpaRepositoryTest {
         em.clear();
 
         boolean exists = repository.existsByUserAttendanceIdAndAttendedAtGreaterThanEqualAndAttendedAtLessThan(
-                10L,
-                LocalDateTime.of(2026, 4, 14, 0, 0),
-                LocalDateTime.of(2026, 4, 15, 0, 0)
+            10L,
+            LocalDateTime.of(2026, 4, 14, 0, 0),
+            LocalDateTime.of(2026, 4, 15, 0, 0)
         );
         assertThat(exists).isTrue();
 
         boolean notExists = repository.existsByUserAttendanceIdAndAttendedAtGreaterThanEqualAndAttendedAtLessThan(
-                10L,
-                LocalDateTime.of(2026, 4, 15, 0, 0),
-                LocalDateTime.of(2026, 4, 16, 0, 0)
+            10L,
+            LocalDateTime.of(2026, 4, 15, 0, 0),
+            LocalDateTime.of(2026, 4, 16, 0, 0)
         );
         assertThat(notExists).isFalse();
     }
@@ -92,9 +92,9 @@ class UserAttendanceHistoryJpaRepositoryTest {
         em.clear();
 
         boolean exists = repository.existsByUserAttendanceIdAndAttendedAtGreaterThanEqualAndAttendedAtLessThan(
-                10L,
-                LocalDateTime.of(2026, 4, 14, 0, 0),
-                LocalDateTime.of(2026, 4, 15, 0, 0)
+            10L,
+            LocalDateTime.of(2026, 4, 14, 0, 0),
+            LocalDateTime.of(2026, 4, 15, 0, 0)
         );
         assertThat(exists).isTrue();
     }

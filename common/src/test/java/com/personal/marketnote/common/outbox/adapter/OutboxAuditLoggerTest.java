@@ -15,8 +15,8 @@ class OutboxAuditLoggerTest {
     void logFailed_logsWithoutException() {
         // when & then
         assertThatCode(() -> outboxAuditLogger.logFailed(
-                "commerce.payment.approved", "event-1", 5,
-                new RuntimeException("Kafka 전송 실패")
+            "commerce.payment.approved", "event-1", 5,
+            new RuntimeException("Kafka 전송 실패")
         )).doesNotThrowAnyException();
     }
 
@@ -25,7 +25,7 @@ class OutboxAuditLoggerTest {
     void logResolve_logsWithoutException() {
         // when & then
         assertThatCode(() -> outboxAuditLogger.logResolve(
-                "commerce.payment.approved", "event-1", "RETRY", "일시적 장애 복구"
+            "commerce.payment.approved", "event-1", "RETRY", "일시적 장애 복구"
         )).doesNotThrowAnyException();
     }
 
@@ -34,8 +34,8 @@ class OutboxAuditLoggerTest {
     void logResolveError_logsWithoutException() {
         // when & then
         assertThatCode(() -> outboxAuditLogger.logResolveError(
-                "commerce.payment.approved", "event-1", "RETRY",
-                new RuntimeException("전송 실패")
+            "commerce.payment.approved", "event-1", "RETRY",
+            new RuntimeException("전송 실패")
         )).doesNotThrowAnyException();
     }
 }

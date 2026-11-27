@@ -14,10 +14,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "return_tracker",
-        indexes = {
-                @Index(name = "idx_return_tracker_inspection_status", columnList = "inspection_status")
-        },
-        uniqueConstraints = @UniqueConstraint(name = "uk_return_tracker_order_id", columnNames = "order_id"))
+    indexes = {
+        @Index(name = "idx_return_tracker_inspection_status", columnList = "inspection_status")
+    },
+    uniqueConstraints = @UniqueConstraint(name = "uk_return_tracker_order_id", columnNames = "order_id"))
 @DynamicInsert
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -61,15 +61,15 @@ public class ReturnTrackerJpaEntity {
 
     public static ReturnTrackerJpaEntity from(ReturnTracker domain) {
         return ReturnTrackerJpaEntity.builder()
-                .id(domain.getId())
-                .orderId(domain.getOrderId())
-                .returnSlipNumber(domain.getReturnSlipNumber())
-                .inspectionStatus(domain.getInspectionStatus())
-                .refundStatus(domain.getRefundStatus())
-                .inspectedAt(domain.getInspectedAt())
-                .refundedAt(domain.getRefundedAt())
-                .createdAt(domain.getCreatedAt())
-                .modifiedAt(domain.getModifiedAt())
-                .build();
+            .id(domain.getId())
+            .orderId(domain.getOrderId())
+            .returnSlipNumber(domain.getReturnSlipNumber())
+            .inspectionStatus(domain.getInspectionStatus())
+            .refundStatus(domain.getRefundStatus())
+            .inspectedAt(domain.getInspectedAt())
+            .refundedAt(domain.getRefundedAt())
+            .createdAt(domain.getCreatedAt())
+            .modifiedAt(domain.getModifiedAt())
+            .build();
     }
 }

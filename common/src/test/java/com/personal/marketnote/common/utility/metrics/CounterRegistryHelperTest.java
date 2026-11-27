@@ -50,10 +50,10 @@ class CounterRegistryHelperTest {
     void shouldHitCacheRegardlessOfTagOrder() {
         // when
         Counter first = helper.counter(
-                "metric.test.total", "테스트 메트릭", "tagA", "1", "tagB", "2"
+            "metric.test.total", "테스트 메트릭", "tagA", "1", "tagB", "2"
         );
         Counter second = helper.counter(
-                "metric.test.total", "테스트 메트릭", "tagB", "2", "tagA", "1"
+            "metric.test.total", "테스트 메트릭", "tagB", "2", "tagA", "1"
         );
 
         // then
@@ -65,7 +65,7 @@ class CounterRegistryHelperTest {
     void shouldThrowWhenTagKeyValuesAreOddLength() {
         // when & then
         assertThatThrownBy(
-                () -> helper.counter("metric.test.total", "테스트 메트릭", "tag1")
+            () -> helper.counter("metric.test.total", "테스트 메트릭", "tag1")
         ).isInstanceOf(InvalidCounterTagPairsException.class);
     }
 
@@ -78,8 +78,8 @@ class CounterRegistryHelperTest {
 
         // then
         Counter counter = meterRegistry.find("metric.test.total")
-                .tag("tag1", "value1")
-                .counter();
+            .tag("tag1", "value1")
+            .counter();
         assertThat(counter).isNotNull();
         assertThat(counter.count()).isEqualTo(2.0);
     }

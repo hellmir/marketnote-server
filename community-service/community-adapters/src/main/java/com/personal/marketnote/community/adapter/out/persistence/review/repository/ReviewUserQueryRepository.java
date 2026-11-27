@@ -8,15 +8,15 @@ import java.util.List;
 public interface ReviewUserQueryRepository {
 
     List<ReviewJpaEntity> findUserReviewsByCursor(
-            Long userId,
-            Long cursor,
-            Pageable pageable,
-            String sortProperty,
-            Boolean isAsc
+        Long userId,
+        Long cursor,
+        Pageable pageable,
+        String sortProperty,
+        Boolean isAsc
     );
 
     List<ReviewJpaEntity> findUserReviewsByOffset(
-            Long reviewerId,
-            Pageable pageable
+        Long reviewerId,
+        Pageable pageable
     );
 }

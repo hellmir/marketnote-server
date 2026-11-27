@@ -19,42 +19,42 @@ public class UserStatusHistory {
     private LocalDateTime createdAt;
 
     public static UserStatusHistory byAdmin(
-            Long userId, UserStatusAction statusAction, String reason,
-            LocalDateTime deactivatedUntil, Long adminId
+        Long userId, UserStatusAction statusAction, String reason,
+        LocalDateTime deactivatedUntil, Long adminId
     ) {
         return UserStatusHistory.builder()
-                .userId(userId)
-                .statusAction(statusAction)
-                .reason(reason)
-                .deactivatedUntil(deactivatedUntil)
-                .actor(UserStatusActor.ADMIN)
-                .createdBy(adminId)
-                .build();
+            .userId(userId)
+            .statusAction(statusAction)
+            .reason(reason)
+            .deactivatedUntil(deactivatedUntil)
+            .actor(UserStatusActor.ADMIN)
+            .createdBy(adminId)
+            .build();
     }
 
     public static UserStatusHistory bySystem(
-            Long userId, UserStatusAction statusAction, String reason, LocalDateTime deactivatedUntil
+        Long userId, UserStatusAction statusAction, String reason, LocalDateTime deactivatedUntil
     ) {
         return UserStatusHistory.builder()
-                .userId(userId)
-                .statusAction(statusAction)
-                .reason(reason)
-                .deactivatedUntil(deactivatedUntil)
-                .actor(UserStatusActor.SYSTEM)
-                .createdBy(null)
-                .build();
+            .userId(userId)
+            .statusAction(statusAction)
+            .reason(reason)
+            .deactivatedUntil(deactivatedUntil)
+            .actor(UserStatusActor.SYSTEM)
+            .createdBy(null)
+            .build();
     }
 
     public static UserStatusHistory from(UserStatusHistorySnapshotState state) {
         return UserStatusHistory.builder()
-                .id(state.getId())
-                .userId(state.getUserId())
-                .statusAction(state.getStatusAction())
-                .reason(state.getReason())
-                .deactivatedUntil(state.getDeactivatedUntil())
-                .actor(state.getActor())
-                .createdBy(state.getCreatedBy())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .userId(state.getUserId())
+            .statusAction(state.getStatusAction())
+            .reason(state.getReason())
+            .deactivatedUntil(state.getDeactivatedUntil())
+            .actor(state.getActor())
+            .createdBy(state.getCreatedBy())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 }

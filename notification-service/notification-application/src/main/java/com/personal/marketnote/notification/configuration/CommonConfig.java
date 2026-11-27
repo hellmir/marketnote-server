@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import({
-        OpaqueTokenIntrospectorConfig.class,
-        OpaqueTokenIntrospectorProvider.class
+    OpaqueTokenIntrospectorConfig.class,
+    OpaqueTokenIntrospectorProvider.class
 })
 public class CommonConfig {
 }

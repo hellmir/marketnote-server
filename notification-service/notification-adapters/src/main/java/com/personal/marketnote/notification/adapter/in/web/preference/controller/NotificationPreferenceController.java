@@ -50,22 +50,22 @@ public class NotificationPreferenceController {
     @GetMapping
     @GetNotificationPreferenceApiDocs
     public ResponseEntity<BaseResponse<List<GetNotificationPreferenceResponse>>> getNotificationPreferences(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         List<GetNotificationPreferenceResponse> responses = getNotificationPreferenceUseCase
-                .getNotificationPreferences(ElementExtractor.extractUserId(principal))
-                .stream()
-                .map(GetNotificationPreferenceResponse::from)
-                .toList();
+            .getNotificationPreferences(ElementExtractor.extractUserId(principal))
+            .stream()
+            .map(GetNotificationPreferenceResponse::from)
+            .toList();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        responses,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "알림 수신 설정 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                responses,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "알림 수신 설정 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -82,25 +82,25 @@ public class NotificationPreferenceController {
     @PutMapping
     @UpdateNotificationPreferenceApiDocs
     public ResponseEntity<BaseResponse<Void>> updateNotificationPreference(
-            @Valid @RequestBody UpdateNotificationPreferenceRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody UpdateNotificationPreferenceRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         updateNotificationPreferenceUseCase.updateNotificationPreference(
-                new UpdateNotificationPreferenceCommand(
-                        ElementExtractor.extractUserId(principal),
-                        request.notificationType(),
-                        request.enabled()
-                )
+            new UpdateNotificationPreferenceCommand(
+                ElementExtractor.extractUserId(principal),
+                request.notificationType(),
+                request.enabled()
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "알림 수신 설정 변경 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "알림 수신 설정 변경 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

@@ -58,22 +58,22 @@ public class GifticonGoodsController {
     @GetGifticonGoodsApiDocs
     @RateLimited(key = "gifticon-goods", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetGifticonGoodsResponse>> getGoods(
-            @RequestParam(name = "category-code", required = false) @Size(max = 50) String categoryCode,
-            @RequestParam(name = "brand-code", required = false) @Size(max = 50) String brandCode,
-            @RequestParam(name = "cursor", required = false, defaultValue = "-1") @Min(-1) Long cursor,
-            @RequestParam(name = "page-size", required = false, defaultValue = "20") @Min(1) @Max(100) int pageSize
+        @RequestParam(name = "category-code", required = false) @Size(max = 50) String categoryCode,
+        @RequestParam(name = "brand-code", required = false) @Size(max = 50) String brandCode,
+        @RequestParam(name = "cursor", required = false, defaultValue = "-1") @Min(-1) Long cursor,
+        @RequestParam(name = "page-size", required = false, defaultValue = "20") @Min(1) @Max(100) int pageSize
     ) {
         GetGifticonGoodsResult result = getGifticonGoodsUseCase.getGoods(
-                new GetGifticonGoodsCommand(categoryCode, brandCode, cursor, pageSize)
+            new GetGifticonGoodsCommand(categoryCode, brandCode, cursor, pageSize)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetGifticonGoodsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티콘 상품 목록 조회 성공"
-                )
+            BaseResponse.of(
+                GetGifticonGoodsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티콘 상품 목록 조회 성공"
+            )
         );
     }
 
@@ -91,12 +91,12 @@ public class GifticonGoodsController {
         GetPopularGifticonGoodsResult result = getPopularGifticonGoodsUseCase.getPopularGoods();
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetPopularGifticonGoodsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티콘 인기 상품 목록 조회 성공"
-                )
+            BaseResponse.of(
+                GetPopularGifticonGoodsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티콘 인기 상품 목록 조회 성공"
+            )
         );
     }
 
@@ -113,21 +113,21 @@ public class GifticonGoodsController {
     @GetMapping("/goods/{goodsCode}")
     @GetGifticonGoodsDetailApiDocs
     public ResponseEntity<BaseResponse<GetGifticonGoodsDetailResponse>> getGoodsDetail(
-            @PathVariable("goodsCode") String goodsCode,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("goodsCode") String goodsCode,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
         GetGifticonGoodsDetailResult result = getGifticonGoodsDetailUseCase.getGoodsDetail(
-                new GetGifticonGoodsDetailCommand(goodsCode, userId)
+            new GetGifticonGoodsDetailCommand(goodsCode, userId)
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetGifticonGoodsDetailResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "기프티콘 상품 상세 조회 성공"
-                )
+            BaseResponse.of(
+                GetGifticonGoodsDetailResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "기프티콘 상품 상세 조회 성공"
+            )
         );
     }
 }

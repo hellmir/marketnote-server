@@ -31,28 +31,28 @@ class StockTest {
     @DisplayName("null이면 QuantityNoValueException을 던진다")
     void shouldThrowWhenStockIsNull() {
         assertThatThrownBy(() -> Stock.of(null))
-                .isInstanceOf(QuantityNoValueException.class);
+            .isInstanceOf(QuantityNoValueException.class);
     }
 
     @Test
     @DisplayName("빈 문자열이면 QuantityNoValueException을 던진다")
     void shouldThrowWhenStockIsBlank() {
         assertThatThrownBy(() -> Stock.of(""))
-                .isInstanceOf(QuantityNoValueException.class);
+            .isInstanceOf(QuantityNoValueException.class);
     }
 
     @Test
     @DisplayName("음수이면 InvalidQuantityException을 던진다")
     void shouldThrowWhenStockIsNegative() {
         assertThatThrownBy(() -> Stock.of("-1"))
-                .isInstanceOf(InvalidQuantityException.class);
+            .isInstanceOf(InvalidQuantityException.class);
     }
 
     @Test
     @DisplayName("비정수 문자열이면 InvalidQuantityException을 던진다")
     void shouldThrowWhenStockIsNotInteger() {
         assertThatThrownBy(() -> Stock.of("abc"))
-                .isInstanceOf(InvalidQuantityException.class);
+            .isInstanceOf(InvalidQuantityException.class);
     }
 
     @Test
@@ -71,7 +71,7 @@ class StockTest {
         Stock stock = Stock.of("10");
 
         assertThatThrownBy(() -> stock.reduce(20))
-                .isInstanceOf(InsufficientQuantityException.class);
+            .isInstanceOf(InsufficientQuantityException.class);
     }
 
     @Test
@@ -90,6 +90,6 @@ class StockTest {
         Stock stock = Stock.of("100");
 
         assertThatThrownBy(() -> stock.increase(0))
-                .isInstanceOf(InvalidQuantityException.class);
+            .isInstanceOf(InvalidQuantityException.class);
     }
 }

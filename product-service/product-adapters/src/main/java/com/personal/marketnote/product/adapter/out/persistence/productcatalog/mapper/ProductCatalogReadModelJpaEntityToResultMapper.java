@@ -29,31 +29,31 @@ public class ProductCatalogReadModelJpaEntityToResultMapper {
     }
 
     public static ProductCatalogItemResult mapToResult(
-            ProductCatalogReadModelJpaEntity entity, ObjectMapper objectMapper
+        ProductCatalogReadModelJpaEntity entity, ObjectMapper objectMapper
     ) {
         return new ProductCatalogItemResult(
-                entity.getPricePolicyId(),
-                entity.getProductId(),
-                entity.getSellerId(),
-                entity.getPrimaryCategoryId(),
-                entity.getName(),
-                entity.getBrandName(),
-                entity.getPrice(),
-                entity.getDiscountPrice(),
-                entity.getDiscountRate(),
-                entity.getAccumulatedPoint(),
-                entity.getAccumulatedPointRate(),
-                entity.getOrderNum(),
-                entity.getPopularity(),
-                entity.getRepresentativeImageUrl(),
-                parseResizedImageUrls(entity.getPricePolicyId(), entity.getResizedImageUrls(), objectMapper),
-                entity.getStockQuantity(),
-                entity.getReviewCount(),
-                entity.getReviewAverageRating(),
-                entity.getSales(),
-                parseProductTags(entity.getPricePolicyId(), entity.getProductTags(), objectMapper),
-                parseSelectedOptions(entity.getPricePolicyId(), entity.getSelectedOptions(), objectMapper),
-                entity.getStatus().name()
+            entity.getPricePolicyId(),
+            entity.getProductId(),
+            entity.getSellerId(),
+            entity.getPrimaryCategoryId(),
+            entity.getName(),
+            entity.getBrandName(),
+            entity.getPrice(),
+            entity.getDiscountPrice(),
+            entity.getDiscountRate(),
+            entity.getAccumulatedPoint(),
+            entity.getAccumulatedPointRate(),
+            entity.getOrderNum(),
+            entity.getPopularity(),
+            entity.getRepresentativeImageUrl(),
+            parseResizedImageUrls(entity.getPricePolicyId(), entity.getResizedImageUrls(), objectMapper),
+            entity.getStockQuantity(),
+            entity.getReviewCount(),
+            entity.getReviewAverageRating(),
+            entity.getSales(),
+            parseProductTags(entity.getPricePolicyId(), entity.getProductTags(), objectMapper),
+            parseSelectedOptions(entity.getPricePolicyId(), entity.getSelectedOptions(), objectMapper),
+            entity.getStatus().name()
         );
     }
 
@@ -65,13 +65,13 @@ public class ProductCatalogReadModelJpaEntityToResultMapper {
             return objectMapper.readValue(json, STRING_LIST);
         } catch (IOException ioe) {
             log.warn("fallback applied: 상품 카탈로그 Read Model resized 이미지 JSON 역직렬화 실패 — 빈 목록 반환. pricePolicyId={}, json={}",
-                    pricePolicyId, json, ioe);
+                pricePolicyId, json, ioe);
             return new ArrayList<>();
         }
     }
 
     private static List<ProductCatalogTagSnapshot> parseProductTags(
-            Long pricePolicyId, String json, ObjectMapper objectMapper
+        Long pricePolicyId, String json, ObjectMapper objectMapper
     ) {
         if (FormatValidator.hasNoValue(json)) {
             return new ArrayList<>();
@@ -80,13 +80,13 @@ public class ProductCatalogReadModelJpaEntityToResultMapper {
             return objectMapper.readValue(json, TAG_LIST);
         } catch (IOException ioe) {
             log.warn("fallback applied: 상품 카탈로그 Read Model productTags JSON 역직렬화 실패 — 빈 목록 반환. pricePolicyId={}, json={}",
-                    pricePolicyId, json, ioe);
+                pricePolicyId, json, ioe);
             return new ArrayList<>();
         }
     }
 
     private static List<ProductCatalogOptionSnapshot> parseSelectedOptions(
-            Long pricePolicyId, String json, ObjectMapper objectMapper
+        Long pricePolicyId, String json, ObjectMapper objectMapper
     ) {
         if (FormatValidator.hasNoValue(json)) {
             return new ArrayList<>();
@@ -95,7 +95,7 @@ public class ProductCatalogReadModelJpaEntityToResultMapper {
             return objectMapper.readValue(json, OPTION_LIST);
         } catch (IOException ioe) {
             log.warn("fallback applied: 상품 카탈로그 Read Model selectedOptions JSON 역직렬화 실패 — 빈 목록 반환. pricePolicyId={}, json={}",
-                    pricePolicyId, json, ioe);
+                pricePolicyId, json, ioe);
             return new ArrayList<>();
         }
     }

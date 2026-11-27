@@ -21,26 +21,26 @@ public class AligoClientConfig {
 
     @Bean
     public AligoHttpClient aligoHttpClient(
-            RestClient.Builder builder, ObjectMapper objectMapper, AligoProperties properties,
-            ExternalCallLogger externalCallLogger,
-            AligoVendorCommunicationRecorder vendorCommunicationRecorder,
-            AligoVendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            AligoOperationTargetTypeResolver operationTargetTypeResolver
+        RestClient.Builder builder, ObjectMapper objectMapper, AligoProperties properties,
+        ExternalCallLogger externalCallLogger,
+        AligoVendorCommunicationRecorder vendorCommunicationRecorder,
+        AligoVendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+        VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+        AligoOperationTargetTypeResolver operationTargetTypeResolver
     ) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(Duration.ofMillis(properties.getTimeout()));
         requestFactory.setReadTimeout(Duration.ofMillis(properties.getTimeout()));
 
         RestClient restClient = builder
-                .baseUrl(properties.getBaseUrl())
-                .requestFactory(requestFactory)
-                .build();
+            .baseUrl(properties.getBaseUrl())
+            .requestFactory(requestFactory)
+            .build();
 
         return new AligoHttpClient(
-                restClient, objectMapper, properties, externalCallLogger,
-                vendorCommunicationRecorder, vendorCommunicationFailureHandler,
-                vendorCommunicationPayloadGenerator, operationTargetTypeResolver
+            restClient, objectMapper, properties, externalCallLogger,
+            vendorCommunicationRecorder, vendorCommunicationFailureHandler,
+            vendorCommunicationPayloadGenerator, operationTargetTypeResolver
         );
     }
 }

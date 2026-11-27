@@ -16,21 +16,21 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(
-        summary = "풀필먼트 반품 등록",
-        description = "주문 ID와 반품 정보를 기반으로 파스토에 반품을 등록합니다. 서비스 간 통신용 내부 API입니다.",
-        requestBody = @RequestBody(
-                required = true,
-                content = @Content(
-                        schema = @Schema(implementation = RegisterInternalReturnDeliveryRequest.class)
-                )
-        ),
-        responses = {
-                @ApiResponse(
-                        responseCode = "201",
-                        description = "풀필먼트 반품 등록 성공",
-                        content = @Content(schema = @Schema(implementation = BaseResponse.class))
-                )
-        }
+    summary = "풀필먼트 반품 등록",
+    description = "주문 ID와 반품 정보를 기반으로 파스토에 반품을 등록합니다. 서비스 간 통신용 내부 API입니다.",
+    requestBody = @RequestBody(
+        required = true,
+        content = @Content(
+            schema = @Schema(implementation = RegisterInternalReturnDeliveryRequest.class)
+        )
+    ),
+    responses = {
+        @ApiResponse(
+            responseCode = "201",
+            description = "풀필먼트 반품 등록 성공",
+            content = @Content(schema = @Schema(implementation = BaseResponse.class))
+        )
+    }
 )
 public @interface RegisterInternalReturnDeliveryApiDocs {
 }

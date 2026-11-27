@@ -22,9 +22,9 @@ class ShippingTrackerTest {
         @DisplayName("orderId로 ShippingTracker를 생성하면 PREPARING 상태이고 폴링이 활성화된다")
         void createWithOrderId() {
             ShippingTrackerCreateState state = ShippingTrackerCreateState.builder()
-                    .orderId(100L)
-                    .buyerId(1L)
-                    .build();
+                .orderId(100L)
+                .buyerId(1L)
+                .build();
 
             ShippingTracker tracker = ShippingTracker.from(state);
 
@@ -39,24 +39,24 @@ class ShippingTrackerTest {
         @DisplayName("orderId가 null이면 예외가 발생한다")
         void createWithNullOrderId() {
             ShippingTrackerCreateState state = ShippingTrackerCreateState.builder()
-                    .orderId(null)
-                    .buyerId(1L)
-                    .build();
+                .orderId(null)
+                .buyerId(1L)
+                .build();
 
             assertThatThrownBy(() -> ShippingTracker.from(state))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
         @DisplayName("buyerId가 null이면 예외가 발생한다")
         void createWithNullBuyerId() {
             ShippingTrackerCreateState state = ShippingTrackerCreateState.builder()
-                    .orderId(100L)
-                    .buyerId(null)
-                    .build();
+                .orderId(100L)
+                .buyerId(null)
+                .build();
 
             assertThatThrownBy(() -> ShippingTracker.from(state))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
     }
 
@@ -69,17 +69,17 @@ class ShippingTrackerTest {
         void restoreFromSnapshot() {
             LocalDateTime now = LocalDateTime.of(2026, 4, 9, 10, 0);
             ShippingTrackerSnapshotState state = ShippingTrackerSnapshotState.builder()
-                    .id(1L)
-                    .orderId(100L)
-                    .buyerId(1L)
-                    .trackingNumber(TrackingNumber.of("1234567890"))
-                    .carrierCode(CarrierCode.of("CJ"))
-                    .shippingStatus(ShippingStatus.SHIPPING)
-                    .pollingActive(true)
-                    .lastPolledAt(now)
-                    .createdAt(now.minusDays(1))
-                    .modifiedAt(now)
-                    .build();
+                .id(1L)
+                .orderId(100L)
+                .buyerId(1L)
+                .trackingNumber(TrackingNumber.of("1234567890"))
+                .carrierCode(CarrierCode.of("CJ"))
+                .shippingStatus(ShippingStatus.SHIPPING)
+                .pollingActive(true)
+                .lastPolledAt(now)
+                .createdAt(now.minusDays(1))
+                .modifiedAt(now)
+                .build();
 
             ShippingTracker tracker = ShippingTracker.from(state);
 
@@ -115,7 +115,7 @@ class ShippingTrackerTest {
             ShippingTracker tracker = createShippingTracker();
 
             assertThatThrownBy(() -> tracker.startShipping(TrackingNumber.of("9999999999"), CarrierCode.of("HANJIN")))
-                    .isInstanceOf(InvalidShippingStatusTransitionException.class);
+                .isInstanceOf(InvalidShippingStatusTransitionException.class);
         }
 
     }
@@ -141,7 +141,7 @@ class ShippingTrackerTest {
             ShippingTracker tracker = createPreparingTracker();
 
             assertThatThrownBy(() -> tracker.completeDelivery())
-                    .isInstanceOf(InvalidShippingStatusTransitionException.class);
+                .isInstanceOf(InvalidShippingStatusTransitionException.class);
         }
     }
 
@@ -177,7 +177,7 @@ class ShippingTrackerTest {
             ShippingTracker tracker = createDeliveredTracker();
 
             assertThatThrownBy(() -> tracker.cancel())
-                    .isInstanceOf(InvalidShippingStatusTransitionException.class);
+                .isInstanceOf(InvalidShippingStatusTransitionException.class);
         }
     }
 
@@ -202,7 +202,7 @@ class ShippingTrackerTest {
             ShippingTracker tracker = createShippingTracker();
 
             assertThatThrownBy(() -> tracker.startReturnShipping())
-                    .isInstanceOf(InvalidShippingStatusTransitionException.class);
+                .isInstanceOf(InvalidShippingStatusTransitionException.class);
         }
     }
 
@@ -227,7 +227,7 @@ class ShippingTrackerTest {
             ShippingTracker tracker = createDeliveredTracker();
 
             assertThatThrownBy(() -> tracker.completeReturnDelivery())
-                    .isInstanceOf(InvalidShippingStatusTransitionException.class);
+                .isInstanceOf(InvalidShippingStatusTransitionException.class);
         }
     }
 
@@ -252,7 +252,7 @@ class ShippingTrackerTest {
             ShippingTracker tracker = createPreparingTracker();
 
             assertThatThrownBy(() -> tracker.updateLastPolledAt(null))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+                .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
     }
 
@@ -277,7 +277,7 @@ class ShippingTrackerTest {
             ShippingTracker tracker = createPreparingTracker();
 
             assertThatThrownBy(() -> tracker.markDeliveryFailed())
-                    .isInstanceOf(InvalidShippingStatusTransitionException.class);
+                .isInstanceOf(InvalidShippingStatusTransitionException.class);
         }
     }
 
@@ -303,7 +303,7 @@ class ShippingTrackerTest {
             ShippingTracker tracker = createShippingTracker();
 
             assertThatThrownBy(() -> tracker.advanceToShipping())
-                    .isInstanceOf(InvalidShippingStatusTransitionException.class);
+                .isInstanceOf(InvalidShippingStatusTransitionException.class);
         }
     }
 
@@ -329,7 +329,7 @@ class ShippingTrackerTest {
             ShippingTracker tracker = createPreparingTracker();
 
             assertThatThrownBy(() -> tracker.updateTrackingInfo(TrackingNumber.of("1234567890"), CarrierCode.of("CJ")))
-                    .isInstanceOf(InvalidShippingStatusTransitionException.class);
+                .isInstanceOf(InvalidShippingStatusTransitionException.class);
         }
 
     }
@@ -338,9 +338,9 @@ class ShippingTrackerTest {
 
     private ShippingTracker createPreparingTracker() {
         return ShippingTracker.from(ShippingTrackerCreateState.builder()
-                .orderId(100L)
-                .buyerId(1L)
-                .build());
+            .orderId(100L)
+            .buyerId(1L)
+            .build());
     }
 
     private ShippingTracker createShippingTracker() {

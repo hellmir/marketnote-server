@@ -40,38 +40,38 @@ public class AligoSenderProfileController {
     @PostMapping("/auth")
     @PreAuthorize(ADMIN_POINTCUT)
     public ResponseEntity<BaseResponse<AuthenticateAligoSenderProfileResponse>> authenticateSenderProfile(
-            @Valid @RequestBody AuthenticateAligoSenderProfileRequest request
+        @Valid @RequestBody AuthenticateAligoSenderProfileRequest request
     ) {
         AuthenticateAligoSenderProfileResult result = authenticateAligoSenderProfileUseCase
-                .authenticateSenderProfile(new AuthenticateAligoSenderProfileCommand(
-                        request.plusId(), request.phoneNumber()
-                ));
+            .authenticateSenderProfile(new AuthenticateAligoSenderProfileCommand(
+                request.plusId(), request.phoneNumber()
+            ));
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        AuthenticateAligoSenderProfileResponse.from(result),
-                        HttpStatus.CREATED, DEFAULT_SUCCESS_CODE, "발신프로필 인증 요청 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                AuthenticateAligoSenderProfileResponse.from(result),
+                HttpStatus.CREATED, DEFAULT_SUCCESS_CODE, "발신프로필 인증 요청 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
     @PostMapping
     @PreAuthorize(ADMIN_POINTCUT)
     public ResponseEntity<BaseResponse<RegisterAligoSenderProfileResponse>> registerSenderProfile(
-            @Valid @RequestBody RegisterAligoSenderProfileRequest request
+        @Valid @RequestBody RegisterAligoSenderProfileRequest request
     ) {
         RegisterAligoSenderProfileResult result = registerAligoSenderProfileUseCase
-                .registerSenderProfile(new RegisterAligoSenderProfileCommand(
-                        request.senderKey(), request.categoryCode()
-                ));
+            .registerSenderProfile(new RegisterAligoSenderProfileCommand(
+                request.senderKey(), request.categoryCode()
+            ));
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterAligoSenderProfileResponse.from(result),
-                        HttpStatus.CREATED, DEFAULT_SUCCESS_CODE, "발신프로필 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterAligoSenderProfileResponse.from(result),
+                HttpStatus.CREATED, DEFAULT_SUCCESS_CODE, "발신프로필 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -81,11 +81,11 @@ public class AligoSenderProfileController {
         GetAligoSenderProfileListResult result = getAligoSenderProfileListUseCase.getSenderProfileList();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetAligoSenderProfileListResponse.from(result),
-                        HttpStatus.OK, DEFAULT_SUCCESS_CODE, "발신프로필 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetAligoSenderProfileListResponse.from(result),
+                HttpStatus.OK, DEFAULT_SUCCESS_CODE, "발신프로필 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

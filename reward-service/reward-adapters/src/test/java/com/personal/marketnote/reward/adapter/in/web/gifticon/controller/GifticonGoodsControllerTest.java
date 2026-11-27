@@ -52,9 +52,9 @@ class GifticonGoodsControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(String userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                userId,
-                Map.of("name", userId),
-                List.of(new SimpleGrantedAuthority("ROLE_BUYER"))
+            userId,
+            Map.of("name", userId),
+            List.of(new SimpleGrantedAuthority("ROLE_BUYER"))
         );
     }
 
@@ -66,10 +66,10 @@ class GifticonGoodsControllerTest {
         @DisplayName("카테고리/브랜드/커서/페이지크기 파라미터를 UseCase Command에 그대로 전달하고 OK를 반환한다")
         void returnsOkAndPassesParams() {
             given(getGifticonGoodsUseCase.getGoods(any(GetGifticonGoodsCommand.class)))
-                    .willReturn(GetGifticonGoodsResult.from(null, false, null, List.of()));
+                .willReturn(GetGifticonGoodsResult.from(null, false, null, List.of()));
 
             ResponseEntity<BaseResponse<GetGifticonGoodsResponse>> response =
-                    controller.getGoods("CAT-01", "BRAND-01", 5L, 10);
+                controller.getGoods("CAT-01", "BRAND-01", 5L, 10);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent()).isNotNull();
@@ -85,10 +85,10 @@ class GifticonGoodsControllerTest {
         @DisplayName("카테고리/브랜드가 null이고 커서가 -1(첫 페이지)이어도 OK를 반환한다")
         void returnsOkWhenFiltersNullAndFirstPageCursor() {
             given(getGifticonGoodsUseCase.getGoods(any(GetGifticonGoodsCommand.class)))
-                    .willReturn(GetGifticonGoodsResult.from(0L, false, null, List.of()));
+                .willReturn(GetGifticonGoodsResult.from(0L, false, null, List.of()));
 
             ResponseEntity<BaseResponse<GetGifticonGoodsResponse>> response =
-                    controller.getGoods(null, null, -1L, 20);
+                controller.getGoods(null, null, -1L, 20);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<GetGifticonGoodsCommand> captor = ArgumentCaptor.forClass(GetGifticonGoodsCommand.class);
@@ -105,7 +105,7 @@ class GifticonGoodsControllerTest {
         @DisplayName("OK 상태로 인기 상품 목록을 반환한다")
         void returnsOkWithPopularGoods() {
             given(getPopularGifticonGoodsUseCase.getPopularGoods())
-                    .willReturn(new GetPopularGifticonGoodsResult(List.of()));
+                .willReturn(new GetPopularGifticonGoodsResult(List.of()));
 
             ResponseEntity<BaseResponse<GetPopularGifticonGoodsResponse>> response = controller.getPopularGoods();
 
@@ -124,19 +124,19 @@ class GifticonGoodsControllerTest {
         void returnsOkWithDetail() {
             OAuth2AuthenticatedPrincipal principal = buildPrincipal("42");
             GetGifticonGoodsDetailResult result = new GetGifticonGoodsDetailResult(
-                    "G-01", "상품명", "B-01", "브랜드", "brandImg",
-                    "CAT-01", 5000L, 4500L, 4000L, "img", "설명", 90, 10000L
+                "G-01", "상품명", "B-01", "브랜드", "brandImg",
+                "CAT-01", 5000L, 4500L, 4000L, "img", "설명", 90, 10000L
             );
             given(getGifticonGoodsDetailUseCase.getGoodsDetail(any(GetGifticonGoodsDetailCommand.class)))
-                    .willReturn(result);
+                .willReturn(result);
 
             ResponseEntity<BaseResponse<GetGifticonGoodsDetailResponse>> response =
-                    controller.getGoodsDetail("G-01", principal);
+                controller.getGoodsDetail("G-01", principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent()).isNotNull();
             ArgumentCaptor<GetGifticonGoodsDetailCommand> captor =
-                    ArgumentCaptor.forClass(GetGifticonGoodsDetailCommand.class);
+                ArgumentCaptor.forClass(GetGifticonGoodsDetailCommand.class);
             verify(getGifticonGoodsDetailUseCase).getGoodsDetail(captor.capture());
             assertThat(captor.getValue().goodsCode()).isEqualTo("G-01");
             assertThat(captor.getValue().userId()).isEqualTo(42L);
@@ -151,7 +151,7 @@ class GifticonGoodsControllerTest {
         @DisplayName("getGoods 메서드에 @RateLimited(key=gifticon-goods, maxRequests=60, windowSeconds=60)이 부착되어 있다")
         void getGoodsHasRateLimited() throws NoSuchMethodException {
             Method method = GifticonGoodsController.class.getMethod(
-                    "getGoods", String.class, String.class, Long.class, int.class
+                "getGoods", String.class, String.class, Long.class, int.class
             );
 
             RateLimited rateLimited = method.getAnnotation(RateLimited.class);

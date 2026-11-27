@@ -23,14 +23,14 @@ class PaymentAllocationTest {
         void shouldCreateFromCreateState() {
             // given
             PaymentAllocationCreateState state = PaymentAllocationCreateState.builder()
-                    .orderId(100L)
-                    .sellerId(10L)
-                    .allocatedAmount(50000L)
-                    .shippingFee(3000L)
-                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                    .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
-                    .build();
+                .orderId(100L)
+                .sellerId(10L)
+                .allocatedAmount(50000L)
+                .shippingFee(3000L)
+                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                .targetType(PaymentAllocationTargetType.ORDER)
+                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
+                .build();
 
             // when
             PaymentAllocation allocation = PaymentAllocation.from(state);
@@ -56,14 +56,14 @@ class PaymentAllocationTest {
         void shouldDefaultToZeroWhenShippingFeeIsNull() {
             // given
             PaymentAllocationCreateState state = PaymentAllocationCreateState.builder()
-                    .orderId(100L)
-                    .sellerId(10L)
-                    .allocatedAmount(50000L)
-                    .shippingFee(null)
-                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                    .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
-                    .build();
+                .orderId(100L)
+                .sellerId(10L)
+                .allocatedAmount(50000L)
+                .shippingFee(null)
+                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                .targetType(PaymentAllocationTargetType.ORDER)
+                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
+                .build();
 
             // when
             PaymentAllocation allocation = PaymentAllocation.from(state);
@@ -77,14 +77,14 @@ class PaymentAllocationTest {
         void shouldAllowZeroShippingFee() {
             // given
             PaymentAllocationCreateState state = PaymentAllocationCreateState.builder()
-                    .orderId(100L)
-                    .sellerId(10L)
-                    .allocatedAmount(50000L)
-                    .shippingFee(0L)
-                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                    .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
-                    .build();
+                .orderId(100L)
+                .sellerId(10L)
+                .allocatedAmount(50000L)
+                .shippingFee(0L)
+                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                .targetType(PaymentAllocationTargetType.ORDER)
+                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
+                .build();
 
             // when
             PaymentAllocation allocation = PaymentAllocation.from(state);
@@ -98,19 +98,19 @@ class PaymentAllocationTest {
         void shouldThrowWhenShippingFeeIsNegative() {
             // given
             PaymentAllocationCreateState state = PaymentAllocationCreateState.builder()
-                    .orderId(100L)
-                    .sellerId(10L)
-                    .allocatedAmount(50000L)
-                    .shippingFee(-1000L)
-                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                    .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
-                    .build();
+                .orderId(100L)
+                .sellerId(10L)
+                .allocatedAmount(50000L)
+                .shippingFee(-1000L)
+                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                .targetType(PaymentAllocationTargetType.ORDER)
+                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
+                .build();
 
             // when & then
             assertThatThrownBy(() -> PaymentAllocation.from(state))
-                    .isInstanceOf(InvalidSettlementAmountException.class)
-                    .hasMessageContaining("배송비는 음수일 수 없습니다");
+                .isInstanceOf(InvalidSettlementAmountException.class)
+                .hasMessageContaining("배송비는 음수일 수 없습니다");
         }
     }
 
@@ -123,18 +123,18 @@ class PaymentAllocationTest {
         void shouldThrowWhenAllocatedAmountIsZero() {
             // given
             PaymentAllocationCreateState state = PaymentAllocationCreateState.builder()
-                    .orderId(100L)
-                    .sellerId(10L)
-                    .allocatedAmount(0L)
-                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                    .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
-                    .build();
+                .orderId(100L)
+                .sellerId(10L)
+                .allocatedAmount(0L)
+                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                .targetType(PaymentAllocationTargetType.ORDER)
+                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
+                .build();
 
             // when & then
             assertThatThrownBy(() -> PaymentAllocation.from(state))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("0보다 커야 합니다");
         }
 
         @Test
@@ -142,18 +142,18 @@ class PaymentAllocationTest {
         void shouldThrowWhenAllocatedAmountIsNegative() {
             // given
             PaymentAllocationCreateState state = PaymentAllocationCreateState.builder()
-                    .orderId(100L)
-                    .sellerId(10L)
-                    .allocatedAmount(-1000L)
-                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                    .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
-                    .build();
+                .orderId(100L)
+                .sellerId(10L)
+                .allocatedAmount(-1000L)
+                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                .targetType(PaymentAllocationTargetType.ORDER)
+                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
+                .build();
 
             // when & then
             assertThatThrownBy(() -> PaymentAllocation.from(state))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("0보다 커야 합니다");
         }
 
         @Test
@@ -161,18 +161,18 @@ class PaymentAllocationTest {
         void shouldThrowWhenAllocatedAmountIsNull() {
             // given
             PaymentAllocationCreateState state = PaymentAllocationCreateState.builder()
-                    .orderId(100L)
-                    .sellerId(10L)
-                    .allocatedAmount(null)
-                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                    .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
-                    .build();
+                .orderId(100L)
+                .sellerId(10L)
+                .allocatedAmount(null)
+                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                .targetType(PaymentAllocationTargetType.ORDER)
+                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
+                .build();
 
             // when & then
             assertThatThrownBy(() -> PaymentAllocation.from(state))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("0보다 커야 합니다");
         }
     }
 
@@ -186,17 +186,17 @@ class PaymentAllocationTest {
             // given
             LocalDateTime createdAt = LocalDateTime.of(2026, 2, 16, 10, 0);
             PaymentAllocationSnapshotState state = PaymentAllocationSnapshotState.builder()
-                    .id(1L)
-                    .orderId(100L)
-                    .sellerId(10L)
-                    .allocatedAmount(50000L)
-                    .shippingFee(3000L)
-                    .settlementId(5L)
-                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                    .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
-                    .createdAt(createdAt)
-                    .build();
+                .id(1L)
+                .orderId(100L)
+                .sellerId(10L)
+                .allocatedAmount(50000L)
+                .shippingFee(3000L)
+                .settlementId(5L)
+                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                .targetType(PaymentAllocationTargetType.ORDER)
+                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
+                .createdAt(createdAt)
+                .build();
 
             // when
             PaymentAllocation allocation = PaymentAllocation.from(state);
@@ -221,14 +221,14 @@ class PaymentAllocationTest {
         void shouldReturnFalseWhenNoSettlementId() {
             // given
             PaymentAllocation allocation = PaymentAllocation.from(
-                    PaymentAllocationCreateState.builder()
-                            .orderId(100L)
-                            .sellerId(10L)
-                            .allocatedAmount(50000L)
-                            .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                            .targetType(PaymentAllocationTargetType.ORDER)
-                            .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
-                            .build()
+                PaymentAllocationCreateState.builder()
+                    .orderId(100L)
+                    .sellerId(10L)
+                    .allocatedAmount(50000L)
+                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                    .targetType(PaymentAllocationTargetType.ORDER)
+                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
+                    .build()
             );
 
             // when & then
@@ -240,17 +240,17 @@ class PaymentAllocationTest {
         void shouldReturnTrueWhenSettlementIdExists() {
             // given
             PaymentAllocation allocation = PaymentAllocation.from(
-                    PaymentAllocationSnapshotState.builder()
-                            .id(1L)
-                            .orderId(100L)
-                            .sellerId(10L)
-                            .allocatedAmount(50000L)
-                            .settlementId(5L)
-                            .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                            .targetType(PaymentAllocationTargetType.ORDER)
-                            .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
-                            .createdAt(LocalDateTime.now())
-                            .build()
+                PaymentAllocationSnapshotState.builder()
+                    .id(1L)
+                    .orderId(100L)
+                    .sellerId(10L)
+                    .allocatedAmount(50000L)
+                    .settlementId(5L)
+                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                    .targetType(PaymentAllocationTargetType.ORDER)
+                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
+                    .createdAt(LocalDateTime.now())
+                    .build()
             );
 
             // when & then
@@ -267,14 +267,14 @@ class PaymentAllocationTest {
         void shouldAssignSettlementId() {
             // given
             PaymentAllocation allocation = PaymentAllocation.from(
-                    PaymentAllocationCreateState.builder()
-                            .orderId(100L)
-                            .sellerId(10L)
-                            .allocatedAmount(50000L)
-                            .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                            .targetType(PaymentAllocationTargetType.ORDER)
-                            .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
-                            .build()
+                PaymentAllocationCreateState.builder()
+                    .orderId(100L)
+                    .sellerId(10L)
+                    .allocatedAmount(50000L)
+                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                    .targetType(PaymentAllocationTargetType.ORDER)
+                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
+                    .build()
             );
 
             // when

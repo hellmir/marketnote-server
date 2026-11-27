@@ -22,14 +22,14 @@ public class UserAttendanceHistoryPersistenceAdapter implements SaveUserAttendan
     public UserAttendanceHistory save(UserAttendanceHistory history) {
         try {
             UserAttendanceHistoryJpaEntity saved = Objects.requireNonNull(
-                    repository.save(UserAttendanceHistoryJpaEntity.from(history)),
-                    "출석 기록 저장에 실패했습니다."
+                repository.save(UserAttendanceHistoryJpaEntity.from(history)),
+                "출석 기록 저장에 실패했습니다."
             );
             return saved.toDomain();
         } catch (DataIntegrityViolationException dive) {
             log.warn(
-                    "이미 출석이 등록된 날짜입니다. userAttendanceId={}, attendedDate={}",
-                    history.getUserAttendanceId(), history.getAttendedDate()
+                "이미 출석이 등록된 날짜입니다. userAttendanceId={}, attendedDate={}",
+                history.getUserAttendanceId(), history.getAttendedDate()
             );
             throw new DuplicateAttendanceException(dive);
         }

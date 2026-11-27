@@ -26,48 +26,48 @@ public class Inventory {
 
     public static Inventory of(Long productId, UUID productKey, Long pricePolicyId) {
         return Inventory.builder()
-                .productId(productId)
-                .productKey(productKey)
-                .pricePolicyId(pricePolicyId)
-                .stock(Stock.of(
-                        "0"
-                ))
-                .build();
+            .productId(productId)
+            .productKey(productKey)
+            .pricePolicyId(pricePolicyId)
+            .stock(Stock.of(
+                "0"
+            ))
+            .build();
     }
 
     public static Inventory of(Long productId, Long pricePolicyId, Integer stock) {
         return Inventory.builder()
-                .productId(productId)
-                .pricePolicyId(pricePolicyId)
-                .stock(Stock.of(
-                        String.valueOf(stock)
-                ))
-                .build();
+            .productId(productId)
+            .pricePolicyId(pricePolicyId)
+            .stock(Stock.of(
+                String.valueOf(stock)
+            ))
+            .build();
     }
 
     public static Inventory of(Long productId, Long pricePolicyId, Integer stock, Long version) {
         return Inventory.builder()
-                .productId(productId)
-                .pricePolicyId(pricePolicyId)
-                .stock(Stock.of(
-                        String.valueOf(stock)
-                ))
-                .version(version)
-                .reserved(0)
-                .build();
+            .productId(productId)
+            .pricePolicyId(pricePolicyId)
+            .stock(Stock.of(
+                String.valueOf(stock)
+            ))
+            .version(version)
+            .reserved(0)
+            .build();
     }
 
     public static Inventory from(InventorySnapshotState state) {
         return Inventory.builder()
-                .productId(state.getProductId())
-                .productKey(state.getProductKey())
-                .pricePolicyId(state.getPricePolicyId())
-                .stock(Stock.of(
-                        String.valueOf(state.getStock())
-                ))
-                .version(state.getVersion())
-                .reserved(state.getReserved())
-                .build();
+            .productId(state.getProductId())
+            .productKey(state.getProductKey())
+            .pricePolicyId(state.getPricePolicyId())
+            .stock(Stock.of(
+                String.valueOf(state.getStock())
+            ))
+            .version(state.getVersion())
+            .reserved(state.getReserved())
+            .build();
     }
 
     public boolean hasProductKey() {
@@ -78,7 +78,7 @@ public class Inventory {
         if (hasProductKey()) {
             if (!this.productKey.equals(productKey)) {
                 log.warn("Inventory productKey 덮어쓰기 시도 무시. pricePolicyId={}, current={}, requested={}",
-                        pricePolicyId, this.productKey, productKey
+                    pricePolicyId, this.productKey, productKey
                 );
             }
             return;
@@ -89,14 +89,14 @@ public class Inventory {
     public void reduce(int stockToReduce) {
         Integer reducedStock = stock.reduce(stockToReduce);
         stock = Stock.of(
-                String.valueOf(reducedStock)
+            String.valueOf(reducedStock)
         );
     }
 
     public void restore(int quantity) {
         Integer increasedStock = stock.increase(quantity);
         stock = Stock.of(
-                String.valueOf(increasedStock)
+            String.valueOf(increasedStock)
         );
     }
 
@@ -138,7 +138,7 @@ public class Inventory {
     private void validatePositiveQuantity(int quantity) {
         if (quantity <= 0) {
             throw new InvalidQuantityException(
-                    String.format("수량은 1 이상이어야 합니다. 전송된 수량: %d", quantity)
+                String.format("수량은 1 이상이어야 합니다. 전송된 수량: %d", quantity)
             );
         }
     }

@@ -56,7 +56,7 @@ class ProductServiceCommunicationHistoryPersistenceAdapterTest {
         adapter.save(history);
 
         ArgumentCaptor<ProductServiceCommunicationHistoryJpaEntity> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistoryJpaEntity.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistoryJpaEntity.class);
         verify(repository).save(captor.capture());
         ProductServiceCommunicationHistoryJpaEntity captured = captor.getValue();
         assertThat(captured.getTargetType()).isEqualTo(ProductServiceCommunicationTargetType.INVENTORY);
@@ -69,15 +69,15 @@ class ProductServiceCommunicationHistoryPersistenceAdapterTest {
 
     private ProductServiceCommunicationHistory buildHistory() {
         return ProductServiceCommunicationHistory.from(
-                ProductServiceCommunicationHistoryCreateState.builder()
-                        .targetType(ProductServiceCommunicationTargetType.INVENTORY)
-                        .targetId("inv-1")
-                        .communicationType(ProductServiceCommunicationType.REQUEST)
-                        .sender(ProductServiceCommunicationSenderType.PRODUCT)
-                        .exception("SocketTimeout")
-                        .payload("{\"k\":\"v\"}")
-                        .payloadJson(null)
-                        .build()
+            ProductServiceCommunicationHistoryCreateState.builder()
+                .targetType(ProductServiceCommunicationTargetType.INVENTORY)
+                .targetId("inv-1")
+                .communicationType(ProductServiceCommunicationType.REQUEST)
+                .sender(ProductServiceCommunicationSenderType.PRODUCT)
+                .exception("SocketTimeout")
+                .payload("{\"k\":\"v\"}")
+                .payloadJson(null)
+                .build()
         );
     }
 }

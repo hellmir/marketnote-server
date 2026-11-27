@@ -37,13 +37,13 @@ class DeleteAttendancePolicyUseCaseTest {
         // given
         Short policyId = (short) 1;
         AttendancePolicy policy = AttendancePolicy.from(
-                AttendancePolicySnapshotState.builder()
-                        .id(policyId)
-                        .continuousPeriod(ContinuousPeriod.of((short) 3))
-                        .rewardType(AttendanceRewardType.POINT)
-                        .rewardQuantity(RewardQuantity.of(100L))
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            AttendancePolicySnapshotState.builder()
+                .id(policyId)
+                .continuousPeriod(ContinuousPeriod.of((short) 3))
+                .rewardType(AttendanceRewardType.POINT)
+                .rewardQuantity(RewardQuantity.of(100L))
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
 
         when(findAttendancePolicyPort.findByIdForUpdate(policyId)).thenReturn(Optional.of(policy));
@@ -65,6 +65,6 @@ class DeleteAttendancePolicyUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> deleteAttendancePolicyService.delete(policyId))
-                .isInstanceOf(DomainNotFoundException.class);
+            .isInstanceOf(DomainNotFoundException.class);
     }
 }

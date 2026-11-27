@@ -12,13 +12,13 @@ import java.util.List;
  * @Description 주문의 전체 상태 변경 이력 목록을 감싸는 결과 record입니다.
  */
 public record GetOrderStatusHistoryResult(
-        Long orderId,
-        List<OrderStatusHistoryItem> statusHistory
+    Long orderId,
+    List<OrderStatusHistoryItem> statusHistory
 ) {
     public static GetOrderStatusHistoryResult from(Long orderId, List<OrderStatusHistory> histories) {
         List<OrderStatusHistoryItem> items = histories.stream()
-                .map(OrderStatusHistoryItem::from)
-                .toList();
+            .map(OrderStatusHistoryItem::from)
+            .toList();
         return new GetOrderStatusHistoryResult(orderId, items);
     }
 }

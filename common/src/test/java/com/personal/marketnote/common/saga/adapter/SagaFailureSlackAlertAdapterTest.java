@@ -85,7 +85,7 @@ class SagaFailureSlackAlertAdapterTest {
 
         // when
         adapter.sendFailureAlert(
-                "saga-1", "ORDER_SAGA", "STEP", "reason", LocalDateTime.now()
+            "saga-1", "ORDER_SAGA", "STEP", "reason", LocalDateTime.now()
         );
 
         // then
@@ -106,8 +106,8 @@ class SagaFailureSlackAlertAdapterTest {
 
         // when & then - 예외가 전파되지 않아야 한다
         assertThatCode(() -> deadAdapter.sendFailureAlert(
-                "saga-999", "ORDER_SAGA", "PAYMENT",
-                "broker timeout", LocalDateTime.of(2026, 4, 20, 10, 0, 0)
+            "saga-999", "ORDER_SAGA", "PAYMENT",
+            "broker timeout", LocalDateTime.of(2026, 4, 20, 10, 0, 0)
         )).doesNotThrowAnyException();
     }
 }

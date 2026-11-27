@@ -58,18 +58,18 @@ class AligoMessageTest {
         void shouldThrowExceptionWhenRecipientsEmpty() {
             // given
             AligoMessageCreateState state = AligoMessageCreateState.builder()
-                    .senderKey("test-sender-key")
-                    .templateCode("TPL001")
-                    .sender("01012345678")
-                    .messageType(AligoMessageType.AT)
-                    .content("테스트")
-                    .requestedAt(LocalDateTime.now())
-                    .recipients(List.of())
-                    .build();
+                .senderKey("test-sender-key")
+                .templateCode("TPL001")
+                .sender("01012345678")
+                .messageType(AligoMessageType.AT)
+                .content("테스트")
+                .requestedAt(LocalDateTime.now())
+                .recipients(List.of())
+                .build();
 
             // when & then
             assertThatThrownBy(() -> AligoMessage.from(state))
-                    .isInstanceOf(InvalidAligoMessageRecipientCountException.class);
+                .isInstanceOf(InvalidAligoMessageRecipientCountException.class);
         }
 
         @Test
@@ -77,18 +77,18 @@ class AligoMessageTest {
         void shouldThrowExceptionWhenRecipientsNull() {
             // given
             AligoMessageCreateState state = AligoMessageCreateState.builder()
-                    .senderKey("test-sender-key")
-                    .templateCode("TPL001")
-                    .sender("01012345678")
-                    .messageType(AligoMessageType.AT)
-                    .content("테스트")
-                    .requestedAt(LocalDateTime.now())
-                    .recipients(null)
-                    .build();
+                .senderKey("test-sender-key")
+                .templateCode("TPL001")
+                .sender("01012345678")
+                .messageType(AligoMessageType.AT)
+                .content("테스트")
+                .requestedAt(LocalDateTime.now())
+                .recipients(null)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> AligoMessage.from(state))
-                    .isInstanceOf(InvalidAligoMessageRecipientCountException.class);
+                .isInstanceOf(InvalidAligoMessageRecipientCountException.class);
         }
 
         @Test
@@ -99,7 +99,7 @@ class AligoMessageTest {
 
             // when & then
             assertThatThrownBy(() -> AligoMessage.from(state))
-                    .isInstanceOf(InvalidAligoMessageRecipientCountException.class);
+                .isInstanceOf(InvalidAligoMessageRecipientCountException.class);
         }
 
         @Test
@@ -107,14 +107,14 @@ class AligoMessageTest {
         void shouldCreateMessageWith10DigitSender() {
             // given
             AligoMessageCreateState state = AligoMessageCreateState.builder()
-                    .senderKey("test-sender-key")
-                    .templateCode("TPL001")
-                    .sender("0212345678")
-                    .messageType(AligoMessageType.AT)
-                    .content("테스트")
-                    .requestedAt(LocalDateTime.now())
-                    .recipients(List.of(createRecipientState("01098765432", "테스트")))
-                    .build();
+                .senderKey("test-sender-key")
+                .templateCode("TPL001")
+                .sender("0212345678")
+                .messageType(AligoMessageType.AT)
+                .content("테스트")
+                .requestedAt(LocalDateTime.now())
+                .recipients(List.of(createRecipientState("01098765432", "테스트")))
+                .build();
 
             // when
             AligoMessage message = AligoMessage.from(state);
@@ -128,18 +128,18 @@ class AligoMessageTest {
         void shouldThrowExceptionWhenSenderContainsNonDigit() {
             // given
             AligoMessageCreateState state = AligoMessageCreateState.builder()
-                    .senderKey("test-sender-key")
-                    .templateCode("TPL001")
-                    .sender("010-1234-5678")
-                    .messageType(AligoMessageType.AT)
-                    .content("테스트")
-                    .requestedAt(LocalDateTime.now())
-                    .recipients(List.of(createRecipientState("01098765432", "테스트")))
-                    .build();
+                .senderKey("test-sender-key")
+                .templateCode("TPL001")
+                .sender("010-1234-5678")
+                .messageType(AligoMessageType.AT)
+                .content("테스트")
+                .requestedAt(LocalDateTime.now())
+                .recipients(List.of(createRecipientState("01098765432", "테스트")))
+                .build();
 
             // when & then
             assertThatThrownBy(() -> AligoMessage.from(state))
-                    .isInstanceOf(InvalidAligoTemplateException.class);
+                .isInstanceOf(InvalidAligoTemplateException.class);
         }
 
         @Test
@@ -147,18 +147,18 @@ class AligoMessageTest {
         void shouldThrowExceptionWhenSenderTooShort() {
             // given
             AligoMessageCreateState state = AligoMessageCreateState.builder()
-                    .senderKey("test-sender-key")
-                    .templateCode("TPL001")
-                    .sender("012345678")
-                    .messageType(AligoMessageType.AT)
-                    .content("테스트")
-                    .requestedAt(LocalDateTime.now())
-                    .recipients(List.of(createRecipientState("01098765432", "테스트")))
-                    .build();
+                .senderKey("test-sender-key")
+                .templateCode("TPL001")
+                .sender("012345678")
+                .messageType(AligoMessageType.AT)
+                .content("테스트")
+                .requestedAt(LocalDateTime.now())
+                .recipients(List.of(createRecipientState("01098765432", "테스트")))
+                .build();
 
             // when & then
             assertThatThrownBy(() -> AligoMessage.from(state))
-                    .isInstanceOf(InvalidAligoTemplateException.class);
+                .isInstanceOf(InvalidAligoTemplateException.class);
         }
 
         @Test
@@ -166,18 +166,18 @@ class AligoMessageTest {
         void shouldThrowExceptionWhenSenderNull() {
             // given
             AligoMessageCreateState state = AligoMessageCreateState.builder()
-                    .senderKey("test-sender-key")
-                    .templateCode("TPL001")
-                    .sender(null)
-                    .messageType(AligoMessageType.AT)
-                    .content("테스트")
-                    .requestedAt(LocalDateTime.now())
-                    .recipients(List.of(createRecipientState("01098765432", "테스트")))
-                    .build();
+                .senderKey("test-sender-key")
+                .templateCode("TPL001")
+                .sender(null)
+                .messageType(AligoMessageType.AT)
+                .content("테스트")
+                .requestedAt(LocalDateTime.now())
+                .recipients(List.of(createRecipientState("01098765432", "테스트")))
+                .build();
 
             // when & then
             assertThatThrownBy(() -> AligoMessage.from(state))
-                    .isInstanceOf(InvalidAligoTemplateException.class);
+                .isInstanceOf(InvalidAligoTemplateException.class);
         }
     }
 
@@ -211,7 +211,7 @@ class AligoMessageTest {
 
             // when & then
             assertThatThrownBy(() -> message.markAsSent("MID_002", 1, 0, LocalDateTime.now()))
-                    .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
+                .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
         }
 
         @Test
@@ -222,7 +222,7 @@ class AligoMessageTest {
 
             // when & then
             assertThatThrownBy(() -> message.markAsSent("MID_003", 1, 0, LocalDateTime.now()))
-                    .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
+                .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
         }
     }
 
@@ -251,7 +251,7 @@ class AligoMessageTest {
 
             // when & then
             assertThatThrownBy(() -> message.markAsFailed())
-                    .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
+                .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
         }
     }
 
@@ -333,7 +333,7 @@ class AligoMessageTest {
             assertThat(message.getSentAt()).isEqualTo(sentAt);
             assertThat(message.isFailoverUsed()).isTrue();
             assertThat(message.getRecipients()).allSatisfy(recipient ->
-                    assertThat(recipient.getSmid()).isEqualTo("SMID_001")
+                assertThat(recipient.getSmid()).isEqualTo("SMID_001")
             );
         }
 
@@ -345,7 +345,7 @@ class AligoMessageTest {
 
             // when & then
             assertThatThrownBy(() -> message.markAsFailovered("MID_002", "SMID_002", 1, 0, LocalDateTime.now()))
-                    .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
+                .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
         }
 
         @Test
@@ -356,7 +356,7 @@ class AligoMessageTest {
 
             // when & then
             assertThatThrownBy(() -> message.markAsFailovered("MID_003", "SMID_003", 1, 0, LocalDateTime.now()))
-                    .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
+                .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
         }
     }
 
@@ -369,10 +369,10 @@ class AligoMessageTest {
         void shouldStoreSmid() {
             // given
             AligoMessageRecipient recipient = AligoMessageRecipient.from(
-                    AligoMessageRecipientCreateState.builder()
-                            .receiver("01098765432")
-                            .recvName("홍길동")
-                            .build()
+                AligoMessageRecipientCreateState.builder()
+                    .receiver("01098765432")
+                    .recvName("홍길동")
+                    .build()
             );
 
             // when
@@ -406,121 +406,121 @@ class AligoMessageTest {
 
     private AligoMessageCreateState createValidState(int recipientCount) {
         List<AligoMessageRecipientCreateState> recipients = IntStream.rangeClosed(1, recipientCount)
-                .mapToObj(i -> createRecipientState("010" + String.format("%08d", i), "수신자" + i))
-                .toList();
+            .mapToObj(i -> createRecipientState("010" + String.format("%08d", i), "수신자" + i))
+            .toList();
 
         return AligoMessageCreateState.builder()
-                .senderKey("test-sender-key")
-                .templateCode("TPL001")
-                .sender("01012345678")
-                .messageType(AligoMessageType.AT)
-                .content("테스트 메시지")
-                .title("테스트 제목")
-                .requestedAt(LocalDateTime.now())
-                .recipients(recipients)
-                .build();
+            .senderKey("test-sender-key")
+            .templateCode("TPL001")
+            .sender("01012345678")
+            .messageType(AligoMessageType.AT)
+            .content("테스트 메시지")
+            .title("테스트 제목")
+            .requestedAt(LocalDateTime.now())
+            .recipients(recipients)
+            .build();
     }
 
     private AligoMessageRecipientCreateState createRecipientState(String receiver, String recvName) {
         return AligoMessageRecipientCreateState.builder()
-                .receiver(receiver)
-                .recvName(recvName)
-                .build();
+            .receiver(receiver)
+            .recvName(recvName)
+            .build();
     }
 
     private AligoMessage createRequestedMessageWithRecipients() {
         List<AligoMessageRecipientSnapshotState> recipientStates = List.of(
-                AligoMessageRecipientSnapshotState.builder()
-                        .id(10L).receiver("01098765432").recvName("수신자1")
-                        .recipientStatus(AligoMessageRecipientStatus.PENDING).build(),
-                AligoMessageRecipientSnapshotState.builder()
-                        .id(11L).receiver("01087654321").recvName("수신자2")
-                        .recipientStatus(AligoMessageRecipientStatus.PENDING).build()
+            AligoMessageRecipientSnapshotState.builder()
+                .id(10L).receiver("01098765432").recvName("수신자1")
+                .recipientStatus(AligoMessageRecipientStatus.PENDING).build(),
+            AligoMessageRecipientSnapshotState.builder()
+                .id(11L).receiver("01087654321").recvName("수신자2")
+                .recipientStatus(AligoMessageRecipientStatus.PENDING).build()
         );
         return AligoMessage.from(AligoMessageSnapshotState.builder()
-                .id(10L)
-                .senderKey("test-sender-key")
-                .templateCode("TPL001")
-                .sender("01012345678")
-                .messageType(AligoMessageType.AT)
-                .content("테스트")
-                .title("제목")
-                .messageStatus(AligoMessageStatus.REQUESTED)
-                .successCount(0)
-                .failCount(0)
-                .requestedAt(LocalDateTime.now())
-                .recipients(recipientStates)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(10L)
+            .senderKey("test-sender-key")
+            .templateCode("TPL001")
+            .sender("01012345678")
+            .messageType(AligoMessageType.AT)
+            .content("테스트")
+            .title("제목")
+            .messageStatus(AligoMessageStatus.REQUESTED)
+            .successCount(0)
+            .failCount(0)
+            .requestedAt(LocalDateTime.now())
+            .recipients(recipientStates)
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 
     private AligoMessage createRequestedMessage() {
         return AligoMessage.from(AligoMessageSnapshotState.builder()
-                .id(1L)
-                .senderKey("test-sender-key")
-                .templateCode("TPL001")
-                .sender("01012345678")
-                .messageType(AligoMessageType.AT)
-                .content("테스트")
-                .title("제목")
-                .messageStatus(AligoMessageStatus.REQUESTED)
-                .successCount(0)
-                .failCount(0)
-                .requestedAt(LocalDateTime.now())
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .senderKey("test-sender-key")
+            .templateCode("TPL001")
+            .sender("01012345678")
+            .messageType(AligoMessageType.AT)
+            .content("테스트")
+            .title("제목")
+            .messageStatus(AligoMessageStatus.REQUESTED)
+            .successCount(0)
+            .failCount(0)
+            .requestedAt(LocalDateTime.now())
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 
     private AligoMessage createSentMessage() {
         return AligoMessage.from(AligoMessageSnapshotState.builder()
-                .id(2L)
-                .senderKey("test-sender-key")
-                .templateCode("TPL001")
-                .sender("01012345678")
-                .messageType(AligoMessageType.AT)
-                .content("테스트")
-                .title("제목")
-                .messageStatus(AligoMessageStatus.SENT)
-                .aligoMid("MID_EXISTING")
-                .successCount(1)
-                .failCount(0)
-                .requestedAt(LocalDateTime.now())
-                .sentAt(LocalDateTime.now())
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(2L)
+            .senderKey("test-sender-key")
+            .templateCode("TPL001")
+            .sender("01012345678")
+            .messageType(AligoMessageType.AT)
+            .content("테스트")
+            .title("제목")
+            .messageStatus(AligoMessageStatus.SENT)
+            .aligoMid("MID_EXISTING")
+            .successCount(1)
+            .failCount(0)
+            .requestedAt(LocalDateTime.now())
+            .sentAt(LocalDateTime.now())
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 
     private AligoMessage createFailedMessage() {
         return AligoMessage.from(AligoMessageSnapshotState.builder()
-                .id(3L)
-                .senderKey("test-sender-key")
-                .templateCode("TPL001")
-                .sender("01012345678")
-                .messageType(AligoMessageType.AT)
-                .content("테스트")
-                .title("제목")
-                .messageStatus(AligoMessageStatus.FAILED)
-                .successCount(0)
-                .failCount(0)
-                .requestedAt(LocalDateTime.now())
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(3L)
+            .senderKey("test-sender-key")
+            .templateCode("TPL001")
+            .sender("01012345678")
+            .messageType(AligoMessageType.AT)
+            .content("테스트")
+            .title("제목")
+            .messageStatus(AligoMessageStatus.FAILED)
+            .successCount(0)
+            .failCount(0)
+            .requestedAt(LocalDateTime.now())
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 
     private AligoMessage createCancelledMessage() {
         return AligoMessage.from(AligoMessageSnapshotState.builder()
-                .id(4L)
-                .senderKey("test-sender-key")
-                .templateCode("TPL001")
-                .sender("01012345678")
-                .messageType(AligoMessageType.AT)
-                .content("테스트")
-                .title("제목")
-                .messageStatus(AligoMessageStatus.CANCELLED)
-                .successCount(0)
-                .failCount(0)
-                .requestedAt(LocalDateTime.now())
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(4L)
+            .senderKey("test-sender-key")
+            .templateCode("TPL001")
+            .sender("01012345678")
+            .messageType(AligoMessageType.AT)
+            .content("테스트")
+            .title("제목")
+            .messageStatus(AligoMessageStatus.CANCELLED)
+            .successCount(0)
+            .failCount(0)
+            .requestedAt(LocalDateTime.now())
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 }

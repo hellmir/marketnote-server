@@ -25,10 +25,10 @@ public interface GetLoginHistoryUseCase {
      * @Description 회원의 로그인 이력 목록을 조회합니다.
      */
     Page<GetLoginHistoryResult> getLoginHistories(
-            Long userId,
-            int pageSize,
-            int pageNumber,
-            Sort.Direction sortDirection,
-            LoginHistorySortProperty sortProperty
+        Long userId,
+        int pageSize,
+        int pageNumber,
+        Sort.Direction sortDirection,
+        LoginHistorySortProperty sortProperty
     );
 }

@@ -113,11 +113,11 @@ class KafkaMdcProducerInterceptorTest {
 
         // then
         assertThat(new String(result.headers().lastHeader(TraceIdMdcFilter.REQUEST_ID_HEADER).value(), StandardCharsets.UTF_8))
-                .isEqualTo("trace-x");
+            .isEqualTo("trace-x");
         assertThat(new String(result.headers().lastHeader(TraceIdMdcFilter.CORRELATION_ID_HEADER).value(), StandardCharsets.UTF_8))
-                .isEqualTo("corr-x");
+            .isEqualTo("corr-x");
         assertThat(new String(result.headers().lastHeader(TraceIdMdcFilter.CAUSATION_ID_HEADER).value(), StandardCharsets.UTF_8))
-                .isEqualTo("cause-x");
+            .isEqualTo("cause-x");
     }
 
     @Test

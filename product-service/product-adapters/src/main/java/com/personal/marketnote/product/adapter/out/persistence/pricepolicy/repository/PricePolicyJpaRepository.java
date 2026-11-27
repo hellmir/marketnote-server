@@ -15,107 +15,107 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
     List<PricePolicyJpaEntity> findAllByProductJpaEntity_IdOrderByIdDesc(Long productId);
 
     @Query("""
-            select p
-            from PricePolicyJpaEntity p
-            where p.id in (
+        select p
+        from PricePolicyJpaEntity p
+        where p.id in (
+            select popp.id.pricePolicyId
+            from ProductOptionPricePolicyJpaEntity popp
+            where popp.id.productOptionId in :optionIds
+            group by popp.id.pricePolicyId
+            having count(distinct popp.id.productOptionId) = :#{#optionIds.size()}
+        )
+        """)
+    List<PricePolicyJpaEntity> findByOptionIds(List<Long> optionIds);
+
+    @Query("""
+        select p
+        from PricePolicyJpaEntity p
+        where p.id = (
+            select max(matched.id.pricePolicyId)
+            from ProductOptionPricePolicyJpaEntity matched
+            where matched.id.pricePolicyId in (
                 select popp.id.pricePolicyId
                 from ProductOptionPricePolicyJpaEntity popp
                 where popp.id.productOptionId in :optionIds
                 group by popp.id.pricePolicyId
                 having count(distinct popp.id.productOptionId) = :#{#optionIds.size()}
             )
-            """)
-    List<PricePolicyJpaEntity> findByOptionIds(List<Long> optionIds);
-
-    @Query("""
-            select p
-            from PricePolicyJpaEntity p
-            where p.id = (
-                select max(matched.id.pricePolicyId)
-                from ProductOptionPricePolicyJpaEntity matched
-                where matched.id.pricePolicyId in (
-                    select popp.id.pricePolicyId
-                    from ProductOptionPricePolicyJpaEntity popp
-                    where popp.id.productOptionId in :optionIds
-                    group by popp.id.pricePolicyId
-                    having count(distinct popp.id.productOptionId) = :#{#optionIds.size()}
-                )
-            )
-            """)
+        )
+        """)
     Optional<PricePolicyJpaEntity> findOneByOptionIds(List<Long> optionIds);
 
     @Query("""
-            SELECT COUNT(pp)
-            FROM PricePolicyJpaEntity pp
-              JOIN pp.productJpaEntity p
+        SELECT COUNT(pp)
+        FROM PricePolicyJpaEntity pp
+          JOIN pp.productJpaEntity p
+        WHERE 1 = 1
+          AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
+          AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
+          AND EXISTS (
+            SELECT 1
+            FROM ProductCategoryJpaEntity pc
             WHERE 1 = 1
-              AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
-              AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
-              AND EXISTS (
-                SELECT 1
-                FROM ProductCategoryJpaEntity pc
-                WHERE 1 = 1
-                    AND pc.productId = p.id
-                    AND pc.categoryId = :categoryId
-              )
-              AND (
-                    :pattern = ''
-                 OR (:searchTarget = 'name' AND p.name LIKE :pattern)
-                 OR (:searchTarget = 'brandName' AND p.brandName LIKE :pattern)
-                 OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
-              )
-            """)
+                AND pc.productId = p.id
+                AND pc.categoryId = :categoryId
+          )
+          AND (
+                :pattern = ''
+             OR (:searchTarget = 'name' AND p.name LIKE :pattern)
+             OR (:searchTarget = 'brandName' AND p.brandName LIKE :pattern)
+             OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
+          )
+        """)
     long countActiveByCategoryId(
-            @Param("categoryId") Long categoryId,
-            @Param("searchTarget") String searchTarget,
-            @Param("pattern") String pattern
+        @Param("categoryId") Long categoryId,
+        @Param("searchTarget") String searchTarget,
+        @Param("pattern") String pattern
     );
 
     @Query("""
-            SELECT COUNT(pp)
-            FROM PricePolicyJpaEntity pp
-              JOIN pp.productJpaEntity p
-            WHERE 1 = 1
-              AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
-              AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
-              AND (
-                    :pattern = ''
-                 OR (:searchTarget = 'name' AND p.name LIKE :pattern)
-                 OR (:searchTarget = 'brandName' AND p.brandName LIKE :pattern)
-                 OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
-              )
-            """)
+        SELECT COUNT(pp)
+        FROM PricePolicyJpaEntity pp
+          JOIN pp.productJpaEntity p
+        WHERE 1 = 1
+          AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
+          AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
+          AND (
+                :pattern = ''
+             OR (:searchTarget = 'name' AND p.name LIKE :pattern)
+             OR (:searchTarget = 'brandName' AND p.brandName LIKE :pattern)
+             OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
+          )
+        """)
     long countActive(@Param("searchTarget") String searchTarget, @Param("pattern") String pattern);
 
     @Query("""
-            SELECT pp
-            FROM PricePolicyJpaEntity pp
-              LEFT JOIN FETCH pp.productJpaEntity p
-            WHERE pp.id IN :pricePolicyIds
-            """)
+        SELECT pp
+        FROM PricePolicyJpaEntity pp
+          LEFT JOIN FETCH pp.productJpaEntity p
+        WHERE pp.id IN :pricePolicyIds
+        """)
     List<PricePolicyJpaEntity> findAllWithProductAndOptionMappingsByIdIn(
-            @Param("pricePolicyIds") List<Long> pricePolicyIds
+        @Param("pricePolicyIds") List<Long> pricePolicyIds
     );
 
     @Query("""
-            UPDATE PricePolicyJpaEntity pp
-            SET pp.status = com.personal.marketnote.common.domain.EntityStatus.INACTIVE
-            WHERE pp.productJpaEntity.id = :productId
-            """)
+        UPDATE PricePolicyJpaEntity pp
+        SET pp.status = com.personal.marketnote.common.domain.EntityStatus.INACTIVE
+        WHERE pp.productJpaEntity.id = :productId
+        """)
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     void deactivateByProductId(@Param("productId") Long productId);
 
     @Query(value = """
-            UPDATE price_policy
-            SET popularity = COALESCE(
-                (SELECT SUM(op.quantity)
-                 FROM order_product op
-                 WHERE op.price_policy_id = price_policy.id
-                   AND op.confirmed_at >= :since
-                   AND op.order_status = 'CONFIRMED'),
-                0)
-            """, nativeQuery = true)
+        UPDATE price_policy
+        SET popularity = COALESCE(
+            (SELECT SUM(op.quantity)
+             FROM order_product op
+             WHERE op.price_policy_id = price_policy.id
+               AND op.confirmed_at >= :since
+               AND op.order_status = 'CONFIRMED'),
+            0)
+        """, nativeQuery = true)
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     void updateWeeklyPopularity(@Param("since") LocalDateTime since);

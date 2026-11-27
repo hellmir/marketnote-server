@@ -100,17 +100,17 @@ class CancellableFulfillmentWorkStatusTest {
         @DisplayName("유효하지 않은 문자열은 InvalidFulfillmentWorkStatusException을 발생시킨다")
         void from_invalidCode_throwsException() {
             assertThatThrownBy(() -> CancellableFulfillmentWorkStatus.from("INVALID"))
-                    .isInstanceOf(InvalidFulfillmentWorkStatusException.class)
-                    .hasMessageContaining("ERR_FULFILLMENT_01")
-                    .hasMessageContaining("INVALID");
+                .isInstanceOf(InvalidFulfillmentWorkStatusException.class)
+                .hasMessageContaining("ERR_FULFILLMENT_01")
+                .hasMessageContaining("INVALID");
         }
 
         @Test
         @DisplayName("null은 InvalidFulfillmentWorkStatusException을 발생시킨다")
         void from_null_throwsException() {
             assertThatThrownBy(() -> CancellableFulfillmentWorkStatus.from(null))
-                    .isInstanceOf(InvalidFulfillmentWorkStatusException.class)
-                    .hasMessageContaining("ERR_FULFILLMENT_01");
+                .isInstanceOf(InvalidFulfillmentWorkStatusException.class)
+                .hasMessageContaining("ERR_FULFILLMENT_01");
         }
     }
 }

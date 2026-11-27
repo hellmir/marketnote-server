@@ -32,9 +32,9 @@ public class ClaimReferralBonusService implements ClaimReferralBonusUseCase {
 
     @Override
     @Retryable(
-            retryFor = ObjectOptimisticLockingFailureException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
+        retryFor = ObjectOptimisticLockingFailureException.class,
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
     )
     public ClaimReferralBonusResult claim(ClaimReferralBonusCommand command) {
         Long userId = command.userId();

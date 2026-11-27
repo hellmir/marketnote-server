@@ -5,13 +5,13 @@ import lombok.Builder;
 
 @Builder
 public record UpdateShippingAddressCommand(
-        String address,
-        String addressDetail,
-        String companyName,
-        String addressAlias,
-        String recipientName,
-        String recipientPhoneNumber,
-        DeliveryRequestType deliveryRequestType,
-        String deliveryRequestMessage
+    String address,
+    String addressDetail,
+    String companyName,
+    String addressAlias,
+    String recipientName,
+    String recipientPhoneNumber,
+    DeliveryRequestType deliveryRequestType,
+    String deliveryRequestMessage
 ) {
 }

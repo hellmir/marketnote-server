@@ -4,26 +4,26 @@ import java.util.List;
 import java.util.UUID;
 
 public record CompleteCancellationSagaPayload(
-        Long orderId,
-        String orderKey,
-        Long buyerId,
-        Long cancelAmount,
-        Long paymentAmount,
-        Long pointAmount,
-        Long shippingFee,
-        boolean isFullCancel,
-        Long alreadyRefunded,
-        String reasonCategory,
-        String reason,
-        List<OrderProductItem> orderProducts,
-        List<OrderProductItem> cancelProducts,
-        String cancelId
+    Long orderId,
+    String orderKey,
+    Long buyerId,
+    Long cancelAmount,
+    Long paymentAmount,
+    Long pointAmount,
+    Long shippingFee,
+    boolean isFullCancel,
+    Long alreadyRefunded,
+    String reasonCategory,
+    String reason,
+    List<OrderProductItem> orderProducts,
+    List<OrderProductItem> cancelProducts,
+    String cancelId
 ) {
     public record OrderProductItem(
-            Long pricePolicyId,
-            UUID sharerKey,
-            Integer quantity,
-            Long unitAmount
+        Long pricePolicyId,
+        UUID sharerKey,
+        Integer quantity,
+        Long unitAmount
     ) {
     }
 }

@@ -61,12 +61,12 @@ class AligoHttpClientPayloadTest {
         ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
         recordedCalls = new ArrayList<>();
         aligoHttpClient = AligoHttpClientTestSupport.newClient(
-                restClient, objectMapper, properties, externalCallLogger,
-                (
-                        targetType, targetId, vendorName, communicationType, sender,
-                        exception, payload, payloadJson, attemptCount
-                ) ->
-                        recordedCalls.add(new RecordedCall(communicationType, payloadJson))
+            restClient, objectMapper, properties, externalCallLogger,
+            (
+                targetType, targetId, vendorName, communicationType, sender,
+                exception, payload, payloadJson, attemptCount
+            ) ->
+                recordedCalls.add(new RecordedCall(communicationType, payloadJson))
         );
     }
 
@@ -75,7 +75,7 @@ class AligoHttpClientPayloadTest {
     void shouldIncludeBodyInResponsePayloadOnSuccess() {
         String responseBody = "{\"result_code\":0,\"message\":\"OK\"}";
         mockServer.expect(requestTo("http://localhost" + PATH))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("receiver", "01012345678");
@@ -94,7 +94,7 @@ class AligoHttpClientPayloadTest {
     void shouldEmitMaskedFlagWithoutBodyOnSensitivePath() {
         String responseBody = "{\"result_code\":0,\"message\":\"OK\"}";
         mockServer.expect(requestTo("http://localhost" + SENSITIVE_PATH))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("receiver", "01012345678");
@@ -111,7 +111,7 @@ class AligoHttpClientPayloadTest {
     void shouldMaskApiKeyAndUserIdInRequestPayload() {
         String responseBody = "{\"result_code\":0,\"message\":\"OK\"}";
         mockServer.expect(requestTo("http://localhost" + PATH))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("receiver", "01012345678");
@@ -139,15 +139,15 @@ class AligoHttpClientPayloadTest {
 
     private JsonNode findByType(NotificationVendorCommunicationType type) {
         return recordedCalls.stream()
-                .filter(call -> call.communicationType() == type)
-                .findFirst()
-                .orElseThrow(() -> new AssertionError(type + " 통신 이력이 기록되지 않았습니다."))
-                .payloadJson();
+            .filter(call -> call.communicationType() == type)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError(type + " 통신 이력이 기록되지 않았습니다."))
+            .payloadJson();
     }
 
     private record RecordedCall(
-            NotificationVendorCommunicationType communicationType,
-            JsonNode payloadJson
+        NotificationVendorCommunicationType communicationType,
+        JsonNode payloadJson
     ) {
     }
 }

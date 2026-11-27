@@ -20,19 +20,19 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
     @Override
     public RegisterBrandTalkTemplateResult registerTemplate(RegisterBrandTalkTemplateCommand command) {
         AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(
-                AligoBrandTalkTemplateCommandToStateMapper.mapToCreateState(command)
+            AligoBrandTalkTemplateCommandToStateMapper.mapToCreateState(command)
         );
 
         registerBrandTalkTemplateExternalPort.registerTemplate(
-                template, command.imageFile(), command.imageFileName(),
-                command.carouselItemImageFiles(), command.carouselItemImageFileNames()
+            template, command.imageFile(), command.imageFileName(),
+            command.carouselItemImageFiles(), command.carouselItemImageFileNames()
         );
 
         AligoBrandTalkTemplate saved = saveBrandTalkTemplatePort.save(template);
 
         return new RegisterBrandTalkTemplateResult(
-                saved.getId(), saved.getTemplateCode(),
-                saved.getTemplateName(), saved.getTemplateType().name()
+            saved.getId(), saved.getTemplateCode(),
+            saved.getTemplateName(), saved.getTemplateType().name()
         );
     }
 }

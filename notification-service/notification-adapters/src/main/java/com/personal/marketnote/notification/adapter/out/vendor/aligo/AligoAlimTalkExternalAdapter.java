@@ -27,21 +27,21 @@ public class AligoAlimTalkExternalAdapter implements SendAligoAlimTalkExternalPo
         MultiValueMap<String, String> params = buildSendParams(message);
 
         AligoAlimTalkApiResponse response = aligoHttpClient.post(
-                SEND_ALIM_TALK_OPERATION, aligoProperties.getApi().getAlimtalkSendPath(),
-                params, AligoAlimTalkApiResponse.class
+            SEND_ALIM_TALK_OPERATION, aligoProperties.getApi().getAlimtalkSendPath(),
+            params, AligoAlimTalkApiResponse.class
         );
 
         if (FormatValidator.hasNoValue(response.info())) {
             throw new AligoApiRequestFailedException(
-                    "알리고 알림톡 발송 응답에 info가 없습니다. resultCode=" + response.resultCode()
+                "알리고 알림톡 발송 응답에 info가 없습니다. resultCode=" + response.resultCode()
             );
         }
 
         return new AligoAlimTalkSendResponse(
-                response.info().mid(),
-                response.info().scnt(),
-                response.info().fcnt(),
-                response.info().smid()
+            response.info().mid(),
+            response.info().scnt(),
+            response.info().fcnt(),
+            response.info().smid()
         );
     }
 

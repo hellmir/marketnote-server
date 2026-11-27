@@ -21,11 +21,11 @@ public class RegisterAttendancePolicyService implements RegisterAttendancePolicy
     @Override
     public RegisterAttendancePolicyResult register(RegisterAttendancePolicyCommand command) {
         AttendancePolicy saved = saveAttendancePolicyPort.save(
-                AttendancePolicy.from(
-                        RewardCommandToStateMapper.mapToAttendancePolicyCreateState(
-                                command
-                        )
+            AttendancePolicy.from(
+                RewardCommandToStateMapper.mapToAttendancePolicyCreateState(
+                    command
                 )
+            )
         );
 
         return RegisterAttendancePolicyResult.from(saved);

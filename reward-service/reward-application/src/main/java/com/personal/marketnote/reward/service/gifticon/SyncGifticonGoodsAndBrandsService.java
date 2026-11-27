@@ -48,8 +48,8 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
     @PostConstruct
     void initMetrics() {
         invalidItemCounter = Counter.builder(INVALID_ITEM_METRIC)
-                .description("Giftishow 동기화 중 벤더 이상치로 스킵된 아이템 수")
-                .register(meterRegistry);
+            .description("Giftishow 동기화 중 벤더 이상치로 스킵된 아이템 수")
+            .register(meterRegistry);
     }
 
     @Override
@@ -107,14 +107,14 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
         }
 
         GifticonBrand brand = GifticonBrand.from(
-                GifticonBrandCreateState.of(item.brandCode(), item.brandName(), item.brandIconImg())
+            GifticonBrandCreateState.of(item.brandCode(), item.brandName(), item.brandIconImg())
         );
         saveGifticonBrandPort.save(brand);
     }
 
     private void syncCategoryFromBrand(FetchedGifticonBrandItem item) {
         Optional<Long> existingCategoryId = findGifticonCategoryMappingPort
-                .findCategoryIdByGiftishowCategorySeq(item.category1Seq());
+            .findCategoryIdByGiftishowCategorySeq(item.category1Seq());
 
         if (existingCategoryId.isPresent()) {
             updateExistingCategory(existingCategoryId.get(), item.category1Name());
@@ -145,7 +145,7 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
         }
 
         GifticonCategory category = GifticonCategory.from(
-                GifticonCategoryCreateState.of(category1Seq, category1Name)
+            GifticonCategoryCreateState.of(category1Seq, category1Name)
         );
         GifticonCategory savedCategory = saveGifticonCategoryPort.save(category);
         saveGifticonCategoryMappingPort.save(category1Seq, savedCategory.getId());
@@ -164,7 +164,7 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
             } catch (RuntimeException e) {
                 invalidItemCounter.increment();
                 log.warn("fallback applied: Giftishow 동기화 이상치 스킵 - goodsCode: {}, cause: {}",
-                        item.goodsCode(), e.getClass().getSimpleName(), e);
+                    item.goodsCode(), e.getClass().getSimpleName(), e);
             }
         }
 

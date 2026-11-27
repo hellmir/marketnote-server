@@ -17,10 +17,10 @@ class MaskedCardNumberTest {
 
         @ParameterizedTest(name = "유효한 마스킹 카드번호 {0}로 생성 시 정상 생성된다")
         @ValueSource(strings = {
-                "1234-****-****-5678",
-                "1234****5678",
-                "5200********1234",
-                "123456******7890"
+            "1234-****-****-5678",
+            "1234****5678",
+            "5200********1234",
+            "123456******7890"
         })
         @DisplayName("유효한 마스킹 카드번호로 생성 시 정상 생성된다")
         void shouldCreateWithValidMaskedValue(String value) {
@@ -33,47 +33,47 @@ class MaskedCardNumberTest {
         @DisplayName("비마스킹 카드번호로 생성 시 InvalidMaskedCardNumberException을 던진다")
         void shouldThrowWhenNoMaskCharacter() {
             assertThatThrownBy(() -> MaskedCardNumber.of("1234567812345678"))
-                    .isInstanceOf(InvalidMaskedCardNumberException.class);
+                .isInstanceOf(InvalidMaskedCardNumberException.class);
         }
 
         @Test
         @DisplayName("null로 생성 시 InvalidMaskedCardNumberException을 던진다")
         void shouldThrowWhenNull() {
             assertThatThrownBy(() -> MaskedCardNumber.of(null))
-                    .isInstanceOf(InvalidMaskedCardNumberException.class);
+                .isInstanceOf(InvalidMaskedCardNumberException.class);
         }
 
         @Test
         @DisplayName("빈 문자열로 생성 시 InvalidMaskedCardNumberException을 던진다")
         void shouldThrowWhenEmpty() {
             assertThatThrownBy(() -> MaskedCardNumber.of(""))
-                    .isInstanceOf(InvalidMaskedCardNumberException.class);
+                .isInstanceOf(InvalidMaskedCardNumberException.class);
         }
 
         @Test
         @DisplayName("공백 문자열로 생성 시 InvalidMaskedCardNumberException을 던진다")
         void shouldThrowWhenBlank() {
             assertThatThrownBy(() -> MaskedCardNumber.of("   "))
-                    .isInstanceOf(InvalidMaskedCardNumberException.class);
+                .isInstanceOf(InvalidMaskedCardNumberException.class);
         }
 
         @ParameterizedTest(name = "허용되지 않는 문자가 포함된 {0}로 생성 시 예외를 던진다")
         @ValueSource(strings = {
-                "1234-ABCD-****-5678",
-                "1234 **** **** 5678",
-                "$$$$-****-****-5678"
+            "1234-ABCD-****-5678",
+            "1234 **** **** 5678",
+            "$$$$-****-****-5678"
         })
         @DisplayName("허용되지 않는 문자가 포함된 경우 InvalidMaskedCardNumberException을 던진다")
         void shouldThrowWhenContainsInvalidCharacter(String value) {
             assertThatThrownBy(() -> MaskedCardNumber.of(value))
-                    .isInstanceOf(InvalidMaskedCardNumberException.class);
+                .isInstanceOf(InvalidMaskedCardNumberException.class);
         }
 
         @Test
         @DisplayName("길이가 너무 짧으면 InvalidMaskedCardNumberException을 던진다")
         void shouldThrowWhenTooShort() {
             assertThatThrownBy(() -> MaskedCardNumber.of("12****"))
-                    .isInstanceOf(InvalidMaskedCardNumberException.class);
+                .isInstanceOf(InvalidMaskedCardNumberException.class);
         }
 
         @Test
@@ -105,7 +105,7 @@ class MaskedCardNumberTest {
 
             assertThat(value).hasSize(11);
             assertThatThrownBy(() -> MaskedCardNumber.of(value))
-                    .isInstanceOf(InvalidMaskedCardNumberException.class);
+                .isInstanceOf(InvalidMaskedCardNumberException.class);
         }
 
         @Test
@@ -115,7 +115,7 @@ class MaskedCardNumberTest {
 
             assertThat(value).hasSize(21);
             assertThatThrownBy(() -> MaskedCardNumber.of(value))
-                    .isInstanceOf(InvalidMaskedCardNumberException.class);
+                .isInstanceOf(InvalidMaskedCardNumberException.class);
         }
     }
 
@@ -173,7 +173,7 @@ class MaskedCardNumberTest {
         @DisplayName("유효하지 않은 입력 시 InvalidMaskedCardNumberException을 전파한다")
         void shouldPropagateExceptionWhenInputInvalid() {
             assertThatThrownBy(() -> MaskedCardNumber.fromNullable("invalid"))
-                    .isInstanceOf(InvalidMaskedCardNumberException.class);
+                .isInstanceOf(InvalidMaskedCardNumberException.class);
         }
     }
 

@@ -13,9 +13,9 @@ public class LedgerEntryCreateState {
 
     public static LedgerEntryCreateState of(Long accountId, Long amount, TransactionType transactionType) {
         return LedgerEntryCreateState.builder()
-                .accountId(accountId)
-                .amount(amount)
-                .transactionType(transactionType)
-                .build();
+            .accountId(accountId)
+            .amount(amount)
+            .transactionType(transactionType)
+            .build();
     }
 }

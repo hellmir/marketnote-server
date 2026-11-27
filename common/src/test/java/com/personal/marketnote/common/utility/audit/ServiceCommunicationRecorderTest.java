@@ -40,8 +40,8 @@ class ServiceCommunicationRecorderTest {
         recorder.record(FakeTarget.ORDER, FakeType.REQUEST, FakeSender.SERVER, "payload", payloadJson);
 
         verify(dispatcher).dispatch(
-                eq(FakeTarget.ORDER), isNull(), eq(FakeType.REQUEST), eq(FakeSender.SERVER),
-                isNull(), eq("payload"), eq(payloadJson)
+            eq(FakeTarget.ORDER), isNull(), eq(FakeType.REQUEST), eq(FakeSender.SERVER),
+            isNull(), eq("payload"), eq(payloadJson)
         );
     }
 
@@ -51,8 +51,8 @@ class ServiceCommunicationRecorderTest {
         recorder.record(FakeTarget.ORDER, FakeType.REQUEST, FakeSender.SERVER, "T-1", "payload", payloadJson);
 
         verify(dispatcher).dispatch(
-                eq(FakeTarget.ORDER), eq("T-1"), eq(FakeType.REQUEST), eq(FakeSender.SERVER),
-                isNull(), eq("payload"), eq(payloadJson)
+            eq(FakeTarget.ORDER), eq("T-1"), eq(FakeType.REQUEST), eq(FakeSender.SERVER),
+            isNull(), eq("payload"), eq(payloadJson)
         );
     }
 
@@ -60,13 +60,13 @@ class ServiceCommunicationRecorderTest {
     @DisplayName("exception 포함 호출 시 targetId=null로 dispatch한다")
     void shouldDispatchWithExceptionAndWithoutTargetId() {
         recorder.record(
-                FakeTarget.PAYMENT, FakeType.RESPONSE, FakeSender.CLIENT,
-                "payload", payloadJson, "IOException"
+            FakeTarget.PAYMENT, FakeType.RESPONSE, FakeSender.CLIENT,
+            "payload", payloadJson, "IOException"
         );
 
         verify(dispatcher).dispatch(
-                eq(FakeTarget.PAYMENT), isNull(), eq(FakeType.RESPONSE), eq(FakeSender.CLIENT),
-                eq("IOException"), eq("payload"), eq(payloadJson)
+            eq(FakeTarget.PAYMENT), isNull(), eq(FakeType.RESPONSE), eq(FakeSender.CLIENT),
+            eq("IOException"), eq("payload"), eq(payloadJson)
         );
     }
 
@@ -74,13 +74,13 @@ class ServiceCommunicationRecorderTest {
     @DisplayName("targetId와 exception을 모두 포함한 호출이 그대로 dispatch된다")
     void shouldDispatchWithTargetIdAndException() {
         recorder.record(
-                FakeTarget.PAYMENT, FakeType.RESPONSE, FakeSender.CLIENT,
-                "T-2", "payload", payloadJson, "TimeoutException"
+            FakeTarget.PAYMENT, FakeType.RESPONSE, FakeSender.CLIENT,
+            "T-2", "payload", payloadJson, "TimeoutException"
         );
 
         verify(dispatcher).dispatch(
-                eq(FakeTarget.PAYMENT), eq("T-2"), eq(FakeType.RESPONSE), eq(FakeSender.CLIENT),
-                eq("TimeoutException"), eq("payload"), eq(payloadJson)
+            eq(FakeTarget.PAYMENT), eq("T-2"), eq(FakeType.RESPONSE), eq(FakeSender.CLIENT),
+            eq("TimeoutException"), eq("payload"), eq(payloadJson)
         );
     }
 
@@ -90,8 +90,8 @@ class ServiceCommunicationRecorderTest {
         recorder.record(FakeTarget.ORDER, FakeType.REQUEST, FakeSender.SERVER, "payload", null);
 
         verify(dispatcher).dispatch(
-                eq(FakeTarget.ORDER), isNull(), eq(FakeType.REQUEST), eq(FakeSender.SERVER),
-                isNull(), eq("payload"), isNull()
+            eq(FakeTarget.ORDER), isNull(), eq(FakeType.REQUEST), eq(FakeSender.SERVER),
+            isNull(), eq("payload"), isNull()
         );
     }
 }

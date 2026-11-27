@@ -18,14 +18,14 @@ public class ReturnShippingFeeContext {
 
     public static ReturnShippingFeeContext from(ReturnShippingFeeContextCreateState state) {
         return ReturnShippingFeeContext.builder()
-                .faultType(state.getFaultType())
-                .initialShippingType(state.getInitialShippingType())
-                .returnType(state.getReturnType())
-                .remainingAmount(state.getRemainingAmount())
-                .freeShippingThreshold(state.getFreeShippingThreshold())
-                .shippingFee(state.getShippingFee())
-                .regionSurcharge(state.getRegionSurcharge())
-                .build();
+            .faultType(state.getFaultType())
+            .initialShippingType(state.getInitialShippingType())
+            .returnType(state.getReturnType())
+            .remainingAmount(state.getRemainingAmount())
+            .freeShippingThreshold(state.getFreeShippingThreshold())
+            .shippingFee(state.getShippingFee())
+            .regionSurcharge(state.getRegionSurcharge())
+            .build();
     }
 
     public boolean isSellerFault() {

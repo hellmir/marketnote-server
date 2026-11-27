@@ -39,28 +39,28 @@ class OrderPaymentCompletedSagaActionDispatcherTest {
 
     private PaymentCompletedSagaPayload buildPayload(String recipientName, String address) {
         return new PaymentCompletedSagaPayload(
-                1L, 50L, 80000L, 1000L, 500L,
-                recipientName, "01012345678", "12345", address, "상세주소",
-                "문 앞에 놓아주세요",
-                Collections.emptyList()
+            1L, 50L, 80000L, 1000L, 500L,
+            recipientName, "01012345678", "12345", address, "상세주소",
+            "문 앞에 놓아주세요",
+            Collections.emptyList()
         );
     }
 
     private OrderPaymentCompletedSagaContext buildDownstreamContext() {
         return OrderPaymentCompletedSagaContext.builder()
-                .orderId(1L)
-                .buyerId(50L)
-                .totalAmount(80000L)
-                .pointAmount(1000L)
-                .totalAccumulatedPoint(500L)
-                .recipientName("홍길동")
-                .recipientPhoneNumber("01012345678")
-                .zipCode("12345")
-                .address("서울시 강남구")
-                .addressDetail("상세주소")
-                .deliveryRequestMessage("문 앞에 놓아주세요")
-                .orderProducts(Collections.emptyList())
-                .build();
+            .orderId(1L)
+            .buyerId(50L)
+            .totalAmount(80000L)
+            .pointAmount(1000L)
+            .totalAccumulatedPoint(500L)
+            .recipientName("홍길동")
+            .recipientPhoneNumber("01012345678")
+            .zipCode("12345")
+            .address("서울시 강남구")
+            .addressDetail("상세주소")
+            .deliveryRequestMessage("문 앞에 놓아주세요")
+            .orderProducts(Collections.emptyList())
+            .build();
     }
 
     @Test
@@ -77,8 +77,8 @@ class OrderPaymentCompletedSagaActionDispatcherTest {
         // then
         ArgumentCaptor<ShippingAddress> shippingAddressCaptor = ArgumentCaptor.forClass(ShippingAddress.class);
         verify(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                eq(1L), eq(50L), eq(80000L), eq(1000L),
-                shippingAddressCaptor.capture(), eq(orderProducts), eq(500L)
+            eq(1L), eq(50L), eq(80000L), eq(1000L),
+            shippingAddressCaptor.capture(), eq(orderProducts), eq(500L)
         );
 
         ShippingAddress capturedAddress = shippingAddressCaptor.getValue();
@@ -103,8 +103,8 @@ class OrderPaymentCompletedSagaActionDispatcherTest {
 
         // then
         verify(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                eq(1L), eq(50L), eq(80000L), eq(1000L),
-                isNull(), eq(orderProducts), eq(500L)
+            eq(1L), eq(50L), eq(80000L), eq(1000L),
+            isNull(), eq(orderProducts), eq(500L)
         );
         verify(orderPaymentCompletedSagaStarter).start(downstreamContext);
     }
@@ -122,8 +122,8 @@ class OrderPaymentCompletedSagaActionDispatcherTest {
         // then
         ArgumentCaptor<ShippingAddress> shippingAddressCaptor = ArgumentCaptor.forClass(ShippingAddress.class);
         verify(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                any(), any(), any(), any(),
-                shippingAddressCaptor.capture(), any(), any()
+            any(), any(), any(), any(),
+            shippingAddressCaptor.capture(), any(), any()
         );
 
         ShippingAddress captured = shippingAddressCaptor.getValue();
@@ -144,8 +144,8 @@ class OrderPaymentCompletedSagaActionDispatcherTest {
         // then
         ArgumentCaptor<ShippingAddress> shippingAddressCaptor = ArgumentCaptor.forClass(ShippingAddress.class);
         verify(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                any(), any(), any(), any(),
-                shippingAddressCaptor.capture(), any(), any()
+            any(), any(), any(), any(),
+            shippingAddressCaptor.capture(), any(), any()
         );
 
         ShippingAddress captured = shippingAddressCaptor.getValue();
@@ -159,8 +159,8 @@ class OrderPaymentCompletedSagaActionDispatcherTest {
     void dispatch_method_declaresTransactionalReadCommitted() throws NoSuchMethodException {
         // given
         Method method = OrderPaymentCompletedSagaActionDispatcher.class.getDeclaredMethod(
-                "dispatch",
-                PaymentCompletedSagaPayload.class, List.class, OrderPaymentCompletedSagaContext.class
+            "dispatch",
+            PaymentCompletedSagaPayload.class, List.class, OrderPaymentCompletedSagaContext.class
         );
 
         // when

@@ -113,7 +113,7 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(updatePaymentPort).update(argThat(p ->
-                    Boolean.TRUE.equals(p.getRefundedYn()) && p.getRefundAmount().equals(Money.of(50000L))
+                Boolean.TRUE.equals(p.getRefundedYn()) && p.getRefundAmount().equals(Money.of(50000L))
             ));
         }
 
@@ -133,10 +133,10 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    "STSC".equals(c.cancelType())
-                            && c.cancelAmount().equals(50000L)
-                            && c.remainAmount().equals(0L)
-                            && "tno_123".equals(c.transactionId())
+                "STSC".equals(c.cancelType())
+                    && c.cancelAmount().equals(50000L)
+                    && c.remainAmount().equals(0L)
+                    && "tno_123".equals(c.transactionId())
             ));
         }
 
@@ -157,7 +157,7 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(40000L) && c.remainAmount().equals(0L)
+                c.cancelAmount().equals(40000L) && c.remainAmount().equals(0L)
             ));
         }
     }
@@ -182,7 +182,7 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(updatePaymentPort).update(argThat(p ->
-                    p.getRefundAmount().equals(Money.of(20000L)) && Boolean.FALSE.equals(p.getRefundedYn())
+                p.getRefundAmount().equals(Money.of(20000L)) && Boolean.FALSE.equals(p.getRefundedYn())
             ));
         }
 
@@ -202,9 +202,9 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    "STPC".equals(c.cancelType())
-                            && c.cancelAmount().equals(20000L)
-                            && c.remainAmount().equals(30000L)
+                "STPC".equals(c.cancelType())
+                    && c.cancelAmount().equals(20000L)
+                    && c.remainAmount().equals(30000L)
             ));
         }
 
@@ -238,19 +238,19 @@ class PaymentCancelTransactionHelperTest {
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = CancelPaymentCommand.builder()
-                    .buyerId(BUYER_ID)
-                    .orderKey(ORDER_KEY_STR)
-                    .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
-                    .cancelAmount(null)
-                    .build();
+                .buyerId(BUYER_ID)
+                .orderKey(ORDER_KEY_STR)
+                .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
+                .cancelAmount(null)
+                .build();
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
 
             assertThatThrownBy(() -> invokeCancel(command))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("0보다 커야 합니다");
 
             verify(paymentVendorPort, never()).cancelPayment(any());
         }
@@ -267,8 +267,8 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
 
             assertThatThrownBy(() -> invokeCancel(command))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("0보다 커야 합니다");
 
             verify(paymentVendorPort, never()).cancelPayment(any());
         }
@@ -285,8 +285,8 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
 
             assertThatThrownBy(() -> invokeCancel(command))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("0보다 커야 합니다");
 
             verify(paymentVendorPort, never()).cancelPayment(any());
         }
@@ -303,8 +303,8 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
 
             assertThatThrownBy(() -> invokeCancel(command))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("환불 가능 금액");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("환불 가능 금액");
 
             verify(paymentVendorPort, never()).cancelPayment(any());
         }
@@ -322,8 +322,8 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
 
             assertThatThrownBy(() -> invokeCancel(command))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("환불 가능 금액");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("환불 가능 금액");
 
             verify(paymentVendorPort, never()).cancelPayment(any());
         }
@@ -343,7 +343,7 @@ class PaymentCancelTransactionHelperTest {
             when(findOrderPort.findById(1L)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> invokeCancel(command))
-                    .isInstanceOf(com.personal.marketnote.commerce.exception.OrderNotFoundException.class);
+                .isInstanceOf(com.personal.marketnote.commerce.exception.OrderNotFoundException.class);
 
             verify(paymentVendorPort, never()).cancelPayment(any());
         }
@@ -415,10 +415,10 @@ class PaymentCancelTransactionHelperTest {
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+                new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 25000L, cancelProducts
+                ORDER_KEY_STR, 25000L, cancelProducts
             );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
@@ -430,9 +430,9 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(restoreProductInventoryUseCase).restore(argThat(products ->
-                    products.size() == 1
-                            && products.get(0).getPricePolicyId().equals(100L)
-                            && products.get(0).getQuantity().getValue() == 1
+                products.size() == 1
+                    && products.get(0).getPricePolicyId().equals(100L)
+                    && products.get(0).getQuantity().getValue() == 1
             ), eq(1L), eq("주문 부분 취소에 의한 재고 복구"));
         }
 
@@ -442,12 +442,12 @@ class PaymentCancelTransactionHelperTest {
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1),
-                    new CancelPaymentCommand.CancelProductItem(200L, 2)
+                new CancelPaymentCommand.CancelProductItem(100L, 1),
+                new CancelPaymentCommand.CancelProductItem(200L, 2)
             );
             Order order = createOrderWithMultipleProducts(1L, BUYER_ID, List.of(100L, 200L), List.of(2, 3));
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 30000L, cancelProducts
+                ORDER_KEY_STR, 30000L, cancelProducts
             );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
@@ -459,11 +459,11 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(restoreProductInventoryUseCase).restore(argThat(products ->
-                    products.size() == 2
-                            && products.get(0).getPricePolicyId().equals(100L)
-                            && products.get(0).getQuantity().getValue() == 1
-                            && products.get(1).getPricePolicyId().equals(200L)
-                            && products.get(1).getQuantity().getValue() == 2
+                products.size() == 2
+                    && products.get(0).getPricePolicyId().equals(100L)
+                    && products.get(0).getQuantity().getValue() == 1
+                    && products.get(1).getPricePolicyId().equals(200L)
+                    && products.get(1).getQuantity().getValue() == 2
             ), eq(1L), eq("주문 부분 취소에 의한 재고 복구"));
         }
 
@@ -473,10 +473,10 @@ class PaymentCancelTransactionHelperTest {
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+                new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 25000L, cancelProducts
+                ORDER_KEY_STR, 25000L, cancelProducts
             );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
@@ -485,7 +485,7 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
             doThrow(new RuntimeException("재고 복구 실패")).when(restoreProductInventoryUseCase)
-                    .restore(anyList(), anyLong(), anyString());
+                .restore(anyList(), anyLong(), anyString());
 
             invokeCancel(command);
 
@@ -499,15 +499,15 @@ class PaymentCancelTransactionHelperTest {
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+                new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
             CancelPaymentCommand command = CancelPaymentCommand.builder()
-                    .buyerId(BUYER_ID)
-                    .orderKey(ORDER_KEY_STR)
-                    .cancelType(CancelPaymentCommand.CancelType.FULL)
-                    .cancelReason("고객 요청")
-                    .cancelProducts(cancelProducts)
-                    .build();
+                .buyerId(BUYER_ID)
+                .orderKey(ORDER_KEY_STR)
+                .cancelType(CancelPaymentCommand.CancelType.FULL)
+                .cancelReason("고객 요청")
+                .cancelProducts(cancelProducts)
+                .build();
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
@@ -534,7 +534,7 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
             doThrow(new RuntimeException("재고 복구 실패")).when(restoreProductInventoryUseCase)
-                    .restore(anyList(), anyLong(), anyString());
+                .restore(anyList(), anyLong(), anyString());
 
             invokeCancel(command);
 
@@ -554,10 +554,10 @@ class PaymentCancelTransactionHelperTest {
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(999L, 1)
+                new CancelPaymentCommand.CancelProductItem(999L, 1)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 25000L, cancelProducts
+                ORDER_KEY_STR, 25000L, cancelProducts
             );
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
@@ -565,8 +565,8 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
 
             assertThatThrownBy(() -> invokeCancel(command))
-                    .isInstanceOf(InvalidCancelProductException.class)
-                    .hasMessageContaining("주문에 존재하지 않는 상품");
+                .isInstanceOf(InvalidCancelProductException.class)
+                .hasMessageContaining("주문에 존재하지 않는 상품");
 
             verify(paymentVendorPort, never()).cancelPayment(any());
         }
@@ -577,11 +577,11 @@ class PaymentCancelTransactionHelperTest {
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1),
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+                new CancelPaymentCommand.CancelProductItem(100L, 1),
+                new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 25000L, cancelProducts
+                ORDER_KEY_STR, 25000L, cancelProducts
             );
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
@@ -589,8 +589,8 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
 
             assertThatThrownBy(() -> invokeCancel(command))
-                    .isInstanceOf(InvalidCancelProductException.class)
-                    .hasMessageContaining("중복된 상품");
+                .isInstanceOf(InvalidCancelProductException.class)
+                .hasMessageContaining("중복된 상품");
 
             verify(paymentVendorPort, never()).cancelPayment(any());
         }
@@ -601,10 +601,10 @@ class PaymentCancelTransactionHelperTest {
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 5)
+                new CancelPaymentCommand.CancelProductItem(100L, 5)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 25000L, cancelProducts
+                ORDER_KEY_STR, 25000L, cancelProducts
             );
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
@@ -612,8 +612,8 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
 
             assertThatThrownBy(() -> invokeCancel(command))
-                    .isInstanceOf(InvalidCancelProductException.class)
-                    .hasMessageContaining("취소 수량이 주문 수량을 초과");
+                .isInstanceOf(InvalidCancelProductException.class)
+                .hasMessageContaining("취소 수량이 주문 수량을 초과");
 
             verify(paymentVendorPort, never()).cancelPayment(any());
         }
@@ -630,11 +630,11 @@ class PaymentCancelTransactionHelperTest {
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
             PaymentCancelVendorResult vendorResult = PaymentCancelVendorResult.builder()
-                    .success(false)
-                    .resultCode("8001")
-                    .resultMessage("취소 불가")
-                    .rawResponse("{}")
-                    .build();
+                .success(false)
+                .resultCode("8001")
+                .resultMessage("취소 불가")
+                .rawResponse("{}")
+                .build();
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
@@ -642,7 +642,7 @@ class PaymentCancelTransactionHelperTest {
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
 
             assertThatThrownBy(() -> invokeCancel(command))
-                    .isInstanceOf(PaymentCancelException.class);
+                .isInstanceOf(PaymentCancelException.class);
 
             verify(updatePaymentPort, never()).update(any());
         }
@@ -660,7 +660,7 @@ class PaymentCancelTransactionHelperTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> invokeCancel(command))
-                    .isInstanceOf(PaymentNotFoundException.class);
+                .isInstanceOf(PaymentNotFoundException.class);
 
             verify(paymentVendorPort, never()).cancelPayment(any());
         }
@@ -676,7 +676,7 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> invokeCancel(command))
-                    .isInstanceOf(PaymentNotFoundException.class);
+                .isInstanceOf(PaymentNotFoundException.class);
 
             verify(paymentVendorPort, never()).cancelPayment(any());
         }
@@ -755,7 +755,7 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
             doThrow(new RuntimeException("포인트 환불 실패")).when(modifyUserPointPort)
-                    .refundOrderPoints(anyLong(), anyLong(), anyLong());
+                .refundOrderPoints(anyLong(), anyLong(), anyLong());
 
             invokeCancel(command);
 
@@ -770,20 +770,20 @@ class PaymentCancelTransactionHelperTest {
     class RefundRecordTest {
 
         private Payment createPaymentWithId(
-                Long paymentId, Long orderId, UUID orderKey, Long amount, String pgPaymentKey
+            Long paymentId, Long orderId, UUID orderKey, Long amount, String pgPaymentKey
         ) {
             PaymentSnapshotState state = PaymentSnapshotState.builder()
-                    .id(paymentId)
-                    .orderId(orderId)
-                    .orderKey(orderKey)
-                    .pgPaymentKey(pgPaymentKey)
-                    .paymentAmount(amount)
-                    .successYn(true)
-                    .refundedYn(false)
-                    .refundAmount(0L)
-                    .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                    .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                    .build();
+                .id(paymentId)
+                .orderId(orderId)
+                .orderKey(orderKey)
+                .pgPaymentKey(pgPaymentKey)
+                .paymentAmount(amount)
+                .successYn(true)
+                .refundedYn(false)
+                .refundAmount(0L)
+                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+                .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+                .build();
             return Payment.from(state);
         }
 
@@ -803,9 +803,9 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(saveRefundPort).save(argThat(refund ->
-                    refund.getRefundType() == RefundType.FULL_REFUND
-                            && refund.getRefundAmount().equals(Money.of(50000L))
-                            && "SYSTEM".equals(refund.getProcessedBy())
+                refund.getRefundType() == RefundType.FULL_REFUND
+                    && refund.getRefundAmount().equals(Money.of(50000L))
+                    && "SYSTEM".equals(refund.getProcessedBy())
             ));
         }
 
@@ -825,8 +825,8 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(saveRefundPort).save(argThat(refund ->
-                    refund.getRefundType() == RefundType.PARTIAL_REFUND
-                            && refund.getRefundAmount().equals(Money.of(20000L))
+                refund.getRefundType() == RefundType.PARTIAL_REFUND
+                    && refund.getRefundAmount().equals(Money.of(20000L))
             ));
         }
 
@@ -846,8 +846,8 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(saveRefundPort).save(argThat(refund ->
-                    FormatValidator.hasValue(refund.getPgRawResponse())
-                            && FormatValidator.hasValue(refund.getPgRefundKey())
+                FormatValidator.hasValue(refund.getPgRawResponse())
+                    && FormatValidator.hasValue(refund.getPgRefundKey())
             ));
         }
 
@@ -866,13 +866,13 @@ class PaymentCancelTransactionHelperTest {
             doThrow(new RuntimeException("환불 기록 저장 실패")).when(saveRefundPort).save(any(Refund.class));
 
             assertThatThrownBy(() -> invokeCancel(command))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("환불 기록 저장 실패");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("환불 기록 저장 실패");
 
             verify(saveRefundPort).save(any(Refund.class));
             verify(publishPaymentEventPort, never()).publishPaymentCancelledEvent(
-                    anyLong(), anyString(), anyLong(), anyLong(), anyLong(), anyLong(),
-                    anyBoolean(), anyLong(), any(), any(), any(), any()
+                anyLong(), anyString(), anyLong(), anyLong(), anyLong(), anyLong(),
+                anyBoolean(), anyLong(), any(), any(), any(), any()
             );
         }
     }
@@ -953,7 +953,7 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
             doThrow(new RuntimeException("포인트 차감 실패")).when(modifyUserPointPort)
-                    .reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
+                .reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
 
             invokeCancel(command);
 
@@ -972,18 +972,18 @@ class PaymentCancelTransactionHelperTest {
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             List<OrderProductSnapshotState> productStates = List.of(
-                    OrderProductSnapshotState.builder()
-                            .pricePolicyId(100L).quantity(1).sellerId(10L).unitAmount(30000L).accumulatedPoint(300L)
-                            .build(),
-                    OrderProductSnapshotState.builder()
-                            .pricePolicyId(200L).quantity(2).sellerId(10L).unitAmount(20000L).accumulatedPoint(200L)
-                            .build()
+                OrderProductSnapshotState.builder()
+                    .pricePolicyId(100L).quantity(1).sellerId(10L).unitAmount(30000L).accumulatedPoint(300L)
+                    .build(),
+                OrderProductSnapshotState.builder()
+                    .pricePolicyId(200L).quantity(2).sellerId(10L).unitAmount(20000L).accumulatedPoint(200L)
+                    .build()
             );
             OrderSnapshotState orderState = OrderSnapshotState.builder()
-                    .id(1L).buyerId(BUYER_ID).orderKey(ORDER_KEY).orderStatus(OrderStatus.PAID)
-                    .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(70000L).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
-                    .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                    .orderProductStates(productStates).build();
+                .id(1L).buyerId(BUYER_ID).orderKey(ORDER_KEY).orderStatus(OrderStatus.PAID)
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(70000L).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+                .orderProductStates(productStates).build();
             Order order = Order.from(orderState);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
@@ -1029,15 +1029,15 @@ class PaymentCancelTransactionHelperTest {
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 30000L);
 
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+                new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 10000L, cancelProducts
+                ORDER_KEY_STR, 10000L, cancelProducts
             );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
-                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(1000L, 1000L));
+                List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(1000L, 1000L));
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
@@ -1059,15 +1059,15 @@ class PaymentCancelTransactionHelperTest {
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 30000L);
 
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(200L, 1)
+                new CancelPaymentCommand.CancelProductItem(200L, 1)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 20000L, cancelProducts
+                ORDER_KEY_STR, 20000L, cancelProducts
             );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
-                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(100L, 2000L));
+                List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(100L, 2000L));
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
@@ -1088,10 +1088,10 @@ class PaymentCancelTransactionHelperTest {
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
 
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 2)
+                new CancelPaymentCommand.CancelProductItem(100L, 2)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 20000L, cancelProducts
+                ORDER_KEY_STR, 20000L, cancelProducts
             );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
@@ -1117,15 +1117,15 @@ class PaymentCancelTransactionHelperTest {
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 30000L);
 
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+                new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 10000L, cancelProducts
+                ORDER_KEY_STR, 10000L, cancelProducts
             );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
-                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(0L, 500L));
+                List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(0L, 500L));
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
@@ -1149,7 +1149,7 @@ class PaymentCancelTransactionHelperTest {
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
-                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(1000L, 1000L));
+                List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(1000L, 1000L));
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
@@ -1184,7 +1184,7 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(modifyUserPointPort).reducePartialPendingSharedPurchasePoints(
-                    eq(List.of(SHARER_KEY_1, SHARER_KEY_2)), eq(50000L), eq(20000L), eq(1L)
+                eq(List.of(SHARER_KEY_1, SHARER_KEY_2)), eq(50000L), eq(20000L), eq(1L)
             );
         }
 
@@ -1204,7 +1204,7 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(modifyUserPointPort, never()).reducePartialPendingSharedPurchasePoints(
-                    anyList(), anyLong(), anyLong(), anyLong()
+                anyList(), anyLong(), anyLong(), anyLong()
             );
         }
 
@@ -1225,8 +1225,8 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(modifyUserPointPort).reducePartialPendingSharedPurchasePoints(
-                    argThat(keys -> keys.size() == 2 && keys.contains(SHARER_KEY_1) && keys.contains(SHARER_KEY_2)),
-                    eq(50000L), eq(20000L), eq(1L)
+                argThat(keys -> keys.size() == 2 && keys.contains(SHARER_KEY_1) && keys.contains(SHARER_KEY_2)),
+                eq(50000L), eq(20000L), eq(1L)
             );
         }
 
@@ -1244,7 +1244,7 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
             doThrow(new RuntimeException("공유 포인트 차감 실패")).when(modifyUserPointPort)
-                    .reducePartialPendingSharedPurchasePoints(anyList(), anyLong(), anyLong(), anyLong());
+                .reducePartialPendingSharedPurchasePoints(anyList(), anyLong(), anyLong(), anyLong());
 
             invokeCancel(command);
 
@@ -1269,7 +1269,7 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(modifyUserPointPort, never()).reducePartialPendingSharedPurchasePoints(
-                    anyList(), anyLong(), anyLong(), anyLong()
+                anyList(), anyLong(), anyLong(), anyLong()
             );
         }
     }
@@ -1292,14 +1292,14 @@ class PaymentCancelTransactionHelperTest {
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(200L, 1)
+                new CancelPaymentCommand.CancelProductItem(200L, 1)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 20000L, cancelProducts
+                ORDER_KEY_STR, 20000L, cancelProducts
             );
 
             Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
-                    List.of(100L, 200L), List.of(1, 1), List.of(30000L, 20000L), List.of(SELLER_A, SELLER_A));
+                List.of(100L, 200L), List.of(1, 1), List.of(30000L, 20000L), List.of(SELLER_A, SELLER_A));
 
             PaymentAllocation allocation = createAllocation(1L, SELLER_A, 50000L, 0L);
 
@@ -1308,13 +1308,13 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(findPaymentAllocationPort.findByOrderId(1L)).thenReturn(List.of(allocation));
             when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_A)))
-                    .thenReturn(Map.of(SELLER_A, new ShippingPolicyInfoResult(SELLER_A, 3000L, 50000L, 0L, 0L)));
+                .thenReturn(Map.of(SELLER_A, new ShippingPolicyInfoResult(SELLER_A, 3000L, 50000L, 0L, 0L)));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
 
             invokeCancel(command);
 
             verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(17000L)
+                c.cancelAmount().equals(17000L)
             ));
         }
 
@@ -1330,14 +1330,14 @@ class PaymentCancelTransactionHelperTest {
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(200L, 1)
+                new CancelPaymentCommand.CancelProductItem(200L, 1)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 20000L, cancelProducts
+                ORDER_KEY_STR, 20000L, cancelProducts
             );
 
             Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
-                    List.of(100L, 200L), List.of(1, 1), List.of(60000L, 20000L), List.of(SELLER_A, SELLER_A));
+                List.of(100L, 200L), List.of(1, 1), List.of(60000L, 20000L), List.of(SELLER_A, SELLER_A));
 
             PaymentAllocation allocation = createAllocation(1L, SELLER_A, 80000L, 0L);
 
@@ -1346,13 +1346,13 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(findPaymentAllocationPort.findByOrderId(1L)).thenReturn(List.of(allocation));
             when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_A)))
-                    .thenReturn(Map.of(SELLER_A, new ShippingPolicyInfoResult(SELLER_A, 3000L, 50000L, 0L, 0L)));
+                .thenReturn(Map.of(SELLER_A, new ShippingPolicyInfoResult(SELLER_A, 3000L, 50000L, 0L, 0L)));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
 
             invokeCancel(command);
 
             verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(20000L)
+                c.cancelAmount().equals(20000L)
             ));
         }
 
@@ -1366,15 +1366,15 @@ class PaymentCancelTransactionHelperTest {
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+                new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 20000L, cancelProducts
+                ORDER_KEY_STR, 20000L, cancelProducts
             );
 
             Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
-                    List.of(100L, 200L, 300L), List.of(1, 1, 1),
-                    List.of(20000L, 30000L, 40000L), List.of(SELLER_A, SELLER_A, SELLER_B));
+                List.of(100L, 200L, 300L), List.of(1, 1, 1),
+                List.of(20000L, 30000L, 40000L), List.of(SELLER_A, SELLER_A, SELLER_B));
 
             PaymentAllocation allocationA = createAllocation(1L, SELLER_A, 50000L, 0L);
             PaymentAllocation allocationB = createAllocation(1L, SELLER_B, 40000L, 0L);
@@ -1384,13 +1384,13 @@ class PaymentCancelTransactionHelperTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(findPaymentAllocationPort.findByOrderId(1L)).thenReturn(List.of(allocationA, allocationB));
             when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_A)))
-                    .thenReturn(Map.of(SELLER_A, new ShippingPolicyInfoResult(SELLER_A, 3000L, 50000L, 0L, 0L)));
+                .thenReturn(Map.of(SELLER_A, new ShippingPolicyInfoResult(SELLER_A, 3000L, 50000L, 0L, 0L)));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
 
             invokeCancel(command);
 
             verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(17000L)
+                c.cancelAmount().equals(17000L)
             ));
         }
 
@@ -1403,14 +1403,14 @@ class PaymentCancelTransactionHelperTest {
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+                new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 10000L, cancelProducts
+                ORDER_KEY_STR, 10000L, cancelProducts
             );
 
             Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
-                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 10000L), List.of(SELLER_A, SELLER_A));
+                List.of(100L, 200L), List.of(1, 1), List.of(10000L, 10000L), List.of(SELLER_A, SELLER_A));
 
             PaymentAllocation allocation = createAllocation(1L, SELLER_A, 20000L, 3000L);
 
@@ -1423,7 +1423,7 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(10000L)
+                c.cancelAmount().equals(10000L)
             ));
             verifyNoInteractions(findShippingPolicyBySellerIdsPort);
         }
@@ -1444,7 +1444,7 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(20000L)
+                c.cancelAmount().equals(20000L)
             ));
             verifyNoInteractions(findPaymentAllocationPort);
             verifyNoInteractions(findShippingPolicyBySellerIdsPort);
@@ -1458,14 +1458,14 @@ class PaymentCancelTransactionHelperTest {
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(200L, 1)
+                new CancelPaymentCommand.CancelProductItem(200L, 1)
             );
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 20000L, cancelProducts
+                ORDER_KEY_STR, 20000L, cancelProducts
             );
 
             Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
-                    List.of(100L, 200L), List.of(1, 1), List.of(30000L, 20000L), List.of(SELLER_A, SELLER_A));
+                List.of(100L, 200L), List.of(1, 1), List.of(30000L, 20000L), List.of(SELLER_A, SELLER_A));
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
@@ -1476,7 +1476,7 @@ class PaymentCancelTransactionHelperTest {
             invokeCancel(command);
 
             verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(20000L)
+                c.cancelAmount().equals(20000L)
             ));
         }
 
@@ -1486,37 +1486,37 @@ class PaymentCancelTransactionHelperTest {
             List<OrderProductSnapshotState> productStates = new ArrayList<>();
             for (int i = 0; i < pricePolicyIds.size(); i++) {
                 productStates.add(OrderProductSnapshotState.builder()
-                        .pricePolicyId(pricePolicyIds.get(i))
-                        .quantity(quantities.get(i))
-                        .sellerId(sellerIds.get(i))
-                        .unitAmount(unitAmounts.get(i))
-                        .accumulatedPoint(0L)
-                        .build());
+                    .pricePolicyId(pricePolicyIds.get(i))
+                    .quantity(quantities.get(i))
+                    .sellerId(sellerIds.get(i))
+                    .unitAmount(unitAmounts.get(i))
+                    .accumulatedPoint(0L)
+                    .build());
             }
             OrderSnapshotState state = OrderSnapshotState.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .orderKey(ORDER_KEY)
-                    .orderStatus(OrderStatus.PAID)
-                    .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(unitAmounts.stream().mapToLong(Long::longValue).sum()).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
-                    .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                    .orderProductStates(productStates)
-                    .build();
+                .id(orderId)
+                .buyerId(buyerId)
+                .orderKey(ORDER_KEY)
+                .orderStatus(OrderStatus.PAID)
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(unitAmounts.stream().mapToLong(Long::longValue).sum()).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+                .orderProductStates(productStates)
+                .build();
             return Order.from(state);
         }
 
         private PaymentAllocation createAllocation(
-                Long orderId, Long sellerId, Long allocatedAmount, Long shippingFee
+            Long orderId, Long sellerId, Long allocatedAmount, Long shippingFee
         ) {
             PaymentAllocationSnapshotState state = PaymentAllocationSnapshotState.builder()
-                    .id(1L)
-                    .orderId(orderId)
-                    .sellerId(sellerId)
-                    .allocatedAmount(allocatedAmount)
-                    .shippingFee(shippingFee)
-                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                    .targetType(PaymentAllocationTargetType.ORDER)
-                    .build();
+                .id(1L)
+                .orderId(orderId)
+                .sellerId(sellerId)
+                .allocatedAmount(allocatedAmount)
+                .shippingFee(shippingFee)
+                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                .targetType(PaymentAllocationTargetType.ORDER)
+                .build();
             return PaymentAllocation.from(state);
         }
     }
@@ -1534,13 +1534,13 @@ class PaymentCancelTransactionHelperTest {
         }
 
         PaymentCancelVendorResult vendorResult = paymentVendorPort.cancelPayment(
-                com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVendorCommand.builder()
-                        .transactionId(context.transactionNumber())
-                        .cancelType(context.modType())
-                        .cancelAmount(context.adjustedCancelAmount())
-                        .remainAmount(context.remainAmount())
-                        .cancelReason(context.adjustedCancelReason())
-                        .build()
+            com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVendorCommand.builder()
+                .transactionId(context.transactionNumber())
+                .cancelType(context.modType())
+                .cancelAmount(context.adjustedCancelAmount())
+                .remainAmount(context.remainAmount())
+                .cancelReason(context.adjustedCancelReason())
+                .build()
         );
 
         if (!vendorResult.success()) {
@@ -1557,25 +1557,25 @@ class PaymentCancelTransactionHelperTest {
     }
 
     private Order createOrderWithAccumulatedPoint(
-            Long orderId, Long buyerId, Long totalAmount,
-            Long pricePolicyId, int quantity, Long unitAmount, Long accumulatedPoint
+        Long orderId, Long buyerId, Long totalAmount,
+        Long pricePolicyId, int quantity, Long unitAmount, Long accumulatedPoint
     ) {
         OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
-                .pricePolicyId(pricePolicyId)
-                .quantity(quantity)
-                .sellerId(10L)
-                .unitAmount(unitAmount)
-                .accumulatedPoint(accumulatedPoint)
-                .build();
+            .pricePolicyId(pricePolicyId)
+            .quantity(quantity)
+            .sellerId(10L)
+            .unitAmount(unitAmount)
+            .accumulatedPoint(accumulatedPoint)
+            .build();
         OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(ORDER_KEY)
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of(productState))
-                .build();
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(ORDER_KEY)
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of(productState))
+            .build();
         return Order.from(state);
     }
 
@@ -1585,34 +1585,34 @@ class PaymentCancelTransactionHelperTest {
 
     private Payment createSuccessPayment(Long orderId, UUID orderKey, Long amount, String pgPaymentKey) {
         PaymentSnapshotState state = PaymentSnapshotState.builder()
-                .id(orderId)
-                .orderId(orderId)
-                .orderKey(orderKey)
-                .pgPaymentKey(pgPaymentKey)
-                .paymentAmount(amount)
-                .successYn(true)
-                .refundedYn(false)
-                .refundAmount(0L)
-                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .build();
+            .id(orderId)
+            .orderId(orderId)
+            .orderKey(orderKey)
+            .pgPaymentKey(pgPaymentKey)
+            .paymentAmount(amount)
+            .successYn(true)
+            .refundedYn(false)
+            .refundAmount(0L)
+            .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .build();
         return Payment.from(state);
     }
 
     private PspPaymentEvent createCompleteEvent(String orderKey, String tno, Long amount) {
         PspPaymentEventSnapshotState state = PspPaymentEventSnapshotState.builder()
-                .id(1L)
-                .orderId(1L)
-                .orderKey(orderKey)
-                .pgCompanyKey("NHN_KCP")
-                .pgPaymentKey(tno)
-                .poStatus(PaymentEventStatus.COMPLETE)
-                .method("CARD")
-                .amount(amount)
-                .resultCode("0000")
-                .resultMessage("승인 성공")
-                .paidAt(LocalDateTime.of(2026, 2, 10, 15, 30, 0))
-                .build();
+            .id(1L)
+            .orderId(1L)
+            .orderKey(orderKey)
+            .pgCompanyKey("NHN_KCP")
+            .pgPaymentKey(tno)
+            .poStatus(PaymentEventStatus.COMPLETE)
+            .method("CARD")
+            .amount(amount)
+            .resultCode("0000")
+            .resultMessage("승인 성공")
+            .paidAt(LocalDateTime.of(2026, 2, 10, 15, 30, 0))
+            .build();
         return PspPaymentEvent.from(state);
     }
 
@@ -1622,21 +1622,21 @@ class PaymentCancelTransactionHelperTest {
 
     private Order createOrder(Long orderId, Long buyerId, Long pointAmount) {
         OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
-                .pricePolicyId(100L)
-                .quantity(2)
-                .sellerId(10L)
-                .unitAmount(25000L)
-                .accumulatedPoint(0L)
-                .build();
+            .pricePolicyId(100L)
+            .quantity(2)
+            .sellerId(10L)
+            .unitAmount(25000L)
+            .accumulatedPoint(0L)
+            .build();
         OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(ORDER_KEY)
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(pointAmount).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(List.of(productState))
-                .build();
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(ORDER_KEY)
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(pointAmount).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(List.of(productState))
+            .build();
         return Order.from(state);
     }
 
@@ -1644,56 +1644,56 @@ class PaymentCancelTransactionHelperTest {
         List<OrderProductSnapshotState> productStates = new ArrayList<>();
         for (int i = 0; i < sharerKeys.size(); i++) {
             productStates.add(OrderProductSnapshotState.builder()
-                    .pricePolicyId(100L + i)
-                    .quantity(1)
-                    .sellerId(10L)
-                    .unitAmount(25000L)
-                    .sharerKey(sharerKeys.get(i))
-                    .accumulatedPoint(0L)
-                    .build());
+                .pricePolicyId(100L + i)
+                .quantity(1)
+                .sellerId(10L)
+                .unitAmount(25000L)
+                .sharerKey(sharerKeys.get(i))
+                .accumulatedPoint(0L)
+                .build());
         }
         OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(ORDER_KEY)
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(pointAmount).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .build();
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(ORDER_KEY)
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(pointAmount).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .build();
         return Order.from(state);
     }
 
     private CancelPaymentCommand createFullCancelCommand(String orderKey) {
         return CancelPaymentCommand.builder()
-                .buyerId(BUYER_ID)
-                .orderKey(orderKey)
-                .cancelType(CancelPaymentCommand.CancelType.FULL)
-                .cancelReason("고객 요청")
-                .build();
+            .buyerId(BUYER_ID)
+            .orderKey(orderKey)
+            .cancelType(CancelPaymentCommand.CancelType.FULL)
+            .cancelReason("고객 요청")
+            .build();
     }
 
     private CancelPaymentCommand createPartialCancelCommand(String orderKey, Long cancelAmount) {
         return CancelPaymentCommand.builder()
-                .buyerId(BUYER_ID)
-                .orderKey(orderKey)
-                .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
-                .cancelAmount(cancelAmount)
-                .cancelReason("부분 취소")
-                .build();
+            .buyerId(BUYER_ID)
+            .orderKey(orderKey)
+            .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
+            .cancelAmount(cancelAmount)
+            .cancelReason("부분 취소")
+            .build();
     }
 
     private CancelPaymentCommand createPartialCancelCommandWithProducts(
-            String orderKey, Long cancelAmount, List<CancelPaymentCommand.CancelProductItem> cancelProducts
+        String orderKey, Long cancelAmount, List<CancelPaymentCommand.CancelProductItem> cancelProducts
     ) {
         return CancelPaymentCommand.builder()
-                .buyerId(BUYER_ID)
-                .orderKey(orderKey)
-                .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
-                .cancelAmount(cancelAmount)
-                .cancelReason("부분 취소")
-                .cancelProducts(cancelProducts)
-                .build();
+            .buyerId(BUYER_ID)
+            .orderKey(orderKey)
+            .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
+            .cancelAmount(cancelAmount)
+            .cancelReason("부분 취소")
+            .cancelProducts(cancelProducts)
+            .build();
     }
 
     private Order createOrderWithMultipleProducts(Long orderId, Long buyerId,
@@ -1701,22 +1701,22 @@ class PaymentCancelTransactionHelperTest {
         List<OrderProductSnapshotState> productStates = new ArrayList<>();
         for (int i = 0; i < pricePolicyIds.size(); i++) {
             productStates.add(OrderProductSnapshotState.builder()
-                    .pricePolicyId(pricePolicyIds.get(i))
-                    .quantity(quantities.get(i))
-                    .sellerId(10L)
-                    .unitAmount(25000L)
-                    .accumulatedPoint(0L)
-                    .build());
+                .pricePolicyId(pricePolicyIds.get(i))
+                .quantity(quantities.get(i))
+                .sellerId(10L)
+                .unitAmount(25000L)
+                .accumulatedPoint(0L)
+                .build());
         }
         OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(ORDER_KEY)
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .build();
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(ORDER_KEY)
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .build();
         return Order.from(state);
     }
 
@@ -1726,32 +1726,32 @@ class PaymentCancelTransactionHelperTest {
         List<OrderProductSnapshotState> productStates = new ArrayList<>();
         for (int i = 0; i < pricePolicyIds.size(); i++) {
             productStates.add(OrderProductSnapshotState.builder()
-                    .pricePolicyId(pricePolicyIds.get(i))
-                    .quantity(quantities.get(i))
-                    .sellerId(10L)
-                    .unitAmount(unitAmounts.get(i))
-                    .accumulatedPoint(accumulatedPoints.get(i))
-                    .build());
+                .pricePolicyId(pricePolicyIds.get(i))
+                .quantity(quantities.get(i))
+                .sellerId(10L)
+                .unitAmount(unitAmounts.get(i))
+                .accumulatedPoint(accumulatedPoints.get(i))
+                .build());
         }
         OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(ORDER_KEY)
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .orderProductStates(productStates)
-                .build();
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(ORDER_KEY)
+            .orderStatus(OrderStatus.PAID)
+            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .orderProductStates(productStates)
+            .build();
         return Order.from(state);
     }
 
     private PaymentCancelVendorResult createSuccessVendorResult() {
         return PaymentCancelVendorResult.builder()
-                .success(true)
-                .resultCode("0000")
-                .resultMessage("취소 성공")
-                .amount("50000")
-                .rawResponse("{\"res_cd\":\"0000\"}")
-                .build();
+            .success(true)
+            .resultCode("0000")
+            .resultMessage("취소 성공")
+            .amount("50000")
+            .rawResponse("{\"res_cd\":\"0000\"}")
+            .build();
     }
 }

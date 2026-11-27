@@ -7,7 +7,7 @@ import java.util.List;
 public interface RegisterBrandTalkTemplateExternalPort {
 
     void registerTemplate(
-            AligoBrandTalkTemplate template, byte[] imageFile, String imageFileName,
-            List<byte[]> carouselItemImageFiles, List<String> carouselItemImageFileNames
+        AligoBrandTalkTemplate template, byte[] imageFile, String imageFileName,
+        List<byte[]> carouselItemImageFiles, List<String> carouselItemImageFileNames
     );
 }

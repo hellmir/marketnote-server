@@ -34,20 +34,20 @@ public class QuickPaymentCardPersistenceAdapter implements SaveQuickPaymentCardP
     @Override
     public Optional<QuickPaymentCard> findActiveByIdAndUserId(Long id, Long userId) {
         return quickPaymentCardJpaRepository.findByIdAndUserIdAndStatus(id, userId, EntityStatus.ACTIVE)
-                .map(QuickPaymentCardEntityToDomainMapper::mapToDomain);
+            .map(QuickPaymentCardEntityToDomainMapper::mapToDomain);
     }
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public void deactivate(QuickPaymentCard quickPaymentCard) {
         QuickPaymentCardJpaEntity entity = quickPaymentCardJpaRepository.findById(quickPaymentCard.getId())
-                .orElseThrow(() -> {
-                    log.warn(
-                            "빠른결제 카드를 찾을 수 없습니다. quickPaymentCardId={}, userId={}",
-                            quickPaymentCard.getId(), quickPaymentCard.getUserId()
-                    );
-                    return new QuickPaymentCardNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn(
+                    "빠른결제 카드를 찾을 수 없습니다. quickPaymentCardId={}, userId={}",
+                    quickPaymentCard.getId(), quickPaymentCard.getUserId()
+                );
+                return new QuickPaymentCardNotFoundException();
+            });
         entity.markInactive();
     }
 }

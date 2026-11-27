@@ -52,14 +52,14 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
     private final TransactionTemplate transactionTemplate;
 
     public PollShippingStatusService(
-            FindShippingTrackerPort findShippingTrackerPort,
-            UpdateShippingTrackerPort updateShippingTrackerPort,
-            FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller,
-            GetFulfillmentDeliveryStatusesPort getDeliveryStatusesPort,
-            PublishShippingStatusChangedEventPort publishShippingStatusChangedEventPort,
-            SendDeliveryFailureSlackAlertPort sendDeliveryFailureSlackAlertPort,
-            Clock clock,
-            PlatformTransactionManager transactionManager
+        FindShippingTrackerPort findShippingTrackerPort,
+        UpdateShippingTrackerPort updateShippingTrackerPort,
+        FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller,
+        GetFulfillmentDeliveryStatusesPort getDeliveryStatusesPort,
+        PublishShippingStatusChangedEventPort publishShippingStatusChangedEventPort,
+        SendDeliveryFailureSlackAlertPort sendDeliveryFailureSlackAlertPort,
+        Clock clock,
+        PlatformTransactionManager transactionManager
     ) {
         this.findShippingTrackerPort = findShippingTrackerPort;
         this.updateShippingTrackerPort = updateShippingTrackerPort;
@@ -81,8 +81,8 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
         }
 
         Map<String, FulfillmentDeliveryStatusInfoResult> statusMap = fetchDeliveryStatusMap(
-                command,
-                minCreatedAt.get().toLocalDate()
+            command,
+            minCreatedAt.get().toLocalDate()
         );
         LocalDateTime now = LocalDateTime.now(clock);
 
@@ -109,30 +109,30 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
     }
 
     private Map<String, FulfillmentDeliveryStatusInfoResult> fetchDeliveryStatusMap(
-            PollShippingStatusCommand command,
-            LocalDate startDate
+        PollShippingStatusCommand command,
+        LocalDate startDate
     ) {
         LocalDate endDate = LocalDate.now(clock);
 
         GetFulfillmentDeliveryStatusesResult result = fulfillmentAuthenticatedCaller.call(token ->
-                getDeliveryStatusesPort.getDeliveryStatuses(
-                        PollShippingStatusCommandFactory.toDeliveryStatusesCommand(
-                                command,
-                                token,
-                                startDate.format(DATE_FORMATTER),
-                                endDate.format(DATE_FORMATTER),
-                                OUTBOUND_RELEASE_TYPE
-                        )
+            getDeliveryStatusesPort.getDeliveryStatuses(
+                PollShippingStatusCommandFactory.toDeliveryStatusesCommand(
+                    command,
+                    token,
+                    startDate.format(DATE_FORMATTER),
+                    endDate.format(DATE_FORMATTER),
+                    OUTBOUND_RELEASE_TYPE
                 )
+            )
         );
 
         return buildStatusMap(result);
     }
 
     private void processChunk(
-            List<ShippingTracker> chunk,
-            Map<String, FulfillmentDeliveryStatusInfoResult> statusMap,
-            LocalDateTime now
+        List<ShippingTracker> chunk,
+        Map<String, FulfillmentDeliveryStatusInfoResult> statusMap,
+        LocalDateTime now
     ) {
         for (ShippingTracker tracker : chunk) {
             try {
@@ -153,12 +153,12 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
     }
 
     private void processTracker(
-            ShippingTracker tracker,
-            Map<String, FulfillmentDeliveryStatusInfoResult> statusMap,
-            LocalDateTime now
+        ShippingTracker tracker,
+        Map<String, FulfillmentDeliveryStatusInfoResult> statusMap,
+        LocalDateTime now
     ) {
         ShippingTracker reloaded = findShippingTrackerPort.findByOrderId(tracker.getOrderId())
-                .orElse(tracker);
+            .orElse(tracker);
         if (!reloaded.isPollingActive()) {
             return;
         }
@@ -186,25 +186,25 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
     }
 
     private boolean isSameStatusWithNoTrackingUpdate(
-            ShippingTracker tracker,
-            ShippingStatus newStatus,
-            FulfillmentDeliveryStatusInfoResult deliveryStatus
+        ShippingTracker tracker,
+        ShippingStatus newStatus,
+        FulfillmentDeliveryStatusInfoResult deliveryStatus
     ) {
         if (!tracker.hasStatus(newStatus)) {
             return false;
         }
         if (tracker.isShipping()
-                && tracker.hasNoTrackingNumber()
-                && FormatValidator.hasValue(deliveryStatus.invoiceNumber())) {
+            && tracker.hasNoTrackingNumber()
+            && FormatValidator.hasValue(deliveryStatus.invoiceNumber())) {
             return false;
         }
         return true;
     }
 
     private void applyStatusTransition(
-            ShippingTracker tracker,
-            ShippingStatus newStatus,
-            FulfillmentDeliveryStatusInfoResult deliveryStatus
+        ShippingTracker tracker,
+        ShippingStatus newStatus,
+        FulfillmentDeliveryStatusInfoResult deliveryStatus
     ) {
         if (newStatus.isShipping() && tracker.isPreparing()) {
             applyShippingTransition(tracker, deliveryStatus);
@@ -224,32 +224,32 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
             tracker.markDeliveryFailed();
             publishStatusChanged(tracker);
             sendDeliveryFailureSlackAlertPort.sendDeliveryFailureAlert(
-                    tracker.getOrderId(),
-                    tracker.getTrackingNumberValue(),
-                    tracker.getCarrierCodeValue(),
-                    LocalDateTime.now(clock)
+                tracker.getOrderId(),
+                tracker.getTrackingNumberValue(),
+                tracker.getCarrierCodeValue(),
+                LocalDateTime.now(clock)
             );
         }
     }
 
     private void publishStatusChanged(ShippingTracker tracker) {
         publishShippingStatusChangedEventPort.publish(new ShippingStatusChangedEvent(
-                tracker.getOrderId(),
-                tracker.getBuyerId(),
-                tracker.getShippingStatus().name(),
-                tracker.getTrackingNumberValue(),
-                tracker.getCarrierCodeValue(),
-                LocalDateTime.now(clock),
-                null,
-                null
+            tracker.getOrderId(),
+            tracker.getBuyerId(),
+            tracker.getShippingStatus().name(),
+            tracker.getTrackingNumberValue(),
+            tracker.getCarrierCodeValue(),
+            LocalDateTime.now(clock),
+            null,
+            null
         ));
     }
 
     private void applyShippingTransition(ShippingTracker tracker, FulfillmentDeliveryStatusInfoResult deliveryStatus) {
         if (FormatValidator.hasValue(deliveryStatus.invoiceNumber())) {
             tracker.startShipping(
-                    TrackingNumber.of(deliveryStatus.invoiceNumber()),
-                    CarrierCode.of(deliveryStatus.courierCode())
+                TrackingNumber.of(deliveryStatus.invoiceNumber()),
+                CarrierCode.of(deliveryStatus.courierCode())
             );
             return;
         }
@@ -259,8 +259,8 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
     private void applyTrackingInfoUpdate(ShippingTracker tracker, FulfillmentDeliveryStatusInfoResult deliveryStatus) {
         if (tracker.hasNoTrackingNumber() && FormatValidator.hasValue(deliveryStatus.invoiceNumber())) {
             tracker.updateTrackingInfo(
-                    TrackingNumber.of(deliveryStatus.invoiceNumber()),
-                    CarrierCode.of(deliveryStatus.courierCode())
+                TrackingNumber.of(deliveryStatus.invoiceNumber()),
+                CarrierCode.of(deliveryStatus.courierCode())
             );
         }
     }
@@ -270,11 +270,11 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
             return Map.of();
         }
         return result.deliveryStatuses().stream()
-                .filter(status -> FormatValidator.hasValue(status.orderNumber()))
-                .collect(Collectors.toMap(
-                        FulfillmentDeliveryStatusInfoResult::orderNumber,
-                        Function.identity(),
-                        (existing, replacement) -> replacement
-                ));
+            .filter(status -> FormatValidator.hasValue(status.orderNumber()))
+            .collect(Collectors.toMap(
+                FulfillmentDeliveryStatusInfoResult::orderNumber,
+                Function.identity(),
+                (existing, replacement) -> replacement
+            ));
     }
 }

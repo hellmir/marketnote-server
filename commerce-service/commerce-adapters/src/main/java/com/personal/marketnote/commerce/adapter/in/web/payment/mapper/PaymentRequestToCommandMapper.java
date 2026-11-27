@@ -16,42 +16,42 @@ public class PaymentRequestToCommandMapper {
 
     public static ReadyPaymentCommand mapToCommand(ReadyPaymentRequest request, Long buyerId) {
         return ReadyPaymentCommand.builder()
-                .buyerId(buyerId)
-                .orderKey(request.getOrderKey())
-                .payMethod(request.getPayMethod())
-                .goodName(request.getGoodName())
-                .build();
+            .buyerId(buyerId)
+            .orderKey(request.getOrderKey())
+            .payMethod(request.getPayMethod())
+            .goodName(request.getGoodName())
+            .build();
     }
 
     public static ApprovePaymentCommand mapToCommand(ApprovePaymentRequest request, Long buyerId) {
         return ApprovePaymentCommand.builder()
-                .buyerId(buyerId)
-                .orderKey(request.getOrderKey())
-                .encData(request.getEncData())
-                .encInfo(request.getEncInfo())
-                .payType(request.getPayType())
-                .build();
+            .buyerId(buyerId)
+            .orderKey(request.getOrderKey())
+            .encData(request.getEncData())
+            .encInfo(request.getEncInfo())
+            .payType(request.getPayType())
+            .build();
     }
 
     public static CancelPaymentCommand mapToCommand(
-            String orderKey, CancelPaymentRequest request, Long buyerId, String idempotencyKey
+        String orderKey, CancelPaymentRequest request, Long buyerId, String idempotencyKey
     ) {
         List<CancelPaymentCommand.CancelProductItem> cancelProducts =
-                FormatValidator.hasValue(request.getCancelProducts())
-                        ? request.getCancelProducts().stream()
-                        .map(item -> new CancelPaymentCommand.CancelProductItem(
-                                item.getPricePolicyId(), item.getQuantity()))
-                        .toList()
-                        : null;
+            FormatValidator.hasValue(request.getCancelProducts())
+                ? request.getCancelProducts().stream()
+                .map(item -> new CancelPaymentCommand.CancelProductItem(
+                    item.getPricePolicyId(), item.getQuantity()))
+                .toList()
+                : null;
 
         return CancelPaymentCommand.builder()
-                .buyerId(buyerId)
-                .orderKey(orderKey)
-                .cancelType(request.getCancelType())
-                .cancelAmount(request.getCancelAmount())
-                .cancelReason(request.getCancelReason())
-                .cancelProducts(cancelProducts)
-                .idempotencyKey(idempotencyKey)
-                .build();
+            .buyerId(buyerId)
+            .orderKey(orderKey)
+            .cancelType(request.getCancelType())
+            .cancelAmount(request.getCancelAmount())
+            .cancelReason(request.getCancelReason())
+            .cancelProducts(cancelProducts)
+            .idempotencyKey(idempotencyKey)
+            .build();
     }
 }

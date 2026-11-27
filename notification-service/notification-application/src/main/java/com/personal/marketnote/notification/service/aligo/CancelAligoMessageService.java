@@ -29,10 +29,10 @@ public class CancelAligoMessageService implements CancelAligoMessageUseCase {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void cancelMessage(Long messageId) {
         AligoMessage message = findAligoMessagePort.findById(messageId)
-                .orElseThrow(() -> {
-                    log.warn("알림톡 메시지를 찾을 수 없습니다. aligoMessageId={}", messageId);
-                    return new AligoMessageNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림톡 메시지를 찾을 수 없습니다. aligoMessageId={}", messageId);
+                return new AligoMessageNotFoundException();
+            });
 
         LocalDateTime now = LocalDateTime.now(clock);
         message.validateCancellable(now);

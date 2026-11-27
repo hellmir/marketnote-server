@@ -33,8 +33,8 @@ public class LikeId implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         LikeId likeId = (LikeId) o;
         return targetType == likeId.targetType
-                && Objects.equals(targetId, likeId.targetId)
-                && Objects.equals(userId, likeId.userId);
+            && Objects.equals(targetId, likeId.targetId)
+            && Objects.equals(userId, likeId.userId);
     }
 
     @Override

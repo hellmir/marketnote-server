@@ -26,21 +26,21 @@ public class DeleteShippingAddressService implements DeleteShippingAddressUseCas
     @Override
     public void deleteShippingAddress(Long shippingAddressId, Long userId) {
         ShippingAddress shippingAddress = findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId)
-                .orElseThrow(() -> {
-                    log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}, userId={}", shippingAddressId, userId);
-                    return new ShippingAddressNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("배송지를 찾을 수 없습니다. shippingAddressId={}, userId={}", shippingAddressId, userId);
+                return new ShippingAddressNotFoundException();
+            });
 
         shippingAddress.delete();
 
         updateShippingAddressPort.update(shippingAddress);
 
         publishShippingAddressEventPort.publishShippingAddressChangedEvent(
-                shippingAddressId, userId,
-                shippingAddress.getRecipientName().getValue(), shippingAddress.getRecipientPhoneNumber().getValue(),
-                shippingAddress.getAddress(), shippingAddress.getAddressDetail(),
-                null,
-                ShippingAddressChangeAction.DELETED
+            shippingAddressId, userId,
+            shippingAddress.getRecipientName().getValue(), shippingAddress.getRecipientPhoneNumber().getValue(),
+            shippingAddress.getAddress(), shippingAddress.getAddressDetail(),
+            null,
+            ShippingAddressChangeAction.DELETED
         );
     }
 }

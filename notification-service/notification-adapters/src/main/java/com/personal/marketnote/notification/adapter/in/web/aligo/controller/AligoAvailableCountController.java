@@ -34,11 +34,11 @@ public class AligoAvailableCountController {
         GetAligoAvailableCountResult result = getAligoAvailableCountUseCase.getAvailableCount();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetAligoAvailableCountResponse.from(result),
-                        HttpStatus.OK, DEFAULT_SUCCESS_CODE, "발송가능건수 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetAligoAvailableCountResponse.from(result),
+                HttpStatus.OK, DEFAULT_SUCCESS_CODE, "발송가능건수 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

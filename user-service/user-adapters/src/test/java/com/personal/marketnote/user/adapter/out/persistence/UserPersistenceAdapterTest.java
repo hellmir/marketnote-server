@@ -85,7 +85,7 @@ class UserPersistenceAdapterTest {
             userJpaEntityMock.when(() -> UserJpaEntity.from(user, termsJpaRepository)).thenReturn(builtEntity);
             when(userJpaRepository.save(builtEntity)).thenReturn(savedEntity);
             mapperMock.when(() -> UserJpaEntityToDomainMapper.mapToDomain(savedEntity))
-                    .thenReturn(Optional.of(mappedUser));
+                .thenReturn(Optional.of(mappedUser));
 
             // when
             User result = userPersistenceAdapter.save(user);
@@ -106,7 +106,7 @@ class UserPersistenceAdapterTest {
             userJpaEntityMock.when(() -> UserJpaEntity.from(user, termsJpaRepository)).thenReturn(builtEntity);
             when(userJpaRepository.save(builtEntity)).thenReturn(savedEntity);
             mapperMock.when(() -> UserJpaEntityToDomainMapper.mapToDomain(savedEntity))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when
             User result = userPersistenceAdapter.save(user);
@@ -197,7 +197,7 @@ class UserPersistenceAdapterTest {
 
             when(userJpaRepository.findById(1L)).thenReturn(Optional.of(entity));
             mapperMock.when(() -> UserJpaEntityToDomainMapper.mapToDomain(entity))
-                    .thenReturn(Optional.of(user));
+                .thenReturn(Optional.of(user));
 
             // when
             Optional<User> result = userPersistenceAdapter.findById(1L);
@@ -212,7 +212,7 @@ class UserPersistenceAdapterTest {
             // given
             when(userJpaRepository.findById(999L)).thenReturn(Optional.empty());
             mapperMock.when(() -> UserJpaEntityToDomainMapper.mapToDomain((UserJpaEntity) null))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when
             Optional<User> result = userPersistenceAdapter.findById(999L);
@@ -233,9 +233,9 @@ class UserPersistenceAdapterTest {
             User user = mock(User.class);
 
             when(userJpaRepository.findByAuthVendorAndOidcId(AuthVendor.KAKAO, "oidc-123"))
-                    .thenReturn(Optional.of(entity));
+                .thenReturn(Optional.of(entity));
             mapperMock.when(() -> UserJpaEntityToDomainMapper.mapToDomain(entity))
-                    .thenReturn(Optional.of(user));
+                .thenReturn(Optional.of(user));
 
             // when
             Optional<User> result = userPersistenceAdapter.findByAuthVendorAndOidcId(AuthVendor.KAKAO, "oidc-123");
@@ -258,14 +258,14 @@ class UserPersistenceAdapterTest {
             Page<UserJpaEntity> entityPage = new PageImpl<>(List.of(entity), pageable, 1);
 
             when(userJpaRepository.findAllStatusUsersByPage(
-                    pageable, true, false, false, false, false, "1"
+                pageable, true, false, false, false, false, "1"
             )).thenReturn(entityPage);
             mapperMock.when(() -> UserJpaEntityToDomainMapper.mapToDomain(entity))
-                    .thenReturn(Optional.of(user));
+                .thenReturn(Optional.of(user));
 
             // when
             Page<User> result = userPersistenceAdapter.findAllStatusUsersByPage(
-                    pageable, UserSearchTarget.ID, "1"
+                pageable, UserSearchTarget.ID, "1"
             );
 
             // then
@@ -284,16 +284,16 @@ class UserPersistenceAdapterTest {
             Page<UserJpaEntity> entityPage = new PageImpl<>(List.of(entity1, entity2), pageable, 2);
 
             when(userJpaRepository.findAllStatusUsersByPage(
-                    pageable, false, true, false, false, false, "test"
+                pageable, false, true, false, false, false, "test"
             )).thenReturn(entityPage);
             mapperMock.when(() -> UserJpaEntityToDomainMapper.mapToDomain(entity1))
-                    .thenReturn(Optional.of(user));
+                .thenReturn(Optional.of(user));
             mapperMock.when(() -> UserJpaEntityToDomainMapper.mapToDomain(entity2))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when
             Page<User> result = userPersistenceAdapter.findAllStatusUsersByPage(
-                    pageable, UserSearchTarget.NICKNAME, "test"
+                pageable, UserSearchTarget.NICKNAME, "test"
             );
 
             // then
@@ -313,7 +313,7 @@ class UserPersistenceAdapterTest {
 
             when(userJpaRepository.findAllStatusUsers()).thenReturn(List.of(entity));
             mapperMock.when(() -> UserJpaEntityToDomainMapper.mapToDomain(entity))
-                    .thenReturn(Optional.of(user));
+                .thenReturn(Optional.of(user));
 
             // when
             List<User> result = userPersistenceAdapter.findAllStatusUsers();
@@ -330,7 +330,7 @@ class UserPersistenceAdapterTest {
 
             when(userJpaRepository.findAllStatusUsers()).thenReturn(List.of(entity));
             mapperMock.when(() -> UserJpaEntityToDomainMapper.mapToDomain(entity))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when
             List<User> result = userPersistenceAdapter.findAllStatusUsers();
@@ -353,7 +353,7 @@ class UserPersistenceAdapterTest {
 
             when(userJpaRepository.findAllByDeactivatedUntilExpired(now)).thenReturn(List.of(entity));
             mapperMock.when(() -> UserJpaEntityToDomainMapper.mapToDomain(entity))
-                    .thenReturn(Optional.of(user));
+                .thenReturn(Optional.of(user));
 
             // when
             List<User> result = userPersistenceAdapter.findAllByDeactivatedUntilExpired(now);
@@ -390,7 +390,7 @@ class UserPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> userPersistenceAdapter.findUserKeyById(999L))
-                    .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(UserNotFoundException.class);
         }
     }
 
@@ -423,7 +423,7 @@ class UserPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> userPersistenceAdapter.update(user))
-                    .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(UserNotFoundException.class);
         }
     }
 
@@ -471,7 +471,7 @@ class UserPersistenceAdapterTest {
 
             User mappedUser = mock(User.class);
             mapperMock.when(() -> UserJpaEntityToDomainMapper.mapToDomain(userEntity))
-                    .thenReturn(Optional.of(mappedUser));
+                .thenReturn(Optional.of(mappedUser));
 
             Page<LoginHistoryJpaEntity> entityPage = new PageImpl<>(List.of(loginEntity), pageable, 1);
             when(loginHistoryJpaRepository.findLoginHistoriesByUserId(pageable, 1L)).thenReturn(entityPage);
@@ -500,7 +500,7 @@ class UserPersistenceAdapterTest {
             when(loginEntity.getCreatedAt()).thenReturn(LocalDateTime.of(2026, 4, 14, 12, 0));
 
             mapperMock.when(() -> UserJpaEntityToDomainMapper.mapToDomain(userEntity))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             Page<LoginHistoryJpaEntity> entityPage = new PageImpl<>(List.of(loginEntity), pageable, 1);
             when(loginHistoryJpaRepository.findLoginHistoriesByUserId(pageable, 1L)).thenReturn(entityPage);
@@ -522,22 +522,22 @@ class UserPersistenceAdapterTest {
         void savesAndReturnsDomain() {
             // given
             UserStatusHistory history = UserStatusHistory.byAdmin(
-                    1L, UserStatusAction.DEACTIVATE, "테스트 사유",
-                    LocalDateTime.of(2026, 5, 14, 12, 0), 100L
+                1L, UserStatusAction.DEACTIVATE, "테스트 사유",
+                LocalDateTime.of(2026, 5, 14, 12, 0), 100L
             );
 
             UserStatusHistoryJpaEntity savedEntity = mock(UserStatusHistoryJpaEntity.class);
             UserStatusHistory savedDomain = UserStatusHistory.from(
-                    UserStatusHistorySnapshotState.builder()
-                            .id(1L)
-                            .userId(1L)
-                            .statusAction(UserStatusAction.DEACTIVATE)
-                            .reason("테스트 사유")
-                            .deactivatedUntil(LocalDateTime.of(2026, 5, 14, 12, 0))
-                            .actor(UserStatusActor.ADMIN)
-                            .createdBy(100L)
-                            .createdAt(LocalDateTime.of(2026, 4, 14, 12, 0))
-                            .build()
+                UserStatusHistorySnapshotState.builder()
+                    .id(1L)
+                    .userId(1L)
+                    .statusAction(UserStatusAction.DEACTIVATE)
+                    .reason("테스트 사유")
+                    .deactivatedUntil(LocalDateTime.of(2026, 5, 14, 12, 0))
+                    .actor(UserStatusActor.ADMIN)
+                    .createdBy(100L)
+                    .createdAt(LocalDateTime.of(2026, 4, 14, 12, 0))
+                    .build()
             );
 
             when(userStatusHistoryJpaRepository.save(any(UserStatusHistoryJpaEntity.class))).thenReturn(savedEntity);
@@ -564,15 +564,15 @@ class UserPersistenceAdapterTest {
 
             UserPenaltyHistoryJpaEntity savedEntity = mock(UserPenaltyHistoryJpaEntity.class);
             UserPenaltyHistory savedDomain = UserPenaltyHistory.from(
-                    UserPenaltyHistorySnapshotState.builder()
-                            .id(1L)
-                            .userId(1L)
-                            .previousCount(0)
-                            .currentCount(1)
-                            .reason("테스트 사유")
-                            .createdBy(100L)
-                            .createdAt(LocalDateTime.of(2026, 4, 14, 12, 0))
-                            .build()
+                UserPenaltyHistorySnapshotState.builder()
+                    .id(1L)
+                    .userId(1L)
+                    .previousCount(0)
+                    .currentCount(1)
+                    .reason("테스트 사유")
+                    .createdBy(100L)
+                    .createdAt(LocalDateTime.of(2026, 4, 14, 12, 0))
+                    .build()
             );
 
             when(userPenaltyHistoryJpaRepository.save(any(UserPenaltyHistoryJpaEntity.class))).thenReturn(savedEntity);
@@ -598,17 +598,17 @@ class UserPersistenceAdapterTest {
             Pageable pageable = PageRequest.of(0, 10);
             UserPenaltyHistoryJpaEntity entity = mock(UserPenaltyHistoryJpaEntity.class);
             UserPenaltyHistory domain = UserPenaltyHistory.from(
-                    UserPenaltyHistorySnapshotState.builder()
-                            .id(1L).userId(1L).previousCount(0).currentCount(1)
-                            .reason("사유").createdBy(100L)
-                            .createdAt(LocalDateTime.of(2026, 4, 14, 12, 0))
-                            .build()
+                UserPenaltyHistorySnapshotState.builder()
+                    .id(1L).userId(1L).previousCount(0).currentCount(1)
+                    .reason("사유").createdBy(100L)
+                    .createdAt(LocalDateTime.of(2026, 4, 14, 12, 0))
+                    .build()
             );
 
             when(entity.toDomain()).thenReturn(domain);
             Page<UserPenaltyHistoryJpaEntity> entityPage = new PageImpl<>(List.of(entity), pageable, 1);
             when(userPenaltyHistoryJpaRepository.findUserPenaltyHistoriesByUserId(pageable, 1L))
-                    .thenReturn(entityPage);
+                .thenReturn(entityPage);
 
             // when
             Page<UserPenaltyHistory> result = userPersistenceAdapter.findUserPenaltyHistoriesByUserId(pageable, 1L);
@@ -630,19 +630,19 @@ class UserPersistenceAdapterTest {
             Pageable pageable = PageRequest.of(0, 10);
             UserStatusHistoryJpaEntity entity = mock(UserStatusHistoryJpaEntity.class);
             UserStatusHistory domain = UserStatusHistory.from(
-                    UserStatusHistorySnapshotState.builder()
-                            .id(1L).userId(1L)
-                            .statusAction(UserStatusAction.DEACTIVATE)
-                            .reason("사유")
-                            .actor(UserStatusActor.ADMIN).createdBy(100L)
-                            .createdAt(LocalDateTime.of(2026, 4, 14, 12, 0))
-                            .build()
+                UserStatusHistorySnapshotState.builder()
+                    .id(1L).userId(1L)
+                    .statusAction(UserStatusAction.DEACTIVATE)
+                    .reason("사유")
+                    .actor(UserStatusActor.ADMIN).createdBy(100L)
+                    .createdAt(LocalDateTime.of(2026, 4, 14, 12, 0))
+                    .build()
             );
 
             when(entity.toDomain()).thenReturn(domain);
             Page<UserStatusHistoryJpaEntity> entityPage = new PageImpl<>(List.of(entity), pageable, 1);
             when(userStatusHistoryJpaRepository.findUserStatusHistoriesByUserId(pageable, 1L))
-                    .thenReturn(entityPage);
+                .thenReturn(entityPage);
 
             // when
             Page<UserStatusHistory> result = userPersistenceAdapter.findUserStatusHistoriesByUserId(pageable, 1L);
@@ -663,7 +663,7 @@ class UserPersistenceAdapterTest {
         void findAllStatusUserByAuthVendorAndOidcId_isReadOnlyTransaction() throws NoSuchMethodException {
             // given
             Method method = UserPersistenceAdapter.class.getMethod(
-                    "findAllStatusUserByAuthVendorAndOidcId", AuthVendor.class, String.class
+                "findAllStatusUserByAuthVendorAndOidcId", AuthVendor.class, String.class
             );
 
             // when
@@ -671,17 +671,17 @@ class UserPersistenceAdapterTest {
 
             // then
             assertThat(transactional)
-                    .as("서비스 레벨 트랜잭션이 제거되었으므로 DB 조회는 어댑터 자체 트랜잭션으로 수행되어야 한다")
-                    .isNotNull();
+                .as("서비스 레벨 트랜잭션이 제거되었으므로 DB 조회는 어댑터 자체 트랜잭션으로 수행되어야 한다")
+                .isNotNull();
             assertThat(transactional.readOnly())
-                    .as("OAuth2 로그인 조회는 변경이 없으므로 readOnly=true 로 최적화되어야 한다")
-                    .isTrue();
+                .as("OAuth2 로그인 조회는 변경이 없으므로 readOnly=true 로 최적화되어야 한다")
+                .isTrue();
             assertThat(transactional.isolation())
-                    .as("프로젝트 표준에 따라 READ_COMMITTED 격리 수준을 사용해야 한다")
-                    .isEqualTo(Isolation.READ_COMMITTED);
+                .as("프로젝트 표준에 따라 READ_COMMITTED 격리 수준을 사용해야 한다")
+                .isEqualTo(Isolation.READ_COMMITTED);
             assertThat(transactional.timeout())
-                    .as("외부 API 호출과 분리된 짧은 자체 트랜잭션이어야 한다")
-                    .isLessThan(180);
+                .as("외부 API 호출과 분리된 짧은 자체 트랜잭션이어야 한다")
+                .isLessThan(180);
         }
     }
 }

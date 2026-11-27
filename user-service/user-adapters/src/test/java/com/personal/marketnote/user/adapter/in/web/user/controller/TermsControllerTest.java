@@ -50,7 +50,7 @@ class TermsControllerTest {
 
     private OAuth2AuthenticatedPrincipal principalOf(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
+            String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
         );
     }
 
@@ -86,7 +86,7 @@ class TermsControllerTest {
         void retrievesUserTermsByAuthenticatedUserId() {
             // given
             when(getTermsUseCase.getUserTerms(100L))
-                    .thenReturn(new GetUserTermsResult(List.of()));
+                .thenReturn(new GetUserTermsResult(List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetUserTermsResponse>> response = controller.getUserTerms(principalOf(100L));
@@ -102,7 +102,7 @@ class TermsControllerTest {
         void throwsWhenPrincipalIsNull() {
             // when & then
             assertThatThrownBy(() -> controller.getUserTerms(null))
-                    .isInstanceOf(AuthenticationFailedException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
             verifyNoInteractions(getTermsUseCase, updateTermsUseCase);
         }
     }
@@ -119,11 +119,11 @@ class TermsControllerTest {
             ReflectionTestUtils.setField(request, "ids", List.of(1L, 2L, 3L));
             UpdateUserTermResult termResult = new UpdateUserTermResult(1L, "약관1", true, true);
             when(updateTermsUseCase.acceptOrCancelTerms(eq(100L), any(AcceptOrCancelTermsCommand.class)))
-                    .thenReturn(new GetUserTermsResult(List.of(termResult)));
+                .thenReturn(new GetUserTermsResult(List.of(termResult)));
 
             // when
             ResponseEntity<BaseResponse<GetUserTermsResponse>> response = controller.acceptOrCancelTerms(
-                    request, principalOf(100L)
+                request, principalOf(100L)
             );
 
             // then

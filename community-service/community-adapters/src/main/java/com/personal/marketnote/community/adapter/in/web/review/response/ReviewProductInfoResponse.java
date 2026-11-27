@@ -5,11 +5,11 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.port.in.result.review.ReviewProductInfoResult;
 
 public record ReviewProductInfoResponse(
-        String name,
-        String brandName,
-        ReviewProductPricePolicyResponse pricePolicy,
-        GetFileResult catalogImage,
-        Long unitAmount
+    String name,
+    String brandName,
+    ReviewProductPricePolicyResponse pricePolicy,
+    GetFileResult catalogImage,
+    Long unitAmount
 ) {
     public static ReviewProductInfoResponse from(ReviewProductInfoResult result) {
         if (FormatValidator.hasNoValue(result)) {
@@ -17,11 +17,11 @@ public record ReviewProductInfoResponse(
         }
 
         return new ReviewProductInfoResponse(
-                result.name(),
-                result.brandName(),
-                ReviewProductPricePolicyResponse.from(result.pricePolicy()),
-                result.catalogImage(),
-                result.unitAmount()
+            result.name(),
+            result.brandName(),
+            ReviewProductPricePolicyResponse.from(result.pricePolicy()),
+            result.catalogImage(),
+            result.unitAmount()
         );
     }
 }

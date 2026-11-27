@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public record GetCategoriesResult(
-        List<CategoryItemResult> categories
+    List<CategoryItemResult> categories
 ) {
     public static GetCategoriesResult from(List<Category> categories) {
         return new GetCategoriesResult(
-                categories.stream()
-                        .map(CategoryItemResult::from)
-                        .collect(Collectors.toList())
+            categories.stream()
+                .map(CategoryItemResult::from)
+                .collect(Collectors.toList())
         );
     }
 }

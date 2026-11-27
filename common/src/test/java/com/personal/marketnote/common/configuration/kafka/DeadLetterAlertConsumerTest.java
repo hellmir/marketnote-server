@@ -31,17 +31,17 @@ class DeadLetterAlertConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, Object> buildDltRecord(
-            String originalTopic,
-            String errorFqcn,
-            String errorMessage
+        String originalTopic,
+        String errorFqcn,
+        String errorMessage
     ) {
         ConsumerRecord<String, Object> record = new ConsumerRecord<>(
-                originalTopic + ".dlt", 0, 0L, "key-123", "value"
+            originalTopic + ".dlt", 0, 0L, "key-123", "value"
         );
         record.headers()
-                .add("kafka_dlt-original-topic", originalTopic.getBytes(StandardCharsets.UTF_8))
-                .add("kafka_dlt-exception-fqcn", errorFqcn.getBytes(StandardCharsets.UTF_8))
-                .add("kafka_dlt-exception-message", errorMessage.getBytes(StandardCharsets.UTF_8));
+            .add("kafka_dlt-original-topic", originalTopic.getBytes(StandardCharsets.UTF_8))
+            .add("kafka_dlt-exception-fqcn", errorFqcn.getBytes(StandardCharsets.UTF_8))
+            .add("kafka_dlt-exception-message", errorMessage.getBytes(StandardCharsets.UTF_8));
         return record;
     }
 
@@ -51,7 +51,7 @@ class DeadLetterAlertConsumerTest {
         // given
         String originalTopic = "commerce.order.payment-completed";
         ConsumerRecord<String, Object> record = buildDltRecord(
-                originalTopic, "java.lang.RuntimeException", "DB 연결 오류"
+            originalTopic, "java.lang.RuntimeException", "DB 연결 오류"
         );
 
         // when
@@ -59,10 +59,10 @@ class DeadLetterAlertConsumerTest {
 
         // then
         verify(dltSlackNotifier).notify(
-                eq(originalTopic),
-                eq(record),
-                eq("java.lang.RuntimeException"),
-                eq("DB 연결 오류")
+            eq(originalTopic),
+            eq(record),
+            eq("java.lang.RuntimeException"),
+            eq("DB 연결 오류")
         );
         verify(dltMetricsCollector).incrementDltMessageCount(originalTopic);
         verify(acknowledgment).acknowledge();
@@ -74,7 +74,7 @@ class DeadLetterAlertConsumerTest {
         // given
         ConsumerRecord<String, Object> record = buildDltRecord("some.topic", "Error", "msg");
         doThrow(new RuntimeException("Slack API 오류"))
-                .when(dltSlackNotifier).notify(anyString(), any(), anyString(), anyString());
+            .when(dltSlackNotifier).notify(anyString(), any(), anyString(), anyString());
 
         // when
         consumer.handleDeadLetterMessage(record, acknowledgment);
@@ -88,7 +88,7 @@ class DeadLetterAlertConsumerTest {
     void handleDeadLetterMessage_noHeaders_handlesGracefullyAndAcknowledges() {
         // given
         ConsumerRecord<String, Object> record = new ConsumerRecord<>(
-                "some.topic.dlt", 0, 0L, "key-123", "value"
+            "some.topic.dlt", 0, 0L, "key-123", "value"
         );
 
         // when
@@ -96,10 +96,10 @@ class DeadLetterAlertConsumerTest {
 
         // then
         verify(dltSlackNotifier).notify(
-                eq("UNKNOWN"),
-                eq(record),
-                eq("UNKNOWN"),
-                eq("UNKNOWN")
+            eq("UNKNOWN"),
+            eq(record),
+            eq("UNKNOWN"),
+            eq("UNKNOWN")
         );
         verify(dltMetricsCollector).incrementDltMessageCount("UNKNOWN");
         verify(acknowledgment).acknowledge();

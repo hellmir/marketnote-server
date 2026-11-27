@@ -10,9 +10,9 @@ public class ProductCatalogTagSnapshot {
 
     @JsonCreator
     public ProductCatalogTagSnapshot(
-            @JsonProperty("id") Long id,
-            @JsonProperty("name") String name,
-            @JsonProperty("orderNum") Long orderNum
+        @JsonProperty("id") Long id,
+        @JsonProperty("name") String name,
+        @JsonProperty("orderNum") Long orderNum
     ) {
         this.id = id;
         this.name = name;

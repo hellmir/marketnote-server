@@ -23,7 +23,7 @@ public interface FindOfferwallMapperPort {
      * @Description 오퍼월 유형, 리워드 키, 성공 여부로 오퍼월 매퍼 존재 여부를 확인합니다.
      */
     boolean existsByOfferwallTypeAndRewardKeyAndIsSuccess(
-            OfferwallType offerwallType, String rewardKey, boolean isSuccess
+        OfferwallType offerwallType, String rewardKey, boolean isSuccess
     );
 
     /**

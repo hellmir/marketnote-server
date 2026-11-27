@@ -15,14 +15,14 @@ public class BrandTalkCouponCommandToStateMapper {
             return null;
         }
         return BrandTalkCoupon.from(
-                BrandTalkCouponCreateState.builder()
-                        .title(couponCommand.title())
-                        .description(couponCommand.description())
-                        .linkM(couponCommand.linkM())
-                        .linkP(couponCommand.linkP())
-                        .linkI(couponCommand.linkI())
-                        .linkA(couponCommand.linkA())
-                        .build()
+            BrandTalkCouponCreateState.builder()
+                .title(couponCommand.title())
+                .description(couponCommand.description())
+                .linkM(couponCommand.linkM())
+                .linkP(couponCommand.linkP())
+                .linkI(couponCommand.linkI())
+                .linkA(couponCommand.linkA())
+                .build()
         );
     }
 }

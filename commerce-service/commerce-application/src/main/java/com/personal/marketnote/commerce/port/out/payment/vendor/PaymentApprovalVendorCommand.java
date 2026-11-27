@@ -6,19 +6,19 @@ import lombok.Builder;
 
 @Builder
 public record PaymentApprovalVendorCommand(
-        String encData,
-        String encInfo,
-        String orderAmount,
-        String orderNumber,
-        String payType
+    String encData,
+    String encInfo,
+    String orderAmount,
+    String orderNumber,
+    String payType
 ) {
     public static PaymentApprovalVendorCommand of(ApprovePaymentCommand command, Payment payment) {
         return new PaymentApprovalVendorCommand(
-                command.encData(),
-                command.encInfo(),
-                String.valueOf(payment.getPaymentAmount().getValue()),
-                command.orderKey(),
-                command.payType()
+            command.encData(),
+            command.encInfo(),
+            String.valueOf(payment.getPaymentAmount().getValue()),
+            command.orderKey(),
+            command.payType()
         );
     }
 }

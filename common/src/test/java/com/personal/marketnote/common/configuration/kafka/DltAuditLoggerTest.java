@@ -15,7 +15,7 @@ class DltAuditLoggerTest {
     void logReprocessStart_logsWithoutException() {
         // when & then
         assertThatCode(() -> dltAuditLogger.logReprocessStart(
-                "commerce.order.payment-completed", "admin@personal.com"
+            "commerce.order.payment-completed", "admin@personal.com"
         )).doesNotThrowAnyException();
     }
 
@@ -24,7 +24,7 @@ class DltAuditLoggerTest {
     void logReprocessComplete_logsWithoutException() {
         // when & then
         assertThatCode(() -> dltAuditLogger.logReprocessComplete(
-                "commerce.order.payment-completed", "admin@personal.com", 5, 1
+            "commerce.order.payment-completed", "admin@personal.com", 5, 1
         )).doesNotThrowAnyException();
     }
 
@@ -33,8 +33,8 @@ class DltAuditLoggerTest {
     void logReprocessError_logsWithoutException() {
         // when & then
         assertThatCode(() -> dltAuditLogger.logReprocessError(
-                "commerce.order.payment-completed", "admin@personal.com",
-                new RuntimeException("Kafka 연결 실패")
+            "commerce.order.payment-completed", "admin@personal.com",
+            new RuntimeException("Kafka 연결 실패")
         )).doesNotThrowAnyException();
     }
 
@@ -43,7 +43,7 @@ class DltAuditLoggerTest {
     void logQuery_logsWithoutException() {
         // when & then
         assertThatCode(() -> dltAuditLogger.logQuery(
-                "commerce.order.payment-completed", 100, "admin@personal.com"
+            "commerce.order.payment-completed", 100, "admin@personal.com"
         )).doesNotThrowAnyException();
     }
 
@@ -52,7 +52,7 @@ class DltAuditLoggerTest {
     void logSummaryQuery_logsWithoutException() {
         // when & then
         assertThatCode(() -> dltAuditLogger.logSummaryQuery("admin@personal.com"))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -60,8 +60,8 @@ class DltAuditLoggerTest {
     void logResolve_logsWithoutException() {
         // when & then
         assertThatCode(() -> dltAuditLogger.logResolve(
-                "commerce.order.payment-completed", 0, 5L,
-                "RETRY", "일시적 장애 복구", "admin@personal.com"
+            "commerce.order.payment-completed", 0, 5L,
+            "RETRY", "일시적 장애 복구", "admin@personal.com"
         )).doesNotThrowAnyException();
     }
 
@@ -70,8 +70,8 @@ class DltAuditLoggerTest {
     void logResolveAlreadyResolved_logsWithoutException() {
         // when & then
         assertThatCode(() -> dltAuditLogger.logResolveAlreadyResolved(
-                "commerce.order.payment-completed", 0, 5L,
-                "RETRIED", "admin@personal.com"
+            "commerce.order.payment-completed", 0, 5L,
+            "RETRIED", "admin@personal.com"
         )).doesNotThrowAnyException();
     }
 
@@ -80,9 +80,9 @@ class DltAuditLoggerTest {
     void logResolveError_logsWithoutException() {
         // when & then
         assertThatCode(() -> dltAuditLogger.logResolveError(
-                "commerce.order.payment-completed", 0, 5L,
-                "RETRY", "admin@personal.com",
-                new RuntimeException("전송 실패")
+            "commerce.order.payment-completed", 0, 5L,
+            "RETRY", "admin@personal.com",
+            new RuntimeException("전송 실패")
         )).doesNotThrowAnyException();
     }
 }

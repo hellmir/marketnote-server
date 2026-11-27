@@ -17,21 +17,21 @@ public class FulfillmentWarehousingAbnormalImageQuery {
     private String imgNo;
 
     public static FulfillmentWarehousingAbnormalImageQuery of(
-            String accessToken,
-            String slipNo,
-            String godCd,
-            String goodsSerialNo,
-            String fileSeq,
-            String imgNo
+        String accessToken,
+        String slipNo,
+        String godCd,
+        String goodsSerialNo,
+        String fileSeq,
+        String imgNo
     ) {
         FulfillmentWarehousingAbnormalImageQuery query = FulfillmentWarehousingAbnormalImageQuery.builder()
-                .accessToken(accessToken)
-                .slipNo(slipNo)
-                .godCd(godCd)
-                .goodsSerialNo(goodsSerialNo)
-                .fileSeq(fileSeq)
-                .imgNo(imgNo)
-                .build();
+            .accessToken(accessToken)
+            .slipNo(slipNo)
+            .godCd(godCd)
+            .goodsSerialNo(goodsSerialNo)
+            .fileSeq(fileSeq)
+            .imgNo(imgNo)
+            .build();
         query.validate();
         return query;
     }

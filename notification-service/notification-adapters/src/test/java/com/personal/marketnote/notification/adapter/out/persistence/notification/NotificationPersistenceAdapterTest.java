@@ -44,7 +44,7 @@ class NotificationPersistenceAdapterTest {
             // given
             NotificationJpaEntity entity = createMockEntity(1L);
             when(notificationJpaRepository.findByIdAndStatus(1L, EntityStatus.ACTIVE))
-                    .thenReturn(Optional.of(entity));
+                .thenReturn(Optional.of(entity));
 
             // when
             Optional<Notification> result = adapter.findActiveById(1L);
@@ -58,7 +58,7 @@ class NotificationPersistenceAdapterTest {
         void returnsEmptyWhenNotFound() {
             // given
             when(notificationJpaRepository.findByIdAndStatus(1L, EntityStatus.ACTIVE))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when
             Optional<Notification> result = adapter.findActiveById(1L);
@@ -78,7 +78,7 @@ class NotificationPersistenceAdapterTest {
             // given
             NotificationJpaEntity entity = createMockEntity(1L);
             when(notificationJpaRepository.findByUserIdWithCursor(
-                    eq(100L), eq(EntityStatus.ACTIVE), eq(50L), any(PageRequest.class)
+                eq(100L), eq(EntityStatus.ACTIVE), eq(50L), any(PageRequest.class)
             )).thenReturn(List.of(entity));
 
             // when
@@ -87,7 +87,7 @@ class NotificationPersistenceAdapterTest {
             // then
             assertThat(result).hasSize(1);
             verify(notificationJpaRepository).findByUserIdWithCursor(
-                    eq(100L), eq(EntityStatus.ACTIVE), eq(50L), any(PageRequest.class)
+                eq(100L), eq(EntityStatus.ACTIVE), eq(50L), any(PageRequest.class)
             );
         }
 
@@ -98,7 +98,7 @@ class NotificationPersistenceAdapterTest {
             NotificationJpaEntity entity = createMockEntity(1L);
             NotificationDisplayCategory category = NotificationDisplayCategory.ORDER_SHIPPING;
             when(notificationJpaRepository.findByUserIdWithCursorAndTypes(
-                    eq(100L), eq(EntityStatus.ACTIVE), eq(50L), eq(category.types()), any(PageRequest.class)
+                eq(100L), eq(EntityStatus.ACTIVE), eq(50L), eq(category.types()), any(PageRequest.class)
             )).thenReturn(List.of(entity));
 
             // when
@@ -107,7 +107,7 @@ class NotificationPersistenceAdapterTest {
             // then
             assertThat(result).hasSize(1);
             verify(notificationJpaRepository).findByUserIdWithCursorAndTypes(
-                    eq(100L), eq(EntityStatus.ACTIVE), eq(50L), eq(category.types()), any(PageRequest.class)
+                eq(100L), eq(EntityStatus.ACTIVE), eq(50L), eq(category.types()), any(PageRequest.class)
             );
         }
 
@@ -116,7 +116,7 @@ class NotificationPersistenceAdapterTest {
         void translatesNullCursorToMinusOne() {
             // given
             when(notificationJpaRepository.findByUserIdWithCursor(
-                    eq(100L), eq(EntityStatus.ACTIVE), eq(-1L), any(PageRequest.class)
+                eq(100L), eq(EntityStatus.ACTIVE), eq(-1L), any(PageRequest.class)
             )).thenReturn(List.of());
 
             // when
@@ -124,7 +124,7 @@ class NotificationPersistenceAdapterTest {
 
             // then
             verify(notificationJpaRepository).findByUserIdWithCursor(
-                    eq(100L), eq(EntityStatus.ACTIVE), eq(-1L), any(PageRequest.class)
+                eq(100L), eq(EntityStatus.ACTIVE), eq(-1L), any(PageRequest.class)
             );
         }
     }
@@ -153,7 +153,7 @@ class NotificationPersistenceAdapterTest {
             // given
             NotificationDisplayCategory category = NotificationDisplayCategory.NOTICE_EVENT;
             when(notificationJpaRepository.countByUserIdAndStatusAndTypes(
-                    100L, EntityStatus.ACTIVE, category.types()
+                100L, EntityStatus.ACTIVE, category.types()
             )).thenReturn(3L);
 
             // when
@@ -162,7 +162,7 @@ class NotificationPersistenceAdapterTest {
             // then
             assertThat(count).isEqualTo(3L);
             verify(notificationJpaRepository).countByUserIdAndStatusAndTypes(
-                    100L, EntityStatus.ACTIVE, category.types()
+                100L, EntityStatus.ACTIVE, category.types()
             );
         }
     }
@@ -176,7 +176,7 @@ class NotificationPersistenceAdapterTest {
         void returnsUnreadCount() {
             // given
             when(notificationJpaRepository.countByUserIdAndStatusAndIsRead(100L, EntityStatus.ACTIVE, false))
-                    .thenReturn(5L);
+                .thenReturn(5L);
 
             // when
             long count = adapter.countUnreadByUserId(100L);
@@ -235,7 +235,7 @@ class NotificationPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.update(notification))
-                    .isInstanceOf(NotificationNotFoundException.class);
+                .isInstanceOf(NotificationNotFoundException.class);
         }
     }
 
@@ -248,7 +248,7 @@ class NotificationPersistenceAdapterTest {
         void delegatesToRepositoryAndReturnsCount() {
             // given
             when(notificationJpaRepository.markAllAsReadByUserIdAndStatus(100L, EntityStatus.ACTIVE))
-                    .thenReturn(4);
+                .thenReturn(4);
 
             // when
             int updated = adapter.markAllAsReadByUserId(100L);
@@ -263,7 +263,7 @@ class NotificationPersistenceAdapterTest {
         void returnsZeroWhenNoUnread() {
             // given
             when(notificationJpaRepository.markAllAsReadByUserIdAndStatus(100L, EntityStatus.ACTIVE))
-                    .thenReturn(0);
+                .thenReturn(0);
 
             // when
             int updated = adapter.markAllAsReadByUserId(100L);
@@ -283,7 +283,7 @@ class NotificationPersistenceAdapterTest {
             // given
             LocalDateTime threshold = LocalDateTime.of(2026, 1, 1, 0, 0);
             when(notificationJpaRepository.deactivateExpiredNotifications(
-                    threshold, EntityStatus.ACTIVE, EntityStatus.INACTIVE
+                threshold, EntityStatus.ACTIVE, EntityStatus.INACTIVE
             )).thenReturn(3);
 
             // when
@@ -305,7 +305,7 @@ class NotificationPersistenceAdapterTest {
             LocalDateTime now = LocalDateTime.of(2026, 4, 28, 12, 0);
             NotificationJpaEntity entity = createMockEntity(1L);
             when(notificationJpaRepository.findScheduledNotificationsDue(
-                    SendStatus.SCHEDULED, now, EntityStatus.ACTIVE
+                SendStatus.SCHEDULED, now, EntityStatus.ACTIVE
             )).thenReturn(List.of(entity));
 
             // when
@@ -314,7 +314,7 @@ class NotificationPersistenceAdapterTest {
             // then
             assertThat(result).hasSize(1);
             verify(notificationJpaRepository).findScheduledNotificationsDue(
-                    SendStatus.SCHEDULED, now, EntityStatus.ACTIVE
+                SendStatus.SCHEDULED, now, EntityStatus.ACTIVE
             );
         }
 
@@ -324,7 +324,7 @@ class NotificationPersistenceAdapterTest {
             // given
             LocalDateTime now = LocalDateTime.of(2026, 4, 28, 12, 0);
             when(notificationJpaRepository.findScheduledNotificationsDue(
-                    SendStatus.SCHEDULED, now, EntityStatus.ACTIVE
+                SendStatus.SCHEDULED, now, EntityStatus.ACTIVE
             )).thenReturn(List.of());
 
             // when
@@ -345,11 +345,11 @@ class NotificationPersistenceAdapterTest {
         void savesAllAndReturnsDomains() {
             // given
             List<Notification> notifications = List.of(
-                    createDomainNotification(),
-                    createDomainNotification()
+                createDomainNotification(),
+                createDomainNotification()
             );
             List<NotificationJpaEntity> savedEntities = List.of(
-                    createMockEntity(1L), createMockEntity(2L)
+                createMockEntity(1L), createMockEntity(2L)
             );
             when(notificationJpaRepository.saveAll(any(List.class))).thenReturn(savedEntities);
 
@@ -377,7 +377,7 @@ class NotificationPersistenceAdapterTest {
             when(entity1.getId()).thenReturn(1L);
             when(entity2.getId()).thenReturn(2L);
             when(notificationJpaRepository.findAllById(List.of(1L, 2L)))
-                    .thenReturn(List.of(entity1, entity2));
+                .thenReturn(List.of(entity1, entity2));
 
             // when
             adapter.updateAll(List.of(notification1, notification2));
@@ -396,7 +396,7 @@ class NotificationPersistenceAdapterTest {
             NotificationJpaEntity entity1 = mock(NotificationJpaEntity.class);
             when(entity1.getId()).thenReturn(1L);
             when(notificationJpaRepository.findAllById(List.of(1L, 999L)))
-                    .thenReturn(List.of(entity1));
+                .thenReturn(List.of(entity1));
 
             // when
             adapter.updateAll(List.of(notification1, notification2));
@@ -423,29 +423,29 @@ class NotificationPersistenceAdapterTest {
 
     private Notification createDomainNotification() {
         return Notification.from(
-                NotificationCreateState.builder()
-                        .userId(100L)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .title("주문 완료")
-                        .body("주문이 완료되었습니다.")
-                        .deliveryChannel(DeliveryChannel.PUSH_ONLY)
-                        .build()
+            NotificationCreateState.builder()
+                .userId(100L)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title("주문 완료")
+                .body("주문이 완료되었습니다.")
+                .deliveryChannel(DeliveryChannel.PUSH_ONLY)
+                .build()
         );
     }
 
     private Notification createDomainNotificationWithId(Long id) {
         return Notification.from(
-                NotificationSnapshotState.builder()
-                        .id(id)
-                        .userId(100L)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .title("주문 완료")
-                        .body("주문이 완료되었습니다.")
-                        .deliveryChannel(DeliveryChannel.PUSH_ONLY)
-                        .isRead(false)
-                        .sendStatus(SendStatus.SENT)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            NotificationSnapshotState.builder()
+                .id(id)
+                .userId(100L)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title("주문 완료")
+                .body("주문이 완료되었습니다.")
+                .deliveryChannel(DeliveryChannel.PUSH_ONLY)
+                .isRead(false)
+                .sendStatus(SendStatus.SENT)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

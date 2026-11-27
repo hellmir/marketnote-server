@@ -21,28 +21,28 @@ public final class PaymentCancelContextMapper {
     }
 
     public static PaymentCancelContext from(
-            Payment payment,
-            PspPaymentEvent event,
-            Order order,
-            CancelPaymentCommand command,
-            PaymentCancelComputation computation
+        Payment payment,
+        PspPaymentEvent event,
+        Order order,
+        CancelPaymentCommand command,
+        PaymentCancelComputation computation
     ) {
         return PaymentCancelContext.builder()
-                .payment(payment)
-                .event(event)
-                .order(order)
-                .cancelAmount(computation.cancelAmount())
-                .adjustedCancelAmount(computation.adjustedCancelAmount())
-                .remainAmount(computation.remainAmount())
-                .alreadyRefunded(computation.alreadyRefunded())
-                .shippingFeeDeduction(computation.shippingFeeDeduction())
-                .isFullCancel(computation.isFullCancel())
-                .cancelReason(command.cancelReason())
-                .adjustedCancelReason(computation.adjustedCancelReason())
-                .cancelId(computation.cancelId())
-                .transactionNumber(computation.transactionNumber())
-                .modType(computation.modType())
-                .originalCommand(command)
-                .build();
+            .payment(payment)
+            .event(event)
+            .order(order)
+            .cancelAmount(computation.cancelAmount())
+            .adjustedCancelAmount(computation.adjustedCancelAmount())
+            .remainAmount(computation.remainAmount())
+            .alreadyRefunded(computation.alreadyRefunded())
+            .shippingFeeDeduction(computation.shippingFeeDeduction())
+            .isFullCancel(computation.isFullCancel())
+            .cancelReason(command.cancelReason())
+            .adjustedCancelReason(computation.adjustedCancelReason())
+            .cancelId(computation.cancelId())
+            .transactionNumber(computation.transactionNumber())
+            .modType(computation.modType())
+            .originalCommand(command)
+            .build();
     }
 }

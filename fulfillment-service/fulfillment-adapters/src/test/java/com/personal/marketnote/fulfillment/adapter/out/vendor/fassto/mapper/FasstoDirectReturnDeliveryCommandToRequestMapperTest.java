@@ -1,7 +1,7 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.returndelivery.FulfillmentDirectReturnDeliveryMapper;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.fassto.FasstoCustomerGoodsCodeEncoder;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDeliveryGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDirectReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDirectReturnDeliveryItemCommand;
@@ -18,23 +18,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FasstoDirectReturnDeliveryCommandToRequestMapperTest {
 
     private static RegisterFulfillmentDirectReturnDeliveryItemCommand buildItem(
-            List<RegisterFulfillmentDeliveryGoodsCommand> products
+        List<RegisterFulfillmentDeliveryGoodsCommand> products
     ) {
         return RegisterFulfillmentDirectReturnDeliveryItemCommand.builder()
-                .orderDate("20260420")
-                .supplierCode("SUP001")
-                .originalCourierCode("CJ")
-                .originalInvoiceNumber("INV001")
-                .returnReceiveMethod("DIRECT")
-                .recipientName("홍길동")
-                .returnCourierCompany("CJ")
-                .returnInvoiceNumber("RTN001")
-                .returnType("01")
-                .returnReason("단순변심")
-                .returnDetailReason("사이즈 불일치")
-                .remark("직접 반품")
-                .products(products)
-                .build();
+            .orderDate("20260420")
+            .supplierCode("SUP001")
+            .originalCourierCode("CJ")
+            .originalInvoiceNumber("INV001")
+            .returnReceiveMethod("DIRECT")
+            .recipientName("홍길동")
+            .returnCourierCompany("CJ")
+            .returnInvoiceNumber("RTN001")
+            .returnType("01")
+            .returnReason("단순변심")
+            .returnDetailReason("사이즈 불일치")
+            .remark("직접 반품")
+            .products(products)
+            .build();
     }
 
     @Nested
@@ -47,14 +47,14 @@ class FasstoDirectReturnDeliveryCommandToRequestMapperTest {
             UUID productKey = UUID.randomUUID();
             String encoded = FasstoCustomerGoodsCodeEncoder.encode(productKey);
             RegisterFulfillmentDeliveryGoodsCommand goods = RegisterFulfillmentDeliveryGoodsCommand.of(
-                    productKey, "GOD001", encoded, "20261231", 1
+                productKey, "GOD001", encoded, "20261231", 1
             );
             RegisterFulfillmentDirectReturnDeliveryCommand command = RegisterFulfillmentDirectReturnDeliveryCommand.of(
-                    "CUST001", "token", List.of(buildItem(List.of(goods)))
+                "CUST001", "token", List.of(buildItem(List.of(goods)))
             );
 
             FulfillmentDirectReturnDeliveryMapper mapper =
-                    FasstoDirectReturnDeliveryCommandToRequestMapper.mapToRegisterRequest(command);
+                FasstoDirectReturnDeliveryCommandToRequestMapper.mapToRegisterRequest(command);
 
             String payload = mapper.toPayload().toString();
             assertThat(payload).contains(encoded);

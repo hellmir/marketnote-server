@@ -27,12 +27,12 @@ public class OrderPaymentCompletedCartConsumer {
     private final DeleteCartProductUseCase deleteCartProductUseCase;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
-            groupId = "product-cart"
+        topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
+        groupId = "product-cart"
     )
     public void handleOrderPaymentCompletedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -49,12 +49,12 @@ public class OrderPaymentCompletedCartConsumer {
         OrderPaymentCompletedEvent payload = envelope.getPayloadAs(OrderPaymentCompletedEvent.class, objectMapper);
 
         log.info("주문 결제 완료 이벤트 수신 (장바구니 삭제). eventId={}, orderId={}, buyerId={}, orderProducts={}건",
-                envelope.eventId(), payload.orderId(), payload.buyerId(),
-                FormatValidator.hasValue(payload.orderProducts()) ? payload.orderProducts().size() : 0
+            envelope.eventId(), payload.orderId(), payload.buyerId(),
+            FormatValidator.hasValue(payload.orderProducts()) ? payload.orderProducts().size() : 0
         );
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+            EventPayloadValidator.id("buyerId", payload.buyerId()))) {
             acknowledgment.acknowledge();
             return;
         }
@@ -66,15 +66,15 @@ public class OrderPaymentCompletedCartConsumer {
         }
 
         List<Long> pricePolicyIds = payload.orderProducts().stream()
-                .map(OrderPaymentCompletedEvent.OrderProductItem::pricePolicyId)
-                .toList();
+            .map(OrderPaymentCompletedEvent.OrderProductItem::pricePolicyId)
+            .toList();
 
         deleteCartProductUseCase.deleteCartProducts(
-                DeleteCartProductCommand.of(payload.buyerId(), pricePolicyIds)
+            DeleteCartProductCommand.of(payload.buyerId(), pricePolicyIds)
         );
 
         log.info("장바구니 삭제 완료. orderId={}, buyerId={}, pricePolicyIds={}",
-                payload.orderId(), payload.buyerId(), pricePolicyIds
+            payload.orderId(), payload.buyerId(), pricePolicyIds
         );
         // 예외는 DefaultErrorHandler가 재시도 + DLT로 처리
 

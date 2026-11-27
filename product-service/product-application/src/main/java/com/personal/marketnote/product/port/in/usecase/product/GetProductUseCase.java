@@ -70,13 +70,13 @@ public interface GetProductUseCase {
      * @Description 상품 목록을 조회합니다.
      */
     GetProductsResult getProducts(
-            Long categoryId,
-            List<Long> pricePolicyIds,
-            Long cursor,
-            int pageSize,
-            Sort.Direction sortDirection,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword
+        Long categoryId,
+        List<Long> pricePolicyIds,
+        Long cursor,
+        int pageSize,
+        Sort.Direction sortDirection,
+        ProductSortProperty sortProperty,
+        ProductSearchTarget searchTarget,
+        String searchKeyword
     );
 }

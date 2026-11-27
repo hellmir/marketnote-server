@@ -40,11 +40,11 @@ public class SendConsentReminderService implements SendConsentReminderUseCase {
         for (NotificationPreference preference : duePreferences) {
             try {
                 SendNotificationCommand command = new SendNotificationCommand(
-                        preference.getUserId(),
-                        CONSENT_REMINDER_TEMPLATE_CODE,
-                        Map.of(),
-                        DELIVERY_CHANNEL,
-                        null
+                    preference.getUserId(),
+                    CONSENT_REMINDER_TEMPLATE_CODE,
+                    Map.of(),
+                    DELIVERY_CHANNEL,
+                    null
                 );
                 sendNotificationUseCase.sendNotification(command);
                 sentCount++;

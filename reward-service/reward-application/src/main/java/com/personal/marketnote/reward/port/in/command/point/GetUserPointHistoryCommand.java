@@ -7,11 +7,11 @@ import java.time.LocalDate;
 
 @Builder
 public record GetUserPointHistoryCommand(
-        Long userId,
-        UserPointHistoryFilter filter,
-        LocalDate startDate,
-        LocalDate endDate,
-        Long cursor,
-        int pageSize
+    Long userId,
+    UserPointHistoryFilter filter,
+    LocalDate startDate,
+    LocalDate endDate,
+    Long cursor,
+    int pageSize
 ) {
 }

@@ -20,7 +20,7 @@ public class GetUnknownPaymentEventsService implements GetUnknownPaymentEventsUs
     @Override
     public List<GetUnknownPaymentEventsResult> getUnknownPaymentEvents() {
         return findPspPaymentEventPort.findAllByUnknownStatus().stream()
-                .map(GetUnknownPaymentEventsResult::from)
-                .toList();
+            .map(GetUnknownPaymentEventsResult::from)
+            .toList();
     }
 }

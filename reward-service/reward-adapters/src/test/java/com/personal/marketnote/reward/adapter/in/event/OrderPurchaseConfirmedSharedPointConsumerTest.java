@@ -55,8 +55,8 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId, List<UUID> sharerKeys) {
         OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys, false, java.util.List.of());
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
-                LocalDateTime.of(2026, 3, 8, 10, 0), event
+            "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
+            LocalDateTime.of(2026, 3, 8, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.purchase-confirmed", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -69,12 +69,12 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, sharerKeys);
 
         UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
-                .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+            .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
+            .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
         );
         UserPoint userPoint2 = UserPoint.from(UserPointSnapshotState.builder()
-                .userId(300L).userKey(SHARER_KEY_2.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+            .userId(300L).userKey(SHARER_KEY_2.toString()).amount(PointAmount.zero())
+            .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
         );
         when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
         when(findUserPointPort.findByUserKey(SHARER_KEY_2.toString())).thenReturn(Optional.of(userPoint2));
@@ -147,13 +147,13 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     void handleOrderPurchaseConfirmedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(
-                1L, 100L, List.of(SHARER_KEY_1, SHARER_KEY_2), false, java.util.List.of());
+            1L, 100L, List.of(SHARER_KEY_1, SHARER_KEY_2), false, java.util.List.of());
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 3, 8, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 3, 8, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.purchase-confirmed", 0, 0L, "1", envelope
+            "commerce.order.purchase-confirmed", 0, 0L, "1", envelope
         );
 
         // when
@@ -199,7 +199,7 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     void handleOrderPurchaseConfirmedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.purchase-confirmed", 0, 0L, "1", null
+            "commerce.order.purchase-confirmed", 0, 0L, "1", null
         );
 
         // when
@@ -217,17 +217,17 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
         List<UUID> sharerKeys = List.of(SHARER_KEY_1, SHARER_KEY_2);
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, sharerKeys);
         UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
-                .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+            .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
+            .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
         );
         when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(confirmPendingPointUseCase).confirmPending(any(ConfirmPendingPointCommand.class));
+            .when(confirmPendingPointUseCase).confirmPending(any(ConfirmPendingPointCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 실패");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 실패");
 
         verify(confirmPendingPointUseCase).confirmPending(any(ConfirmPendingPointCommand.class));
         verify(acknowledgment, never()).acknowledge();
@@ -239,17 +239,17 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     void handleOrderPurchaseConfirmedEvent_invalidPayload_propagatesForRetry() {
         // given
         EventEnvelope<String> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
-                LocalDateTime.of(2026, 3, 8, 10, 0), "invalid-payload"
+            "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
+            LocalDateTime.of(2026, 3, 8, 10, 0), "invalid-payload"
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.purchase-confirmed", 0, 0L, "1",
-                (EventEnvelope<?>) (EventEnvelope) envelope
+            "commerce.order.purchase-confirmed", 0, 0L, "1",
+            (EventEnvelope<?>) (EventEnvelope) envelope
         );
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment))
-                .isInstanceOf(Exception.class);
+            .isInstanceOf(Exception.class);
 
         verifyNoInteractions(confirmPendingPointUseCase);
         verify(acknowledgment, never()).acknowledge();

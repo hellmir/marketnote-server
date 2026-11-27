@@ -48,11 +48,11 @@ class GetUserReviewsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserReviewsCommand command = new GetUserReviewsCommand(
-                userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
         );
         Reviews reviews = Reviews.from(List.of(
-                buildReview(1L, userId),
-                buildReview(2L, userId)
+            buildReview(1L, userId),
+            buildReview(2L, userId)
         ));
         mockFindUserReviewsByOffset(reviews);
         when(findReviewPort.countActive(userId)).thenReturn(2L);
@@ -73,7 +73,7 @@ class GetUserReviewsUseCaseTest {
     void getUserReviews_emptyResult_returnsEmptyListAndZeroPages() {
         // given
         GetUserReviewsCommand command = new GetUserReviewsCommand(
-                1L, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
+            1L, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
         );
         mockFindUserReviewsByOffset(emptyReviews());
         when(findReviewPort.countActive(1L)).thenReturn(0L);
@@ -94,12 +94,12 @@ class GetUserReviewsUseCaseTest {
     void getUserReviews_totalPagesComputedCorrectly() {
         // given
         GetUserReviewsCommand command = new GetUserReviewsCommand(
-                1L, 1, 3, Sort.Direction.DESC, ReviewSortProperty.ID
+            1L, 1, 3, Sort.Direction.DESC, ReviewSortProperty.ID
         );
         Reviews reviews = Reviews.from(List.of(
-                buildReview(1L, 1L),
-                buildReview(2L, 1L),
-                buildReview(3L, 1L)
+            buildReview(1L, 1L),
+            buildReview(2L, 1L),
+            buildReview(3L, 1L)
         ));
         mockFindUserReviewsByOffset(reviews);
         when(findReviewPort.countActive(1L)).thenReturn(7L);
@@ -116,7 +116,7 @@ class GetUserReviewsUseCaseTest {
     void getUserReviews_pageAndPageSizeReflected() {
         // given
         GetUserReviewsCommand command = new GetUserReviewsCommand(
-                1L, 2, 5, Sort.Direction.ASC, ReviewSortProperty.ID
+            1L, 2, 5, Sort.Direction.ASC, ReviewSortProperty.ID
         );
         mockFindUserReviewsByOffset(emptyReviews());
         when(findReviewPort.countActive(1L)).thenReturn(10L);
@@ -138,7 +138,7 @@ class GetUserReviewsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserReviewsCommand command = new GetUserReviewsCommand(
-                userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
         );
         mockFindUserReviewsByOffset(emptyReviews());
         when(findReviewPort.countActive(userId)).thenReturn(0L);
@@ -148,7 +148,7 @@ class GetUserReviewsUseCaseTest {
 
         // then
         verify(findReviewPort).findUserReviewsByOffset(
-                userId, 1, 10, true, ReviewSortProperty.ID
+            userId, 1, 10, true, ReviewSortProperty.ID
         );
     }
 
@@ -158,7 +158,7 @@ class GetUserReviewsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserReviewsCommand command = new GetUserReviewsCommand(
-                userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
         );
         mockFindUserReviewsByOffset(emptyReviews());
         when(findReviewPort.countActive(userId)).thenReturn(0L);
@@ -178,17 +178,17 @@ class GetUserReviewsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserReviewsCommand command = new GetUserReviewsCommand(
-                userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
         );
         Review photoReview = buildPhotoReview(1L, userId);
         Reviews reviews = Reviews.from(List.of(photoReview));
         mockFindUserReviewsByOffset(reviews);
         when(findReviewPort.countActive(userId)).thenReturn(1L);
         GetFileResult fileResult = new GetFileResult(
-                1L, "REVIEW_IMAGE", "jpg", "image.jpg", "https://s3/image.jpg", List.of(), 1L
+            1L, "REVIEW_IMAGE", "jpg", "image.jpg", "https://s3/image.jpg", List.of(), 1L
         );
         when(findReviewImagesPort.findImagesByReviewIdAndSort(1L, REVIEW_IMAGE))
-                .thenReturn(Optional.of(new GetFilesResult(List.of(fileResult))));
+            .thenReturn(Optional.of(new GetFilesResult(List.of(fileResult))));
 
         // when
         GetUserReviewsResult result = getUserReviewsService.getUserReviews(command);
@@ -204,7 +204,7 @@ class GetUserReviewsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserReviewsCommand command = new GetUserReviewsCommand(
-                userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
         );
         Reviews reviews = Reviews.from(List.of(buildReview(1L, userId)));
         mockFindUserReviewsByOffset(reviews);
@@ -225,7 +225,7 @@ class GetUserReviewsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserReviewsCommand command = new GetUserReviewsCommand(
-                userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
         );
         Review review = buildReviewWithPricePolicy(1L, userId, 30L);
         Reviews reviews = Reviews.from(List.of(review));
@@ -233,7 +233,7 @@ class GetUserReviewsUseCaseTest {
         when(findReviewPort.countActive(userId)).thenReturn(1L);
         ProductInfoResult productInfoResult = new ProductInfoResult(1L, "테스트 상품", "테스트 브랜드", null, List.of(), null);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(30L)))
-                .thenReturn(Map.of(30L, productInfoResult));
+            .thenReturn(Map.of(30L, productInfoResult));
 
         // when
         GetUserReviewsResult result = getUserReviewsService.getUserReviews(command);
@@ -249,7 +249,7 @@ class GetUserReviewsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserReviewsCommand command = new GetUserReviewsCommand(
-                userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
         );
         Reviews reviews = Reviews.from(List.of(buildReview(1L, userId)));
         mockFindUserReviewsByOffset(reviews);
@@ -270,7 +270,7 @@ class GetUserReviewsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserReviewsCommand command = new GetUserReviewsCommand(
-                userId, 1, 10, Sort.Direction.ASC, ReviewSortProperty.ID
+            userId, 1, 10, Sort.Direction.ASC, ReviewSortProperty.ID
         );
         mockFindUserReviewsByOffset(emptyReviews());
         when(findReviewPort.countActive(userId)).thenReturn(0L);
@@ -280,7 +280,7 @@ class GetUserReviewsUseCaseTest {
 
         // then
         verify(findReviewPort).findUserReviewsByOffset(
-                userId, 1, 10, false, ReviewSortProperty.ID
+            userId, 1, 10, false, ReviewSortProperty.ID
         );
     }
 
@@ -292,10 +292,10 @@ class GetUserReviewsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserReviewsCommand command = new GetUserReviewsCommand(
-                userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
         );
         Reviews reviews = Reviews.from(List.of(
-                buildReviewWithReviewerName(1L, userId, "리뷰작성자")
+            buildReviewWithReviewerName(1L, userId, "리뷰작성자")
         ));
         mockFindUserReviewsByOffset(reviews);
         when(findReviewPort.countActive(userId)).thenReturn(1L);
@@ -314,10 +314,10 @@ class GetUserReviewsUseCaseTest {
         // given
         Long userId = 1L;
         GetUserReviewsCommand command = new GetUserReviewsCommand(
-                userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
+            userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
         );
         Reviews reviews = Reviews.from(List.of(
-                buildReviewWithReviewerName(1L, userId, "리뷰작성자")
+            buildReviewWithReviewerName(1L, userId, "리뷰작성자")
         ));
         mockFindUserReviewsByOffset(reviews);
         when(findReviewPort.countActive(userId)).thenReturn(1L);
@@ -331,8 +331,8 @@ class GetUserReviewsUseCaseTest {
         // reviewerName만 포함되어 있는지 검증
         assertThat(result.reviews().getFirst().reviewerName()).isNotNull();
         assertThat(result.reviews().getFirst()).hasNoNullFieldsOrPropertiesExcept(
-                "pricePolicyId", "productImageUrl", "selectedOptions", "quantity",
-                "images", "product"
+            "pricePolicyId", "productImageUrl", "selectedOptions", "quantity",
+            "images", "product"
         );
     }
 
@@ -340,77 +340,77 @@ class GetUserReviewsUseCaseTest {
 
     private Review buildReview(Long id, Long reviewerId) {
         return Review.from(ReviewSnapshotState.builder()
-                .id(id)
-                .reviewerId(reviewerId)
-                .orderId(100L)
-                .productId(50L)
-                .rating(Rating.of(5.0f))
-                .content("좋은 상품입니다")
-                .isPhoto(false)
-                .isEdited(false)
-                .likeCount(0)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .reviewerId(reviewerId)
+            .orderId(100L)
+            .productId(50L)
+            .rating(Rating.of(5.0f))
+            .content("좋은 상품입니다")
+            .isPhoto(false)
+            .isEdited(false)
+            .likeCount(0)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Review buildPhotoReview(Long id, Long reviewerId) {
         return Review.from(ReviewSnapshotState.builder()
-                .id(id)
-                .reviewerId(reviewerId)
-                .orderId(100L)
-                .productId(50L)
-                .rating(Rating.of(5.0f))
-                .content("사진 리뷰입니다")
-                .isPhoto(true)
-                .isEdited(false)
-                .likeCount(0)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .reviewerId(reviewerId)
+            .orderId(100L)
+            .productId(50L)
+            .rating(Rating.of(5.0f))
+            .content("사진 리뷰입니다")
+            .isPhoto(true)
+            .isEdited(false)
+            .likeCount(0)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Review buildReviewWithReviewerName(Long id, Long reviewerId, String reviewerName) {
         return Review.from(ReviewSnapshotState.builder()
-                .id(id)
-                .reviewerId(reviewerId)
-                .orderId(100L)
-                .productId(50L)
-                .reviewerName(reviewerName)
-                .maskedReviewerName("리*자")
-                .rating(Rating.of(5.0f))
-                .content("리뷰 내용입니다")
-                .isPhoto(false)
-                .isEdited(false)
-                .likeCount(0)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .reviewerId(reviewerId)
+            .orderId(100L)
+            .productId(50L)
+            .reviewerName(reviewerName)
+            .maskedReviewerName("리*자")
+            .rating(Rating.of(5.0f))
+            .content("리뷰 내용입니다")
+            .isPhoto(false)
+            .isEdited(false)
+            .likeCount(0)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     private Review buildReviewWithPricePolicy(Long id, Long reviewerId, Long pricePolicyId) {
         return Review.from(ReviewSnapshotState.builder()
-                .id(id)
-                .reviewerId(reviewerId)
-                .orderId(100L)
-                .productId(50L)
-                .pricePolicyId(pricePolicyId)
-                .rating(Rating.of(5.0f))
-                .content("상품 정보 있는 리뷰")
-                .isPhoto(false)
-                .isEdited(false)
-                .likeCount(0)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .orderNum(id)
-                .build());
+            .id(id)
+            .reviewerId(reviewerId)
+            .orderId(100L)
+            .productId(50L)
+            .pricePolicyId(pricePolicyId)
+            .rating(Rating.of(5.0f))
+            .content("상품 정보 있는 리뷰")
+            .isPhoto(false)
+            .isEdited(false)
+            .likeCount(0)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.now())
+            .modifiedAt(LocalDateTime.now())
+            .orderNum(id)
+            .build());
     }
 
     // ========== Mock Helpers ==========
@@ -421,7 +421,7 @@ class GetUserReviewsUseCaseTest {
 
     private void mockFindUserReviewsByOffset(Reviews reviews) {
         when(findReviewPort.findUserReviewsByOffset(
-                anyLong(), anyInt(), anyInt(), anyBoolean(), any(ReviewSortProperty.class)
+            anyLong(), anyInt(), anyInt(), anyBoolean(), any(ReviewSortProperty.class)
         )).thenReturn(reviews);
     }
 }

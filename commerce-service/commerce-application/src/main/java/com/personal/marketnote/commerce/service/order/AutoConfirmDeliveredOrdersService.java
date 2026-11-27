@@ -1,7 +1,6 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.Order;
-import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.AutoConfirmDeliveredOrdersUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
@@ -73,7 +72,7 @@ public class AutoConfirmDeliveredOrdersService implements AutoConfirmDeliveredOr
         Order order = orderOptional.get();
         LocalDateTime failedAt = LocalDateTime.now(clock);
         publishOrderAutoConfirmFailedEventPort.publish(
-                orderId, order.getBuyerId(), reason, failedAt
+            orderId, order.getBuyerId(), reason, failedAt
         );
     }
 }

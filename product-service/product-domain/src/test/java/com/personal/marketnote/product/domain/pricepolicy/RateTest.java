@@ -39,28 +39,28 @@ class RateTest {
     @DisplayName("음수로 생성 시 InvalidRateException 발생한다")
     void throwsExceptionWhenRateIsNegative() {
         assertThatThrownBy(() -> Rate.of(new BigDecimal("-1.0")))
-                .isInstanceOf(InvalidRateException.class);
+            .isInstanceOf(InvalidRateException.class);
     }
 
     @Test
     @DisplayName("100 초과 값으로 생성 시 InvalidRateException 발생한다")
     void throwsExceptionWhenRateExceedsHundred() {
         assertThatThrownBy(() -> Rate.of(new BigDecimal("100.1")))
-                .isInstanceOf(InvalidRateException.class);
+            .isInstanceOf(InvalidRateException.class);
     }
 
     @Test
     @DisplayName("소수 두 자리 이상 값으로 생성 시 InvalidRateException 발생한다")
     void throwsExceptionWhenScaleExceedsOne() {
         assertThatThrownBy(() -> Rate.of(new BigDecimal("0.01")))
-                .isInstanceOf(InvalidRateException.class);
+            .isInstanceOf(InvalidRateException.class);
     }
 
     @Test
     @DisplayName("null로 생성 시 InvalidRateException 발생한다")
     void throwsExceptionWhenRateIsNull() {
         assertThatThrownBy(() -> Rate.of(null))
-                .isInstanceOf(InvalidRateException.class);
+            .isInstanceOf(InvalidRateException.class);
     }
 
     @Test

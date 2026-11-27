@@ -37,7 +37,7 @@ public class ProfanityWordDataInitializer implements ApplicationRunner {
         List<ProfanityWordJpaEntity> batch = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+            new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((FormatValidator.hasValue(line = reader.readLine()))) {
                 String trimmed = line.trim();

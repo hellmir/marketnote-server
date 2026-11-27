@@ -125,7 +125,7 @@ class GetPaymentUseCaseTest {
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
 
             assertThatThrownBy(() -> getPaymentService.getPayment(attackerBuyerId, ORDER_KEY_STR))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
 
             verify(findPspPaymentEventPort, never()).findByOrderKey(any());
         }
@@ -139,7 +139,7 @@ class GetPaymentUseCaseTest {
             when(findOrderPort.findById(1L)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> getPaymentService.getPayment(BUYER_ID, ORDER_KEY_STR))
-                    .isInstanceOf(com.personal.marketnote.commerce.exception.OrderNotFoundException.class);
+                .isInstanceOf(com.personal.marketnote.commerce.exception.OrderNotFoundException.class);
 
             verify(findPspPaymentEventPort, never()).findByOrderKey(any());
         }
@@ -155,7 +155,7 @@ class GetPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> getPaymentService.getPayment(BUYER_ID, ORDER_KEY_STR))
-                    .isInstanceOf(PaymentNotFoundException.class);
+                .isInstanceOf(PaymentNotFoundException.class);
 
             verify(findPspPaymentEventPort, never()).findByOrderKey(any());
         }
@@ -163,21 +163,21 @@ class GetPaymentUseCaseTest {
 
     private Order createOrder(Long orderId, Long buyerId) {
         OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(ORDER_KEY)
-                .orderStatus(OrderStatus.PAYMENT_PENDING)
-                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
-                .build();
+            .id(orderId)
+            .buyerId(buyerId)
+            .orderKey(ORDER_KEY)
+            .orderStatus(OrderStatus.PAYMENT_PENDING)
+            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("01012345678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+            .build();
         return Order.from(state);
     }
 
     private Payment createPayment(Long orderId, UUID orderKey, Long amount) {
         PaymentCreateState state = PaymentCreateState.builder()
-                .orderId(orderId)
-                .orderKey(orderKey)
-                .paymentAmount(amount)
-                .build();
+            .orderId(orderId)
+            .orderKey(orderKey)
+            .paymentAmount(amount)
+            .build();
         return Payment.from(state);
     }
 
@@ -189,23 +189,23 @@ class GetPaymentUseCaseTest {
 
     private PspPaymentEvent createCompleteEvent(String orderKey, String tno) {
         PspPaymentEventSnapshotState state = PspPaymentEventSnapshotState.builder()
-                .id(1L)
-                .orderId(1L)
-                .orderKey(orderKey)
-                .pgCompanyKey("NHN_KCP")
-                .pgPaymentKey(tno)
-                .poStatus(PaymentEventStatus.COMPLETE)
-                .method("CARD")
-                .amount(50000L)
-                .cardNumber(MaskedCardNumber.of("1234-****-****-5678"))
-                .approvalNumber("12345678")
-                .installment(Installment.of((short) 0))
-                .issueCompanyCode("CCLG")
-                .issueCompanyName("신한카드")
-                .resultCode("0000")
-                .resultMessage("승인 성공")
-                .paidAt(LocalDateTime.of(2026, 2, 10, 15, 30, 0))
-                .build();
+            .id(1L)
+            .orderId(1L)
+            .orderKey(orderKey)
+            .pgCompanyKey("NHN_KCP")
+            .pgPaymentKey(tno)
+            .poStatus(PaymentEventStatus.COMPLETE)
+            .method("CARD")
+            .amount(50000L)
+            .cardNumber(MaskedCardNumber.of("1234-****-****-5678"))
+            .approvalNumber("12345678")
+            .installment(Installment.of((short) 0))
+            .issueCompanyCode("CCLG")
+            .issueCompanyName("신한카드")
+            .resultCode("0000")
+            .resultMessage("승인 성공")
+            .paidAt(LocalDateTime.of(2026, 2, 10, 15, 30, 0))
+            .build();
         return PspPaymentEvent.from(state);
     }
 }

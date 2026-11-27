@@ -35,16 +35,16 @@ class UserAttendanceHistoryPersistenceAdapterTest {
     private UserAttendanceHistory buildHistory(LocalDate attendedDate) {
         LocalDateTime now = attendedDate.atStartOfDay();
         return UserAttendanceHistory.from(UserAttendanceHistorySnapshotState.builder()
-                .id(null)
-                .userAttendanceId(10L)
-                .attendancePolicyId((short) 1)
-                .rewardType(AttendanceRewardType.POINT)
-                .rewardQuantity(RewardQuantity.of(50L))
-                .continuousPeriod(ContinuousPeriod.of((short) 1))
-                .rewardYn(Boolean.TRUE)
-                .attendedDate(attendedDate)
-                .attendedAt(now)
-                .build());
+            .id(null)
+            .userAttendanceId(10L)
+            .attendancePolicyId((short) 1)
+            .rewardType(AttendanceRewardType.POINT)
+            .rewardQuantity(RewardQuantity.of(50L))
+            .continuousPeriod(ContinuousPeriod.of((short) 1))
+            .rewardYn(Boolean.TRUE)
+            .attendedDate(attendedDate)
+            .attendedAt(now)
+            .build());
     }
 
     @Test
@@ -53,7 +53,7 @@ class UserAttendanceHistoryPersistenceAdapterTest {
         // given
         UserAttendanceHistory history = buildHistory(LocalDate.of(2026, 4, 14));
         given(repository.save(any(UserAttendanceHistoryJpaEntity.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
+            .willAnswer(invocation -> invocation.getArgument(0));
 
         // when
         UserAttendanceHistory saved = adapter.save(history);
@@ -71,11 +71,11 @@ class UserAttendanceHistoryPersistenceAdapterTest {
         LocalDate today = LocalDate.of(2026, 4, 14);
         UserAttendanceHistory history = buildHistory(today);
         when(repository.save(any(UserAttendanceHistoryJpaEntity.class)))
-                .thenThrow(new DataIntegrityViolationException("uk_user_attendance_history_attendance_date"));
+            .thenThrow(new DataIntegrityViolationException("uk_user_attendance_history_attendance_date"));
 
         // when & then
         assertThatThrownBy(() -> adapter.save(history))
-                .isInstanceOf(DuplicateAttendanceException.class);
+            .isInstanceOf(DuplicateAttendanceException.class);
     }
 
     @Test
@@ -84,12 +84,12 @@ class UserAttendanceHistoryPersistenceAdapterTest {
         // given
         UserAttendanceHistory history = buildHistory(LocalDate.of(2026, 4, 14));
         when(repository.save(any(UserAttendanceHistoryJpaEntity.class)))
-                .thenThrow(new DataIntegrityViolationException(
-                        "could not execute statement; constraint [uk_user_attendance_history_attendance_date]"
-                ));
+            .thenThrow(new DataIntegrityViolationException(
+                "could not execute statement; constraint [uk_user_attendance_history_attendance_date]"
+            ));
 
         // when & then
         assertThatThrownBy(() -> adapter.save(history))
-                .isInstanceOf(DuplicateAttendanceException.class);
+            .isInstanceOf(DuplicateAttendanceException.class);
     }
 }

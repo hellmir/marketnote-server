@@ -37,16 +37,16 @@ class CommerceVendorCommunicationHistoryPersistenceAdapterTest {
 
     private CommerceVendorCommunicationHistory buildHistory(String payloadJson) {
         return CommerceVendorCommunicationHistory.from(
-                CommerceVendorCommunicationHistoryCreateState.builder()
-                        .targetType(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL)
-                        .targetId("order-1")
-                        .vendorName(CommerceVendorName.NHN_KCP)
-                        .communicationType(CommerceVendorCommunicationType.REQUEST)
-                        .sender(CommerceVendorCommunicationSenderType.SERVER)
-                        .exception(null)
-                        .payload("{\"amount\":10000}")
-                        .payloadJson(payloadJson)
-                        .build()
+            CommerceVendorCommunicationHistoryCreateState.builder()
+                .targetType(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL)
+                .targetId("order-1")
+                .vendorName(CommerceVendorName.NHN_KCP)
+                .communicationType(CommerceVendorCommunicationType.REQUEST)
+                .sender(CommerceVendorCommunicationSenderType.SERVER)
+                .exception(null)
+                .payload("{\"amount\":10000}")
+                .payloadJson(payloadJson)
+                .build()
         );
     }
 
@@ -60,7 +60,7 @@ class CommerceVendorCommunicationHistoryPersistenceAdapterTest {
             // given
             CommerceVendorCommunicationHistory history = buildHistory("{\"amount\":10000}");
             when(repository.save(any(CommerceVendorCommunicationHistoryJpaEntity.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             CommerceVendorCommunicationHistory saved = adapter.save(history);
@@ -70,7 +70,7 @@ class CommerceVendorCommunicationHistoryPersistenceAdapterTest {
             assertThat(saved.getVendorName()).isEqualTo(CommerceVendorName.NHN_KCP);
             assertThat(saved.getTargetType()).isEqualTo(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL);
             ArgumentCaptor<CommerceVendorCommunicationHistoryJpaEntity> captor =
-                    ArgumentCaptor.forClass(CommerceVendorCommunicationHistoryJpaEntity.class);
+                ArgumentCaptor.forClass(CommerceVendorCommunicationHistoryJpaEntity.class);
             verify(repository).save(captor.capture());
             assertThat(captor.getValue().getPayloadJson()).isNotNull();
             assertThat(captor.getValue().getPayloadJson().get("amount").asInt()).isEqualTo(10000);
@@ -82,14 +82,14 @@ class CommerceVendorCommunicationHistoryPersistenceAdapterTest {
             // given
             CommerceVendorCommunicationHistory history = buildHistory(null);
             when(repository.save(any(CommerceVendorCommunicationHistoryJpaEntity.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             adapter.save(history);
 
             // then
             ArgumentCaptor<CommerceVendorCommunicationHistoryJpaEntity> captor =
-                    ArgumentCaptor.forClass(CommerceVendorCommunicationHistoryJpaEntity.class);
+                ArgumentCaptor.forClass(CommerceVendorCommunicationHistoryJpaEntity.class);
             verify(repository).save(captor.capture());
             assertThat(captor.getValue().getPayloadJson()).isNull();
         }
@@ -100,14 +100,14 @@ class CommerceVendorCommunicationHistoryPersistenceAdapterTest {
             // given
             CommerceVendorCommunicationHistory history = buildHistory("invalid-{");
             when(repository.save(any(CommerceVendorCommunicationHistoryJpaEntity.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             adapter.save(history);
 
             // then
             ArgumentCaptor<CommerceVendorCommunicationHistoryJpaEntity> captor =
-                    ArgumentCaptor.forClass(CommerceVendorCommunicationHistoryJpaEntity.class);
+                ArgumentCaptor.forClass(CommerceVendorCommunicationHistoryJpaEntity.class);
             verify(repository).save(captor.capture());
             assertThat(captor.getValue().getPayloadJson()).isNull();
         }

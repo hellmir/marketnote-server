@@ -34,21 +34,21 @@ public class Notification extends BaseDomain {
         validate(state);
 
         SendStatus initialStatus = FormatValidator.hasValue(state.getScheduledAt())
-                ? SendStatus.SCHEDULED
-                : SendStatus.PENDING;
+            ? SendStatus.SCHEDULED
+            : SendStatus.PENDING;
 
         Notification notification = Notification.builder()
-                .userId(state.getUserId())
-                .notificationType(state.getNotificationType())
-                .title(truncateIfExceeds(state.getTitle(), TITLE_MAX_LENGTH))
-                .body(truncateIfExceeds(state.getBody(), BODY_MAX_LENGTH))
-                .data(state.getData())
-                .deliveryChannel(state.getDeliveryChannel())
-                .isRead(false)
-                .landingUrl(state.getLandingUrl())
-                .sendStatus(initialStatus)
-                .scheduledAt(state.getScheduledAt())
-                .build();
+            .userId(state.getUserId())
+            .notificationType(state.getNotificationType())
+            .title(truncateIfExceeds(state.getTitle(), TITLE_MAX_LENGTH))
+            .body(truncateIfExceeds(state.getBody(), BODY_MAX_LENGTH))
+            .data(state.getData())
+            .deliveryChannel(state.getDeliveryChannel())
+            .isRead(false)
+            .landingUrl(state.getLandingUrl())
+            .sendStatus(initialStatus)
+            .scheduledAt(state.getScheduledAt())
+            .build();
         notification.activate();
         return notification;
     }
@@ -65,20 +65,20 @@ public class Notification extends BaseDomain {
 
     public static Notification from(NotificationSnapshotState state) {
         Notification notification = Notification.builder()
-                .id(state.getId())
-                .userId(state.getUserId())
-                .notificationType(state.getNotificationType())
-                .title(state.getTitle())
-                .body(state.getBody())
-                .data(state.getData())
-                .deliveryChannel(state.getDeliveryChannel())
-                .isRead(state.isRead())
-                .landingUrl(state.getLandingUrl())
-                .sendStatus(state.getSendStatus())
-                .scheduledAt(state.getScheduledAt())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .userId(state.getUserId())
+            .notificationType(state.getNotificationType())
+            .title(state.getTitle())
+            .body(state.getBody())
+            .data(state.getData())
+            .deliveryChannel(state.getDeliveryChannel())
+            .isRead(state.isRead())
+            .landingUrl(state.getLandingUrl())
+            .sendStatus(state.getSendStatus())
+            .scheduledAt(state.getScheduledAt())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
         notification.status = state.getStatus();
         return notification;
     }

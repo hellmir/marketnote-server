@@ -20,7 +20,7 @@ public class CreateShippingTrackerService implements CreateShippingTrackerUseCas
     @Override
     public void createShippingTracker(CreateShippingTrackerCommand command) {
         ShippingTracker shippingTracker = ShippingTracker.from(
-                CreateShippingTrackerCommandToStateMapper.mapToCreateState(command)
+            CreateShippingTrackerCommandToStateMapper.mapToCreateState(command)
         );
         saveShippingTrackerPort.save(shippingTracker);
     }

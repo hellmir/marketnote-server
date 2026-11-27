@@ -23,7 +23,7 @@ public class GifticonBrandPersistenceAdapter implements FindGifticonBrandPort, S
     @Override
     public Optional<GifticonBrand> findByBrandCode(String brandCode) {
         return repository.findByBrandCode(brandCode)
-                .map(GifticonBrandJpaEntity::toDomain);
+            .map(GifticonBrandJpaEntity::toDomain);
     }
 
     @Override
@@ -34,13 +34,13 @@ public class GifticonBrandPersistenceAdapter implements FindGifticonBrandPort, S
     @Override
     public void update(GifticonBrand brand) {
         GifticonBrandJpaEntity entity = repository.findById(brand.getId())
-                .orElseThrow(() -> {
-                    log.warn(
-                            "기프티콘 브랜드를 찾을 수 없습니다. brandCode={}",
-                            brand.getBrandCode().getValue()
-                    );
-                    return new GifticonBrandNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn(
+                    "기프티콘 브랜드를 찾을 수 없습니다. brandCode={}",
+                    brand.getBrandCode().getValue()
+                );
+                return new GifticonBrandNotFoundException();
+            });
         entity.updateFrom(brand);
     }
 }

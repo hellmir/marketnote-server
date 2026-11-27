@@ -1,5 +1,8 @@
 package com.personal.marketnote.file;
 
+import com.personal.marketnote.common.external.log.ExternalCallLogger;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -17,42 +20,38 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import software.amazon.awssdk.services.s3.S3Client;
 
-import com.personal.marketnote.common.external.log.ExternalCallLogger;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-
 @SpringBootTest(classes = FileApplicationContextTest.TestConfig.class)
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
-        "spring.autoconfigure.exclude="
-                + "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration,"
-                + "org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration,"
-                + "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
+    "spring.autoconfigure.exclude="
+        + "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration,"
+        + "org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration,"
+        + "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
 })
 class FileApplicationContextTest {
 
     @Configuration
     @EnableAutoConfiguration(exclude = {
-            OAuth2ResourceServerAutoConfiguration.class,
-            KafkaAutoConfiguration.class,
-            BatchAutoConfiguration.class
+        OAuth2ResourceServerAutoConfiguration.class,
+        KafkaAutoConfiguration.class,
+        BatchAutoConfiguration.class
     })
     @ComponentScan(
-            basePackages = "com.personal.marketnote",
-            excludeFilters = {
-                    @ComponentScan.Filter(
-                            type = FilterType.ANNOTATION,
-                            classes = SpringBootApplication.class
-                    ),
-                    @ComponentScan.Filter(
-                            type = FilterType.REGEX,
-                            pattern = {
-                                    "com\\.personal\\.shop\\.common\\.security\\..*",
-                                    "com\\.personal\\.shop\\.common\\.configuration\\.security\\..*",
-                                    "com\\.personal\\.shop\\.file\\.adapter\\.in\\.configuration\\.S3Config"
-                            }
-                    )
-            }
+        basePackages = "com.personal.marketnote",
+        excludeFilters = {
+            @ComponentScan.Filter(
+                type = FilterType.ANNOTATION,
+                classes = SpringBootApplication.class
+            ),
+            @ComponentScan.Filter(
+                type = FilterType.REGEX,
+                pattern = {
+                    "com\\.personal\\.shop\\.common\\.security\\..*",
+                    "com\\.personal\\.shop\\.common\\.configuration\\.security\\..*",
+                    "com\\.personal\\.shop\\.file\\.adapter\\.in\\.configuration\\.S3Config"
+                }
+            )
+        }
     )
     static class TestConfig {
 

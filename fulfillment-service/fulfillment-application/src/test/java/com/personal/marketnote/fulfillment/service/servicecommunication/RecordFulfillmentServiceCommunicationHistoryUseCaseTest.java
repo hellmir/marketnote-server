@@ -32,16 +32,16 @@ class RecordFulfillmentServiceCommunicationHistoryUseCaseTest {
     void shouldReturnSavedCommunicationHistoryFromPort() {
         // given
         FulfillmentServiceCommunicationHistoryCommand command = FulfillmentServiceCommunicationHistoryCommand.builder()
-                .targetType(FulfillmentServiceCommunicationTargetType.GENERAL)
-                .targetId("TARGET-001")
-                .communicationType(FulfillmentServiceCommunicationType.REQUEST)
-                .sender(FulfillmentServiceCommunicationSenderType.COMMERCE)
-                .exception(null)
-                .payload("{\"key\":\"value\"}")
-                .payloadJson(null)
-                .build();
+            .targetType(FulfillmentServiceCommunicationTargetType.GENERAL)
+            .targetId("TARGET-001")
+            .communicationType(FulfillmentServiceCommunicationType.REQUEST)
+            .sender(FulfillmentServiceCommunicationSenderType.COMMERCE)
+            .exception(null)
+            .payload("{\"key\":\"value\"}")
+            .payloadJson(null)
+            .build();
         when(saveServiceCommunicationHistoryPort.save(any(FulfillmentServiceCommunicationHistory.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
         FulfillmentServiceCommunicationHistory result = recordFulfillmentServiceCommunicationHistoryService.record(command);

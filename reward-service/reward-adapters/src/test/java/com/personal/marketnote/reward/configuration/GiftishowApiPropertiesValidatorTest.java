@@ -19,8 +19,8 @@ class GiftishowApiPropertiesValidatorTest {
         GiftishowApiPropertiesValidator validator = new GiftishowApiPropertiesValidator(properties);
 
         assertThatThrownBy(validator::validateProperties)
-                .isInstanceOf(InvalidGiftishowApiPropertiesException.class)
-                .hasMessageContaining("vendor.giftishow.api.sensitive-paths");
+            .isInstanceOf(InvalidGiftishowApiPropertiesException.class)
+            .hasMessageContaining("vendor.giftishow.api.sensitive-paths");
     }
 
     @Test
@@ -30,34 +30,34 @@ class GiftishowApiPropertiesValidatorTest {
         GiftishowApiPropertiesValidator validator = new GiftishowApiPropertiesValidator(properties);
 
         assertThatThrownBy(validator::validateProperties)
-                .isInstanceOf(InvalidGiftishowApiPropertiesException.class)
-                .hasMessageContaining("vendor.giftishow.api.sensitive-paths");
+            .isInstanceOf(InvalidGiftishowApiPropertiesException.class)
+            .hasMessageContaining("vendor.giftishow.api.sensitive-paths");
     }
 
     @Test
     @DisplayName("sensitivePaths 모두가 Api 필드의 path 값과 매칭되면 검증을 통과한다")
     void shouldPassWhenSensitivePathsAllMatchDefinedPaths() {
         GiftishowApiProperties properties = newPropertiesWithApiPathsAndSensitivePaths(
-                Set.of("/bizApi/send", "/bizApi/coupons", "/bizApi/resend")
+            Set.of("/bizApi/send", "/bizApi/coupons", "/bizApi/resend")
         );
         GiftishowApiPropertiesValidator validator = new GiftishowApiPropertiesValidator(properties);
 
         assertThatCode(validator::validateProperties)
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
     @DisplayName("sensitivePaths에 Api 필드와 매칭되지 않는 orphan path가 포함되면 앱 시작을 차단한다")
     void shouldFailWhenSensitivePathsContainOrphan() {
         GiftishowApiProperties properties = newPropertiesWithApiPathsAndSensitivePaths(
-                Set.of("/bizApi/send", "/bizApi/orphan")
+            Set.of("/bizApi/send", "/bizApi/orphan")
         );
         GiftishowApiPropertiesValidator validator = new GiftishowApiPropertiesValidator(properties);
 
         assertThatThrownBy(validator::validateProperties)
-                .isInstanceOf(InvalidGiftishowApiPropertiesException.class)
-                .hasMessageContaining("orphans=")
-                .hasMessageContaining("/bizApi/orphan");
+            .isInstanceOf(InvalidGiftishowApiPropertiesException.class)
+            .hasMessageContaining("orphans=")
+            .hasMessageContaining("/bizApi/orphan");
     }
 
     @Test
@@ -73,7 +73,7 @@ class GiftishowApiPropertiesValidatorTest {
         GiftishowApiPropertiesValidator validator = new GiftishowApiPropertiesValidator(properties);
 
         assertThatCode(validator::validateProperties)
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     private GiftishowApiProperties newPropertiesWithSensitivePaths(Set<String> sensitivePaths) {

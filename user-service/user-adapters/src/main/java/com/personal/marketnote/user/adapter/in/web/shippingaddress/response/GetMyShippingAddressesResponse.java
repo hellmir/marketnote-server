@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public record GetMyShippingAddressesResponse(
-        List<GetMyShippingAddressResponse> shippingAddresses
+    List<GetMyShippingAddressResponse> shippingAddresses
 ) {
     public static GetMyShippingAddressesResponse from(GetMyShippingAddressesResult result) {
         return new GetMyShippingAddressesResponse(
-                result.shippingAddresses().stream()
-                        .map(GetMyShippingAddressResponse::from)
-                        .collect(Collectors.toList())
+            result.shippingAddresses().stream()
+                .map(GetMyShippingAddressResponse::from)
+                .collect(Collectors.toList())
         );
     }
 }

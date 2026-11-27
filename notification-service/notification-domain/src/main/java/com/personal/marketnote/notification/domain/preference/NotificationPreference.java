@@ -24,24 +24,24 @@ public class NotificationPreference extends BaseDomain {
         validate(state.getUserId(), state.getNotificationType());
 
         NotificationPreference preference = NotificationPreference.builder()
-                .userId(state.getUserId())
-                .notificationType(state.getNotificationType())
-                .enabled(state.isEnabled())
-                .build();
+            .userId(state.getUserId())
+            .notificationType(state.getNotificationType())
+            .enabled(state.isEnabled())
+            .build();
         preference.activate();
         return preference;
     }
 
     public static NotificationPreference from(NotificationPreferenceSnapshotState state) {
         NotificationPreference preference = NotificationPreference.builder()
-                .id(state.getId())
-                .userId(state.getUserId())
-                .notificationType(state.getNotificationType())
-                .enabled(state.isEnabled())
-                .consentedAt(state.getConsentedAt())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .userId(state.getUserId())
+            .notificationType(state.getNotificationType())
+            .enabled(state.isEnabled())
+            .consentedAt(state.getConsentedAt())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
         preference.status = state.getStatus();
         return preference;
     }

@@ -26,18 +26,18 @@ public class GetUserPointService implements GetUserPointUseCase {
     @Override
     public UserPoint getUserPoint(Long userId) {
         return findUserPointPort.findByUserId(userId)
-                .orElseThrow(() -> {
-                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userId={}", userId);
-                    return new UserNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("회원 포인트 정보를 찾을 수 없습니다. userId={}", userId);
+                return new UserNotFoundException();
+            });
     }
 
     @Override
     public UserPoint getUserPoint(String userKey) {
         return findUserPointPort.findByUserKey(userKey)
-                .orElseThrow(() -> {
-                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userKey={}", userKey);
-                    return new UserNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("회원 포인트 정보를 찾을 수 없습니다. userKey={}", userKey);
+                return new UserNotFoundException();
+            });
     }
 }

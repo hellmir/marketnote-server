@@ -18,8 +18,8 @@ import java.util.Optional;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class GifticonCategoryPersistenceAdapter implements
-        FindGifticonCategoryPort, SaveGifticonCategoryPort, UpdateGifticonCategoryPort,
-        FindGifticonCategoryMappingPort, SaveGifticonCategoryMappingPort {
+    FindGifticonCategoryPort, SaveGifticonCategoryPort, UpdateGifticonCategoryPort,
+    FindGifticonCategoryMappingPort, SaveGifticonCategoryMappingPort {
 
     private final GifticonCategoryJpaRepository categoryRepository;
     private final GifticonCategoryMappingJpaRepository mappingRepository;
@@ -27,27 +27,27 @@ public class GifticonCategoryPersistenceAdapter implements
     @Override
     public Optional<GifticonCategory> findByCategoryCode(String categoryCode) {
         return categoryRepository.findByCategoryCode(categoryCode)
-                .map(GifticonCategoryJpaEntity::toDomain);
+            .map(GifticonCategoryJpaEntity::toDomain);
     }
 
     @Override
     public Optional<GifticonCategory> findById(Long id) {
         return categoryRepository.findById(id)
-                .map(GifticonCategoryJpaEntity::toDomain);
+            .map(GifticonCategoryJpaEntity::toDomain);
     }
 
     @Override
     public List<GifticonCategory> findAllOrderByOrderNumAsc() {
         return categoryRepository.findAllByOrderByOrderNumAsc().stream()
-                .map(GifticonCategoryJpaEntity::toDomain)
-                .toList();
+            .map(GifticonCategoryJpaEntity::toDomain)
+            .toList();
     }
 
     @Override
     public List<GifticonCategory> findAllExposed() {
         return categoryRepository.findAllExposed().stream()
-                .map(GifticonCategoryJpaEntity::toDomain)
-                .toList();
+            .map(GifticonCategoryJpaEntity::toDomain)
+            .toList();
     }
 
     @Override
@@ -59,17 +59,17 @@ public class GifticonCategoryPersistenceAdapter implements
     @Override
     public void update(GifticonCategory category) {
         GifticonCategoryJpaEntity entity = categoryRepository.findById(category.getId())
-                .orElseThrow(() -> {
-                    log.warn("기프티콘 카테고리를 찾을 수 없습니다. categoryId={}", category.getId());
-                    return new GifticonCategoryNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("기프티콘 카테고리를 찾을 수 없습니다. categoryId={}", category.getId());
+                return new GifticonCategoryNotFoundException();
+            });
         entity.updateFrom(category);
     }
 
     @Override
     public Optional<Long> findCategoryIdByGiftishowCategorySeq(String giftishowCategorySeq) {
         return mappingRepository.findByGiftishowCategorySeq(giftishowCategorySeq)
-                .map(GifticonCategoryMappingJpaEntity::getGifticonCategoryId);
+            .map(GifticonCategoryMappingJpaEntity::getGifticonCategoryId);
     }
 
     @Override

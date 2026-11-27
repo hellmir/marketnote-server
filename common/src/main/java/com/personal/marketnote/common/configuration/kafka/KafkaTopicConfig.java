@@ -59,9 +59,9 @@ public class KafkaTopicConfig {
 
     private NewTopic buildTopic(String name) {
         return TopicBuilder.name(name)
-                .partitions(PARTITIONS)
-                .replicas(REPLICATION_FACTOR)
-                .config(MIN_INSYNC_REPLICAS_KEY, MIN_INSYNC_REPLICAS_VALUE)
-                .build();
+            .partitions(PARTITIONS)
+            .replicas(REPLICATION_FACTOR)
+            .config(MIN_INSYNC_REPLICAS_KEY, MIN_INSYNC_REPLICAS_VALUE)
+            .build();
     }
 }

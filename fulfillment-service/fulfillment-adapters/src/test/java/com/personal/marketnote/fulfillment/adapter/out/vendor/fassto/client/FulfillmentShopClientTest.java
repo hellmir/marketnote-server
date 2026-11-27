@@ -4,12 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.external.log.ExternalCallLogger;
 import com.personal.marketnote.common.external.log.ExternalSystem;
 import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentErrorInfo;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentResponseHeader;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentShopItemResponse;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentShopsResponse;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentShopDataResponse;
-import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentShopResponse;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
 import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentShopsFailedException;
@@ -90,20 +85,20 @@ class FulfillmentShopClientTest {
         externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
 
         client = new FulfillmentShopClient(
-                builder,
-                objectMapper,
-                properties,
-                vendorCommunicationRecorder,
-                vendorCommunicationPayloadGenerator,
-                vendorCommunicationFailureHandler,
-                externalCallLogger,
-                new NoOpSleeper()
+            builder,
+            objectMapper,
+            properties,
+            vendorCommunicationRecorder,
+            vendorCommunicationPayloadGenerator,
+            vendorCommunicationFailureHandler,
+            externalCallLogger,
+            new NoOpSleeper()
         );
     }
 
     private void stubPayloadGenerator() {
         lenient().when(vendorCommunicationPayloadGenerator.buildPayloadJson(any()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
     }
 
     private void stubShopProperties() {
@@ -161,53 +156,53 @@ class FulfillmentShopClientTest {
 
     private RegisterFulfillmentShopCommand buildValidRegisterCommand() {
         return RegisterFulfillmentShopCommand.builder()
-                .customerCode("CUST001")
-                .accessToken("valid-token")
-                .shopName("테스트 매장")
-                .customerShopCode("SHOP001")
-                .dealStartDate("20260101")
-                .dealEndDate("20261231")
-                .zipCode("12345")
-                .address1("서울시")
-                .address2("강남구")
-                .ceoName("홍길동")
-                .businessNumber("123-45-67890")
-                .phoneNumber("02-1234-5678")
-                .unloadMethod("01")
-                .inspectionMethod("01")
-                .standbyYn("Y")
-                .formType("01")
-                .managerName("김철수")
-                .managerPosition("과장")
-                .managerPhoneNumber("010-1234-5678")
-                .useYn("Y")
-                .build();
+            .customerCode("CUST001")
+            .accessToken("valid-token")
+            .shopName("테스트 매장")
+            .customerShopCode("SHOP001")
+            .dealStartDate("20260101")
+            .dealEndDate("20261231")
+            .zipCode("12345")
+            .address1("서울시")
+            .address2("강남구")
+            .ceoName("홍길동")
+            .businessNumber("123-45-67890")
+            .phoneNumber("02-1234-5678")
+            .unloadMethod("01")
+            .inspectionMethod("01")
+            .standbyYn("Y")
+            .formType("01")
+            .managerName("김철수")
+            .managerPosition("과장")
+            .managerPhoneNumber("010-1234-5678")
+            .useYn("Y")
+            .build();
     }
 
     private UpdateFulfillmentShopCommand buildValidUpdateCommand() {
         return UpdateFulfillmentShopCommand.builder()
-                .customerCode("CUST001")
-                .accessToken("valid-token")
-                .shopCode("SHOP001")
-                .shopName("테스트 매장")
-                .customerShopCode("SHOP001")
-                .dealStartDate("20260101")
-                .dealEndDate("20261231")
-                .zipCode("12345")
-                .address1("서울시")
-                .address2("강남구")
-                .ceoName("홍길동")
-                .businessNumber("123-45-67890")
-                .phoneNumber("02-1234-5678")
-                .unloadMethod("01")
-                .inspectionMethod("01")
-                .standbyYn("Y")
-                .formType("01")
-                .managerName("김철수")
-                .managerPosition("과장")
-                .managerPhoneNumber("010-1234-5678")
-                .useYn("Y")
-                .build();
+            .customerCode("CUST001")
+            .accessToken("valid-token")
+            .shopCode("SHOP001")
+            .shopName("테스트 매장")
+            .customerShopCode("SHOP001")
+            .dealStartDate("20260101")
+            .dealEndDate("20261231")
+            .zipCode("12345")
+            .address1("서울시")
+            .address2("강남구")
+            .ceoName("홍길동")
+            .businessNumber("123-45-67890")
+            .phoneNumber("02-1234-5678")
+            .unloadMethod("01")
+            .inspectionMethod("01")
+            .standbyYn("Y")
+            .formType("01")
+            .managerName("김철수")
+            .managerPosition("과장")
+            .managerPhoneNumber("010-1234-5678")
+            .useYn("Y")
+            .build();
     }
 
     private String toJson(Object value) {
@@ -231,31 +226,31 @@ class FulfillmentShopClientTest {
             stubPatchChainThrows(new ResourceAccessException("Connection refused"));
 
             RegisterFulfillmentShopCommand command = RegisterFulfillmentShopCommand.builder()
-                    .customerCode("CUST001")
-                    .accessToken("valid-token")
-                    .shopName("테스트 매장")
-                    .customerShopCode("SHOP001")
-                    .dealStartDate("20260101")
-                    .dealEndDate("20261231")
-                    .zipCode("12345")
-                    .address1("서울시")
-                    .address2("강남구")
-                    .ceoName("홍길동")
-                    .businessNumber("123-45-67890")
-                    .phoneNumber("02-1234-5678")
-                    .unloadMethod("01")
-                    .inspectionMethod("01")
-                    .standbyYn("Y")
-                    .formType("01")
-                    .managerName("김철수")
-                    .managerPosition("과장")
-                    .managerPhoneNumber("010-1234-5678")
-                    .useYn("Y")
-                    .build();
+                .customerCode("CUST001")
+                .accessToken("valid-token")
+                .shopName("테스트 매장")
+                .customerShopCode("SHOP001")
+                .dealStartDate("20260101")
+                .dealEndDate("20261231")
+                .zipCode("12345")
+                .address1("서울시")
+                .address2("강남구")
+                .ceoName("홍길동")
+                .businessNumber("123-45-67890")
+                .phoneNumber("02-1234-5678")
+                .unloadMethod("01")
+                .inspectionMethod("01")
+                .standbyYn("Y")
+                .formType("01")
+                .managerName("김철수")
+                .managerPosition("과장")
+                .managerPhoneNumber("010-1234-5678")
+                .useYn("Y")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> client.registerShop(command))
-                    .isInstanceOf(RegisterFulfillmentShopFailedException.class);
+                .isInstanceOf(RegisterFulfillmentShopFailedException.class);
         }
     }
 
@@ -275,7 +270,7 @@ class FulfillmentShopClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getShops(command))
-                    .isInstanceOf(GetFulfillmentShopsFailedException.class);
+                .isInstanceOf(GetFulfillmentShopsFailedException.class);
         }
     }
 
@@ -293,7 +288,7 @@ class FulfillmentShopClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getShops(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -308,9 +303,9 @@ class FulfillmentShopClientTest {
             stubShopProperties();
             stubPayloadGenerator();
             RegisterFulfillmentShopResponse payload = new RegisterFulfillmentShopResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    new RegisterFulfillmentShopDataResponse("OK", "200", "SHOP001"),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                new RegisterFulfillmentShopDataResponse("OK", "200", "SHOP001"),
+                null
             );
             stubPatchChain(ResponseEntity.ok(toJson(payload)));
 
@@ -334,9 +329,9 @@ class FulfillmentShopClientTest {
             stubShopProperties();
             stubPayloadGenerator();
             RegisterFulfillmentShopResponse payload = new RegisterFulfillmentShopResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    new RegisterFulfillmentShopDataResponse("OK", "200", "SHOP001"),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                new RegisterFulfillmentShopDataResponse("OK", "200", "SHOP001"),
+                null
             );
             stubPatchChain(ResponseEntity.ok(toJson(payload)));
 
@@ -354,15 +349,15 @@ class FulfillmentShopClientTest {
             stubShopProperties();
             stubPayloadGenerator();
             stubPatchChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.updateShop(buildValidUpdateCommand()))
-                    .isInstanceOf(UpdateFulfillmentShopFailedException.class);
+                .isInstanceOf(UpdateFulfillmentShopFailedException.class);
         }
     }
 
@@ -377,16 +372,16 @@ class FulfillmentShopClientTest {
             stubShopProperties();
             stubPayloadGenerator();
             FulfillmentShopItemResponse item = new FulfillmentShopItemResponse(
-                    "SHOP001", "테스트 매장", "SHOPCUST", "CUST001", "Cust", "01",
-                    "20260101", "20261231", "12345", "서울시", "강남구",
-                    "홍길동", "123-45-67890", "02-1234-5678",
-                    "01", "01", "Y", "01",
-                    "김철수", "과장", "010-1234-5678", "Y"
+                "SHOP001", "테스트 매장", "SHOPCUST", "CUST001", "Cust", "01",
+                "20260101", "20261231", "12345", "서울시", "강남구",
+                "홍길동", "123-45-67890", "02-1234-5678",
+                "01", "01", "Y", "01",
+                "김철수", "과장", "010-1234-5678", "Y"
             );
             FulfillmentShopsResponse payload = new FulfillmentShopsResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(item),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(item),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
@@ -413,15 +408,15 @@ class FulfillmentShopClientTest {
             stubShopProperties();
             stubPayloadGenerator();
             stubPatchChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.registerShop(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentShopFailedException.class);
+                .isInstanceOf(RegisterFulfillmentShopFailedException.class);
         }
 
         @Test
@@ -431,15 +426,15 @@ class FulfillmentShopClientTest {
             stubShopProperties();
             stubPayloadGenerator();
             stubPatchChainThrows(new HttpServerErrorException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Internal Server Error",
-                    "server boom".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                "server boom".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.registerShop(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentShopFailedException.class);
+                .isInstanceOf(RegisterFulfillmentShopFailedException.class);
         }
 
         @Test
@@ -449,15 +444,15 @@ class FulfillmentShopClientTest {
             stubShopProperties();
             stubPayloadGenerator();
             RegisterFulfillmentShopResponse payload = new RegisterFulfillmentShopResponse(
-                    new FulfillmentResponseHeader("500", "vendor failure", 0),
-                    null,
-                    null
+                new FulfillmentResponseHeader("500", "vendor failure", 0),
+                null,
+                null
             );
             stubPatchChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.registerShop(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentShopFailedException.class);
+                .isInstanceOf(RegisterFulfillmentShopFailedException.class);
         }
 
         @Test
@@ -467,16 +462,16 @@ class FulfillmentShopClientTest {
             stubShopProperties();
             stubPayloadGenerator();
             RegisterFulfillmentShopResponse payload = new RegisterFulfillmentShopResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    new RegisterFulfillmentShopDataResponse("vendor data error", "400", null),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                new RegisterFulfillmentShopDataResponse("vendor data error", "400", null),
+                null
             );
             stubPatchChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.registerShop(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentShopFailedException.class)
-                    .hasMessageContaining("vendor data error");
+                .isInstanceOf(RegisterFulfillmentShopFailedException.class)
+                .hasMessageContaining("vendor data error");
         }
 
         @Test
@@ -489,7 +484,7 @@ class FulfillmentShopClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerShop(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentShopFailedException.class);
+                .isInstanceOf(RegisterFulfillmentShopFailedException.class);
         }
     }
 
@@ -504,17 +499,17 @@ class FulfillmentShopClientTest {
             stubShopProperties();
             stubPayloadGenerator();
             stubGetChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             GetFulfillmentShopsCommand command = GetFulfillmentShopsCommand.of("CUST001", "valid-token");
 
             // when & then
             assertThatThrownBy(() -> client.getShops(command))
-                    .isInstanceOf(GetFulfillmentShopsFailedException.class);
+                .isInstanceOf(GetFulfillmentShopsFailedException.class);
         }
 
         @Test
@@ -524,9 +519,9 @@ class FulfillmentShopClientTest {
             stubShopProperties();
             stubPayloadGenerator();
             FulfillmentShopsResponse payload = new FulfillmentShopsResponse(
-                    new FulfillmentResponseHeader("500", "fail", 0),
-                    List.of(),
-                    new FulfillmentErrorInfo("E_INTERNAL", "vendor outage", null)
+                new FulfillmentResponseHeader("500", "fail", 0),
+                List.of(),
+                new FulfillmentErrorInfo("E_INTERNAL", "vendor outage", null)
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
@@ -534,8 +529,8 @@ class FulfillmentShopClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getShops(command))
-                    .isInstanceOf(GetFulfillmentShopsFailedException.class)
-                    .hasMessageContaining("vendor outage");
+                .isInstanceOf(GetFulfillmentShopsFailedException.class)
+                .hasMessageContaining("vendor outage");
         }
 
         @Test
@@ -550,7 +545,7 @@ class FulfillmentShopClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getShops(command))
-                    .isInstanceOf(GetFulfillmentShopsFailedException.class);
+                .isInstanceOf(GetFulfillmentShopsFailedException.class);
         }
 
         @Test
@@ -560,9 +555,9 @@ class FulfillmentShopClientTest {
             stubShopProperties();
             stubPayloadGenerator();
             FulfillmentShopsResponse payload = new FulfillmentShopsResponse(
-                    new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
+                List.of(),
+                null
             );
             stubGetChain(ResponseEntity.ok(toJson(payload)));
 
@@ -570,7 +565,7 @@ class FulfillmentShopClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getShops(command))
-                    .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
+                .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
         }
 
         @Test
@@ -581,18 +576,18 @@ class FulfillmentShopClientTest {
             stubPayloadGenerator();
             String errorBody = "{\"errorInfo\":{\"errorCode\":\"E_VENDOR\",\"errorMessage\":\"vendor down\"}}";
             stubGetChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    errorBody.getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                errorBody.getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             GetFulfillmentShopsCommand command = GetFulfillmentShopsCommand.of("CUST001", "valid-token");
 
             // when & then
             assertThatThrownBy(() -> client.getShops(command))
-                    .isInstanceOf(GetFulfillmentShopsFailedException.class)
-                    .hasMessageContaining("vendor down");
+                .isInstanceOf(GetFulfillmentShopsFailedException.class)
+                .hasMessageContaining("vendor down");
         }
     }
 
@@ -609,7 +604,7 @@ class FulfillmentShopClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerShop(buildValidRegisterCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -621,7 +616,7 @@ class FulfillmentShopClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerShop(buildValidRegisterCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -643,14 +638,14 @@ class FulfillmentShopClientTest {
 
             // when
             assertThatThrownBy(() -> client.getShops(command))
-                    .isInstanceOf(GetFulfillmentShopsFailedException.class);
+                .isInstanceOf(GetFulfillmentShopsFailedException.class);
 
             // then
             verify(externalCallLogger).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("getShops"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getShops"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).record(
-                    eq(ExternalSystem.FASSTO), eq("getShops"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getShops"), any(Map.class), any(Supplier.class)
             );
         }
 
@@ -667,14 +662,14 @@ class FulfillmentShopClientTest {
 
             // when
             assertThatThrownBy(() -> client.getShops(command))
-                    .isInstanceOf(GetFulfillmentShopsFailedException.class);
+                .isInstanceOf(GetFulfillmentShopsFailedException.class);
 
             // then
             verify(externalCallLogger).record(
-                    eq(ExternalSystem.FASSTO), eq("getShops"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getShops"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("getShops"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("getShops"), any(Map.class), any(Supplier.class)
             );
         }
     }

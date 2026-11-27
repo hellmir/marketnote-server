@@ -27,36 +27,36 @@ public class GetAligoTemplateByCodeService implements GetAligoTemplateByCodeUseC
     @Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true)
     public GetAligoTemplateDetailResult getTemplateByCode(String templateCode) {
         AligoTemplate template = findAligoTemplatePort.findByTemplateCode(templateCode)
-                .orElseThrow(() -> {
-                    log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", templateCode);
-                    return new AligoTemplateNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림톡 템플릿을 찾을 수 없습니다. templateCode={}", templateCode);
+                return new AligoTemplateNotFoundException();
+            });
 
         return toDetailResult(template);
     }
 
     private GetAligoTemplateDetailResult toDetailResult(AligoTemplate template) {
         List<GetAligoTemplateDetailResult.ButtonResult> buttons = template.getButtons().stream()
-                .map(this::toButtonResult)
-                .toList();
+            .map(this::toButtonResult)
+            .toList();
 
         return new GetAligoTemplateDetailResult(
-                template.getId(), template.getSenderKey(),
-                template.getTemplateCode(), template.getTemplateName(),
-                template.getTemplateContent(), template.getTemplateTitle(),
-                template.getTemplateSubtitle(), template.getTemplateType().name(),
-                template.getTemplateEmType().name(), template.isTemplateSecure(),
-                template.isTemplateAdvert(), template.getImageUrl(),
-                template.getImageName(), template.getInspStatus(),
-                template.getTemplateStatus().name(), template.getComments(),
-                buttons
+            template.getId(), template.getSenderKey(),
+            template.getTemplateCode(), template.getTemplateName(),
+            template.getTemplateContent(), template.getTemplateTitle(),
+            template.getTemplateSubtitle(), template.getTemplateType().name(),
+            template.getTemplateEmType().name(), template.isTemplateSecure(),
+            template.isTemplateAdvert(), template.getImageUrl(),
+            template.getImageName(), template.getInspStatus(),
+            template.getTemplateStatus().name(), template.getComments(),
+            buttons
         );
     }
 
     private GetAligoTemplateDetailResult.ButtonResult toButtonResult(AligoTemplateButton button) {
         return new GetAligoTemplateDetailResult.ButtonResult(
-                button.getOrdering(), button.getName(), button.getLinkType().name(),
-                button.getLinkMo(), button.getLinkPc(), button.getLinkIos(), button.getLinkAnd()
+            button.getOrdering(), button.getName(), button.getLinkType().name(),
+            button.getLinkMo(), button.getLinkPc(), button.getLinkIos(), button.getLinkAnd()
         );
     }
 }

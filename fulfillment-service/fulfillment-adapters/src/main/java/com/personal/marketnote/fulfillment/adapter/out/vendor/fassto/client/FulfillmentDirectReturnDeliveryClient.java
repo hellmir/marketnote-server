@@ -64,14 +64,14 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
     private final Sleeper sleeper;
 
     public FulfillmentDirectReturnDeliveryClient(
-            RestClient.Builder restClientBuilder,
-            ObjectMapper objectMapper,
-            FulfillmentAuthProperties properties,
-            VendorCommunicationRecorder vendorCommunicationRecorder,
-            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            ExternalCallLogger externalCallLogger,
-            Sleeper sleeper
+        RestClient.Builder restClientBuilder,
+        ObjectMapper objectMapper,
+        FulfillmentAuthProperties properties,
+        VendorCommunicationRecorder vendorCommunicationRecorder,
+        VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+        VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+        ExternalCallLogger externalCallLogger,
+        Sleeper sleeper
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -103,8 +103,8 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
     }
 
     private RegisterFulfillmentDeliveryResponse executeDirectReturnDeliveryMutation(
-            FulfillmentDirectReturnDeliveryMapper request,
-            String action
+        FulfillmentDirectReturnDeliveryMapper request,
+        String action
     ) {
         if (FormatValidator.hasNoValue(request)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment direct return delivery request is required.");
@@ -127,11 +127,11 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
             ResponseEntity<String> response;
             try {
                 response = restClient.post()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
-                        .body(request.toPayload())
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
+                    .body(request.toPayload())
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -139,12 +139,12 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -154,8 +154,8 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
                 }
 
                 logVendorFailureWarn(
-                        "Failed to " + action.toLowerCase() + " Fulfillment direct return delivery",
-                        attempt, path, e
+                    "Failed to " + action.toLowerCase() + " Fulfillment direct return delivery",
+                    attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -172,26 +172,26 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
             RegisterFulfillmentDeliveryResponse parsedResponse = parseResponseBody(response);
             boolean isSuccess = isSuccessResponse(response, parsedResponse);
             String exception = isSuccess
-                    ? null
-                    : resolveResponseException(response, parsedResponse);
+                ? null
+                : resolveResponseException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -207,10 +207,10 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
             }
 
             log.warn("Fulfillment direct return delivery {} failed: attempt={}, status={}, exception={}",
-                    action.toLowerCase(),
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                action.toLowerCase(),
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -222,8 +222,8 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
         }
 
         logVendorFailureError(
-                "Failed to " + action.toLowerCase() + " Fulfillment direct return delivery request",
-                uri, path, error
+            "Failed to " + action.toLowerCase() + " Fulfillment direct return delivery request",
+            uri, path, error
         );
 
         throw new RegisterFulfillmentDirectReturnDeliveryFailedException(failureMessage, wrapCauseIfSensitive(path, error));
@@ -232,9 +232,9 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
     private URI buildDirectReturnDeliveryUri(String customerCode) {
         validateDirectReturnDeliveryProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getReturnDirectDeliveryPath())
-                .buildAndExpand(customerCode)
-                .toUri();
+            .path(properties.getReturnDirectDeliveryPath())
+            .buildAndExpand(customerCode)
+            .toUri();
     }
 
     private HttpHeaders buildHeaders(String accessToken) {
@@ -277,9 +277,9 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
 
     private boolean isSuccessResponse(ResponseEntity<String> response, RegisterFulfillmentDeliveryResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private String resolveResponseException(ResponseEntity<String> response, RegisterFulfillmentDeliveryResponse parsedResponse) {
@@ -300,29 +300,29 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
 
     private RegisterFulfillmentDeliveryResult mapDeliveryResult(RegisterFulfillmentDeliveryResponse response) {
         List<RegisterFulfillmentDeliveryItemResult> deliveries = FormatValidator.hasValue(response.data())
-                ? response.data().stream().map(this::mapDeliveryItem).toList()
-                : List.of();
+            ? response.data().stream().map(this::mapDeliveryItem).toList()
+            : List.of();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return RegisterFulfillmentDeliveryResult.of(dataCount, deliveries);
     }
 
     private RegisterFulfillmentDeliveryItemResult mapDeliveryItem(
-            com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentDeliveryItemResponse item
+        com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentDeliveryItemResponse item
     ) {
         return RegisterFulfillmentDeliveryItemResult.builder()
-                .fulfillmentSlipNumber(item.fmsSlipNo())
-                .orderNumber(item.orderNo())
-                .message(item.msg())
-                .code(item.code())
-                .outOfStockGoodsDetail(item.outOfStockGoodsDetail())
-                .build();
+            .fulfillmentSlipNumber(item.fmsSlipNo())
+            .orderNumber(item.orderNo())
+            .message(item.msg())
+            .code(item.code())
+            .outOfStockGoodsDetail(item.outOfStockGoodsDetail())
+            .build();
     }
 
     private JsonNode buildRequestPayloadJson(
-            FulfillmentDirectReturnDeliveryMapper request,
-            URI uri,
-            int attempt,
-            String action
+        FulfillmentDirectReturnDeliveryMapper request,
+        URI uri,
+        int attempt,
+        String action
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.POST.name());
@@ -368,8 +368,8 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
         if (FormatValidator.hasValue(rawBody)) {
             try {
                 FulfillmentErrorResponse errorResponse = objectMapper.readValue(
-                        rawBody,
-                        FulfillmentErrorResponse.class
+                    rawBody,
+                    FulfillmentErrorResponse.class
                 );
                 return errorResponse.resolveErrorMessage();
             } catch (JsonProcessingException ignored) {
@@ -420,8 +420,8 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
     private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
         if (isSensitivePath(path)) {
             log.warn(
-                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, attempt, e.getClass().getSimpleName()
+                "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, attempt, e.getClass().getSimpleName()
             );
             return;
         }
@@ -431,8 +431,8 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
     private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
         if (isSensitivePath(path)) {
             log.error(
-                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, uri, error.getClass().getSimpleName()
+                "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, uri, error.getClass().getSimpleName()
             );
             return;
         }

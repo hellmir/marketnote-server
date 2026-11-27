@@ -176,9 +176,9 @@ class KafkaConsumerRebalancingScenarioTest {
         try {
             // Consumer A, B를 동일 groupId로 구독
             Future<?> futureA = executor.submit(() ->
-                    consumeAsync(groupId, consumerARunning, consumerAMessages, bothSubscribed));
+                consumeAsync(groupId, consumerARunning, consumerAMessages, bothSubscribed));
             Future<?> futureB = executor.submit(() ->
-                    consumeAsync(groupId, consumerBRunning, consumerBMessages, bothSubscribed));
+                consumeAsync(groupId, consumerBRunning, consumerBMessages, bothSubscribed));
 
             // 두 Consumer 모두 구독 대기
             assertThat(bothSubscribed.await(30, TimeUnit.SECONDS)).isTrue();
@@ -201,7 +201,7 @@ class KafkaConsumerRebalancingScenarioTest {
             futureA.get(15, TimeUnit.SECONDS);
 
             assertThat(consumerAMessages.stream().filter(v -> v.startsWith("이탈후-")).count())
-                    .isEqualTo(messageCount);
+                .isEqualTo(messageCount);
         } finally {
             consumerARunning.set(false);
             consumerBRunning.set(false);
@@ -227,13 +227,13 @@ class KafkaConsumerRebalancingScenarioTest {
         try {
             // Consumer A만 먼저 구독 (3개 파티션 전부 점유)
             Future<?> futureA = executor.submit(() ->
-                    consumeAsync(groupId, consumerARunning, consumerAMessages, consumerASubscribed));
+                consumeAsync(groupId, consumerARunning, consumerAMessages, consumerASubscribed));
             assertThat(consumerASubscribed.await(30, TimeUnit.SECONDS)).isTrue();
             Thread.sleep(SESSION_TIMEOUT_MS);
 
             // when — Consumer C를 추가 구독 (리밸런싱 트리거)
             Future<?> futureC = executor.submit(() ->
-                    consumeAsync(groupId, consumerCRunning, consumerCMessages, consumerCSubscribed));
+                consumeAsync(groupId, consumerCRunning, consumerCMessages, consumerCSubscribed));
             assertThat(consumerCSubscribed.await(30, TimeUnit.SECONDS)).isTrue();
 
             // 리밸런싱 완료 대기
@@ -283,13 +283,13 @@ class KafkaConsumerRebalancingScenarioTest {
         try {
             // Consumer A 구독 중
             Future<?> futureA = executor.submit(() ->
-                    consumeAsync(groupId, consumerARunning, consumerAMessages, consumerASubscribed));
+                consumeAsync(groupId, consumerARunning, consumerAMessages, consumerASubscribed));
             assertThat(consumerASubscribed.await(30, TimeUnit.SECONDS)).isTrue();
             Thread.sleep(SESSION_TIMEOUT_MS);
 
             // when — Consumer B 추가 (리밸런싱 트리거) + 동시에 메시지 발행
             Future<?> futureB = executor.submit(() ->
-                    consumeAsync(groupId, consumerBRunning, consumerBMessages, consumerBSubscribed));
+                consumeAsync(groupId, consumerBRunning, consumerBMessages, consumerBSubscribed));
 
             int messageCount = 30;
             publishMessages("loss-key", "리밸런싱중-", messageCount);
@@ -304,7 +304,7 @@ class KafkaConsumerRebalancingScenarioTest {
             futureB.get(15, TimeUnit.SECONDS);
 
             long totalReceived = consumerAMessages.stream().filter(v -> v.startsWith("리밸런싱중-")).count()
-                    + consumerBMessages.stream().filter(v -> v.startsWith("리밸런싱중-")).count();
+                + consumerBMessages.stream().filter(v -> v.startsWith("리밸런싱중-")).count();
 
             assertThat(totalReceived).isEqualTo(messageCount);
         } finally {
@@ -337,7 +337,7 @@ class KafkaConsumerRebalancingScenarioTest {
                 runningFlags.add(flag);
                 messageQueues.add(queue);
                 futures.add(executor.submit(() ->
-                        consumeAsync(groupId, flag, queue, allSubscribed)));
+                    consumeAsync(groupId, flag, queue, allSubscribed)));
             }
 
             assertThat(allSubscribed.await(30, TimeUnit.SECONDS)).isTrue();
@@ -359,8 +359,8 @@ class KafkaConsumerRebalancingScenarioTest {
             long totalCount = 0;
             for (ConcurrentLinkedQueue<String> queue : messageQueues) {
                 List<String> values = queue.stream()
-                        .filter(v -> v.startsWith("dup-check-"))
-                        .toList();
+                    .filter(v -> v.startsWith("dup-check-"))
+                    .toList();
                 totalCount += values.size();
                 for (String value : values) {
                     boolean added = allValues.add(value);
@@ -438,7 +438,7 @@ class KafkaConsumerRebalancingScenarioTest {
 
             Future<?> futureA = executor.submit(() -> {
                 try (KafkaConsumer<String, String> consumerA = createConsumerWithShortPollInterval(
-                        groupId, shortPollIntervalMs)) {
+                    groupId, shortPollIntervalMs)) {
                     consumerA.subscribe(Collections.singletonList(testTopic));
                     consumerA.poll(Duration.ofSeconds(5));
                     consumerASubscribed.countDown();
@@ -457,7 +457,7 @@ class KafkaConsumerRebalancingScenarioTest {
             assertThat(consumerASubscribed.await(30, TimeUnit.SECONDS)).isTrue();
 
             Future<?> futureB = executor.submit(() ->
-                    consumeAsync(groupId, consumerBRunning, consumerBMessages, consumerBSubscribed));
+                consumeAsync(groupId, consumerBRunning, consumerBMessages, consumerBSubscribed));
             assertThat(consumerBSubscribed.await(30, TimeUnit.SECONDS)).isTrue();
 
             // Consumer A 킥아웃 대기 (shortPollInterval * 3 + 리밸런싱 여유)
@@ -475,7 +475,7 @@ class KafkaConsumerRebalancingScenarioTest {
 
             assertThat(consumerAKickedOut.get()).isTrue();
             assertThat(consumerBMessages.stream().filter(v -> v.startsWith("킥아웃후-")).count())
-                    .isEqualTo(messageCount);
+                .isEqualTo(messageCount);
         } finally {
             consumerBRunning.set(false);
             executor.shutdownNow();
@@ -499,7 +499,7 @@ class KafkaConsumerRebalancingScenarioTest {
         for (int attempt = 0; attempt < READY_CHECK_MAX_ATTEMPTS; attempt++) {
             try (KafkaProducer<String, String> producer = createProducer()) {
                 Future<RecordMetadata> future = producer.send(
-                        new ProducerRecord<>(testTopic, "readiness-" + attempt, "cluster-ready-check")
+                    new ProducerRecord<>(testTopic, "readiness-" + attempt, "cluster-ready-check")
                 );
                 future.get(5, TimeUnit.SECONDS);
                 return;
@@ -508,7 +508,7 @@ class KafkaConsumerRebalancingScenarioTest {
             }
         }
         throw new IllegalStateException(
-                "Kafka 클러스터가 " + READY_CHECK_MAX_ATTEMPTS + "회 시도 후에도 준비되지 않음");
+            "Kafka 클러스터가 " + READY_CHECK_MAX_ATTEMPTS + "회 시도 후에도 준비되지 않음");
     }
 
     private void publishMessages(String keyPrefix, String valuePrefix, int count) throws Exception {

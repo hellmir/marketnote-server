@@ -29,11 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
@@ -101,8 +97,8 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         GiftishowOperationTargetTypeResolver resolver = new GiftishowOperationTargetTypeResolver();
 
         giftishowApiClient = new GiftishowApiClient(
-                properties, builder.build(), objectMapper, externalCallLogger,
-                vendorCommunicationRecorder, payloadGenerator, resolver
+            properties, builder.build(), objectMapper, externalCallLogger,
+            vendorCommunicationRecorder, payloadGenerator, resolver
         );
     }
 
@@ -114,34 +110,34 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("getProductList 정상 호출 시 REQUEST/RESPONSE 2건이 COUPON targetType으로 record된다")
         void shouldRecordRequestAndResponseForProductList() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/goods"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"list_total_cnt\":0,\"goodsList\":[]}}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"list_total_cnt\":0,\"goodsList\":[]}}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             giftishowApiClient.getProductList(0, 20);
 
             // REQUEST (8-arg overload — exception 포함)
             verify(vendorCommunicationRecorder).record(
-                    eq(RewardVendorCommunicationTargetType.COUPON),
-                    eq(RewardVendorCommunicationType.REQUEST),
-                    eq(RewardVendorCommunicationSenderType.SERVER),
-                    any(),
-                    eq(RewardVendorName.GIFTISHOW),
-                    any(String.class),
-                    any(JsonNode.class)
+                eq(RewardVendorCommunicationTargetType.COUPON),
+                eq(RewardVendorCommunicationType.REQUEST),
+                eq(RewardVendorCommunicationSenderType.SERVER),
+                any(),
+                eq(RewardVendorName.GIFTISHOW),
+                any(String.class),
+                any(JsonNode.class)
             );
             // RESPONSE (8-arg overload — exception 포함)
             verify(vendorCommunicationRecorder).record(
-                    eq(RewardVendorCommunicationTargetType.COUPON),
-                    eq(RewardVendorCommunicationType.RESPONSE),
-                    eq(RewardVendorCommunicationSenderType.VENDOR),
-                    any(),
-                    eq(RewardVendorName.GIFTISHOW),
-                    any(String.class),
-                    any(JsonNode.class),
-                    any()
+                eq(RewardVendorCommunicationTargetType.COUPON),
+                eq(RewardVendorCommunicationType.RESPONSE),
+                eq(RewardVendorCommunicationSenderType.VENDOR),
+                any(),
+                eq(RewardVendorName.GIFTISHOW),
+                any(String.class),
+                any(JsonNode.class),
+                any()
             );
         }
 
@@ -149,23 +145,23 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("getProductDetail 정상 호출 시 targetId=goodsCode로 record된다")
         void shouldRecordWithGoodsCodeAsTargetId() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/goods/" + GOODS_CODE))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"goodsCode\":\"G001\",\"goodsName\":\"테스트\",\"goodsImgB\":\"http://x\",\"brandCode\":\"B001\",\"brandName\":\"브\",\"brandIconImg\":\"http://x\",\"category1Seq\":\"1\",\"salePrice\":1000,\"realPrice\":2000,\"limitDay\":30,\"content\":\"c\",\"goodsStateCd\":\"SALE\"}}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"goodsCode\":\"G001\",\"goodsName\":\"테스트\",\"goodsImgB\":\"http://x\",\"brandCode\":\"B001\",\"brandName\":\"브\",\"brandIconImg\":\"http://x\",\"category1Seq\":\"1\",\"salePrice\":1000,\"realPrice\":2000,\"limitDay\":30,\"content\":\"c\",\"goodsStateCd\":\"SALE\"}}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             giftishowApiClient.getProductDetail(GOODS_CODE);
 
             ArgumentCaptor<String> targetIdCaptor = ArgumentCaptor.forClass(String.class);
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
-                    any(RewardVendorCommunicationTargetType.class),
-                    any(RewardVendorCommunicationType.class),
-                    any(RewardVendorCommunicationSenderType.class),
-                    targetIdCaptor.capture(),
-                    any(RewardVendorName.class),
-                    any(String.class),
-                    any(JsonNode.class)
+                any(RewardVendorCommunicationTargetType.class),
+                any(RewardVendorCommunicationType.class),
+                any(RewardVendorCommunicationSenderType.class),
+                targetIdCaptor.capture(),
+                any(RewardVendorName.class),
+                any(String.class),
+                any(JsonNode.class)
             );
             assertThat(targetIdCaptor.getAllValues()).contains(GOODS_CODE);
         }
@@ -174,23 +170,23 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("getBrandDetail 정상 호출 시 targetId=brandCode로 record된다")
         void shouldRecordWithBrandCodeAsTargetId() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/brands/" + BRAND_CODE))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"brand_code\":\"B001\",\"brand_name\":\"브\",\"brand_icon_img\":\"http://x\",\"category1Seq\":\"1\",\"category1Name\":\"카\"}}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"brand_code\":\"B001\",\"brand_name\":\"브\",\"brand_icon_img\":\"http://x\",\"category1Seq\":\"1\",\"category1Name\":\"카\"}}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             giftishowApiClient.getBrandDetail(BRAND_CODE);
 
             ArgumentCaptor<String> targetIdCaptor = ArgumentCaptor.forClass(String.class);
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
-                    any(RewardVendorCommunicationTargetType.class),
-                    any(RewardVendorCommunicationType.class),
-                    any(RewardVendorCommunicationSenderType.class),
-                    targetIdCaptor.capture(),
-                    any(RewardVendorName.class),
-                    any(String.class),
-                    any(JsonNode.class)
+                any(RewardVendorCommunicationTargetType.class),
+                any(RewardVendorCommunicationType.class),
+                any(RewardVendorCommunicationSenderType.class),
+                targetIdCaptor.capture(),
+                any(RewardVendorName.class),
+                any(String.class),
+                any(JsonNode.class)
             );
             assertThat(targetIdCaptor.getAllValues()).contains(BRAND_CODE);
         }
@@ -199,22 +195,22 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("getBrandList 정상 호출 시 REQUEST/RESPONSE record된다")
         void shouldRecordForBrandList() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/brands"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"list_total_cnt\":0,\"brandList\":[]}}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"list_total_cnt\":0,\"brandList\":[]}}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             giftishowApiClient.getBrandList();
 
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
-                    eq(RewardVendorCommunicationTargetType.COUPON),
-                    eq(RewardVendorCommunicationType.REQUEST),
-                    eq(RewardVendorCommunicationSenderType.SERVER),
-                    any(),
-                    eq(RewardVendorName.GIFTISHOW),
-                    any(String.class),
-                    any(JsonNode.class)
+                eq(RewardVendorCommunicationTargetType.COUPON),
+                eq(RewardVendorCommunicationType.REQUEST),
+                eq(RewardVendorCommunicationSenderType.SERVER),
+                any(),
+                eq(RewardVendorName.GIFTISHOW),
+                any(String.class),
+                any(JsonNode.class)
             );
         }
 
@@ -222,23 +218,23 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("cancelCoupon 정상 호출 시 COUPON targetType + targetId=trId로 record된다")
         void shouldRecordForCancelCouponAsCoupon() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/cancel"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"tr_id\":\"" + TR_ID + "\",\"order_no\":\"ORD001\"}}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"tr_id\":\"" + TR_ID + "\",\"order_no\":\"ORD001\"}}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             giftishowApiClient.cancelCoupon(TR_ID, USER_ID);
 
             ArgumentCaptor<String> targetIdCaptor = ArgumentCaptor.forClass(String.class);
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
-                    eq(RewardVendorCommunicationTargetType.COUPON),
-                    any(RewardVendorCommunicationType.class),
-                    any(RewardVendorCommunicationSenderType.class),
-                    targetIdCaptor.capture(),
-                    any(RewardVendorName.class),
-                    any(String.class),
-                    any(JsonNode.class)
+                eq(RewardVendorCommunicationTargetType.COUPON),
+                any(RewardVendorCommunicationType.class),
+                any(RewardVendorCommunicationSenderType.class),
+                targetIdCaptor.capture(),
+                any(RewardVendorName.class),
+                any(String.class),
+                any(JsonNode.class)
             );
             assertThat(targetIdCaptor.getAllValues()).contains(TR_ID);
         }
@@ -247,32 +243,32 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("getBizMoneyBalance 정상 호출 시 BIZMONEY targetType으로 record된다")
         void shouldRecordForBizmoneyBalanceAsBizmoney() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/bizmoney"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"user_id\":\"" + USER_ID + "\",\"biz_money\":1000}}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"user_id\":\"" + USER_ID + "\",\"biz_money\":1000}}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             giftishowApiClient.getBizMoneyBalance(USER_ID);
 
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
-                    eq(RewardVendorCommunicationTargetType.BIZMONEY),
-                    eq(RewardVendorCommunicationType.REQUEST),
-                    eq(RewardVendorCommunicationSenderType.SERVER),
-                    any(),
-                    eq(RewardVendorName.GIFTISHOW),
-                    any(String.class),
-                    any(JsonNode.class)
+                eq(RewardVendorCommunicationTargetType.BIZMONEY),
+                eq(RewardVendorCommunicationType.REQUEST),
+                eq(RewardVendorCommunicationSenderType.SERVER),
+                any(),
+                eq(RewardVendorName.GIFTISHOW),
+                any(String.class),
+                any(JsonNode.class)
             );
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
-                    eq(RewardVendorCommunicationTargetType.BIZMONEY),
-                    eq(RewardVendorCommunicationType.RESPONSE),
-                    eq(RewardVendorCommunicationSenderType.VENDOR),
-                    any(),
-                    eq(RewardVendorName.GIFTISHOW),
-                    any(String.class),
-                    any(JsonNode.class),
-                    any()
+                eq(RewardVendorCommunicationTargetType.BIZMONEY),
+                eq(RewardVendorCommunicationType.RESPONSE),
+                eq(RewardVendorCommunicationSenderType.VENDOR),
+                any(),
+                eq(RewardVendorName.GIFTISHOW),
+                any(String.class),
+                any(JsonNode.class),
+                any()
             );
         }
 
@@ -280,22 +276,22 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("cancelSendFailedCoupon 정상 호출 시 COUPON targetType으로 record된다")
         void shouldRecordForCancelSendFailedCoupon() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/sendFail/cancel"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"tr_id\":\"" + TR_ID + "\",\"order_no\":\"ORD001\"}}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"tr_id\":\"" + TR_ID + "\",\"order_no\":\"ORD001\"}}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             giftishowApiClient.cancelSendFailedCoupon(TR_ID, USER_ID);
 
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
-                    eq(RewardVendorCommunicationTargetType.COUPON),
-                    eq(RewardVendorCommunicationType.REQUEST),
-                    eq(RewardVendorCommunicationSenderType.SERVER),
-                    any(),
-                    eq(RewardVendorName.GIFTISHOW),
-                    any(String.class),
-                    any(JsonNode.class)
+                eq(RewardVendorCommunicationTargetType.COUPON),
+                eq(RewardVendorCommunicationType.REQUEST),
+                eq(RewardVendorCommunicationSenderType.SERVER),
+                any(),
+                eq(RewardVendorName.GIFTISHOW),
+                any(String.class),
+                any(JsonNode.class)
             );
         }
     }
@@ -308,31 +304,31 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("sendCoupon 정상 호출 시 응답 payload에 핀번호 raw가 포함되지 않는다")
         void shouldNotPersistRawPinNumberOnSendCouponSuccess() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"tr_id\":\"" + TR_ID + "\",\"order_no\":\"ORD001\",\"pin_no\":\"" + PIN_NO + "\",\"coupon_img_url\":\"http://x\",\"valid_prd_end_dt\":\"20260503\"}}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"tr_id\":\"" + TR_ID + "\",\"order_no\":\"ORD001\",\"pin_no\":\"" + PIN_NO + "\",\"coupon_img_url\":\"http://x\",\"valid_prd_end_dt\":\"20260503\"}}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             giftishowApiClient.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null);
 
             ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
             // RESPONSE (8-arg) 만 캡처 (exception 인자 포함된 오버로드)
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
-                    any(RewardVendorCommunicationTargetType.class),
-                    eq(RewardVendorCommunicationType.RESPONSE),
-                    any(RewardVendorCommunicationSenderType.class),
-                    any(),
-                    any(RewardVendorName.class),
-                    payloadCaptor.capture(),
-                    any(JsonNode.class),
-                    any()
+                any(RewardVendorCommunicationTargetType.class),
+                eq(RewardVendorCommunicationType.RESPONSE),
+                any(RewardVendorCommunicationSenderType.class),
+                any(),
+                any(RewardVendorName.class),
+                payloadCaptor.capture(),
+                any(JsonNode.class),
+                any()
             );
 
             for (String payload : payloadCaptor.getAllValues()) {
                 assertThat(payload)
-                        .as("응답 payload에 핀번호 raw가 포함되면 안 됨")
-                        .doesNotContain(PIN_NO);
+                    .as("응답 payload에 핀번호 raw가 포함되면 안 됨")
+                    .doesNotContain(PIN_NO);
             }
         }
 
@@ -340,29 +336,29 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("sendCoupon 호출 시 REQUEST payload에 폰번호 raw가 포함되지 않는다")
         void shouldNotPersistRawPhoneNumberOnSendCouponRequest() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"tr_id\":\"" + TR_ID + "\",\"order_no\":\"ORD001\",\"pin_no\":\"" + PIN_NO + "\",\"coupon_img_url\":\"http://x\",\"valid_prd_end_dt\":\"20260503\"}}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"tr_id\":\"" + TR_ID + "\",\"order_no\":\"ORD001\",\"pin_no\":\"" + PIN_NO + "\",\"coupon_img_url\":\"http://x\",\"valid_prd_end_dt\":\"20260503\"}}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             giftishowApiClient.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null);
 
             ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
-                    any(RewardVendorCommunicationTargetType.class),
-                    eq(RewardVendorCommunicationType.REQUEST),
-                    any(RewardVendorCommunicationSenderType.class),
-                    any(),
-                    any(RewardVendorName.class),
-                    payloadCaptor.capture(),
-                    any(JsonNode.class)
+                any(RewardVendorCommunicationTargetType.class),
+                eq(RewardVendorCommunicationType.REQUEST),
+                any(RewardVendorCommunicationSenderType.class),
+                any(),
+                any(RewardVendorName.class),
+                payloadCaptor.capture(),
+                any(JsonNode.class)
             );
 
             for (String payload : payloadCaptor.getAllValues()) {
                 assertThat(payload)
-                        .as("REQUEST payload에 폰번호 raw가 포함되면 안 됨")
-                        .doesNotContain(PHONE_NO);
+                    .as("REQUEST payload에 폰번호 raw가 포함되면 안 됨")
+                    .doesNotContain(PHONE_NO);
             }
         }
 
@@ -370,89 +366,89 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("sendCoupon 정상 응답 시 비식별화 토큰(masked=true)만 응답 payload에 포함된다")
         void shouldPersistMaskedTokenOnly() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"tr_id\":\"" + TR_ID + "\",\"order_no\":\"ORD001\",\"pin_no\":\"" + PIN_NO + "\",\"coupon_img_url\":\"http://x\",\"valid_prd_end_dt\":\"20260503\"}}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"tr_id\":\"" + TR_ID + "\",\"order_no\":\"ORD001\",\"pin_no\":\"" + PIN_NO + "\",\"coupon_img_url\":\"http://x\",\"valid_prd_end_dt\":\"20260503\"}}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             giftishowApiClient.sendCoupon(TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null);
 
             ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
-                    any(RewardVendorCommunicationTargetType.class),
-                    eq(RewardVendorCommunicationType.RESPONSE),
-                    any(RewardVendorCommunicationSenderType.class),
-                    any(),
-                    any(RewardVendorName.class),
-                    payloadCaptor.capture(),
-                    any(JsonNode.class),
-                    any()
+                any(RewardVendorCommunicationTargetType.class),
+                eq(RewardVendorCommunicationType.RESPONSE),
+                any(RewardVendorCommunicationSenderType.class),
+                any(),
+                any(RewardVendorName.class),
+                payloadCaptor.capture(),
+                any(JsonNode.class),
+                any()
             );
 
             assertThat(payloadCaptor.getValue())
-                    .contains("\"masked\":true")
-                    .contains("\"operation\":\"coupon.send\"");
+                .contains("\"masked\":true")
+                .contains("\"operation\":\"coupon.send\"");
         }
 
         @Test
         @DisplayName("getCouponDetail 정상 응답 시 응답 payload에 핀번호/식별 정보가 포함되지 않는다")
         void shouldNotPersistRawSensitiveDataOnGetCouponDetail() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/coupons"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":[{\"couponInfoList\":[{\"trId\":\"" + TR_ID + "\",\"orderNo\":\"ORD001\",\"pinStatusCd\":\"01\",\"pinStatusNm\":\"발행\",\"validPrdEndDt\":\"20260503\",\"goodsCd\":\"G001\",\"goodsNm\":\"테스트\"}]}]}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":[{\"couponInfoList\":[{\"trId\":\"" + TR_ID + "\",\"orderNo\":\"ORD001\",\"pinStatusCd\":\"01\",\"pinStatusNm\":\"발행\",\"validPrdEndDt\":\"20260503\",\"goodsCd\":\"G001\",\"goodsNm\":\"테스트\"}]}]}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             giftishowApiClient.getCouponDetail(TR_ID);
 
             ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
-                    any(RewardVendorCommunicationTargetType.class),
-                    eq(RewardVendorCommunicationType.RESPONSE),
-                    any(RewardVendorCommunicationSenderType.class),
-                    any(),
-                    any(RewardVendorName.class),
-                    payloadCaptor.capture(),
-                    any(JsonNode.class),
-                    any()
+                any(RewardVendorCommunicationTargetType.class),
+                eq(RewardVendorCommunicationType.RESPONSE),
+                any(RewardVendorCommunicationSenderType.class),
+                any(),
+                any(RewardVendorName.class),
+                payloadCaptor.capture(),
+                any(JsonNode.class),
+                any()
             );
 
             // 식별 정보(테스트 상품명) 포함 안 됨 확인
             assertThat(payloadCaptor.getValue())
-                    .as("sensitive path 응답은 비식별화 토큰만")
-                    .contains("\"masked\":true")
-                    .doesNotContain("테스트");
+                .as("sensitive path 응답은 비식별화 토큰만")
+                .contains("\"masked\":true")
+                .doesNotContain("테스트");
         }
 
         @Test
         @DisplayName("resendCoupon 정상 응답 시 응답 payload에 폰번호/식별 정보가 포함되지 않는다")
         void shouldNotPersistRawSensitiveDataOnResendCoupon() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/resend"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"tr_id\":\"" + TR_ID + "\",\"order_no\":\"ORD001\"}}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"tr_id\":\"" + TR_ID + "\",\"order_no\":\"ORD001\"}}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             giftishowApiClient.resendCoupon(TR_ID, PHONE_NO);
 
             ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
-                    any(RewardVendorCommunicationTargetType.class),
-                    eq(RewardVendorCommunicationType.RESPONSE),
-                    any(RewardVendorCommunicationSenderType.class),
-                    any(),
-                    any(RewardVendorName.class),
-                    payloadCaptor.capture(),
-                    any(JsonNode.class),
-                    any()
+                any(RewardVendorCommunicationTargetType.class),
+                eq(RewardVendorCommunicationType.RESPONSE),
+                any(RewardVendorCommunicationSenderType.class),
+                any(),
+                any(RewardVendorName.class),
+                payloadCaptor.capture(),
+                any(JsonNode.class),
+                any()
             );
 
             assertThat(payloadCaptor.getValue())
-                    .contains("\"masked\":true")
-                    .doesNotContain(PHONE_NO);
+                .contains("\"masked\":true")
+                .doesNotContain(PHONE_NO);
         }
     }
 
@@ -464,32 +460,32 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("HTTP 5xx 실패 시 REQUEST + 실패 RESPONSE 모두 record된다")
         void shouldRecordRequestAndFailureResponseOnHttp5xx() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/goods"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
 
             assertThatThrownBy(() -> giftishowApiClient.getProductList(0, 20))
-                    .isInstanceOf(GiftishowCommunicationException.class);
+                .isInstanceOf(GiftishowCommunicationException.class);
 
             // REQUEST (7-arg)
             verify(vendorCommunicationRecorder).record(
-                    eq(RewardVendorCommunicationTargetType.COUPON),
-                    eq(RewardVendorCommunicationType.REQUEST),
-                    eq(RewardVendorCommunicationSenderType.SERVER),
-                    any(),
-                    eq(RewardVendorName.GIFTISHOW),
-                    any(String.class),
-                    any(JsonNode.class)
+                eq(RewardVendorCommunicationTargetType.COUPON),
+                eq(RewardVendorCommunicationType.REQUEST),
+                eq(RewardVendorCommunicationSenderType.SERVER),
+                any(),
+                eq(RewardVendorName.GIFTISHOW),
+                any(String.class),
+                any(JsonNode.class)
             );
             // RESPONSE (8-arg, exception)
             verify(vendorCommunicationRecorder).record(
-                    eq(RewardVendorCommunicationTargetType.COUPON),
-                    eq(RewardVendorCommunicationType.RESPONSE),
-                    eq(RewardVendorCommunicationSenderType.VENDOR),
-                    any(),
-                    eq(RewardVendorName.GIFTISHOW),
-                    any(String.class),
-                    any(JsonNode.class),
-                    any()
+                eq(RewardVendorCommunicationTargetType.COUPON),
+                eq(RewardVendorCommunicationType.RESPONSE),
+                eq(RewardVendorCommunicationSenderType.VENDOR),
+                any(),
+                eq(RewardVendorName.GIFTISHOW),
+                any(String.class),
+                any(JsonNode.class),
+                any()
             );
         }
 
@@ -497,36 +493,36 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("sendCoupon HTTP 실패 시에도 응답 payload에 핀번호 raw가 포함되지 않는다")
         void shouldNotLeakSensitiveDataOnSendCouponFailure() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/send"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body("{\"pin_no\":\"" + PIN_NO + "\"}")
-                            .contentType(MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"pin_no\":\"" + PIN_NO + "\"}")
+                    .contentType(MediaType.APPLICATION_JSON));
 
             assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                    TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null
+                TR_ID, GOODS_CODE, PHONE_NO, USER_ID, "msg", "title", null
             )).isInstanceOf(GiftishowCommunicationException.class);
 
             ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
             verify(vendorCommunicationRecorder, atLeastOnce()).record(
-                    any(RewardVendorCommunicationTargetType.class),
-                    any(RewardVendorCommunicationType.class),
-                    any(RewardVendorCommunicationSenderType.class),
-                    any(),
-                    any(RewardVendorName.class),
-                    payloadCaptor.capture(),
-                    any(JsonNode.class),
-                    any()
+                any(RewardVendorCommunicationTargetType.class),
+                any(RewardVendorCommunicationType.class),
+                any(RewardVendorCommunicationSenderType.class),
+                any(),
+                any(RewardVendorName.class),
+                payloadCaptor.capture(),
+                any(JsonNode.class),
+                any()
             );
 
             for (String payload : payloadCaptor.getAllValues()) {
                 assertThat(payload)
-                        .as("실패 시에도 핀번호 raw 영속 0건")
-                        .doesNotContain(PIN_NO);
+                    .as("실패 시에도 핀번호 raw 영속 0건")
+                    .doesNotContain(PIN_NO);
             }
             for (String payload : payloadCaptor.getAllValues()) {
                 assertThat(payload)
-                        .as("실패 시에도 폰번호 raw 영속 0건")
-                        .doesNotContain(PHONE_NO);
+                    .as("실패 시에도 폰번호 raw 영속 0건")
+                    .doesNotContain(PHONE_NO);
             }
         }
     }
@@ -539,23 +535,23 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("vendorCommunicationRecorder.record가 예외를 던져도 외부 호출 결과는 정상 반환된다")
         void shouldNotPropagateRecorderFailure() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/goods"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"list_total_cnt\":0,\"goodsList\":[]}}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"list_total_cnt\":0,\"goodsList\":[]}}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             org.mockito.Mockito.doThrow(new RuntimeException("recorder DB down"))
-                    .when(vendorCommunicationRecorder)
-                    .record(
-                            any(RewardVendorCommunicationTargetType.class),
-                            any(RewardVendorCommunicationType.class),
-                            any(RewardVendorCommunicationSenderType.class),
-                            any(),
-                            any(RewardVendorName.class),
-                            any(String.class),
-                            any(JsonNode.class)
-                    );
+                .when(vendorCommunicationRecorder)
+                .record(
+                    any(RewardVendorCommunicationTargetType.class),
+                    any(RewardVendorCommunicationType.class),
+                    any(RewardVendorCommunicationSenderType.class),
+                    any(),
+                    any(RewardVendorName.class),
+                    any(String.class),
+                    any(JsonNode.class)
+                );
 
             // 외부 호출은 정상 반환되어야 함
             assertThat(giftishowApiClient.getProductList(0, 20).isSuccess()).isTrue();
@@ -570,44 +566,44 @@ class GiftishowApiClientVendorCommunicationRecordTest {
         @DisplayName("getProductList 호출 시 vendorName=GIFTISHOW로 REQUEST/RESPONSE 각각 record된다")
         void shouldRecordVendorNameAsGiftishow() {
             mockServer.expect(requestTo(BASE_URL + "/bizApi/goods"))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess(
-                            "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"list_total_cnt\":0,\"goodsList\":[]}}",
-                            MediaType.APPLICATION_JSON
-                    ));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(
+                    "{\"code\":\"0000\",\"message\":\"success\",\"result\":{\"list_total_cnt\":0,\"goodsList\":[]}}",
+                    MediaType.APPLICATION_JSON
+                ));
 
             giftishowApiClient.getProductList(0, 20);
 
             // REQUEST (7-arg)
             verify(vendorCommunicationRecorder, times(1)).record(
-                    any(RewardVendorCommunicationTargetType.class),
-                    eq(RewardVendorCommunicationType.REQUEST),
-                    any(RewardVendorCommunicationSenderType.class),
-                    any(),
-                    eq(RewardVendorName.GIFTISHOW),
-                    any(String.class),
-                    any(JsonNode.class)
+                any(RewardVendorCommunicationTargetType.class),
+                eq(RewardVendorCommunicationType.REQUEST),
+                any(RewardVendorCommunicationSenderType.class),
+                any(),
+                eq(RewardVendorName.GIFTISHOW),
+                any(String.class),
+                any(JsonNode.class)
             );
             // RESPONSE (8-arg)
             verify(vendorCommunicationRecorder, times(1)).record(
-                    any(RewardVendorCommunicationTargetType.class),
-                    eq(RewardVendorCommunicationType.RESPONSE),
-                    any(RewardVendorCommunicationSenderType.class),
-                    any(),
-                    eq(RewardVendorName.GIFTISHOW),
-                    any(String.class),
-                    any(JsonNode.class),
-                    any()
+                any(RewardVendorCommunicationTargetType.class),
+                eq(RewardVendorCommunicationType.RESPONSE),
+                any(RewardVendorCommunicationSenderType.class),
+                any(),
+                eq(RewardVendorName.GIFTISHOW),
+                any(String.class),
+                any(JsonNode.class),
+                any()
             );
             verify(vendorCommunicationRecorder, never()).record(
-                    any(RewardVendorCommunicationTargetType.class),
-                    any(RewardVendorCommunicationType.class),
-                    any(RewardVendorCommunicationSenderType.class),
-                    any(),
-                    eq(RewardVendorName.ADPOPCORN),
-                    any(String.class),
-                    any(JsonNode.class),
-                    any()
+                any(RewardVendorCommunicationTargetType.class),
+                any(RewardVendorCommunicationType.class),
+                any(RewardVendorCommunicationSenderType.class),
+                any(),
+                eq(RewardVendorName.ADPOPCORN),
+                any(String.class),
+                any(JsonNode.class),
+                any()
             );
         }
     }

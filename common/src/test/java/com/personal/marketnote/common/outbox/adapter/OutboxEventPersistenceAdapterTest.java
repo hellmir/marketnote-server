@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 @DisplayName("OutboxEventPersistenceAdapter 테스트")
 class OutboxEventPersistenceAdapterTest {
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-03-15T10:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-03-15T10:00:00Z"), ZoneId.of("Asia/Seoul")
     );
 
     @InjectMocks
@@ -37,8 +37,8 @@ class OutboxEventPersistenceAdapterTest {
     void save_convertsOutboxEventToJpaEntityAndPersists() {
         // given
         OutboxEvent event = OutboxEvent.of(
-                "event-id-1", "commerce.payment.approved", "order-123",
-                "PaymentApproved", "commerce-service", "{\"orderId\":123}", FIXED_CLOCK
+            "event-id-1", "commerce.payment.approved", "order-123",
+            "PaymentApproved", "commerce-service", "{\"orderId\":123}", FIXED_CLOCK
         );
 
         // when

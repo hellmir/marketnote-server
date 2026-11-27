@@ -32,11 +32,11 @@ import static com.personal.marketnote.common.utility.ApiConstant.*;
 @Slf4j
 public class CommerceServiceClient implements RegisterInventoryPort {
     private static final ProductServiceCommunicationTargetType TARGET_TYPE =
-            ProductServiceCommunicationTargetType.INVENTORY;
+        ProductServiceCommunicationTargetType.INVENTORY;
     private static final ProductServiceCommunicationSenderType REQUEST_SENDER =
-            ProductServiceCommunicationSenderType.PRODUCT;
+        ProductServiceCommunicationSenderType.PRODUCT;
     private static final ProductServiceCommunicationSenderType RESPONSE_SENDER =
-            ProductServiceCommunicationSenderType.COMMERCE;
+        ProductServiceCommunicationSenderType.COMMERCE;
 
     private final RestClient restClient;
     private final String commerceServiceBaseUrl;
@@ -45,11 +45,11 @@ public class CommerceServiceClient implements RegisterInventoryPort {
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
     public CommerceServiceClient(
-            RestClient.Builder restClientBuilder,
-            @Value("${commerce-service.base-url}") String commerceServiceBaseUrl,
-            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
-            ServiceCommunicationRecorder serviceCommunicationRecorder,
-            ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
+        RestClient.Builder restClientBuilder,
+        @Value("${commerce-service.base-url}") String commerceServiceBaseUrl,
+        HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
+        ServiceCommunicationRecorder serviceCommunicationRecorder,
+        ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
     ) {
         this.restClient = restClientBuilder.build();
         this.commerceServiceBaseUrl = commerceServiceBaseUrl;
@@ -61,10 +61,10 @@ public class CommerceServiceClient implements RegisterInventoryPort {
     @Override
     public void registerInventory(Long productId, Long pricePolicyId) {
         URI uri = UriComponentsBuilder
-                .fromUriString(commerceServiceBaseUrl)
-                .path("/api/v1/internal/inventories")
-                .build()
-                .toUri();
+            .fromUriString(commerceServiceBaseUrl)
+            .path("/api/v1/internal/inventories")
+            .build()
+            .toUri();
 
         RegisterInventoryRequest requestBody = new RegisterInventoryRequest(productId, pricePolicyId);
         sendRegisterRequest(uri, requestBody, pricePolicyId);
@@ -79,52 +79,52 @@ public class CommerceServiceClient implements RegisterInventoryPort {
             int attempt = i + 1;
             try {
                 ResponseEntity<Void> responseEntity = restClient.post()
-                        .uri(uri)
-                        .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(requestBody)
-                        .retrieve()
-                        .toBodilessEntity();
+                    .uri(uri)
+                    .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(requestBody)
+                    .retrieve()
+                    .toBodilessEntity();
 
                 if (responseEntity.getStatusCode().isError()) {
                     throw new CommerceServiceRequestFailedException(new IOException("Commerce service returned error: " + responseEntity.getStatusCode()));
                 }
                 return;
             } catch (RestClientException
-                    | HmacSignatureGenerationFailedException
-                    | CommerceServiceRequestFailedException e) {
+                     | HmacSignatureGenerationFailedException
+                     | CommerceServiceRequestFailedException e) {
                 // boundary E (retry): transient/runtime 오류 retry, 비결정적 RuntimeException(NPE 등)은 우회.
                 // CommerceServiceRequestFailedException 은 5xx 응답 변환 경로(line 88) — 5xx retry 동작 보존.
                 // GeneralSecurityException 은 HmacSignatureGenerator 내부에서 HmacSignatureGenerationFailedException 으로 wrap 됨.
                 String exception = e.getClass().getSimpleName();
                 JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
-                        HttpMethod.POST,
-                        uri,
-                        requestBody,
-                        attempt
+                    HttpMethod.POST,
+                    uri,
+                    requestBody,
+                    attempt
                 );
                 String requestPayload = requestPayloadJson.toString();
                 JsonNode responsePayloadJson = serviceCommunicationPayloadGenerator.buildErrorPayloadJson(
-                        exception,
-                        e.getMessage(),
-                        attempt
+                    exception,
+                    e.getMessage(),
+                    attempt
                 );
                 String responsePayload = responsePayloadJson.toString();
                 recordCommunication(
-                        TARGET_TYPE,
-                        targetId,
-                        ProductServiceCommunicationType.REQUEST,
-                        requestPayload,
-                        requestPayloadJson,
-                        exception
+                    TARGET_TYPE,
+                    targetId,
+                    ProductServiceCommunicationType.REQUEST,
+                    requestPayload,
+                    requestPayloadJson,
+                    exception
                 );
                 recordCommunication(
-                        TARGET_TYPE,
-                        targetId,
-                        ProductServiceCommunicationType.RESPONSE,
-                        responsePayload,
-                        responsePayloadJson,
-                        exception
+                    TARGET_TYPE,
+                    targetId,
+                    ProductServiceCommunicationType.RESPONSE,
+                    responsePayload,
+                    responsePayloadJson,
+                    exception
                 );
                 log.warn(e.getMessage(), e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
@@ -133,7 +133,7 @@ public class CommerceServiceClient implements RegisterInventoryPort {
 
                 try {
                     long jitteredSleepMillis = ThreadLocalRandom.current()
-                            .nextLong(Math.max(1L, sleepMillis) + 1);
+                        .nextLong(Math.max(1L, sleepMillis) + 1);
                     Thread.sleep(jitteredSleepMillis);
                 } catch (InterruptedException ignored) {
                     // 백오프 대기 중 인터럽트 — interrupt flag 복원 후 재시도 중단 (정상 종료 경로)
@@ -150,27 +150,27 @@ public class CommerceServiceClient implements RegisterInventoryPort {
     }
 
     private void recordCommunication(
-            ProductServiceCommunicationTargetType targetType,
-            String targetId,
-            ProductServiceCommunicationType communicationType,
-            String payload,
-            JsonNode payloadJson,
-            String exception
+        ProductServiceCommunicationTargetType targetType,
+        String targetId,
+        ProductServiceCommunicationType communicationType,
+        String payload,
+        JsonNode payloadJson,
+        String exception
     ) {
         if (FormatValidator.hasNoValue(exception)) {
             return;
         }
 
         ProductServiceCommunicationSenderType sender =
-                communicationType == ProductServiceCommunicationType.REQUEST ? REQUEST_SENDER : RESPONSE_SENDER;
+            communicationType == ProductServiceCommunicationType.REQUEST ? REQUEST_SENDER : RESPONSE_SENDER;
         serviceCommunicationRecorder.record(
-                targetType,
-                communicationType,
-                sender,
-                targetId,
-                payload,
-                payloadJson,
-                exception
+            targetType,
+            communicationType,
+            sender,
+            targetId,
+            payload,
+            payloadJson,
+            exception
         );
     }
 }

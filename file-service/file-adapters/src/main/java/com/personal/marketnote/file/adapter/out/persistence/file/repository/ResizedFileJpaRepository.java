@@ -9,12 +9,12 @@ import java.util.List;
 
 public interface ResizedFileJpaRepository extends JpaRepository<ResizedFileJpaEntity, Long> {
     @Query("""
-            SELECT r
-            FROM ResizedFileJpaEntity r
-            WHERE r.file.id IN :fileIds
-              AND r.status = 'ACTIVE'
-            ORDER BY r.id DESC
-            """)
+        SELECT r
+        FROM ResizedFileJpaEntity r
+        WHERE r.file.id IN :fileIds
+          AND r.status = 'ACTIVE'
+        ORDER BY r.id DESC
+        """)
     List<ResizedFileJpaEntity> findAllByFile_IdIn(@Param("fileIds") List<Long> fileIds);
 }
 

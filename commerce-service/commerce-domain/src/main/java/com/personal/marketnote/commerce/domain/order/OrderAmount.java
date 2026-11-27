@@ -17,32 +17,32 @@ public class OrderAmount {
 
     public static OrderAmount from(OrderAmountCreateState state) {
         return OrderAmount.builder()
-                .totalAmount(resolveMoneyOrZero(state.getTotalAmount()))
-                .paidAmount(resolveMoneyOrZero(state.getPaidAmount()))
-                .couponAmount(resolveMoneyOrZero(state.getCouponAmount()))
-                .pointAmount(resolveMoneyOrZero(state.getPointAmount()))
-                .shippingFee(resolveMoneyOrZero(state.getShippingFee()))
-                .build();
+            .totalAmount(resolveMoneyOrZero(state.getTotalAmount()))
+            .paidAmount(resolveMoneyOrZero(state.getPaidAmount()))
+            .couponAmount(resolveMoneyOrZero(state.getCouponAmount()))
+            .pointAmount(resolveMoneyOrZero(state.getPointAmount()))
+            .shippingFee(resolveMoneyOrZero(state.getShippingFee()))
+            .build();
     }
 
     public static OrderAmount from(OrderAmountSnapshotState state) {
         return OrderAmount.builder()
-                .totalAmount(resolveMoneyOrZero(state.getTotalAmount()))
-                .paidAmount(resolveMoneyOrZero(state.getPaidAmount()))
-                .couponAmount(resolveMoneyOrZero(state.getCouponAmount()))
-                .pointAmount(resolveMoneyOrZero(state.getPointAmount()))
-                .shippingFee(resolveMoneyOrZero(state.getShippingFee()))
-                .build();
+            .totalAmount(resolveMoneyOrZero(state.getTotalAmount()))
+            .paidAmount(resolveMoneyOrZero(state.getPaidAmount()))
+            .couponAmount(resolveMoneyOrZero(state.getCouponAmount()))
+            .pointAmount(resolveMoneyOrZero(state.getPointAmount()))
+            .shippingFee(resolveMoneyOrZero(state.getShippingFee()))
+            .build();
     }
 
     public OrderAmount withPaidAmount(Money paidAmount) {
         return OrderAmount.builder()
-                .totalAmount(totalAmount)
-                .paidAmount(paidAmount)
-                .couponAmount(couponAmount)
-                .pointAmount(pointAmount)
-                .shippingFee(shippingFee)
-                .build();
+            .totalAmount(totalAmount)
+            .paidAmount(paidAmount)
+            .couponAmount(couponAmount)
+            .pointAmount(pointAmount)
+            .shippingFee(shippingFee)
+            .build();
     }
 
     private static Money resolveMoneyOrZero(Long value) {

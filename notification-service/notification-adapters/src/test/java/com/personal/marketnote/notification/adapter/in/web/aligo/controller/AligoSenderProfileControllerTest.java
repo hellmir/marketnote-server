@@ -59,15 +59,15 @@ class AligoSenderProfileControllerTest {
         void shouldMapRequestAndReturnCreated() {
             // given
             when(authenticateAligoSenderProfileUseCase.authenticateSenderProfile(
-                    new AuthenticateAligoSenderProfileCommand("@pluschannel", "01012345678")
+                new AuthenticateAligoSenderProfileCommand("@pluschannel", "01012345678")
             )).thenReturn(new AuthenticateAligoSenderProfileResult("sk-1", "@pluschannel"));
 
             AuthenticateAligoSenderProfileRequest request =
-                    new AuthenticateAligoSenderProfileRequest("@pluschannel", "01012345678");
+                new AuthenticateAligoSenderProfileRequest("@pluschannel", "01012345678");
 
             // when
             ResponseEntity<BaseResponse<AuthenticateAligoSenderProfileResponse>> response =
-                    controller.authenticateSenderProfile(request);
+                controller.authenticateSenderProfile(request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -75,7 +75,7 @@ class AligoSenderProfileControllerTest {
             assertThat(body.senderKey()).isEqualTo("sk-1");
             assertThat(body.plusId()).isEqualTo("@pluschannel");
             verify(authenticateAligoSenderProfileUseCase).authenticateSenderProfile(
-                    new AuthenticateAligoSenderProfileCommand("@pluschannel", "01012345678")
+                new AuthenticateAligoSenderProfileCommand("@pluschannel", "01012345678")
             );
         }
     }
@@ -89,20 +89,20 @@ class AligoSenderProfileControllerTest {
         void shouldDelegateCategoryCodeAndReturnCreated() {
             // given
             when(registerAligoSenderProfileUseCase.registerSenderProfile(
-                    new RegisterAligoSenderProfileCommand("sk-1", "CAT-1")
+                new RegisterAligoSenderProfileCommand("sk-1", "CAT-1")
             )).thenReturn(new RegisterAligoSenderProfileResult(1L, "sk-1", "CAT-1"));
 
             RegisterAligoSenderProfileRequest request =
-                    new RegisterAligoSenderProfileRequest("sk-1", "CAT-1");
+                new RegisterAligoSenderProfileRequest("sk-1", "CAT-1");
 
             // when
             ResponseEntity<BaseResponse<RegisterAligoSenderProfileResponse>> response =
-                    controller.registerSenderProfile(request);
+                controller.registerSenderProfile(request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             ArgumentCaptor<RegisterAligoSenderProfileCommand> captor =
-                    ArgumentCaptor.forClass(RegisterAligoSenderProfileCommand.class);
+                ArgumentCaptor.forClass(RegisterAligoSenderProfileCommand.class);
             verify(registerAligoSenderProfileUseCase).registerSenderProfile(captor.capture());
             RegisterAligoSenderProfileCommand command = captor.getValue();
             assertThat(command.senderKey()).isEqualTo("sk-1");
@@ -119,20 +119,20 @@ class AligoSenderProfileControllerTest {
         void shouldReturnAllProfiles() {
             // given
             GetAligoSenderProfileListResult result = new GetAligoSenderProfileListResult(List.of(
-                    new GetAligoSenderProfileListResult.AligoSenderProfileResult(
-                            1L, "sk-1", "@channel1", "채널1",
-                            "CAT-1", "APR", "A", true
-                    ),
-                    new GetAligoSenderProfileListResult.AligoSenderProfileResult(
-                            2L, "sk-2", "@channel2", "채널2",
-                            "CAT-2", "REG", "W", false
-                    )
+                new GetAligoSenderProfileListResult.AligoSenderProfileResult(
+                    1L, "sk-1", "@channel1", "채널1",
+                    "CAT-1", "APR", "A", true
+                ),
+                new GetAligoSenderProfileListResult.AligoSenderProfileResult(
+                    2L, "sk-2", "@channel2", "채널2",
+                    "CAT-2", "REG", "W", false
+                )
             ));
             when(getAligoSenderProfileListUseCase.getSenderProfileList()).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<GetAligoSenderProfileListResponse>> response =
-                    controller.getSenderProfileList();
+                controller.getSenderProfileList();
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -160,11 +160,11 @@ class AligoSenderProfileControllerTest {
                 }
                 PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
                 assertThat(annotation)
-                        .as("메서드 %s 에 @PreAuthorize가 부착되어야 한다", method.getName())
-                        .isNotNull();
+                    .as("메서드 %s 에 @PreAuthorize가 부착되어야 한다", method.getName())
+                    .isNotNull();
                 assertThat(annotation.value())
-                        .as("메서드 %s 의 @PreAuthorize 값은 ADMIN_POINTCUT이어야 한다", method.getName())
-                        .isEqualTo(expected);
+                    .as("메서드 %s 의 @PreAuthorize 값은 ADMIN_POINTCUT이어야 한다", method.getName())
+                    .isEqualTo(expected);
             }
         }
     }
@@ -191,11 +191,11 @@ class AligoSenderProfileControllerTest {
             try {
                 Field field = recordClass.getDeclaredField(fieldName);
                 assertThat(field.getAnnotation(NotBlank.class))
-                        .as("%s.%s 필드에 @NotBlank가 부착되어야 한다", recordClass.getSimpleName(), fieldName)
-                        .isNotNull();
+                    .as("%s.%s 필드에 @NotBlank가 부착되어야 한다", recordClass.getSimpleName(), fieldName)
+                    .isNotNull();
             } catch (NoSuchFieldException e) {
                 throw new IllegalArgumentException(
-                        recordClass.getSimpleName() + "에 " + fieldName + " 필드가 없다", e
+                    recordClass.getSimpleName() + "에 " + fieldName + " 필드가 없다", e
                 );
             }
         }

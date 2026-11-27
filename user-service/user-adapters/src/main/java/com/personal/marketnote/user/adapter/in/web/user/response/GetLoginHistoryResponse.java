@@ -9,19 +9,19 @@ import java.time.LocalDateTime;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetLoginHistoryResponse(
-        Long id,
-        Long userId,
-        AuthVendor authVendor,
-        String ipAddress,
-        LocalDateTime loggedInAt
+    Long id,
+    Long userId,
+    AuthVendor authVendor,
+    String ipAddress,
+    LocalDateTime loggedInAt
 ) {
     public static GetLoginHistoryResponse from(GetLoginHistoryResult result) {
         return GetLoginHistoryResponse.builder()
-                .id(result.id())
-                .userId(result.userId())
-                .authVendor(result.authVendor())
-                .ipAddress(result.ipAddress())
-                .loggedInAt(result.loggedInAt())
-                .build();
+            .id(result.id())
+            .userId(result.userId())
+            .authVendor(result.authVendor())
+            .ipAddress(result.ipAddress())
+            .loggedInAt(result.loggedInAt())
+            .build();
     }
 }

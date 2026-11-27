@@ -28,12 +28,12 @@ public class FulfillmentInventorySyncedConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED,
-            groupId = "commerce-fulfillment-inventory-sync"
+        topics = KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED,
+        groupId = "commerce-fulfillment-inventory-sync"
     )
     public void handleFulfillmentInventorySyncedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -49,26 +49,26 @@ public class FulfillmentInventorySyncedConsumer {
 
         try {
             FulfillmentInventorySyncedEvent payload = envelope.getPayloadAs(
-                    FulfillmentInventorySyncedEvent.class, objectMapper
+                FulfillmentInventorySyncedEvent.class, objectMapper
             );
 
             log.info("풀필먼트 재고 동기화 이벤트 수신. eventId={}, inventoryCount={}",
-                    envelope.eventId(), payload.inventories().size()
+                envelope.eventId(), payload.inventories().size()
             );
 
             if (payload.inventories().size() > SyncFulfillmentVendorInventoryCommand.MAX_INVENTORIES_SIZE) {
                 log.warn(
-                        "풀필먼트 재고 동기화 이벤트 크기 상한 초과 (skip). eventId={}, inventoryCount={}, max={}",
-                        envelope.eventId(), payload.inventories().size(),
-                        SyncFulfillmentVendorInventoryCommand.MAX_INVENTORIES_SIZE
+                    "풀필먼트 재고 동기화 이벤트 크기 상한 초과 (skip). eventId={}, inventoryCount={}, max={}",
+                    envelope.eventId(), payload.inventories().size(),
+                    SyncFulfillmentVendorInventoryCommand.MAX_INVENTORIES_SIZE
                 );
                 acknowledgment.acknowledge();
                 return;
             }
 
             List<SyncFulfillmentVendorInventoryItemCommand> items = payload.inventories().stream()
-                    .map(item -> SyncFulfillmentVendorInventoryItemCommand.of(item.productKey(), item.stock()))
-                    .toList();
+                .map(item -> SyncFulfillmentVendorInventoryItemCommand.of(item.productKey(), item.stock()))
+                .toList();
 
             SyncFulfillmentVendorInventoryCommand command = SyncFulfillmentVendorInventoryCommand.of(items);
             syncFulfillmentVendorInventoryUseCase.syncInventories(command);

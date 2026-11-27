@@ -17,11 +17,11 @@ public class SelectableProductOptionResponse {
 
     public static SelectableProductOptionResponse from(SelectableProductOptionItemResult result) {
         return SelectableProductOptionResponse.builder()
-                .id(result.id())
-                .content(result.content())
-                .status(result.status())
-                .isSelected(result.isSelected())
-                .build();
+            .id(result.id())
+            .content(result.content())
+            .status(result.status())
+            .isSelected(result.isSelected())
+            .build();
     }
 }
 

@@ -36,12 +36,12 @@ class CommunityServiceCommunicationHistoryPersistenceAdapterTest {
         CommunityServiceCommunicationHistory history = buildHistory();
         LocalDateTime savedAt = LocalDateTime.of(2026, 4, 15, 10, 0);
         given(repository.save(any(CommunityServiceCommunicationHistoryJpaEntity.class)))
-                .willAnswer(invocation -> {
-                    CommunityServiceCommunicationHistoryJpaEntity arg = invocation.getArgument(0);
-                    ReflectionTestUtils.setField(arg, "id", 999L);
-                    ReflectionTestUtils.setField(arg, "createdAt", savedAt);
-                    return arg;
-                });
+            .willAnswer(invocation -> {
+                CommunityServiceCommunicationHistoryJpaEntity arg = invocation.getArgument(0);
+                ReflectionTestUtils.setField(arg, "id", 999L);
+                ReflectionTestUtils.setField(arg, "createdAt", savedAt);
+                return arg;
+            });
 
         CommunityServiceCommunicationHistory saved = adapter.save(history);
 
@@ -60,12 +60,12 @@ class CommunityServiceCommunicationHistoryPersistenceAdapterTest {
     void delegatesSaveWithMappedEntity() {
         CommunityServiceCommunicationHistory history = buildHistory();
         given(repository.save(any(CommunityServiceCommunicationHistoryJpaEntity.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
+            .willAnswer(invocation -> invocation.getArgument(0));
 
         adapter.save(history);
 
         ArgumentCaptor<CommunityServiceCommunicationHistoryJpaEntity> captor =
-                ArgumentCaptor.forClass(CommunityServiceCommunicationHistoryJpaEntity.class);
+            ArgumentCaptor.forClass(CommunityServiceCommunicationHistoryJpaEntity.class);
         verify(repository).save(captor.capture());
         verifyNoMoreInteractions(repository);
         CommunityServiceCommunicationHistoryJpaEntity captured = captor.getValue();
@@ -79,15 +79,15 @@ class CommunityServiceCommunicationHistoryPersistenceAdapterTest {
 
     private CommunityServiceCommunicationHistory buildHistory() {
         return CommunityServiceCommunicationHistory.from(
-                CommunityServiceCommunicationHistoryCreateState.builder()
-                        .targetType(CommunityServiceCommunicationTargetType.PRODUCT_INFO)
-                        .targetId("target-42")
-                        .communicationType(CommunityServiceCommunicationType.REQUEST)
-                        .sender(CommunityServiceCommunicationSenderType.PRODUCT)
-                        .exception("TimeoutException")
-                        .payload("payload-body")
-                        .payloadJson(null)
-                        .build()
+            CommunityServiceCommunicationHistoryCreateState.builder()
+                .targetType(CommunityServiceCommunicationTargetType.PRODUCT_INFO)
+                .targetId("target-42")
+                .communicationType(CommunityServiceCommunicationType.REQUEST)
+                .sender(CommunityServiceCommunicationSenderType.PRODUCT)
+                .exception("TimeoutException")
+                .payload("payload-body")
+                .payloadJson(null)
+                .build()
         );
     }
 }

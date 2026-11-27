@@ -43,7 +43,7 @@ class DeleteDeviceTokenUseCaseTest {
         DeviceToken existing = activeDeviceToken(10L, 100L, "device-uuid-001");
 
         when(findDeviceTokenPort.findActiveByDeviceId("device-uuid-001"))
-                .thenReturn(Optional.of(existing));
+            .thenReturn(Optional.of(existing));
 
         // when
         deleteDeviceTokenService.deleteDeviceToken(command);
@@ -59,11 +59,11 @@ class DeleteDeviceTokenUseCaseTest {
         DeleteDeviceTokenCommand command = new DeleteDeviceTokenCommand(100L, "device-uuid-001");
 
         when(findDeviceTokenPort.findActiveByDeviceId("device-uuid-001"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> deleteDeviceTokenService.deleteDeviceToken(command))
-                .isInstanceOf(DeviceTokenNotFoundException.class);
+            .isInstanceOf(DeviceTokenNotFoundException.class);
         verify(deleteDeviceTokenPort, never()).deleteById(any());
     }
 
@@ -75,25 +75,25 @@ class DeleteDeviceTokenUseCaseTest {
         DeviceToken existing = activeDeviceToken(10L, 100L, "device-uuid-001");
 
         when(findDeviceTokenPort.findActiveByDeviceId("device-uuid-001"))
-                .thenReturn(Optional.of(existing));
+            .thenReturn(Optional.of(existing));
 
         // when & then
         assertThatThrownBy(() -> deleteDeviceTokenService.deleteDeviceToken(command))
-                .isInstanceOf(DeviceTokenNotFoundException.class);
+            .isInstanceOf(DeviceTokenNotFoundException.class);
         verify(deleteDeviceTokenPort, never()).deleteById(any());
     }
 
     private DeviceToken activeDeviceToken(Long id, Long userId, String deviceId) {
         return DeviceToken.from(DeviceTokenSnapshotState.builder()
-                .id(id)
-                .userId(userId)
-                .token("fcm-token-value")
-                .platform(Platform.ANDROID)
-                .deviceId(deviceId)
-                .lastUsedAt(NOW)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(NOW)
-                .modifiedAt(NOW)
-                .build());
+            .id(id)
+            .userId(userId)
+            .token("fcm-token-value")
+            .platform(Platform.ANDROID)
+            .deviceId(deviceId)
+            .lastUsedAt(NOW)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(NOW)
+            .modifiedAt(NOW)
+            .build());
     }
 }

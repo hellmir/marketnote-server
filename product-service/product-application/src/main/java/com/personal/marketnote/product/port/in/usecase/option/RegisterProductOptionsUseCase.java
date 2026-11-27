@@ -21,6 +21,6 @@ public interface RegisterProductOptionsUseCase {
      * @Description 상품 옵션을 등록합니다.
      */
     UpdateProductOptionsResult registerProductOptions(
-            Long userId, boolean isAdmin, RegisterProductOptionsCommand command
+        Long userId, boolean isAdmin, RegisterProductOptionsCommand command
     );
 }

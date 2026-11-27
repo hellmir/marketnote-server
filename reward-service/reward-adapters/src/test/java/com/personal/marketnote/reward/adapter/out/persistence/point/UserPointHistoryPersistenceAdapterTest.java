@@ -41,17 +41,17 @@ class UserPointHistoryPersistenceAdapterTest {
 
     private UserPointHistoryJpaEntity buildEntity(Long id) {
         UserPointHistory restored = UserPointHistory.from(UserPointHistorySnapshotState.builder()
-                .id(id)
-                .userId(USER_ID)
-                .changeType(UserPointChangeType.ACCRUAL)
-                .amount(PointAmount.of(1_000L))
-                .isReflected(true)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(100L + id)
-                .reason("주문 적립")
-                .accumulatedAt(LocalDateTime.of(2026, 4, 10, 12, 0))
-                .createdAt(LocalDateTime.of(2026, 4, 10, 12, 0))
-                .build());
+            .id(id)
+            .userId(USER_ID)
+            .changeType(UserPointChangeType.ACCRUAL)
+            .amount(PointAmount.of(1_000L))
+            .isReflected(true)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(100L + id)
+            .reason("주문 적립")
+            .accumulatedAt(LocalDateTime.of(2026, 4, 10, 12, 0))
+            .createdAt(LocalDateTime.of(2026, 4, 10, 12, 0))
+            .build());
         return UserPointHistoryJpaEntity.from(restored);
     }
 
@@ -64,17 +64,17 @@ class UserPointHistoryPersistenceAdapterTest {
         void shouldReturnDomainWhenSaveSucceeds() {
             // given
             UserPointHistory history = UserPointHistory.from(UserPointHistoryCreateState.builder()
-                    .userId(USER_ID)
-                    .changeType(UserPointChangeType.ACCRUAL)
-                    .amount(PointAmount.of(1_000L))
-                    .isReflected(true)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(100L)
-                    .reason("주문 적립")
-                    .accumulatedAt(LocalDateTime.of(2026, 4, 10, 12, 0))
-                    .build());
+                .userId(USER_ID)
+                .changeType(UserPointChangeType.ACCRUAL)
+                .amount(PointAmount.of(1_000L))
+                .isReflected(true)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(100L)
+                .reason("주문 적립")
+                .accumulatedAt(LocalDateTime.of(2026, 4, 10, 12, 0))
+                .build());
             given(repository.saveAndFlush(any(UserPointHistoryJpaEntity.class)))
-                    .willAnswer(invocation -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
             UserPointHistory saved = adapter.save(history);
@@ -91,21 +91,21 @@ class UserPointHistoryPersistenceAdapterTest {
         void shouldThrowDuplicateExceptionWhenDataIntegrityViolation() {
             // given
             UserPointHistory history = UserPointHistory.from(UserPointHistoryCreateState.builder()
-                    .userId(USER_ID)
-                    .changeType(UserPointChangeType.ACCRUAL)
-                    .amount(PointAmount.of(1_000L))
-                    .isReflected(true)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(100L)
-                    .reason("주문 적립")
-                    .accumulatedAt(LocalDateTime.now())
-                    .build());
+                .userId(USER_ID)
+                .changeType(UserPointChangeType.ACCRUAL)
+                .amount(PointAmount.of(1_000L))
+                .isReflected(true)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(100L)
+                .reason("주문 적립")
+                .accumulatedAt(LocalDateTime.now())
+                .build());
             given(repository.saveAndFlush(any(UserPointHistoryJpaEntity.class)))
-                    .willThrow(new DataIntegrityViolationException("dup"));
+                .willThrow(new DataIntegrityViolationException("dup"));
 
             // when & then
             assertThatThrownBy(() -> adapter.save(history))
-                    .isInstanceOf(DuplicateUserPointHistoryException.class);
+                .isInstanceOf(DuplicateUserPointHistoryException.class);
         }
     }
 
@@ -118,13 +118,13 @@ class UserPointHistoryPersistenceAdapterTest {
         void shouldUseAllFilterQuery() {
             // given
             given(repository.findByUserIdAndDateRange(eq(USER_ID), any(), any(), any(), any(Pageable.class)))
-                    .willReturn(List.of(buildEntity(1L), buildEntity(2L)));
+                .willReturn(List.of(buildEntity(1L), buildEntity(2L)));
 
             // when
             List<UserPointHistory> result = adapter.findByUserId(
-                    USER_ID, UserPointHistoryFilter.ALL,
-                    LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30),
-                    null, 10
+                USER_ID, UserPointHistoryFilter.ALL,
+                LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30),
+                null, 10
             );
 
             // then
@@ -137,20 +137,20 @@ class UserPointHistoryPersistenceAdapterTest {
         void shouldUseChangeTypeFilterQuery() {
             // given
             given(repository.findByUserIdAndDateRangeAndChangeType(
-                    eq(USER_ID), any(), any(), eq(UserPointChangeType.ACCRUAL), any(), any(Pageable.class)))
-                    .willReturn(List.of(buildEntity(1L)));
+                eq(USER_ID), any(), any(), eq(UserPointChangeType.ACCRUAL), any(), any(Pageable.class)))
+                .willReturn(List.of(buildEntity(1L)));
 
             // when
             List<UserPointHistory> result = adapter.findByUserId(
-                    USER_ID, UserPointHistoryFilter.ACCRUAL,
-                    LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30),
-                    null, 10
+                USER_ID, UserPointHistoryFilter.ACCRUAL,
+                LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30),
+                null, 10
             );
 
             // then
             assertThat(result).hasSize(1);
             verify(repository).findByUserIdAndDateRangeAndChangeType(
-                    eq(USER_ID), any(), any(), eq(UserPointChangeType.ACCRUAL), any(), any(Pageable.class));
+                eq(USER_ID), any(), any(), eq(UserPointChangeType.ACCRUAL), any(), any(Pageable.class));
         }
     }
 
@@ -163,7 +163,7 @@ class UserPointHistoryPersistenceAdapterTest {
         void shouldUseAllFilterCount() {
             given(repository.countByUserIdAndDateRange(eq(USER_ID), any(), any())).willReturn(5L);
             long count = adapter.countByUserId(USER_ID, UserPointHistoryFilter.ALL,
-                    LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30));
+                LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30));
             assertThat(count).isEqualTo(5L);
         }
 
@@ -171,9 +171,9 @@ class UserPointHistoryPersistenceAdapterTest {
         @DisplayName("DEDUCTION 필터일 때 changeType 조건이 포함된 카운트를 호출한다")
         void shouldUseChangeTypeFilterCount() {
             given(repository.countByUserIdAndDateRangeAndChangeType(
-                    eq(USER_ID), any(), any(), eq(UserPointChangeType.DEDUCTION))).willReturn(3L);
+                eq(USER_ID), any(), any(), eq(UserPointChangeType.DEDUCTION))).willReturn(3L);
             long count = adapter.countByUserId(USER_ID, UserPointHistoryFilter.DEDUCTION,
-                    LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30));
+                LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30));
             assertThat(count).isEqualTo(3L);
         }
     }
@@ -182,10 +182,10 @@ class UserPointHistoryPersistenceAdapterTest {
     @DisplayName("findUnreflectedByUserIdAndSource는 isReflected=false 조건으로 조회한다")
     void shouldFindUnreflected() {
         given(repository.findByUserIdAndIsReflectedAndSourceTypeAndSourceId(
-                USER_ID, Boolean.FALSE, UserPointSourceType.ORDER, 100L))
-                .willReturn(List.of(buildEntity(1L)));
+            USER_ID, Boolean.FALSE, UserPointSourceType.ORDER, 100L))
+            .willReturn(List.of(buildEntity(1L)));
         List<UserPointHistory> result = adapter.findUnreflectedByUserIdAndSource(
-                USER_ID, UserPointSourceType.ORDER, 100L);
+            USER_ID, UserPointSourceType.ORDER, 100L);
         assertThat(result).hasSize(1);
     }
 
@@ -200,7 +200,7 @@ class UserPointHistoryPersistenceAdapterTest {
     @DisplayName("countCompletedReferrals는 USER 소스 + 추천인 적립 사유로 카운트한다")
     void shouldCountCompletedReferrals() {
         given(repository.countByUserIdAndSourceTypeAndReason(USER_ID, UserPointSourceType.USER, REFERRER_POINT_REASON))
-                .willReturn(7L);
+            .willReturn(7L);
         assertThat(adapter.countCompletedReferrals(USER_ID)).isEqualTo(7L);
     }
 
@@ -208,8 +208,8 @@ class UserPointHistoryPersistenceAdapterTest {
     @DisplayName("sumReferralEarnedAmount는 기본 사유와 누적 보너스 사유 패턴 합계를 반환한다")
     void shouldSumReferralEarnedAmount() {
         given(repository.sumReferralEarnedAmount(
-                USER_ID, UserPointSourceType.USER, REFERRER_POINT_REASON, REFERRAL_BONUS_REASON_PREFIX))
-                .willReturn(15_000L);
+            USER_ID, UserPointSourceType.USER, REFERRER_POINT_REASON, REFERRAL_BONUS_REASON_PREFIX))
+            .willReturn(15_000L);
         assertThat(adapter.sumReferralEarnedAmount(USER_ID)).isEqualTo(15_000L);
     }
 
@@ -217,8 +217,8 @@ class UserPointHistoryPersistenceAdapterTest {
     @DisplayName("isAlreadyClaimed는 USER 소스+사용자 ID+티어 사유 존재 여부를 반환한다")
     void shouldCheckAlreadyClaimed() {
         given(repository.existsByUserIdAndSourceTypeAndSourceIdAndReason(
-                USER_ID, UserPointSourceType.USER, USER_ID, ReferralBonusTier.TIER_1.getReason()))
-                .willReturn(true);
+            USER_ID, UserPointSourceType.USER, USER_ID, ReferralBonusTier.TIER_1.getReason()))
+            .willReturn(true);
         assertThat(adapter.isAlreadyClaimed(USER_ID, ReferralBonusTier.TIER_1)).isTrue();
     }
 }

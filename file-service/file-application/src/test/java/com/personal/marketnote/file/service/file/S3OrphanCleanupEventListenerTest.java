@@ -11,9 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class S3OrphanCleanupEventListenerTest {
@@ -47,8 +45,8 @@ class S3OrphanCleanupEventListenerTest {
     @DisplayName("storage URL 목록이 존재하면 UploadFilesPort.deleteFiles를 호출한다")
     void shouldInvokeDeleteWhenUrlsPresent() {
         List<String> urls = List.of(
-                "https://bucket.s3.amazonaws.com/product/1/100_a.png",
-                "https://bucket.s3.amazonaws.com/product/1/200_b.png"
+            "https://bucket.s3.amazonaws.com/product/1/100_a.png",
+            "https://bucket.s3.amazonaws.com/product/1/200_b.png"
         );
         S3OrphanCleanupEvent event = new S3OrphanCleanupEvent(urls);
 

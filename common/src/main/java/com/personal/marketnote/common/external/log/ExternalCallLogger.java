@@ -92,7 +92,7 @@ public class ExternalCallLogger {
      * 예: 토큰 발급, PIN/카드번호 raw 응답 본문 등.
      */
     public <T> T recordSensitive(
-            ExternalSystem system, String operation, Map<String, String> tags, Supplier<T> call
+        ExternalSystem system, String operation, Map<String, String> tags, Supplier<T> call
     ) {
         Logger log = LoggerFactory.getLogger(system.loggerName());
         Map<String, String> safeTags = safeTags(tags);
@@ -115,7 +115,7 @@ public class ExternalCallLogger {
      * 민감 정보를 포함할 수 있는 결과 없는 외부 호출을 래핑한다 (실패 시 cause throwable/message 로깅 생략).
      */
     public void recordVoidSensitive(
-            ExternalSystem system, String operation, Map<String, String> tags, Runnable call
+        ExternalSystem system, String operation, Map<String, String> tags, Runnable call
     ) {
         recordSensitive(system, operation, tags, () -> {
             call.run();
@@ -131,48 +131,48 @@ public class ExternalCallLogger {
     }
 
     private void recordSuccess(
-            Logger log, ExternalSystem system, String operation,
-            Map<String, String> safeTags, long elapsedNanos
+        Logger log, ExternalSystem system, String operation,
+        Map<String, String> safeTags, long elapsedNanos
     ) {
         timer(system, operation, OUTCOME_SUCCESS).record(elapsedNanos, TimeUnit.NANOSECONDS);
         if (!log.isDebugEnabled()) {
             return;
         }
         log.debug(
-                "External call success: operation={}, tags={}, elapsedMs={}",
-                operation, safeTags, toMillis(elapsedNanos)
+            "External call success: operation={}, tags={}, elapsedMs={}",
+            operation, safeTags, toMillis(elapsedNanos)
         );
     }
 
     private void recordFailure(
-            Logger log, ExternalSystem system, String operation,
-            Map<String, String> safeTags, long elapsedNanos, Throwable cause
+        Logger log, ExternalSystem system, String operation,
+        Map<String, String> safeTags, long elapsedNanos, Throwable cause
     ) {
         timer(system, operation, OUTCOME_FAILURE).record(elapsedNanos, TimeUnit.NANOSECONDS);
         log.error(
-                "External call failure: operation={}, tags={}, elapsedMs={}, exception={}, message={}",
-                operation, safeTags, toMillis(elapsedNanos),
-                cause.getClass().getSimpleName(), cause.getMessage(), cause
+            "External call failure: operation={}, tags={}, elapsedMs={}, exception={}, message={}",
+            operation, safeTags, toMillis(elapsedNanos),
+            cause.getClass().getSimpleName(), cause.getMessage(), cause
         );
     }
 
     private void recordFailureSensitive(
-            Logger log, ExternalSystem system, String operation,
-            Map<String, String> safeTags, long elapsedNanos, Throwable cause
+        Logger log, ExternalSystem system, String operation,
+        Map<String, String> safeTags, long elapsedNanos, Throwable cause
     ) {
         timer(system, operation, OUTCOME_FAILURE).record(elapsedNanos, TimeUnit.NANOSECONDS);
         log.error(
-                "External call failure (sensitive — message/stack 로깅 생략): operation={}, tags={}, elapsedMs={}, exception={}",
-                operation, safeTags, toMillis(elapsedNanos), cause.getClass().getSimpleName()
+            "External call failure (sensitive — message/stack 로깅 생략): operation={}, tags={}, elapsedMs={}, exception={}",
+            operation, safeTags, toMillis(elapsedNanos), cause.getClass().getSimpleName()
         );
     }
 
     private Timer timer(ExternalSystem system, String operation, String outcome) {
         return Timer.builder(METRIC_NAME)
-                .tag(TAG_SYSTEM, system.metricTag())
-                .tag(TAG_OPERATION, operation)
-                .tag(TAG_OUTCOME, outcome)
-                .register(meterRegistry);
+            .tag(TAG_SYSTEM, system.metricTag())
+            .tag(TAG_OPERATION, operation)
+            .tag(TAG_OUTCOME, outcome)
+            .register(meterRegistry);
     }
 
     private Map<String, String> safeTags(Map<String, String> tags) {

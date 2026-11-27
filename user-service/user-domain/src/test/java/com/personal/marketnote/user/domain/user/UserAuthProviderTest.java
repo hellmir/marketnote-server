@@ -20,14 +20,14 @@ class UserAuthProviderTest {
 
     private User createUserWithEmail(String email) {
         return User.from(UserSnapshotState.builder()
-                .id(1L)
-                .userKey(UUID.randomUUID())
-                .email(email)
-                .role(Role.getBuyer())
-                .userAuthProviders(new ArrayList<>())
-                .userTerms(List.of())
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .userKey(UUID.randomUUID())
+            .email(email)
+            .role(Role.getBuyer())
+            .userAuthProviders(new ArrayList<>())
+            .userTerms(List.of())
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 
     @Nested

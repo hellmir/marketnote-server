@@ -10,9 +10,9 @@ public enum BrandTalkMessageStatus {
     FAILED("발송실패");
 
     private static final Map<BrandTalkMessageStatus, Set<BrandTalkMessageStatus>> ALLOWED_TRANSITIONS = Map.of(
-            REQUESTED, Set.of(SENT, FAILED),
-            SENT, Set.of(),
-            FAILED, Set.of()
+        REQUESTED, Set.of(SENT, FAILED),
+        SENT, Set.of(),
+        FAILED, Set.of()
     );
 
     private final String description;

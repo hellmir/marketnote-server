@@ -31,7 +31,7 @@ class GetFulfillmentDeliveryOutOrdGoodsDetailUseCaseTest {
     void shouldReturnOutOrdGoodsDetailResultFromPort() {
         // given
         GetFulfillmentDeliveryOutOrdGoodsDetailCommand command = GetFulfillmentDeliveryOutOrdGoodsDetailCommand.of(
-                "CUST001", "token", "SLIP001"
+            "CUST001", "token", "SLIP001"
         );
         GetFulfillmentDeliveryOutOrdGoodsDetailResult expectedResult = GetFulfillmentDeliveryOutOrdGoodsDetailResult.of(0, List.of());
         when(getFulfillmentDeliveryOutOrdGoodsDetailPort.getOutOrdGoodsDetail(any())).thenReturn(expectedResult);

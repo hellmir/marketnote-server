@@ -16,32 +16,32 @@ public class AligoBrandTalkMessageCommandToStateMapper {
     }
 
     public static AligoBrandTalkMessageCreateState mapToState(
-            SendBrandTalkCommand command,
-            BrandTalkKakaoTarget kakaoTarget, BrandTalkFailoverType failoverType,
-            boolean failoverEnabled, String failoverSubject,
-            LocalDateTime requestedAt,
-            List<AligoBrandTalkMessageRecipientCreateState> recipientStates
+        SendBrandTalkCommand command,
+        BrandTalkKakaoTarget kakaoTarget, BrandTalkFailoverType failoverType,
+        boolean failoverEnabled, String failoverSubject,
+        LocalDateTime requestedAt,
+        List<AligoBrandTalkMessageRecipientCreateState> recipientStates
     ) {
         return AligoBrandTalkMessageCreateState.builder()
-                .senderKey(command.senderKey())
-                .sender(command.sender())
-                .kakaoTarget(kakaoTarget)
-                .advertYn(command.advertYn())
-                .templateCode(command.templateCode())
-                .failoverEnabled(failoverEnabled)
-                .failoverSubject(failoverSubject)
-                .failoverType(failoverType)
-                .requestedAt(requestedAt)
-                .recipients(recipientStates)
-                .build();
+            .senderKey(command.senderKey())
+            .sender(command.sender())
+            .kakaoTarget(kakaoTarget)
+            .advertYn(command.advertYn())
+            .templateCode(command.templateCode())
+            .failoverEnabled(failoverEnabled)
+            .failoverSubject(failoverSubject)
+            .failoverType(failoverType)
+            .requestedAt(requestedAt)
+            .recipients(recipientStates)
+            .build();
     }
 
     public static AligoBrandTalkMessageRecipientCreateState mapToRecipientState(
-            BrandTalkRecipientCommand recipient, String receiverMessage
+        BrandTalkRecipientCommand recipient, String receiverMessage
     ) {
         return AligoBrandTalkMessageRecipientCreateState.builder()
-                .receiver(recipient.receiver())
-                .receiverMessage(receiverMessage)
-                .build();
+            .receiver(recipient.receiver())
+            .receiverMessage(receiverMessage)
+            .build();
     }
 }

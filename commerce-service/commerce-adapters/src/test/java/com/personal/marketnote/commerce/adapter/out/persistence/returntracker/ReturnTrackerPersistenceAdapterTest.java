@@ -49,10 +49,10 @@ class ReturnTrackerPersistenceAdapterTest {
         void shouldSaveAndReturnWithId() {
             // given
             ReturnTracker tracker = ReturnTracker.from(
-                    ReturnTrackerCreateState.builder()
-                            .orderId(1L)
-                            .returnSlipNumber("RTN20260409001")
-                            .build()
+                ReturnTrackerCreateState.builder()
+                    .orderId(1L)
+                    .returnSlipNumber("RTN20260409001")
+                    .build()
             );
 
             // when
@@ -72,23 +72,23 @@ class ReturnTrackerPersistenceAdapterTest {
         void shouldThrowWhenDuplicateOrderId() {
             // given
             ReturnTracker first = ReturnTracker.from(
-                    ReturnTrackerCreateState.builder()
-                            .orderId(1L)
-                            .returnSlipNumber("RTN001")
-                            .build()
+                ReturnTrackerCreateState.builder()
+                    .orderId(1L)
+                    .returnSlipNumber("RTN001")
+                    .build()
             );
             adapter.save(first);
 
             ReturnTracker duplicate = ReturnTracker.from(
-                    ReturnTrackerCreateState.builder()
-                            .orderId(1L)
-                            .returnSlipNumber("RTN002")
-                            .build()
+                ReturnTrackerCreateState.builder()
+                    .orderId(1L)
+                    .returnSlipNumber("RTN002")
+                    .build()
             );
 
             // when & then
             assertThatThrownBy(() -> adapter.save(duplicate))
-                    .isInstanceOf(DataIntegrityViolationException.class);
+                .isInstanceOf(DataIntegrityViolationException.class);
         }
     }
 
@@ -101,10 +101,10 @@ class ReturnTrackerPersistenceAdapterTest {
         void shouldFindByOrderId() {
             // given
             ReturnTracker tracker = ReturnTracker.from(
-                    ReturnTrackerCreateState.builder()
-                            .orderId(100L)
-                            .returnSlipNumber("RTN100")
-                            .build()
+                ReturnTrackerCreateState.builder()
+                    .orderId(100L)
+                    .returnSlipNumber("RTN100")
+                    .build()
             );
             adapter.save(tracker);
 
@@ -137,9 +137,9 @@ class ReturnTrackerPersistenceAdapterTest {
         void shouldFindPendingTrackers() {
             // given
             adapter.save(ReturnTracker.from(
-                    ReturnTrackerCreateState.builder().orderId(1L).returnSlipNumber("RTN001").build()));
+                ReturnTrackerCreateState.builder().orderId(1L).returnSlipNumber("RTN001").build()));
             adapter.save(ReturnTracker.from(
-                    ReturnTrackerCreateState.builder().orderId(2L).returnSlipNumber("RTN002").build()));
+                ReturnTrackerCreateState.builder().orderId(2L).returnSlipNumber("RTN002").build()));
 
             // when
             List<ReturnTracker> pendingTrackers = adapter.findByInspectionStatus(ReturnInspectionStatus.PENDING);
@@ -154,7 +154,7 @@ class ReturnTrackerPersistenceAdapterTest {
         void shouldReturnEmptyListWhenNoMatch() {
             // given
             adapter.save(ReturnTracker.from(
-                    ReturnTrackerCreateState.builder().orderId(1L).returnSlipNumber("RTN001").build()));
+                ReturnTrackerCreateState.builder().orderId(1L).returnSlipNumber("RTN001").build()));
 
             // when
             List<ReturnTracker> passedTrackers = adapter.findByInspectionStatus(ReturnInspectionStatus.PASSED);
@@ -173,7 +173,7 @@ class ReturnTrackerPersistenceAdapterTest {
         void shouldUpdateInspectionStatus() {
             // given
             ReturnTracker saved = adapter.save(ReturnTracker.from(
-                    ReturnTrackerCreateState.builder().orderId(1L).returnSlipNumber("RTN001").build()));
+                ReturnTrackerCreateState.builder().orderId(1L).returnSlipNumber("RTN001").build()));
 
             LocalDateTime inspectedAt = LocalDateTime.of(2026, 4, 9, 14, 0);
             saved.passInspection(inspectedAt);
@@ -191,7 +191,7 @@ class ReturnTrackerPersistenceAdapterTest {
         void shouldUpdateRefundStatus() {
             // given
             ReturnTracker saved = adapter.save(ReturnTracker.from(
-                    ReturnTrackerCreateState.builder().orderId(1L).returnSlipNumber("RTN001").build()));
+                ReturnTrackerCreateState.builder().orderId(1L).returnSlipNumber("RTN001").build()));
 
             LocalDateTime refundedAt = LocalDateTime.of(2026, 4, 9, 15, 0);
             saved.completeRefund(refundedAt);

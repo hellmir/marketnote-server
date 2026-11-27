@@ -58,7 +58,7 @@ class QuickPaymentControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
+            String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
         );
     }
 
@@ -72,23 +72,23 @@ class QuickPaymentControllerTest {
             // given
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
             RegisterQuickPaymentTransactionResult result = RegisterQuickPaymentTransactionResult.builder()
-                    .transactionId("TX_1")
-                    .approvalKey("APPROVAL_1")
-                    .payUrl("https://pg/pay")
-                    .traceNo("TRACE_1")
-                    .build();
+                .transactionId("TX_1")
+                .approvalKey("APPROVAL_1")
+                .payUrl("https://pg/pay")
+                .traceNo("TRACE_1")
+                .build();
             when(registerQuickPaymentTransactionUseCase.register(any(RegisterQuickPaymentTransactionCommand.class)))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<RegisterQuickPaymentTransactionResponse>> response =
-                    quickPaymentController.registerTransaction(principal);
+                quickPaymentController.registerTransaction(principal);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
             ArgumentCaptor<RegisterQuickPaymentTransactionCommand> captor =
-                    ArgumentCaptor.forClass(RegisterQuickPaymentTransactionCommand.class);
+                ArgumentCaptor.forClass(RegisterQuickPaymentTransactionCommand.class);
             verify(registerQuickPaymentTransactionUseCase).register(captor.capture());
             assertThat(captor.getValue().userId()).isEqualTo(200L);
         }
@@ -109,18 +109,18 @@ class QuickPaymentControllerTest {
             when(request.getCardMaskNo()).thenReturn("1234-****-****-5678");
 
             IssueBatchKeyResult result = IssueBatchKeyResult.builder()
-                    .quickPaymentCardId(1L)
-                    .cardCode("01")
-                    .cardName("테스트카드")
-                    .maskedCardNumber("1234-****-****-5678")
-                    .cardBinType01("TYPE1")
-                    .cardBinType02("TYPE2")
-                    .build();
+                .quickPaymentCardId(1L)
+                .cardCode("01")
+                .cardName("테스트카드")
+                .maskedCardNumber("1234-****-****-5678")
+                .cardBinType01("TYPE1")
+                .cardBinType02("TYPE2")
+                .build();
             when(issueBatchKeyUseCase.issueBatchKey(any(IssueBatchKeyCommand.class))).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<IssueBatchKeyResponse>> response =
-                    quickPaymentController.issueBatchKey(principal, request);
+                quickPaymentController.issueBatchKey(principal, request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -144,19 +144,19 @@ class QuickPaymentControllerTest {
             when(request.getGoodName()).thenReturn("테스트 상품");
 
             ApproveQuickPaymentResult result = ApproveQuickPaymentResult.builder()
-                    .orderId(10L)
-                    .orderKey("ORDER_KEY_1")
-                    .pgPaymentKey("PG_1")
-                    .amount(10_000L)
-                    .resultCode("0000")
-                    .resultMessage("정상 승인")
-                    .payMethod("CARD")
-                    .build();
+                .orderId(10L)
+                .orderKey("ORDER_KEY_1")
+                .pgPaymentKey("PG_1")
+                .amount(10_000L)
+                .resultCode("0000")
+                .resultMessage("정상 승인")
+                .payMethod("CARD")
+                .build();
             when(approveQuickPaymentUseCase.approve(any(ApproveQuickPaymentCommand.class))).thenReturn(result);
 
             // when
             ResponseEntity<BaseResponse<ApproveQuickPaymentResponse>> response =
-                    quickPaymentController.approveQuickPayment(principal, request);
+                quickPaymentController.approveQuickPayment(principal, request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -179,12 +179,12 @@ class QuickPaymentControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    quickPaymentController.deleteQuickPaymentCard(principal, 1L);
+                quickPaymentController.deleteQuickPaymentCard(principal, 1L);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<DeleteQuickPaymentCardCommand> captor =
-                    ArgumentCaptor.forClass(DeleteQuickPaymentCardCommand.class);
+                ArgumentCaptor.forClass(DeleteQuickPaymentCardCommand.class);
             verify(deleteQuickPaymentCardUseCase).delete(captor.capture());
             assertThat(captor.getValue().quickPaymentCardId()).isEqualTo(1L);
             assertThat(captor.getValue().userId()).isEqualTo(200L);

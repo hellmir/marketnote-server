@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public record GetProductOptionsResult(
-        List<ProductOptionCategoryItemResult> categories
+    List<ProductOptionCategoryItemResult> categories
 ) {
     public static GetProductOptionsResult from(List<ProductOptionCategory> categories) {
         return new GetProductOptionsResult(
-                categories.stream()
-                        .map(ProductOptionCategoryItemResult::from)
-                        .collect(Collectors.toList())
+            categories.stream()
+                .map(ProductOptionCategoryItemResult::from)
+                .collect(Collectors.toList())
         );
     }
 }

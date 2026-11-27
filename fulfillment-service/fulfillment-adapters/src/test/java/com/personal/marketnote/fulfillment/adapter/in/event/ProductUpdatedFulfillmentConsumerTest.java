@@ -50,35 +50,35 @@ class ProductUpdatedFulfillmentConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
-            Long productId, String productName, String godType, String giftDiv
+        Long productId, String productName, String godType, String giftDiv
     ) {
         ProductUpdatedEvent event = new ProductUpdatedEvent(
-                productId, UUID.randomUUID(), productName, null, godType, giftDiv,
-                null, null, null, null, null, null, null, null, null, // godOptCd1 ~ makeYr (9)
-                null, null, null, null, null, null, null, null, null, // godPr ~ distTermMgtYn (9)
-                null, null, null, null, null, null, null, null, null, // useTermDay ~ useYn (9)
-                null, null, null, null,                               // safetyStock ~ externalGodImgUrl (4)
-                null                                                  // fasstoProductCode
+            productId, UUID.randomUUID(), productName, null, godType, giftDiv,
+            null, null, null, null, null, null, null, null, null, // godOptCd1 ~ makeYr (9)
+            null, null, null, null, null, null, null, null, null, // godPr ~ distTermMgtYn (9)
+            null, null, null, null, null, null, null, null, null, // useTermDay ~ useYn (9)
+            null, null, null, null,                               // safetyStock ~ externalGodImgUrl (4)
+            null                                                  // fasstoProductCode
         );
         EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "product.product.updated", "product-service",
-                LocalDateTime.of(2026, 2, 27, 10, 0), event
+            "test-event-id", "product.product.updated", "product-service",
+            LocalDateTime.of(2026, 2, 27, 10, 0), event
         );
         return new ConsumerRecord<>("product.product.updated", 0, 0L, "key-1", envelope);
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecordWithAllFields() {
         ProductUpdatedEvent event = new ProductUpdatedEvent(
-                10L, UUID.randomUUID(), "테스트 상품", null, "2", "99",
-                "opt1", "opt2", "Y", "상품명", "SUP", "CATE", "2024", "M", "2024",
-                "12000", "9000", "10000", "ROOM", "A1", "BARCODE", "2.5", "KR", "Y",
-                "30", "7", "7", "BOX", "N", "UP", "COTTON", "Y", "10",
-                "N", "1", "https://example.com/image.jpg", "https://example.com/external.jpg",
-                null
+            10L, UUID.randomUUID(), "테스트 상품", null, "2", "99",
+            "opt1", "opt2", "Y", "상품명", "SUP", "CATE", "2024", "M", "2024",
+            "12000", "9000", "10000", "ROOM", "A1", "BARCODE", "2.5", "KR", "Y",
+            "30", "7", "7", "BOX", "N", "UP", "COTTON", "Y", "10",
+            "N", "1", "https://example.com/image.jpg", "https://example.com/external.jpg",
+            null
         );
         EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "product.product.updated", "product-service",
-                LocalDateTime.of(2026, 2, 27, 10, 0), event
+            "test-event-id", "product.product.updated", "product-service",
+            LocalDateTime.of(2026, 2, 27, 10, 0), event
         );
         return new ConsumerRecord<>("product.product.updated", 0, 0L, "key-10", envelope);
     }
@@ -170,18 +170,18 @@ class ProductUpdatedFulfillmentConsumerTest {
     void handleEvent_nullProductKey_skipsAndAcknowledges() {
         // given
         ProductUpdatedEvent event = new ProductUpdatedEvent(
-                1L, null, "테스트", null, "1", "01",
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null
+            1L, null, "테스트", null, "1", "01",
+            null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null
         );
         EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "product.product.updated", "product-service",
-                LocalDateTime.of(2026, 2, 27, 10, 0), event
+            "test-event-id", "product.product.updated", "product-service",
+            LocalDateTime.of(2026, 2, 27, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "product.product.updated", 0, 0L, "key-1", envelope
+            "product.product.updated", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -200,11 +200,11 @@ class ProductUpdatedFulfillmentConsumerTest {
         stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
         doThrow(new UpdateFulfillmentGoodsFailedException(new IOException("Fulfillment API 오류")))
-                .when(updateFulfillmentGoodsUseCase).updateGoods(any(UpdateFulfillmentGoodsCommand.class));
+            .when(updateFulfillmentGoodsUseCase).updateGoods(any(UpdateFulfillmentGoodsCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleProductUpdatedEvent(record, acknowledgment))
-                .isInstanceOf(UpdateFulfillmentGoodsFailedException.class);
+            .isInstanceOf(UpdateFulfillmentGoodsFailedException.class);
 
         verify(updateFulfillmentGoodsUseCase).updateGoods(any(UpdateFulfillmentGoodsCommand.class));
         verify(acknowledgment, never()).acknowledge();
@@ -215,7 +215,7 @@ class ProductUpdatedFulfillmentConsumerTest {
     void handleEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "product.product.updated", 0, 0L, "1", null
+            "product.product.updated", 0, 0L, "1", null
         );
 
         // when
@@ -231,18 +231,18 @@ class ProductUpdatedFulfillmentConsumerTest {
     void handleEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         ProductUpdatedEvent event = new ProductUpdatedEvent(
-                1L, UUID.randomUUID(), "테스트", null, "1", "01",
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null
+            1L, UUID.randomUUID(), "테스트", null, "1", "01",
+            null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null
         );
         EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "product-service",
-                LocalDateTime.of(2026, 2, 27, 10, 0), event
+            "test-event-id", "wrong.event.type", "product-service",
+            LocalDateTime.of(2026, 2, 27, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "product.product.updated", 0, 0L, "key-1", envelope
+            "product.product.updated", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -261,12 +261,12 @@ class ProductUpdatedFulfillmentConsumerTest {
         stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
         doThrow(new RuntimeException("네트워크 오류"))
-                .when(updateFulfillmentGoodsUseCase).updateGoods(any(UpdateFulfillmentGoodsCommand.class));
+            .when(updateFulfillmentGoodsUseCase).updateGoods(any(UpdateFulfillmentGoodsCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleProductUpdatedEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("네트워크 오류");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("네트워크 오류");
 
         verify(updateFulfillmentGoodsUseCase).updateGoods(any(UpdateFulfillmentGoodsCommand.class));
         verify(acknowledgment, never()).acknowledge();

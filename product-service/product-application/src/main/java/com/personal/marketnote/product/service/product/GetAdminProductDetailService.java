@@ -32,13 +32,13 @@ public class GetAdminProductDetailService implements GetAdminProductDetailUseCas
     @Override
     public GetAdminProductDetailResult getAdminProductDetail(Long id, List<Long> selectedOptionIds) {
         List<Long> options = FormatValidator.hasValue(selectedOptionIds)
-                ? selectedOptionIds
-                : List.of();
+            ? selectedOptionIds
+            : List.of();
 
         GetProductInfoWithOptionsResult productInfo = getProductUseCase.getProductInfoIncludingInactive(id, options);
 
         GetFulfillmentVendorGoodsResult goodsResult =
-                getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id));
+            getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id));
         FulfillmentVendorGoodsInfoResult goodsInfo = resolveGoodsInfo(id, goodsResult);
 
         FulfillmentVendorGoodsElementInfoResult elementInfo = resolveElementInfo(id);
@@ -47,8 +47,8 @@ public class GetAdminProductDetailService implements GetAdminProductDetailUseCas
     }
 
     private FulfillmentVendorGoodsInfoResult resolveGoodsInfo(
-            Long id,
-            GetFulfillmentVendorGoodsResult goodsResult
+        Long id,
+        GetFulfillmentVendorGoodsResult goodsResult
     ) {
         if (FormatValidator.hasNoValue(id)) {
             return null;
@@ -62,14 +62,14 @@ public class GetAdminProductDetailService implements GetAdminProductDetailUseCas
             return null;
         }
         return getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id))
-                .orElse(null);
+            .orElse(null);
     }
 
     private Map<String, FulfillmentVendorGoodsInfoResult> mapGoodsByCstGodCd(
-            GetFulfillmentVendorGoodsResult goodsResult
+        GetFulfillmentVendorGoodsResult goodsResult
     ) {
         if (FormatValidator.hasNoValue(goodsResult)
-                || FormatValidator.hasNoValue(goodsResult.goods())) {
+            || FormatValidator.hasNoValue(goodsResult.goods())) {
             return Map.of();
         }
 

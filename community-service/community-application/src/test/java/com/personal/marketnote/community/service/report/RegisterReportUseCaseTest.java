@@ -71,10 +71,10 @@ class RegisterReportUseCaseTest {
     void report_duplicateReviewReport_throwsReviewAlreadyReportedException() {
         ReportCommand command = buildReviewReportCommand(1L, 100L);
         doThrow(new ReviewAlreadyReportedException())
-                .when(getReportUseCase).validateDuplicateReport(ReportTargetType.REVIEW, 1L, 100L);
+            .when(getReportUseCase).validateDuplicateReport(ReportTargetType.REVIEW, 1L, 100L);
 
         assertThatThrownBy(() -> registerReportService.report(command))
-                .isInstanceOf(ReviewAlreadyReportedException.class);
+            .isInstanceOf(ReviewAlreadyReportedException.class);
 
         verifyNoInteractions(saveReportPort);
         verifyNoInteractions(getReviewUseCase);
@@ -85,10 +85,10 @@ class RegisterReportUseCaseTest {
     void report_duplicatePostReport_throwsPostAlreadyReportedException() {
         ReportCommand command = buildPostReportCommand(2L, 200L);
         doThrow(new PostAlreadyReportedException())
-                .when(getReportUseCase).validateDuplicateReport(ReportTargetType.POST, 2L, 200L);
+            .when(getReportUseCase).validateDuplicateReport(ReportTargetType.POST, 2L, 200L);
 
         assertThatThrownBy(() -> registerReportService.report(command))
-                .isInstanceOf(PostAlreadyReportedException.class);
+            .isInstanceOf(PostAlreadyReportedException.class);
 
         verifyNoInteractions(saveReportPort);
         verifyNoInteractions(getPostUseCase);
@@ -101,7 +101,7 @@ class RegisterReportUseCaseTest {
         when(getReviewUseCase.existsReview(999L)).thenReturn(false);
 
         assertThatThrownBy(() -> registerReportService.report(command))
-                .isInstanceOf(ReviewNotFoundException.class);
+            .isInstanceOf(ReviewNotFoundException.class);
 
         verifyNoInteractions(saveReportPort);
     }
@@ -113,7 +113,7 @@ class RegisterReportUseCaseTest {
         when(getPostUseCase.existsPost(999L)).thenReturn(false);
 
         assertThatThrownBy(() -> registerReportService.report(command))
-                .isInstanceOf(PostNotFoundException.class);
+            .isInstanceOf(PostNotFoundException.class);
 
         verifyNoInteractions(saveReportPort);
     }

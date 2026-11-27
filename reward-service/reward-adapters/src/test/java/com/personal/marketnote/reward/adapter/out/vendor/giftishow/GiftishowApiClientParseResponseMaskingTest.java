@@ -10,12 +10,12 @@ import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGe
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.exception.GiftishowCommunicationException;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
 import com.personal.marketnote.reward.utility.VendorCommunicationRecorder;
-import org.mockito.Mockito;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -83,8 +83,8 @@ class GiftishowApiClientParseResponseMaskingTest {
         VendorCommunicationPayloadGenerator payloadGenerator = new VendorCommunicationPayloadGenerator(objectMapper);
         GiftishowOperationTargetTypeResolver resolver = new GiftishowOperationTargetTypeResolver();
         giftishowApiClient = new GiftishowApiClient(
-                properties, builder.build(), objectMapper, externalCallLogger,
-                vendorCommunicationRecorder, payloadGenerator, resolver
+            properties, builder.build(), objectMapper, externalCallLogger,
+            vendorCommunicationRecorder, payloadGenerator, resolver
         );
 
         clientLogger = (Logger) LoggerFactory.getLogger(GiftishowApiClient.class);
@@ -109,12 +109,12 @@ class GiftishowApiClientParseResponseMaskingTest {
     void shouldNotLogExceptionMessageWhenSensitivePathParseFails() {
         // given
         mockServer.expect(requestTo(BASE_URL + COUPON_SEND_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
 
         // when
         assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                "TR_001", "G001", "01012345678", "user1", "msg", "title", null
+            "TR_001", "G001", "01012345678", "user1", "msg", "title", null
         )).isInstanceOf(GiftishowCommunicationException.class);
 
         // then
@@ -132,12 +132,12 @@ class GiftishowApiClientParseResponseMaskingTest {
     void shouldLogExceptionClassNameWhenSensitivePathParseFails() {
         // given
         mockServer.expect(requestTo(BASE_URL + COUPON_SEND_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
 
         // when
         assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                "TR_001", "G001", "01012345678", "user1", "msg", "title", null
+            "TR_001", "G001", "01012345678", "user1", "msg", "title", null
         )).isInstanceOf(GiftishowCommunicationException.class);
 
         // then
@@ -145,9 +145,9 @@ class GiftishowApiClientParseResponseMaskingTest {
         String formattedMessage = errorEvent.getFormattedMessage();
         assertThat(formattedMessage).contains(COUPON_SEND_PATH);
         assertThat(formattedMessage).containsAnyOf(
-                "JsonParseException",
-                "JsonProcessingException",
-                "MismatchedInputException"
+            "JsonParseException",
+            "JsonProcessingException",
+            "MismatchedInputException"
         );
 
         mockServer.verify();
@@ -158,17 +158,17 @@ class GiftishowApiClientParseResponseMaskingTest {
     void shouldThrowExceptionWithoutCauseWhenSensitivePathParseFails() {
         // given
         mockServer.expect(requestTo(BASE_URL + COUPON_SEND_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> giftishowApiClient.sendCoupon(
-                "TR_001", "G001", "01012345678", "user1", "msg", "title", null
+            "TR_001", "G001", "01012345678", "user1", "msg", "title", null
         ))
-                .isInstanceOf(GiftishowCommunicationException.class)
-                .hasMessageContaining("응답 파싱 실패")
-                .hasMessageContaining(COUPON_SEND_PATH)
-                .hasNoCause();
+            .isInstanceOf(GiftishowCommunicationException.class)
+            .hasMessageContaining("응답 파싱 실패")
+            .hasMessageContaining(COUPON_SEND_PATH)
+            .hasNoCause();
 
         mockServer.verify();
     }
@@ -178,18 +178,18 @@ class GiftishowApiClientParseResponseMaskingTest {
     void shouldLogStackTraceWhenNonSensitivePathParseFails() {
         // given
         mockServer.expect(requestTo(BASE_URL + PRODUCT_LIST_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
 
         // when
         assertThatThrownBy(() -> giftishowApiClient.getProductList(0, 20))
-                .isInstanceOf(GiftishowCommunicationException.class);
+            .isInstanceOf(GiftishowCommunicationException.class);
 
         // then
         ILoggingEvent errorEvent = findErrorEvent();
         assertThat(errorEvent.getThrowableProxy()).isNotNull();
         assertThat(errorEvent.getThrowableProxy().getClassName())
-                .containsAnyOf("JsonParseException", "JsonProcessingException", "MismatchedInputException");
+            .containsAnyOf("JsonParseException", "JsonProcessingException", "MismatchedInputException");
 
         mockServer.verify();
     }
@@ -199,15 +199,15 @@ class GiftishowApiClientParseResponseMaskingTest {
     void shouldThrowExceptionWithCauseWhenNonSensitivePathParseFails() {
         // given
         mockServer.expect(requestTo(BASE_URL + PRODUCT_LIST_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> giftishowApiClient.getProductList(0, 20))
-                .isInstanceOf(GiftishowCommunicationException.class)
-                .hasMessageContaining("응답 파싱 실패")
-                .hasMessageContaining(PRODUCT_LIST_PATH)
-                .hasCauseInstanceOf(com.fasterxml.jackson.core.JsonProcessingException.class);
+            .isInstanceOf(GiftishowCommunicationException.class)
+            .hasMessageContaining("응답 파싱 실패")
+            .hasMessageContaining(PRODUCT_LIST_PATH)
+            .hasCauseInstanceOf(com.fasterxml.jackson.core.JsonProcessingException.class);
 
         mockServer.verify();
     }
@@ -217,15 +217,15 @@ class GiftishowApiClientParseResponseMaskingTest {
     void shouldMaskWhenCouponDetailParseFails() {
         // given
         mockServer.expect(requestTo(BASE_URL + COUPON_DETAIL_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> giftishowApiClient.getCouponDetail("TR_001"))
-                .isInstanceOf(GiftishowCommunicationException.class)
-                .hasMessageContaining("응답 파싱 실패")
-                .hasMessageContaining(COUPON_DETAIL_PATH)
-                .hasNoCause();
+            .isInstanceOf(GiftishowCommunicationException.class)
+            .hasMessageContaining("응답 파싱 실패")
+            .hasMessageContaining(COUPON_DETAIL_PATH)
+            .hasNoCause();
 
         ILoggingEvent errorEvent = findErrorEvent();
         String formattedMessage = errorEvent.getFormattedMessage();
@@ -241,15 +241,15 @@ class GiftishowApiClientParseResponseMaskingTest {
     void shouldMaskWhenCouponResendParseFails() {
         // given
         mockServer.expect(requestTo(BASE_URL + COUPON_RESEND_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(SENSITIVE_BODY_WITH_PIN, MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> giftishowApiClient.resendCoupon("TR_001", "01012345678"))
-                .isInstanceOf(GiftishowCommunicationException.class)
-                .hasMessageContaining("응답 파싱 실패")
-                .hasMessageContaining(COUPON_RESEND_PATH)
-                .hasNoCause();
+            .isInstanceOf(GiftishowCommunicationException.class)
+            .hasMessageContaining("응답 파싱 실패")
+            .hasMessageContaining(COUPON_RESEND_PATH)
+            .hasNoCause();
 
         ILoggingEvent errorEvent = findErrorEvent();
         String formattedMessage = errorEvent.getFormattedMessage();
@@ -265,20 +265,20 @@ class GiftishowApiClientParseResponseMaskingTest {
     void shouldPreserveCauseWhenCouponCancelParseFails() {
         // given
         mockServer.expect(requestTo(BASE_URL + COUPON_CANCEL_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> giftishowApiClient.cancelCoupon("TR_001", "user1"))
-                .isInstanceOf(GiftishowCommunicationException.class)
-                .hasMessageContaining("응답 파싱 실패")
-                .hasMessageContaining(COUPON_CANCEL_PATH)
-                .hasCauseInstanceOf(com.fasterxml.jackson.core.JsonProcessingException.class);
+            .isInstanceOf(GiftishowCommunicationException.class)
+            .hasMessageContaining("응답 파싱 실패")
+            .hasMessageContaining(COUPON_CANCEL_PATH)
+            .hasCauseInstanceOf(com.fasterxml.jackson.core.JsonProcessingException.class);
 
         ILoggingEvent errorEvent = findErrorEvent();
         assertThat(errorEvent.getThrowableProxy()).isNotNull();
         assertThat(errorEvent.getThrowableProxy().getClassName())
-                .containsAnyOf("JsonParseException", "JsonProcessingException", "MismatchedInputException");
+            .containsAnyOf("JsonParseException", "JsonProcessingException", "MismatchedInputException");
 
         mockServer.verify();
     }
@@ -288,20 +288,20 @@ class GiftishowApiClientParseResponseMaskingTest {
     void shouldPreserveCauseWhenCouponSendFailCancelParseFails() {
         // given
         mockServer.expect(requestTo(BASE_URL + COUPON_SEND_FAIL_CANCEL_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(NON_SENSITIVE_INVALID_BODY, MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> giftishowApiClient.cancelSendFailedCoupon("TR_001", "user1"))
-                .isInstanceOf(GiftishowCommunicationException.class)
-                .hasMessageContaining("응답 파싱 실패")
-                .hasMessageContaining(COUPON_SEND_FAIL_CANCEL_PATH)
-                .hasCauseInstanceOf(com.fasterxml.jackson.core.JsonProcessingException.class);
+            .isInstanceOf(GiftishowCommunicationException.class)
+            .hasMessageContaining("응답 파싱 실패")
+            .hasMessageContaining(COUPON_SEND_FAIL_CANCEL_PATH)
+            .hasCauseInstanceOf(com.fasterxml.jackson.core.JsonProcessingException.class);
 
         ILoggingEvent errorEvent = findErrorEvent();
         assertThat(errorEvent.getThrowableProxy()).isNotNull();
         assertThat(errorEvent.getThrowableProxy().getClassName())
-                .containsAnyOf("JsonParseException", "JsonProcessingException", "MismatchedInputException");
+            .containsAnyOf("JsonParseException", "JsonProcessingException", "MismatchedInputException");
 
         mockServer.verify();
     }
@@ -309,8 +309,8 @@ class GiftishowApiClientParseResponseMaskingTest {
     private ILoggingEvent findErrorEvent() {
         List<ILoggingEvent> events = listAppender.list;
         return events.stream()
-                .filter(event -> event.getLevel() == Level.ERROR)
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("ERROR 레벨 로그 이벤트를 찾을 수 없습니다."));
+            .filter(event -> event.getLevel() == Level.ERROR)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("ERROR 레벨 로그 이벤트를 찾을 수 없습니다."));
     }
 }

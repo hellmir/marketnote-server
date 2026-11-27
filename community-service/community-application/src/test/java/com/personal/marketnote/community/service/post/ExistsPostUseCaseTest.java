@@ -138,7 +138,7 @@ class ExistsPostUseCaseTest {
         when(findPostPort.existsById(postId)).thenThrow(exception);
 
         assertThatThrownBy(() -> getPostService.existsPost(postId))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     @Test

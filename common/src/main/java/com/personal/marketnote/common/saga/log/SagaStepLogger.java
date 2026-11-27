@@ -25,7 +25,7 @@ public final class SagaStepLogger {
     public static void start(SagaContext ctx) {
         putContext(ctx);
         log.debug("SAGA step started. sagaId={}, sagaType={}, sagaStep={}",
-                ctx.sagaId(), ctx.sagaType(), ctx.sagaStep()
+            ctx.sagaId(), ctx.sagaType(), ctx.sagaStep()
         );
     }
 
@@ -37,20 +37,20 @@ public final class SagaStepLogger {
     public static void enrich(SagaContext ctx) {
         putContext(ctx);
         log.debug("SAGA response received. sagaId={}, sagaType={}, sagaStep={}",
-                ctx.sagaId(), ctx.sagaType(), ctx.sagaStep()
+            ctx.sagaId(), ctx.sagaType(), ctx.sagaStep()
         );
     }
 
     public static void complete(SagaContext ctx) {
         log.debug("SAGA step completed. sagaId={}, sagaType={}, sagaStep={}",
-                ctx.sagaId(), ctx.sagaType(), ctx.sagaStep()
+            ctx.sagaId(), ctx.sagaType(), ctx.sagaStep()
         );
         clearContext();
     }
 
     public static void fail(SagaContext ctx, Throwable cause) {
         log.error("SAGA step failed. sagaId={}, sagaType={}, sagaStep={}",
-                ctx.sagaId(), ctx.sagaType(), ctx.sagaStep(), cause
+            ctx.sagaId(), ctx.sagaType(), ctx.sagaStep(), cause
         );
         clearContext();
     }
@@ -61,7 +61,7 @@ public final class SagaStepLogger {
      */
     public static void fail(SagaContext ctx, String responseMessage) {
         log.error("SAGA step failed. sagaId={}, sagaType={}, sagaStep={}, response={}",
-                ctx.sagaId(), ctx.sagaType(), ctx.sagaStep(), responseMessage
+            ctx.sagaId(), ctx.sagaType(), ctx.sagaStep(), responseMessage
         );
         clearContext();
     }
@@ -69,14 +69,14 @@ public final class SagaStepLogger {
     public static void compensate(SagaContext ctx) {
         putContext(ctx);
         log.debug("SAGA compensation started. sagaId={}, sagaType={}, sagaStep={}",
-                ctx.sagaId(), ctx.sagaType(), ctx.sagaStep()
+            ctx.sagaId(), ctx.sagaType(), ctx.sagaStep()
         );
     }
 
     public static void compensateFailed(SagaContext ctx, Throwable cause) {
         MDC.put(SagaMdcKeys.SAGA_COMPENSATION_FAILURE, "true");
         log.error("SAGA compensation failed. sagaId={}, sagaType={}, sagaStep={}",
-                ctx.sagaId(), ctx.sagaType(), ctx.sagaStep(), cause
+            ctx.sagaId(), ctx.sagaType(), ctx.sagaStep(), cause
         );
         clearContext();
     }
@@ -87,7 +87,7 @@ public final class SagaStepLogger {
     public static void compensateFailed(SagaContext ctx, String responseMessage) {
         MDC.put(SagaMdcKeys.SAGA_COMPENSATION_FAILURE, "true");
         log.error("SAGA compensation failed. sagaId={}, sagaType={}, sagaStep={}, response={}",
-                ctx.sagaId(), ctx.sagaType(), ctx.sagaStep(), responseMessage
+            ctx.sagaId(), ctx.sagaType(), ctx.sagaStep(), responseMessage
         );
         clearContext();
     }
@@ -103,16 +103,16 @@ public final class SagaStepLogger {
         putContext(ctx);
         try {
             log.debug("SAGA step started. sagaId={}, sagaType={}, sagaStep={}",
-                    ctx.sagaId(), ctx.sagaType(), ctx.sagaStep()
+                ctx.sagaId(), ctx.sagaType(), ctx.sagaStep()
             );
             T result = action.get();
             log.debug("SAGA step completed. sagaId={}, sagaType={}, sagaStep={}",
-                    ctx.sagaId(), ctx.sagaType(), ctx.sagaStep()
+                ctx.sagaId(), ctx.sagaType(), ctx.sagaStep()
             );
             return result;
         } catch (RuntimeException e) {
             log.error("SAGA step failed. sagaId={}, sagaType={}, sagaStep={}",
-                    ctx.sagaId(), ctx.sagaType(), ctx.sagaStep(), e
+                ctx.sagaId(), ctx.sagaType(), ctx.sagaStep(), e
             );
             throw e;
         } finally {

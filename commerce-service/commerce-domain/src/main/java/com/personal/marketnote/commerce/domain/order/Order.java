@@ -33,47 +33,47 @@ public class Order {
 
     public static Order from(OrderCreateState state) {
         List<OrderProduct> orderProducts = FormatValidator.hasValue(state.getOrderProductStates())
-                ? state.getOrderProductStates().stream()
-                .map(OrderProduct::from)
-                .toList()
-                : List.of();
+            ? state.getOrderProductStates().stream()
+            .map(OrderProduct::from)
+            .toList()
+            : List.of();
 
         return Order.builder()
-                .buyerId(state.getBuyerId())
-                .orderKey(RandomCodeGenerator.generateOrderKey())
-                .orderNumber(OrderNumber.generate())
-                .orderStatus(OrderStatus.PAYMENT_PENDING)
-                .amount(state.getAmount())
-                .shippingAddress(state.getShippingAddress())
-                .shippingRegionType(state.getShippingRegionType())
-                .orderProducts(orderProducts)
-                .build();
+            .buyerId(state.getBuyerId())
+            .orderKey(RandomCodeGenerator.generateOrderKey())
+            .orderNumber(OrderNumber.generate())
+            .orderStatus(OrderStatus.PAYMENT_PENDING)
+            .amount(state.getAmount())
+            .shippingAddress(state.getShippingAddress())
+            .shippingRegionType(state.getShippingRegionType())
+            .orderProducts(orderProducts)
+            .build();
     }
 
     public static Order from(OrderSnapshotState state) {
         List<OrderProduct> orderProducts = FormatValidator.hasValue(state.getOrderProductStates())
-                ? state.getOrderProductStates().stream()
-                .map(OrderProduct::from)
-                .toList()
-                : List.of();
+            ? state.getOrderProductStates().stream()
+            .map(OrderProduct::from)
+            .toList()
+            : List.of();
 
         return Order.builder()
-                .id(state.getId())
-                .buyerId(state.getBuyerId())
-                .orderKey(state.getOrderKey())
-                .orderNumber(state.getOrderNumber())
-                .orderStatus(state.getOrderStatus())
-                .statusChangeReasonCategory(state.getStatusChangeReasonCategory())
-                .statusChangeReason(state.getStatusChangeReason())
-                .amount(state.getAmount())
-                .shippingAddress(state.getShippingAddress())
-                .pickupAddress(state.getPickupAddress())
-                .shippingRegionType(state.getShippingRegionType())
-                .orderProducts(orderProducts)
-                .scheduledAutoConfirmAt(state.getScheduledAutoConfirmAt())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .buyerId(state.getBuyerId())
+            .orderKey(state.getOrderKey())
+            .orderNumber(state.getOrderNumber())
+            .orderStatus(state.getOrderStatus())
+            .statusChangeReasonCategory(state.getStatusChangeReasonCategory())
+            .statusChangeReason(state.getStatusChangeReason())
+            .amount(state.getAmount())
+            .shippingAddress(state.getShippingAddress())
+            .pickupAddress(state.getPickupAddress())
+            .shippingRegionType(state.getShippingRegionType())
+            .orderProducts(orderProducts)
+            .scheduledAutoConfirmAt(state.getScheduledAutoConfirmAt())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public void applyPickupAddress(ShippingAddress pickupAddress) {
@@ -102,24 +102,24 @@ public class Order {
     }
 
     public void changeProductsStatus(
-            List<Long> pricePolicyIds, OrderStatus orderStatus, LocalDateTime now, long autoConfirmDays
+        List<Long> pricePolicyIds, OrderStatus orderStatus, LocalDateTime now, long autoConfirmDays
     ) {
         orderProducts.stream()
-                .filter(orderProduct -> pricePolicyIds.contains(orderProduct.getPricePolicyId()))
-                .forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now, autoConfirmDays));
+            .filter(orderProduct -> pricePolicyIds.contains(orderProduct.getPricePolicyId()))
+            .forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now, autoConfirmDays));
 
         if (
-                orderStatus.isCancelRequested()
-                        && orderProducts.stream()
-                        .anyMatch(orderProduct -> !orderProduct.isCancelRequested() && !orderProduct.isCancelled())
+            orderStatus.isCancelRequested()
+                && orderProducts.stream()
+                .anyMatch(orderProduct -> !orderProduct.isCancelRequested() && !orderProduct.isCancelled())
         ) {
             this.orderStatus = OrderStatus.getPartiallyCancelRequested();
             return;
         }
 
         if (
-                orderStatus.isCancelled()
-                        && orderProducts.stream().anyMatch(orderProduct -> !orderProduct.isCancelled())
+            orderStatus.isCancelled()
+                && orderProducts.stream().anyMatch(orderProduct -> !orderProduct.isCancelled())
         ) {
             if (!this.orderStatus.canPartiallyCancel() && !this.orderStatus.isPartiallyCancelRequested()) {
                 throw new InvalidOrderProductStatusTransitionException(this.orderStatus, OrderStatus.PARTIALLY_CANCELLED);
@@ -129,35 +129,35 @@ public class Order {
         }
 
         if (
-                orderStatus.isReturned()
-                        && orderProducts.stream()
-                        .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isReturned())
+            orderStatus.isReturned()
+                && orderProducts.stream()
+                .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isReturned())
         ) {
             this.orderStatus = OrderStatus.getPartiallyReturned();
             return;
         }
 
         if (
-                orderStatus.isReturnRequested()
-                        && orderProducts.stream()
-                        .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isReturnRequested())
+            orderStatus.isReturnRequested()
+                && orderProducts.stream()
+                .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isReturnRequested())
         ) {
             this.orderStatus = OrderStatus.getPartiallyReturnRequested();
             return;
         }
 
         if (
-                orderStatus.isReturnRejected()
-                        && orderProducts.stream()
-                        .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isReturnRejected())
+            orderStatus.isReturnRejected()
+                && orderProducts.stream()
+                .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isReturnRejected())
         ) {
             return;
         }
 
         if (
-                orderStatus.isConfirmed()
-                        && orderProducts.stream()
-                        .anyMatch(orderProduct -> !orderProduct.isConfirmed())
+            orderStatus.isConfirmed()
+                && orderProducts.stream()
+                .anyMatch(orderProduct -> !orderProduct.isConfirmed())
         ) {
             this.orderStatus = OrderStatus.getPartiallyConfirmed();
             return;

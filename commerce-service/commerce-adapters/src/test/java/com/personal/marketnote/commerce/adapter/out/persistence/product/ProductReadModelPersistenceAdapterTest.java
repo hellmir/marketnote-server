@@ -71,7 +71,7 @@ class ProductReadModelPersistenceAdapterTest {
 
             // when
             adapter.upsert(
-                    100L, 1L, productKey, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L
+                100L, 1L, productKey, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L
             );
 
             // then
@@ -89,12 +89,12 @@ class ProductReadModelPersistenceAdapterTest {
             // given
             UUID originalKey = UUID.fromString("01900000-0000-7000-8000-000000000001");
             adapter.upsert(
-                    100L, 1L, originalKey, 10L, "원래 상품", "브랜드", 10000L, 8000L, 100L
+                100L, 1L, originalKey, 10L, "원래 상품", "브랜드", 10000L, 8000L, 100L
             );
 
             // when — productKey null 전달 (구 버전 페이로드 시뮬레이션)
             adapter.upsert(
-                    100L, 1L, null, 10L, "업데이트 상품", "브랜드", 20000L, 15000L, 200L
+                100L, 1L, null, 10L, "업데이트 상품", "브랜드", 20000L, 15000L, 200L
             );
 
             // then

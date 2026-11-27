@@ -56,7 +56,7 @@ class OfferwallControllerTest {
     @BeforeEach
     void setUp() {
         given(offerwallVendorCommunicationPayloadGenerator.buildResponsePayloadJson(true, 1, "success"))
-                .willReturn(emptyNode);
+            .willReturn(emptyNode);
     }
 
     @Nested
@@ -66,7 +66,7 @@ class OfferwallControllerTest {
         @BeforeEach
         void setUp() {
             given(offerwallVendorCommunicationPayloadGenerator.buildAdpopcornPayloadJson(
-                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
             )).willReturn(emptyNode);
         }
 
@@ -78,8 +78,8 @@ class OfferwallControllerTest {
 
             // when
             ResponseEntity<String> response = controller.handleAdpopcornCallback(
-                    "REW-1", "user-1", UserDeviceType.ANDROID, "CAMP-1", 1,
-                    "캠페인", 100L, "signed", 1001, "앱", "adid", "idfa", "20260414120000"
+                "REW-1", "user-1", UserDeviceType.ANDROID, "CAMP-1", 1,
+                "캠페인", 100L, "signed", 1001, "앱", "adid", "idfa", "20260414120000"
             );
 
             // then
@@ -93,17 +93,17 @@ class OfferwallControllerTest {
             // given
             given(handleOfferwallRewardUseCase.handle(any())).willThrow(new VendorVerificationFailedException("invalid"));
             given(vendorCommunicationFailureHandler.handleFailure(any(), any(), any(), any(), any(), anyInt(), anyString()))
-                    .willReturn(ResponseEntity.badRequest().body("fail"));
+                .willReturn(ResponseEntity.badRequest().body("fail"));
 
             // when
             ResponseEntity<String> response = controller.handleAdpopcornCallback(
-                    "REW-1", "user-1", UserDeviceType.ANDROID, "CAMP-1", 1,
-                    "캠페인", 100L, "signed", 1001, "앱", "adid", "idfa", "20260414120000"
+                "REW-1", "user-1", UserDeviceType.ANDROID, "CAMP-1", 1,
+                "캠페인", 100L, "signed", 1001, "앱", "adid", "idfa", "20260414120000"
             );
 
             // then
             verify(vendorCommunicationFailureHandler).handleFailure(
-                    any(), any(), any(), any(), any(VendorVerificationFailedException.class), eq1100(), anyString()
+                any(), any(), any(), any(), any(VendorVerificationFailedException.class), eq1100(), anyString()
             );
             assertThat(response.getStatusCode().is4xxClientError()).isTrue();
         }
@@ -117,16 +117,16 @@ class OfferwallControllerTest {
         void shouldHandleUserNotFound() {
             given(handleOfferwallRewardUseCase.handle(any())).willThrow(new UserNotFoundException());
             given(vendorCommunicationFailureHandler.handleFailure(any(), any(), any(), any(), any(), anyInt(), anyString()))
-                    .willReturn(ResponseEntity.badRequest().body("fail"));
+                .willReturn(ResponseEntity.badRequest().body("fail"));
 
             controller.handleAdpopcornCallback(
-                    "REW-1", "user-1", UserDeviceType.ANDROID, "CAMP-1", 1,
-                    "캠페인", 100L, "signed", 1001, "앱", "adid", "idfa", "20260414120000"
+                "REW-1", "user-1", UserDeviceType.ANDROID, "CAMP-1", 1,
+                "캠페인", 100L, "signed", 1001, "앱", "adid", "idfa", "20260414120000"
             );
 
             verify(vendorCommunicationFailureHandler).handleFailure(
-                    any(), any(), any(), any(), any(UserNotFoundException.class),
-                    org.mockito.ArgumentMatchers.eq(3200), anyString()
+                any(), any(), any(), any(), any(UserNotFoundException.class),
+                org.mockito.ArgumentMatchers.eq(3200), anyString()
             );
         }
 
@@ -135,16 +135,16 @@ class OfferwallControllerTest {
         void shouldHandleDuplicate() {
             given(handleOfferwallRewardUseCase.handle(any())).willThrow(new DuplicateOfferwallRewardException());
             given(vendorCommunicationFailureHandler.handleFailure(any(), any(), any(), any(), any(), anyInt(), anyString()))
-                    .willReturn(ResponseEntity.badRequest().body("fail"));
+                .willReturn(ResponseEntity.badRequest().body("fail"));
 
             controller.handleAdpopcornCallback(
-                    "REW-1", "user-1", UserDeviceType.ANDROID, "CAMP-1", 1,
-                    "캠페인", 100L, "signed", 1001, "앱", "adid", "idfa", "20260414120000"
+                "REW-1", "user-1", UserDeviceType.ANDROID, "CAMP-1", 1,
+                "캠페인", 100L, "signed", 1001, "앱", "adid", "idfa", "20260414120000"
             );
 
             verify(vendorCommunicationFailureHandler).handleFailure(
-                    any(), any(), any(), any(), any(DuplicateOfferwallRewardException.class),
-                    org.mockito.ArgumentMatchers.eq(3100), anyString()
+                any(), any(), any(), any(), any(DuplicateOfferwallRewardException.class),
+                org.mockito.ArgumentMatchers.eq(3100), anyString()
             );
         }
     }
@@ -156,7 +156,7 @@ class OfferwallControllerTest {
         @BeforeEach
         void setUp() {
             given(offerwallVendorCommunicationPayloadGenerator.buildTnkPayloadJson(
-                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
             )).willReturn(emptyNode);
         }
 
@@ -166,8 +166,8 @@ class OfferwallControllerTest {
             given(handleOfferwallRewardUseCase.handle(any())).willReturn(2L);
 
             ResponseEntity<BaseResponse<UpdateUserPointResponse>> response = controller.handleTnkCallback(
-                    "REW-2", "user-2", UserDeviceType.IOS, 1, 200L, "signed",
-                    "앱", "adid", "20260414120000", BigDecimal.valueOf(1000)
+                "REW-2", "user-2", UserDeviceType.IOS, 1, 200L, "signed",
+                "앱", "adid", "20260414120000", BigDecimal.valueOf(1000)
             );
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -180,12 +180,12 @@ class OfferwallControllerTest {
             given(handleOfferwallRewardUseCase.handle(any())).willThrow(new VendorVerificationFailedException("invalid"));
 
             assertThatThrownBy(() -> controller.handleTnkCallback(
-                    "REW-2", "user-2", UserDeviceType.IOS, 1, 200L, "signed",
-                    "앱", "adid", "20260414120000", BigDecimal.valueOf(1000)
+                "REW-2", "user-2", UserDeviceType.IOS, 1, 200L, "signed",
+                "앱", "adid", "20260414120000", BigDecimal.valueOf(1000)
             )).isInstanceOf(VendorVerificationFailedException.class);
 
             verify(vendorCommunicationFailureHandler).handleFailure(
-                    any(), any(), any(), any(), any(VendorVerificationFailedException.class), anyInt(), anyString()
+                any(), any(), any(), any(), any(VendorVerificationFailedException.class), anyInt(), anyString()
             );
         }
     }
@@ -197,7 +197,7 @@ class OfferwallControllerTest {
         @BeforeEach
         void setUp() {
             given(offerwallVendorCommunicationPayloadGenerator.buildAdiscopePayloadJson(
-                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
             )).willReturn(emptyNode);
         }
 
@@ -207,8 +207,8 @@ class OfferwallControllerTest {
             given(handleOfferwallRewardUseCase.handle(any())).willReturn(3L);
 
             ResponseEntity<BaseResponse<UpdateUserPointResponse>> response = controller.handleAdiscopeCallback(
-                    "REW-3", "user-3", UserDeviceType.ANDROID, "CAMP-3", "TYPE", "캠페인",
-                    "POINT", 300L, "signed", "adid", "network"
+                "REW-3", "user-3", UserDeviceType.ANDROID, "CAMP-3", "TYPE", "캠페인",
+                "POINT", 300L, "signed", "adid", "network"
             );
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -221,13 +221,13 @@ class OfferwallControllerTest {
             given(handleOfferwallRewardUseCase.handle(any())).willThrow(new DuplicateOfferwallRewardException());
 
             assertThatThrownBy(() -> controller.handleAdiscopeCallback(
-                    "REW-3", "user-3", UserDeviceType.ANDROID, "CAMP-3", "TYPE", "캠페인",
-                    "POINT", 300L, "signed", "adid", "network"
+                "REW-3", "user-3", UserDeviceType.ANDROID, "CAMP-3", "TYPE", "캠페인",
+                "POINT", 300L, "signed", "adid", "network"
             )).isInstanceOf(DuplicateOfferwallRewardException.class);
 
             verify(vendorCommunicationFailureHandler).handleFailure(
-                    any(), any(), any(), any(), any(DuplicateOfferwallRewardException.class),
-                    org.mockito.ArgumentMatchers.eq(3100), anyString()
+                any(), any(), any(), any(), any(DuplicateOfferwallRewardException.class),
+                org.mockito.ArgumentMatchers.eq(3100), anyString()
             );
             verify(vendorCommunicationRecorder, never()).record(any(), any(), any(), anyString(), any(), anyString(), any());
         }

@@ -34,12 +34,12 @@ public class OrderPaymentInventorySagaConsumer {
     private final SagaResponsePublisher sagaResponsePublisher;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_INVENTORY,
-            groupId = "saga-order-payment-inventory"
+        topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_INVENTORY,
+        groupId = "saga-order-payment-inventory"
     )
     public void handleInventoryStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -71,7 +71,7 @@ public class OrderPaymentInventorySagaConsumer {
     private void handleAction(SagaStepMessage stepMessage) {
         try {
             InventorySagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), InventorySagaPayload.class);
+                stepMessage.payload(), InventorySagaPayload.class);
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
                 publishValidationFailure(stepMessage, "orderId 누락");
@@ -87,23 +87,23 @@ public class OrderPaymentInventorySagaConsumer {
             reduceProductInventoryUseCase.reduce(orderProducts, payload.orderId(), "SAGA 결제 완료 재고 차감");
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true}"
             );
 
             log.info("SAGA 재고 차감 성공. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
         } catch (DuplicateInventoryDeductionException e) {
             log.info("이미 처리된 SAGA 재고 차감 (멱등 처리). sagaId={}", stepMessage.sagaId());
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
             );
         } catch (Exception e) {
             // boundary E: SAGA step boundary — UseCase 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 재고 차감 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "재고 차감 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "재고 차감 처리 실패"
             );
         }
     }
@@ -111,7 +111,7 @@ public class OrderPaymentInventorySagaConsumer {
     private void handleCompensation(SagaStepMessage stepMessage) {
         try {
             InventorySagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), InventorySagaPayload.class);
+                stepMessage.payload(), InventorySagaPayload.class);
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
                 publishValidationFailure(stepMessage, "orderId 누락");
@@ -127,8 +127,8 @@ public class OrderPaymentInventorySagaConsumer {
             releaseInventoryReservationUseCase.release(orderProducts, payload.orderId(), "SAGA 보상 - 재고 복구");
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"compensated\":true}"
             );
 
             log.info("SAGA 재고 복구 완료. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
@@ -136,8 +136,8 @@ public class OrderPaymentInventorySagaConsumer {
             // boundary E: SAGA compensation boundary — 보상 처리 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 재고 복구 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "재고 복구 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "재고 복구 처리 실패"
             );
         }
     }
@@ -145,8 +145,8 @@ public class OrderPaymentInventorySagaConsumer {
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
         log.warn("SAGA 재고 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
     }
 }

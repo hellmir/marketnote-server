@@ -30,8 +30,8 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @RestController
 @RequestMapping("/api/v1/internal/shipping-policies")
 @Tag(
-        name = "내부 배송비 정책 API",
-        description = "서비스 간 통신용 배송비 정책 API"
+    name = "내부 배송비 정책 API",
+    description = "서비스 간 통신용 배송비 정책 API"
 )
 @RequiredArgsConstructor
 @Validated
@@ -48,18 +48,18 @@ public class InternalShippingPolicyController {
      */
     @GetMapping("/sellers")
     public ResponseEntity<BaseResponse<GetShippingPoliciesBySellerIdsResponse>> getShippingPoliciesBySellerIds(
-            @RequestParam @Size(max = 100, message = "판매자 ID는 최대 100개까지 조회 가능합니다") List<Long> sellerIds
+        @RequestParam @Size(max = 100, message = "판매자 ID는 최대 100개까지 조회 가능합니다") List<Long> sellerIds
     ) {
         List<GetShippingPolicyBySellerResult> results = getShippingPolicyUseCase.getShippingPolicies(sellerIds);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetShippingPoliciesBySellerIdsResponse.from(results),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "판매자별 배송비 정책 배치 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetShippingPoliciesBySellerIdsResponse.from(results),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "판매자별 배송비 정책 배치 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

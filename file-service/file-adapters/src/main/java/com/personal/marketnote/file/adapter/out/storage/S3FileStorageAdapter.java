@@ -87,10 +87,10 @@ public class S3FileStorageAdapter implements UploadFilesPort {
         try {
             Map<String, String> tags = buildDeleteTags(key);
             externalCallLogger.record(
-                    ExternalSystem.S3, OPERATION_DELETE, tags,
-                    () -> s3Client.deleteObject(
-                            DeleteObjectRequest.builder().bucket(s3BucketName).key(key).build()
-                    )
+                ExternalSystem.S3, OPERATION_DELETE, tags,
+                () -> s3Client.deleteObject(
+                    DeleteObjectRequest.builder().bucket(s3BucketName).key(key).build()
+                )
             );
         } catch (RuntimeException re) {
             // eventual consistency: 단건 삭제 실패는 다른 객체 cleanup을 막지 않음. 후속 배치 정리에 위임.
@@ -116,8 +116,8 @@ public class S3FileStorageAdapter implements UploadFilesPort {
     private String upload(MultipartFile multipartFile, OwnerType ownerType, Long ownerId) {
         String originalFileName = multipartFile.getOriginalFilename();
         String sanitizedFilename = FormatValidator.hasValue(originalFileName)
-                ? FormatConverter.sanitizeFileName(originalFileName)
-                : "";
+            ? FormatConverter.sanitizeFileName(originalFileName)
+            : "";
         long ms = System.currentTimeMillis();
         String key = String.format("%s/%d/%s_%s", ownerType.name().toLowerCase(), ownerId, ms, sanitizedFilename);
 
@@ -138,11 +138,11 @@ public class S3FileStorageAdapter implements UploadFilesPort {
         long size = safeSize(tempFile);
         Map<String, String> tags = buildUploadTags(key, size);
         PutObjectResponse response = externalCallLogger.record(
-                ExternalSystem.S3, OPERATION_UPLOAD, tags,
-                () -> s3Client.putObject(
-                        PutObjectRequest.builder().bucket(s3BucketName).key(key).build(),
-                        tempFile
-                )
+            ExternalSystem.S3, OPERATION_UPLOAD, tags,
+            () -> s3Client.putObject(
+                PutObjectRequest.builder().bucket(s3BucketName).key(key).build(),
+                tempFile
+            )
         );
         logResponseMeta(key, response);
     }
@@ -174,8 +174,8 @@ public class S3FileStorageAdapter implements UploadFilesPort {
         S3ResponseMetadata metadata = response.responseMetadata();
         String requestId = FormatValidator.isNull(metadata) ? null : metadata.requestId();
         LOG.debug(
-                "S3 putObject response: operation={}, bucket={}, key={}, etag={}, requestId={}",
-                OPERATION_UPLOAD, s3BucketName, key, response.eTag(), requestId
+            "S3 putObject response: operation={}, bucket={}, key={}, etag={}, requestId={}",
+            OPERATION_UPLOAD, s3BucketName, key, response.eTag(), requestId
         );
     }
 

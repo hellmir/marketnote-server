@@ -41,14 +41,14 @@ public class UpdateReviewService implements UpdateReviewUseCase {
 
         // 리뷰 버전 기록 저장
         ReviewVersionHistoryCreateState reviewVersionHistoryCreateState
-                = ReviewCommandToStateMapper.mapToVersionHistoryState(review.getId(), command);
+            = ReviewCommandToStateMapper.mapToVersionHistoryState(review.getId(), command);
         saveReviewPort.saveVersionHistory(
-                ReviewVersionHistory.from(reviewVersionHistoryCreateState)
+            ReviewVersionHistory.from(reviewVersionHistoryCreateState)
         );
 
         // 상품 평점 재집계 + 이벤트 발행
         ProductReviewAggregate productReviewAggregate = getReviewUseCase.getProductReviewAggregate(
-                review.getProductId()
+            review.getProductId()
         );
         if (!previousRating.equals(newRating)) {
             productReviewAggregate.changeReview(previousRating, newRating);
@@ -56,8 +56,8 @@ public class UpdateReviewService implements UpdateReviewUseCase {
         }
 
         publishReviewEventPort.publishReviewUpdatedEvent(
-                review.getId(), review.getProductId(),
-                productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating()
+            review.getId(), review.getProductId(),
+            productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating()
         );
 
         return UpdateReviewResult.from(review);

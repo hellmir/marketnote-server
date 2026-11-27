@@ -40,22 +40,22 @@ public class NotificationSwaggerConfig {
     private final SwaggerOrigin swaggerOrigin;
 
     private static final List<String> TAGS_ORDER = List.of(
-            "디바이스 토큰 API",
-            "알림 수신 설정 API",
-            "알림 템플릿 API",
-            "SSE 알림 스트림 API",
-            "알림 이력 API",
-            "(관리자) 알리고 카테고리 API",
-            "(관리자) 알리고 발신프로필 API",
-            "(관리자) 알리고 발송가능건수 API",
-            "(관리자) 알리고 알림톡 템플릿 API",
-            "(관리자) 알리고 알림톡 발송 API",
-            "(관리자) 알리고 메시지 조회 API",
-            "(관리자) 알리고 브랜드메시지 템플릿 API",
-            "(관리자) 알리고 브랜드메시지 전송 API",
-            "Outbox API",
-            "DLT API",
-            "서버 정보 API"
+        "디바이스 토큰 API",
+        "알림 수신 설정 API",
+        "알림 템플릿 API",
+        "SSE 알림 스트림 API",
+        "알림 이력 API",
+        "(관리자) 알리고 카테고리 API",
+        "(관리자) 알리고 발신프로필 API",
+        "(관리자) 알리고 발송가능건수 API",
+        "(관리자) 알리고 알림톡 템플릿 API",
+        "(관리자) 알리고 알림톡 발송 API",
+        "(관리자) 알리고 메시지 조회 API",
+        "(관리자) 알리고 브랜드메시지 템플릿 API",
+        "(관리자) 알리고 브랜드메시지 전송 API",
+        "Outbox API",
+        "DLT API",
+        "서버 정보 API"
     );
 
     private static final Map<String, Integer> ORDER_MAP = new ConcurrentHashMap<>();
@@ -84,8 +84,8 @@ public class NotificationSwaggerConfig {
 
                 if (FormatValidator.hasNoValue(p1) && FormatValidator.hasNoValue(p2)) {
                     return Integer.compare(
-                            originalIndex.getOrDefault(t1.getName(), Integer.MAX_VALUE),
-                            originalIndex.getOrDefault(t2.getName(), Integer.MAX_VALUE)
+                        originalIndex.getOrDefault(t1.getName(), Integer.MAX_VALUE),
+                        originalIndex.getOrDefault(t2.getName(), Integer.MAX_VALUE)
                     );
                 }
 
@@ -101,9 +101,9 @@ public class NotificationSwaggerConfig {
             };
 
             openApi.setTags(
-                    openApi.getTags().stream()
-                            .sorted(comparator)
-                            .toList()
+                openApi.getTags().stream()
+                    .sorted(comparator)
+                    .toList()
             );
         };
     }
@@ -113,24 +113,24 @@ public class NotificationSwaggerConfig {
         OpenAPI openApi = new OpenAPI();
 
         io.swagger.v3.oas.models.security.SecurityScheme securityScheme = new io.swagger.v3.oas.models.security.SecurityScheme()
-                .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP)
-                .scheme("bearer")
-                .bearerFormat("JWT")
-                .in(io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER)
-                .name(HttpHeaders.AUTHORIZATION);
+            .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP)
+            .scheme("bearer")
+            .bearerFormat("JWT")
+            .in(io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER)
+            .name(HttpHeaders.AUTHORIZATION);
 
         String label = SwaggerEnvironment.resolveLabel(environment.getActiveProfiles());
 
         openApi.info(new Info()
-                        .title(buildTitle(label))
-                        .description(buildDescription(label))
-                        .version("1.0"))
-                .components(new Components()
-                        .addSecuritySchemes("bearer", securityScheme))
-                .addSecurityItem(new SecurityRequirement().addList("bearer"))
-                .servers(List.of(
-                        new Server().url(serverOrigin)
-                ));
+                .title(buildTitle(label))
+                .description(buildDescription(label))
+                .version("1.0"))
+            .components(new Components()
+                .addSecuritySchemes("bearer", securityScheme))
+            .addSecurityItem(new SecurityRequirement().addList("bearer"))
+            .servers(List.of(
+                new Server().url(serverOrigin)
+            ));
 
         return openApi;
     }
@@ -145,14 +145,14 @@ public class NotificationSwaggerConfig {
         String header = "마켓노트 서비스 " + envPart + SERVICE_NAME + " API 서버입니다.";
 
         String links = Arrays.stream(SwaggerServiceSubdomain.values())
-                .map(subdomain -> subdomain.markdownLink(swaggerOrigin.scheme(), swaggerOrigin.baseHost()))
-                .collect(Collectors.joining("\n\n"));
+            .map(subdomain -> subdomain.markdownLink(swaggerOrigin.scheme(), swaggerOrigin.baseHost()))
+            .collect(Collectors.joining("\n\n"));
 
         return """
-                %s
+            %s
 
-                ### 서비스 목록
-                %s
-                """.formatted(header, links);
+            ### 서비스 목록
+            %s
+            """.formatted(header, links);
     }
 }

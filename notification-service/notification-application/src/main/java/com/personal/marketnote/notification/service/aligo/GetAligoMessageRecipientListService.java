@@ -26,31 +26,31 @@ public class GetAligoMessageRecipientListService implements GetAligoMessageRecip
     @Transactional(isolation = Isolation.READ_COMMITTED, readOnly = true)
     public GetAligoMessageRecipientListResult getRecipientList(Long messageId) {
         AligoMessage message = findAligoMessagePort.findById(messageId)
-                .orElseThrow(() -> {
-                    log.warn("알림톡 메시지를 찾을 수 없습니다. aligoMessageId={}", messageId);
-                    return new AligoMessageNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림톡 메시지를 찾을 수 없습니다. aligoMessageId={}", messageId);
+                return new AligoMessageNotFoundException();
+            });
 
         List<RecipientDetail> recipients = message.getRecipients().stream()
-                .map(this::toRecipientDetail)
-                .toList();
+            .map(this::toRecipientDetail)
+            .toList();
 
         return new GetAligoMessageRecipientListResult(messageId, recipients);
     }
 
     private RecipientDetail toRecipientDetail(AligoMessageRecipient recipient) {
         return new RecipientDetail(
-                recipient.getId(),
-                recipient.getReceiver(),
-                recipient.getRecvName(),
-                recipient.getMsgId(),
-                recipient.getSmid(),
-                recipient.getRecipientStatus(),
-                recipient.getRslt(),
-                recipient.getRsltMessage(),
-                recipient.getSentAt(),
-                recipient.getResultAt(),
-                recipient.getReportAt()
+            recipient.getId(),
+            recipient.getReceiver(),
+            recipient.getRecvName(),
+            recipient.getMsgId(),
+            recipient.getSmid(),
+            recipient.getRecipientStatus(),
+            recipient.getRslt(),
+            recipient.getRsltMessage(),
+            recipient.getSentAt(),
+            recipient.getResultAt(),
+            recipient.getReportAt()
         );
     }
 }

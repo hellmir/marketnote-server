@@ -14,7 +14,7 @@ public class GetDeliveryRequestTypesService implements GetDeliveryRequestTypesUs
     @Override
     public List<GetDeliveryRequestTypesResult> getDeliveryRequestTypes() {
         return Arrays.stream(DeliveryRequestType.values())
-                .map(GetDeliveryRequestTypesResult::from)
-                .toList();
+            .map(GetDeliveryRequestTypesResult::from)
+            .toList();
     }
 }

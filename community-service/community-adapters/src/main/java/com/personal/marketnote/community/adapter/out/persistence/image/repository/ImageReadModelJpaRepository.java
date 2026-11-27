@@ -12,6 +12,6 @@ public interface ImageReadModelJpaRepository extends JpaRepository<ImageReadMode
     Optional<ImageReadModelJpaEntity> findByImageId(Long imageId);
 
     List<ImageReadModelJpaEntity> findByTargetIdAndFileSortAndStatusOrderBySortOrderAsc(
-            Long targetId, String fileSort, EntityStatus status
+        Long targetId, String fileSort, EntityStatus status
     );
 }

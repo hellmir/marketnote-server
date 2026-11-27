@@ -32,14 +32,14 @@ public class RefundPersistenceAdapter implements SaveRefundPort, FindRefundPort 
     @Override
     public List<Refund> findByOrderId(Long orderId) {
         return refundJpaRepository.findByOrderIdOrderByCreatedAtDesc(orderId).stream()
-                .map(RefundJpaEntityToDomainMapper::toDomain)
-                .toList();
+            .map(RefundJpaEntityToDomainMapper::toDomain)
+            .toList();
     }
 
     @Override
     public List<Refund> findByPaymentId(Long paymentId) {
         return refundJpaRepository.findByPaymentIdOrderByCreatedAtDesc(paymentId).stream()
-                .map(RefundJpaEntityToDomainMapper::toDomain)
-                .toList();
+            .map(RefundJpaEntityToDomainMapper::toDomain)
+            .toList();
     }
 }

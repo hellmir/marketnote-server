@@ -5,7 +5,7 @@ import com.personal.marketnote.product.port.in.result.product.GetProductKeyResul
 import java.util.UUID;
 
 public record GetProductKeyResponse(
-        UUID productKey
+    UUID productKey
 ) {
     public static GetProductKeyResponse from(GetProductKeyResult result) {
         return new GetProductKeyResponse(result.productKey());

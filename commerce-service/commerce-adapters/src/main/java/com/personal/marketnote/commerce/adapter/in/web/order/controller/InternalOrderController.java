@@ -28,8 +28,8 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @RestController
 @RequestMapping("/api/v1/internal/orders")
 @Tag(
-        name = "내부 주문 API",
-        description = "서비스 간 통신용 주문 API"
+    name = "내부 주문 API",
+    description = "서비스 간 통신용 주문 API"
 )
 @RequiredArgsConstructor
 @Slf4j
@@ -45,8 +45,8 @@ public class InternalOrderController {
     @VerifyOrderOwnershipApiDocs
     @GetMapping("/{orderId}/ownership")
     public ResponseEntity<BaseResponse<Void>> verifyOrderOwnership(
-            @PathVariable Long orderId,
-            @RequestParam Long buyerId
+        @PathVariable Long orderId,
+        @RequestParam Long buyerId
     ) {
         Order order = getOrderUseCase.getOrder(orderId);
 
@@ -61,12 +61,12 @@ public class InternalOrderController {
         }
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "주문 소유권 확인 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "주문 소유권 확인 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -79,19 +79,19 @@ public class InternalOrderController {
     @GetInternalOrderProductApiDocs
     @GetMapping("/{orderId}/order-products/{pricePolicyId}")
     public ResponseEntity<BaseResponse<InternalOrderProductResponse>> getOrderProduct(
-            @PathVariable Long orderId,
-            @PathVariable Long pricePolicyId
+        @PathVariable Long orderId,
+        @PathVariable Long pricePolicyId
     ) {
         OrderProduct orderProduct = getOrderUseCase.getOrderProduct(orderId, pricePolicyId);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        InternalOrderProductResponse.from(orderProduct),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "주문 상품 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                InternalOrderProductResponse.from(orderProduct),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "주문 상품 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

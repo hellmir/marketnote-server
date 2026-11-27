@@ -125,7 +125,7 @@ class UpdateTargetStatusUseCaseTest {
         when(getReviewUseCase.getReview(999L)).thenThrow(new ReviewNotFoundException());
 
         assertThatThrownBy(() -> updateTargetStatusService.updateTargetStatus(command))
-                .isInstanceOf(ReviewNotFoundException.class);
+            .isInstanceOf(ReviewNotFoundException.class);
 
         verifyNoInteractions(updateReviewPort, getPostUseCase, updatePostPort);
     }
@@ -137,69 +137,69 @@ class UpdateTargetStatusUseCaseTest {
         when(getPostUseCase.getPost(999L)).thenThrow(new PostNotFoundException());
 
         assertThatThrownBy(() -> updateTargetStatusService.updateTargetStatus(command))
-                .isInstanceOf(PostNotFoundException.class);
+            .isInstanceOf(PostNotFoundException.class);
 
         verifyNoInteractions(updatePostPort, getReviewUseCase, updateReviewPort, findPostPort);
     }
 
     private Review buildReview(Long id, EntityStatus status) {
         return Review.from(ReviewSnapshotState.builder()
-                .id(id)
-                .reviewerId(100L)
-                .orderId(200L)
-                .productId(300L)
-                .pricePolicyId(400L)
-                .rating(Rating.of(5.0f))
-                .content("테스트 리뷰")
-                .isPhoto(false)
-                .isEdited(false)
-                .likeCount(0)
-                .status(status)
-                .build());
+            .id(id)
+            .reviewerId(100L)
+            .orderId(200L)
+            .productId(300L)
+            .pricePolicyId(400L)
+            .rating(Rating.of(5.0f))
+            .content("테스트 리뷰")
+            .isPhoto(false)
+            .isEdited(false)
+            .likeCount(0)
+            .status(status)
+            .build());
     }
 
     private Post buildPost(Long id, EntityStatus status) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(100L)
-                .board(Board.NOTICE)
-                .category("ANNOUNCEMENT")
-                .title("테스트 게시글")
-                .content("테스트 내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .status(status)
-                .build());
+            .id(id)
+            .userId(100L)
+            .board(Board.NOTICE)
+            .category("ANNOUNCEMENT")
+            .title("테스트 게시글")
+            .content("테스트 내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .status(status)
+            .build());
     }
 
     private Post buildReply(Long id, Long parentId, EntityStatus status) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(200L)
-                .parentId(parentId)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .title("답변 제목")
-                .content("답변 내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .status(status)
-                .build());
+            .id(id)
+            .userId(200L)
+            .parentId(parentId)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .title("답변 제목")
+            .content("답변 내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .status(status)
+            .build());
     }
 
     private Post buildParent(Long id, boolean hasReply) {
         return Post.from(PostSnapshotState.builder()
-                .id(id)
-                .userId(100L)
-                .board(Board.PRODUCT_INQUERY)
-                .category("PRODUCT_QUESTION")
-                .title("문의 제목")
-                .content("문의 내용")
-                .isPrivate(false)
-                .isPhoto(false)
-                .hasReply(hasReply)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(id)
+            .userId(100L)
+            .board(Board.PRODUCT_INQUERY)
+            .category("PRODUCT_QUESTION")
+            .title("문의 제목")
+            .content("문의 내용")
+            .isPrivate(false)
+            .isPhoto(false)
+            .hasReply(hasReply)
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 
     @Test

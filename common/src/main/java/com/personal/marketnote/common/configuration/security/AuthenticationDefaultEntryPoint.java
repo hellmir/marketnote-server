@@ -19,7 +19,7 @@ public class AuthenticationDefaultEntryPoint implements AuthenticationEntryPoint
 
     @Override
     public void commence(
-            HttpServletRequest request, HttpServletResponse response, AuthenticationException authException
+        HttpServletRequest request, HttpServletResponse response, AuthenticationException authException
     ) throws IOException, ServletException {
         if (log.isDebugEnabled()) {
             log.debug("Authentication Failed", authException);

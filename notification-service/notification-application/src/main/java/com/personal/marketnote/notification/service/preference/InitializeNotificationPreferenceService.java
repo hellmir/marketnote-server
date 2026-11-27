@@ -25,10 +25,10 @@ public class InitializeNotificationPreferenceService implements InitializeNotifi
     @Transactional(isolation = READ_COMMITTED)
     public void initializeNotificationPreference(InitializeNotificationPreferenceCommand command) {
         List<NotificationPreference> preferences = Arrays.stream(NotificationType.values())
-                .map(type -> NotificationPreference.from(
-                        NotificationPreferenceCommandToStateMapper.mapToState(command.userId(), type)
-                ))
-                .toList();
+            .map(type -> NotificationPreference.from(
+                NotificationPreferenceCommandToStateMapper.mapToState(command.userId(), type)
+            ))
+            .toList();
 
         saveNotificationPreferencePort.saveAll(preferences);
     }

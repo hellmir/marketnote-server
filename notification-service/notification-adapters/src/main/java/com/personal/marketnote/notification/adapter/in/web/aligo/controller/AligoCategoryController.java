@@ -34,11 +34,11 @@ public class AligoCategoryController {
         GetAligoCategoryTreeResult result = getAligoCategoryUseCase.getCategoryTree();
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetAligoCategoryResponse.from(result),
-                        HttpStatus.OK, DEFAULT_SUCCESS_CODE, "카테고리 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetAligoCategoryResponse.from(result),
+                HttpStatus.OK, DEFAULT_SUCCESS_CODE, "카테고리 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

@@ -41,8 +41,8 @@ public class LedgerPersistenceAdapter implements SaveLedgerTransactionPort, Save
     @Override
     public void saveAll(List<LedgerEntry> entries) {
         List<LedgerEntryJpaEntity> entities = entries.stream()
-                .map(LedgerEntryJpaEntity::from)
-                .toList();
+            .map(LedgerEntryJpaEntity::from)
+            .toList();
         ledgerEntryJpaRepository.saveAll(entities);
     }
 }

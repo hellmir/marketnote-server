@@ -54,17 +54,17 @@ class CommerceServiceClientTest {
         RestClient.Builder builder = RestClient.builder();
         mockServer = MockRestServiceServer.bindTo(builder).build();
         client = new CommerceServiceClient(
-                builder,
-                BASE_URL,
-                hmacServiceAuthHeaderBuilder,
-                serviceCommunicationRecorder,
-                serviceCommunicationPayloadGenerator
+            builder,
+            BASE_URL,
+            hmacServiceAuthHeaderBuilder,
+            serviceCommunicationRecorder,
+            serviceCommunicationPayloadGenerator
         );
 
         lenient().when(serviceCommunicationPayloadGenerator.buildRequestPayloadJson(any(), any(), any(), anyInt()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
         lenient().when(serviceCommunicationPayloadGenerator.buildErrorPayloadJson(anyString(), any(), anyInt()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
     }
 
     @Nested
@@ -75,8 +75,8 @@ class CommerceServiceClientTest {
         @DisplayName("성공 시 통신 기록 없이 정상 종료한다")
         void completesSilentlyOnSuccess() {
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/orders/1/ownership?buyerId=10"))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess());
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess());
 
             client.verifyOrderOwnership(1L, 10L);
 
@@ -88,11 +88,11 @@ class CommerceServiceClientTest {
         @DisplayName("403 응답 시 UnauthorizedOrderAccessException을 던지고 재시도하지 않는다")
         void throwsUnauthorizedOnForbidden() {
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/orders/1/ownership?buyerId=10"))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withStatus(HttpStatus.FORBIDDEN));
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withStatus(HttpStatus.FORBIDDEN));
 
             assertThatThrownBy(() -> client.verifyOrderOwnership(1L, 10L))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
 
             mockServer.verify();
             verify(serviceCommunicationRecorder, never()).record(any(), any(), any(), any(), any(), any(), any());
@@ -102,11 +102,11 @@ class CommerceServiceClientTest {
         @DisplayName("4xx(403 외)일 때 HttpClientErrorException을 던지고 재시도하지 않으며 통신 오류를 기록한다")
         void throwsImmediatelyOnNon403ClientError() {
             mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/orders/1/ownership?buyerId=10"))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withStatus(HttpStatus.BAD_REQUEST));
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withStatus(HttpStatus.BAD_REQUEST));
 
             assertThatThrownBy(() -> client.verifyOrderOwnership(1L, 10L))
-                    .isInstanceOf(HttpClientErrorException.class);
+                .isInstanceOf(HttpClientErrorException.class);
 
             mockServer.verify();
             verify(serviceCommunicationRecorder, atLeastOnce()).record(any(), any(), any(), any(), any(), any(), any());
@@ -117,12 +117,12 @@ class CommerceServiceClientTest {
         void retriesUpToFiveAndThrows() {
             for (int i = 0; i < 5; i++) {
                 mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/orders/1/ownership?buyerId=10"))
-                        .andExpect(method(HttpMethod.GET))
-                        .andRespond(withServerError());
+                    .andExpect(method(HttpMethod.GET))
+                    .andRespond(withServerError());
             }
 
             assertThatThrownBy(() -> client.verifyOrderOwnership(1L, 10L))
-                    .isInstanceOf(HttpServerErrorException.class);
+                .isInstanceOf(HttpServerErrorException.class);
 
             mockServer.verify();
             verify(serviceCommunicationRecorder, atLeastOnce()).record(any(), any(), any(), any(), any(), any(), any());
@@ -132,11 +132,11 @@ class CommerceServiceClientTest {
         @DisplayName("HMAC 서명 생성 실패가 5회 반복되면 마지막 시도 후 예외를 전파한다 (retry 대상 보존)")
         void retriesOnHmacSignatureGenerationFailure() {
             doThrow(new HmacSignatureGenerationFailedException(new GeneralSecurityException("test")))
-                    .when(hmacServiceAuthHeaderBuilder)
-                    .applyHeaders(any(HttpHeaders.class), eq("GET"), anyString());
+                .when(hmacServiceAuthHeaderBuilder)
+                .applyHeaders(any(HttpHeaders.class), eq("GET"), anyString());
 
             assertThatThrownBy(() -> client.verifyOrderOwnership(1L, 10L))
-                    .isInstanceOf(HmacSignatureGenerationFailedException.class);
+                .isInstanceOf(HmacSignatureGenerationFailedException.class);
 
             verify(serviceCommunicationRecorder, atLeastOnce()).record(any(), any(), any(), any(), any(), any(), any());
         }
@@ -145,11 +145,11 @@ class CommerceServiceClientTest {
         @DisplayName("retry 대상이 아닌 RuntimeException(NPE)은 retry 없이 즉시 호출자에게 전파된다")
         void doesNotRetryOnUnexpectedRuntimeException() {
             doThrow(new NullPointerException("unexpected"))
-                    .when(hmacServiceAuthHeaderBuilder)
-                    .applyHeaders(any(HttpHeaders.class), eq("GET"), anyString());
+                .when(hmacServiceAuthHeaderBuilder)
+                .applyHeaders(any(HttpHeaders.class), eq("GET"), anyString());
 
             assertThatThrownBy(() -> client.verifyOrderOwnership(1L, 10L))
-                    .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(NullPointerException.class);
 
             verifyNoInteractions(serviceCommunicationRecorder);
         }

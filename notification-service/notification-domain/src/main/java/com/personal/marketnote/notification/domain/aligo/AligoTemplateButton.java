@@ -19,35 +19,35 @@ public class AligoTemplateButton {
 
     public static AligoTemplateButton from(AligoTemplateButtonCreateState state) {
         validate(
-                state.getName(), state.getLinkType(),
-                state.getLinkMo(), state.getLinkPc(), state.getLinkIos(), state.getLinkAnd()
+            state.getName(), state.getLinkType(),
+            state.getLinkMo(), state.getLinkPc(), state.getLinkIos(), state.getLinkAnd()
         );
         return AligoTemplateButton.builder()
-                .ordering(state.getOrdering())
-                .name(state.getName())
-                .linkType(state.getLinkType())
-                .linkMo(state.getLinkMo())
-                .linkPc(state.getLinkPc())
-                .linkIos(state.getLinkIos())
-                .linkAnd(state.getLinkAnd())
-                .build();
+            .ordering(state.getOrdering())
+            .name(state.getName())
+            .linkType(state.getLinkType())
+            .linkMo(state.getLinkMo())
+            .linkPc(state.getLinkPc())
+            .linkIos(state.getLinkIos())
+            .linkAnd(state.getLinkAnd())
+            .build();
     }
 
     public static AligoTemplateButton from(AligoTemplateButtonSnapshotState state) {
         return AligoTemplateButton.builder()
-                .ordering(state.getOrdering())
-                .name(state.getName())
-                .linkType(state.getLinkType())
-                .linkMo(state.getLinkMo())
-                .linkPc(state.getLinkPc())
-                .linkIos(state.getLinkIos())
-                .linkAnd(state.getLinkAnd())
-                .build();
+            .ordering(state.getOrdering())
+            .name(state.getName())
+            .linkType(state.getLinkType())
+            .linkMo(state.getLinkMo())
+            .linkPc(state.getLinkPc())
+            .linkIos(state.getLinkIos())
+            .linkAnd(state.getLinkAnd())
+            .build();
     }
 
     private static void validate(
-            String name, AligoTemplateButtonLinkType linkType,
-            String linkMo, String linkPc, String linkIos, String linkAnd
+        String name, AligoTemplateButtonLinkType linkType,
+        String linkMo, String linkPc, String linkIos, String linkAnd
     ) {
         if (FormatValidator.hasNoValue(name)) {
             throw new InvalidAligoTemplateButtonException("버튼 name은 필수입니다.");

@@ -33,8 +33,8 @@ class AligoTemplateRendererTest {
 
         // when & then
         assertThatThrownBy(() -> AligoTemplateRenderer.render(template, variables))
-                .isInstanceOf(InvalidAligoTemplateException.class)
-                .hasMessageContaining("주문번호");
+            .isInstanceOf(InvalidAligoTemplateException.class)
+            .hasMessageContaining("주문번호");
     }
 
     @Test

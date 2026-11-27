@@ -7,37 +7,37 @@ public record GetGifticonGoodsResponse(CursorResponse<GifticonGoodsItemResponse>
 
     public static GetGifticonGoodsResponse from(GetGifticonGoodsResult result) {
         return new GetGifticonGoodsResponse(
-                new CursorResponse<>(
-                        result.totalElements(),
-                        result.hasNext(),
-                        result.nextCursor(),
-                        result.items().stream()
-                                .map(item -> new GifticonGoodsItemResponse(
-                                        item.goodsCode(),
-                                        item.goodsName(),
-                                        item.brandCode(),
-                                        item.brandName(),
-                                        item.brandImageUrl(),
-                                        item.salePrice(),
-                                        item.cashPrice(),
-                                        item.imageUrl(),
-                                        item.orderNum()
-                                ))
-                                .toList()
-                )
+            new CursorResponse<>(
+                result.totalElements(),
+                result.hasNext(),
+                result.nextCursor(),
+                result.items().stream()
+                    .map(item -> new GifticonGoodsItemResponse(
+                        item.goodsCode(),
+                        item.goodsName(),
+                        item.brandCode(),
+                        item.brandName(),
+                        item.brandImageUrl(),
+                        item.salePrice(),
+                        item.cashPrice(),
+                        item.imageUrl(),
+                        item.orderNum()
+                    ))
+                    .toList()
+            )
         );
     }
 
     public record GifticonGoodsItemResponse(
-            String goodsCode,
-            String goodsName,
-            String brandCode,
-            String brandName,
-            String brandImageUrl,
-            Long salePrice,
-            Long cashPrice,
-            String imageUrl,
-            Integer orderNum
+        String goodsCode,
+        String goodsName,
+        String brandCode,
+        String brandName,
+        String brandImageUrl,
+        Long salePrice,
+        Long cashPrice,
+        String imageUrl,
+        Integer orderNum
     ) {
     }
 }

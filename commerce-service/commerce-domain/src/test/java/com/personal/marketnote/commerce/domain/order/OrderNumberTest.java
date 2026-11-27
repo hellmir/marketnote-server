@@ -28,21 +28,21 @@ class OrderNumberTest {
     @DisplayName("빈 문자열로 생성 시 OrderNumberNoValueException을 던진다")
     void shouldThrowWhenValueIsBlank() {
         assertThatThrownBy(() -> OrderNumber.of(""))
-                .isInstanceOf(OrderNumberNoValueException.class);
+            .isInstanceOf(OrderNumberNoValueException.class);
     }
 
     @Test
     @DisplayName("공백만 있는 문자열로 생성 시 OrderNumberNoValueException을 던진다")
     void shouldThrowWhenValueIsWhitespaceOnly() {
         assertThatThrownBy(() -> OrderNumber.of("   "))
-                .isInstanceOf(OrderNumberNoValueException.class);
+            .isInstanceOf(OrderNumberNoValueException.class);
     }
 
     @Test
     @DisplayName("null로 생성 시 OrderNumberNoValueException을 던진다")
     void shouldThrowWhenValueIsNull() {
         assertThatThrownBy(() -> OrderNumber.of(null))
-                .isInstanceOf(OrderNumberNoValueException.class);
+            .isInstanceOf(OrderNumberNoValueException.class);
     }
 
     @Test

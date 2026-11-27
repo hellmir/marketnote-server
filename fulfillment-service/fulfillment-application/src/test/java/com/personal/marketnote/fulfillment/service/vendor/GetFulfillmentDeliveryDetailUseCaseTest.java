@@ -31,7 +31,7 @@ class GetFulfillmentDeliveryDetailUseCaseTest {
     void shouldReturnDeliveryDetailResultFromPort() {
         // given
         GetFulfillmentDeliveryDetailCommand command = GetFulfillmentDeliveryDetailCommand.of(
-                "CUST001", "token", "SLIP001"
+            "CUST001", "token", "SLIP001"
         );
         GetFulfillmentDeliveryDetailResult expectedResult = GetFulfillmentDeliveryDetailResult.of(0, List.of());
         when(getFulfillmentDeliveryDetailPort.getDeliveryDetail(any())).thenReturn(expectedResult);

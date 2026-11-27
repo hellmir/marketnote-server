@@ -21,7 +21,7 @@ class SseNotificationControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
+            String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
         );
     }
 

@@ -36,25 +36,25 @@ class GetProductOptionsUseCaseTest {
     void getProductOptions_mapsCategoriesAndOptions() {
         Long productId = 10L;
         ProductOptionCategory category1 = buildCategory(
-                100L,
-                "색상",
-                1L,
-                EntityStatus.ACTIVE,
-                List.of(
-                        buildOption(1001L, "RED", EntityStatus.ACTIVE),
-                        buildOption(1002L, "BLUE", EntityStatus.ACTIVE)
-                )
+            100L,
+            "색상",
+            1L,
+            EntityStatus.ACTIVE,
+            List.of(
+                buildOption(1001L, "RED", EntityStatus.ACTIVE),
+                buildOption(1002L, "BLUE", EntityStatus.ACTIVE)
+            )
         );
         ProductOptionCategory category2 = buildCategory(
-                200L,
-                "사이즈",
-                2L,
-                EntityStatus.UNEXPOSED,
-                List.of(buildOption(2001L, "M", EntityStatus.INACTIVE))
+            200L,
+            "사이즈",
+            2L,
+            EntityStatus.UNEXPOSED,
+            List.of(buildOption(2001L, "M", EntityStatus.INACTIVE))
         );
 
         when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(productId))
-                .thenReturn(List.of(category1, category2));
+            .thenReturn(List.of(category1, category2));
 
         GetProductOptionsResult result = getProductOptionsService.getProductOptions(productId);
 
@@ -66,11 +66,11 @@ class GetProductOptionsUseCaseTest {
         assertThat(item1.orderNum()).isEqualTo(1L);
         assertThat(item1.status()).isEqualTo(EntityStatus.ACTIVE.name());
         assertThat(item1.options()).extracting(ProductOptionItemResult::id)
-                .containsExactly(1001L, 1002L);
+            .containsExactly(1001L, 1002L);
         assertThat(item1.options()).extracting(ProductOptionItemResult::content)
-                .containsExactly("RED", "BLUE");
+            .containsExactly("RED", "BLUE");
         assertThat(item1.options()).extracting(ProductOptionItemResult::status)
-                .containsExactly(EntityStatus.ACTIVE.name(), EntityStatus.ACTIVE.name());
+            .containsExactly(EntityStatus.ACTIVE.name(), EntityStatus.ACTIVE.name());
 
         ProductOptionCategoryItemResult item2 = result.categories().getLast();
         assertThat(item2.id()).isEqualTo(200L);
@@ -78,11 +78,11 @@ class GetProductOptionsUseCaseTest {
         assertThat(item2.orderNum()).isEqualTo(2L);
         assertThat(item2.status()).isEqualTo(EntityStatus.UNEXPOSED.name());
         assertThat(item2.options()).extracting(ProductOptionItemResult::id)
-                .containsExactly(2001L);
+            .containsExactly(2001L);
         assertThat(item2.options()).extracting(ProductOptionItemResult::content)
-                .containsExactly("M");
+            .containsExactly("M");
         assertThat(item2.options()).extracting(ProductOptionItemResult::status)
-                .containsExactly(EntityStatus.INACTIVE.name());
+            .containsExactly(EntityStatus.INACTIVE.name());
     }
 
     @Test
@@ -91,7 +91,7 @@ class GetProductOptionsUseCaseTest {
         Long productId = 11L;
 
         when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(productId))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         GetProductOptionsResult result = getProductOptionsService.getProductOptions(productId);
 
@@ -106,37 +106,37 @@ class GetProductOptionsUseCaseTest {
         RuntimeException exception = new RuntimeException("find fail");
 
         when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(productId))
-                .thenThrow(exception);
+            .thenThrow(exception);
 
         assertThatThrownBy(() -> getProductOptionsService.getProductOptions(productId))
-                .isSameAs(exception);
+            .isSameAs(exception);
     }
 
     private ProductOptionCategory buildCategory(
-            Long id,
-            String name,
-            Long orderNum,
-            EntityStatus status,
-            List<ProductOption> options
+        Long id,
+        String name,
+        Long orderNum,
+        EntityStatus status,
+        List<ProductOption> options
     ) {
         return ProductOptionCategory.from(
-                ProductOptionCategorySnapshotState.builder()
-                        .id(id)
-                        .name(name)
-                        .orderNum(orderNum)
-                        .status(status)
-                        .options(options)
-                        .build()
+            ProductOptionCategorySnapshotState.builder()
+                .id(id)
+                .name(name)
+                .orderNum(orderNum)
+                .status(status)
+                .options(options)
+                .build()
         );
     }
 
     private ProductOption buildOption(Long id, String content, EntityStatus status) {
         return ProductOption.from(
-                ProductOptionSnapshotState.builder()
-                        .id(id)
-                        .content(content)
-                        .status(status)
-                        .build()
+            ProductOptionSnapshotState.builder()
+                .id(id)
+                .content(content)
+                .status(status)
+                .build()
         );
     }
 }

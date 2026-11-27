@@ -32,16 +32,16 @@ class RegisterFulfillmentDirectReturnDeliveryUseCaseTest {
     void shouldReturnRegisterDirectReturnDeliveryResultFromPort() {
         // given
         RegisterFulfillmentDirectReturnDeliveryItemCommand itemCommand = RegisterFulfillmentDirectReturnDeliveryItemCommand.builder()
-                .orderDate("20260402")
-                .originalCourierCode("PARCEL001")
-                .originalInvoiceNumber("INV001")
-                .returnReceiveMethod("01")
-                .recipientName("테스트고객")
-                .returnType("01")
-                .returnReason("단순변심")
-                .build();
+            .orderDate("20260402")
+            .originalCourierCode("PARCEL001")
+            .originalInvoiceNumber("INV001")
+            .returnReceiveMethod("01")
+            .recipientName("테스트고객")
+            .returnType("01")
+            .returnReason("단순변심")
+            .build();
         RegisterFulfillmentDirectReturnDeliveryCommand command = RegisterFulfillmentDirectReturnDeliveryCommand.of(
-                "CUST001", "token", List.of(itemCommand)
+            "CUST001", "token", List.of(itemCommand)
         );
         RegisterFulfillmentDeliveryResult expectedResult = RegisterFulfillmentDeliveryResult.of(0, List.of());
         when(registerFulfillmentDirectReturnDeliveryPort.registerDirectReturnDelivery(any())).thenReturn(expectedResult);

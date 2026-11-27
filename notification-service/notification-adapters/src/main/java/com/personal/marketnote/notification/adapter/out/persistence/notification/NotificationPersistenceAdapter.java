@@ -34,7 +34,7 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
     @Override
     public Optional<Notification> findActiveById(Long id) {
         return notificationJpaRepository.findByIdAndStatus(id, EntityStatus.ACTIVE)
-                .flatMap(NotificationJpaEntityToDomainMapper::mapToDomain);
+            .flatMap(NotificationJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override
@@ -44,17 +44,17 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
 
         if (FormatValidator.hasNoValue(category)) {
             return notificationJpaRepository.findByUserIdWithCursor(
-                            userId, EntityStatus.ACTIVE, effectiveCursor, pageRequest
-                    ).stream()
-                    .flatMap(entity -> NotificationJpaEntityToDomainMapper.mapToDomain(entity).stream())
-                    .toList();
-        }
-
-        return notificationJpaRepository.findByUserIdWithCursorAndTypes(
-                        userId, EntityStatus.ACTIVE, effectiveCursor, category.types(), pageRequest
+                    userId, EntityStatus.ACTIVE, effectiveCursor, pageRequest
                 ).stream()
                 .flatMap(entity -> NotificationJpaEntityToDomainMapper.mapToDomain(entity).stream())
                 .toList();
+        }
+
+        return notificationJpaRepository.findByUserIdWithCursorAndTypes(
+                userId, EntityStatus.ACTIVE, effectiveCursor, category.types(), pageRequest
+            ).stream()
+            .flatMap(entity -> NotificationJpaEntityToDomainMapper.mapToDomain(entity).stream())
+            .toList();
     }
 
     @Override
@@ -63,7 +63,7 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
             return notificationJpaRepository.countByUserIdAndStatus(userId, EntityStatus.ACTIVE);
         }
         return notificationJpaRepository.countByUserIdAndStatusAndTypes(
-                userId, EntityStatus.ACTIVE, category.types()
+            userId, EntityStatus.ACTIVE, category.types()
         );
     }
 
@@ -75,20 +75,20 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
     @Override
     public List<Notification> findScheduledNotificationsDue(LocalDateTime now) {
         return notificationJpaRepository.findScheduledNotificationsDue(SendStatus.SCHEDULED, now, EntityStatus.ACTIVE)
-                .stream()
-                .flatMap(entity -> NotificationJpaEntityToDomainMapper.mapToDomain(entity).stream())
-                .toList();
+            .stream()
+            .flatMap(entity -> NotificationJpaEntityToDomainMapper.mapToDomain(entity).stream())
+            .toList();
     }
 
     @Override
     public List<Notification> saveAll(List<Notification> notifications) {
         List<NotificationJpaEntity> entities = notifications.stream()
-                .map(NotificationJpaEntity::from)
-                .toList();
+            .map(NotificationJpaEntity::from)
+            .toList();
         List<NotificationJpaEntity> savedEntities = notificationJpaRepository.saveAll(entities);
         return savedEntities.stream()
-                .flatMap(entity -> NotificationJpaEntityToDomainMapper.mapToDomain(entity).stream())
-                .toList();
+            .flatMap(entity -> NotificationJpaEntityToDomainMapper.mapToDomain(entity).stream())
+            .toList();
     }
 
     @Override
@@ -101,10 +101,10 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
     @Override
     public void update(Notification notification) {
         NotificationJpaEntity entity = notificationJpaRepository.findById(notification.getId())
-                .orElseThrow(() -> {
-                    log.warn("알림을 찾을 수 없습니다. notificationId={}", notification.getId());
-                    return new NotificationNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림을 찾을 수 없습니다. notificationId={}", notification.getId());
+                return new NotificationNotFoundException();
+            });
         entity.updateFrom(notification);
     }
 
@@ -112,7 +112,7 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
     public void updateAll(List<Notification> notifications) {
         List<Long> ids = notifications.stream().map(Notification::getId).toList();
         Map<Long, NotificationJpaEntity> entityMap = notificationJpaRepository.findAllById(ids).stream()
-                .collect(Collectors.toMap(NotificationJpaEntity::getId, e -> e));
+            .collect(Collectors.toMap(NotificationJpaEntity::getId, e -> e));
         for (Notification notification : notifications) {
             NotificationJpaEntity entity = entityMap.get(notification.getId());
             if (FormatValidator.hasNoValue(entity)) {
@@ -125,7 +125,7 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
     @Override
     public int deactivateExpiredNotifications(LocalDateTime threshold) {
         return notificationJpaRepository.deactivateExpiredNotifications(
-                threshold, EntityStatus.ACTIVE, EntityStatus.INACTIVE
+            threshold, EntityStatus.ACTIVE, EntityStatus.INACTIVE
         );
     }
 

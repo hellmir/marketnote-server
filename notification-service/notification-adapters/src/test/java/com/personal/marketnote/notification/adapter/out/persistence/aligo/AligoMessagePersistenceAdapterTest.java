@@ -1,19 +1,11 @@
 package com.personal.marketnote.notification.adapter.out.persistence.aligo;
 
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.entity.AligoMessageJpaEntity;
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.entity.AligoMessageRecipientJpaEntity;
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.repository.AligoMessageJpaRepository;
-import com.personal.marketnote.notification.domain.aligo.AligoMessage;
-import com.personal.marketnote.notification.domain.aligo.AligoMessageCreateState;
-import com.personal.marketnote.notification.domain.aligo.AligoMessageNotFoundException;
-import com.personal.marketnote.notification.domain.aligo.AligoMessageRecipient;
-import com.personal.marketnote.notification.domain.aligo.AligoMessageRecipientCreateState;
-import com.personal.marketnote.notification.domain.aligo.AligoMessageRecipientStatus;
-import com.personal.marketnote.notification.domain.aligo.AligoMessageSnapshotState;
-import com.personal.marketnote.notification.domain.aligo.AligoMessageStatus;
-import com.personal.marketnote.notification.domain.aligo.AligoMessageType;
-import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.notification.domain.aligo.*;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,8 +55,8 @@ class AligoMessagePersistenceAdapterTest {
         assertThat(reloaded.getMessageStatus()).isEqualTo(AligoMessageStatus.REQUESTED);
         assertThat(reloaded.getRecipients()).hasSize(2);
         assertThat(reloaded.getRecipients())
-                .extracting(AligoMessageRecipientJpaEntity::getReceiver)
-                .containsExactlyInAnyOrder("01011112222", "01033334444");
+            .extracting(AligoMessageRecipientJpaEntity::getReceiver)
+            .containsExactlyInAnyOrder("01011112222", "01033334444");
     }
 
     @Test
@@ -118,8 +110,8 @@ class AligoMessagePersistenceAdapterTest {
         assertThat(entity.getSuccessCount()).isEqualTo(2);
         assertThat(entity.getSentAt()).isEqualTo(sentAt);
         assertThat(entity.getRecipients())
-                .extracting(AligoMessageRecipientJpaEntity::getSmid)
-                .containsOnly("SMID-001");
+            .extracting(AligoMessageRecipientJpaEntity::getSmid)
+            .containsOnly("SMID-001");
     }
 
     @Test
@@ -177,26 +169,26 @@ class AligoMessagePersistenceAdapterTest {
     void shouldThrowWhenUpdatingNonExistentMessage() {
         // given
         AligoMessage missing = AligoMessage.from(
-                AligoMessageSnapshotState.builder()
-                        .id(999_999L)
-                        .senderKey("sender-key")
-                        .templateCode("TPL-MISS")
-                        .sender("01000000000")
-                        .messageType(AligoMessageType.AT)
-                        .content("본문")
-                        .messageStatus(AligoMessageStatus.FAILED)
-                        .successCount(0)
-                        .failCount(0)
-                        .failoverUsed(false)
-                        .requestedAt(LocalDateTime.of(2026, 4, 28, 9, 0))
-                        .recipients(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            AligoMessageSnapshotState.builder()
+                .id(999_999L)
+                .senderKey("sender-key")
+                .templateCode("TPL-MISS")
+                .sender("01000000000")
+                .messageType(AligoMessageType.AT)
+                .content("본문")
+                .messageStatus(AligoMessageStatus.FAILED)
+                .successCount(0)
+                .failCount(0)
+                .failoverUsed(false)
+                .requestedAt(LocalDateTime.of(2026, 4, 28, 9, 0))
+                .recipients(List.of())
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
 
         // when & then
         assertThatThrownBy(() -> adapter.update(missing))
-                .isInstanceOf(AligoMessageNotFoundException.class);
+            .isInstanceOf(AligoMessageNotFoundException.class);
     }
 
     @Test
@@ -218,9 +210,9 @@ class AligoMessagePersistenceAdapterTest {
         LocalDateTime resultAt = LocalDateTime.of(2026, 4, 28, 10, 5);
         LocalDateTime reportAt = LocalDateTime.of(2026, 4, 28, 10, 6);
         sentReloaded.updateRecipientResult(
-                firstRecipient.getReceiver(), AligoMessageRecipientStatus.SUCCESS,
-                "MSG-001", "1", "성공",
-                LocalDateTime.of(2026, 4, 28, 10, 1), resultAt, reportAt
+            firstRecipient.getReceiver(), AligoMessageRecipientStatus.SUCCESS,
+            "MSG-001", "1", "성공",
+            LocalDateTime.of(2026, 4, 28, 10, 1), resultAt, reportAt
         );
 
         // when
@@ -231,8 +223,8 @@ class AligoMessagePersistenceAdapterTest {
         // then
         AligoMessageJpaEntity entity = repository.findByIdWithRecipients(saved.getId()).orElseThrow();
         AligoMessageRecipientJpaEntity updated = entity.getRecipients().stream()
-                .filter(r -> r.getId().equals(firstRecipient.getId()))
-                .findFirst().orElseThrow();
+            .filter(r -> r.getId().equals(firstRecipient.getId()))
+            .findFirst().orElseThrow();
         assertThat(updated.getRecipientStatus()).isEqualTo(AligoMessageRecipientStatus.SUCCESS);
         assertThat(updated.getMsgId()).isEqualTo("MSG-001");
         assertThat(updated.getRslt()).isEqualTo("1");
@@ -328,7 +320,7 @@ class AligoMessagePersistenceAdapterTest {
 
         // then
         assertThat(result).extracting(AligoMessage::getId)
-                .contains(saved1.getId(), saved2.getId());
+            .contains(saved1.getId(), saved2.getId());
     }
 
     @Test
@@ -386,29 +378,29 @@ class AligoMessagePersistenceAdapterTest {
         assertThat(domain.getId()).isEqualTo(saved.getId());
         assertThat(domain.getRecipients()).hasSize(2);
         assertThat(domain.getRecipients())
-                .extracting(AligoMessageRecipient::getReceiver)
-                .containsExactlyInAnyOrder("01011112222", "01033334444");
+            .extracting(AligoMessageRecipient::getReceiver)
+            .containsExactlyInAnyOrder("01011112222", "01033334444");
     }
 
     private AligoMessage buildInitialMessage(String templateCode, List<String> receivers) {
         List<AligoMessageRecipientCreateState> recipientStates = receivers.stream()
-                .map(r -> AligoMessageRecipientCreateState.builder()
-                        .receiver(r)
-                        .recvName("수신자")
-                        .build())
-                .toList();
+            .map(r -> AligoMessageRecipientCreateState.builder()
+                .receiver(r)
+                .recvName("수신자")
+                .build())
+            .toList();
         return AligoMessage.from(
-                AligoMessageCreateState.builder()
-                        .senderKey("sender-key-init")
-                        .templateCode(templateCode)
-                        .sender("01000000000")
-                        .messageType(AligoMessageType.AT)
-                        .content("본문 내용입니다.")
-                        .title("제목")
-                        .buttons("[]")
-                        .requestedAt(LocalDateTime.of(2026, 4, 28, 9, 0))
-                        .recipients(recipientStates)
-                        .build()
+            AligoMessageCreateState.builder()
+                .senderKey("sender-key-init")
+                .templateCode(templateCode)
+                .sender("01000000000")
+                .messageType(AligoMessageType.AT)
+                .content("본문 내용입니다.")
+                .title("제목")
+                .buttons("[]")
+                .requestedAt(LocalDateTime.of(2026, 4, 28, 9, 0))
+                .recipients(recipientStates)
+                .build()
         );
     }
 }

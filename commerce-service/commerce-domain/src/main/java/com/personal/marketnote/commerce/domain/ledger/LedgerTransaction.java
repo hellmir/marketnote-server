@@ -21,31 +21,33 @@ public class LedgerTransaction {
 
     public static LedgerTransaction from(LedgerTransactionCreateState state) {
         return LedgerTransaction.builder()
-                .transactionType(state.getTransactionType())
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .description(state.getDescription())
-                .idempotencyKey(state.getIdempotencyKey())
-                .build();
+            .transactionType(state.getTransactionType())
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .description(state.getDescription())
+            .idempotencyKey(state.getIdempotencyKey())
+            .build();
     }
 
     public static LedgerTransaction from(LedgerTransactionSnapshotState state) {
         return LedgerTransaction.builder()
-                .id(state.getId())
-                .transactionType(state.getTransactionType())
-                .targetType(state.getTargetType())
-                .targetId(state.getTargetId())
-                .description(state.getDescription())
-                .idempotencyKey(state.getIdempotencyKey())
-                .createdAt(state.getCreatedAt())
-                .build();
+            .id(state.getId())
+            .transactionType(state.getTransactionType())
+            .targetType(state.getTargetType())
+            .targetId(state.getTargetId())
+            .description(state.getDescription())
+            .idempotencyKey(state.getIdempotencyKey())
+            .createdAt(state.getCreatedAt())
+            .build();
     }
 
     public void validateEntries(List<LedgerEntry> entries) {
         entries.stream()
-                .filter(entry -> !entry.getAmount().isPositive())
-                .findFirst()
-                .ifPresent(entry -> { throw new InvalidLedgerEntryAmountException(entry.getAmount().getValue()); });
+            .filter(entry -> !entry.getAmount().isPositive())
+            .findFirst()
+            .ifPresent(entry -> {
+                throw new InvalidLedgerEntryAmountException(entry.getAmount().getValue());
+            });
 
         Money debitTotal = Money.zero();
         for (LedgerEntry entry : entries) {

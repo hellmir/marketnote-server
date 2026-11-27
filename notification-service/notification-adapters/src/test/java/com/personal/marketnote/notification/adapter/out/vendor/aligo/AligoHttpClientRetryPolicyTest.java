@@ -66,14 +66,14 @@ class AligoHttpClientRetryPolicyTest {
         ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
         recordedCalls = new ArrayList<>();
         aligoHttpClient = AligoHttpClientTestSupport.newClient(
-                restClient, objectMapper, properties, externalCallLogger,
-                (
-                        targetType, targetId, vendorName, communicationType, sender,
-                        exception, payload, payloadJson, attemptCount
-                ) ->
-                        recordedCalls.add(new RecordedCall(
-                                communicationType, payload, payloadJson, attemptCount, exception
-                        ))
+            restClient, objectMapper, properties, externalCallLogger,
+            (
+                targetType, targetId, vendorName, communicationType, sender,
+                exception, payload, payloadJson, attemptCount
+            ) ->
+                recordedCalls.add(new RecordedCall(
+                    communicationType, payload, payloadJson, attemptCount, exception
+                ))
         );
     }
 
@@ -82,8 +82,8 @@ class AligoHttpClientRetryPolicyTest {
     void shouldRecordOnceWithAttemptCountOneOnImmediateSuccess() {
         String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
         mockServer.expect(requestTo("http://localhost" + PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("receiver", "01012345678");
@@ -115,13 +115,13 @@ class AligoHttpClientRetryPolicyTest {
     void shouldRecordOnceWithAttemptCountTwoWhenSecondAttemptSucceeds() {
         String responseBody = "{\"result_code\":0,\"message\":\"성공\"}";
         mockServer.expect(requestTo("http://localhost" + PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withStatus(HttpStatus.BAD_GATEWAY)
-                        .body("{\"err\":\"upstream\"}")
-                        .contentType(MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withStatus(HttpStatus.BAD_GATEWAY)
+                .body("{\"err\":\"upstream\"}")
+                .contentType(MediaType.APPLICATION_JSON));
         mockServer.expect(requestTo("http://localhost" + PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("receiver", "01012345678");
@@ -151,17 +151,17 @@ class AligoHttpClientRetryPolicyTest {
     void shouldRecordOnceWithAllHttpFailuresWhenAllAttemptsFail() {
         for (int i = 0; i < 3; i++) {
             mockServer.expect(requestTo("http://localhost" + PATH))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body("{\"err\":\"down\"}")
-                            .contentType(MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"err\":\"down\"}")
+                    .contentType(MediaType.APPLICATION_JSON));
         }
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("receiver", "01012345678");
 
         assertThatThrownBy(() -> aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class))
-                .isInstanceOf(AligoApiRequestFailedException.class);
+            .isInstanceOf(AligoApiRequestFailedException.class);
 
         // failure handler 경유로 REQUEST + RESPONSE 2건만 발행되어야 함 (시도별 중복 발행 금지)
         assertThat(recordedCalls).hasSize(2);
@@ -187,15 +187,15 @@ class AligoHttpClientRetryPolicyTest {
     void shouldRecordOnceWithAllParseFailuresWhenAllAttemptsHaveBrokenJson() {
         for (int i = 0; i < 3; i++) {
             mockServer.expect(requestTo("http://localhost" + PATH))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("invalid json", MediaType.APPLICATION_JSON));
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("invalid json", MediaType.APPLICATION_JSON));
         }
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("receiver", "01012345678");
 
         assertThatThrownBy(() -> aligoHttpClient.post(OPERATION, PATH, params, AligoApiResponse.class))
-                .isInstanceOf(AligoApiRequestFailedException.class);
+            .isInstanceOf(AligoApiRequestFailedException.class);
 
         assertThat(recordedCalls).hasSize(2);
         RecordedCall request = findByType(NotificationVendorCommunicationType.REQUEST);
@@ -214,17 +214,17 @@ class AligoHttpClientRetryPolicyTest {
 
     private RecordedCall findByType(NotificationVendorCommunicationType type) {
         return recordedCalls.stream()
-                .filter(call -> call.communicationType() == type)
-                .findFirst()
-                .orElseThrow(() -> new AssertionError(type + " 통신 이력이 기록되지 않았습니다."));
+            .filter(call -> call.communicationType() == type)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError(type + " 통신 이력이 기록되지 않았습니다."));
     }
 
     private record RecordedCall(
-            NotificationVendorCommunicationType communicationType,
-            String payload,
-            JsonNode payloadJson,
-            int attemptCount,
-            String exception
+        NotificationVendorCommunicationType communicationType,
+        String payload,
+        JsonNode payloadJson,
+        int attemptCount,
+        String exception
     ) {
     }
 }

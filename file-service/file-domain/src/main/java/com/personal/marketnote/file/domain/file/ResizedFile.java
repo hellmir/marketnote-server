@@ -19,40 +19,40 @@ public class ResizedFile {
 
     public static ResizedFile from(ResizedFileCreateState state) {
         return ResizedFile.builder()
-                .fileId(state.getFileId())
-                .size(state.getSize())
-                .storageUrl(state.getStorageUrl())
-                .build();
+            .fileId(state.getFileId())
+            .size(state.getSize())
+            .storageUrl(state.getStorageUrl())
+            .build();
     }
 
     public static ResizedFile of(Long fileId, String size) {
         return ResizedFile.from(
-                ResizedFileCreateState.builder()
-                        .fileId(fileId)
-                        .size(size)
-                        .build()
+            ResizedFileCreateState.builder()
+                .fileId(fileId)
+                .size(size)
+                .build()
         );
     }
 
     public static ResizedFile withStorageUrl(ResizedFile base, String storageUrl) {
         return ResizedFile.from(
-                ResizedFileCreateState.builder()
-                        .fileId(base.getFileId())
-                        .size(base.getSize())
-                        .storageUrl(storageUrl)
-                        .build()
+            ResizedFileCreateState.builder()
+                .fileId(base.getFileId())
+                .size(base.getSize())
+                .storageUrl(storageUrl)
+                .build()
         );
     }
 
     public static ResizedFile from(ResizedFileSnapshotState state) {
         return ResizedFile.builder()
-                .id(state.getId())
-                .fileId(state.getFileId())
-                .size(state.getSize())
-                .storageUrl(state.getStorageUrl())
-                .createdAt(state.getCreatedAt())
-                .status(state.getStatus())
-                .build();
+            .id(state.getId())
+            .fileId(state.getFileId())
+            .size(state.getSize())
+            .storageUrl(state.getStorageUrl())
+            .createdAt(state.getCreatedAt())
+            .status(state.getStatus())
+            .build();
     }
 
     public boolean isActive() {

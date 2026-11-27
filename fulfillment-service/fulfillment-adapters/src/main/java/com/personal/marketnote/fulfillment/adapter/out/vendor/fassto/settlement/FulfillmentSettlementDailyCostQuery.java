@@ -15,17 +15,17 @@ public class FulfillmentSettlementDailyCostQuery {
     private String accessToken;
 
     public static FulfillmentSettlementDailyCostQuery of(
-            String yearMonth,
-            String whCd,
-            String customerCode,
-            String accessToken
+        String yearMonth,
+        String whCd,
+        String customerCode,
+        String accessToken
     ) {
         FulfillmentSettlementDailyCostQuery query = FulfillmentSettlementDailyCostQuery.builder()
-                .yearMonth(yearMonth)
-                .whCd(whCd)
-                .customerCode(customerCode)
-                .accessToken(accessToken)
-                .build();
+            .yearMonth(yearMonth)
+            .whCd(whCd)
+            .customerCode(customerCode)
+            .accessToken(accessToken)
+            .build();
         query.validate();
         return query;
     }

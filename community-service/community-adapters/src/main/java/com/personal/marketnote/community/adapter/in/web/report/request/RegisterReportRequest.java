@@ -8,9 +8,9 @@ import lombok.Getter;
 @Getter
 public class RegisterReportRequest {
     @Schema(
-            name = "reason",
-            description = "신고 사유",
-            requiredMode = Schema.RequiredMode.REQUIRED
+        name = "reason",
+        description = "신고 사유",
+        requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "신고 사유는 필수값입니다.")
     @Size(min = 1, max = 2047, message = "신고 사유는 1자 이상 2047자 이하로 입력해야 합니다.")

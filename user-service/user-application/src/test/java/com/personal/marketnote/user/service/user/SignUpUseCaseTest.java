@@ -155,7 +155,7 @@ class SignUpUseCaseTest {
         verify(updateUserPort).update(existingUser);
         verify(saveLoginHistoryPort).saveLoginHistory(any(LoginHistory.class));
         verify(publishUserEventPort, never()).publishUserSignupCompletedEvent(
-                anyLong(), anyString(), nullable(String.class), nullable(String.class)
+            anyLong(), anyString(), nullable(String.class), nullable(String.class)
         );
 
         verify(saveUserPort, never()).save(any());
@@ -169,7 +169,7 @@ class SignUpUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signUpService.signUp(command, AuthVendor.NATIVE, null, "127.0.0.1"))
-                .isInstanceOf(PasswordNoValueException.class);
+            .isInstanceOf(PasswordNoValueException.class);
 
         verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, publishUserEventPort, findTermsPort, verifyCodePort, getUserUseCase, findProfanityWordPort);
     }
@@ -186,7 +186,7 @@ class SignUpUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signUpService.signUp(command, AuthVendor.GOOGLE, oidcId, "127.0.0.1"))
-                .isInstanceOf(UserExistsException.class);
+            .isInstanceOf(UserExistsException.class);
 
         verify(verifyCodePort, never()).verify(anyString(), anyString());
         verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, publishUserEventPort, findTermsPort, getUserUseCase, findProfanityWordPort);
@@ -205,7 +205,7 @@ class SignUpUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signUpService.signUp(command, AuthVendor.KAKAO, "oidc", "127.0.0.1"))
-                .isInstanceOf(UserExistsException.class);
+            .isInstanceOf(UserExistsException.class);
 
         verify(verifyCodePort, never()).verify(anyString(), anyString());
         verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, publishUserEventPort, findTermsPort, getUserUseCase);
@@ -226,7 +226,7 @@ class SignUpUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signUpService.signUp(command, AuthVendor.KAKAO, "oidc", "127.0.0.1"))
-                .isInstanceOf(UserExistsException.class);
+            .isInstanceOf(UserExistsException.class);
 
         verify(verifyCodePort, never()).verify(anyString(), anyString());
         verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, publishUserEventPort, findTermsPort, getUserUseCase);
@@ -246,11 +246,11 @@ class SignUpUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signUpService.signUp(command, AuthVendor.NATIVE, null, "127.0.0.1"))
-                .isInstanceOf(InvalidVerificationCodeException.class);
+            .isInstanceOf(InvalidVerificationCodeException.class);
 
         verify(saveUserPort, never()).save(any());
         verify(publishUserEventPort, never()).publishUserSignupCompletedEvent(
-                anyLong(), anyString(), nullable(String.class), nullable(String.class)
+            anyLong(), anyString(), nullable(String.class), nullable(String.class)
         );
 
         verify(saveLoginHistoryPort, never()).saveLoginHistory(any());
@@ -276,12 +276,12 @@ class SignUpUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signUpService.signUp(command, AuthVendor.KAKAO, "oidc-123", "127.0.0.1"))
-                .isInstanceOf(UserNotActiveException.class);
+            .isInstanceOf(UserNotActiveException.class);
 
         verify(updateUserPort, never()).update(any());
         verify(saveUserPort, never()).save(any());
         verify(publishUserEventPort, never()).publishUserSignupCompletedEvent(
-                anyLong(), anyString(), nullable(String.class), nullable(String.class)
+            anyLong(), anyString(), nullable(String.class), nullable(String.class)
         );
 
     }
@@ -298,7 +298,7 @@ class SignUpUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signUpService.signUp(command, AuthVendor.KAKAO, "oidc", "127.0.0.1"))
-                .isInstanceOf(InvalidNicknameContainsProfanityException.class);
+            .isInstanceOf(InvalidNicknameContainsProfanityException.class);
 
         verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, publishUserEventPort, findTermsPort, getUserUseCase);
         verify(findUserPort, never()).existsByNickname(anyString());
@@ -329,7 +329,7 @@ class SignUpUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> signUpService.signUp(command, AuthVendor.KAKAO, "oidc-123", "127.0.0.1"))
-                .isInstanceOf(UserWithdrawalCooldownException.class);
+            .isInstanceOf(UserWithdrawalCooldownException.class);
 
         verify(withdrawnUser, never()).cancelWithdrawal(any(LocalDateTime.class));
         verify(updateUserPort, never()).update(any());
@@ -665,20 +665,20 @@ class SignUpUseCaseTest {
     }
 
     private SignUpCommand createCommand(
-            String email,
-            String password,
-            String verificationCode,
-            String nickname,
-            String fullName,
-            String phoneNumber
+        String email,
+        String password,
+        String verificationCode,
+        String nickname,
+        String fullName,
+        String phoneNumber
     ) {
         return SignUpCommand.builder()
-                .email(email)
-                .password(password)
-                .verificationCode(verificationCode)
-                .nickname(nickname)
-                .fullName(fullName)
-                .phoneNumber(phoneNumber)
-                .build();
+            .email(email)
+            .password(password)
+            .verificationCode(verificationCode)
+            .nickname(nickname)
+            .fullName(fullName)
+            .phoneNumber(phoneNumber)
+            .build();
     }
 }

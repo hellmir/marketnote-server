@@ -40,9 +40,9 @@ class AligoHttpClientHttpFailureMaskingTest {
     private static final String BASE_URL = "http://localhost:9999";
     private static final String OPERATION = "testOperation";
     private static final String SENSITIVE_BODY_WITH_PHONE =
-            "{\"resultData\":{\"receiver\":\"01012345678\",\"msg\":\"hello\"}}";
+        "{\"resultData\":{\"receiver\":\"01012345678\",\"msg\":\"hello\"}}";
     private static final String NON_SENSITIVE_ERROR_BODY =
-            "{\"resultCode\":\"-1\",\"message\":\"server error\"}";
+        "{\"resultCode\":\"-1\",\"message\":\"server error\"}";
     private static final String FORBIDDEN_TOKEN = "01012345678";
 
     private MockRestServiceServer mockServer;
@@ -76,7 +76,7 @@ class AligoHttpClientHttpFailureMaskingTest {
         ObjectMapper objectMapper = new ObjectMapper();
         ExternalCallLogger externalCallLogger = new ExternalCallLogger(new SimpleMeterRegistry());
         aligoHttpClient = AligoHttpClientTestSupport.newClient(
-                builder.build(), objectMapper, properties, externalCallLogger
+            builder.build(), objectMapper, properties, externalCallLogger
         );
 
         clientLogger = (Logger) LoggerFactory.getLogger(AligoHttpClient.class);
@@ -115,38 +115,38 @@ class AligoHttpClientHttpFailureMaskingTest {
         // given
         String path = properties.getApi().getAlimtalkSendPath();
         mockServer.expect(requestTo(BASE_URL + path))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withStatus(HttpStatus.UNAUTHORIZED)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(SENSITIVE_BODY_WITH_PHONE));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withStatus(HttpStatus.UNAUTHORIZED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(SENSITIVE_BODY_WITH_PHONE));
 
         // when & then
         assertThatThrownBy(() -> aligoHttpClient.post(
-                OPERATION, path, emptyParams(), AligoApiResponse.class
+            OPERATION, path, emptyParams(), AligoApiResponse.class
         ))
-                .isInstanceOf(AligoApiRequestFailedException.class)
-                .hasMessageContaining("HTTP 응답 실패")
-                .hasMessageContaining(path)
-                .hasMessageContaining("status=401")
-                .hasMessageNotContaining(FORBIDDEN_TOKEN)
-                .hasNoCause();
+            .isInstanceOf(AligoApiRequestFailedException.class)
+            .hasMessageContaining("HTTP 응답 실패")
+            .hasMessageContaining(path)
+            .hasMessageContaining("status=401")
+            .hasMessageNotContaining(FORBIDDEN_TOKEN)
+            .hasNoCause();
 
         // client logger (sensitive 분기): raw body 없어야 하고 throwable 자체가 첨부되지 않아야 함
         assertThat(clientAppender.list)
-                .filteredOn(event -> event.getLevel() == Level.ERROR)
-                .allSatisfy(event -> {
-                    assertThat(event.getFormattedMessage()).doesNotContain(FORBIDDEN_TOKEN);
-                    assertThat(event.getThrowableProxy()).isNull();
-                });
+            .filteredOn(event -> event.getLevel() == Level.ERROR)
+            .allSatisfy(event -> {
+                assertThat(event.getFormattedMessage()).doesNotContain(FORBIDDEN_TOKEN);
+                assertThat(event.getThrowableProxy()).isNull();
+            });
 
         // external logger (ExternalCallLogger.recordFailure): AligoApiRequestFailedException 자체는 첨부되지만,
         // 메시지/스택/cause 어디에도 raw body가 포함되어선 안 된다.
         assertThat(externalAppender.list)
-                .filteredOn(event -> event.getLevel() == Level.ERROR)
-                .allSatisfy(event -> {
-                    assertThat(event.getFormattedMessage()).doesNotContain(FORBIDDEN_TOKEN);
-                    assertNoRawBodyInThrowableChain(event, FORBIDDEN_TOKEN);
-                });
+            .filteredOn(event -> event.getLevel() == Level.ERROR)
+            .allSatisfy(event -> {
+                assertThat(event.getFormattedMessage()).doesNotContain(FORBIDDEN_TOKEN);
+                assertNoRawBodyInThrowableChain(event, FORBIDDEN_TOKEN);
+            });
 
         mockServer.verify();
     }
@@ -157,35 +157,35 @@ class AligoHttpClientHttpFailureMaskingTest {
         // given
         String path = properties.getApi().getHistoryDetailPath();
         mockServer.expect(requestTo(BASE_URL + path))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(SENSITIVE_BODY_WITH_PHONE));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(SENSITIVE_BODY_WITH_PHONE));
 
         // when & then
         assertThatThrownBy(() -> aligoHttpClient.post(
-                OPERATION, path, emptyParams(), AligoApiResponse.class
+            OPERATION, path, emptyParams(), AligoApiResponse.class
         ))
-                .isInstanceOf(AligoApiRequestFailedException.class)
-                .hasMessageContaining("HTTP 응답 실패")
-                .hasMessageContaining(path)
-                .hasMessageContaining("status=500")
-                .hasMessageNotContaining(FORBIDDEN_TOKEN)
-                .hasNoCause();
+            .isInstanceOf(AligoApiRequestFailedException.class)
+            .hasMessageContaining("HTTP 응답 실패")
+            .hasMessageContaining(path)
+            .hasMessageContaining("status=500")
+            .hasMessageNotContaining(FORBIDDEN_TOKEN)
+            .hasNoCause();
 
         assertThat(clientAppender.list)
-                .filteredOn(event -> event.getLevel() == Level.ERROR)
-                .allSatisfy(event -> {
-                    assertThat(event.getFormattedMessage()).doesNotContain(FORBIDDEN_TOKEN);
-                    assertThat(event.getThrowableProxy()).isNull();
-                });
+            .filteredOn(event -> event.getLevel() == Level.ERROR)
+            .allSatisfy(event -> {
+                assertThat(event.getFormattedMessage()).doesNotContain(FORBIDDEN_TOKEN);
+                assertThat(event.getThrowableProxy()).isNull();
+            });
 
         assertThat(externalAppender.list)
-                .filteredOn(event -> event.getLevel() == Level.ERROR)
-                .allSatisfy(event -> {
-                    assertThat(event.getFormattedMessage()).doesNotContain(FORBIDDEN_TOKEN);
-                    assertNoRawBodyInThrowableChain(event, FORBIDDEN_TOKEN);
-                });
+            .filteredOn(event -> event.getLevel() == Level.ERROR)
+            .allSatisfy(event -> {
+                assertThat(event.getFormattedMessage()).doesNotContain(FORBIDDEN_TOKEN);
+                assertNoRawBodyInThrowableChain(event, FORBIDDEN_TOKEN);
+            });
 
         mockServer.verify();
     }
@@ -196,16 +196,16 @@ class AligoHttpClientHttpFailureMaskingTest {
         // given
         String path = properties.getApi().getBrandTalkSendPath();
         mockServer.expect(requestTo(BASE_URL + path))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withStatus(HttpStatus.BAD_REQUEST)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(SENSITIVE_BODY_WITH_PHONE));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withStatus(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(SENSITIVE_BODY_WITH_PHONE));
 
         // when
         assertThatThrownBy(() -> aligoHttpClient.post(
-                OPERATION, path, emptyParams(), AligoApiResponse.class
+            OPERATION, path, emptyParams(), AligoApiResponse.class
         ))
-                .isInstanceOf(AligoApiRequestFailedException.class);
+            .isInstanceOf(AligoApiRequestFailedException.class);
 
         // then
         ILoggingEvent errorEvent = findClientErrorEvent();
@@ -213,9 +213,9 @@ class AligoHttpClientHttpFailureMaskingTest {
         assertThat(formattedMessage).contains(path);
         assertThat(formattedMessage).contains("status=400");
         assertThat(formattedMessage).containsAnyOf(
-                "HttpClientErrorException",
-                "RestClientResponseException",
-                "BadRequest"
+            "HttpClientErrorException",
+            "RestClientResponseException",
+            "BadRequest"
         );
 
         mockServer.verify();
@@ -227,29 +227,29 @@ class AligoHttpClientHttpFailureMaskingTest {
         // given
         String path = properties.getApi().getHeartInfoPath();
         mockServer.expect(requestTo(BASE_URL + path))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(NON_SENSITIVE_ERROR_BODY));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(NON_SENSITIVE_ERROR_BODY));
 
         // when & then
         assertThatThrownBy(() -> aligoHttpClient.post(
-                OPERATION, path, emptyParams(), AligoApiResponse.class
+            OPERATION, path, emptyParams(), AligoApiResponse.class
         ))
-                .isInstanceOf(AligoApiRequestFailedException.class)
-                .hasMessageContaining("HTTP 응답 실패")
-                .hasMessageContaining(path)
-                .hasMessageContaining("status=500")
-                .hasCauseInstanceOf(org.springframework.web.client.RestClientResponseException.class);
+            .isInstanceOf(AligoApiRequestFailedException.class)
+            .hasMessageContaining("HTTP 응답 실패")
+            .hasMessageContaining(path)
+            .hasMessageContaining("status=500")
+            .hasCauseInstanceOf(org.springframework.web.client.RestClientResponseException.class);
 
         ILoggingEvent errorEvent = findClientErrorEvent();
         assertThat(errorEvent.getThrowableProxy()).isNotNull();
         assertThat(errorEvent.getThrowableProxy().getClassName())
-                .containsAnyOf(
-                        "RestClientResponseException",
-                        "HttpServerErrorException",
-                        "InternalServerError"
-                );
+            .containsAnyOf(
+                "RestClientResponseException",
+                "HttpServerErrorException",
+                "InternalServerError"
+            );
 
         mockServer.verify();
     }
@@ -260,29 +260,29 @@ class AligoHttpClientHttpFailureMaskingTest {
         // given
         String path = properties.getApi().getCancelPath();
         mockServer.expect(requestTo(BASE_URL + path))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(NON_SENSITIVE_ERROR_BODY));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(NON_SENSITIVE_ERROR_BODY));
 
         // when & then
         assertThatThrownBy(() -> aligoHttpClient.post(
-                OPERATION, path, emptyParams(), AligoApiResponse.class
+            OPERATION, path, emptyParams(), AligoApiResponse.class
         ))
-                .isInstanceOf(AligoApiRequestFailedException.class)
-                .hasMessageContaining("HTTP 응답 실패")
-                .hasMessageContaining(path)
-                .hasMessageContaining("status=500")
-                .hasCauseInstanceOf(org.springframework.web.client.RestClientResponseException.class);
+            .isInstanceOf(AligoApiRequestFailedException.class)
+            .hasMessageContaining("HTTP 응답 실패")
+            .hasMessageContaining(path)
+            .hasMessageContaining("status=500")
+            .hasCauseInstanceOf(org.springframework.web.client.RestClientResponseException.class);
 
         ILoggingEvent errorEvent = findClientErrorEvent();
         assertThat(errorEvent.getThrowableProxy()).isNotNull();
         assertThat(errorEvent.getThrowableProxy().getClassName())
-                .containsAnyOf(
-                        "RestClientResponseException",
-                        "HttpServerErrorException",
-                        "InternalServerError"
-                );
+            .containsAnyOf(
+                "RestClientResponseException",
+                "HttpServerErrorException",
+                "InternalServerError"
+            );
 
         mockServer.verify();
     }
@@ -293,29 +293,29 @@ class AligoHttpClientHttpFailureMaskingTest {
         // given
         String path = properties.getApi().getTemplateAddPath();
         mockServer.expect(requestTo(BASE_URL + path))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(NON_SENSITIVE_ERROR_BODY));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(NON_SENSITIVE_ERROR_BODY));
 
         // when & then
         assertThatThrownBy(() -> aligoHttpClient.post(
-                OPERATION, path, emptyParams(), AligoApiResponse.class
+            OPERATION, path, emptyParams(), AligoApiResponse.class
         ))
-                .isInstanceOf(AligoApiRequestFailedException.class)
-                .hasMessageContaining("HTTP 응답 실패")
-                .hasMessageContaining(path)
-                .hasMessageContaining("status=500")
-                .hasCauseInstanceOf(org.springframework.web.client.RestClientResponseException.class);
+            .isInstanceOf(AligoApiRequestFailedException.class)
+            .hasMessageContaining("HTTP 응답 실패")
+            .hasMessageContaining(path)
+            .hasMessageContaining("status=500")
+            .hasCauseInstanceOf(org.springframework.web.client.RestClientResponseException.class);
 
         ILoggingEvent errorEvent = findClientErrorEvent();
         assertThat(errorEvent.getThrowableProxy()).isNotNull();
         assertThat(errorEvent.getThrowableProxy().getClassName())
-                .containsAnyOf(
-                        "RestClientResponseException",
-                        "HttpServerErrorException",
-                        "InternalServerError"
-                );
+            .containsAnyOf(
+                "RestClientResponseException",
+                "HttpServerErrorException",
+                "InternalServerError"
+            );
 
         mockServer.verify();
     }
@@ -327,34 +327,34 @@ class AligoHttpClientHttpFailureMaskingTest {
         String path = properties.getApi().getAlimtalkSendPath();
         String corruptBodyWithPhone = "{\"resultData\":{\"receiver\":\"01012345678\",broken_json}";
         mockServer.expect(requestTo(BASE_URL + path))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(corruptBodyWithPhone, MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(corruptBodyWithPhone, MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> aligoHttpClient.post(
-                OPERATION, path, emptyParams(), AligoApiResponse.class
+            OPERATION, path, emptyParams(), AligoApiResponse.class
         ))
-                .isInstanceOf(AligoApiRequestFailedException.class)
-                .hasMessageContaining("응답 처리 실패")
-                .hasMessageContaining(path)
-                .hasMessageNotContaining(FORBIDDEN_TOKEN)
-                .hasNoCause();
+            .isInstanceOf(AligoApiRequestFailedException.class)
+            .hasMessageContaining("응답 처리 실패")
+            .hasMessageContaining(path)
+            .hasMessageNotContaining(FORBIDDEN_TOKEN)
+            .hasNoCause();
 
         // client logger: raw body 미포함 + throwable 미첨부
         assertThat(clientAppender.list)
-                .filteredOn(event -> event.getLevel() == Level.ERROR)
-                .allSatisfy(event -> {
-                    assertThat(event.getFormattedMessage()).doesNotContain(FORBIDDEN_TOKEN);
-                    assertThat(event.getThrowableProxy()).isNull();
-                });
+            .filteredOn(event -> event.getLevel() == Level.ERROR)
+            .allSatisfy(event -> {
+                assertThat(event.getFormattedMessage()).doesNotContain(FORBIDDEN_TOKEN);
+                assertThat(event.getThrowableProxy()).isNull();
+            });
 
         // external logger: throwable chain 어디에도 raw body 미포함
         assertThat(externalAppender.list)
-                .filteredOn(event -> event.getLevel() == Level.ERROR)
-                .allSatisfy(event -> {
-                    assertThat(event.getFormattedMessage()).doesNotContain(FORBIDDEN_TOKEN);
-                    assertNoRawBodyInThrowableChain(event, FORBIDDEN_TOKEN);
-                });
+            .filteredOn(event -> event.getLevel() == Level.ERROR)
+            .allSatisfy(event -> {
+                assertThat(event.getFormattedMessage()).doesNotContain(FORBIDDEN_TOKEN);
+                assertNoRawBodyInThrowableChain(event, FORBIDDEN_TOKEN);
+            });
 
         mockServer.verify();
     }
@@ -365,17 +365,17 @@ class AligoHttpClientHttpFailureMaskingTest {
         // given — non-sensitive path (heartinfo) 200 + 깨진 JSON
         String path = properties.getApi().getHeartInfoPath();
         mockServer.expect(requestTo(BASE_URL + path))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess("{ broken json", MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess("{ broken json", MediaType.APPLICATION_JSON));
 
         // when & then
         assertThatThrownBy(() -> aligoHttpClient.post(
-                OPERATION, path, emptyParams(), AligoApiResponse.class
+            OPERATION, path, emptyParams(), AligoApiResponse.class
         ))
-                .isInstanceOf(AligoApiRequestFailedException.class)
-                .hasMessageContaining("응답 처리 실패")
-                .hasMessageContaining(path)
-                .hasCauseInstanceOf(com.fasterxml.jackson.core.JsonProcessingException.class);
+            .isInstanceOf(AligoApiRequestFailedException.class)
+            .hasMessageContaining("응답 처리 실패")
+            .hasMessageContaining(path)
+            .hasCauseInstanceOf(com.fasterxml.jackson.core.JsonProcessingException.class);
 
         ILoggingEvent errorEvent = findClientErrorEvent();
         assertThat(errorEvent.getThrowableProxy()).isNotNull();
@@ -390,9 +390,9 @@ class AligoHttpClientHttpFailureMaskingTest {
     private ILoggingEvent findClientErrorEvent() {
         List<ILoggingEvent> events = clientAppender.list;
         return events.stream()
-                .filter(event -> event.getLevel() == Level.ERROR)
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("ERROR 레벨 client 로그 이벤트를 찾을 수 없습니다."));
+            .filter(event -> event.getLevel() == Level.ERROR)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("ERROR 레벨 client 로그 이벤트를 찾을 수 없습니다."));
     }
 
     private void assertNoRawBodyInThrowableChain(ILoggingEvent event, String forbidden) {

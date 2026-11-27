@@ -34,12 +34,12 @@ public class OrderReturnedPointRefundConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_RETURNED,
-            groupId = "reward-order-returned-point-refund"
+        topics = KafkaTopicConstants.ORDER_RETURNED,
+        groupId = "reward-order-returned-point-refund"
     )
     public void handleOrderReturnedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -55,21 +55,21 @@ public class OrderReturnedPointRefundConsumer {
 
         try {
             OrderReturnedEvent payload = envelope.getPayloadAs(
-                    OrderReturnedEvent.class, objectMapper
+                OrderReturnedEvent.class, objectMapper
             );
 
             log.info("반품 완료 이벤트 수신 (포인트 환불). eventId={}, orderId={}, buyerId={}, pointAmount={}, isFullReturn={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId(), payload.pointAmount(), payload.isFullReturn()
+                envelope.eventId(), payload.orderId(), payload.buyerId(), payload.pointAmount(), payload.isFullReturn()
             );
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
+                EventPayloadValidator.id("orderId", payload.orderId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("buyerId", payload.buyerId()))) {
+                EventPayloadValidator.id("buyerId", payload.buyerId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -81,11 +81,11 @@ public class OrderReturnedPointRefundConsumer {
             }
 
             Long refundPointAmount = resolveRefundPointAmount(
-                    payload.pointAmount(), payload.returnAmount(), payload.paymentAmount(), payload.isFullReturn()
+                payload.pointAmount(), payload.returnAmount(), payload.paymentAmount(), payload.isFullReturn()
             );
             if (FormatValidator.hasNoValue(refundPointAmount) || refundPointAmount <= 0) {
                 log.info("비례 환불 포인트 0 (환불 생략). orderId={}, pointAmount={}, returnAmount={}, paymentAmount={}",
-                        payload.orderId(), payload.pointAmount(), payload.returnAmount(), payload.paymentAmount());
+                    payload.orderId(), payload.pointAmount(), payload.returnAmount(), payload.paymentAmount());
                 acknowledgment.acknowledge();
                 return;
             }
@@ -94,10 +94,10 @@ public class OrderReturnedPointRefundConsumer {
             modifyUserPointIdempotent(envelope.eventId(), payload.buyerId(), refundPointAmount, payload.orderId(), reason);
 
             log.info("반품 포인트 환불 완료. orderId={}, buyerId={}, refundPointAmount={}, isFullReturn={}",
-                    payload.orderId(), payload.buyerId(), refundPointAmount, payload.isFullReturn());
+                payload.orderId(), payload.buyerId(), refundPointAmount, payload.isFullReturn());
         } catch (Exception e) {
             log.error("반품 포인트 환불 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 
@@ -118,13 +118,13 @@ public class OrderReturnedPointRefundConsumer {
         }
         if (returnAmount > paymentAmount) {
             log.warn("returnAmount가 paymentAmount 초과 (전액 환불로 제한). returnAmount={}, paymentAmount={}",
-                    returnAmount, paymentAmount);
+                returnAmount, paymentAmount);
             return pointAmount;
         }
         long refund = BigDecimal.valueOf(pointAmount)
-                .multiply(BigDecimal.valueOf(returnAmount))
-                .divide(BigDecimal.valueOf(paymentAmount), 0, RoundingMode.DOWN)
-                .longValue();
+            .multiply(BigDecimal.valueOf(returnAmount))
+            .divide(BigDecimal.valueOf(paymentAmount), 0, RoundingMode.DOWN)
+            .longValue();
         return refund;
     }
 
@@ -138,17 +138,17 @@ public class OrderReturnedPointRefundConsumer {
     private void modifyUserPointIdempotent(String eventId, Long buyerId, Long pointAmount, Long orderId, String reason) {
         try {
             ModifyUserPointCommand command = ModifyUserPointCommand.builder()
-                    .userId(buyerId)
-                    .changeType(UserPointChangeType.ACCRUAL)
-                    .amount(pointAmount)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(orderId)
-                    .reason(reason)
-                    .build();
+                .userId(buyerId)
+                .changeType(UserPointChangeType.ACCRUAL)
+                .amount(pointAmount)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(orderId)
+                .reason(reason)
+                .build();
             modifyUserPointUseCase.modify(command);
         } catch (DuplicateUserPointHistoryException e) {
             log.info("이미 처리된 포인트 환불 이벤트 (멱등 처리). eventId={}, buyerId={}, message={}",
-                    eventId, buyerId, e.getMessage());
+                eventId, buyerId, e.getMessage());
         }
     }
 }

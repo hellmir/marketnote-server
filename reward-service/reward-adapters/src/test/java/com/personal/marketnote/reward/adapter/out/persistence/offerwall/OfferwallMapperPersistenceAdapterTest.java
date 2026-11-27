@@ -34,25 +34,25 @@ class OfferwallMapperPersistenceAdapterTest {
 
     private OfferwallMapperJpaEntity buildEntity(Long id, boolean isSuccess, short failureCount) {
         OfferwallMapper restored = OfferwallMapper.from(OfferwallMapperSnapshotState.builder()
-                .id(id)
-                .offerwallType(OfferwallType.ADPOPCORN)
-                .rewardKey("REWARD_KEY_001")
-                .userKey("user-key-1")
-                .userDeviceType(UserDeviceType.ANDROID)
-                .campaignKey("CAMP_KEY_001")
-                .campaignType(1)
-                .campaignName("캠페인")
-                .quantity(RewardQuantity.of(100L))
-                .signedValue("signed")
-                .appKey(1001)
-                .appName("앱")
-                .adid("adid")
-                .idfa("idfa")
-                .isSuccess(isSuccess)
-                .failureCount(failureCount)
-                .attendedAt(LocalDateTime.now())
-                .createdAt(LocalDateTime.now())
-                .build());
+            .id(id)
+            .offerwallType(OfferwallType.ADPOPCORN)
+            .rewardKey("REWARD_KEY_001")
+            .userKey("user-key-1")
+            .userDeviceType(UserDeviceType.ANDROID)
+            .campaignKey("CAMP_KEY_001")
+            .campaignType(1)
+            .campaignName("캠페인")
+            .quantity(RewardQuantity.of(100L))
+            .signedValue("signed")
+            .appKey(1001)
+            .appName("앱")
+            .adid("adid")
+            .idfa("idfa")
+            .isSuccess(isSuccess)
+            .failureCount(failureCount)
+            .attendedAt(LocalDateTime.now())
+            .createdAt(LocalDateTime.now())
+            .build());
         return OfferwallMapperJpaEntity.from(restored);
     }
 
@@ -76,9 +76,9 @@ class OfferwallMapperPersistenceAdapterTest {
     @DisplayName("existsByOfferwallTypeAndRewardKeyAndIsSuccess는 리포지토리 결과를 그대로 반환한다")
     void shouldDelegateExists() {
         given(repository.existsByOfferwallTypeAndRewardKeyAndIsSuccess(OfferwallType.ADPOPCORN, "REWARD_KEY_001", true))
-                .willReturn(true);
+            .willReturn(true);
         assertThat(adapter.existsByOfferwallTypeAndRewardKeyAndIsSuccess(
-                OfferwallType.ADPOPCORN, "REWARD_KEY_001", true)).isTrue();
+            OfferwallType.ADPOPCORN, "REWARD_KEY_001", true)).isTrue();
     }
 
     @Test
@@ -86,12 +86,12 @@ class OfferwallMapperPersistenceAdapterTest {
     void shouldFindTopFailedOfferwallMapper() {
         // given
         given(repository.findTop1ByOfferwallTypeAndRewardKeyAndIsSuccessFalseOrderByFailureCountDesc(
-                OfferwallType.ADPOPCORN, "REWARD_KEY_001"))
-                .willReturn(Optional.of(buildEntity(1L, false, (short) 3)));
+            OfferwallType.ADPOPCORN, "REWARD_KEY_001"))
+            .willReturn(Optional.of(buildEntity(1L, false, (short) 3)));
 
         // when
         Optional<OfferwallMapper> result = adapter.findTopFailedOfferwallMapper(
-                OfferwallType.ADPOPCORN, "REWARD_KEY_001");
+            OfferwallType.ADPOPCORN, "REWARD_KEY_001");
 
         // then
         assertThat(result).isPresent();
@@ -103,8 +103,8 @@ class OfferwallMapperPersistenceAdapterTest {
     @DisplayName("findTopFailedOfferwallMapper는 결과가 없으면 빈 Optional을 반환한다")
     void shouldReturnEmptyWhenNoFailedMapper() {
         given(repository.findTop1ByOfferwallTypeAndRewardKeyAndIsSuccessFalseOrderByFailureCountDesc(
-                OfferwallType.ADPOPCORN, "REWARD_KEY_001"))
-                .willReturn(Optional.empty());
+            OfferwallType.ADPOPCORN, "REWARD_KEY_001"))
+            .willReturn(Optional.empty());
         assertThat(adapter.findTopFailedOfferwallMapper(OfferwallType.ADPOPCORN, "REWARD_KEY_001")).isEmpty();
     }
 }

@@ -35,15 +35,15 @@ class GetSettlementPolicyUseCaseTest {
 
     private SettlementPolicy createPolicy(Long id, Long sellerId) {
         return SettlementPolicy.from(SettlementPolicySnapshotState.builder()
-                .id(id)
-                .sellerId(sellerId)
-                .pgFeeRate(FeeRate.of(300))
-                .platformFeeRate(FeeRate.of(500))
-                .settlementCycle(SettlementCycle.MONTHLY)
-                .minPayoutAmount(10000L)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .build());
+            .id(id)
+            .sellerId(sellerId)
+            .pgFeeRate(FeeRate.of(300))
+            .platformFeeRate(FeeRate.of(500))
+            .settlementCycle(SettlementCycle.MONTHLY)
+            .minPayoutAmount(10000L)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .build());
     }
 
     @Test
@@ -69,7 +69,7 @@ class GetSettlementPolicyUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getSettlementPolicyService.getPolicy(999L))
-                .isInstanceOf(SettlementPolicyNotFoundException.class);
+            .isInstanceOf(SettlementPolicyNotFoundException.class);
     }
 
     @Test

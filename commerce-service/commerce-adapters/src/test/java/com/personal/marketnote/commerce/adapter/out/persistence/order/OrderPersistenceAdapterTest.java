@@ -63,24 +63,24 @@ class OrderPersistenceAdapterTest {
 
     private OrderJpaEntity persistOrder(Long buyerId, OrderStatus orderStatus) {
         entityManager.createNativeQuery("""
-                        INSERT INTO orders (buyer_id, order_key, order_number, order_status,
-                            total_amount, paid_amount, coupon_amount, point_amount, shipping_fee,
-                            delivery_recipient_name, delivery_recipient_phone_number,
-                            delivery_zip_code, delivery_address, delivery_address_detail,
-                            delivery_request_type, delivery_request_message,
-                            shipping_region_type, created_at, modified_at)
-                        VALUES (:buyerId, :orderKey, :orderNumber, :orderStatus,
-                            50000, 45000, 0, 0, 3000,
-                            '홍길동', '01012345678',
-                            '06000', '서울시 강남구', '101호',
-                            'LEAVE_AT_DOOR', '문 앞에 놔주세요',
-                            'NORMAL', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                        """)
-                .setParameter("buyerId", buyerId)
-                .setParameter("orderKey", UUID.randomUUID().toString())
-                .setParameter("orderNumber", "ORD-" + UUID.randomUUID().toString().substring(0, 8))
-                .setParameter("orderStatus", orderStatus.name())
-                .executeUpdate();
+                INSERT INTO orders (buyer_id, order_key, order_number, order_status,
+                    total_amount, paid_amount, coupon_amount, point_amount, shipping_fee,
+                    delivery_recipient_name, delivery_recipient_phone_number,
+                    delivery_zip_code, delivery_address, delivery_address_detail,
+                    delivery_request_type, delivery_request_message,
+                    shipping_region_type, created_at, modified_at)
+                VALUES (:buyerId, :orderKey, :orderNumber, :orderStatus,
+                    50000, 45000, 0, 0, 3000,
+                    '홍길동', '01012345678',
+                    '06000', '서울시 강남구', '101호',
+                    'LEAVE_AT_DOOR', '문 앞에 놔주세요',
+                    'NORMAL', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                """)
+            .setParameter("buyerId", buyerId)
+            .setParameter("orderKey", UUID.randomUUID().toString())
+            .setParameter("orderNumber", "ORD-" + UUID.randomUUID().toString().substring(0, 8))
+            .setParameter("orderStatus", orderStatus.name())
+            .executeUpdate();
         entityManager.flush();
 
         List<OrderJpaEntity> entities = orderJpaRepository.findAll();
@@ -91,30 +91,30 @@ class OrderPersistenceAdapterTest {
         OrderJpaEntity orderEntity = persistOrder(buyerId, orderStatus);
 
         entityManager.createNativeQuery("""
-                        INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
-                            quantity, unit_amount, image_url, accumulated_point, order_status, review_yn,
-                            created_at, modified_at)
-                        VALUES (:orderId, :pricePolicyId, :sellerId, :orderProductKey,
-                            2, 25000, 'https://example.com/image.jpg', 500, :orderStatus, false,
-                            CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                        """)
-                .setParameter("orderId", orderEntity.getId())
-                .setParameter("pricePolicyId", pricePolicyId)
-                .setParameter("sellerId", sellerId)
-                .setParameter("orderProductKey", UUID.randomUUID().toString())
-                .setParameter("orderStatus", orderStatus.name())
-                .executeUpdate();
+                INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
+                    quantity, unit_amount, image_url, accumulated_point, order_status, review_yn,
+                    created_at, modified_at)
+                VALUES (:orderId, :pricePolicyId, :sellerId, :orderProductKey,
+                    2, 25000, 'https://example.com/image.jpg', 500, :orderStatus, false,
+                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                """)
+            .setParameter("orderId", orderEntity.getId())
+            .setParameter("pricePolicyId", pricePolicyId)
+            .setParameter("sellerId", sellerId)
+            .setParameter("orderProductKey", UUID.randomUUID().toString())
+            .setParameter("orderStatus", orderStatus.name())
+            .executeUpdate();
 
         entityManager.createNativeQuery("""
-                        INSERT INTO order_status_history (order_id, order_status, reason_category, reason,
-                            created_at, modified_at)
-                        VALUES (:orderId, :orderStatus, 'ETC', :reason,
-                            CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                        """)
-                .setParameter("orderId", orderEntity.getId())
-                .setParameter("orderStatus", orderStatus.name())
-                .setParameter("reason", orderStatus.getDescription())
-                .executeUpdate();
+                INSERT INTO order_status_history (order_id, order_status, reason_category, reason,
+                    created_at, modified_at)
+                VALUES (:orderId, :orderStatus, 'ETC', :reason,
+                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                """)
+            .setParameter("orderId", orderEntity.getId())
+            .setParameter("orderStatus", orderStatus.name())
+            .setParameter("reason", orderStatus.getDescription())
+            .executeUpdate();
 
         entityManager.flush();
         entityManager.clear();
@@ -131,28 +131,28 @@ class OrderPersistenceAdapterTest {
         void shouldSaveOrderAndReturnWithId() {
             // given
             entityManager.createNativeQuery(
-                    "ALTER TABLE order_status_history ALTER COLUMN reason_category SET DEFAULT 'ETC'"
+                "ALTER TABLE order_status_history ALTER COLUMN reason_category SET DEFAULT 'ETC'"
             ).executeUpdate();
 
             OrderAmount amount = OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build());
             ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놔주세요").build());
 
             Order order = Order.from(
-                    OrderCreateState.builder()
-                            .buyerId(1L)
-                            .amount(amount)
-                            .shippingAddress(shippingAddress)
-                            .orderProductStates(List.of(
-                                    OrderProductCreateState.builder()
-                                            .sellerId(10L)
-                                            .pricePolicyId(100L)
-                                            .quantity(2)
-                                            .unitAmount(25000L)
-                                            .imageUrl("https://example.com/image.jpg")
-                                            .accumulatedPoint(500L)
-                                            .build()
-                            ))
+                OrderCreateState.builder()
+                    .buyerId(1L)
+                    .amount(amount)
+                    .shippingAddress(shippingAddress)
+                    .orderProductStates(List.of(
+                        OrderProductCreateState.builder()
+                            .sellerId(10L)
+                            .pricePolicyId(100L)
+                            .quantity(2)
+                            .unitAmount(25000L)
+                            .imageUrl("https://example.com/image.jpg")
+                            .accumulatedPoint(500L)
                             .build()
+                    ))
+                    .build()
             );
 
             // when
@@ -174,20 +174,20 @@ class OrderPersistenceAdapterTest {
         void shouldCreateOrderStatusHistory() {
             // given
             entityManager.createNativeQuery(
-                    "ALTER TABLE order_status_history ALTER COLUMN reason_category SET DEFAULT 'ETC'"
+                "ALTER TABLE order_status_history ALTER COLUMN reason_category SET DEFAULT 'ETC'"
             ).executeUpdate();
 
             Order order = Order.from(
-                    OrderCreateState.builder()
-                            .buyerId(1L)
-                            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
-                            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build()))
-                            .orderProductStates(List.of(
-                                    OrderProductCreateState.builder()
-                                            .sellerId(10L).pricePolicyId(100L).quantity(1)
-                                            .unitAmount(25000L).accumulatedPoint(500L).build()
-                            ))
-                            .build()
+                OrderCreateState.builder()
+                    .buyerId(1L)
+                    .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
+                    .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build()))
+                    .orderProductStates(List.of(
+                        OrderProductCreateState.builder()
+                            .sellerId(10L).pricePolicyId(100L).quantity(1)
+                            .unitAmount(25000L).accumulatedPoint(500L).build()
+                    ))
+                    .build()
             );
 
             // when
@@ -195,7 +195,7 @@ class OrderPersistenceAdapterTest {
 
             // then
             assertThat(orderHistoryJpaRepository.findAllByOrderJpaEntityIdOrderByCreatedAtAsc(saved.getId()))
-                    .hasSize(1);
+                .hasSize(1);
         }
     }
 
@@ -388,40 +388,40 @@ class OrderPersistenceAdapterTest {
             // given
             OrderJpaEntity orderEntity = persistOrderWithProduct(1L, OrderStatus.PAID, 10L, 100L);
             OrderProductJpaEntity productEntity = orderProductJpaRepository
-                    .findByOrderIdAndPricePolicyId(orderEntity.getId(), 100L).orElseThrow();
+                .findByOrderIdAndPricePolicyId(orderEntity.getId(), 100L).orElseThrow();
 
             Order updatedOrder = Order.from(
-                    OrderSnapshotState.builder()
-                            .id(orderEntity.getId())
-                            .buyerId(1L)
-                            .orderKey(orderEntity.getOrderKey())
-                            .orderNumber(OrderNumber.of(orderEntity.getOrderNumber()))
+                OrderSnapshotState.builder()
+                    .id(orderEntity.getId())
+                    .buyerId(1L)
+                    .orderKey(orderEntity.getOrderKey())
+                    .orderNumber(OrderNumber.of(orderEntity.getOrderNumber()))
+                    .orderStatus(OrderStatus.PREPARING)
+                    .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
+                    .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놔주세요").build()))
+                    .orderProductStates(List.of(
+                        OrderProductSnapshotState.builder()
+                            .orderId(orderEntity.getId())
+                            .sellerId(10L)
+                            .pricePolicyId(100L)
+                            .orderProductKey(productEntity.getOrderProductKey())
+                            .quantity(2)
+                            .unitAmount(25000L)
+                            .accumulatedPoint(500L)
                             .orderStatus(OrderStatus.PREPARING)
-                            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
-                            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놔주세요").build()))
-                            .orderProductStates(List.of(
-                                    OrderProductSnapshotState.builder()
-                                            .orderId(orderEntity.getId())
-                                            .sellerId(10L)
-                                            .pricePolicyId(100L)
-                                            .orderProductKey(productEntity.getOrderProductKey())
-                                            .quantity(2)
-                                            .unitAmount(25000L)
-                                            .accumulatedPoint(500L)
-                                            .orderStatus(OrderStatus.PREPARING)
-                                            .isReviewed(false)
-                                            .build()
-                            ))
+                            .isReviewed(false)
                             .build()
+                    ))
+                    .build()
             );
 
             OrderStatusHistory history = OrderStatusHistory.from(
-                    OrderStatusHistoryCreateState.builder()
-                            .orderId(orderEntity.getId())
-                            .orderStatus(OrderStatus.PREPARING)
-                            .reasonCategory(OrderStatusReasonCategory.ETC)
-                            .reason("상품 준비중으로 변경")
-                            .build()
+                OrderStatusHistoryCreateState.builder()
+                    .orderId(orderEntity.getId())
+                    .orderStatus(OrderStatus.PREPARING)
+                    .reasonCategory(OrderStatusReasonCategory.ETC)
+                    .reason("상품 준비중으로 변경")
+                    .build()
             );
 
             // when
@@ -442,30 +442,30 @@ class OrderPersistenceAdapterTest {
         void shouldThrowWhenOrderNotFound() {
             // given
             Order nonExistent = Order.from(
-                    OrderSnapshotState.builder()
-                            .id(999L)
-                            .buyerId(1L)
-                            .orderKey(UUID.randomUUID())
-                            .orderNumber(OrderNumber.of("ORD-TEST-999"))
-                            .orderStatus(OrderStatus.PAID)
-                            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
-                            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build()))
-                            .orderProductStates(List.of())
-                            .build()
+                OrderSnapshotState.builder()
+                    .id(999L)
+                    .buyerId(1L)
+                    .orderKey(UUID.randomUUID())
+                    .orderNumber(OrderNumber.of("ORD-TEST-999"))
+                    .orderStatus(OrderStatus.PAID)
+                    .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
+                    .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build()))
+                    .orderProductStates(List.of())
+                    .build()
             );
 
             OrderStatusHistory history = OrderStatusHistory.from(
-                    OrderStatusHistoryCreateState.builder()
-                            .orderId(999L)
-                            .orderStatus(OrderStatus.PAID)
-                            .reasonCategory(OrderStatusReasonCategory.ETC)
-                            .reason("테스트")
-                            .build()
+                OrderStatusHistoryCreateState.builder()
+                    .orderId(999L)
+                    .orderStatus(OrderStatus.PAID)
+                    .reasonCategory(OrderStatusReasonCategory.ETC)
+                    .reason("테스트")
+                    .build()
             );
 
             // when & then
             assertThatThrownBy(() -> adapter.update(nonExistent, history))
-                    .isInstanceOf(OrderNotFoundException.class);
+                .isInstanceOf(OrderNotFoundException.class);
         }
     }
 
@@ -510,20 +510,20 @@ class OrderPersistenceAdapterTest {
             // given
             OrderJpaEntity orderEntity = persistOrderWithProduct(1L, OrderStatus.PAID, 10L, 100L);
             OrderProductJpaEntity productEntity = orderProductJpaRepository
-                    .findByOrderIdAndPricePolicyId(orderEntity.getId(), 100L).orElseThrow();
+                .findByOrderIdAndPricePolicyId(orderEntity.getId(), 100L).orElseThrow();
 
             OrderProduct updatedProduct = OrderProduct.from(
-                    OrderProductSnapshotState.builder()
-                            .orderId(orderEntity.getId())
-                            .sellerId(10L)
-                            .pricePolicyId(100L)
-                            .orderProductKey(productEntity.getOrderProductKey())
-                            .quantity(3)
-                            .unitAmount(25000L)
-                            .accumulatedPoint(500L)
-                            .orderStatus(OrderStatus.PREPARING)
-                            .isReviewed(false)
-                            .build()
+                OrderProductSnapshotState.builder()
+                    .orderId(orderEntity.getId())
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .orderProductKey(productEntity.getOrderProductKey())
+                    .quantity(3)
+                    .unitAmount(25000L)
+                    .accumulatedPoint(500L)
+                    .orderStatus(OrderStatus.PREPARING)
+                    .isReviewed(false)
+                    .build()
             );
 
             // when
@@ -543,21 +543,21 @@ class OrderPersistenceAdapterTest {
         void shouldThrowWhenOrderProductNotFound() {
             // given
             OrderProduct nonExistent = OrderProduct.from(
-                    OrderProductSnapshotState.builder()
-                            .orderId(999L)
-                            .sellerId(10L)
-                            .pricePolicyId(100L)
-                            .orderProductKey(UUID.randomUUID())
-                            .quantity(1)
-                            .unitAmount(25000L)
-                            .accumulatedPoint(500L)
-                            .orderStatus(OrderStatus.PAID)
-                            .build()
+                OrderProductSnapshotState.builder()
+                    .orderId(999L)
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .orderProductKey(UUID.randomUUID())
+                    .quantity(1)
+                    .unitAmount(25000L)
+                    .accumulatedPoint(500L)
+                    .orderStatus(OrderStatus.PAID)
+                    .build()
             );
 
             // when & then
             assertThatThrownBy(() -> adapter.update(nonExistent))
-                    .isInstanceOf(OrderProductNotFoundException.class);
+                .isInstanceOf(OrderProductNotFoundException.class);
         }
     }
 
@@ -571,40 +571,40 @@ class OrderPersistenceAdapterTest {
             // given
             OrderJpaEntity orderEntity = persistOrderWithProduct(1L, OrderStatus.PAID, 10L, 100L);
             OrderProductJpaEntity productEntity = orderProductJpaRepository
-                    .findByOrderIdAndPricePolicyId(orderEntity.getId(), 100L).orElseThrow();
+                .findByOrderIdAndPricePolicyId(orderEntity.getId(), 100L).orElseThrow();
 
             Order updatedOrder = Order.from(
-                    OrderSnapshotState.builder()
-                            .id(orderEntity.getId())
-                            .buyerId(1L)
-                            .orderKey(orderEntity.getOrderKey())
-                            .orderNumber(OrderNumber.of(orderEntity.getOrderNumber()))
+                OrderSnapshotState.builder()
+                    .id(orderEntity.getId())
+                    .buyerId(1L)
+                    .orderKey(orderEntity.getOrderKey())
+                    .orderNumber(OrderNumber.of(orderEntity.getOrderNumber()))
+                    .orderStatus(OrderStatus.PREPARING)
+                    .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
+                    .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build()))
+                    .orderProductStates(List.of(
+                        OrderProductSnapshotState.builder()
+                            .orderId(orderEntity.getId())
+                            .sellerId(10L)
+                            .pricePolicyId(100L)
+                            .orderProductKey(productEntity.getOrderProductKey())
+                            .quantity(2)
+                            .unitAmount(25000L)
+                            .accumulatedPoint(500L)
                             .orderStatus(OrderStatus.PREPARING)
-                            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
-                            .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("01012345678").zipCode("06000").address("서울시 강남구").addressDetail("101호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build()))
-                            .orderProductStates(List.of(
-                                    OrderProductSnapshotState.builder()
-                                            .orderId(orderEntity.getId())
-                                            .sellerId(10L)
-                                            .pricePolicyId(100L)
-                                            .orderProductKey(productEntity.getOrderProductKey())
-                                            .quantity(2)
-                                            .unitAmount(25000L)
-                                            .accumulatedPoint(500L)
-                                            .orderStatus(OrderStatus.PREPARING)
-                                            .isReviewed(false)
-                                            .build()
-                            ))
+                            .isReviewed(false)
                             .build()
+                    ))
+                    .build()
             );
 
             OrderStatusHistory history = OrderStatusHistory.from(
-                    OrderStatusHistoryCreateState.builder()
-                            .orderId(orderEntity.getId())
-                            .orderStatus(OrderStatus.PREPARING)
-                            .reasonCategory(OrderStatusReasonCategory.ETC)
-                            .reason("상품 준비중")
-                            .build()
+                OrderStatusHistoryCreateState.builder()
+                    .orderId(orderEntity.getId())
+                    .orderStatus(OrderStatus.PREPARING)
+                    .reasonCategory(OrderStatusReasonCategory.ETC)
+                    .reason("상품 준비중")
+                    .build()
             );
 
             adapter.update(updatedOrder, history);
@@ -642,23 +642,23 @@ class OrderPersistenceAdapterTest {
             OrderJpaEntity orderEntity = persistOrder(1L, OrderStatus.DELIVERED);
 
             entityManager.createNativeQuery("""
-                            INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
-                                quantity, unit_amount, accumulated_point, order_status, review_yn,
-                                scheduled_auto_confirm_at, created_at, modified_at)
-                            VALUES (:orderId, 100, 10, :orderProductKey,
-                                1, 25000, 500, 'DELIVERED', false,
-                                :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                            """)
-                    .setParameter("orderId", orderEntity.getId())
-                    .setParameter("orderProductKey", UUID.randomUUID().toString())
-                    .setParameter("scheduledAutoConfirmAt", LocalDateTime.of(2026, 4, 1, 10, 0))
-                    .executeUpdate();
+                    INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
+                        quantity, unit_amount, accumulated_point, order_status, review_yn,
+                        scheduled_auto_confirm_at, created_at, modified_at)
+                    VALUES (:orderId, 100, 10, :orderProductKey,
+                        1, 25000, 500, 'DELIVERED', false,
+                        :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                    """)
+                .setParameter("orderId", orderEntity.getId())
+                .setParameter("orderProductKey", UUID.randomUUID().toString())
+                .setParameter("scheduledAutoConfirmAt", LocalDateTime.of(2026, 4, 1, 10, 0))
+                .executeUpdate();
             entityManager.flush();
             entityManager.clear();
 
             // when
             List<Long> eligibleIds = adapter.findOrderIdsScheduledForAutoConfirm(
-                    LocalDateTime.of(2026, 4, 10, 0, 0), 0L, 100
+                LocalDateTime.of(2026, 4, 10, 0, 0), 0L, 100
             );
 
             // then
@@ -672,23 +672,23 @@ class OrderPersistenceAdapterTest {
             OrderJpaEntity orderEntity = persistOrder(1L, OrderStatus.DELIVERED);
 
             entityManager.createNativeQuery("""
-                            INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
-                                quantity, unit_amount, accumulated_point, order_status, review_yn,
-                                scheduled_auto_confirm_at, created_at, modified_at)
-                            VALUES (:orderId, 100, 10, :orderProductKey,
-                                1, 25000, 500, 'DELIVERED', false,
-                                :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                            """)
-                    .setParameter("orderId", orderEntity.getId())
-                    .setParameter("orderProductKey", UUID.randomUUID().toString())
-                    .setParameter("scheduledAutoConfirmAt", LocalDateTime.of(2026, 4, 15, 10, 0))
-                    .executeUpdate();
+                    INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
+                        quantity, unit_amount, accumulated_point, order_status, review_yn,
+                        scheduled_auto_confirm_at, created_at, modified_at)
+                    VALUES (:orderId, 100, 10, :orderProductKey,
+                        1, 25000, 500, 'DELIVERED', false,
+                        :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                    """)
+                .setParameter("orderId", orderEntity.getId())
+                .setParameter("orderProductKey", UUID.randomUUID().toString())
+                .setParameter("scheduledAutoConfirmAt", LocalDateTime.of(2026, 4, 15, 10, 0))
+                .executeUpdate();
             entityManager.flush();
             entityManager.clear();
 
             // when
             List<Long> eligibleIds = adapter.findOrderIdsScheduledForAutoConfirm(
-                    LocalDateTime.of(2026, 4, 10, 0, 0), 0L, 100
+                LocalDateTime.of(2026, 4, 10, 0, 0), 0L, 100
             );
 
             // then
@@ -700,7 +700,7 @@ class OrderPersistenceAdapterTest {
         void shouldReturnEmptyListWhenNoEligible() {
             // when
             List<Long> eligibleIds = adapter.findOrderIdsScheduledForAutoConfirm(
-                    LocalDateTime.of(2020, 1, 1, 0, 0), 0L, 100
+                LocalDateTime.of(2020, 1, 1, 0, 0), 0L, 100
             );
 
             // then
@@ -722,13 +722,13 @@ class OrderPersistenceAdapterTest {
 
             // when
             List<Long> eligibleIds = adapter.findOrderIdsScheduledForAutoConfirm(
-                    LocalDateTime.of(2026, 4, 10, 0, 0), firstOrder.getId(), 100
+                LocalDateTime.of(2026, 4, 10, 0, 0), firstOrder.getId(), 100
             );
 
             // then
             assertThat(eligibleIds)
-                    .containsExactly(secondOrder.getId())
-                    .doesNotContain(firstOrder.getId());
+                .containsExactly(secondOrder.getId())
+                .doesNotContain(firstOrder.getId());
         }
 
         @Test
@@ -748,7 +748,7 @@ class OrderPersistenceAdapterTest {
 
             // when
             List<Long> eligibleIds = adapter.findOrderIdsScheduledForAutoConfirm(
-                    LocalDateTime.of(2026, 4, 10, 0, 0), 0L, 2
+                LocalDateTime.of(2026, 4, 10, 0, 0), 0L, 2
             );
 
             // then
@@ -757,18 +757,18 @@ class OrderPersistenceAdapterTest {
 
         private void insertOrderProductRow(Long orderId, LocalDateTime scheduledAutoConfirmAt) {
             entityManager.createNativeQuery("""
-                            INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
-                                quantity, unit_amount, accumulated_point, order_status, review_yn,
-                                scheduled_auto_confirm_at, created_at, modified_at)
-                            VALUES (:orderId, :pricePolicyId, 10, :orderProductKey,
-                                1, 25000, 500, 'DELIVERED', false,
-                                :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                            """)
-                    .setParameter("orderId", orderId)
-                    .setParameter("pricePolicyId", System.nanoTime())
-                    .setParameter("orderProductKey", UUID.randomUUID().toString())
-                    .setParameter("scheduledAutoConfirmAt", scheduledAutoConfirmAt)
-                    .executeUpdate();
+                    INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
+                        quantity, unit_amount, accumulated_point, order_status, review_yn,
+                        scheduled_auto_confirm_at, created_at, modified_at)
+                    VALUES (:orderId, :pricePolicyId, 10, :orderProductKey,
+                        1, 25000, 500, 'DELIVERED', false,
+                        :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                    """)
+                .setParameter("orderId", orderId)
+                .setParameter("pricePolicyId", System.nanoTime())
+                .setParameter("orderProductKey", UUID.randomUUID().toString())
+                .setParameter("scheduledAutoConfirmAt", scheduledAutoConfirmAt)
+                .executeUpdate();
         }
     }
 }

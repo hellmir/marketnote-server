@@ -22,20 +22,20 @@ class ShippingAddressJpaEntityToDomainMapperTest {
     void shouldMapAllFieldsToDomain() {
         // given - 도메인 객체로부터 JPA 엔티티 생성 후 ID는 ReflectionTestUtils로 주입
         ShippingAddress source = ShippingAddress.from(
-                ShippingAddressCreateState.builder()
-                        .userId(10L)
-                        .addressType(ShippingAddressType.HOME)
-                        .address("서울시 강남구")
-                        .addressDetail("101동 202호")
-                        .companyName(null)
-                        .addressAlias("우리집")
-                        .recipientName("홍길동")
-                        .recipientPhoneNumber("01012345678")
-                        .deliveryRequestType(DeliveryRequestType.CUSTOM)
-                        .deliveryRequestMessage("문 앞에 놓아주세요")
-                        .isDefault(true)
-                        .regionType(ShippingAddressRegionType.NORMAL)
-                        .build()
+            ShippingAddressCreateState.builder()
+                .userId(10L)
+                .addressType(ShippingAddressType.HOME)
+                .address("서울시 강남구")
+                .addressDetail("101동 202호")
+                .companyName(null)
+                .addressAlias("우리집")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("01012345678")
+                .deliveryRequestType(DeliveryRequestType.CUSTOM)
+                .deliveryRequestMessage("문 앞에 놓아주세요")
+                .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
+                .build()
         );
         ShippingAddressJpaEntity entity = ShippingAddressJpaEntity.from(source);
         ReflectionTestUtils.setField(entity, "id", 99L);
@@ -64,20 +64,20 @@ class ShippingAddressJpaEntityToDomainMapperTest {
     void shouldMapNullIsDefaultAsFalse() {
         // given - JPA 엔티티의 isDefault에 null 직접 주입
         ShippingAddress source = ShippingAddress.from(
-                ShippingAddressCreateState.builder()
-                        .userId(11L)
-                        .addressType(ShippingAddressType.OTHER)
-                        .address("부산시 해운대구")
-                        .addressDetail("33-44")
-                        .companyName(null)
-                        .addressAlias(null)
-                        .recipientName("김철수")
-                        .recipientPhoneNumber("01098765432")
-                        .deliveryRequestType(DeliveryRequestType.NONE)
-                        .deliveryRequestMessage(null)
-                        .isDefault(false)
-                        .regionType(ShippingAddressRegionType.JEJU)
-                        .build()
+            ShippingAddressCreateState.builder()
+                .userId(11L)
+                .addressType(ShippingAddressType.OTHER)
+                .address("부산시 해운대구")
+                .addressDetail("33-44")
+                .companyName(null)
+                .addressAlias(null)
+                .recipientName("김철수")
+                .recipientPhoneNumber("01098765432")
+                .deliveryRequestType(DeliveryRequestType.NONE)
+                .deliveryRequestMessage(null)
+                .isDefault(false)
+                .regionType(ShippingAddressRegionType.JEJU)
+                .build()
         );
         ShippingAddressJpaEntity entity = ShippingAddressJpaEntity.from(source);
         ReflectionTestUtils.setField(entity, "isDefault", null);
@@ -94,20 +94,20 @@ class ShippingAddressJpaEntityToDomainMapperTest {
     void shouldMapNullDeliveryRequestMessageWhenTypeIsNotCustom() {
         // given
         ShippingAddress source = ShippingAddress.from(
-                ShippingAddressCreateState.builder()
-                        .userId(20L)
-                        .addressType(ShippingAddressType.OTHER)
-                        .address("대전시 유성구")
-                        .addressDetail("12-34")
-                        .companyName(null)
-                        .addressAlias(null)
-                        .recipientName("이영희")
-                        .recipientPhoneNumber("01055556666")
-                        .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
-                        .deliveryRequestMessage(null)
-                        .isDefault(false)
-                        .regionType(ShippingAddressRegionType.NORMAL)
-                        .build()
+            ShippingAddressCreateState.builder()
+                .userId(20L)
+                .addressType(ShippingAddressType.OTHER)
+                .address("대전시 유성구")
+                .addressDetail("12-34")
+                .companyName(null)
+                .addressAlias(null)
+                .recipientName("이영희")
+                .recipientPhoneNumber("01055556666")
+                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
+                .deliveryRequestMessage(null)
+                .isDefault(false)
+                .regionType(ShippingAddressRegionType.NORMAL)
+                .build()
         );
         ShippingAddressJpaEntity entity = ShippingAddressJpaEntity.from(source);
 

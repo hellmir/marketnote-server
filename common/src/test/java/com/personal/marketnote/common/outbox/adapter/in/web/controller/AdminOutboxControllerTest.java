@@ -49,13 +49,13 @@ class AdminOutboxControllerTest {
 
     private MockMvc mockMvc;
     private final ObjectMapper objectMapper = new ObjectMapper()
-            .findAndRegisterModules();
+        .findAndRegisterModules();
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(adminOutboxController)
-                .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
-                .build();
+            .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
+            .build();
     }
 
     @Test
@@ -64,21 +64,21 @@ class AdminOutboxControllerTest {
         // given
         String topic = "commerce.order.created";
         OutboxEventResponse response = new OutboxEventResponse(
-                1L, "evt-1", topic, "pk-1", "OrderCreated", "commerce",
-                2, 5, LocalDateTime.of(2026, 1, 1, 0, 0),
-                LocalDateTime.of(2026, 1, 1, 1, 0), "last-error"
+            1L, "evt-1", topic, "pk-1", "OrderCreated", "commerce",
+            2, 5, LocalDateTime.of(2026, 1, 1, 0, 0),
+            LocalDateTime.of(2026, 1, 1, 1, 0), "last-error"
         );
         when(outboxQueryService.queryFailedEvents(topic)).thenReturn(List.of(response));
 
         // when & then
         mockMvc.perform(get("/api/v1/admin/outbox/failed")
-                        .param("topic", topic))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].id").value(1))
-                .andExpect(jsonPath("$.content[0].eventId").value("evt-1"))
-                .andExpect(jsonPath("$.content[0].topic").value(topic))
-                .andExpect(jsonPath("$.content[0].lastErrorMessage").value("last-error"))
-                .andExpect(jsonPath("$.message").value("Outbox FAILED 이벤트 조회 완료"));
+                .param("topic", topic))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content[0].id").value(1))
+            .andExpect(jsonPath("$.content[0].eventId").value("evt-1"))
+            .andExpect(jsonPath("$.content[0].topic").value(topic))
+            .andExpect(jsonPath("$.content[0].lastErrorMessage").value("last-error"))
+            .andExpect(jsonPath("$.message").value("Outbox FAILED 이벤트 조회 완료"));
 
         verify(outboxQueryService).queryFailedEvents(topic);
     }
@@ -88,27 +88,27 @@ class AdminOutboxControllerTest {
     void resolveFailedEvent_delegatesToResolveService() throws Exception {
         // given
         ResolveOutboxRequest request = new ResolveOutboxRequest(
-                100L, OutboxResolutionAction.RETRY, "재시도 요청"
+            100L, OutboxResolutionAction.RETRY, "재시도 요청"
         );
         OutboxResolveResult serviceResult = new OutboxResolveResult(
-                "evt-100", "commerce.order.created", "RETRY", "재시도 요청", false
+            "evt-100", "commerce.order.created", "RETRY", "재시도 요청", false
         );
 
         when(outboxResolveService.resolve(any(OutboxResolveCommand.class)))
-                .thenReturn(serviceResult);
+            .thenReturn(serviceResult);
 
         // when & then
         mockMvc.perform(post("/api/v1/admin/outbox/resolve")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.id").value(100))
-                .andExpect(jsonPath("$.content.eventId").value("evt-100"))
-                .andExpect(jsonPath("$.content.topic").value("commerce.order.created"))
-                .andExpect(jsonPath("$.content.resolution").value("RETRY"))
-                .andExpect(jsonPath("$.content.reason").value("재시도 요청"))
-                .andExpect(jsonPath("$.content.alreadyResolved").value(false))
-                .andExpect(jsonPath("$.message").value("Outbox FAILED 이벤트 해결 완료"));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content.id").value(100))
+            .andExpect(jsonPath("$.content.eventId").value("evt-100"))
+            .andExpect(jsonPath("$.content.topic").value("commerce.order.created"))
+            .andExpect(jsonPath("$.content.resolution").value("RETRY"))
+            .andExpect(jsonPath("$.content.reason").value("재시도 요청"))
+            .andExpect(jsonPath("$.content.alreadyResolved").value(false))
+            .andExpect(jsonPath("$.message").value("Outbox FAILED 이벤트 해결 완료"));
 
         ArgumentCaptor<OutboxResolveCommand> commandCaptor = ArgumentCaptor.forClass(OutboxResolveCommand.class);
         verify(outboxResolveService).resolve(commandCaptor.capture());
@@ -123,21 +123,21 @@ class AdminOutboxControllerTest {
     void resolveFailedEvent_propagatesAlreadyResolvedFlag() throws Exception {
         // given
         ResolveOutboxRequest request = new ResolveOutboxRequest(
-                200L, OutboxResolutionAction.DISCARD, "이미 처리됨"
+            200L, OutboxResolutionAction.DISCARD, "이미 처리됨"
         );
         OutboxResolveResult serviceResult = new OutboxResolveResult(
-                "evt-200", "commerce.payment.approved", "DISCARD", "이미 처리됨", true
+            "evt-200", "commerce.payment.approved", "DISCARD", "이미 처리됨", true
         );
         when(outboxResolveService.resolve(any(OutboxResolveCommand.class)))
-                .thenReturn(serviceResult);
+            .thenReturn(serviceResult);
 
         // when & then
         mockMvc.perform(post("/api/v1/admin/outbox/resolve")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.alreadyResolved").value(true))
-                .andExpect(jsonPath("$.content.resolution").value("DISCARD"));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content.alreadyResolved").value(true))
+            .andExpect(jsonPath("$.content.resolution").value("DISCARD"));
     }
 
     @Test
@@ -150,12 +150,12 @@ class AdminOutboxControllerTest {
 
         // when & then
         mockMvc.perform(get("/api/v1/admin/outbox/failed/summary"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].topic").value("commerce.order.created"))
-                .andExpect(jsonPath("$.content[0].failedCount").value(4))
-                .andExpect(jsonPath("$.content[1].topic").value("commerce.payment.approved"))
-                .andExpect(jsonPath("$.content[1].failedCount").value(9))
-                .andExpect(jsonPath("$.message").value("Outbox FAILED 토픽별 요약 조회 완료"));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content[0].topic").value("commerce.order.created"))
+            .andExpect(jsonPath("$.content[0].failedCount").value(4))
+            .andExpect(jsonPath("$.content[1].topic").value("commerce.payment.approved"))
+            .andExpect(jsonPath("$.content[1].failedCount").value(9))
+            .andExpect(jsonPath("$.message").value("Outbox FAILED 토픽별 요약 조회 완료"));
 
         verify(outboxQueryService).queryFailedSummary();
     }

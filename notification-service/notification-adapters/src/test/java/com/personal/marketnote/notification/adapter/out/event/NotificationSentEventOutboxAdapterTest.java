@@ -24,9 +24,7 @@ import java.time.ZoneId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("NotificationSentEventOutboxAdapter 테스트")
@@ -57,12 +55,12 @@ class NotificationSentEventOutboxAdapterTest {
             when(clock.getZone()).thenReturn(fixedClock.getZone());
 
             PushNotificationSentEvent event = new PushNotificationSentEvent(
-                    100L, 1L, "ORDER_PAYMENT_COMPLETED", "SENT",
-                    2, 0, LocalDateTime.of(2026, 4, 10, 14, 0)
+                100L, 1L, "ORDER_PAYMENT_COMPLETED", "SENT",
+                2, 0, LocalDateTime.of(2026, 4, 10, 14, 0)
             );
             ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
             when(objectMapper.writeValueAsString(envelopeCaptor.capture()))
-                    .thenReturn("{\"eventType\":\"notification.push.sent\"}");
+                .thenReturn("{\"eventType\":\"notification.push.sent\"}");
 
             // when
             adapter.publish(event);
@@ -101,21 +99,21 @@ class NotificationSentEventOutboxAdapterTest {
             when(clock.getZone()).thenReturn(fixedClock.getZone());
 
             PushNotificationSentEvent event = new PushNotificationSentEvent(
-                    300L, 3L, "NOTICE", "SENT",
-                    1, 0, LocalDateTime.of(2026, 4, 10, 16, 0)
+                300L, 3L, "NOTICE", "SENT",
+                1, 0, LocalDateTime.of(2026, 4, 10, 16, 0)
             );
             when(objectMapper.writeValueAsString(any(EventEnvelope.class)))
-                    .thenThrow(new JsonProcessingException("test failure") {
-                    });
+                .thenThrow(new JsonProcessingException("test failure") {
+                });
 
             // when & then
             assertThatThrownBy(() -> adapter.publish(event))
-                    .isInstanceOf(NotificationSentEventSerializationException.class)
-                    .hasMessageContaining("ERR_NOTIFICATION_SENT_EVENT_01")
-                    .hasMessageContaining("알림 발송 완료 이벤트")
-                    .hasMessageContaining("topic=" + KafkaTopicConstants.NOTIFICATION_PUSH_SENT)
-                    .hasMessageContaining("partitionKey=300")
-                    .hasMessageContaining("eventId=");
+                .isInstanceOf(NotificationSentEventSerializationException.class)
+                .hasMessageContaining("ERR_NOTIFICATION_SENT_EVENT_01")
+                .hasMessageContaining("알림 발송 완료 이벤트")
+                .hasMessageContaining("topic=" + KafkaTopicConstants.NOTIFICATION_PUSH_SENT)
+                .hasMessageContaining("partitionKey=300")
+                .hasMessageContaining("eventId=");
             verifyNoInteractions(saveOutboxEventPort);
         }
     }

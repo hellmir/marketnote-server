@@ -30,7 +30,7 @@ public class RegisterRemoteAreaService implements RegisterRemoteAreaUseCase {
         ShippingAddressRegionType regionType = resolveRegionType(command.regionType());
 
         RemoteArea remoteArea = RemoteArea.from(
-                RemoteAreaCommandToStateMapper.mapToCreateState(command, regionType)
+            RemoteAreaCommandToStateMapper.mapToCreateState(command, regionType)
         );
 
         validateNotDuplicate(remoteArea);
@@ -48,8 +48,8 @@ public class RegisterRemoteAreaService implements RegisterRemoteAreaUseCase {
     private void validateNotDuplicate(RemoteArea remoteArea) {
         if (findRemoteAreaPort.existsByAddress(remoteArea.getProvince(), remoteArea.getDistrict(), remoteArea.getVillage(), remoteArea.getSubarea())) {
             log.warn(
-                    "이미 등록된 도서산간 지역입니다. province={}, district={}, village={}, subarea={}",
-                    remoteArea.getProvince(), remoteArea.getDistrict(), remoteArea.getVillage(), remoteArea.getSubarea()
+                "이미 등록된 도서산간 지역입니다. province={}, district={}, village={}, subarea={}",
+                remoteArea.getProvince(), remoteArea.getDistrict(), remoteArea.getVillage(), remoteArea.getSubarea()
             );
             throw new RemoteAreaAlreadyExistsException();
         }

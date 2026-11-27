@@ -37,34 +37,34 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
         // given
         JsonNode payloadJson = objectMapper.createObjectNode().put("key", "value");
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.INVENTORY,
-                "target-123",
-                ProductServiceCommunicationType.REQUEST,
-                ProductServiceCommunicationSenderType.PRODUCT,
-                "NullPointerException",
-                "payload text",
-                payloadJson
+            ProductServiceCommunicationTargetType.INVENTORY,
+            "target-123",
+            ProductServiceCommunicationType.REQUEST,
+            ProductServiceCommunicationSenderType.PRODUCT,
+            "NullPointerException",
+            "payload text",
+            payloadJson
         );
         ProductServiceCommunicationHistory savedHistory = buildHistory(
-                1L,
-                ProductServiceCommunicationTargetType.INVENTORY,
-                "target-123",
-                ProductServiceCommunicationType.REQUEST,
-                ProductServiceCommunicationSenderType.PRODUCT,
-                "NullPointerException",
-                "payload text",
-                payloadJson,
-                LocalDateTime.of(2026, 2, 2, 12, 0, 0)
+            1L,
+            ProductServiceCommunicationTargetType.INVENTORY,
+            "target-123",
+            ProductServiceCommunicationType.REQUEST,
+            ProductServiceCommunicationSenderType.PRODUCT,
+            "NullPointerException",
+            "payload text",
+            payloadJson,
+            LocalDateTime.of(2026, 2, 2, 12, 0, 0)
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(savedHistory);
+            .thenReturn(savedHistory);
 
         // when
         ProductServiceCommunicationHistory result = recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
 
         ProductServiceCommunicationHistory captured = captor.getValue();
@@ -83,23 +83,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
     void record_withRequiredFieldsOnly_savesWithNullOptionalFields() {
         // given
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.PRODUCT_REVIEW_AGGREGATE,
-                null,
-                ProductServiceCommunicationType.RESPONSE,
-                ProductServiceCommunicationSenderType.COMMUNITY,
-                null,
-                null,
-                null
+            ProductServiceCommunicationTargetType.PRODUCT_REVIEW_AGGREGATE,
+            null,
+            ProductServiceCommunicationType.RESPONSE,
+            ProductServiceCommunicationSenderType.COMMUNITY,
+            null,
+            null,
+            null
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
 
         ProductServiceCommunicationHistory captured = captor.getValue();
@@ -117,23 +117,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
     void record_requestCommunicationType_mapsCorrectly() {
         // given
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.INVENTORY,
-                null,
-                ProductServiceCommunicationType.REQUEST,
-                ProductServiceCommunicationSenderType.PRODUCT,
-                null,
-                null,
-                null
+            ProductServiceCommunicationTargetType.INVENTORY,
+            null,
+            ProductServiceCommunicationType.REQUEST,
+            ProductServiceCommunicationSenderType.PRODUCT,
+            null,
+            null,
+            null
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
         assertThat(captor.getValue().getCommunicationType()).isEqualTo(ProductServiceCommunicationType.REQUEST);
     }
@@ -143,23 +143,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
     void record_responseCommunicationType_mapsCorrectly() {
         // given
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.INVENTORY,
-                null,
-                ProductServiceCommunicationType.RESPONSE,
-                ProductServiceCommunicationSenderType.COMMERCE,
-                null,
-                null,
-                null
+            ProductServiceCommunicationTargetType.INVENTORY,
+            null,
+            ProductServiceCommunicationType.RESPONSE,
+            ProductServiceCommunicationSenderType.COMMERCE,
+            null,
+            null,
+            null
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
         assertThat(captor.getValue().getCommunicationType()).isEqualTo(ProductServiceCommunicationType.RESPONSE);
     }
@@ -170,23 +170,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
         for (ProductServiceCommunicationSenderType senderType : ProductServiceCommunicationSenderType.values()) {
             // given
             ProductServiceCommunicationHistoryCommand command = buildCommand(
-                    ProductServiceCommunicationTargetType.INVENTORY,
-                    null,
-                    ProductServiceCommunicationType.REQUEST,
-                    senderType,
-                    null,
-                    null,
-                    null
+                ProductServiceCommunicationTargetType.INVENTORY,
+                null,
+                ProductServiceCommunicationType.REQUEST,
+                senderType,
+                null,
+                null,
+                null
             );
             when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                    .thenReturn(buildMinimalHistory());
+                .thenReturn(buildMinimalHistory());
 
             // when
             recordService.record(command);
 
             // then
             ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                    ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
             verify(saveServiceCommunicationHistoryPort, atLeastOnce()).save(captor.capture());
             assertThat(captor.getValue().getSender()).isEqualTo(senderType);
             clearInvocations(saveServiceCommunicationHistoryPort);
@@ -199,23 +199,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
         for (ProductServiceCommunicationTargetType targetType : ProductServiceCommunicationTargetType.values()) {
             // given
             ProductServiceCommunicationHistoryCommand command = buildCommand(
-                    targetType,
-                    null,
-                    ProductServiceCommunicationType.REQUEST,
-                    ProductServiceCommunicationSenderType.PRODUCT,
-                    null,
-                    null,
-                    null
+                targetType,
+                null,
+                ProductServiceCommunicationType.REQUEST,
+                ProductServiceCommunicationSenderType.PRODUCT,
+                null,
+                null,
+                null
             );
             when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                    .thenReturn(buildMinimalHistory());
+                .thenReturn(buildMinimalHistory());
 
             // when
             recordService.record(command);
 
             // then
             ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                    ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
             verify(saveServiceCommunicationHistoryPort, atLeastOnce()).save(captor.capture());
             assertThat(captor.getValue().getTargetType()).isEqualTo(targetType);
             clearInvocations(saveServiceCommunicationHistoryPort);
@@ -227,23 +227,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
     void record_withPayloadOnly_savesCorrectly() {
         // given
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.PRODUCT_IMAGE,
-                null,
-                ProductServiceCommunicationType.RESPONSE,
-                ProductServiceCommunicationSenderType.FILE,
-                null,
-                "text payload only",
-                null
+            ProductServiceCommunicationTargetType.PRODUCT_IMAGE,
+            null,
+            ProductServiceCommunicationType.RESPONSE,
+            ProductServiceCommunicationSenderType.FILE,
+            null,
+            "text payload only",
+            null
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
 
         ProductServiceCommunicationHistory captured = captor.getValue();
@@ -257,23 +257,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
         // given
         JsonNode json = objectMapper.createObjectNode().put("status", 500);
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.FULFILLMENT_GOODS,
-                null,
-                ProductServiceCommunicationType.RESPONSE,
-                ProductServiceCommunicationSenderType.FULFILLMENT,
-                null,
-                null,
-                json
+            ProductServiceCommunicationTargetType.FULFILLMENT_GOODS,
+            null,
+            ProductServiceCommunicationType.RESPONSE,
+            ProductServiceCommunicationSenderType.FULFILLMENT,
+            null,
+            null,
+            json
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
 
         ProductServiceCommunicationHistory captured = captor.getValue();
@@ -286,23 +286,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
     void record_withTargetId_mapsTargetIdCorrectly() {
         // given
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.FULFILLMENT_GOODS_ELEMENT,
-                "element-456",
-                ProductServiceCommunicationType.REQUEST,
-                ProductServiceCommunicationSenderType.PRODUCT,
-                null,
-                null,
-                null
+            ProductServiceCommunicationTargetType.FULFILLMENT_GOODS_ELEMENT,
+            "element-456",
+            ProductServiceCommunicationType.REQUEST,
+            ProductServiceCommunicationSenderType.PRODUCT,
+            null,
+            null,
+            null
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
         assertThat(captor.getValue().getTargetId()).isEqualTo("element-456");
     }
@@ -312,23 +312,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
     void record_withException_mapsExceptionCorrectly() {
         // given
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.FULFILLMENT_AUTH,
-                null,
-                ProductServiceCommunicationType.REQUEST,
-                ProductServiceCommunicationSenderType.PRODUCT,
-                "HttpClientErrorException",
-                null,
-                null
+            ProductServiceCommunicationTargetType.FULFILLMENT_AUTH,
+            null,
+            ProductServiceCommunicationType.REQUEST,
+            ProductServiceCommunicationSenderType.PRODUCT,
+            "HttpClientErrorException",
+            null,
+            null
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
         assertThat(captor.getValue().getException()).isEqualTo("HttpClientErrorException");
     }
@@ -338,16 +338,16 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
     void record_callsSavePortExactlyOnce() {
         // given
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.INVENTORY,
-                null,
-                ProductServiceCommunicationType.REQUEST,
-                ProductServiceCommunicationSenderType.PRODUCT,
-                null,
-                null,
-                null
+            ProductServiceCommunicationTargetType.INVENTORY,
+            null,
+            ProductServiceCommunicationType.REQUEST,
+            ProductServiceCommunicationSenderType.PRODUCT,
+            null,
+            null,
+            null
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
@@ -363,27 +363,27 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
         // given
         JsonNode payloadJson = objectMapper.createObjectNode().put("method", "GET");
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.INVENTORY,
-                "inv-789",
-                ProductServiceCommunicationType.REQUEST,
-                ProductServiceCommunicationSenderType.PRODUCT,
-                null,
-                "GET /api/inventory",
-                payloadJson
+            ProductServiceCommunicationTargetType.INVENTORY,
+            "inv-789",
+            ProductServiceCommunicationType.REQUEST,
+            ProductServiceCommunicationSenderType.PRODUCT,
+            null,
+            "GET /api/inventory",
+            payloadJson
         );
         ProductServiceCommunicationHistory expectedResult = buildHistory(
-                100L,
-                ProductServiceCommunicationTargetType.INVENTORY,
-                "inv-789",
-                ProductServiceCommunicationType.REQUEST,
-                ProductServiceCommunicationSenderType.PRODUCT,
-                null,
-                "GET /api/inventory",
-                payloadJson,
-                LocalDateTime.of(2026, 2, 3, 15, 30, 0)
+            100L,
+            ProductServiceCommunicationTargetType.INVENTORY,
+            "inv-789",
+            ProductServiceCommunicationType.REQUEST,
+            ProductServiceCommunicationSenderType.PRODUCT,
+            null,
+            "GET /api/inventory",
+            payloadJson,
+            LocalDateTime.of(2026, 2, 3, 15, 30, 0)
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(expectedResult);
+            .thenReturn(expectedResult);
 
         // when
         ProductServiceCommunicationHistory result = recordService.record(command);
@@ -399,23 +399,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
     void record_historyBeforeSave_hasNoIdAndCreatedAt() {
         // given
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.INVENTORY,
-                null,
-                ProductServiceCommunicationType.REQUEST,
-                ProductServiceCommunicationSenderType.PRODUCT,
-                null,
-                null,
-                null
+            ProductServiceCommunicationTargetType.INVENTORY,
+            null,
+            ProductServiceCommunicationType.REQUEST,
+            ProductServiceCommunicationSenderType.PRODUCT,
+            null,
+            null,
+            null
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
 
         ProductServiceCommunicationHistory captured = captor.getValue();
@@ -437,23 +437,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
         complexJson.set("body", body);
 
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.INVENTORY,
-                "100",
-                ProductServiceCommunicationType.REQUEST,
-                ProductServiceCommunicationSenderType.PRODUCT,
-                null,
-                "{\"method\":\"POST\",\"url\":\"http://api.example.com/inventory\"}",
-                complexJson
+            ProductServiceCommunicationTargetType.INVENTORY,
+            "100",
+            ProductServiceCommunicationType.REQUEST,
+            ProductServiceCommunicationSenderType.PRODUCT,
+            null,
+            "{\"method\":\"POST\",\"url\":\"http://api.example.com/inventory\"}",
+            complexJson
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
 
         ProductServiceCommunicationHistory captured = captor.getValue();
@@ -474,34 +474,34 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
         errorPayload.put("attempt", 1);
 
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.FULFILLMENT_AUTH,
-                null,
-                ProductServiceCommunicationType.RESPONSE,
-                ProductServiceCommunicationSenderType.FULFILLMENT,
-                "HttpClientErrorException",
-                "401 Unauthorized",
-                errorPayload
+            ProductServiceCommunicationTargetType.FULFILLMENT_AUTH,
+            null,
+            ProductServiceCommunicationType.RESPONSE,
+            ProductServiceCommunicationSenderType.FULFILLMENT,
+            "HttpClientErrorException",
+            "401 Unauthorized",
+            errorPayload
         );
         ProductServiceCommunicationHistory savedHistory = buildHistory(
-                50L,
-                ProductServiceCommunicationTargetType.FULFILLMENT_AUTH,
-                null,
-                ProductServiceCommunicationType.RESPONSE,
-                ProductServiceCommunicationSenderType.FULFILLMENT,
-                "HttpClientErrorException",
-                "401 Unauthorized",
-                errorPayload,
-                LocalDateTime.of(2026, 2, 2, 10, 0, 0)
+            50L,
+            ProductServiceCommunicationTargetType.FULFILLMENT_AUTH,
+            null,
+            ProductServiceCommunicationType.RESPONSE,
+            ProductServiceCommunicationSenderType.FULFILLMENT,
+            "HttpClientErrorException",
+            "401 Unauthorized",
+            errorPayload,
+            LocalDateTime.of(2026, 2, 2, 10, 0, 0)
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(savedHistory);
+            .thenReturn(savedHistory);
 
         // when
         ProductServiceCommunicationHistory result = recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
 
         ProductServiceCommunicationHistory captured = captor.getValue();
@@ -524,23 +524,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
         requestPayload.put("attempt", 2);
 
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.PRODUCT_REVIEW_AGGREGATE,
-                "product-100",
-                ProductServiceCommunicationType.REQUEST,
-                ProductServiceCommunicationSenderType.PRODUCT,
-                null,
-                "GET /api/reviews/aggregate?productId=100",
-                requestPayload
+            ProductServiceCommunicationTargetType.PRODUCT_REVIEW_AGGREGATE,
+            "product-100",
+            ProductServiceCommunicationType.REQUEST,
+            ProductServiceCommunicationSenderType.PRODUCT,
+            null,
+            "GET /api/reviews/aggregate?productId=100",
+            requestPayload
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
 
         ProductServiceCommunicationHistory captured = captor.getValue();
@@ -561,23 +561,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
         errorPayload.put("attempt", 3);
 
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.INVENTORY,
-                "product-200",
-                ProductServiceCommunicationType.REQUEST,
-                ProductServiceCommunicationSenderType.PRODUCT,
-                "RestClientException",
-                "POST /api/inventory/stocks",
-                errorPayload
+            ProductServiceCommunicationTargetType.INVENTORY,
+            "product-200",
+            ProductServiceCommunicationType.REQUEST,
+            ProductServiceCommunicationSenderType.PRODUCT,
+            "RestClientException",
+            "POST /api/inventory/stocks",
+            errorPayload
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
 
         ProductServiceCommunicationHistory captured = captor.getValue();
@@ -597,23 +597,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
         responsePayload.put("message", "Internal Server Error");
 
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.PRODUCT_IMAGE,
-                "image-300",
-                ProductServiceCommunicationType.RESPONSE,
-                ProductServiceCommunicationSenderType.FILE,
-                "HttpServerErrorException",
-                "500 Internal Server Error",
-                responsePayload
+            ProductServiceCommunicationTargetType.PRODUCT_IMAGE,
+            "image-300",
+            ProductServiceCommunicationType.RESPONSE,
+            ProductServiceCommunicationSenderType.FILE,
+            "HttpServerErrorException",
+            "500 Internal Server Error",
+            responsePayload
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
 
         ProductServiceCommunicationHistory captured = captor.getValue();
@@ -638,23 +638,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
         requestPayload.set("body", requestBody);
 
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.FULFILLMENT_GOODS,
-                "goods-500",
-                ProductServiceCommunicationType.REQUEST,
-                ProductServiceCommunicationSenderType.PRODUCT,
-                null,
-                "POST /api/goods",
-                requestPayload
+            ProductServiceCommunicationTargetType.FULFILLMENT_GOODS,
+            "goods-500",
+            ProductServiceCommunicationType.REQUEST,
+            ProductServiceCommunicationSenderType.PRODUCT,
+            null,
+            "POST /api/goods",
+            requestPayload
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
 
         ProductServiceCommunicationHistory captured = captor.getValue();
@@ -671,23 +671,23 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
     void record_fulfillmentGoodsElementFailure_savesCorrectly() {
         // given
         ProductServiceCommunicationHistoryCommand command = buildCommand(
-                ProductServiceCommunicationTargetType.FULFILLMENT_GOODS_ELEMENT,
-                "element-600",
-                ProductServiceCommunicationType.RESPONSE,
-                ProductServiceCommunicationSenderType.FULFILLMENT,
-                "ResourceAccessException",
-                "I/O error on GET request",
-                null
+            ProductServiceCommunicationTargetType.FULFILLMENT_GOODS_ELEMENT,
+            "element-600",
+            ProductServiceCommunicationType.RESPONSE,
+            ProductServiceCommunicationSenderType.FULFILLMENT,
+            "ResourceAccessException",
+            "I/O error on GET request",
+            null
         );
         when(saveServiceCommunicationHistoryPort.save(any(ProductServiceCommunicationHistory.class)))
-                .thenReturn(buildMinimalHistory());
+            .thenReturn(buildMinimalHistory());
 
         // when
         recordService.record(command);
 
         // then
         ArgumentCaptor<ProductServiceCommunicationHistory> captor =
-                ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
+            ArgumentCaptor.forClass(ProductServiceCommunicationHistory.class);
         verify(saveServiceCommunicationHistoryPort).save(captor.capture());
 
         ProductServiceCommunicationHistory captured = captor.getValue();
@@ -703,15 +703,39 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
     // --- Helper Methods ---
 
     private ProductServiceCommunicationHistoryCommand buildCommand(
-            ProductServiceCommunicationTargetType targetType,
-            String targetId,
-            ProductServiceCommunicationType communicationType,
-            ProductServiceCommunicationSenderType sender,
-            String exception,
-            String payload,
-            JsonNode payloadJson
+        ProductServiceCommunicationTargetType targetType,
+        String targetId,
+        ProductServiceCommunicationType communicationType,
+        ProductServiceCommunicationSenderType sender,
+        String exception,
+        String payload,
+        JsonNode payloadJson
     ) {
         return ProductServiceCommunicationHistoryCommand.builder()
+            .targetType(targetType)
+            .targetId(targetId)
+            .communicationType(communicationType)
+            .sender(sender)
+            .exception(exception)
+            .payload(payload)
+            .payloadJson(payloadJson)
+            .build();
+    }
+
+    private ProductServiceCommunicationHistory buildHistory(
+        Long id,
+        ProductServiceCommunicationTargetType targetType,
+        String targetId,
+        ProductServiceCommunicationType communicationType,
+        ProductServiceCommunicationSenderType sender,
+        String exception,
+        String payload,
+        JsonNode payloadJson,
+        LocalDateTime createdAt
+    ) {
+        return ProductServiceCommunicationHistory.from(
+            ProductServiceCommunicationHistorySnapshotState.builder()
+                .id(id)
                 .targetType(targetType)
                 .targetId(targetId)
                 .communicationType(communicationType)
@@ -719,44 +743,20 @@ class RecordProductServiceCommunicationHistoryUseCaseTest {
                 .exception(exception)
                 .payload(payload)
                 .payloadJson(payloadJson)
-                .build();
-    }
-
-    private ProductServiceCommunicationHistory buildHistory(
-            Long id,
-            ProductServiceCommunicationTargetType targetType,
-            String targetId,
-            ProductServiceCommunicationType communicationType,
-            ProductServiceCommunicationSenderType sender,
-            String exception,
-            String payload,
-            JsonNode payloadJson,
-            LocalDateTime createdAt
-    ) {
-        return ProductServiceCommunicationHistory.from(
-                ProductServiceCommunicationHistorySnapshotState.builder()
-                        .id(id)
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .communicationType(communicationType)
-                        .sender(sender)
-                        .exception(exception)
-                        .payload(payload)
-                        .payloadJson(payloadJson)
-                        .createdAt(createdAt)
-                        .build()
+                .createdAt(createdAt)
+                .build()
         );
     }
 
     private ProductServiceCommunicationHistory buildMinimalHistory() {
         return ProductServiceCommunicationHistory.from(
-                ProductServiceCommunicationHistorySnapshotState.builder()
-                        .id(1L)
-                        .targetType(ProductServiceCommunicationTargetType.INVENTORY)
-                        .communicationType(ProductServiceCommunicationType.REQUEST)
-                        .sender(ProductServiceCommunicationSenderType.PRODUCT)
-                        .createdAt(LocalDateTime.now())
-                        .build()
+            ProductServiceCommunicationHistorySnapshotState.builder()
+                .id(1L)
+                .targetType(ProductServiceCommunicationTargetType.INVENTORY)
+                .communicationType(ProductServiceCommunicationType.REQUEST)
+                .sender(ProductServiceCommunicationSenderType.PRODUCT)
+                .createdAt(LocalDateTime.now())
+                .build()
         );
     }
 }

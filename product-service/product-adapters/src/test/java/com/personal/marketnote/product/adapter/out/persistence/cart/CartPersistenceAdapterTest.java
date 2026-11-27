@@ -47,23 +47,23 @@ class CartPersistenceAdapterTest {
     @BeforeEach
     void setUp() {
         pricePolicy = PricePolicy.from(
-                PricePolicySnapshotState.builder()
-                        .id(500L)
-                        .price(10_000L)
-                        .discountPrice(8_000L)
-                        .discountRate(Rate.of(BigDecimal.valueOf(20.0)))
-                        .accumulatedPoint(100L)
-                        .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
-                        .build()
+            PricePolicySnapshotState.builder()
+                .id(500L)
+                .price(10_000L)
+                .discountPrice(8_000L)
+                .discountRate(Rate.of(BigDecimal.valueOf(20.0)))
+                .accumulatedPoint(100L)
+                .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
+                .build()
         );
         cartProduct = CartProduct.from(
-                CartProductCreateState.builder()
-                        .userId(10L)
-                        .sharerKey(UUID.randomUUID())
-                        .pricePolicy(pricePolicy)
-                        .imageUrl("https://cdn.example.com/img.png")
-                        .quantity((short) 2)
-                        .build()
+            CartProductCreateState.builder()
+                .userId(10L)
+                .sharerKey(UUID.randomUUID())
+                .pricePolicy(pricePolicy)
+                .imageUrl("https://cdn.example.com/img.png")
+                .quantity((short) 2)
+                .build()
         );
     }
 
@@ -81,9 +81,9 @@ class CartPersistenceAdapterTest {
             when(cartJpaRepository.save(any(CartProductJpaEntity.class))).thenReturn(savedEntity);
 
             try (MockedStatic<CartJpaEntityToDomainMapper> mapperMock
-                         = Mockito.mockStatic(CartJpaEntityToDomainMapper.class)) {
+                     = Mockito.mockStatic(CartJpaEntityToDomainMapper.class)) {
                 mapperMock.when(() -> CartJpaEntityToDomainMapper.mapToDomain(savedEntity))
-                        .thenReturn(Optional.of(cartProduct));
+                    .thenReturn(Optional.of(cartProduct));
 
                 CartProduct result = adapter.save(cartProduct);
 
@@ -121,7 +121,7 @@ class CartPersistenceAdapterTest {
         @DisplayName("엔티티가 없으면 empty를 반환한다")
         void returnsEmpty() {
             when(cartJpaRepository.findByIdUserIdAndPricePolicyId(10L, 500L))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             Optional<CartProduct> result = adapter.findCartProductByUserIdAndPricePolicyId(10L, 500L);
 
@@ -154,7 +154,7 @@ class CartPersistenceAdapterTest {
         void updatesEntityInPlaceWhenPolicyUnchanged() {
             CartProductJpaEntity existingEntity = mock(CartProductJpaEntity.class);
             when(cartJpaRepository.findByIdUserIdAndPricePolicyId(10L, 500L))
-                    .thenReturn(Optional.of(existingEntity));
+                .thenReturn(Optional.of(existingEntity));
 
             adapter.update(cartProduct, 500L);
 
@@ -167,29 +167,29 @@ class CartPersistenceAdapterTest {
         @DisplayName("가격 정책이 바뀌면 기존 엔티티 삭제 후 새 엔티티를 저장한다")
         void deletesAndInsertsWhenPolicyChanged() {
             PricePolicy newPricePolicy = PricePolicy.from(
-                    PricePolicySnapshotState.builder()
-                            .id(600L)
-                            .price(5_000L)
-                            .discountPrice(4_000L)
-                            .discountRate(Rate.of(BigDecimal.valueOf(20.0)))
-                            .accumulatedPoint(50L)
-                            .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
-                            .build()
+                PricePolicySnapshotState.builder()
+                    .id(600L)
+                    .price(5_000L)
+                    .discountPrice(4_000L)
+                    .discountRate(Rate.of(BigDecimal.valueOf(20.0)))
+                    .accumulatedPoint(50L)
+                    .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
+                    .build()
             );
             CartProduct changedCartProduct = CartProduct.from(
-                    CartProductCreateState.builder()
-                            .userId(10L)
-                            .sharerKey(UUID.randomUUID())
-                            .pricePolicy(newPricePolicy)
-                            .imageUrl("https://cdn.example.com/new.png")
-                            .quantity((short) 1)
-                            .build()
+                CartProductCreateState.builder()
+                    .userId(10L)
+                    .sharerKey(UUID.randomUUID())
+                    .pricePolicy(newPricePolicy)
+                    .imageUrl("https://cdn.example.com/new.png")
+                    .quantity((short) 1)
+                    .build()
             );
 
             CartProductJpaEntity existingEntity = mock(CartProductJpaEntity.class);
             PricePolicyJpaEntity newPricePolicyRef = mock(PricePolicyJpaEntity.class);
             when(cartJpaRepository.findByIdUserIdAndPricePolicyId(10L, 500L))
-                    .thenReturn(Optional.of(existingEntity));
+                .thenReturn(Optional.of(existingEntity));
             when(pricePolicyJpaRepository.getReferenceById(600L)).thenReturn(newPricePolicyRef);
             when(newPricePolicyRef.getId()).thenReturn(600L);
 
@@ -206,10 +206,10 @@ class CartPersistenceAdapterTest {
         @DisplayName("기존 엔티티가 없으면 CartProductNotFoundException을 던진다")
         void throwsWhenNotFound() {
             when(cartJpaRepository.findByIdUserIdAndPricePolicyId(10L, 500L))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> adapter.update(cartProduct, 500L))
-                    .isInstanceOf(CartProductNotFoundException.class);
+                .isInstanceOf(CartProductNotFoundException.class);
         }
     }
 

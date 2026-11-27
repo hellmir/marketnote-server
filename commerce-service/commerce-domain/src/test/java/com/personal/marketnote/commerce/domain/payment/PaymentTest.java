@@ -21,10 +21,10 @@ class PaymentTest {
         void shouldCreatePaymentFromCreateState() {
             UUID orderKey = UUID.randomUUID();
             PaymentCreateState state = PaymentCreateState.builder()
-                    .orderId(1L)
-                    .orderKey(orderKey)
-                    .paymentAmount(50000L)
-                    .build();
+                .orderId(1L)
+                .orderKey(orderKey)
+                .paymentAmount(50000L)
+                .build();
 
             Payment payment = Payment.from(state);
 
@@ -47,15 +47,15 @@ class PaymentTest {
         void shouldRestorePaymentFromSnapshot() {
             UUID orderKey = UUID.randomUUID();
             PaymentSnapshotState state = PaymentSnapshotState.builder()
-                    .id(10L)
-                    .orderId(1L)
-                    .orderKey(orderKey)
-                    .pgPaymentKey("T0000_tno_123")
-                    .paymentAmount(50000L)
-                    .successYn(true)
-                    .refundedYn(false)
-                    .refundAmount(0L)
-                    .build();
+                .id(10L)
+                .orderId(1L)
+                .orderKey(orderKey)
+                .pgPaymentKey("T0000_tno_123")
+                .paymentAmount(50000L)
+                .successYn(true)
+                .refundedYn(false)
+                .refundAmount(0L)
+                .build();
 
             Payment payment = Payment.from(state);
 
@@ -158,19 +158,19 @@ class PaymentTest {
 
     private Payment createDefaultPayment() {
         PaymentCreateState state = PaymentCreateState.builder()
-                .orderId(1L)
-                .orderKey(UUID.randomUUID())
-                .paymentAmount(50000L)
-                .build();
+            .orderId(1L)
+            .orderKey(UUID.randomUUID())
+            .paymentAmount(50000L)
+            .build();
         return Payment.from(state);
     }
 
     private Payment createSuccessfulPayment(Long amount) {
         PaymentCreateState state = PaymentCreateState.builder()
-                .orderId(1L)
-                .orderKey(UUID.randomUUID())
-                .paymentAmount(amount)
-                .build();
+            .orderId(1L)
+            .orderKey(UUID.randomUUID())
+            .paymentAmount(amount)
+            .build();
         Payment payment = Payment.from(state);
         payment.markAsSuccess("tno_test");
         return payment;

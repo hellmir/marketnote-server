@@ -138,9 +138,9 @@ class ImageEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         List<ImageEventCommand> commands = List.of(
-                new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of()),
-                new ImageEventCommand(2L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/2.png", 2, List.of()),
-                new ImageEventCommand(3L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/3.png", 3, List.of())
+            new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of()),
+            new ImageEventCommand(2L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/2.png", 2, List.of()),
+            new ImageEventCommand(3L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/3.png", 3, List.of())
         );
 
         // when
@@ -170,17 +170,17 @@ class ImageEventKafkaProducerTest {
         setUpClock("2026-03-27T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
         doThrow(new RuntimeException("DB connection failed"))
-                .when(saveOutboxEventPort).save(any(OutboxEvent.class));
+            .when(saveOutboxEventPort).save(any(OutboxEvent.class));
 
         List<ImageEventCommand> commands = List.of(
-                new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of()),
-                new ImageEventCommand(2L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/2.png", 2, List.of())
+            new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of()),
+            new ImageEventCommand(2L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/2.png", 2, List.of())
         );
 
         // when & then
         assertThatThrownBy(() -> imageEventKafkaProducer.publishImageCreatedEvents(commands))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("DB connection failed");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("DB connection failed");
 
         // 첫번째 이벤트만 save 시도되고 두번째는 처리되지 않는다
         verify(saveOutboxEventPort, times(1)).save(any(OutboxEvent.class));
@@ -192,15 +192,15 @@ class ImageEventKafkaProducerTest {
         // given
         setUpClock("2026-03-27T10:00:00Z");
         when(objectMapper.writeValueAsString(any()))
-                .thenThrow(new TestJsonProcessingException("Serialization failed"));
+            .thenThrow(new TestJsonProcessingException("Serialization failed"));
 
         ImageEventCommand command = new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of());
         List<ImageEventCommand> commands = List.of(command);
 
         // when & then
         assertThatThrownBy(() -> imageEventKafkaProducer.publishImageCreatedEvents(commands))
-                .isInstanceOf(ImageEventSerializationException.class)
-                .hasCauseInstanceOf(JsonProcessingException.class);
+            .isInstanceOf(ImageEventSerializationException.class)
+            .hasCauseInstanceOf(JsonProcessingException.class);
         verifyNoInteractions(saveOutboxEventPort);
     }
 

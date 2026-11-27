@@ -40,18 +40,18 @@ public class FulfillmentSwaggerConfig {
     private final SwaggerOrigin swaggerOrigin;
 
     private static final List<String> TAGS_ORDER = List.of(
-            "파스토 인증 API",
-            "파스토 공급사 API",
-            "파스토 상품 입고 API",
-            "파스토 출고 API",
-            "파스토 반품 API",
-            "파스토 상품 API",
-            "파스토 재고 API",
-            "파스토 출고처 API",
-            "파스토 정산 API",
-            "Outbox API",
-            "DLT API",
-            "서버 정보 API"
+        "파스토 인증 API",
+        "파스토 공급사 API",
+        "파스토 상품 입고 API",
+        "파스토 출고 API",
+        "파스토 반품 API",
+        "파스토 상품 API",
+        "파스토 재고 API",
+        "파스토 출고처 API",
+        "파스토 정산 API",
+        "Outbox API",
+        "DLT API",
+        "서버 정보 API"
     );
 
     private static final Map<String, Integer> ORDER_MAP = new ConcurrentHashMap<>();
@@ -80,8 +80,8 @@ public class FulfillmentSwaggerConfig {
 
                 if (FormatValidator.hasNoValue(p1) && FormatValidator.hasNoValue(p2)) {
                     return Integer.compare(
-                            originalIndex.getOrDefault(t1.getName(), Integer.MAX_VALUE),
-                            originalIndex.getOrDefault(t2.getName(), Integer.MAX_VALUE)
+                        originalIndex.getOrDefault(t1.getName(), Integer.MAX_VALUE),
+                        originalIndex.getOrDefault(t2.getName(), Integer.MAX_VALUE)
                     );
                 }
 
@@ -105,24 +105,24 @@ public class FulfillmentSwaggerConfig {
         OpenAPI openApi = new OpenAPI();
 
         io.swagger.v3.oas.models.security.SecurityScheme securityScheme = new io.swagger.v3.oas.models.security.SecurityScheme()
-                .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP)
-                .scheme("bearer")
-                .bearerFormat("JWT")
-                .in(io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER)
-                .name(HttpHeaders.AUTHORIZATION);
+            .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP)
+            .scheme("bearer")
+            .bearerFormat("JWT")
+            .in(io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER)
+            .name(HttpHeaders.AUTHORIZATION);
 
         String label = SwaggerEnvironment.resolveLabel(environment.getActiveProfiles());
 
         openApi.info(new Info()
-                        .title(buildTitle(label))
-                        .description(buildDescription(label))
-                        .version("1.0"))
-                .components(new Components()
-                        .addSecuritySchemes("bearer", securityScheme))
-                .addSecurityItem(new SecurityRequirement().addList("bearer"))
-                .servers(List.of(
-                        new Server().url(serverOrigin)
-                ));
+                .title(buildTitle(label))
+                .description(buildDescription(label))
+                .version("1.0"))
+            .components(new Components()
+                .addSecuritySchemes("bearer", securityScheme))
+            .addSecurityItem(new SecurityRequirement().addList("bearer"))
+            .servers(List.of(
+                new Server().url(serverOrigin)
+            ));
 
         return openApi;
     }
@@ -137,14 +137,14 @@ public class FulfillmentSwaggerConfig {
         String header = "마켓노트 서비스 " + envPart + SERVICE_NAME + " API 서버입니다.";
 
         String links = Arrays.stream(SwaggerServiceSubdomain.values())
-                .map(subdomain -> subdomain.markdownLink(swaggerOrigin.scheme(), swaggerOrigin.baseHost()))
-                .collect(Collectors.joining("\n\n"));
+            .map(subdomain -> subdomain.markdownLink(swaggerOrigin.scheme(), swaggerOrigin.baseHost()))
+            .collect(Collectors.joining("\n\n"));
 
         return """
-                %s
+            %s
 
-                ### 서비스 목록
-                %s
-                """.formatted(header, links);
+            ### 서비스 목록
+            %s
+            """.formatted(header, links);
     }
 }

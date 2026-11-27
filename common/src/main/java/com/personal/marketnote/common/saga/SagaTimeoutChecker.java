@@ -27,9 +27,9 @@ public class SagaTimeoutChecker {
 
     @Scheduled(fixedDelayString = "${saga.check-interval-ms:30000}")
     @SchedulerLock(
-            name = "${spring.application.name}-" + ShedLockNames.SAGA_TIMEOUT_CHECK,
-            lockAtMostFor = "PT2M30S",
-            lockAtLeastFor = "PT5S"
+        name = "${spring.application.name}-" + ShedLockNames.SAGA_TIMEOUT_CHECK,
+        lockAtMostFor = "PT2M30S",
+        lockAtLeastFor = "PT5S"
     )
     public void checkTimeouts() {
         checkProcessingTimeouts();
@@ -38,7 +38,7 @@ public class SagaTimeoutChecker {
 
     private void checkProcessingTimeouts() {
         LocalDateTime cutoff = LocalDateTime.now(clock)
-                .minus(sagaProperties.getTimeoutMs(), ChronoUnit.MILLIS);
+            .minus(sagaProperties.getTimeoutMs(), ChronoUnit.MILLIS);
         List<SagaInstance> timedOutInstances = findSagaPort.findTimedOutProcessingInstances(cutoff);
 
         for (SagaInstance instance : timedOutInstances) {
@@ -48,7 +48,7 @@ public class SagaTimeoutChecker {
 
     private void checkCompensatingTimeouts() {
         LocalDateTime cutoff = LocalDateTime.now(clock)
-                .minus(sagaProperties.getCompensationTimeoutMs(), ChronoUnit.MILLIS);
+            .minus(sagaProperties.getCompensationTimeoutMs(), ChronoUnit.MILLIS);
         List<SagaInstance> timedOutInstances = findSagaPort.findTimedOutCompensatingInstances(cutoff);
 
         for (SagaInstance instance : timedOutInstances) {
@@ -59,7 +59,7 @@ public class SagaTimeoutChecker {
     private void handleProcessingTimeoutSafely(SagaInstance instance) {
         try {
             log.warn("SAGA PROCESSING 타임아웃 감지. sagaId={}, sagaType={}, modifiedAt={}",
-                    instance.getSagaId(), instance.getSagaType(), instance.getModifiedAt()
+                instance.getSagaId(), instance.getSagaType(), instance.getModifiedAt()
             );
             sagaOrchestrator.handleProcessingTimeout(instance.getSagaId());
         } catch (Exception e) {
@@ -70,7 +70,7 @@ public class SagaTimeoutChecker {
     private void handleCompensatingTimeoutSafely(SagaInstance instance) {
         try {
             log.warn("SAGA COMPENSATING 타임아웃 감지. sagaId={}, sagaType={}, modifiedAt={}",
-                    instance.getSagaId(), instance.getSagaType(), instance.getModifiedAt()
+                instance.getSagaId(), instance.getSagaType(), instance.getModifiedAt()
             );
             sagaOrchestrator.handleCompensationTimeout(instance.getSagaId());
         } catch (Exception e) {

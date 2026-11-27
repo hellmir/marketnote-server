@@ -38,25 +38,25 @@ public class AligoBrandTalkController {
     @PostMapping("/send")
     @PreAuthorize(ADMIN_POINTCUT)
     public ResponseEntity<BaseResponse<SendBrandTalkResponse>> sendBrandTalk(
-            @Valid @RequestBody SendBrandTalkRequest request
+        @Valid @RequestBody SendBrandTalkRequest request
     ) {
         List<BrandTalkRecipientCommand> recipientCommands = request.recipients().stream()
-                .map(r -> new BrandTalkRecipientCommand(r.receiver(), r.variables()))
-                .toList();
+            .map(r -> new BrandTalkRecipientCommand(r.receiver(), r.variables()))
+            .toList();
 
         BrandTalkFailoverCommand failoverCommand = mapFailover(request.failover());
 
         SendBrandTalkCommand command = new SendBrandTalkCommand(
-                request.senderKey(), request.sender(), request.templateCode(),
-                request.kakaoTarget(), request.advertYn(), recipientCommands, failoverCommand
+            request.senderKey(), request.sender(), request.templateCode(),
+            request.kakaoTarget(), request.advertYn(), recipientCommands, failoverCommand
         );
 
         SendBrandTalkResult result = sendBrandTalkUseCase.sendBrandTalk(command);
         SendBrandTalkResponse response = SendBrandTalkResponse.from(result);
 
         return new ResponseEntity<>(
-                BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "브랜드메시지 발송 성공"),
-                HttpStatus.OK
+            BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "브랜드메시지 발송 성공"),
+            HttpStatus.OK
         );
     }
 
@@ -65,8 +65,8 @@ public class AligoBrandTalkController {
             return null;
         }
         return new BrandTalkFailoverCommand(
-                failover.enabled(), failover.subject(), failover.failoverType(),
-                List.of(), List.of()
+            failover.enabled(), failover.subject(), failover.failoverType(),
+            List.of(), List.of()
         );
     }
 }

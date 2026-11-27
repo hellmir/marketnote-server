@@ -35,20 +35,20 @@ class GetSellerSettlementsUseCaseTest {
                                         Long totalAllocated, Long pgFee, Long platformFee,
                                         Long sellerPayout, SettlementStatus status) {
         return Settlement.from(SettlementSnapshotState.builder()
-                .id(id)
-                .sellerId(sellerId)
-                .year(year)
-                .month(month)
-                .totalAllocatedAmount(totalAllocated)
-                .pgFeeAmount(pgFee)
-                .platformFeeAmount(platformFee)
-                .sellerPayoutAmount(sellerPayout)
-                .status(status)
-                .version(0L)
-                .createdAt(LocalDateTime.of(2026, 2, 16, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 2, 16, 10, 0))
-                .shippingFee(0L)
-                .build());
+            .id(id)
+            .sellerId(sellerId)
+            .year(year)
+            .month(month)
+            .totalAllocatedAmount(totalAllocated)
+            .pgFeeAmount(pgFee)
+            .platformFeeAmount(platformFee)
+            .sellerPayoutAmount(sellerPayout)
+            .status(status)
+            .version(0L)
+            .createdAt(LocalDateTime.of(2026, 2, 16, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 2, 16, 10, 0))
+            .shippingFee(0L)
+            .build());
     }
 
     @Test
@@ -57,9 +57,9 @@ class GetSellerSettlementsUseCaseTest {
         // given
         Long sellerId = 10L;
         Settlement settlement = createSettlement(1L, sellerId, 2026, 2,
-                100000L, 3000L, 5000L, 92000L, SettlementStatus.COMPLETED);
+            100000L, 3000L, 5000L, 92000L, SettlementStatus.COMPLETED);
         when(findSettlementPort.findBySellerIdAndYearAndMonth(sellerId, 2026, 2))
-                .thenReturn(Optional.of(settlement));
+            .thenReturn(Optional.of(settlement));
 
         GetSellerSettlementsQuery query = GetSellerSettlementsQuery.of(sellerId, 2026, 2);
 
@@ -82,7 +82,7 @@ class GetSellerSettlementsUseCaseTest {
         // given
         Long sellerId = 10L;
         when(findSettlementPort.findBySellerIdAndYearAndMonth(sellerId, 2026, 3))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         GetSellerSettlementsQuery query = GetSellerSettlementsQuery.of(sellerId, 2026, 3);
 
@@ -101,11 +101,11 @@ class GetSellerSettlementsUseCaseTest {
         // given
         Long sellerId = 10L;
         Settlement jan = createSettlement(1L, sellerId, 2026, 1,
-                100000L, 3000L, 5000L, 92000L, SettlementStatus.COMPLETED);
+            100000L, 3000L, 5000L, 92000L, SettlementStatus.COMPLETED);
         Settlement feb = createSettlement(2L, sellerId, 2026, 2,
-                200000L, 6000L, 10000L, 184000L, SettlementStatus.COMPLETED);
+            200000L, 6000L, 10000L, 184000L, SettlementStatus.COMPLETED);
         when(findSettlementPort.findAllBySellerIdAndYear(sellerId, 2026))
-                .thenReturn(List.of(jan, feb));
+            .thenReturn(List.of(jan, feb));
 
         GetSellerSettlementsQuery query = GetSellerSettlementsQuery.of(sellerId, 2026, null);
 
@@ -126,7 +126,7 @@ class GetSellerSettlementsUseCaseTest {
         // given
         Long sellerId = 10L;
         when(findSettlementPort.findAllBySellerIdAndYear(sellerId, 2025))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         GetSellerSettlementsQuery query = GetSellerSettlementsQuery.of(sellerId, 2025, null);
 
@@ -145,9 +145,9 @@ class GetSellerSettlementsUseCaseTest {
         // given
         Long sellerId = 15L;
         Settlement settlement = createSettlement(5L, sellerId, 2026, 3,
-                150000L, 4500L, 7500L, 138000L, SettlementStatus.COMPLETED);
+            150000L, 4500L, 7500L, 138000L, SettlementStatus.COMPLETED);
         when(findSettlementPort.findBySellerIdAndYearAndMonth(sellerId, 2026, 3))
-                .thenReturn(Optional.of(settlement));
+            .thenReturn(Optional.of(settlement));
 
         GetSellerSettlementsQuery query = GetSellerSettlementsQuery.of(sellerId, 2026, 3);
 
@@ -175,7 +175,7 @@ class GetSellerSettlementsUseCaseTest {
         // given
         Long sellerId = 99L;
         when(findSettlementPort.findAllBySellerIdAndYear(sellerId, 2026))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         GetSellerSettlementsQuery query = GetSellerSettlementsQuery.of(sellerId, 2026, null);
 

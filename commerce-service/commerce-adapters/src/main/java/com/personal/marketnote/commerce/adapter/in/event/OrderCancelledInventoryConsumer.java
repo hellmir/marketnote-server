@@ -28,12 +28,12 @@ public class OrderCancelledInventoryConsumer {
     private final RestoreProductInventoryUseCase restoreProductInventoryUseCase;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_CANCELLED,
-            groupId = "commerce-order-cancelled-inventory"
+        topics = KafkaTopicConstants.ORDER_CANCELLED,
+        groupId = "commerce-order-cancelled-inventory"
     )
     public void handleOrderCancelledEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -51,11 +51,11 @@ public class OrderCancelledInventoryConsumer {
             OrderCancelledEvent payload = envelope.getPayloadAs(OrderCancelledEvent.class, objectMapper);
 
             log.info("주문 취소 이벤트 수신 (재고 복구). eventId={}, orderId={}, isFullCancel={}",
-                    envelope.eventId(), payload.orderId(), payload.isFullCancel()
+                envelope.eventId(), payload.orderId(), payload.isFullCancel()
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                    envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
             )) {
                 acknowledgment.acknowledge();
                 return;
@@ -73,7 +73,7 @@ public class OrderCancelledInventoryConsumer {
         } catch (Exception e) {
             // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수
             log.error("주문 취소 재고 복구 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e
+                envelope.eventId(), record.key(), e.getMessage(), e
             );
             throw e;
         }
@@ -91,7 +91,7 @@ public class OrderCancelledInventoryConsumer {
         restoreProductInventoryUseCase.restore(orderProducts, payload.orderId(), "주문 취소 전액 재고 복구");
 
         log.info("주문 취소 전체 재고 복구 완료. orderId={}, orderProducts={}건",
-                payload.orderId(), payload.orderProducts().size()
+            payload.orderId(), payload.orderProducts().size()
         );
     }
 
@@ -111,15 +111,15 @@ public class OrderCancelledInventoryConsumer {
 
     private List<OrderProduct> convertToOrderProducts(List<OrderProductItem> items) {
         return items.stream()
-                .map(item -> OrderProduct.from(
-                        OrderProductSnapshotState.builder()
-                                .pricePolicyId(item.pricePolicyId())
-                                .quantity(item.quantity())
-                                .unitAmount(item.unitAmount())
-                                .sharerKey(item.sharerKey())
-                                .accumulatedPoint(0L)
-                                .build()
-                ))
-                .toList();
+            .map(item -> OrderProduct.from(
+                OrderProductSnapshotState.builder()
+                    .pricePolicyId(item.pricePolicyId())
+                    .quantity(item.quantity())
+                    .unitAmount(item.unitAmount())
+                    .sharerKey(item.sharerKey())
+                    .accumulatedPoint(0L)
+                    .build()
+            ))
+            .toList();
     }
 }

@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record PaymentFailedEvent(
-        Long orderId,
-        String orderKey,
-        String resultCode,
-        String resultMessage
+    Long orderId,
+    String orderKey,
+    String resultCode,
+    String resultMessage
 ) {
 }

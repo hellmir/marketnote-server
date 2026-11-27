@@ -30,11 +30,11 @@ import java.util.List;
 public final class CachePolymorphicTypeValidatorFactory {
 
     private static final List<String> ALLOWED_PREFIXES = List.of(
-            "com.personal.marketnote.",
-            "java.util.",
-            "java.time.",
-            "java.math.",
-            "java.lang."
+        "com.personal.marketnote.",
+        "java.util.",
+        "java.time.",
+        "java.math.",
+        "java.lang."
     );
 
     private CachePolymorphicTypeValidatorFactory() {

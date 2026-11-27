@@ -53,12 +53,12 @@ class OrderCancelledSettlementConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, String cancelId) {
         OrderCancelledEvent event = new OrderCancelledEvent(
-                orderId, "order-key-1", 1L, 50000L, 50000L, 0L, 3000L,
-                true, 0L, List.of(), List.of(), cancelId
+            orderId, "order-key-1", 1L, 50000L, 50000L, 0L, 3000L,
+            true, 0L, List.of(), List.of(), cancelId
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.cancelled", "commerce-service",
-                LocalDateTime.of(2026, 4, 8, 10, 0), event
+            "test-event-id", "commerce.order.cancelled", "commerce-service",
+            LocalDateTime.of(2026, 4, 8, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.cancelled", 0, 0L, String.valueOf(orderId), envelope);
     }
@@ -66,16 +66,16 @@ class OrderCancelledSettlementConsumerTest {
     private PaymentAllocation createOriginalAllocation(Long id, Long orderId, Long sellerId,
                                                        Long allocatedAmount, Long shippingFee) {
         return PaymentAllocation.from(PaymentAllocationSnapshotState.builder()
-                .id(id)
-                .orderId(orderId)
-                .sellerId(sellerId)
-                .allocatedAmount(allocatedAmount)
-                .shippingFee(shippingFee)
-                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                .targetType(PaymentAllocationTargetType.ORDER)
-                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:" + orderId + ":" + sellerId))
-                .createdAt(LocalDateTime.of(2026, 4, 7, 10, 0))
-                .build());
+            .id(id)
+            .orderId(orderId)
+            .sellerId(sellerId)
+            .allocatedAmount(allocatedAmount)
+            .shippingFee(shippingFee)
+            .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+            .targetType(PaymentAllocationTargetType.ORDER)
+            .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:" + orderId + ":" + sellerId))
+            .createdAt(LocalDateTime.of(2026, 4, 7, 10, 0))
+            .build());
     }
 
     @Test
@@ -161,7 +161,7 @@ class OrderCancelledSettlementConsumerTest {
 
         PaymentAllocation cancellation = captor.getValue().get(0);
         assertThat(cancellation.getIdempotencyKey().getValue())
-                .isEqualTo("ORDER_CANCELLATION_ALLOCATION:100:10:cancel-uuid-123");
+            .isEqualTo("ORDER_CANCELLATION_ALLOCATION:100:10:cancel-uuid-123");
     }
 
     @Test
@@ -184,7 +184,7 @@ class OrderCancelledSettlementConsumerTest {
 
         PaymentAllocation cancellation = captor.getValue().get(0);
         assertThat(cancellation.getIdempotencyKey().getValue())
-                .isEqualTo("ORDER_CANCELLATION_ALLOCATION:200:20");
+            .isEqualTo("ORDER_CANCELLATION_ALLOCATION:200:20");
     }
 
     @Test
@@ -209,9 +209,9 @@ class OrderCancelledSettlementConsumerTest {
 
         List<List<PaymentAllocation>> allValues = captor.getAllValues();
         assertThat(allValues.get(0).get(0).getIdempotencyKey().getValue())
-                .isEqualTo("ORDER_CANCELLATION_ALLOCATION:300:30:cancel-1");
+            .isEqualTo("ORDER_CANCELLATION_ALLOCATION:300:30:cancel-1");
         assertThat(allValues.get(1).get(0).getIdempotencyKey().getValue())
-                .isEqualTo("ORDER_CANCELLATION_ALLOCATION:300:30:cancel-2");
+            .isEqualTo("ORDER_CANCELLATION_ALLOCATION:300:30:cancel-2");
     }
 
     @Test
@@ -222,7 +222,7 @@ class OrderCancelledSettlementConsumerTest {
         PaymentAllocation original = createOriginalAllocation(4L, orderId, 40L, 20000L, 3000L);
         when(findPaymentAllocationPort.findByOrderId(orderId)).thenReturn(List.of(original));
         doThrow(new DataIntegrityViolationException("duplicate idempotency key"))
-                .when(savePaymentAllocationPort).saveAll(anyList());
+            .when(savePaymentAllocationPort).saveAll(anyList());
 
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(orderId, "cancel-duplicate");
 

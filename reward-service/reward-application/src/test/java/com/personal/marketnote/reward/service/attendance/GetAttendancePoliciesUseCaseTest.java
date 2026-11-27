@@ -33,22 +33,22 @@ class GetAttendancePoliciesUseCaseTest {
     void shouldReturnPoliciesOrderedByOrderNumDesc() {
         // given
         AttendancePolicy policy1 = AttendancePolicy.from(
-                AttendancePolicySnapshotState.builder()
-                        .id((short) 1)
-                        .continuousPeriod(ContinuousPeriod.of((short) 1))
-                        .rewardType(AttendanceRewardType.POINT)
-                        .rewardQuantity(RewardQuantity.of(50L))
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            AttendancePolicySnapshotState.builder()
+                .id((short) 1)
+                .continuousPeriod(ContinuousPeriod.of((short) 1))
+                .rewardType(AttendanceRewardType.POINT)
+                .rewardQuantity(RewardQuantity.of(50L))
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
         AttendancePolicy policy2 = AttendancePolicy.from(
-                AttendancePolicySnapshotState.builder()
-                        .id((short) 2)
-                        .continuousPeriod(ContinuousPeriod.of((short) 7))
-                        .rewardType(AttendanceRewardType.POINT)
-                        .rewardQuantity(RewardQuantity.of(200L))
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            AttendancePolicySnapshotState.builder()
+                .id((short) 2)
+                .continuousPeriod(ContinuousPeriod.of((short) 7))
+                .rewardType(AttendanceRewardType.POINT)
+                .rewardQuantity(RewardQuantity.of(200L))
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
 
         when(findAttendancePolicyPort.findAllOrderByOrderNumDesc()).thenReturn(List.of(policy2, policy1));

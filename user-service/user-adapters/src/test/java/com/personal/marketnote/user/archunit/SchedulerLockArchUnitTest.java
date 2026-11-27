@@ -9,15 +9,15 @@ import com.tngtech.archunit.lang.ArchRule;
 import java.util.Set;
 
 @AnalyzeClasses(
-        packages = "com.personal.marketnote.user",
-        importOptions = {ImportOption.DoNotIncludeTests.class}
+    packages = "com.personal.marketnote.user",
+    importOptions = {ImportOption.DoNotIncludeTests.class}
 )
 class SchedulerLockArchUnitTest {
 
     @ArchTest
     static final ArchRule scheduledMethodsShouldHaveSchedulerLock =
-            SchedulerLockArchRules.scheduledMethodsShouldHaveSchedulerLock(Set.of());
+        SchedulerLockArchRules.scheduledMethodsShouldHaveSchedulerLock(Set.of());
     @ArchTest
     static final ArchRule schedulerLockMethodsMustDeclareLockAtMostFor =
-            SchedulerLockArchRules.schedulerLockMethodsMustDeclareLockAtMostFor(Set.of());
+        SchedulerLockArchRules.schedulerLockMethodsMustDeclareLockAtMostFor(Set.of());
 }

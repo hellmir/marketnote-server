@@ -6,7 +6,7 @@ public record SendAligoAlimTalkResponse(Long messageId, String aligoMid, int suc
 
     public static SendAligoAlimTalkResponse from(SendAligoAlimTalkResult result) {
         return new SendAligoAlimTalkResponse(
-                result.messageId(), result.aligoMid(), result.successCount(), result.failCount()
+            result.messageId(), result.aligoMid(), result.successCount(), result.failCount()
         );
     }
 }

@@ -6,8 +6,8 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfill
 import java.util.List;
 
 public record RegisterFulfillmentDirectReturnDeliveryResponse(
-        Integer dataCount,
-        List<RegisterFulfillmentDeliveryItemResult> deliveries
+    Integer dataCount,
+    List<RegisterFulfillmentDeliveryItemResult> deliveries
 ) {
     public static RegisterFulfillmentDirectReturnDeliveryResponse from(RegisterFulfillmentDeliveryResult result) {
         return new RegisterFulfillmentDirectReturnDeliveryResponse(result.dataCount(), result.deliveries());

@@ -31,14 +31,14 @@ public class RegisterQuickPaymentTransactionService implements RegisterQuickPaym
         RegisterQuickPaymentTransactionPortCommand portCommand = RegisterQuickPaymentTransactionPortCommand.of(transactionId);
 
         RegisterQuickPaymentTransactionPortResult portResult =
-                registerQuickPaymentTransactionPort.registerTransaction(portCommand);
+            registerQuickPaymentTransactionPort.registerTransaction(portCommand);
 
         if (!portResult.success()) {
             throw new QuickPaymentTransactionFailedException(portResult.resultCode(), portResult.resultMessage());
         }
 
         return RegisterQuickPaymentTransactionResult.of(
-                transactionId, portResult.approvalKey(), portResult.payUrl(), portResult.traceNo()
+            transactionId, portResult.approvalKey(), portResult.payUrl(), portResult.traceNo()
         );
     }
 }

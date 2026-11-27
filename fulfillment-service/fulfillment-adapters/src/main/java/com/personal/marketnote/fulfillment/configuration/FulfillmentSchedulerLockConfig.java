@@ -14,10 +14,10 @@ public class FulfillmentSchedulerLockConfig {
     @Bean
     public LockProvider lockProvider(JdbcTemplate jdbcTemplate) {
         return new JdbcTemplateLockProvider(
-                JdbcTemplateLockProvider.Configuration.builder()
-                        .withJdbcTemplate(jdbcTemplate)
-                        .usingDbTime()
-                        .build()
+            JdbcTemplateLockProvider.Configuration.builder()
+                .withJdbcTemplate(jdbcTemplate)
+                .usingDbTime()
+                .build()
         );
     }
 }

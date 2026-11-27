@@ -50,11 +50,11 @@ class PspPaymentEventPersistenceAdapterTest {
 
     private PspPaymentEvent createReadyEvent(Long orderId, UUID orderKey) {
         Payment payment = Payment.from(
-                PaymentCreateState.builder()
-                        .orderId(orderId)
-                        .orderKey(orderKey)
-                        .paymentAmount(50000L)
-                        .build()
+            PaymentCreateState.builder()
+                .orderId(orderId)
+                .orderKey(orderKey)
+                .paymentAmount(50000L)
+                .build()
         );
         return PspPaymentEvent.createReady(payment, "PG_COMPANY_KEY", "PG_MARKETNOTE_KEY", "CARD");
     }
@@ -185,7 +185,7 @@ class PspPaymentEventPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.update(nonExistent))
-                    .isInstanceOf(DomainNotFoundException.class);
+                .isInstanceOf(DomainNotFoundException.class);
         }
     }
 }

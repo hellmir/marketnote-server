@@ -32,23 +32,23 @@ class GetReportsUseCaseTest {
         ReportTargetType targetType = ReportTargetType.REVIEW;
         Long targetId = 1L;
         List<Report> reports = List.of(
-                Report.from(ReportSnapshotState.builder()
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .reporterId(100L)
-                        .reason("부적절한 콘텐츠")
-                        .createdAt(LocalDateTime.now())
-                        .build()),
-                Report.from(ReportSnapshotState.builder()
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .reporterId(200L)
-                        .reason("스팸 리뷰")
-                        .createdAt(LocalDateTime.now())
-                        .build())
+            Report.from(ReportSnapshotState.builder()
+                .targetType(targetType)
+                .targetId(targetId)
+                .reporterId(100L)
+                .reason("부적절한 콘텐츠")
+                .createdAt(LocalDateTime.now())
+                .build()),
+            Report.from(ReportSnapshotState.builder()
+                .targetType(targetType)
+                .targetId(targetId)
+                .reporterId(200L)
+                .reason("스팸 리뷰")
+                .createdAt(LocalDateTime.now())
+                .build())
         );
         when(findReportPort.findByTargetTypeAndTargetId(targetType, targetId))
-                .thenReturn(reports);
+            .thenReturn(reports);
 
         List<Report> result = getReportService.getReports(targetType, targetId);
 
@@ -64,7 +64,7 @@ class GetReportsUseCaseTest {
         ReportTargetType targetType = ReportTargetType.POST;
         Long targetId = 2L;
         when(findReportPort.findByTargetTypeAndTargetId(targetType, targetId))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         List<Report> result = getReportService.getReports(targetType, targetId);
 

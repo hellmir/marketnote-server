@@ -12,14 +12,14 @@ class BrandTalkTemplateTypeTest {
 
     @ParameterizedTest
     @CsvSource({
-            "TEXT, 텍스트",
-            "IMAGE, 이미지",
-            "WIDE, 와이드",
-            "WIDE_ITEM_LIST, 와이드 아이템 리스트",
-            "CAROUSEL_FEED, 캐러셀 피드",
-            "PREMIUM_VIDEO, 프리미엄 동영상",
-            "COMMERCE, 커머스",
-            "CAROUSEL_COMMERCE, 캐러셀 커머스"
+        "TEXT, 텍스트",
+        "IMAGE, 이미지",
+        "WIDE, 와이드",
+        "WIDE_ITEM_LIST, 와이드 아이템 리스트",
+        "CAROUSEL_FEED, 캐러셀 피드",
+        "PREMIUM_VIDEO, 프리미엄 동영상",
+        "COMMERCE, 커머스",
+        "CAROUSEL_COMMERCE, 캐러셀 커머스"
     })
     @DisplayName("BrandTalkTemplateType.from(String) — 8종 정상 매핑")
     void shouldMapAllEightTypes(String code, String expectedDescription) {
@@ -35,7 +35,7 @@ class BrandTalkTemplateTypeTest {
     @DisplayName("BrandTalkTemplateType.from(String) — 알 수 없는 값 시 예외")
     void shouldThrowExceptionForUnknownType() {
         assertThatThrownBy(() -> BrandTalkTemplateType.from("UNKNOWN"))
-                .isInstanceOf(InvalidBrandTalkTemplateTypeException.class);
+            .isInstanceOf(InvalidBrandTalkTemplateTypeException.class);
     }
 
     @Test

@@ -113,7 +113,7 @@ class ProductOptionJpaRepositoryTest {
             entityManager.clear();
 
             List<ProductOptionJpaEntity> results = productOptionJpaRepository.findByProductIdAndIds(
-                    productA.getId(), List.of(ownedA.getId(), foreignB.getId())
+                productA.getId(), List.of(ownedA.getId(), foreignB.getId())
             );
 
             assertThat(results).extracting(ProductOptionJpaEntity::getId).containsExactly(ownedA.getId());
@@ -130,11 +130,11 @@ class ProductOptionJpaRepositoryTest {
             entityManager.clear();
 
             List<ProductOptionJpaEntity> results = productOptionJpaRepository.findByProductIdAndIds(
-                    product.getId(), List.of(red.getId(), blue.getId())
+                product.getId(), List.of(red.getId(), blue.getId())
             );
 
             assertThat(results).extracting(ProductOptionJpaEntity::getId)
-                    .containsExactlyInAnyOrder(red.getId(), blue.getId());
+                .containsExactlyInAnyOrder(red.getId(), blue.getId());
         }
 
         @Test
@@ -148,7 +148,7 @@ class ProductOptionJpaRepositoryTest {
             entityManager.clear();
 
             List<ProductOptionJpaEntity> results = productOptionJpaRepository.findByProductIdAndIds(
-                    productA.getId(), List.of(foreign.getId())
+                productA.getId(), List.of(foreign.getId())
             );
 
             assertThat(results).isEmpty();
@@ -172,7 +172,7 @@ class ProductOptionJpaRepositoryTest {
             entityManager.clear();
 
             long count = productOptionJpaRepository.countByProductIdAndIds(
-                    productA.getId(), List.of(ownedA.getId(), foreignB.getId())
+                productA.getId(), List.of(ownedA.getId(), foreignB.getId())
             );
 
             assertThat(count).isEqualTo(1L);
@@ -215,24 +215,24 @@ class ProductOptionJpaRepositoryTest {
 
             assertThat(productOptionJpaRepository.findIdsByCategoryId(categoryA.getId())).isEmpty();
             assertThat(productOptionJpaRepository.findIdsByCategoryId(categoryB.getId()))
-                    .containsExactly(sizeL.getId());
+                .containsExactly(sizeL.getId());
         }
     }
 
     private ProductJpaEntity saveProduct(String name) {
         UUID productKey = RandomCodeGenerator.generateProductKey();
         Product product = Product.from(
-                ProductSnapshotState.builder()
-                        .productKey(productKey)
-                        .sellerId(1L)
-                        .name(name)
-                        .brandName("브랜드")
-                        .detail("설명")
-                        .findAllOptionsYn(false)
-                        .productTags(List.of())
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .productKey(productKey)
+                .sellerId(1L)
+                .name(name)
+                .brandName("브랜드")
+                .detail("설명")
+                .findAllOptionsYn(false)
+                .productTags(List.of())
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
         ProductJpaEntity entity = ProductJpaEntity.from(product);
         ProductJpaEntity saved = productJpaRepository.save(entity);
@@ -242,10 +242,10 @@ class ProductOptionJpaRepositoryTest {
 
     private ProductOptionCategoryJpaEntity saveOptionCategory(ProductJpaEntity product, String name) {
         ProductOptionCategoryCreateState state = ProductOptionCategoryCreateState.builder()
-                .product(null)
-                .name(name)
-                .optionStates(List.of())
-                .build();
+            .product(null)
+            .name(name)
+            .optionStates(List.of())
+            .build();
         ProductOptionCategory category = ProductOptionCategory.from(state);
         ProductOptionCategoryJpaEntity entity = ProductOptionCategoryJpaEntity.from(category, product);
         ProductOptionCategoryJpaEntity saved = productOptionCategoryJpaRepository.save(entity);
@@ -255,9 +255,9 @@ class ProductOptionJpaRepositoryTest {
 
     private ProductOptionJpaEntity saveOption(ProductOptionCategoryJpaEntity category, String content) {
         ProductOptionCreateState state = ProductOptionCreateState.builder()
-                .category(null)
-                .content(content)
-                .build();
+            .category(null)
+            .content(content)
+            .build();
         ProductOption option = ProductOption.from(state);
         ProductOptionJpaEntity entity = ProductOptionJpaEntity.from(category, option);
         entityManager.persist(entity);

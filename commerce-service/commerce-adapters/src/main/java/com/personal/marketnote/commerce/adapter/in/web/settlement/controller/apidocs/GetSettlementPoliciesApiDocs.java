@@ -12,37 +12,37 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Operation(
-        summary = "(관리자) 정산 정책 전체 조회",
-        description = """
-                작성일자: 2026-03-02
-                
-                작성자: 성효빈
-                
-                ---
-                
-                ## Description
-                
-                - 등록된 모든 정산 정책을 조회합니다.
-                
-                - 비활성화된 정책도 포함됩니다.
-                """,
-        security = {@SecurityRequirement(name = "bearer")},
-        responses = {
-                @ApiResponse(
-                        responseCode = "200",
-                        description = "정산 정책 전체 조회 성공",
-                        content = @Content(
-                                examples = @ExampleObject("""
-                                        {
-                                          "statusCode": 200,
-                                          "code": "SUC01",
-                                          "timestamp": "2026-03-02T12:00:00.000",
-                                          "content": [...],
-                                          "message": "정산 정책 전체 조회 성공"
-                                        }
-                                        """)
-                        )
-                )
-        })
+    summary = "(관리자) 정산 정책 전체 조회",
+    description = """
+        작성일자: 2026-03-02
+
+        작성자: 성효빈
+
+        ---
+
+        ## Description
+
+        - 등록된 모든 정산 정책을 조회합니다.
+
+        - 비활성화된 정책도 포함됩니다.
+        """,
+    security = {@SecurityRequirement(name = "bearer")},
+    responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "정산 정책 전체 조회 성공",
+            content = @Content(
+                examples = @ExampleObject("""
+                    {
+                      "statusCode": 200,
+                      "code": "SUC01",
+                      "timestamp": "2026-03-02T12:00:00.000",
+                      "content": [...],
+                      "message": "정산 정책 전체 조회 성공"
+                    }
+                    """)
+            )
+        )
+    })
 public @interface GetSettlementPoliciesApiDocs {
 }

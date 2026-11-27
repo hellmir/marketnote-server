@@ -63,14 +63,14 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
     private final Sleeper sleeper;
 
     public FulfillmentAuthClient(
-            RestClient.Builder restClientBuilder,
-            ObjectMapper objectMapper,
-            FulfillmentAuthProperties properties,
-            VendorCommunicationRecorder vendorCommunicationRecorder,
-            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            ExternalCallLogger externalCallLogger,
-            Sleeper sleeper
+        RestClient.Builder restClientBuilder,
+        ObjectMapper objectMapper,
+        FulfillmentAuthProperties properties,
+        VendorCommunicationRecorder vendorCommunicationRecorder,
+        VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+        VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+        ExternalCallLogger externalCallLogger,
+        Sleeper sleeper
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -121,10 +121,10 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             ResponseEntity<FulfillmentAuthResponse> response;
             try {
                 response = restClient.post()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders()))
-                        .retrieve()
-                        .toEntity(FulfillmentAuthResponse.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders()))
+                    .retrieve()
+                    .toEntity(FulfillmentAuthResponse.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -132,12 +132,12 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -162,22 +162,22 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             String exception = resolveAuthException(response);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             FulfillmentAccessToken accessToken = parseResponse(response);
@@ -233,13 +233,13 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> {
-                            h.addAll(buildHeaders());
-                            h.add(ACCESS_TOKEN_HEADER, accessToken);
-                        })
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> {
+                        h.addAll(buildHeaders());
+                        h.add(ACCESS_TOKEN_HEADER, accessToken);
+                    })
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -247,12 +247,12 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -279,22 +279,22 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             String exception = isSuccess ? null : "HTTP_" + response.getStatusCode().value();
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -308,8 +308,8 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             }
 
             log.warn("Fulfillment disconnect returned non-200 status: attempt={}, status={}",
-                    attempt,
-                    response.getStatusCode()
+                attempt,
+                response.getStatusCode()
             );
 
             sleeper.sleepWithJitter(sleepMillis);
@@ -324,19 +324,19 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
     private URI buildAuthUri() {
         validateAuthProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getConnectPath())
-                .queryParam(API_CD_PARAM, properties.getApiCd())
-                .queryParam(API_KEY_PARAM, properties.getApiKey())
-                .build(true)
-                .toUri();
+            .path(properties.getConnectPath())
+            .queryParam(API_CD_PARAM, properties.getApiCd())
+            .queryParam(API_KEY_PARAM, properties.getApiKey())
+            .build(true)
+            .toUri();
     }
 
     private URI buildDisconnectUri() {
         validateDisconnectProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getDisconnectPath())
-                .build(true)
-                .toUri();
+            .path(properties.getDisconnectPath())
+            .build(true)
+            .toUri();
     }
 
     private HttpHeaders buildHeaders() {
@@ -387,9 +387,9 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
         }
 
         if (
-                FormatValidator.hasNoValue(body.data())
-                        || FormatValidator.hasNoValue(body.data().accessToken())
-                        || FormatValidator.hasNoValue(body.data().expreDatetime())
+            FormatValidator.hasNoValue(body.data())
+                || FormatValidator.hasNoValue(body.data().accessToken())
+                || FormatValidator.hasNoValue(body.data().expreDatetime())
         ) {
             log.warn("Fulfillment auth response is missing token data.");
             return null;
@@ -508,8 +508,8 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
             return "HEADER_FAILURE";
         }
         if (FormatValidator.hasNoValue(body.data())
-                || FormatValidator.hasNoValue(body.data().accessToken())
-                || FormatValidator.hasNoValue(body.data().expreDatetime())
+            || FormatValidator.hasNoValue(body.data().accessToken())
+            || FormatValidator.hasNoValue(body.data().expreDatetime())
         ) {
             return "MISSING_TOKEN";
         }
@@ -563,8 +563,8 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
     private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
         if (isSensitivePath(path)) {
             log.warn(
-                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, attempt, e.getClass().getSimpleName()
+                "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, attempt, e.getClass().getSimpleName()
             );
             return;
         }
@@ -574,8 +574,8 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
     private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
         if (isSensitivePath(path)) {
             log.error(
-                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, uri, error.getClass().getSimpleName()
+                "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, uri, error.getClass().getSimpleName()
             );
             return;
         }

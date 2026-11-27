@@ -39,13 +39,13 @@ class GetAccountBalanceUseCaseTest {
 
     private Account createAccount(Long id, String name, AccountType accountType) {
         return Account.from(AccountSnapshotState.builder()
-                .id(id)
-                .name(name)
-                .accountType(accountType)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .build());
+            .id(id)
+            .name(name)
+            .accountType(accountType)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .build());
     }
 
     @Test
@@ -172,6 +172,6 @@ class GetAccountBalanceUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> getAccountBalanceService.getAccountBalances(asOf))
-                .isInstanceOf(AccountNotFoundException.class);
+            .isInstanceOf(AccountNotFoundException.class);
     }
 }

@@ -46,8 +46,8 @@ public class RefreshTokenRedisAdapter implements DeleteRefreshTokenPort, SaveRef
         }
         String expected = VALUE_PREFIX + Sha256HashUtils.encode(rawRefreshToken);
         return MessageDigest.isEqual(
-                expected.getBytes(StandardCharsets.UTF_8),
-                stored.getBytes(StandardCharsets.UTF_8)
+            expected.getBytes(StandardCharsets.UTF_8),
+            stored.getBytes(StandardCharsets.UTF_8)
         );
     }
 }

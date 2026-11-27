@@ -24,7 +24,7 @@ public class RedissonConfig {
     public RedissonClient redissonClient() {
         Config config = new Config();
         SingleServerConfig serverConfig = config.useSingleServer()
-                .setAddress("redis://" + host + ":" + port);
+            .setAddress("redis://" + host + ":" + port);
 
         if (FormatValidator.hasValue(password)) {
             serverConfig.setPassword(password);

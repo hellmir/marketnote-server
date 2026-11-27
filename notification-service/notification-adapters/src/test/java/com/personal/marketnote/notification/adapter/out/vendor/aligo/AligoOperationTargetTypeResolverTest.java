@@ -42,74 +42,74 @@ class AligoOperationTargetTypeResolverTest {
     @DisplayName("sendAlimTalk operation은 ALIMTALK targetType으로 매핑된다")
     void shouldResolveAlimTalk() {
         assertThat(resolver.resolve("sendAlimTalk"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK);
+            .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK);
     }
 
     @Test
     @DisplayName("sendBrandTalk operation은 FRIEND_TALK targetType으로 매핑된다")
     void shouldResolveFriendTalk() {
         assertThat(resolver.resolve("sendBrandTalk"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.FRIEND_TALK);
+            .isEqualTo(NotificationVendorCommunicationTargetType.FRIEND_TALK);
     }
 
     @Test
     @DisplayName("createBrandTalkTemplate/getBrandTalkTemplateList operation은 FRIEND_TALK_TEMPLATE targetType으로 매핑된다")
     void shouldResolveFriendTalkTemplate() {
         assertThat(resolver.resolve("createBrandTalkTemplate"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.FRIEND_TALK_TEMPLATE);
+            .isEqualTo(NotificationVendorCommunicationTargetType.FRIEND_TALK_TEMPLATE);
         assertThat(resolver.resolve("getBrandTalkTemplateList"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.FRIEND_TALK_TEMPLATE);
+            .isEqualTo(NotificationVendorCommunicationTargetType.FRIEND_TALK_TEMPLATE);
     }
 
     @Test
     @DisplayName("requestSenderAuthentication/registerSenderProfile/getSenderProfileList operation은 SENDER_PROFILE로 매핑된다")
     void shouldResolveSenderProfile() {
         assertThat(resolver.resolve("requestSenderAuthentication"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.SENDER_PROFILE);
+            .isEqualTo(NotificationVendorCommunicationTargetType.SENDER_PROFILE);
         assertThat(resolver.resolve("registerSenderProfile"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.SENDER_PROFILE);
+            .isEqualTo(NotificationVendorCommunicationTargetType.SENDER_PROFILE);
         assertThat(resolver.resolve("getSenderProfileList"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.SENDER_PROFILE);
+            .isEqualTo(NotificationVendorCommunicationTargetType.SENDER_PROFILE);
     }
 
     @Test
     @DisplayName("getHeartInfo operation은 BALANCE targetType으로 매핑된다")
     void shouldResolveBalance() {
         assertThat(resolver.resolve("getHeartInfo"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.BALANCE);
+            .isEqualTo(NotificationVendorCommunicationTargetType.BALANCE);
     }
 
     @Test
     @DisplayName("cancelMessage operation은 CANCEL targetType으로 매핑된다")
     void shouldResolveCancel() {
         assertThat(resolver.resolve("cancelMessage"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.CANCEL);
+            .isEqualTo(NotificationVendorCommunicationTargetType.CANCEL);
     }
 
     @Test
     @DisplayName("getMessageHistory/getMessageDetail operation은 SEND_HISTORY targetType으로 매핑된다")
     void shouldResolveSendHistory() {
         assertThat(resolver.resolve("getMessageHistory"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.SEND_HISTORY);
+            .isEqualTo(NotificationVendorCommunicationTargetType.SEND_HISTORY);
         assertThat(resolver.resolve("getMessageDetail"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.SEND_HISTORY);
+            .isEqualTo(NotificationVendorCommunicationTargetType.SEND_HISTORY);
     }
 
     @Test
     @DisplayName("템플릿 관련 5개 operation은 ALIMTALK_TEMPLATE targetType으로 매핑된다")
     void shouldResolveAlimTalkTemplate() {
         assertThat(resolver.resolve("getCategoryTree"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE);
+            .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE);
         assertThat(resolver.resolve("registerTemplate"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE);
+            .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE);
         assertThat(resolver.resolve("updateTemplate"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE);
+            .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE);
         assertThat(resolver.resolve("getTemplateList"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE);
+            .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE);
         assertThat(resolver.resolve("requestTemplateInspection"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE);
+            .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE);
         assertThat(resolver.resolve("deleteTemplate"))
-                .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE);
+            .isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK_TEMPLATE);
     }
 
     @Test
@@ -119,8 +119,8 @@ class AligoOperationTargetTypeResolverTest {
 
         assertThat(result).isEqualTo(NotificationVendorCommunicationTargetType.ALIMTALK);
         boolean hasErrorLog = appender.list.stream()
-                .anyMatch(event -> event.getLevel() == Level.ERROR
-                        && event.getFormattedMessage().contains("unknownOperation"));
+            .anyMatch(event -> event.getLevel() == Level.ERROR
+                && event.getFormattedMessage().contains("unknownOperation"));
         assertThat(hasErrorLog).isTrue();
     }
 

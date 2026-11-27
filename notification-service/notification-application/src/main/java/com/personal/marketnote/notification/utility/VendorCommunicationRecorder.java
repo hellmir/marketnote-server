@@ -30,12 +30,12 @@ public class VendorCommunicationRecorder {
     private final ObjectMapper objectMapper;
 
     public void recordFcmSendResult(
-            Notification notification,
-            DeviceToken deviceToken,
-            String title,
-            String body,
-            String landingUrl,
-            SendPushNotificationResult result
+        Notification notification,
+        DeviceToken deviceToken,
+        String title,
+        String body,
+        String landingUrl,
+        SendPushNotificationResult result
     ) {
         try {
             Map<String, Object> request = buildRequestMap(deviceToken, title, body, landingUrl);
@@ -53,12 +53,12 @@ public class VendorCommunicationRecorder {
     }
 
     public void recordFcmSendException(
-            Notification notification,
-            DeviceToken deviceToken,
-            String title,
-            String body,
-            String landingUrl,
-            FcmSendFailedException exception
+        Notification notification,
+        DeviceToken deviceToken,
+        String title,
+        String body,
+        String landingUrl,
+        FcmSendFailedException exception
     ) {
         try {
             Map<String, Object> request = buildRequestMap(deviceToken, title, body, landingUrl);
@@ -73,10 +73,10 @@ public class VendorCommunicationRecorder {
     }
 
     private void record(
-            Notification notification,
-            Map<String, Object> request,
-            Map<String, Object> response,
-            String exception
+        Notification notification,
+        Map<String, Object> request,
+        Map<String, Object> response,
+        String exception
     ) {
         Map<String, Object> payloadMap = new LinkedHashMap<>();
         payloadMap.put("request", request);
@@ -86,22 +86,22 @@ public class VendorCommunicationRecorder {
         String payload = payloadJson.toString();
 
         notificationRecordVendorCommunicationHistoryUseCase.record(
-                NotificationVendorCommunicationHistoryCommand.builder()
-                        .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
-                        .targetId(resolveTargetId(notification))
-                        .vendorName(NotificationVendorName.FCM)
-                        .communicationType(NotificationVendorCommunicationType.REQUEST)
-                        .sender(NotificationVendorCommunicationSenderType.SERVER)
-                        .exception(exception)
-                        .payload(payload)
-                        .payloadJson(payloadJson)
-                        .attemptCount(1)
-                        .build()
+            NotificationVendorCommunicationHistoryCommand.builder()
+                .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
+                .targetId(resolveTargetId(notification))
+                .vendorName(NotificationVendorName.FCM)
+                .communicationType(NotificationVendorCommunicationType.REQUEST)
+                .sender(NotificationVendorCommunicationSenderType.SERVER)
+                .exception(exception)
+                .payload(payload)
+                .payloadJson(payloadJson)
+                .attemptCount(1)
+                .build()
         );
     }
 
     private Map<String, Object> buildRequestMap(
-            DeviceToken deviceToken, String title, String body, String landingUrl
+        DeviceToken deviceToken, String title, String body, String landingUrl
     ) {
         Map<String, Object> request = new LinkedHashMap<>();
         request.put("deviceTokenId", deviceToken.getId());
@@ -149,8 +149,8 @@ public class VendorCommunicationRecorder {
         Long notificationId = FormatValidator.hasValue(notification) ? notification.getId() : null;
         Long deviceTokenId = FormatValidator.hasValue(deviceToken) ? deviceToken.getId() : null;
         log.error(
-                "FCM 벤더 통신 이력 기록 실패: notificationId={}, deviceTokenId={}, message={}",
-                notificationId, deviceTokenId, e.getMessage(), e
+            "FCM 벤더 통신 이력 기록 실패: notificationId={}, deviceTokenId={}, message={}",
+            notificationId, deviceTokenId, e.getMessage(), e
         );
     }
 }

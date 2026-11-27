@@ -31,10 +31,10 @@ class ValidateDuplicateReportUseCaseTest {
         Long targetId = 1L;
         Long reporterId = 100L;
         when(findReportPort.existsByTargetTypeAndTargetIdAndReporterId(targetType, targetId, reporterId))
-                .thenReturn(false);
+            .thenReturn(false);
 
         assertThatCode(() -> getReportService.validateDuplicateReport(targetType, targetId, reporterId))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
 
         verify(findReportPort).existsByTargetTypeAndTargetIdAndReporterId(targetType, targetId, reporterId);
     }
@@ -46,10 +46,10 @@ class ValidateDuplicateReportUseCaseTest {
         Long targetId = 1L;
         Long reporterId = 100L;
         when(findReportPort.existsByTargetTypeAndTargetIdAndReporterId(targetType, targetId, reporterId))
-                .thenReturn(true);
+            .thenReturn(true);
 
         assertThatThrownBy(() -> getReportService.validateDuplicateReport(targetType, targetId, reporterId))
-                .isInstanceOf(ReviewAlreadyReportedException.class);
+            .isInstanceOf(ReviewAlreadyReportedException.class);
     }
 
     @Test
@@ -59,10 +59,10 @@ class ValidateDuplicateReportUseCaseTest {
         Long targetId = 2L;
         Long reporterId = 200L;
         when(findReportPort.existsByTargetTypeAndTargetIdAndReporterId(targetType, targetId, reporterId))
-                .thenReturn(false);
+            .thenReturn(false);
 
         assertThatCode(() -> getReportService.validateDuplicateReport(targetType, targetId, reporterId))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
 
         verify(findReportPort).existsByTargetTypeAndTargetIdAndReporterId(targetType, targetId, reporterId);
     }
@@ -74,10 +74,10 @@ class ValidateDuplicateReportUseCaseTest {
         Long targetId = 2L;
         Long reporterId = 200L;
         when(findReportPort.existsByTargetTypeAndTargetIdAndReporterId(targetType, targetId, reporterId))
-                .thenReturn(true);
+            .thenReturn(true);
 
         assertThatThrownBy(() -> getReportService.validateDuplicateReport(targetType, targetId, reporterId))
-                .isInstanceOf(PostAlreadyReportedException.class);
+            .isInstanceOf(PostAlreadyReportedException.class);
     }
 
     @Test
@@ -87,12 +87,12 @@ class ValidateDuplicateReportUseCaseTest {
         Long targetId = 999L;
         Long reporterId = 888L;
         when(findReportPort.existsByTargetTypeAndTargetIdAndReporterId(targetType, targetId, reporterId))
-                .thenReturn(false);
+            .thenReturn(false);
 
         getReportService.validateDuplicateReport(targetType, targetId, reporterId);
 
         verify(findReportPort).existsByTargetTypeAndTargetIdAndReporterId(
-                ReportTargetType.REVIEW, 999L, 888L
+            ReportTargetType.REVIEW, 999L, 888L
         );
     }
 }

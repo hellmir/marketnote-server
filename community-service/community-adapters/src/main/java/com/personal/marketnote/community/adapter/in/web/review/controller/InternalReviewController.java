@@ -26,8 +26,8 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @RestController
 @RequestMapping("/api/v1/internal")
 @Tag(
-        name = "내부 리뷰 API",
-        description = "서비스 간 통신용 리뷰 API"
+    name = "내부 리뷰 API",
+    description = "서비스 간 통신용 리뷰 API"
 )
 @RequiredArgsConstructor
 public class InternalReviewController {
@@ -41,18 +41,18 @@ public class InternalReviewController {
      */
     @GetMapping("products/review-aggregates")
     public ResponseEntity<BaseResponse<GetProductReviewAggregatesResponse>> getProductReviewAggregates(
-            @RequestParam("productIds") List<Long> productIds
+        @RequestParam("productIds") List<Long> productIds
     ) {
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetProductReviewAggregatesResponse.from(
-                                getReviewUseCase.getProductReviewAggregates(productIds)
-                        ),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 리뷰 집계 목록 조회 성공"
+            BaseResponse.of(
+                GetProductReviewAggregatesResponse.from(
+                    getReviewUseCase.getProductReviewAggregates(productIds)
                 ),
-                HttpStatus.OK
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 리뷰 집계 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

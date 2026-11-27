@@ -54,7 +54,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 public class PaymentController {
     private static final String IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
     private static final String UUID_V4_REGEX =
-            "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$";
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$";
 
     private final ReadyPaymentUseCase readyPaymentUseCase;
     private final ApprovePaymentUseCase approvePaymentUseCase;
@@ -74,22 +74,22 @@ public class PaymentController {
     @PostMapping("/api/v1/payments/ready")
     @ReadyPaymentApiDocs
     public ResponseEntity<BaseResponse<ReadyPaymentResponse>> readyPayment(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @Valid @RequestBody ReadyPaymentRequest request
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @Valid @RequestBody ReadyPaymentRequest request
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
         ReadyPaymentResult result = readyPaymentUseCase.ready(
-                PaymentRequestToCommandMapper.mapToCommand(request, buyerId)
+            PaymentRequestToCommandMapper.mapToCommand(request, buyerId)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        ReadyPaymentResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "거래 등록 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                ReadyPaymentResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "거래 등록 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -105,22 +105,22 @@ public class PaymentController {
     @PostMapping("/api/v1/payments/approve")
     @ApprovePaymentApiDocs
     public ResponseEntity<BaseResponse<ApprovePaymentResponse>> approvePayment(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @Valid @RequestBody ApprovePaymentRequest request
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @Valid @RequestBody ApprovePaymentRequest request
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
         ApprovePaymentResult result = approvePaymentUseCase.approve(
-                PaymentRequestToCommandMapper.mapToCommand(request, buyerId)
+            PaymentRequestToCommandMapper.mapToCommand(request, buyerId)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        ApprovePaymentResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "결제 승인 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                ApprovePaymentResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "결제 승인 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -136,20 +136,20 @@ public class PaymentController {
     @GetMapping("/api/v1/payments/{orderKey}")
     @GetPaymentApiDocs
     public ResponseEntity<BaseResponse<GetPaymentResponse>> getPayment(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @PathVariable("orderKey") String orderKey
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @PathVariable("orderKey") String orderKey
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
         GetPaymentResult result = getPaymentUseCase.getPayment(buyerId, orderKey);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetPaymentResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "결제 정보 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetPaymentResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "결제 정보 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -166,27 +166,27 @@ public class PaymentController {
     @PreAuthorize(ADMIN_POINTCUT)
     @CancelPaymentApiDocs
     public ResponseEntity<BaseResponse<Void>> cancelPayment(
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @PathVariable("orderKey") String orderKey,
-            @RequestHeader(IDEMPOTENCY_KEY_HEADER)
-            @NotBlank(message = "Idempotency-Key 헤더는 필수입니다")
-            @Pattern(regexp = UUID_V4_REGEX, message = "Idempotency-Key 는 UUID v4 형식이어야 합니다")
-            String idempotencyKey,
-            @Valid @RequestBody CancelPaymentRequest request
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+        @PathVariable("orderKey") String orderKey,
+        @RequestHeader(IDEMPOTENCY_KEY_HEADER)
+        @NotBlank(message = "Idempotency-Key 헤더는 필수입니다")
+        @Pattern(regexp = UUID_V4_REGEX, message = "Idempotency-Key 는 UUID v4 형식이어야 합니다")
+        String idempotencyKey,
+        @Valid @RequestBody CancelPaymentRequest request
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
         cancelPaymentUseCase.cancel(
-                PaymentRequestToCommandMapper.mapToCommand(orderKey, request, buyerId, idempotencyKey)
+            PaymentRequestToCommandMapper.mapToCommand(orderKey, request, buyerId, idempotencyKey)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "결제 취소 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                null,
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "결제 취소 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -202,15 +202,15 @@ public class PaymentController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetAdminRefundsApiDocs
     public ResponseEntity<BaseResponse<List<GetAdminRefundResponse>>> getRefundsByOrderId(
-            @RequestParam("order-id") @NotNull @Min(1) Long orderId
+        @RequestParam("order-id") @NotNull @Min(1) Long orderId
     ) {
         List<GetAdminRefundResult> results = getAdminRefundsUseCase.getRefundsByOrderId(orderId);
         List<GetAdminRefundResponse> responses = results.stream()
-                .map(GetAdminRefundResponse::from)
-                .toList();
+            .map(GetAdminRefundResponse::from)
+            .toList();
         return new ResponseEntity<>(
-                BaseResponse.of(responses, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "환불 목록 조회 성공"),
-                HttpStatus.OK
+            BaseResponse.of(responses, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "환불 목록 조회 성공"),
+            HttpStatus.OK
         );
     }
 }

@@ -43,10 +43,10 @@ public class LedgerEntryJpaEntity {
 
     public static LedgerEntryJpaEntity from(LedgerEntry entry) {
         return LedgerEntryJpaEntity.builder()
-                .accountId(entry.getAccountId())
-                .transactionId(entry.getTransactionId())
-                .amount(entry.getAmount().getValue())
-                .transactionType(entry.getTransactionType())
-                .build();
+            .accountId(entry.getAccountId())
+            .transactionId(entry.getTransactionId())
+            .amount(entry.getAmount().getValue())
+            .transactionType(entry.getTransactionType())
+            .build();
     }
 }

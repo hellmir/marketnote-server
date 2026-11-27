@@ -49,7 +49,7 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
         validateReturnableStatus(order);
 
         Set<Long> targetPricePolicyIds = resolveTargetPricePolicyIds(
-                order.getOrderProducts(), command.returnPricePolicyIds()
+            order.getOrderProducts(), command.returnPricePolicyIds()
         );
         boolean isFullReturn = targetPricePolicyIds.size() >= order.getOrderProducts().size();
 
@@ -58,11 +58,11 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
         String refundMethod = resolveRefundMethod(order);
         long estimatedRefundCash = calculateEstimatedRefundCash(order, totalProductAmount, isFullReturn);
         long estimatedRefundAmount = calculateEstimatedRefundAmount(
-                totalProductAmount, returnShippingFee, estimatedRefundCash
+            totalProductAmount, returnShippingFee, estimatedRefundCash
         );
 
         return GetReturnRefundInfoResult.of(
-                totalProductAmount, returnShippingFee, refundMethod, estimatedRefundAmount, estimatedRefundCash
+            totalProductAmount, returnShippingFee, refundMethod, estimatedRefundAmount, estimatedRefundCash
         );
     }
 
@@ -91,15 +91,15 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
 
     private long calculateTotalProductAmount(List<OrderProduct> orderProducts, Set<Long> targetPricePolicyIds) {
         return orderProducts.stream()
-                .filter(product -> targetPricePolicyIds.contains(product.getPricePolicyId()))
-                .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().getValue()).getValue())
-                .reduce(0L, Math::addExact);
+            .filter(product -> targetPricePolicyIds.contains(product.getPricePolicyId()))
+            .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().getValue()).getValue())
+            .reduce(0L, Math::addExact);
     }
 
     private Set<Long> resolveTargetPricePolicyIds(List<OrderProduct> orderProducts, List<Long> returnPricePolicyIds) {
         Set<Long> allPricePolicyIds = orderProducts.stream()
-                .map(OrderProduct::getPricePolicyId)
-                .collect(Collectors.toSet());
+            .map(OrderProduct::getPricePolicyId)
+            .collect(Collectors.toSet());
 
         if (FormatValidator.hasNoValue(returnPricePolicyIds)) {
             return allPricePolicyIds;
@@ -112,7 +112,7 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
 
     private long calculateReturnShippingFee(GetReturnRefundInfoCommand command) {
         CalculateReturnShippingFeeResult result = calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                CalculateReturnShippingFeeCommand.from(command)
+            CalculateReturnShippingFeeCommand.from(command)
         );
         return result.returnShippingFee();
     }
@@ -120,10 +120,10 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
     private String resolveRefundMethod(Order order) {
         String orderKey = order.getOrderKey().toString();
         PspPaymentEvent paymentEvent = findPspPaymentEventPort.findByOrderKey(orderKey)
-                .orElseThrow(() -> {
-                    log.warn("거래 등록 정보를 찾을 수 없습니다. orderKey={}", orderKey);
-                    return new PaymentEventNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("거래 등록 정보를 찾을 수 없습니다. orderKey={}", orderKey);
+                return new PaymentEventNotFoundException();
+            });
 
         return PaymentMethod.fromMobileCode(paymentEvent.getMethod()).getDescription();
     }
@@ -147,10 +147,10 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
     }
 
     private long calculateEstimatedRefundAmount(
-            long totalProductAmount, long returnShippingFee, long estimatedRefundCash
+        long totalProductAmount, long returnShippingFee, long estimatedRefundCash
     ) {
         long amount = Math.subtractExact(
-                Math.subtractExact(totalProductAmount, returnShippingFee), estimatedRefundCash
+            Math.subtractExact(totalProductAmount, returnShippingFee), estimatedRefundCash
         );
         return Math.max(amount, 0L);
     }

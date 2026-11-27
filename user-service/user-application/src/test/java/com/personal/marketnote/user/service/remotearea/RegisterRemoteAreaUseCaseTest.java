@@ -102,7 +102,7 @@ class RegisterRemoteAreaUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> registerRemoteAreaService.registerRemoteArea(command))
-                .isInstanceOf(RemoteAreaAlreadyExistsException.class);
+            .isInstanceOf(RemoteAreaAlreadyExistsException.class);
 
         verifyNoInteractions(saveRemoteAreaPort);
     }

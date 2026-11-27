@@ -30,7 +30,7 @@ class GetFulfillmentSettlementDailyCostsUseCaseTest {
     void shouldDelegateCommandDirectlyToPort() {
         // given
         GetFulfillmentSettlementDailyCostsCommand command = GetFulfillmentSettlementDailyCostsCommand.of(
-                "202604", "WH001", "CUST001", "token"
+            "202604", "WH001", "CUST001", "token"
         );
         GetFulfillmentSettlementDailyCostsResult expectedResult = GetFulfillmentSettlementDailyCostsResult.of(0, List.of());
         when(getFulfillmentSettlementDailyCostsPort.getDailyCosts(command)).thenReturn(expectedResult);

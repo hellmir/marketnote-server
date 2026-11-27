@@ -11,7 +11,7 @@ import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @Table(name = "shipping_policy", indexes = {
-        @Index(name = "idx_shipping_policy_seller_id", columnList = "seller_id", unique = true)
+    @Index(name = "idx_shipping_policy_seller_id", columnList = "seller_id", unique = true)
 })
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -40,13 +40,13 @@ public class ShippingPolicyJpaEntity extends BaseGeneralEntity {
 
     public static ShippingPolicyJpaEntity from(ShippingPolicy policy) {
         return ShippingPolicyJpaEntity.builder()
-                .sellerId(policy.getSellerId())
-                .deliveryCompany(policy.getDeliveryCompany())
-                .shippingFee(policy.getShippingFee().getValue())
-                .freeShippingThreshold(policy.getFreeShippingThreshold().getValue())
-                .jejuSurcharge(policy.getJejuSurcharge().getValue())
-                .islandSurcharge(policy.getIslandSurcharge().getValue())
-                .build();
+            .sellerId(policy.getSellerId())
+            .deliveryCompany(policy.getDeliveryCompany())
+            .shippingFee(policy.getShippingFee().getValue())
+            .freeShippingThreshold(policy.getFreeShippingThreshold().getValue())
+            .jejuSurcharge(policy.getJejuSurcharge().getValue())
+            .islandSurcharge(policy.getIslandSurcharge().getValue())
+            .build();
     }
 
     public void updateFrom(ShippingPolicy policy) {

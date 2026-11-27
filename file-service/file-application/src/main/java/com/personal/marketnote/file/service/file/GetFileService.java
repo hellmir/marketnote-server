@@ -32,10 +32,10 @@ public class GetFileService implements GetFileUseCase {
     @Override
     public FileDomain getFile(Long id) {
         return findFilePort.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("파일을 찾을 수 없습니다. fileId={}", id);
-                    return new FileNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("파일을 찾을 수 없습니다. fileId={}", id);
+                return new FileNotFoundException();
+            });
     }
 
     @Override
@@ -44,13 +44,13 @@ public class GetFileService implements GetFileUseCase {
         List<ResizedFile> resizedFiles = getResizedFiles(files);
 
         Map<Long, List<String>> fileIdToUrls = resizedFiles.stream()
-                .collect(Collectors.groupingBy(
-                        ResizedFile::getFileId,
-                        Collectors.mapping(ResizedFile::getStorageUrl, Collectors.toList())
-                ));
+            .collect(Collectors.groupingBy(
+                ResizedFile::getFileId,
+                Collectors.mapping(ResizedFile::getStorageUrl, Collectors.toList())
+            ));
 
         List<GetFilesResult.FileItem> items = files.stream()
-                .map(file -> GetFilesResult.FileItem.from(file, fileIdToUrls)).toList();
+            .map(file -> GetFilesResult.FileItem.from(file, fileIdToUrls)).toList();
 
         return new GetFilesResult(items);
     }
@@ -58,8 +58,8 @@ public class GetFileService implements GetFileUseCase {
     @Override
     public List<FileDomain> getFiles(OwnerType ownerType, Long ownerId, String sort) {
         return FormatValidator.hasValue(sort)
-                ? findFilePort.findByOwnerAndSort(ownerType, ownerId, FileSort.from(sort))
-                : findFilePort.findByOwner(ownerType, ownerId);
+            ? findFilePort.findByOwnerAndSort(ownerType, ownerId, FileSort.from(sort))
+            : findFilePort.findByOwner(ownerType, ownerId);
     }
 
     @Override

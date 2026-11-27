@@ -65,8 +65,8 @@ class AdminDltControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(adminDltController)
-                .setCustomArgumentResolvers(new FixedOAuth2PrincipalResolver(ADMIN_USER_KEY))
-                .build();
+            .setCustomArgumentResolvers(new FixedOAuth2PrincipalResolver(ADMIN_USER_KEY))
+            .build();
     }
 
     @Test
@@ -78,19 +78,19 @@ class AdminDltControllerTest {
         DltReprocessResult serviceResult = new DltReprocessResult(5, 1, 2);
 
         when(dltReprocessService.reprocess(originalTopic, ADMIN_USER_KEY))
-                .thenReturn(serviceResult);
+            .thenReturn(serviceResult);
 
         // when & then
         mockMvc.perform(post("/api/v1/admin/kafka/dlt/reprocess")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.originalTopic").value(originalTopic))
-                .andExpect(jsonPath("$.content.dltTopic").value(originalTopic + ".dlt"))
-                .andExpect(jsonPath("$.content.reprocessedCount").value(5))
-                .andExpect(jsonPath("$.content.failedCount").value(1))
-                .andExpect(jsonPath("$.content.skippedCount").value(2))
-                .andExpect(jsonPath("$.message").value("DLT 메시지 재처리 완료"));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content.originalTopic").value(originalTopic))
+            .andExpect(jsonPath("$.content.dltTopic").value(originalTopic + ".dlt"))
+            .andExpect(jsonPath("$.content.reprocessedCount").value(5))
+            .andExpect(jsonPath("$.content.failedCount").value(1))
+            .andExpect(jsonPath("$.content.skippedCount").value(2))
+            .andExpect(jsonPath("$.message").value("DLT 메시지 재처리 완료"));
 
         verify(dltReprocessService).reprocess(originalTopic, ADMIN_USER_KEY);
     }
@@ -101,26 +101,26 @@ class AdminDltControllerTest {
         // given
         String originalTopic = "commerce.payment.approved";
         ResolveDltRequest request = new ResolveDltRequest(
-                originalTopic, 0, 42L, DltResolutionAction.RETRY, "수동 재시도"
+            originalTopic, 0, 42L, DltResolutionAction.RETRY, "수동 재시도"
         );
         DltResolveResult serviceResult = new DltResolveResult(DltResolutionStatus.RETRIED, false);
 
         when(dltResolveService.resolve(
-                org.mockito.ArgumentMatchers.any(DltResolveCommand.class), eq(ADMIN_USER_KEY)
+            org.mockito.ArgumentMatchers.any(DltResolveCommand.class), eq(ADMIN_USER_KEY)
         )).thenReturn(serviceResult);
 
         // when & then
         mockMvc.perform(post("/api/v1/admin/kafka/dlt/resolve")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.originalTopic").value(originalTopic))
-                .andExpect(jsonPath("$.content.partition").value(0))
-                .andExpect(jsonPath("$.content.offset").value(42))
-                .andExpect(jsonPath("$.content.resolution").value("RETRIED"))
-                .andExpect(jsonPath("$.content.reason").value("수동 재시도"))
-                .andExpect(jsonPath("$.content.alreadyResolved").value(false))
-                .andExpect(jsonPath("$.message").value("DLT 메시지 해결 완료"));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content.originalTopic").value(originalTopic))
+            .andExpect(jsonPath("$.content.partition").value(0))
+            .andExpect(jsonPath("$.content.offset").value(42))
+            .andExpect(jsonPath("$.content.resolution").value("RETRIED"))
+            .andExpect(jsonPath("$.content.reason").value("수동 재시도"))
+            .andExpect(jsonPath("$.content.alreadyResolved").value(false))
+            .andExpect(jsonPath("$.message").value("DLT 메시지 해결 완료"));
 
         ArgumentCaptor<DltResolveCommand> commandCaptor = ArgumentCaptor.forClass(DltResolveCommand.class);
         verify(dltResolveService).resolve(commandCaptor.capture(), eq(ADMIN_USER_KEY));
@@ -139,22 +139,22 @@ class AdminDltControllerTest {
         String originalTopic = "commerce.order.payment-completed";
         int limit = 50;
         DltMessageResponse messageResponse = new DltMessageResponse(
-                originalTopic + ".dlt", 0, 1L, "key-1",
-                originalTopic, "RuntimeException", "error-msg", 1700000000000L, "UNRESOLVED"
+            originalTopic + ".dlt", 0, 1L, "key-1",
+            originalTopic, "RuntimeException", "error-msg", 1700000000000L, "UNRESOLVED"
         );
         when(dltQueryService.queryDltMessages(originalTopic, limit))
-                .thenReturn(List.of(messageResponse));
+            .thenReturn(List.of(messageResponse));
 
         // when & then
         mockMvc.perform(get("/api/v1/admin/kafka/dlt")
-                        .param("original-topic", originalTopic)
-                        .param("limit", String.valueOf(limit)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].dltTopic").value(originalTopic + ".dlt"))
-                .andExpect(jsonPath("$.content[0].originalTopic").value(originalTopic))
-                .andExpect(jsonPath("$.content[0].offset").value(1))
-                .andExpect(jsonPath("$.content[0].resolution").value("UNRESOLVED"))
-                .andExpect(jsonPath("$.message").value("DLT 메시지 조회 완료"));
+                .param("original-topic", originalTopic)
+                .param("limit", String.valueOf(limit)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content[0].dltTopic").value(originalTopic + ".dlt"))
+            .andExpect(jsonPath("$.content[0].originalTopic").value(originalTopic))
+            .andExpect(jsonPath("$.content[0].offset").value(1))
+            .andExpect(jsonPath("$.content[0].resolution").value("UNRESOLVED"))
+            .andExpect(jsonPath("$.message").value("DLT 메시지 조회 완료"));
 
         verify(dltQueryService).queryDltMessages(originalTopic, limit);
         verify(dltAuditLogger).logQuery(originalTopic, limit, ADMIN_USER_KEY);
@@ -165,22 +165,22 @@ class AdminDltControllerTest {
     void queryDltTopicSummaries_returnsSummariesAndLogsAudit() throws Exception {
         // given
         DltTopicSummaryResponse summary1 = new DltTopicSummaryResponse(
-                "commerce.order.payment-completed", "commerce.order.payment-completed.dlt", 3L
+            "commerce.order.payment-completed", "commerce.order.payment-completed.dlt", 3L
         );
         DltTopicSummaryResponse summary2 = new DltTopicSummaryResponse(
-                "commerce.payment.approved", "commerce.payment.approved.dlt", 7L
+            "commerce.payment.approved", "commerce.payment.approved.dlt", 7L
         );
         when(dltQueryService.queryAllDltTopicSummaries())
-                .thenReturn(List.of(summary1, summary2));
+            .thenReturn(List.of(summary1, summary2));
 
         // when & then
         mockMvc.perform(get("/api/v1/admin/kafka/dlt/summary"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].originalTopic").value("commerce.order.payment-completed"))
-                .andExpect(jsonPath("$.content[0].messageCount").value(3))
-                .andExpect(jsonPath("$.content[1].originalTopic").value("commerce.payment.approved"))
-                .andExpect(jsonPath("$.content[1].messageCount").value(7))
-                .andExpect(jsonPath("$.message").value("DLT 토픽 요약 조회 완료"));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content[0].originalTopic").value("commerce.order.payment-completed"))
+            .andExpect(jsonPath("$.content[0].messageCount").value(3))
+            .andExpect(jsonPath("$.content[1].originalTopic").value("commerce.payment.approved"))
+            .andExpect(jsonPath("$.content[1].messageCount").value(7))
+            .andExpect(jsonPath("$.message").value("DLT 토픽 요약 조회 완료"));
 
         verify(dltQueryService).queryAllDltTopicSummaries();
         verify(dltAuditLogger).logSummaryQuery(ADMIN_USER_KEY);
@@ -196,20 +196,20 @@ class AdminDltControllerTest {
 
         FixedOAuth2PrincipalResolver(String name) {
             this.principal = new DefaultOAuth2AuthenticatedPrincipal(
-                    name, Map.of("sub", name), List.of()
+                name, Map.of("sub", name), List.of()
             );
         }
 
         @Override
         public boolean supportsParameter(MethodParameter parameter) {
             return parameter.hasParameterAnnotation(AuthenticationPrincipal.class)
-                    && OAuth2AuthenticatedPrincipal.class.isAssignableFrom(parameter.getParameterType());
+                && OAuth2AuthenticatedPrincipal.class.isAssignableFrom(parameter.getParameterType());
         }
 
         @Override
         public Object resolveArgument(
-                MethodParameter parameter, ModelAndViewContainer mavContainer,
-                NativeWebRequest webRequest, WebDataBinderFactory binderFactory
+            MethodParameter parameter, ModelAndViewContainer mavContainer,
+            NativeWebRequest webRequest, WebDataBinderFactory binderFactory
         ) {
             return principal;
         }

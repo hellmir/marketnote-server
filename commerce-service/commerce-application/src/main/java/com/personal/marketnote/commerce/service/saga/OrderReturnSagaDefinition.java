@@ -44,129 +44,129 @@ public class OrderReturnSagaDefinition implements SagaDefinition<OrderReturnSaga
     @Override
     public List<SagaStepDefinition<OrderReturnSagaContext>> getSteps() {
         return List.of(
-                new SagaStepDefinition<>(
-                        STEP_REFUND_PAYMENT,
-                        KafkaTopicConstants.SAGA_ORDER_RETURN_REFUND,
-                        this::buildRefundPaymentAction,
-                        null
-                ),
-                new SagaStepDefinition<>(
-                        STEP_RECORD_REVERSE_LEDGER,
-                        KafkaTopicConstants.SAGA_ORDER_RETURN_LEDGER,
-                        this::buildReverseLedgerAction,
-                        this::buildReverseLedgerCompensation
-                ),
-                new SagaStepDefinition<>(
-                        STEP_CANCEL_SETTLEMENT_ALLOCATION,
-                        KafkaTopicConstants.SAGA_ORDER_RETURN_SETTLEMENT,
-                        this::buildCancelSettlementAction,
-                        this::buildCancelSettlementCompensation
-                ),
-                new SagaStepDefinition<>(
-                        STEP_RESTORE_INVENTORY,
-                        KafkaTopicConstants.SAGA_ORDER_RETURN_INVENTORY,
-                        this::buildRestoreInventoryAction,
-                        this::buildRestoreInventoryCompensation
-                ),
-                new SagaStepDefinition<>(
-                        STEP_REFUND_POINT,
-                        KafkaTopicConstants.SAGA_ORDER_RETURN_POINT_REFUND,
-                        this::buildRefundPointAction,
-                        this::buildRefundPointCompensation
-                ),
-                new SagaStepDefinition<>(
-                        STEP_PUBLISH_RETURN_COMPLETED,
-                        KafkaTopicConstants.SAGA_ORDER_RETURN_COMPLETED,
-                        this::buildReturnCompletedAction,
-                        null
-                )
+            new SagaStepDefinition<>(
+                STEP_REFUND_PAYMENT,
+                KafkaTopicConstants.SAGA_ORDER_RETURN_REFUND,
+                this::buildRefundPaymentAction,
+                null
+            ),
+            new SagaStepDefinition<>(
+                STEP_RECORD_REVERSE_LEDGER,
+                KafkaTopicConstants.SAGA_ORDER_RETURN_LEDGER,
+                this::buildReverseLedgerAction,
+                this::buildReverseLedgerCompensation
+            ),
+            new SagaStepDefinition<>(
+                STEP_CANCEL_SETTLEMENT_ALLOCATION,
+                KafkaTopicConstants.SAGA_ORDER_RETURN_SETTLEMENT,
+                this::buildCancelSettlementAction,
+                this::buildCancelSettlementCompensation
+            ),
+            new SagaStepDefinition<>(
+                STEP_RESTORE_INVENTORY,
+                KafkaTopicConstants.SAGA_ORDER_RETURN_INVENTORY,
+                this::buildRestoreInventoryAction,
+                this::buildRestoreInventoryCompensation
+            ),
+            new SagaStepDefinition<>(
+                STEP_REFUND_POINT,
+                KafkaTopicConstants.SAGA_ORDER_RETURN_POINT_REFUND,
+                this::buildRefundPointAction,
+                this::buildRefundPointCompensation
+            ),
+            new SagaStepDefinition<>(
+                STEP_PUBLISH_RETURN_COMPLETED,
+                KafkaTopicConstants.SAGA_ORDER_RETURN_COMPLETED,
+                this::buildReturnCompletedAction,
+                null
+            )
         );
     }
 
     private String buildRefundPaymentAction(OrderReturnSagaContext context) {
         return serialize(Map.ofEntries(
-                entry("orderId", context.orderId()),
-                entry("orderKey", context.orderKey()),
-                entry("buyerId", context.buyerId()),
-                entry("returnAmount", context.returnAmount()),
-                entry("paymentAmount", context.paymentAmount()),
-                entry("isFullReturn", context.isFullReturn()),
-                entry("returnShippingFee", context.returnShippingFee())
+            entry("orderId", context.orderId()),
+            entry("orderKey", context.orderKey()),
+            entry("buyerId", context.buyerId()),
+            entry("returnAmount", context.returnAmount()),
+            entry("paymentAmount", context.paymentAmount()),
+            entry("isFullReturn", context.isFullReturn()),
+            entry("returnShippingFee", context.returnShippingFee())
         ));
     }
 
     private String buildReverseLedgerAction(OrderReturnSagaContext context) {
         return serialize(Map.of(
-                "orderId", context.orderId(),
-                "returnAmount", context.returnAmount(),
-                "idempotencyKey", "SAGA_ORDER_RETURN:" + context.orderId()
+            "orderId", context.orderId(),
+            "returnAmount", context.returnAmount(),
+            "idempotencyKey", "SAGA_ORDER_RETURN:" + context.orderId()
         ));
     }
 
     private String buildReverseLedgerCompensation(OrderReturnSagaContext context) {
         return serialize(Map.of(
-                "orderId", context.orderId(),
-                "paymentAmount", context.returnAmount(),
-                "idempotencyKey", "SAGA_ORDER_RETURN_COMP:" + context.orderId()
+            "orderId", context.orderId(),
+            "paymentAmount", context.returnAmount(),
+            "idempotencyKey", "SAGA_ORDER_RETURN_COMP:" + context.orderId()
         ));
     }
 
     private String buildCancelSettlementAction(OrderReturnSagaContext context) {
         return serialize(Map.of(
-                "orderId", context.orderId()
+            "orderId", context.orderId()
         ));
     }
 
     private String buildCancelSettlementCompensation(OrderReturnSagaContext context) {
         return serialize(Map.of(
-                "orderId", context.orderId()
+            "orderId", context.orderId()
         ));
     }
 
     private String buildRestoreInventoryAction(OrderReturnSagaContext context) {
         return serialize(Map.of(
-                "orderId", context.orderId(),
-                "returnProducts", context.returnProducts(),
-                "isFullReturn", context.isFullReturn()
+            "orderId", context.orderId(),
+            "returnProducts", context.returnProducts(),
+            "isFullReturn", context.isFullReturn()
         ));
     }
 
     private String buildRestoreInventoryCompensation(OrderReturnSagaContext context) {
         return serialize(Map.of(
-                "orderId", context.orderId(),
-                "returnProducts", context.returnProducts()
+            "orderId", context.orderId(),
+            "returnProducts", context.returnProducts()
         ));
     }
 
     private String buildRefundPointAction(OrderReturnSagaContext context) {
         return serialize(Map.of(
-                "orderId", context.orderId(),
-                "buyerId", context.buyerId(),
-                "refundPointAmount", context.refundPointAmount()
+            "orderId", context.orderId(),
+            "buyerId", context.buyerId(),
+            "refundPointAmount", context.refundPointAmount()
         ));
     }
 
     private String buildRefundPointCompensation(OrderReturnSagaContext context) {
         return serialize(Map.of(
-                "orderId", context.orderId(),
-                "buyerId", context.buyerId(),
-                "refundPointAmount", context.refundPointAmount()
+            "orderId", context.orderId(),
+            "buyerId", context.buyerId(),
+            "refundPointAmount", context.refundPointAmount()
         ));
     }
 
     private String buildReturnCompletedAction(OrderReturnSagaContext context) {
         return serialize(Map.ofEntries(
-                entry("orderId", context.orderId()),
-                entry("orderKey", context.orderKey()),
-                entry("buyerId", context.buyerId()),
-                entry("returnAmount", context.returnAmount()),
-                entry("paymentAmount", context.paymentAmount()),
-                entry("pointAmount", context.pointAmount()),
-                entry("shippingFee", context.shippingFee()),
-                entry("isFullReturn", context.isFullReturn()),
-                entry("returnShippingFee", context.returnShippingFee()),
-                entry("returnProducts", context.returnProducts()),
-                entry("returnId", context.returnId())
+            entry("orderId", context.orderId()),
+            entry("orderKey", context.orderKey()),
+            entry("buyerId", context.buyerId()),
+            entry("returnAmount", context.returnAmount()),
+            entry("paymentAmount", context.paymentAmount()),
+            entry("pointAmount", context.pointAmount()),
+            entry("shippingFee", context.shippingFee()),
+            entry("isFullReturn", context.isFullReturn()),
+            entry("returnShippingFee", context.returnShippingFee()),
+            entry("returnProducts", context.returnProducts()),
+            entry("returnId", context.returnId())
         ));
     }
 

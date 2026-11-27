@@ -25,7 +25,7 @@ public class UpdateNotificationTemplateService implements UpdateNotificationTemp
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public UpdateNotificationTemplateResult updateNotificationTemplate(
-            Long id, UpdateNotificationTemplateCommand command
+        Long id, UpdateNotificationTemplateCommand command
     ) {
         NotificationTemplate template = findNotificationTemplate(id);
 
@@ -38,9 +38,9 @@ public class UpdateNotificationTemplateService implements UpdateNotificationTemp
 
     private NotificationTemplate findNotificationTemplate(Long id) {
         return findNotificationTemplatePort.findActiveById(id)
-                .orElseThrow(() -> {
-                    log.warn("알림 템플릿을 찾을 수 없습니다. notificationTemplateId={}", id);
-                    return new NotificationTemplateNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림 템플릿을 찾을 수 없습니다. notificationTemplateId={}", id);
+                return new NotificationTemplateNotFoundException();
+            });
     }
 }

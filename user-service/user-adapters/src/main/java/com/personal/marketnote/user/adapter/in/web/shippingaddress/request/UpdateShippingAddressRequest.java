@@ -39,8 +39,8 @@ public class UpdateShippingAddressRequest {
     @NotBlank(message = "휴대폰 번호는 필수값입니다.")
     @Size(max = 15, message = "휴대폰 번호는 최대 15자까지 입력할 수 있습니다.")
     @Pattern(
-            regexp = PHONE_NUMBER_INPUT_PATTERN,
-            message = "휴대폰 번호 형식이 올바르지 않습니다. (예: 01012345678, 010-1234-5678)"
+        regexp = PHONE_NUMBER_INPUT_PATTERN,
+        message = "휴대폰 번호 형식이 올바르지 않습니다. (예: 01012345678, 010-1234-5678)"
     )
     private String recipientPhoneNumber;
 

@@ -37,8 +37,8 @@ class AligoSenderProfileTest {
 
         // when & then
         assertThatThrownBy(() -> AligoSenderProfile.from(state))
-                .isInstanceOf(InvalidAligoSenderProfileException.class)
-                .hasMessageContaining("senderKey는 필수");
+            .isInstanceOf(InvalidAligoSenderProfileException.class)
+            .hasMessageContaining("senderKey는 필수");
     }
 
     @Test
@@ -49,8 +49,8 @@ class AligoSenderProfileTest {
 
         // when & then
         assertThatThrownBy(() -> AligoSenderProfile.from(state))
-                .isInstanceOf(InvalidAligoSenderProfileException.class)
-                .hasMessageContaining("senderKey는 필수");
+            .isInstanceOf(InvalidAligoSenderProfileException.class)
+            .hasMessageContaining("senderKey는 필수");
     }
 
     @Test
@@ -61,8 +61,8 @@ class AligoSenderProfileTest {
 
         // when & then
         assertThatThrownBy(() -> AligoSenderProfile.from(state))
-                .isInstanceOf(InvalidAligoSenderProfileException.class)
-                .hasMessageContaining("plusId는 필수");
+            .isInstanceOf(InvalidAligoSenderProfileException.class)
+            .hasMessageContaining("plusId는 필수");
     }
 
     @Test
@@ -72,21 +72,21 @@ class AligoSenderProfileTest {
         LocalDateTime createdAt = LocalDateTime.of(2026, 1, 1, 0, 0);
         LocalDateTime modifiedAt = LocalDateTime.of(2026, 1, 2, 0, 0);
         AligoSenderProfileSnapshotState state = AligoSenderProfileSnapshotState.builder()
-                .id(10L)
-                .senderKey("sender-key-001")
-                .plusId("@plus-id")
-                .phoneNumber("01012345678")
-                .categoryCode("002001")
-                .name("테스트 프로필")
-                .licenseNum("000-00-00000")
-                .profileInspectionStatus(AligoProfileInspectionStatus.A)
-                .senderProfileStatus(AligoSenderProfileStatus.A)
-                .alimUseYn(true)
-                .uuid("uuid-test")
-                .status(EntityStatus.INACTIVE)
-                .createdAt(createdAt)
-                .modifiedAt(modifiedAt)
-                .build();
+            .id(10L)
+            .senderKey("sender-key-001")
+            .plusId("@plus-id")
+            .phoneNumber("01012345678")
+            .categoryCode("002001")
+            .name("테스트 프로필")
+            .licenseNum("000-00-00000")
+            .profileInspectionStatus(AligoProfileInspectionStatus.A)
+            .senderProfileStatus(AligoSenderProfileStatus.A)
+            .alimUseYn(true)
+            .uuid("uuid-test")
+            .status(EntityStatus.INACTIVE)
+            .createdAt(createdAt)
+            .modifiedAt(modifiedAt)
+            .build();
 
         // when
         AligoSenderProfile profile = AligoSenderProfile.from(state);
@@ -109,9 +109,9 @@ class AligoSenderProfileTest {
 
         // when
         profile.updateFromExternal(
-                AligoProfileInspectionStatus.B,
-                AligoSenderProfileStatus.S,
-                false
+            AligoProfileInspectionStatus.B,
+            AligoSenderProfileStatus.S,
+            false
         );
 
         // then
@@ -129,13 +129,13 @@ class AligoSenderProfileTest {
     void shouldDelegateIsInspectionApprovedToProfileInspectionStatus() {
         // given
         AligoSenderProfile approved = AligoSenderProfile.from(
-                validCreateState().profileInspectionStatus(AligoProfileInspectionStatus.A).build()
+            validCreateState().profileInspectionStatus(AligoProfileInspectionStatus.A).build()
         );
         AligoSenderProfile blocked = AligoSenderProfile.from(
-                validCreateState().profileInspectionStatus(AligoProfileInspectionStatus.B).build()
+            validCreateState().profileInspectionStatus(AligoProfileInspectionStatus.B).build()
         );
         AligoSenderProfile denied = AligoSenderProfile.from(
-                validCreateState().profileInspectionStatus(AligoProfileInspectionStatus.D).build()
+            validCreateState().profileInspectionStatus(AligoProfileInspectionStatus.D).build()
         );
 
         // expect
@@ -149,13 +149,13 @@ class AligoSenderProfileTest {
     void shouldDelegateIsProfileActiveToSenderProfileStatus() {
         // given
         AligoSenderProfile active = AligoSenderProfile.from(
-                validCreateState().senderProfileStatus(AligoSenderProfileStatus.A).build()
+            validCreateState().senderProfileStatus(AligoSenderProfileStatus.A).build()
         );
         AligoSenderProfile stopped = AligoSenderProfile.from(
-                validCreateState().senderProfileStatus(AligoSenderProfileStatus.S).build()
+            validCreateState().senderProfileStatus(AligoSenderProfileStatus.S).build()
         );
         AligoSenderProfile deleted = AligoSenderProfile.from(
-                validCreateState().senderProfileStatus(AligoSenderProfileStatus.D).build()
+            validCreateState().senderProfileStatus(AligoSenderProfileStatus.D).build()
         );
 
         // expect
@@ -179,15 +179,15 @@ class AligoSenderProfileTest {
 
     private AligoSenderProfileCreateState.AligoSenderProfileCreateStateBuilder validCreateState() {
         return AligoSenderProfileCreateState.builder()
-                .senderKey("sender-key-001")
-                .plusId("@plus-id")
-                .phoneNumber("01012345678")
-                .categoryCode("002001")
-                .name("테스트 프로필")
-                .licenseNum("000-00-00000")
-                .profileInspectionStatus(AligoProfileInspectionStatus.A)
-                .senderProfileStatus(AligoSenderProfileStatus.A)
-                .alimUseYn(true)
-                .uuid("uuid-test");
+            .senderKey("sender-key-001")
+            .plusId("@plus-id")
+            .phoneNumber("01012345678")
+            .categoryCode("002001")
+            .name("테스트 프로필")
+            .licenseNum("000-00-00000")
+            .profileInspectionStatus(AligoProfileInspectionStatus.A)
+            .senderProfileStatus(AligoSenderProfileStatus.A)
+            .alimUseYn(true)
+            .uuid("uuid-test");
     }
 }

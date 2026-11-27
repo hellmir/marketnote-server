@@ -33,7 +33,7 @@ class GifticonCategoryControllerTest {
     @DisplayName("OK 상태로 카테고리 목록을 반환한다")
     void returnsOkWithCategories() {
         given(getGifticonCategoriesUseCase.getCategories())
-                .willReturn(new GetGifticonCategoriesResult(List.of()));
+            .willReturn(new GetGifticonCategoriesResult(List.of()));
 
         ResponseEntity<BaseResponse<GetGifticonCategoriesResponse>> response = controller.getCategories();
 

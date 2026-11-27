@@ -10,23 +10,23 @@ public class QuickPaymentCardEntityToDomainMapper {
 
     public static QuickPaymentCard mapToDomain(QuickPaymentCardJpaEntity entity) {
         MaskedCardNumber maskedCardNumber = FormatValidator.hasValue(entity.getMaskedCardNumber())
-                ? MaskedCardNumber.of(entity.getMaskedCardNumber())
-                : null;
+            ? MaskedCardNumber.of(entity.getMaskedCardNumber())
+            : null;
         return QuickPaymentCard.from(
-                QuickPaymentCardSnapshotState.builder()
-                        .id(entity.getId())
-                        .userId(entity.getUserId())
-                        .batchKey(entity.getBatchKey())
-                        .groupId(entity.getGroupId())
-                        .cardCode(entity.getCardCode())
-                        .cardName(entity.getCardName())
-                        .maskedCardNumber(maskedCardNumber)
-                        .cardBinType01(entity.getCardBinType01())
-                        .cardBinType02(entity.getCardBinType02())
-                        .status(entity.getStatus())
-                        .createdAt(entity.getCreatedAt())
-                        .modifiedAt(entity.getModifiedAt())
-                        .build()
+            QuickPaymentCardSnapshotState.builder()
+                .id(entity.getId())
+                .userId(entity.getUserId())
+                .batchKey(entity.getBatchKey())
+                .groupId(entity.getGroupId())
+                .cardCode(entity.getCardCode())
+                .cardName(entity.getCardName())
+                .maskedCardNumber(maskedCardNumber)
+                .cardBinType01(entity.getCardBinType01())
+                .cardBinType02(entity.getCardBinType02())
+                .status(entity.getStatus())
+                .createdAt(entity.getCreatedAt())
+                .modifiedAt(entity.getModifiedAt())
+                .build()
         );
     }
 }

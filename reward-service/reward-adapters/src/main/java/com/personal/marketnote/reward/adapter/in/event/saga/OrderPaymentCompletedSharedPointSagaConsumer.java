@@ -49,12 +49,12 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
     private final RewardProperties rewardProperties;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_SHARED_POINT,
-            groupId = "saga-order-payment-downstream-shared-point"
+        topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_SHARED_POINT,
+        groupId = "saga-order-payment-downstream-shared-point"
     )
     public void handleSharedPointStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         try {
             EventEnvelope<?> envelope = record.value();
@@ -66,7 +66,7 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
             SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
 
             log.info("SAGA 결제 완료 공유 적립 예정 스텝 수신. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType()
+                stepMessage.sagaId(), stepMessage.messageType()
             );
 
             if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
@@ -80,11 +80,11 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
             }
 
             log.warn("알 수 없는 messageType. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType()
+                stepMessage.sagaId(), stepMessage.messageType()
             );
         } catch (Exception e) {
             log.error("SAGA 결제 완료 공유 적립 예정 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
-                    record.topic(), record.partition(), record.offset(), e.getMessage(), e
+                record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
         } finally {
             acknowledgment.acknowledge();
@@ -94,11 +94,11 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
     private void handleAction(SagaStepMessage stepMessage) {
         try {
             SharedPointSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), SharedPointSagaPayload.class
+                stepMessage.payload(), SharedPointSagaPayload.class
             );
 
             if (FormatValidator.hasNoValue(payload.orderId())
-                    || FormatValidator.hasNoValue(payload.buyerId())) {
+                || FormatValidator.hasNoValue(payload.buyerId())) {
                 publishValidationFailure(stepMessage, "orderId 또는 buyerId 누락");
                 return;
             }
@@ -125,20 +125,20 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
             }
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true}"
             );
 
             log.info("SAGA 공유 적립 예정 포인트 성공. sagaId={}, orderId={}, sharerKeys={}",
-                    stepMessage.sagaId(), payload.orderId(), sharerKeys
+                stepMessage.sagaId(), payload.orderId(), sharerKeys
             );
         } catch (Exception e) {
             log.error("SAGA 공유 적립 예정 포인트 처리 실패. sagaId={}, error={}",
-                    stepMessage.sagaId(), e.getMessage(), e
+                stepMessage.sagaId(), e.getMessage(), e
             );
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "공유 적립 예정 포인트 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "공유 적립 예정 포인트 처리 실패"
             );
         }
     }
@@ -146,7 +146,7 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
     private void handleCompensation(SagaStepMessage stepMessage) {
         try {
             SharedPointSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), SharedPointSagaPayload.class
+                stepMessage.payload(), SharedPointSagaPayload.class
             );
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
@@ -158,8 +158,8 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
             if (FormatValidator.hasNoValue(sharerKeys) || sharerKeys.isEmpty()) {
                 log.info("공유자 없음 (보상 skip). sagaId={}", stepMessage.sagaId());
                 sagaResponsePublisher.publishSuccess(
-                        stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                        stepMessage.messageType(), "{\"compensated\":true,\"skipped\":true}"
+                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                    stepMessage.messageType(), "{\"compensated\":true,\"skipped\":true}"
                 );
                 return;
             }
@@ -169,20 +169,20 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
             }
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"compensated\":true}"
             );
 
             log.info("SAGA 공유 적립 예정 포인트 보상 완료. sagaId={}, orderId={}, sharerKeys={}",
-                    stepMessage.sagaId(), payload.orderId(), sharerKeys
+                stepMessage.sagaId(), payload.orderId(), sharerKeys
             );
         } catch (Exception e) {
             log.error("SAGA 공유 적립 예정 포인트 보상 실패. sagaId={}, error={}",
-                    stepMessage.sagaId(), e.getMessage(), e
+                stepMessage.sagaId(), e.getMessage(), e
             );
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "공유 적립 예정 포인트 보상 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "공유 적립 예정 포인트 보상 처리 실패"
             );
         }
     }
@@ -190,60 +190,60 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
     private void accrueSharedPointIdempotent(SharedPointSagaPayload payload, UUID sharerKey, long amount) {
         try {
             ModifyPendingSharedPointCommand command = ModifyPendingSharedPointCommand.builder()
-                    .buyerId(payload.buyerId())
-                    .sharerKey(sharerKey)
-                    .changeType(UserPointChangeType.ACCRUAL)
-                    .amount(amount)
-                    .sourceType(UserPointSourceType.ORDER)
-                    .sourceId(payload.orderId())
-                    .reason(SHARE_PURCHASE_REASON)
-                    .build();
+                .buyerId(payload.buyerId())
+                .sharerKey(sharerKey)
+                .changeType(UserPointChangeType.ACCRUAL)
+                .amount(amount)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(payload.orderId())
+                .reason(SHARE_PURCHASE_REASON)
+                .build();
             modifyPendingSharedPointUseCase.modifyPending(command);
         } catch (DuplicateUserPointHistoryException e) {
             log.info("이미 처리된 공유 적립 예정 포인트 (멱등 처리). sharerKey={}, message={}",
-                    sharerKey, e.getMessage()
+                sharerKey, e.getMessage()
             );
         }
     }
 
     private void cancelSharedPendingPoint(Long orderId, UUID sharerKey) {
         UserPoint userPoint = findUserPointPort.findByUserKey(sharerKey.toString())
-                .orElseThrow(() -> {
-                    log.warn("회원 포인트 정보를 찾을 수 없습니다. userKey={}", sharerKey);
-                    return new UserPointNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("회원 포인트 정보를 찾을 수 없습니다. userKey={}", sharerKey);
+                return new UserPointNotFoundException();
+            });
 
         CancelPendingPointCommand command = CancelPendingPointCommand.builder()
-                .userId(userPoint.getUserId())
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(orderId)
-                .reason(SHARE_COMPENSATION_REASON)
-                .build();
+            .userId(userPoint.getUserId())
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(orderId)
+            .reason(SHARE_COMPENSATION_REASON)
+            .build();
         cancelPendingPointUseCase.cancelPending(command);
     }
 
     private void skipSuccess(SagaStepMessage stepMessage, String reason) {
         log.info("공유 적립 예정 포인트 skip (reason={}). sagaId={}", reason, stepMessage.sagaId());
         sagaResponsePublisher.publishSuccess(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "{\"success\":true,\"skipped\":true}"
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "{\"success\":true,\"skipped\":true}"
         );
     }
 
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
         log.warn("SAGA 공유 적립 예정 포인트 스텝 페이로드 검증 실패. sagaId={}, reason={}",
-                stepMessage.sagaId(), reason
+            stepMessage.sagaId(), reason
         );
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
     }
 
     private static long calculateSharedPoint(long amount, BigDecimal rate) {
         return BigDecimal.valueOf(amount)
-                .multiply(rate)
-                .setScale(0, RoundingMode.HALF_UP)
-                .longValueExact();
+            .multiply(rate)
+            .setScale(0, RoundingMode.HALF_UP)
+            .longValueExact();
     }
 }

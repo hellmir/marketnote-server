@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record PricePolicyDeletedEvent(
-        Long productId,
-        Long pricePolicyId
+    Long productId,
+    Long pricePolicyId
 ) {
 }

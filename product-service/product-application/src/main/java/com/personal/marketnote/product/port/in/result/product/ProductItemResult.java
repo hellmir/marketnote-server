@@ -36,121 +36,121 @@ public class ProductItemResult {
 
     public static ProductItemResult from(Product product) {
         return ProductItemResult.builder()
-                .id(product.getId())
-                .sellerId(product.getSellerId())
-                .name(product.getName())
-                .brandName(product.getBrandName())
-                .pricePolicy(GetProductPricePolicyResult.from(product.getDefaultPricePolicy()))
-                .sales(product.getSales())
-                .productTags(getTopOrderedTags(product.getProductTags()))
-                .status(product.getStatus().name())
-                .orderNum(product.getOrderNum())
-                .build();
+            .id(product.getId())
+            .sellerId(product.getSellerId())
+            .name(product.getName())
+            .brandName(product.getBrandName())
+            .pricePolicy(GetProductPricePolicyResult.from(product.getDefaultPricePolicy()))
+            .sales(product.getSales())
+            .productTags(getTopOrderedTags(product.getProductTags()))
+            .status(product.getStatus().name())
+            .orderNum(product.getOrderNum())
+            .build();
     }
 
     public static ProductItemResult from(
-            Product product,
-            PricePolicy pricePolicy
+        Product product,
+        PricePolicy pricePolicy
     ) {
         return ProductItemResult.builder()
-                .id(product.getId())
-                .sellerId(product.getSellerId())
-                .name(product.getName())
-                .brandName(product.getBrandName())
-                .pricePolicy(GetProductPricePolicyResult.from(pricePolicy))
-                .sales(product.getSales())
-                .productTags(getTopOrderedTags(product.getProductTags()))
-                .status(product.getStatus().name())
-                .orderNum(product.getOrderNum())
-                .build();
+            .id(product.getId())
+            .sellerId(product.getSellerId())
+            .name(product.getName())
+            .brandName(product.getBrandName())
+            .pricePolicy(GetProductPricePolicyResult.from(pricePolicy))
+            .sales(product.getSales())
+            .productTags(getTopOrderedTags(product.getProductTags()))
+            .status(product.getStatus().name())
+            .orderNum(product.getOrderNum())
+            .build();
     }
 
     public static ProductItemResult from(
-            Product product,
-            List<ProductOption> selectedOptions,
-            PricePolicy pricePolicy
+        Product product,
+        List<ProductOption> selectedOptions,
+        PricePolicy pricePolicy
     ) {
         return ProductItemResult.builder()
-                .id(product.getId())
-                .sellerId(product.getSellerId())
-                .name(product.getName())
-                .brandName(product.getBrandName())
-                .pricePolicy(GetProductPricePolicyResult.from(pricePolicy))
-                .sales(product.getSales())
-                .productTags(getTopOrderedTags(product.getProductTags()))
-                .selectedOptions(selectedOptions.stream()
-                        .map(ProductOptionItemResult::from)
-                        .toList())
-                .status(product.getStatus().name())
-                .orderNum(product.getOrderNum())
-                .build();
+            .id(product.getId())
+            .sellerId(product.getSellerId())
+            .name(product.getName())
+            .brandName(product.getBrandName())
+            .pricePolicy(GetProductPricePolicyResult.from(pricePolicy))
+            .sales(product.getSales())
+            .productTags(getTopOrderedTags(product.getProductTags()))
+            .selectedOptions(selectedOptions.stream()
+                .map(ProductOptionItemResult::from)
+                .toList())
+            .status(product.getStatus().name())
+            .orderNum(product.getOrderNum())
+            .build();
     }
 
     public static ProductItemResult from(
-            ProductItemResult productItemResult, GetFileResult catalogImage, Integer stock
+        ProductItemResult productItemResult, GetFileResult catalogImage, Integer stock
     ) {
         return ProductItemResult.builder()
-                .id(productItemResult.getId())
-                .sellerId(productItemResult.getSellerId())
-                .name(productItemResult.getName())
-                .brandName(productItemResult.getBrandName())
-                .pricePolicy(productItemResult.getPricePolicy())
-                .sales(productItemResult.getSales())
-                .productTags(productItemResult.getProductTags())
-                .catalogImage(catalogImage)
-                .selectedOptions(productItemResult.getSelectedOptions())
-                .stock(stock)
-                .averageRating(productItemResult.getAverageRating())
-                .totalCount(productItemResult.getTotalCount())
-                .status(productItemResult.getStatus())
-                .orderNum(productItemResult.getOrderNum())
-                .build();
+            .id(productItemResult.getId())
+            .sellerId(productItemResult.getSellerId())
+            .name(productItemResult.getName())
+            .brandName(productItemResult.getBrandName())
+            .pricePolicy(productItemResult.getPricePolicy())
+            .sales(productItemResult.getSales())
+            .productTags(productItemResult.getProductTags())
+            .catalogImage(catalogImage)
+            .selectedOptions(productItemResult.getSelectedOptions())
+            .stock(stock)
+            .averageRating(productItemResult.getAverageRating())
+            .totalCount(productItemResult.getTotalCount())
+            .status(productItemResult.getStatus())
+            .orderNum(productItemResult.getOrderNum())
+            .build();
     }
 
     public static ProductItemResult from(
-            ProductItemResult productItemResult,
-            GetFileResult catalogImage,
-            Integer stock,
-            BigDecimal averageRating,
-            Integer totalCount
+        ProductItemResult productItemResult,
+        GetFileResult catalogImage,
+        Integer stock,
+        BigDecimal averageRating,
+        Integer totalCount
     ) {
         return ProductItemResult.builder()
-                .id(productItemResult.getId())
-                .sellerId(productItemResult.getSellerId())
-                .name(productItemResult.getName())
-                .brandName(productItemResult.getBrandName())
-                .pricePolicy(productItemResult.getPricePolicy())
-                .sales(productItemResult.getSales())
-                .productTags(productItemResult.getProductTags())
-                .catalogImage(catalogImage)
-                .selectedOptions(productItemResult.getSelectedOptions())
-                .stock(stock)
-                .averageRating(averageRating)
-                .totalCount(totalCount)
-                .status(productItemResult.getStatus())
-                .orderNum(productItemResult.getOrderNum())
-                .build();
+            .id(productItemResult.getId())
+            .sellerId(productItemResult.getSellerId())
+            .name(productItemResult.getName())
+            .brandName(productItemResult.getBrandName())
+            .pricePolicy(productItemResult.getPricePolicy())
+            .sales(productItemResult.getSales())
+            .productTags(productItemResult.getProductTags())
+            .catalogImage(catalogImage)
+            .selectedOptions(productItemResult.getSelectedOptions())
+            .stock(stock)
+            .averageRating(averageRating)
+            .totalCount(totalCount)
+            .status(productItemResult.getStatus())
+            .orderNum(productItemResult.getOrderNum())
+            .build();
     }
 
     public static ProductItemResult fromReadModel(ProductCatalogItemResult catalogItem) {
         return ProductItemResult.builder()
-                .id(catalogItem.productId())
-                .sellerId(catalogItem.sellerId())
-                .name(catalogItem.name())
-                .brandName(catalogItem.brandName())
-                .pricePolicy(GetProductPricePolicyResult.fromReadModel(catalogItem))
-                .sales(toSalesInt(catalogItem.sales()))
-                .productTags(toProductTags(catalogItem.productTags()))
-                .catalogImage(null)
-                .selectedOptions(toSelectedOptions(catalogItem.selectedOptions()))
-                .stock(FormatValidator.hasValue(catalogItem.stockQuantity()) ? catalogItem.stockQuantity() : 0)
-                .averageRating(FormatValidator.hasValue(catalogItem.reviewAverageRating())
-                        ? catalogItem.reviewAverageRating() : BigDecimal.ZERO)
-                .totalCount(FormatValidator.hasValue(catalogItem.reviewCount())
-                        ? catalogItem.reviewCount() : 0)
-                .status(catalogItem.status())
-                .orderNum(catalogItem.orderNum())
-                .build();
+            .id(catalogItem.productId())
+            .sellerId(catalogItem.sellerId())
+            .name(catalogItem.name())
+            .brandName(catalogItem.brandName())
+            .pricePolicy(GetProductPricePolicyResult.fromReadModel(catalogItem))
+            .sales(toSalesInt(catalogItem.sales()))
+            .productTags(toProductTags(catalogItem.productTags()))
+            .catalogImage(null)
+            .selectedOptions(toSelectedOptions(catalogItem.selectedOptions()))
+            .stock(FormatValidator.hasValue(catalogItem.stockQuantity()) ? catalogItem.stockQuantity() : 0)
+            .averageRating(FormatValidator.hasValue(catalogItem.reviewAverageRating())
+                ? catalogItem.reviewAverageRating() : BigDecimal.ZERO)
+            .totalCount(FormatValidator.hasValue(catalogItem.reviewCount())
+                ? catalogItem.reviewCount() : 0)
+            .status(catalogItem.status())
+            .orderNum(catalogItem.orderNum())
+            .build();
     }
 
     private static Integer toSalesInt(Long sales) {
@@ -168,10 +168,10 @@ public class ProductItemResult {
             return List.of();
         }
         return snapshots.stream()
-                .map(snapshot -> new ProductTagItem(snapshot.id(), snapshot.name(), snapshot.orderNum()))
-                .sorted(Comparator.comparingLong(ProductTagItem::orderNum))
-                .limit(MAX_DISPLAY_TAGS)
-                .toList();
+            .map(snapshot -> new ProductTagItem(snapshot.id(), snapshot.name(), snapshot.orderNum()))
+            .sorted(Comparator.comparingLong(ProductTagItem::orderNum))
+            .limit(MAX_DISPLAY_TAGS)
+            .toList();
     }
 
     private static List<ProductOptionItemResult> toSelectedOptions(List<ProductCatalogOptionSnapshot> snapshots) {
@@ -179,10 +179,10 @@ public class ProductItemResult {
             return List.of();
         }
         return snapshots.stream()
-                .map(snapshot -> new ProductOptionItemResult(
-                        snapshot.id(), snapshot.content(), com.personal.marketnote.common.domain.EntityStatus.ACTIVE.name()
-                ))
-                .toList();
+            .map(snapshot -> new ProductOptionItemResult(
+                snapshot.id(), snapshot.content(), com.personal.marketnote.common.domain.EntityStatus.ACTIVE.name()
+            ))
+            .toList();
     }
 
     public Long getPricePolicyId() {
@@ -193,9 +193,9 @@ public class ProductItemResult {
 
     private static List<ProductTagItem> getTopOrderedTags(List<ProductTag> productTags) {
         return productTags.stream()
-                .sorted(Comparator.comparingLong(ProductTag::getOrderNum))
-                .limit(MAX_DISPLAY_TAGS)
-                .map(ProductTagItem::from)
-                .toList();
+            .sorted(Comparator.comparingLong(ProductTag::getOrderNum))
+            .limit(MAX_DISPLAY_TAGS)
+            .map(ProductTagItem::from)
+            .toList();
     }
 }

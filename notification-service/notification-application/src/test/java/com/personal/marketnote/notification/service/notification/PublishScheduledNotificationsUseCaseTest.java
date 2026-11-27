@@ -68,8 +68,8 @@ class PublishScheduledNotificationsUseCaseTest {
 
     @Spy
     private Clock clock = Clock.fixed(
-            Instant.parse("2026-09-03T05:00:00Z"),
-            ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-09-03T05:00:00Z"),
+        ZoneId.of("Asia/Seoul")
     );
 
     @Nested
@@ -81,7 +81,7 @@ class PublishScheduledNotificationsUseCaseTest {
         void shouldReturnZeroWhenNoScheduledNotifications() {
             // given
             when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             // when
             int result = publishScheduledNotificationsService.publishScheduledNotifications();
@@ -103,12 +103,12 @@ class PublishScheduledNotificationsUseCaseTest {
             // given
             Notification notification = createScheduledNotification(1L, 100L, DeliveryChannel.PUSH_ONLY);
             when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
-                    .thenReturn(List.of(notification));
+                .thenReturn(List.of(notification));
 
             List<DeviceToken> tokens = List.of(createDeviceToken(10L, 100L, "token-1"));
             when(findDeviceTokenPort.findActiveByUserId(100L)).thenReturn(tokens);
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.success("msg-1"));
+                .thenReturn(SendPushNotificationResult.success("msg-1"));
 
             // when
             int result = publishScheduledNotificationsService.publishScheduledNotifications();
@@ -125,7 +125,7 @@ class PublishScheduledNotificationsUseCaseTest {
             // given
             Notification notification = createScheduledNotification(2L, 200L, DeliveryChannel.IN_APP_ONLY);
             when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
-                    .thenReturn(List.of(notification));
+                .thenReturn(List.of(notification));
 
             // when
             int result = publishScheduledNotificationsService.publishScheduledNotifications();
@@ -144,7 +144,7 @@ class PublishScheduledNotificationsUseCaseTest {
             // given
             Notification notification = createScheduledNotification(3L, 300L, DeliveryChannel.PUSH_ONLY);
             when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
-                    .thenReturn(List.of(notification));
+                .thenReturn(List.of(notification));
             when(findDeviceTokenPort.findActiveByUserId(300L)).thenReturn(List.of());
 
             // when
@@ -161,12 +161,12 @@ class PublishScheduledNotificationsUseCaseTest {
             // given
             Notification notification = createScheduledNotification(4L, 400L, DeliveryChannel.PUSH_ONLY);
             when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
-                    .thenReturn(List.of(notification));
+                .thenReturn(List.of(notification));
 
             List<DeviceToken> tokens = List.of(createDeviceToken(40L, 400L, "token-4"));
             when(findDeviceTokenPort.findActiveByUserId(400L)).thenReturn(tokens);
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
+                .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
 
             // when
             publishScheduledNotificationsService.publishScheduledNotifications();
@@ -181,12 +181,12 @@ class PublishScheduledNotificationsUseCaseTest {
             // given
             Notification notification = createScheduledNotification(5L, 500L, DeliveryChannel.PUSH_ONLY);
             when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
-                    .thenReturn(List.of(notification));
+                .thenReturn(List.of(notification));
 
             List<DeviceToken> tokens = List.of(createDeviceToken(50L, 500L, "invalid-token"));
             when(findDeviceTokenPort.findActiveByUserId(500L)).thenReturn(tokens);
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.tokenInvalid("UNREGISTERED"));
+                .thenReturn(SendPushNotificationResult.tokenInvalid("UNREGISTERED"));
 
             // when
             publishScheduledNotificationsService.publishScheduledNotifications();
@@ -203,14 +203,14 @@ class PublishScheduledNotificationsUseCaseTest {
             Notification n2 = createScheduledNotification(2L, 200L, DeliveryChannel.PUSH_ONLY);
             Notification n3 = createScheduledNotification(3L, 300L, DeliveryChannel.IN_APP_ONLY);
             when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
-                    .thenReturn(List.of(n1, n2, n3));
+                .thenReturn(List.of(n1, n2, n3));
 
             when(findDeviceTokenPort.findActiveByUserId(100L))
-                    .thenReturn(List.of(createDeviceToken(10L, 100L, "token-1")));
+                .thenReturn(List.of(createDeviceToken(10L, 100L, "token-1")));
             when(findDeviceTokenPort.findActiveByUserId(200L))
-                    .thenReturn(List.of(createDeviceToken(20L, 200L, "token-2")));
+                .thenReturn(List.of(createDeviceToken(20L, 200L, "token-2")));
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.success("msg-id"));
+                .thenReturn(SendPushNotificationResult.success("msg-id"));
 
             // when
             int result = publishScheduledNotificationsService.publishScheduledNotifications();
@@ -227,14 +227,14 @@ class PublishScheduledNotificationsUseCaseTest {
             Notification n1 = createScheduledNotification(1L, 100L, DeliveryChannel.PUSH_ONLY);
             Notification n2 = createScheduledNotification(2L, 200L, DeliveryChannel.PUSH_ONLY);
             when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
-                    .thenReturn(List.of(n1, n2));
+                .thenReturn(List.of(n1, n2));
 
             when(findDeviceTokenPort.findActiveByUserId(100L))
-                    .thenThrow(new RuntimeException("DB error"));
+                .thenThrow(new RuntimeException("DB error"));
             when(findDeviceTokenPort.findActiveByUserId(200L))
-                    .thenReturn(List.of(createDeviceToken(20L, 200L, "token-2")));
+                .thenReturn(List.of(createDeviceToken(20L, 200L, "token-2")));
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.success("msg-id"));
+                .thenReturn(SendPushNotificationResult.success("msg-id"));
 
             // when
             int result = publishScheduledNotificationsService.publishScheduledNotifications();
@@ -255,12 +255,12 @@ class PublishScheduledNotificationsUseCaseTest {
             // given
             Notification notification = createScheduledNotification(1L, 100L, DeliveryChannel.PUSH_ONLY);
             when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
-                    .thenReturn(List.of(notification));
+                .thenReturn(List.of(notification));
 
             List<DeviceToken> tokens = List.of(createDeviceToken(10L, 100L, "token-1"));
             when(findDeviceTokenPort.findActiveByUserId(100L)).thenReturn(tokens);
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.success("msg-1"));
+                .thenReturn(SendPushNotificationResult.success("msg-1"));
             when(findNotificationPort.countUnreadByUserId(100L)).thenReturn(3L);
 
             // when
@@ -268,7 +268,7 @@ class PublishScheduledNotificationsUseCaseTest {
 
             // then
             verify(publishSseEventPort).publish(
-                    100L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(3L)
+                100L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(3L)
             );
         }
 
@@ -278,7 +278,7 @@ class PublishScheduledNotificationsUseCaseTest {
             // given
             Notification notification = createScheduledNotification(2L, 200L, DeliveryChannel.IN_APP_ONLY);
             when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
-                    .thenReturn(List.of(notification));
+                .thenReturn(List.of(notification));
             when(findNotificationPort.countUnreadByUserId(200L)).thenReturn(1L);
 
             // when
@@ -286,7 +286,7 @@ class PublishScheduledNotificationsUseCaseTest {
 
             // then
             verify(publishSseEventPort).publish(
-                    200L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(1L)
+                200L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(1L)
             );
         }
 
@@ -297,12 +297,12 @@ class PublishScheduledNotificationsUseCaseTest {
             Notification n1 = createScheduledNotification(1L, 100L, DeliveryChannel.PUSH_ONLY);
             Notification n2 = createScheduledNotification(2L, 200L, DeliveryChannel.IN_APP_ONLY);
             when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
-                    .thenReturn(List.of(n1, n2));
+                .thenReturn(List.of(n1, n2));
 
             when(findDeviceTokenPort.findActiveByUserId(100L))
-                    .thenReturn(List.of(createDeviceToken(10L, 100L, "token-1")));
+                .thenReturn(List.of(createDeviceToken(10L, 100L, "token-1")));
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.success("msg-id"));
+                .thenReturn(SendPushNotificationResult.success("msg-id"));
             when(findNotificationPort.countUnreadByUserId(100L)).thenReturn(5L);
             when(findNotificationPort.countUnreadByUserId(200L)).thenReturn(2L);
 
@@ -311,10 +311,10 @@ class PublishScheduledNotificationsUseCaseTest {
 
             // then
             verify(publishSseEventPort).publish(
-                    100L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(5L)
+                100L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(5L)
             );
             verify(publishSseEventPort).publish(
-                    200L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(2L)
+                200L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(2L)
             );
         }
 
@@ -323,7 +323,7 @@ class PublishScheduledNotificationsUseCaseTest {
         void shouldNotPublishSseEventWhenNoScheduledNotifications() {
             // given
             when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             // when
             publishScheduledNotificationsService.publishScheduledNotifications();
@@ -338,12 +338,12 @@ class PublishScheduledNotificationsUseCaseTest {
             // given
             Notification notification = createScheduledNotification(4L, 400L, DeliveryChannel.PUSH_ONLY);
             when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
-                    .thenReturn(List.of(notification));
+                .thenReturn(List.of(notification));
 
             List<DeviceToken> tokens = List.of(createDeviceToken(40L, 400L, "token-4"));
             when(findDeviceTokenPort.findActiveByUserId(400L)).thenReturn(tokens);
             when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
+                .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
             when(findNotificationPort.countUnreadByUserId(400L)).thenReturn(7L);
 
             // when
@@ -351,7 +351,7 @@ class PublishScheduledNotificationsUseCaseTest {
 
             // then
             verify(publishSseEventPort).publish(
-                    400L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(7L)
+                400L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(7L)
             );
         }
     }
@@ -360,37 +360,37 @@ class PublishScheduledNotificationsUseCaseTest {
 
     private Notification createScheduledNotification(Long id, Long userId, DeliveryChannel channel) {
         return Notification.from(
-                NotificationSnapshotState.builder()
-                        .id(id)
-                        .userId(userId)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .title("예약 알림")
-                        .body("예약 본문")
-                        .deliveryChannel(channel)
-                        .isRead(false)
-                        .landingUrl("/test")
-                        .sendStatus(SendStatus.SCHEDULED)
-                        .scheduledAt(LocalDateTime.of(2026, 4, 10, 8, 0))
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            NotificationSnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .title("예약 알림")
+                .body("예약 본문")
+                .deliveryChannel(channel)
+                .isRead(false)
+                .landingUrl("/test")
+                .sendStatus(SendStatus.SCHEDULED)
+                .scheduledAt(LocalDateTime.of(2026, 4, 10, 8, 0))
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 
     private DeviceToken createDeviceToken(Long id, Long userId, String token) {
         return DeviceToken.from(
-                DeviceTokenSnapshotState.builder()
-                        .id(id)
-                        .userId(userId)
-                        .token(token)
-                        .platform(Platform.ANDROID)
-                        .deviceId("device-" + id)
-                        .lastUsedAt(LocalDateTime.now())
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
+            DeviceTokenSnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .token(token)
+                .platform(Platform.ANDROID)
+                .deviceId("device-" + id)
+                .lastUsedAt(LocalDateTime.now())
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build()
         );
     }
 }

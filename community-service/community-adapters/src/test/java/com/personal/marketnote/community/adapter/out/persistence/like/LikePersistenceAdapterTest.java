@@ -41,11 +41,11 @@ class LikePersistenceAdapterTest {
     @BeforeEach
     void setUp() {
         activeLike = Like.from(
-                LikeCreateState.builder()
-                        .targetType(LikeTargetType.REVIEW)
-                        .targetId(100L)
-                        .userId(10L)
-                        .build()
+            LikeCreateState.builder()
+                .targetType(LikeTargetType.REVIEW)
+                .targetId(100L)
+                .userId(10L)
+                .build()
         );
     }
 
@@ -103,7 +103,7 @@ class LikePersistenceAdapterTest {
         void returnsDomainWhenEntityFound() {
             LikeJpaEntity entity = newActiveEntity(LikeTargetType.REVIEW, 100L, 10L);
             when(likeJpaRepository.findByTargetAndUser(LikeTargetType.REVIEW, 100L, 10L))
-                    .thenReturn(Optional.of(entity));
+                .thenReturn(Optional.of(entity));
 
             Optional<Like> result = adapter.findByTargetAndUser(LikeTargetType.REVIEW, 100L, 10L);
 
@@ -118,10 +118,10 @@ class LikePersistenceAdapterTest {
         @DisplayName("엔티티가 없으면 LikeNotFoundException을 던진다")
         void throwsWhenEntityMissing() {
             when(likeJpaRepository.findByTargetAndUser(LikeTargetType.BOARD, 999L, 99L))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> adapter.findByTargetAndUser(LikeTargetType.BOARD, 999L, 99L))
-                    .isInstanceOf(LikeNotFoundException.class);
+                .isInstanceOf(LikeNotFoundException.class);
         }
     }
 
@@ -134,17 +134,17 @@ class LikePersistenceAdapterTest {
         void updatesEntityStatusFromDomain() {
             LikeJpaEntity entity = newActiveEntity(LikeTargetType.REVIEW, 100L, 10L);
             when(likeJpaRepository.findByTargetAndUser(LikeTargetType.REVIEW, 100L, 10L))
-                    .thenReturn(Optional.of(entity));
+                .thenReturn(Optional.of(entity));
 
             Like revertedLike = Like.from(
-                    LikeSnapshotState.builder()
-                            .targetType(LikeTargetType.REVIEW)
-                            .targetId(100L)
-                            .userId(10L)
-                            .status(EntityStatus.INACTIVE)
-                            .createdAt(LocalDateTime.now())
-                            .modifiedAt(LocalDateTime.now())
-                            .build()
+                LikeSnapshotState.builder()
+                    .targetType(LikeTargetType.REVIEW)
+                    .targetId(100L)
+                    .userId(10L)
+                    .status(EntityStatus.INACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .modifiedAt(LocalDateTime.now())
+                    .build()
             );
 
             adapter.update(revertedLike);
@@ -157,28 +157,28 @@ class LikePersistenceAdapterTest {
         @DisplayName("엔티티가 없으면 LikeNotFoundException을 던진다")
         void throwsWhenEntityMissing() {
             when(likeJpaRepository.findByTargetAndUser(LikeTargetType.BOARD, 404L, 40L))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             Like missing = Like.from(
-                    LikeCreateState.builder()
-                            .targetType(LikeTargetType.BOARD)
-                            .targetId(404L)
-                            .userId(40L)
-                            .build()
+                LikeCreateState.builder()
+                    .targetType(LikeTargetType.BOARD)
+                    .targetId(404L)
+                    .userId(40L)
+                    .build()
             );
 
             assertThatThrownBy(() -> adapter.update(missing))
-                    .isInstanceOf(LikeNotFoundException.class);
+                .isInstanceOf(LikeNotFoundException.class);
         }
     }
 
     private LikeJpaEntity newActiveEntity(LikeTargetType targetType, Long targetId, Long userId) {
         Like like = Like.from(
-                LikeCreateState.builder()
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .userId(userId)
-                        .build()
+            LikeCreateState.builder()
+                .targetType(targetType)
+                .targetId(targetId)
+                .userId(userId)
+                .build()
         );
         LikeJpaEntity entity = LikeJpaEntity.from(like);
         ReflectionTestUtils.setField(entity, "createdAt", LocalDateTime.now());

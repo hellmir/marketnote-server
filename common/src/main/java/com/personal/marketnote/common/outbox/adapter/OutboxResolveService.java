@@ -29,15 +29,15 @@ public class OutboxResolveService {
     @Transactional(isolation = READ_COMMITTED)
     public OutboxResolveResult resolve(OutboxResolveCommand command) {
         OutboxEventJpaEntity entity = outboxEventJpaRepository.findById(command.id())
-                .orElseThrow(() -> {
-                    log.warn("Outbox 이벤트를 찾을 수 없습니다. outboxEventId={}", command.id());
-                    return new OutboxEventNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("Outbox 이벤트를 찾을 수 없습니다. outboxEventId={}", command.id());
+                return new OutboxEventNotFoundException();
+            });
 
         if (entity.isAlreadyResolved()) {
             return new OutboxResolveResult(
-                    entity.getEventId(), entity.getTopic(),
-                    command.action().name(), command.reason(), true
+                entity.getEventId(), entity.getTopic(),
+                command.action().name(), command.reason(), true
             );
         }
 
@@ -47,8 +47,8 @@ public class OutboxResolveService {
         outboxMetricsCollector.incrementResolvedCount(entity.getTopic(), command.action().name());
 
         return new OutboxResolveResult(
-                entity.getEventId(), entity.getTopic(),
-                command.action().name(), command.reason(), false
+            entity.getEventId(), entity.getTopic(),
+            command.action().name(), command.reason(), false
         );
     }
 

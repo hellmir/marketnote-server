@@ -65,20 +65,20 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         validatePointBalance(command);
 
         List<Long> pricePolicyIds = command.orderProducts().stream()
-                .map(OrderProductItemCommand::pricePolicyId)
-                .distinct()
-                .toList();
+            .map(OrderProductItemCommand::pricePolicyId)
+            .distinct()
+            .toList();
 
         List<Long> sellerIds = command.orderProducts().stream()
-                .map(OrderProductItemCommand::sellerId)
-                .distinct()
-                .toList();
+            .map(OrderProductItemCommand::sellerId)
+            .distinct()
+            .toList();
 
         // 상품 정보는 HTTP, 배송비 정책은 로컬 Read Model DB 조회. Virtual Thread 병렬 조회 유지.
         CompletableFuture<Map<Long, ProductInfoResult>> productInfoFuture =
-                CompletableFuture.supplyAsync(() -> fetchProductInfoByPricePolicyIds(pricePolicyIds), VIRTUAL_EXECUTOR);
+            CompletableFuture.supplyAsync(() -> fetchProductInfoByPricePolicyIds(pricePolicyIds), VIRTUAL_EXECUTOR);
         CompletableFuture<Map<Long, ShippingPolicyInfoResult>> shippingPolicyFuture =
-                CompletableFuture.supplyAsync(() -> fetchShippingPoliciesBySellerIds(sellerIds), VIRTUAL_EXECUTOR);
+            CompletableFuture.supplyAsync(() -> fetchShippingPoliciesBySellerIds(sellerIds), VIRTUAL_EXECUTOR);
 
         Map<Long, ProductInfoResult> productInfoMap = joinFuture(productInfoFuture);
         Map<Long, ShippingPolicyInfoResult> shippingPolicies = joinFuture(shippingPolicyFuture);
@@ -86,7 +86,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         validateUnitAmountsAgainstActualPrices(command, productInfoMap);
 
         ShippingAddressInfoResult addressInfo = findUserShippingAddressPort.findByIdAndUserId(
-                command.shippingAddressId(), command.buyerId()
+            command.shippingAddressId(), command.buyerId()
         );
         ShippingRegionType regionType = ShippingRegionType.from(addressInfo.regionType());
         if (regionType.isDeliveryImpossible()) {
@@ -96,39 +96,39 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         validateShippingFee(command, shippingPolicies, regionType);
 
         Map<Long, Long> productIdsByPricePolicyId = command.orderProducts()
-                .stream()
-                .collect(Collectors.toMap(
-                        OrderProductItemCommand::pricePolicyId,
-                        OrderProductItemCommand::productId,
-                        (existing, replacement) -> existing
-                ));
+            .stream()
+            .collect(Collectors.toMap(
+                OrderProductItemCommand::pricePolicyId,
+                OrderProductItemCommand::productId,
+                (existing, replacement) -> existing
+            ));
 
         Set<Inventory> inventories = getInventoryUseCase.getOrCreateInventories(productIdsByPricePolicyId);
         inventories.forEach(inventory -> {
             int orderQuantity = command.orderProducts().stream()
-                    .filter(item -> item.pricePolicyId().equals(inventory.getPricePolicyId()))
-                    .map(OrderProductItemCommand::quantity)
-                    .reduce(0, Integer::sum);
+                .filter(item -> item.pricePolicyId().equals(inventory.getPricePolicyId()))
+                .map(OrderProductItemCommand::quantity)
+                .reduce(0, Integer::sum);
 
             inventory.validateIsSufficient(orderQuantity);
         });
 
         List<OrderProductCreateState> orderProductStates = OrderCommandToStateMapper.mapToOrderProductStates(
-                command.orderProducts(), productInfoMap
+            command.orderProducts(), productInfoMap
         );
 
         OrderAmount orderAmount = OrderAmount.from(
-                OrderCommandToStateMapper.mapToOrderAmountState(command.amount())
+            OrderCommandToStateMapper.mapToOrderAmountState(command.amount())
         );
 
         ShippingAddress shippingAddress = resolveShippingAddress(command, addressInfo);
 
         Order savedOrder = saveOrderPort.save(
-                Order.from(
-                        OrderCommandToStateMapper.mapToOrderState(
-                                command.buyerId(), orderAmount, shippingAddress, regionType, orderProductStates
-                        )
+            Order.from(
+                OrderCommandToStateMapper.mapToOrderState(
+                    command.buyerId(), orderAmount, shippingAddress, regionType, orderProductStates
                 )
+            )
         );
 
         long couponAmount = resolveAmount(command.amount().couponAmount());
@@ -140,18 +140,18 @@ public class RegisterOrderService implements RegisterOrderUseCase {
 
         if (paymentAmount < 0) {
             log.error("결제 금액 음수 발생 - totalAmount: {}, shippingFee: {}, coupon: {}, point: {}",
-                    command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
+                command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
             );
             throw new ExcessiveDiscountException(
-                    command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
+                command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
             );
         }
 
         savePaymentPort.save(
-                Payment.from(
-                        OrderCommandToStateMapper.mapToPaymentState(
-                                savedOrder.getId(), savedOrder.getOrderKey(), paymentAmount)
-                )
+            Payment.from(
+                OrderCommandToStateMapper.mapToPaymentState(
+                    savedOrder.getId(), savedOrder.getOrderKey(), paymentAmount)
+            )
         );
 
         createPaymentAllocations(savedOrder.getId(), command.orderProducts(), shippingPolicies, regionType);
@@ -160,32 +160,32 @@ public class RegisterOrderService implements RegisterOrderUseCase {
     }
 
     private void createPaymentAllocations(
-            Long orderId, List<OrderProductItemCommand> orderProducts,
-            Map<Long, ShippingPolicyInfoResult> shippingPolicies,
-            ShippingRegionType regionType
+        Long orderId, List<OrderProductItemCommand> orderProducts,
+        Map<Long, ShippingPolicyInfoResult> shippingPolicies,
+        ShippingRegionType regionType
     ) {
         Map<Long, Long> sellerGrossAmounts = orderProducts.stream()
-                .collect(Collectors.groupingBy(
-                        OrderProductItemCommand::sellerId,
-                        Collectors.summingLong(item ->
-                                Math.multiplyExact(item.unitAmount(), (long) item.quantity()))
-                ));
+            .collect(Collectors.groupingBy(
+                OrderProductItemCommand::sellerId,
+                Collectors.summingLong(item ->
+                    Math.multiplyExact(item.unitAmount(), (long) item.quantity()))
+            ));
 
         Map<Long, Long> sellerShippingFees = calculateSellerShippingFees(
-                sellerGrossAmounts, shippingPolicies, regionType
+            sellerGrossAmounts, shippingPolicies, regionType
         );
 
         List<PaymentAllocation> allocations = sellerGrossAmounts.entrySet().stream()
-                .filter(entry -> entry.getValue() > 0)
-                .map(entry -> {
-                    Long sellerId = entry.getKey();
-                    Long sellerShippingFee = sellerShippingFees.getOrDefault(sellerId, 0L);
-                    return PaymentAllocation.from(
-                            OrderCommandToStateMapper.mapToPaymentAllocationState(
-                                    orderId, sellerId, entry.getValue(), sellerShippingFee)
-                    );
-                })
-                .toList();
+            .filter(entry -> entry.getValue() > 0)
+            .map(entry -> {
+                Long sellerId = entry.getKey();
+                Long sellerShippingFee = sellerShippingFees.getOrDefault(sellerId, 0L);
+                return PaymentAllocation.from(
+                    OrderCommandToStateMapper.mapToPaymentAllocationState(
+                        orderId, sellerId, entry.getValue(), sellerShippingFee)
+                );
+            })
+            .toList();
 
         if (!allocations.isEmpty()) {
             savePaymentAllocationPort.saveAll(allocations);
@@ -193,9 +193,9 @@ public class RegisterOrderService implements RegisterOrderUseCase {
     }
 
     private Map<Long, Long> calculateSellerShippingFees(
-            Map<Long, Long> sellerAmounts,
-            Map<Long, ShippingPolicyInfoResult> shippingPolicies,
-            ShippingRegionType regionType
+        Map<Long, Long> sellerAmounts,
+        Map<Long, ShippingPolicyInfoResult> shippingPolicies,
+        ShippingRegionType regionType
     ) {
         Map<Long, Long> sellerShippingFees = new java.util.HashMap<>();
         for (Map.Entry<Long, Long> entry : sellerAmounts.entrySet()) {
@@ -209,7 +209,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
             }
 
             ShippingFeeContext context = ShippingFeeContext.of(
-                    Money.of(sellerAmount), Money.of(policy.shippingFee()), Money.of(policy.freeShippingThreshold())
+                Money.of(sellerAmount), Money.of(policy.shippingFee()), Money.of(policy.freeShippingThreshold())
             );
             long baseFee = ShippingFeeCalculator.calculateBaseFee(context).getValue();
             long surcharge = resolveSurcharge(policy, regionType);
@@ -259,20 +259,20 @@ public class RegisterOrderService implements RegisterOrderUseCase {
             payableAmount = Math.addExact(command.amount().totalAmount(), shippingFee);
         } catch (ArithmeticException ae) {
             log.warn(
-                    "할인/배송비 금액 오버플로우. couponAmount={}, pointAmount={}, shippingFee={}",
-                    couponAmount, pointAmount, shippingFee, ae
+                "할인/배송비 금액 오버플로우. couponAmount={}, pointAmount={}, shippingFee={}",
+                couponAmount, pointAmount, shippingFee, ae
             );
             throw new ExcessiveDiscountException(
-                    command.amount().totalAmount(), shippingFee, couponAmount, pointAmount, ae
+                command.amount().totalAmount(), shippingFee, couponAmount, pointAmount, ae
             );
         }
 
         if (totalDiscount > payableAmount) {
             log.warn("할인 금액 초과 - 주문 총액: {}, 배송비: {}, 쿠폰: {}, 포인트: {}",
-                    command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
+                command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
             );
             throw new ExcessiveDiscountException(
-                    command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
+                command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
             );
         }
     }
@@ -309,12 +309,12 @@ public class RegisterOrderService implements RegisterOrderUseCase {
     }
 
     private void validateUnitAmountsAgainstActualPrices(
-            RegisterOrderCommand command,
-            Map<Long, ProductInfoResult> productInfoMap
+        RegisterOrderCommand command,
+        Map<Long, ProductInfoResult> productInfoMap
     ) {
         if (productInfoMap.isEmpty()) {
             log.warn("[PRODUCT_VALIDATION_SKIPPED] product-service 응답 없음 - 가격/판매자 검증 생략. pricePolicyIds: {}",
-                    command.orderProducts().stream().map(OrderProductItemCommand::pricePolicyId).distinct().toList()
+                command.orderProducts().stream().map(OrderProductItemCommand::pricePolicyId).distinct().toList()
             );
             return;
         }
@@ -323,21 +323,21 @@ public class RegisterOrderService implements RegisterOrderUseCase {
             ProductInfoResult productInfo = productInfoMap.get(item.pricePolicyId());
             if (FormatValidator.hasNoValue(productInfo)) {
                 log.warn("[PRODUCT_VALIDATION_SKIPPED] 상품 정보 누락 - pricePolicyId: {}, 전송된 단가: {}",
-                        item.pricePolicyId(), item.unitAmount());
+                    item.pricePolicyId(), item.unitAmount());
                 continue;
             }
 
             Long actualSellerId = productInfo.sellerId();
             if (FormatValidator.hasValue(actualSellerId) && !actualSellerId.equals(item.sellerId())) {
                 log.warn("판매자 불일치 - pricePolicyId: {}, 전송된 sellerId: {} (실제 판매자와 불일치)",
-                        item.pricePolicyId(), item.sellerId());
+                    item.pricePolicyId(), item.sellerId());
                 throw new SellerMismatchException(item.pricePolicyId(), item.sellerId(), actualSellerId);
             }
 
             Long actualPrice = productInfo.getSellingPrice();
             if (FormatValidator.hasValue(actualPrice) && !actualPrice.equals(item.unitAmount())) {
                 log.warn("단가 불일치 - pricePolicyId: {}, 전송된 단가: {}, 실제 가격: {}",
-                        item.pricePolicyId(), item.unitAmount(), actualPrice);
+                    item.pricePolicyId(), item.unitAmount(), actualPrice);
                 throw new PriceMismatchException(item.pricePolicyId(), item.unitAmount(), actualPrice);
             }
         }
@@ -352,26 +352,26 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         Long availablePoints = modifyUserPointPort.getAvailablePoints(command.buyerId());
         if (availablePoints < pointAmount) {
             log.warn("포인트 잔액 부족 - buyerId: {}, 요청: {}, 보유: {}",
-                    command.buyerId(), pointAmount, availablePoints);
+                command.buyerId(), pointAmount, availablePoints);
             throw new InsufficientPointException(pointAmount, availablePoints);
         }
     }
 
     private void validateShippingFee(
-            RegisterOrderCommand command,
-            Map<Long, ShippingPolicyInfoResult> shippingPolicies,
-            ShippingRegionType regionType
+        RegisterOrderCommand command,
+        Map<Long, ShippingPolicyInfoResult> shippingPolicies,
+        ShippingRegionType regionType
     ) {
         long requestedShippingFee = resolveAmount(command.amount().shippingFee());
 
         if (shippingPolicies.isEmpty()) {
             log.warn("[SHIPPING_VALIDATION_SKIPPED] product-service 응답 없음 - 배송비 검증 생략. sellerIds: {}",
-                    command.orderProducts().stream().map(OrderProductItemCommand::sellerId).distinct().toList());
+                command.orderProducts().stream().map(OrderProductItemCommand::sellerId).distinct().toList());
             return;
         }
 
         long calculatedShippingFee = calculateExpectedShippingFee(
-                command.orderProducts(), shippingPolicies, regionType
+            command.orderProducts(), shippingPolicies, regionType
         );
 
         if (requestedShippingFee != calculatedShippingFee) {
@@ -381,16 +381,16 @@ public class RegisterOrderService implements RegisterOrderUseCase {
     }
 
     private long calculateExpectedShippingFee(
-            List<OrderProductItemCommand> orderProducts,
-            Map<Long, ShippingPolicyInfoResult> shippingPolicies,
-            ShippingRegionType regionType
+        List<OrderProductItemCommand> orderProducts,
+        Map<Long, ShippingPolicyInfoResult> shippingPolicies,
+        ShippingRegionType regionType
     ) {
         Map<Long, Long> sellerAmounts = orderProducts.stream()
-                .collect(Collectors.groupingBy(
-                        OrderProductItemCommand::sellerId,
-                        Collectors.summingLong(item ->
-                                Math.multiplyExact(item.unitAmount(), (long) item.quantity()))
-                ));
+            .collect(Collectors.groupingBy(
+                OrderProductItemCommand::sellerId,
+                Collectors.summingLong(item ->
+                    Math.multiplyExact(item.unitAmount(), (long) item.quantity()))
+            ));
 
         Map<Long, Long> sellerShippingFees = calculateSellerShippingFees(sellerAmounts, shippingPolicies, regionType);
 
@@ -402,15 +402,15 @@ public class RegisterOrderService implements RegisterOrderUseCase {
     }
 
     private ShippingAddress resolveShippingAddress(
-            RegisterOrderCommand command, ShippingAddressInfoResult addressInfo
+        RegisterOrderCommand command, ShippingAddressInfoResult addressInfo
     ) {
         return ShippingAddress.from(ShippingAddressCreateState.forShipping(
-                addressInfo.recipientName(),
-                addressInfo.recipientPhoneNumber(),
-                addressInfo.address(),
-                addressInfo.addressDetail(),
-                command.deliveryRequestType(),
-                command.deliveryRequestMessage()
+            addressInfo.recipientName(),
+            addressInfo.recipientPhoneNumber(),
+            addressInfo.address(),
+            addressInfo.addressDetail(),
+            command.deliveryRequestType(),
+            command.deliveryRequestMessage()
         ));
     }
 

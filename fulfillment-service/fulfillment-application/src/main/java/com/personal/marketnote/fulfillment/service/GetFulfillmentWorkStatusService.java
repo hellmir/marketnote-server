@@ -20,13 +20,13 @@ public class GetFulfillmentWorkStatusService implements GetFulfillmentWorkStatus
     @Override
     public GetFulfillmentWorkStatusResult getWorkStatus(GetFulfillmentWorkStatusCommand command) {
         return findFulfillmentDeliveryRegistrationPort.findByOrderId(command.orderId())
-                .map(registration -> new GetFulfillmentWorkStatusResult(
-                        command.orderId(),
-                        registration.getWorkStatus().name()
-                ))
-                .orElseGet(() -> new GetFulfillmentWorkStatusResult(
-                        command.orderId(),
-                        FulfillmentWorkStatus.NOT_REGISTERED.name()
-                ));
+            .map(registration -> new GetFulfillmentWorkStatusResult(
+                command.orderId(),
+                registration.getWorkStatus().name()
+            ))
+            .orElseGet(() -> new GetFulfillmentWorkStatusResult(
+                command.orderId(),
+                FulfillmentWorkStatus.NOT_REGISTERED.name()
+            ));
     }
 }

@@ -24,11 +24,11 @@ class InventoryReservationTest {
             // given
             LocalDateTime now = LocalDateTime.of(2026, 4, 2, 10, 0, 0);
             InventoryReservationCreateState state = InventoryReservationCreateState.builder()
-                    .orderId(1L)
-                    .pricePolicyId(100L)
-                    .quantity(3)
-                    .reservedAt(now)
-                    .build();
+                .orderId(1L)
+                .pricePolicyId(100L)
+                .quantity(3)
+                .reservedAt(now)
+                .build();
 
             // when
             InventoryReservation reservation = InventoryReservation.from(state);
@@ -45,15 +45,15 @@ class InventoryReservationTest {
         void shouldThrowWhenOrderIdIsNull() {
             // given
             InventoryReservationCreateState state = InventoryReservationCreateState.builder()
-                    .orderId(null)
-                    .pricePolicyId(100L)
-                    .quantity(3)
-                    .reservedAt(LocalDateTime.now())
-                    .build();
+                .orderId(null)
+                .pricePolicyId(100L)
+                .quantity(3)
+                .reservedAt(LocalDateTime.now())
+                .build();
 
             // when & then
             assertThatThrownBy(() -> InventoryReservation.from(state))
-                    .isInstanceOf(IdNoValueException.class);
+                .isInstanceOf(IdNoValueException.class);
         }
 
         @Test
@@ -61,15 +61,15 @@ class InventoryReservationTest {
         void shouldThrowWhenPricePolicyIdIsNull() {
             // given
             InventoryReservationCreateState state = InventoryReservationCreateState.builder()
-                    .orderId(1L)
-                    .pricePolicyId(null)
-                    .quantity(3)
-                    .reservedAt(LocalDateTime.now())
-                    .build();
+                .orderId(1L)
+                .pricePolicyId(null)
+                .quantity(3)
+                .reservedAt(LocalDateTime.now())
+                .build();
 
             // when & then
             assertThatThrownBy(() -> InventoryReservation.from(state))
-                    .isInstanceOf(IdNoValueException.class);
+                .isInstanceOf(IdNoValueException.class);
         }
 
         @Test
@@ -77,15 +77,15 @@ class InventoryReservationTest {
         void shouldThrowWhenQuantityIsZeroOrNegative() {
             // given
             InventoryReservationCreateState state = InventoryReservationCreateState.builder()
-                    .orderId(1L)
-                    .pricePolicyId(100L)
-                    .quantity(0)
-                    .reservedAt(LocalDateTime.now())
-                    .build();
+                .orderId(1L)
+                .pricePolicyId(100L)
+                .quantity(0)
+                .reservedAt(LocalDateTime.now())
+                .build();
 
             // when & then
             assertThatThrownBy(() -> InventoryReservation.from(state))
-                    .isInstanceOf(InvalidQuantityException.class);
+                .isInstanceOf(InvalidQuantityException.class);
         }
     }
 
@@ -99,12 +99,12 @@ class InventoryReservationTest {
             // given
             LocalDateTime now = LocalDateTime.of(2026, 4, 2, 10, 0, 0);
             InventoryReservationSnapshotState state = InventoryReservationSnapshotState.builder()
-                    .id(1L)
-                    .orderId(2L)
-                    .pricePolicyId(200L)
-                    .quantity(5)
-                    .reservedAt(now)
-                    .build();
+                .id(1L)
+                .orderId(2L)
+                .pricePolicyId(200L)
+                .quantity(5)
+                .reservedAt(now)
+                .build();
 
             // when
             InventoryReservation reservation = InventoryReservation.from(state);

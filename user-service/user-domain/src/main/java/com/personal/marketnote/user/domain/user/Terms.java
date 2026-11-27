@@ -1,11 +1,7 @@
 package com.personal.marketnote.user.domain.user;
 
 import com.personal.marketnote.common.domain.EntityStatus;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -23,23 +19,23 @@ public class Terms {
 
     public static Terms from(TermsCreateState state) {
         return Terms.builder()
-                .content(state.getContent())
-                .requiredYn(state.getRequiredYn())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .status(state.getStatus())
-                .build();
+            .content(state.getContent())
+            .requiredYn(state.getRequiredYn())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .status(state.getStatus())
+            .build();
     }
 
     public static Terms from(TermsSnapshotState state) {
         return Terms.builder()
-                .id(state.getId())
-                .content(state.getContent())
-                .requiredYn(state.getRequiredYn())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .status(state.getStatus())
-                .build();
+            .id(state.getId())
+            .content(state.getContent())
+            .requiredYn(state.getRequiredYn())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .status(state.getStatus())
+            .build();
     }
 
     public boolean isRequired() {

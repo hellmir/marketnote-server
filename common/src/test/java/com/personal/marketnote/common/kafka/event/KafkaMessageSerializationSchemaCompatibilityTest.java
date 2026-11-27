@@ -63,7 +63,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
     private static final UUID SHARER_KEY_3 = UUID.fromString("00000000-0000-0000-0000-000000000003");
 
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-03-21T10:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-03-21T10:00:00Z"), ZoneId.of("Asia/Seoul")
     );
 
     private static final ObjectMapper OBJECT_MAPPER = createObjectMapper();
@@ -99,7 +99,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // given
             ProductRegisteredEvent event = new ProductRegisteredEvent(1L, null, 2L, 3L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null, "TestFasstoCode00000001", false);
             EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(
-                    "product.product.registered", "product-service", event, FIXED_CLOCK);
+                "product.product.registered", "product-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -127,11 +127,11 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
         void productRegisteredEvent_imported_roundTrip_preservesImportedFlag() throws Exception {
             // given
             ProductRegisteredEvent event = new ProductRegisteredEvent(
-                    2L, null, 20L, 30L, "import 상품", "1", "import 브랜드",
-                    10000L, 8000L, 100L, 0L, null, null, "FASSTO0000000000000000001", true
+                2L, null, 20L, 30L, "import 상품", "1", "import 브랜드",
+                10000L, 8000L, 100L, 0L, null, null, "FASSTO0000000000000000001", true
             );
             EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(
-                    "product.product.registered", "product-service", event, FIXED_CLOCK);
+                "product.product.registered", "product-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -148,7 +148,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // given
             ProductUpdatedEvent event = buildSampleProductUpdatedEvent();
             EventEnvelope<ProductUpdatedEvent> envelope = EventEnvelope.of(
-                    "product.product.updated", "product-service", event, FIXED_CLOCK);
+                "product.product.updated", "product-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -201,13 +201,13 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // given
             java.util.UUID productKey = java.util.UUID.randomUUID();
             PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
-                    10L, productKey, 20L, 30L, "상품", "브랜드",
-                    10000L, 9000L, 100L, 0L,
-                    java.util.List.of(new PricePolicyCreatedEvent.ProductTagSnapshot(1L, "NEW", 1L)),
-                    java.util.List.of(new PricePolicyCreatedEvent.ProductOptionSnapshot(50L, "색상: 빨강"))
+                10L, productKey, 20L, 30L, "상품", "브랜드",
+                10000L, 9000L, 100L, 0L,
+                java.util.List.of(new PricePolicyCreatedEvent.ProductTagSnapshot(1L, "NEW", 1L)),
+                java.util.List.of(new PricePolicyCreatedEvent.ProductOptionSnapshot(50L, "색상: 빨강"))
             );
             EventEnvelope<PricePolicyCreatedEvent> envelope = EventEnvelope.of(
-                    "product.price-policy.created", "product-service", event, FIXED_CLOCK);
+                "product.price-policy.created", "product-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -230,7 +230,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // given
             UserSignupCompletedEvent event = new UserSignupCompletedEvent(100L, "user-key-abc", null, null);
             EventEnvelope<UserSignupCompletedEvent> envelope = EventEnvelope.of(
-                    "user.user.signup-completed", "user-service", event, FIXED_CLOCK);
+                "user.user.signup-completed", "user-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -247,7 +247,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // given
             UserReferralCompletedEvent event = new UserReferralCompletedEvent(1L, 2L);
             EventEnvelope<UserReferralCompletedEvent> envelope = EventEnvelope.of(
-                    "user.user.referral-completed", "user-service", event, FIXED_CLOCK);
+                "user.user.referral-completed", "user-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -264,7 +264,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // given
             ReviewRegisteredEvent event = new ReviewRegisteredEvent(50L, 60L, 100L, 10, new BigDecimal("4.50"), 1L, 200L);
             EventEnvelope<ReviewRegisteredEvent> envelope = EventEnvelope.of(
-                    "community.review.registered", "community-service", event, FIXED_CLOCK);
+                "community.review.registered", "community-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -284,7 +284,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // given
             PaymentApprovedEvent event = new PaymentApprovedEvent(10L, "order-key-123", 50000L);
             EventEnvelope<PaymentApprovedEvent> envelope = EventEnvelope.of(
-                    "commerce.payment.approved", "commerce-service", event, FIXED_CLOCK);
+                "commerce.payment.approved", "commerce-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -302,7 +302,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // given
             PaymentFailedEvent event = new PaymentFailedEvent(10L, "order-key-456", "E001", "결제 실패");
             EventEnvelope<PaymentFailedEvent> envelope = EventEnvelope.of(
-                    "commerce.payment.failed", "commerce-service", event, FIXED_CLOCK);
+                "commerce.payment.failed", "commerce-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -321,7 +321,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // given
             PaymentCancelledEvent event = buildSamplePaymentCancelledEvent();
             EventEnvelope<PaymentCancelledEvent> envelope = EventEnvelope.of(
-                    "commerce.payment.cancelled", "commerce-service", event, FIXED_CLOCK);
+                "commerce.payment.cancelled", "commerce-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -351,7 +351,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // given
             OrderPaymentCompletedEvent event = buildSampleOrderPaymentCompletedEvent();
             EventEnvelope<OrderPaymentCompletedEvent> envelope = EventEnvelope.of(
-                    "commerce.order.payment-completed", "commerce-service", event, FIXED_CLOCK);
+                "commerce.order.payment-completed", "commerce-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -373,10 +373,10 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
         void orderPurchaseConfirmedEvent_roundTrip_preservesAllFields() throws Exception {
             // given
             OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(
-                    1L, 10L, List.of(SHARER_KEY_1, SHARER_KEY_2, SHARER_KEY_3), false, List.of()
+                1L, 10L, List.of(SHARER_KEY_1, SHARER_KEY_2, SHARER_KEY_3), false, List.of()
             );
             EventEnvelope<OrderPurchaseConfirmedEvent> envelope = EventEnvelope.of(
-                    "commerce.order.purchase-confirmed", "commerce-service", event, FIXED_CLOCK);
+                "commerce.order.purchase-confirmed", "commerce-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -394,7 +394,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // given
             SettlementExecutedEvent event = new SettlementExecutedEvent(1L, 10L, 100000L, 0L, 3000L, 5000L, 92000L);
             EventEnvelope<SettlementExecutedEvent> envelope = EventEnvelope.of(
-                    "commerce.settlement.executed", "commerce-service", event, FIXED_CLOCK);
+                "commerce.settlement.executed", "commerce-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -415,7 +415,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // given — godType, cancelProducts 등 nullable 필드를 null로 설정
             ProductRegisteredEvent event = new ProductRegisteredEvent(1L, null, 2L, 3L, "상품", null, null, null, null, null, 0L, null, null, null, false);
             EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(
-                    "product.product.registered", "product-service", event, FIXED_CLOCK);
+                "product.product.registered", "product-service", event, FIXED_CLOCK);
 
             // when
             EventEnvelope<?> deserialized = publishAndConsume(ROUNDTRIP_TOPIC_PREFIX, envelope);
@@ -591,8 +591,8 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
 
             // then — getPayloadAs에서 타입 변환 실패
             assertThatThrownBy(() ->
-                    deserialized.getPayloadAs(PaymentApprovedEvent.class, OBJECT_MAPPER))
-                    .isInstanceOf(IllegalArgumentException.class);
+                deserialized.getPayloadAs(PaymentApprovedEvent.class, OBJECT_MAPPER))
+                .isInstanceOf(IllegalArgumentException.class);
         }
     }
 
@@ -612,8 +612,8 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // when & then — JsonDeserializer로 직접 역직렬화 시 예외 발생
             JsonDeserializer<EventEnvelope> deserializer = createEventEnvelopeDeserializer();
             assertThatThrownBy(() ->
-                    deserializer.deserialize(DLT_TOPIC, invalidJson.getBytes(StandardCharsets.UTF_8)))
-                    .isInstanceOf(SerializationException.class);
+                deserializer.deserialize(DLT_TOPIC, invalidJson.getBytes(StandardCharsets.UTF_8)))
+                .isInstanceOf(SerializationException.class);
             deserializer.close();
         }
 
@@ -623,7 +623,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             // given — 타입 헤더에 임의 클래스를 설정한 메시지
             PaymentApprovedEvent event = new PaymentApprovedEvent(1L, "key", 1000L);
             EventEnvelope<PaymentApprovedEvent> envelope = EventEnvelope.of(
-                    "commerce.payment.approved", "commerce-service", event, FIXED_CLOCK);
+                "commerce.payment.approved", "commerce-service", event, FIXED_CLOCK);
 
             String json = OBJECT_MAPPER.writeValueAsString(envelope);
 
@@ -658,7 +658,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
 
             // then — 신뢰하지 않는 패키지이므로 역직렬화 거부
             assertThatThrownBy(() -> deserializer.deserialize(SECURITY_TOPIC, headers, data))
-                    .isInstanceOf(SerializationException.class);
+                .isInstanceOf(SerializationException.class);
             deserializer.close();
         }
     }
@@ -674,7 +674,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
     }
 
     private EventEnvelope<?> publishAndConsume(String topic, EventEnvelope<?> envelope)
-            throws ExecutionException, InterruptedException, TimeoutException {
+        throws ExecutionException, InterruptedException, TimeoutException {
         String uniqueTopic = topic + "-" + UUID.randomUUID().toString().substring(0, 8);
         String groupId = "roundtrip-" + UUID.randomUUID().toString().substring(0, 8);
 
@@ -687,7 +687,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
     }
 
     private void publishRawJson(String topic, String json)
-            throws ExecutionException, InterruptedException, TimeoutException {
+        throws ExecutionException, InterruptedException, TimeoutException {
         try (KafkaProducer<String, String> producer = createStringProducer()) {
             Future<RecordMetadata> future = producer.send(new ProducerRecord<>(topic, "key", json));
             future.get(10, TimeUnit.SECONDS);
@@ -695,7 +695,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
     }
 
     private void publishRawRecord(ProducerRecord<String, String> record)
-            throws ExecutionException, InterruptedException, TimeoutException {
+        throws ExecutionException, InterruptedException, TimeoutException {
         try (KafkaProducer<String, String> producer = createStringProducer()) {
             Future<RecordMetadata> future = producer.send(record);
             future.get(10, TimeUnit.SECONDS);
@@ -759,7 +759,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
         for (int attempt = 0; attempt < READY_CHECK_MAX_ATTEMPTS; attempt++) {
             try (KafkaProducer<String, String> producer = createStringProducer()) {
                 Future<RecordMetadata> future = producer.send(
-                        new ProducerRecord<>("cluster-ready-check", "readiness-" + attempt, "check"));
+                    new ProducerRecord<>("cluster-ready-check", "readiness-" + attempt, "check"));
                 future.get(5, TimeUnit.SECONDS);
                 return;
             } catch (Exception e) {
@@ -767,50 +767,50 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             }
         }
         throw new IllegalStateException(
-                "Kafka 클러스터가 " + READY_CHECK_MAX_ATTEMPTS + "회 시도 후에도 준비되지 않음");
+            "Kafka 클러스터가 " + READY_CHECK_MAX_ATTEMPTS + "회 시도 후에도 준비되지 않음");
     }
 
     // === 샘플 이벤트 빌더 ===
 
     private ProductUpdatedEvent buildSampleProductUpdatedEvent() {
         return new ProductUpdatedEvent(
-                1L, UUID.randomUUID(), "업데이트 상품", "테스트 브랜드",
-                "1", "N", "OPT1", "OPT2",
-                "Y", "커스텀상품명", "SUP001", "CATE01",
-                "SS2026", "U", "2026", "50000", "30000",
-                "45000", "NORMAL", "PICK01", "8801234567890",
-                "1.5", "국내", "Y", "365", "7",
-                "3", "BOX", "N", "UPRIGHT",
-                "종이", "Y", "100", "N",
-                "1", "https://img.test/1.jpg", "https://external.test/1.jpg",
-                "TestFasstoCodeUpdated01"
+            1L, UUID.randomUUID(), "업데이트 상품", "테스트 브랜드",
+            "1", "N", "OPT1", "OPT2",
+            "Y", "커스텀상품명", "SUP001", "CATE01",
+            "SS2026", "U", "2026", "50000", "30000",
+            "45000", "NORMAL", "PICK01", "8801234567890",
+            "1.5", "국내", "Y", "365", "7",
+            "3", "BOX", "N", "UPRIGHT",
+            "종이", "Y", "100", "N",
+            "1", "https://img.test/1.jpg", "https://external.test/1.jpg",
+            "TestFasstoCodeUpdated01"
         );
     }
 
     private PaymentCancelledEvent buildSamplePaymentCancelledEvent() {
         List<PaymentCancelledEvent.OrderProductItem> orderProducts = List.of(
-                new PaymentCancelledEvent.OrderProductItem(100L, SHARER_KEY_1, 2, 15000L),
-                new PaymentCancelledEvent.OrderProductItem(200L, SHARER_KEY_2, 1, 20000L)
+            new PaymentCancelledEvent.OrderProductItem(100L, SHARER_KEY_1, 2, 15000L),
+            new PaymentCancelledEvent.OrderProductItem(200L, SHARER_KEY_2, 1, 20000L)
         );
         List<PaymentCancelledEvent.OrderProductItem> cancelProducts = List.of(
-                new PaymentCancelledEvent.OrderProductItem(100L, SHARER_KEY_1, 1, 15000L)
+            new PaymentCancelledEvent.OrderProductItem(100L, SHARER_KEY_1, 1, 15000L)
         );
         return new PaymentCancelledEvent(
-                1L, "cancel-order-key", 10L, 30000L, 50000L, 5000L,
-                true, 0L, "cancel-uuid-123",
-                orderProducts, cancelProducts, 1500L
+            1L, "cancel-order-key", 10L, 30000L, 50000L, 5000L,
+            true, 0L, "cancel-uuid-123",
+            orderProducts, cancelProducts, 1500L
         );
     }
 
     private OrderPaymentCompletedEvent buildSampleOrderPaymentCompletedEvent() {
         List<OrderPaymentCompletedEvent.OrderProductItem> orderProducts = List.of(
-                new OrderPaymentCompletedEvent.OrderProductItem(100L, 1L, null, SHARER_KEY_1, 2, 25000L),
-                new OrderPaymentCompletedEvent.OrderProductItem(200L, 2L, null, null, 1, 20000L)
+            new OrderPaymentCompletedEvent.OrderProductItem(100L, 1L, null, SHARER_KEY_1, 2, 25000L),
+            new OrderPaymentCompletedEvent.OrderProductItem(200L, 2L, null, null, 1, 20000L)
         );
         return new OrderPaymentCompletedEvent(
-                1L, 10L, 50000L, 5000L,
-                "홍길동", "01012345678", "12345", "서울시 강남구", "101호", "문 앞에 놓아주세요",
-                orderProducts, 500L
+            1L, 10L, 50000L, 5000L,
+            "홍길동", "01012345678", "12345", "서울시 강남구", "101호", "문 앞에 놓아주세요",
+            orderProducts, 500L
         );
     }
 }

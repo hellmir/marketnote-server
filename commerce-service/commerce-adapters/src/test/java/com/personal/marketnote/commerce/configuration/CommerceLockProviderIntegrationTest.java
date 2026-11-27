@@ -16,8 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CommerceLockProviderIntegrationTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withUserConfiguration(SchedulerLockConfig.class)
-            .withBean(RedisConnectionFactory.class, () -> Mockito.mock(RedisConnectionFactory.class));
+        .withUserConfiguration(SchedulerLockConfig.class)
+        .withBean(RedisConnectionFactory.class, () -> Mockito.mock(RedisConnectionFactory.class));
 
     @Test
     @DisplayName("LockProvider 빈은 정확히 1개이고 RedisLockProvider 인스턴스다")

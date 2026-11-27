@@ -31,12 +31,12 @@ public class ShippingStatusChangedOrderStatusConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SHIPPING_STATUS_CHANGED,
-            groupId = "commerce-order-status"
+        topics = KafkaTopicConstants.SHIPPING_STATUS_CHANGED,
+        groupId = "commerce-order-status"
     )
     public void handleShippingStatusChangedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -54,11 +54,11 @@ public class ShippingStatusChangedOrderStatusConsumer {
             ShippingStatusChangedEvent payload = envelope.getPayloadAs(ShippingStatusChangedEvent.class, objectMapper);
 
             log.info("배송 상태 변경 이벤트 수신. eventId={}, orderId={}, shippingStatus={}",
-                    envelope.eventId(), payload.orderId(), payload.shippingStatus()
+                envelope.eventId(), payload.orderId(), payload.shippingStatus()
             );
 
             if (EventPayloadValidator.hasInvalidIds(
-                    envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
             )) {
                 acknowledgment.acknowledge();
                 return;
@@ -67,16 +67,16 @@ public class ShippingStatusChangedOrderStatusConsumer {
             OrderStatus orderStatus = resolveOrderStatus(payload.shippingStatus());
             if (FormatValidator.hasNoValue(orderStatus)) {
                 log.info("주문 상태 전이 불필요한 배송 상태. eventId={}, shippingStatus={}",
-                        envelope.eventId(), payload.shippingStatus()
+                    envelope.eventId(), payload.shippingStatus()
                 );
                 acknowledgment.acknowledge();
                 return;
             }
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(payload.orderId())
-                    .orderStatus(orderStatus)
-                    .build();
+                .id(payload.orderId())
+                .orderStatus(orderStatus)
+                .build();
             changeOrderStatusUseCase.changeOrderStatus(command);
 
             log.info("Kafka 이벤트로 주문 상태 {} 변경 완료. orderId={}", orderStatus, payload.orderId());
@@ -84,7 +84,7 @@ public class ShippingStatusChangedOrderStatusConsumer {
             log.warn("이미 주문 상태가 변경됨 (멱등 처리). eventId={}, key={}", envelope.eventId(), record.key(), e);
         } catch (InvalidOrderStatusTransitionException e) {
             log.warn("전이 불가 상태에서 배송 상태 변경 이벤트 수신. eventId={}, key={}",
-                    envelope.eventId(), record.key(), e
+                envelope.eventId(), record.key(), e
             );
         } catch (Exception e) {
             // boundary E: @KafkaListener — DLQ retry 위해 광역 catch 후 rethrow, ERROR + cause 인자 필수

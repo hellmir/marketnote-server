@@ -57,7 +57,7 @@ class OrderPaymentCompletedOrderPointSagaConsumerTest {
     @BeforeEach
     void setUp() throws Exception {
         actionPayload = objectMapper.writeValueAsString(Map.of(
-                "orderId", 1L, "buyerId", 100L, "pointAmount", 5000L
+            "orderId", 1L, "buyerId", 100L, "pointAmount", 5000L
         ));
     }
 
@@ -69,7 +69,7 @@ class OrderPaymentCompletedOrderPointSagaConsumerTest {
         @DisplayName("포인트 차감 성공 시 성공 응답을 발행한다")
         void shouldPublishSuccessOnDeduction() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
 
             consumer.handleOrderPointStep(createRecord(stepMessage), acknowledgment);
 
@@ -78,7 +78,7 @@ class OrderPaymentCompletedOrderPointSagaConsumerTest {
             assertThat(captor.getValue().isAccrual()).isFalse();
             assertThat(captor.getValue().amount()).isEqualTo(5000L);
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -87,15 +87,15 @@ class OrderPaymentCompletedOrderPointSagaConsumerTest {
         @DisplayName("이미 처리된 차감이면 멱등 처리로 성공 응답을 발행한다")
         void shouldPublishSuccessOnDuplicateDeduction() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
 
             doThrow(new DuplicateUserPointHistoryException())
-                    .when(modifyUserPointUseCase).modify(any());
+                .when(modifyUserPointUseCase).modify(any());
 
             consumer.handleOrderPointStep(createRecord(stepMessage), acknowledgment);
 
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -104,17 +104,17 @@ class OrderPaymentCompletedOrderPointSagaConsumerTest {
         @DisplayName("pointAmount가 0이면 skip 응답을 발행한다")
         void shouldSkipOnZeroPoint() throws Exception {
             String zeroPayload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "pointAmount", 0L
+                "orderId", 1L, "buyerId", 100L, "pointAmount", 0L
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, zeroPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, zeroPayload);
 
             consumer.handleOrderPointStep(createRecord(stepMessage), acknowledgment);
 
             verifyNoInteractions(modifyUserPointUseCase);
             verify(sagaResponsePublisher).publishSuccess(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("skipped")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("skipped")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -123,15 +123,15 @@ class OrderPaymentCompletedOrderPointSagaConsumerTest {
         @DisplayName("차감 처리 실패 시 실패 응답을 발행한다")
         void shouldPublishFailureOnError() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
 
             doThrow(new RuntimeException("DB 오류"))
-                    .when(modifyUserPointUseCase).modify(any());
+                .when(modifyUserPointUseCase).modify(any());
 
             consumer.handleOrderPointStep(createRecord(stepMessage), acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "주문 포인트 차감 처리 실패"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "주문 포인트 차감 처리 실패"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -145,10 +145,10 @@ class OrderPaymentCompletedOrderPointSagaConsumerTest {
         @DisplayName("환원 성공 시 보상 성공 응답을 발행한다")
         void shouldPublishSuccessOnRestoration() throws Exception {
             String compensationPayload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "pointAmount", 5000L
+                "orderId", 1L, "buyerId", 100L, "pointAmount", 5000L
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
 
             consumer.handleOrderPointStep(createRecord(stepMessage), acknowledgment);
 
@@ -157,7 +157,7 @@ class OrderPaymentCompletedOrderPointSagaConsumerTest {
             assertThat(captor.getValue().isAccrual()).isTrue();
             assertThat(captor.getValue().reason()).contains("SAGA 보상");
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{\"compensated\":true}"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{\"compensated\":true}"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -166,19 +166,19 @@ class OrderPaymentCompletedOrderPointSagaConsumerTest {
         @DisplayName("환원 실패 시 실패 응답을 발행한다")
         void shouldPublishFailureOnError() throws Exception {
             String compensationPayload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "pointAmount", 5000L
+                "orderId", 1L, "buyerId", 100L, "pointAmount", 5000L
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
 
             doThrow(new RuntimeException("DB 오류"))
-                    .when(modifyUserPointUseCase).modify(any());
+                .when(modifyUserPointUseCase).modify(any());
 
             consumer.handleOrderPointStep(createRecord(stepMessage), acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION,
-                    "주문 포인트 환원 보상 처리 실패"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION,
+                "주문 포인트 환원 보상 처리 실패"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -188,12 +188,12 @@ class OrderPaymentCompletedOrderPointSagaConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(SagaStepMessage stepMessage) {
         Clock clock = Clock.fixed(Instant.parse("2026-10-17T01:00:00Z"), ZoneId.of("Asia/Seoul"));
         EventEnvelope<SagaStepMessage> envelope = EventEnvelope.of(
-                "saga.ORDER_PAYMENT_COMPLETED.DEDUCT_ORDER_POINT.action",
-                "saga-orchestrator", stepMessage, clock
+            "saga.ORDER_PAYMENT_COMPLETED.DEDUCT_ORDER_POINT.action",
+            "saga-orchestrator", stepMessage, clock
         );
         return new ConsumerRecord<>(
-                "saga.order-payment-downstream.order-point", 0, 0, SAGA_ID,
-                (EventEnvelope<?>) (EventEnvelope) envelope
+            "saga.order-payment-downstream.order-point", 0, 0, SAGA_ID,
+            (EventEnvelope<?>) (EventEnvelope) envelope
         );
     }
 }

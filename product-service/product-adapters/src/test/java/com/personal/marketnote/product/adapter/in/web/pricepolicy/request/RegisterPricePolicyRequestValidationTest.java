@@ -38,7 +38,7 @@ class RegisterPricePolicyRequestValidationTest {
 
         assertThat(violations).isNotEmpty();
         assertThat(violations)
-                .anyMatch(v -> v.getPropertyPath().toString().equals("price"));
+            .anyMatch(v -> v.getPropertyPath().toString().equals("price"));
     }
 
     @Test
@@ -50,7 +50,7 @@ class RegisterPricePolicyRequestValidationTest {
 
         assertThat(violations).isNotEmpty();
         assertThat(violations)
-                .anyMatch(v -> v.getPropertyPath().toString().equals("discountPrice"));
+            .anyMatch(v -> v.getPropertyPath().toString().equals("discountPrice"));
     }
 
     @Test
@@ -62,7 +62,7 @@ class RegisterPricePolicyRequestValidationTest {
 
         assertThat(violations).isNotEmpty();
         assertThat(violations)
-                .anyMatch(v -> v.getPropertyPath().toString().equals("accumulatedPoint"));
+            .anyMatch(v -> v.getPropertyPath().toString().equals("accumulatedPoint"));
     }
 
     @Test

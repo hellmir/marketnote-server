@@ -21,12 +21,12 @@ public class AligoHeartInfoExternalAdapter implements GetAligoHeartInfoExternalP
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         AligoHeartInfoApiResponse response = aligoHttpClient.post(
-                GET_HEART_INFO_OPERATION, aligoProperties.getApi().getHeartInfoPath(),
-                params, AligoHeartInfoApiResponse.class
+            GET_HEART_INFO_OPERATION, aligoProperties.getApi().getHeartInfoPath(),
+            params, AligoHeartInfoApiResponse.class
         );
 
         return new AligoHeartInfoResult(
-                response.smsCnt(), response.lmsCnt(), response.mmsCnt(), response.altCnt()
+            response.smsCnt(), response.lmsCnt(), response.mmsCnt(), response.altCnt()
         );
     }
 }

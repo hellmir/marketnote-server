@@ -28,13 +28,13 @@ public class ProductUpdatedReadModelConsumer {
     private final ProductReadModelJpaRepository productReadModelJpaRepository;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.PRODUCT_UPDATED,
-            groupId = "community-product-read-model"
+        topics = KafkaTopicConstants.PRODUCT_UPDATED,
+        groupId = "community-product-read-model"
     )
     @Transactional(isolation = READ_COMMITTED)
     public void handleProductUpdatedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -51,10 +51,10 @@ public class ProductUpdatedReadModelConsumer {
         ProductUpdatedEvent payload = envelope.getPayloadAs(ProductUpdatedEvent.class, objectMapper);
 
         log.info("상품 업데이트 이벤트 수신 (커뮤니티 Read Model). eventId={}, productId={}",
-                envelope.eventId(), payload.productId());
+            envelope.eventId(), payload.productId());
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("productId", payload.productId())
+            EventPayloadValidator.id("productId", payload.productId())
         )) {
             acknowledgment.acknowledge();
             return;
@@ -62,26 +62,26 @@ public class ProductUpdatedReadModelConsumer {
 
         if (FormatValidator.hasNoValue(payload.productName())) {
             log.warn("상품 이름이 없어 Read Model 업데이트를 건너뜁니다. eventId={}, productId={}",
-                    envelope.eventId(), payload.productId());
+                envelope.eventId(), payload.productId());
             acknowledgment.acknowledge();
             return;
         }
 
         List<ProductReadModelJpaEntity> entities =
-                productReadModelJpaRepository.findByProductId(payload.productId());
+            productReadModelJpaRepository.findByProductId(payload.productId());
 
         for (ProductReadModelJpaEntity entity : entities) {
             entity.updateFrom(
-                    entity.getProductId(),
-                    entity.getSellerId(),
-                    payload.productName(),
-                    entity.getBrandName(),
-                    entity.getPrice(),
-                    entity.getDiscountPrice(),
-                    entity.getAccumulatedPoint()
+                entity.getProductId(),
+                entity.getSellerId(),
+                payload.productName(),
+                entity.getBrandName(),
+                entity.getPrice(),
+                entity.getDiscountPrice(),
+                entity.getAccumulatedPoint()
             );
             log.info("상품 Read Model 이름 업데이트 완료. pricePolicyId={}, productId={}, newName={}",
-                    entity.getPricePolicyId(), payload.productId(), payload.productName());
+                entity.getPricePolicyId(), payload.productId(), payload.productName());
         }
 
         acknowledgment.acknowledge();

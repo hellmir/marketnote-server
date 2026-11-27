@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record EventRegisteredEvent(
-        Long postId,
-        String title
+    Long postId,
+    String title
 ) {
 }

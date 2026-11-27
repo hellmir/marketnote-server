@@ -25,29 +25,29 @@ public class NotificationTemplate extends BaseDomain {
         validateTemplateCode(state.getTemplateCode());
 
         NotificationTemplate template = NotificationTemplate.builder()
-                .templateCode(state.getTemplateCode())
-                .notificationType(state.getNotificationType())
-                .notificationCategory(state.getNotificationCategory())
-                .title(state.getTitle())
-                .bodyTemplate(state.getBodyTemplate())
-                .urlTemplate(state.getUrlTemplate())
-                .build();
+            .templateCode(state.getTemplateCode())
+            .notificationType(state.getNotificationType())
+            .notificationCategory(state.getNotificationCategory())
+            .title(state.getTitle())
+            .bodyTemplate(state.getBodyTemplate())
+            .urlTemplate(state.getUrlTemplate())
+            .build();
         template.activate();
         return template;
     }
 
     public static NotificationTemplate from(NotificationTemplateSnapshotState state) {
         NotificationTemplate template = NotificationTemplate.builder()
-                .id(state.getId())
-                .templateCode(state.getTemplateCode())
-                .notificationType(state.getNotificationType())
-                .notificationCategory(state.getNotificationCategory())
-                .title(state.getTitle())
-                .bodyTemplate(state.getBodyTemplate())
-                .urlTemplate(state.getUrlTemplate())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .templateCode(state.getTemplateCode())
+            .notificationType(state.getNotificationType())
+            .notificationCategory(state.getNotificationCategory())
+            .title(state.getTitle())
+            .bodyTemplate(state.getBodyTemplate())
+            .urlTemplate(state.getUrlTemplate())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
         template.status = state.getStatus();
         return template;
     }

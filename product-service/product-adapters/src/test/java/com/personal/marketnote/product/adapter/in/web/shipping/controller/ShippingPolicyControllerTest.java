@@ -60,7 +60,7 @@ class ShippingPolicyControllerTest {
             when(getShippingPolicyUseCase.getShippingPolicy(100L)).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetShippingPolicyResponse>> response =
-                    shippingPolicyController.getShippingPolicy(principal);
+                shippingPolicyController.getShippingPolicy(principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getShippingPolicyUseCase).getShippingPolicy(100L);
@@ -76,12 +76,12 @@ class ShippingPolicyControllerTest {
         void returnsOkOnBatchGet() {
             List<Long> sellerIds = List.of(10L, 20L);
             List<GetShippingPolicyBySellerResult> results = List.of(
-                    new GetShippingPolicyBySellerResult(10L, 3000L, 30000L, 3000L, 5000L)
+                new GetShippingPolicyBySellerResult(10L, 3000L, 30000L, 3000L, 5000L)
             );
             when(getShippingPolicyUseCase.getShippingPolicies(sellerIds)).thenReturn(results);
 
             ResponseEntity<BaseResponse<GetShippingPoliciesBySellerIdsResponse>> response =
-                    shippingPolicyController.getShippingPoliciesBySellerIds(sellerIds);
+                shippingPolicyController.getShippingPoliciesBySellerIds(sellerIds);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
@@ -96,13 +96,13 @@ class ShippingPolicyControllerTest {
         void returnsCreatedOnRegister() {
             OAuth2AuthenticatedPrincipal principal = mockPrincipal();
             RegisterShippingPolicyRequest request = new RegisterShippingPolicyRequest(
-                    "한진택배", 3000L, 30000L, 3000L, 5000L
+                "한진택배", 3000L, 30000L, 3000L, 5000L
             );
             when(registerShippingPolicyUseCase.registerShippingPolicy(eq(100L), any(RegisterShippingPolicyCommand.class)))
-                    .thenReturn(RegisterShippingPolicyResult.of(1L));
+                .thenReturn(RegisterShippingPolicyResult.of(1L));
 
             ResponseEntity<BaseResponse<RegisterShippingPolicyResponse>> response =
-                    shippingPolicyController.registerShippingPolicy(request, principal);
+                shippingPolicyController.registerShippingPolicy(request, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         }
@@ -117,16 +117,16 @@ class ShippingPolicyControllerTest {
         void returnsOkOnUpdate() {
             OAuth2AuthenticatedPrincipal principal = mockPrincipal();
             UpdateShippingPolicyRequest request = new UpdateShippingPolicyRequest(
-                    "한진택배", 3500L, 30000L, 3000L, 5000L
+                "한진택배", 3500L, 30000L, 3000L, 5000L
             );
             UpdateShippingPolicyResult result = new UpdateShippingPolicyResult(
-                    1L, "한진택배", 3500L, 30000L, 3000L, 5000L
+                1L, "한진택배", 3500L, 30000L, 3000L, 5000L
             );
             when(updateShippingPolicyUseCase.updateShippingPolicy(eq(100L), any(UpdateShippingPolicyCommand.class)))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             ResponseEntity<BaseResponse<UpdateShippingPolicyResponse>> response =
-                    shippingPolicyController.updateShippingPolicy(request, principal);
+                shippingPolicyController.updateShippingPolicy(request, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         }

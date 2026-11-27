@@ -21,10 +21,10 @@ public class AuthenticateAligoSenderProfileService implements AuthenticateAligoS
 
     @Override
     public AuthenticateAligoSenderProfileResult authenticateSenderProfile(
-            AuthenticateAligoSenderProfileCommand command
+        AuthenticateAligoSenderProfileCommand command
     ) {
         String senderKey = requestAligoSenderAuthenticationPort.requestAuthentication(
-                command.plusId(), command.phoneNumber()
+            command.plusId(), command.phoneNumber()
         );
 
         AligoSenderProfile savedProfile = saveProfile(senderKey, command);
@@ -35,7 +35,7 @@ public class AuthenticateAligoSenderProfileService implements AuthenticateAligoS
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public AligoSenderProfile saveProfile(String senderKey, AuthenticateAligoSenderProfileCommand command) {
         AligoSenderProfile profile = AligoSenderProfile.from(
-                AligoSenderProfileCommandToStateMapper.mapToState(senderKey, command)
+            AligoSenderProfileCommandToStateMapper.mapToState(senderKey, command)
         );
         return saveAligoSenderProfilePort.save(profile);
     }

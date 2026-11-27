@@ -37,25 +37,25 @@ class GetShippingAddressUseCaseTest {
         Long userId = 100L;
 
         ShippingAddress shippingAddress = ShippingAddress.from(
-                ShippingAddressSnapshotState.builder()
-                        .id(shippingAddressId)
-                        .userId(userId)
-                        .addressType(ShippingAddressType.HOME)
-                        .address("서울특별시 강남구 테헤란로 123")
-                        .addressDetail("456호")
-                        .companyName(null)
-                        .addressAlias(null)
-                        .recipientName("홍길동")
-                        .recipientPhoneNumber("01012345678")
-                        .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
-                        .deliveryRequestMessage("문 앞에 놓아주세요")
-                        .isDefault(true)
-                        .regionType(ShippingAddressRegionType.NORMAL)
-                        .build()
+            ShippingAddressSnapshotState.builder()
+                .id(shippingAddressId)
+                .userId(userId)
+                .addressType(ShippingAddressType.HOME)
+                .address("서울특별시 강남구 테헤란로 123")
+                .addressDetail("456호")
+                .companyName(null)
+                .addressAlias(null)
+                .recipientName("홍길동")
+                .recipientPhoneNumber("01012345678")
+                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
+                .deliveryRequestMessage("문 앞에 놓아주세요")
+                .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
+                .build()
         );
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.of(shippingAddress));
+            .thenReturn(Optional.of(shippingAddress));
 
         // when
         GetShippingAddressResult result = getShippingAddressService.getShippingAddress(shippingAddressId, userId);
@@ -85,12 +85,12 @@ class GetShippingAddressUseCaseTest {
         Long userId = 100L;
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // expect
         assertThatThrownBy(() -> getShippingAddressService.getShippingAddress(shippingAddressId, userId))
-                .isInstanceOf(ShippingAddressNotFoundException.class)
-                .hasMessage("배송지를 찾을 수 없습니다.");
+            .isInstanceOf(ShippingAddressNotFoundException.class)
+            .hasMessage("배송지를 찾을 수 없습니다.");
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoMoreInteractions(findShippingAddressPort);

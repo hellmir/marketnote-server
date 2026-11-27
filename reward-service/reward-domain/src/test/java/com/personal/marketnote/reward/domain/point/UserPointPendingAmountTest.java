@@ -15,13 +15,13 @@ class UserPointPendingAmountTest {
 
     private UserPoint createUserPoint(Long addExpectedAmount) {
         return UserPoint.from(UserPointSnapshotState.builder()
-                .userId(1L)
-                .amount(PointAmount.of(1000L))
-                .addExpectedAmount(PointAmount.of(addExpectedAmount))
-                .expireExpectedAmount(PointAmount.zero())
-                .createdAt(LocalDateTime.of(2026, 3, 4, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 3, 4, 10, 0))
-                .build()
+            .userId(1L)
+            .amount(PointAmount.of(1000L))
+            .addExpectedAmount(PointAmount.of(addExpectedAmount))
+            .expireExpectedAmount(PointAmount.zero())
+            .createdAt(LocalDateTime.of(2026, 3, 4, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 3, 4, 10, 0))
+            .build()
         );
     }
 
@@ -63,10 +63,10 @@ class UserPointPendingAmountTest {
 
             // expect
             assertThatThrownBy(() -> userPoint.addPendingAmount(0L))
-                    .isInstanceOf(InvalidPointAmountException.class);
+                .isInstanceOf(InvalidPointAmountException.class);
 
             assertThatThrownBy(() -> userPoint.addPendingAmount(-100L))
-                    .isInstanceOf(InvalidPointAmountException.class);
+                .isInstanceOf(InvalidPointAmountException.class);
         }
     }
 
@@ -108,7 +108,7 @@ class UserPointPendingAmountTest {
 
             // expect
             assertThatThrownBy(() -> userPoint.deductPendingAmount(500L))
-                    .isInstanceOf(InsufficientPendingPointAmountException.class);
+                .isInstanceOf(InsufficientPendingPointAmountException.class);
         }
 
         @Test
@@ -119,7 +119,7 @@ class UserPointPendingAmountTest {
 
             // expect
             assertThatThrownBy(() -> userPoint.deductPendingAmount(0L))
-                    .isInstanceOf(InvalidPointAmountException.class);
+                .isInstanceOf(InvalidPointAmountException.class);
         }
     }
 

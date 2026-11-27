@@ -18,22 +18,22 @@ public class BrandTalkCarouselCommerce {
     public static BrandTalkCarouselCommerce from(BrandTalkCarouselCommerceCreateState state) {
         validate(state.getTitle(), state.getRegularPrice());
         return BrandTalkCarouselCommerce.builder()
-                .title(state.getTitle())
-                .regularPrice(state.getRegularPrice())
-                .discountPrice(state.getDiscountPrice())
-                .discountRate(state.getDiscountRate())
-                .discountFixed(state.getDiscountFixed())
-                .build();
+            .title(state.getTitle())
+            .regularPrice(state.getRegularPrice())
+            .discountPrice(state.getDiscountPrice())
+            .discountRate(state.getDiscountRate())
+            .discountFixed(state.getDiscountFixed())
+            .build();
     }
 
     public static BrandTalkCarouselCommerce from(BrandTalkCarouselCommerceSnapshotState state) {
         return BrandTalkCarouselCommerce.builder()
-                .title(state.getTitle())
-                .regularPrice(state.getRegularPrice())
-                .discountPrice(state.getDiscountPrice())
-                .discountRate(state.getDiscountRate())
-                .discountFixed(state.getDiscountFixed())
-                .build();
+            .title(state.getTitle())
+            .regularPrice(state.getRegularPrice())
+            .discountPrice(state.getDiscountPrice())
+            .discountRate(state.getDiscountRate())
+            .discountFixed(state.getDiscountFixed())
+            .build();
     }
 
     private static void validate(String title, String regularPrice) {

@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("OutboxEvent 도메인 테스트")
 class OutboxEventTest {
     private static final Clock FIXED_CLOCK = Clock.fixed(
-            Instant.parse("2026-03-15T10:00:00Z"), ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-03-15T10:00:00Z"), ZoneId.of("Asia/Seoul")
     );
 
     @Test
@@ -23,8 +23,8 @@ class OutboxEventTest {
     void of_initializesPendingStatusAndZeroRetryCount() {
         // when
         OutboxEvent event = OutboxEvent.of(
-                "event-id-1", "commerce.payment.approved", "order-123",
-                "PaymentApproved", "commerce-service", "{\"orderId\":123}", FIXED_CLOCK
+            "event-id-1", "commerce.payment.approved", "order-123",
+            "PaymentApproved", "commerce-service", "{\"orderId\":123}", FIXED_CLOCK
         );
 
         // then
@@ -39,8 +39,8 @@ class OutboxEventTest {
     void of_setsCreatedAtFromClock() {
         // when
         OutboxEvent event = OutboxEvent.of(
-                "event-id-1", "commerce.payment.approved", "order-123",
-                "PaymentApproved", "commerce-service", "{}", FIXED_CLOCK
+            "event-id-1", "commerce.payment.approved", "order-123",
+            "PaymentApproved", "commerce-service", "{}", FIXED_CLOCK
         );
 
         // then
@@ -76,7 +76,7 @@ class OutboxEventTest {
     void markPublished_changesStatusToPublishedAndSetsPublishedAt() {
         // given
         OutboxEvent event = OutboxEvent.of(
-                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+            "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
         );
 
         // when
@@ -92,7 +92,7 @@ class OutboxEventTest {
     void incrementRetry_incrementsRetryCount() {
         // given
         OutboxEvent event = OutboxEvent.of(
-                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+            "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
         );
 
         // when
@@ -108,7 +108,7 @@ class OutboxEventTest {
     void incrementRetry_changesStatusToFailedWhenMaxRetriesReached() {
         // given
         OutboxEvent event = OutboxEvent.of(
-                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+            "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
         );
 
         // when
@@ -126,7 +126,7 @@ class OutboxEventTest {
     void isExhausted_returnsTrueWhenRetryCountReachesMaxRetries() {
         // given
         OutboxEvent event = OutboxEvent.of(
-                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+            "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
         );
         for (int i = 0; i < 5; i++) {
             event.incrementRetry("테스트 에러", FIXED_CLOCK);
@@ -141,7 +141,7 @@ class OutboxEventTest {
     void isExhausted_returnsFalseWhenRetryCountBelowMaxRetries() {
         // given
         OutboxEvent event = OutboxEvent.of(
-                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+            "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
         );
         event.incrementRetry("테스트 에러", FIXED_CLOCK);
 
@@ -186,12 +186,12 @@ class OutboxEventTest {
     void resetForRetry_throwsExceptionWhenPending() {
         // given
         OutboxEvent event = OutboxEvent.of(
-                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+            "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
         );
 
         // when & then
         assertThatThrownBy(event::resetForRetry)
-                .isInstanceOf(InvalidOutboxEventStatusTransitionException.class);
+            .isInstanceOf(InvalidOutboxEventStatusTransitionException.class);
     }
 
     @Test
@@ -199,13 +199,13 @@ class OutboxEventTest {
     void discard_throwsExceptionWhenPublished() {
         // given
         OutboxEvent event = OutboxEvent.of(
-                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+            "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
         );
         event.markPublished(FIXED_CLOCK);
 
         // when & then
         assertThatThrownBy(() -> event.discard("사유", FIXED_CLOCK))
-                .isInstanceOf(InvalidOutboxEventStatusTransitionException.class);
+            .isInstanceOf(InvalidOutboxEventStatusTransitionException.class);
     }
 
     @Test
@@ -213,7 +213,7 @@ class OutboxEventTest {
     void incrementRetry_setsFailedAtAndLastErrorMessageWhenFailed() {
         // given
         OutboxEvent event = OutboxEvent.of(
-                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+            "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
         );
         for (int i = 0; i < 4; i++) {
             event.incrementRetry("이전 에러", FIXED_CLOCK);
@@ -233,7 +233,7 @@ class OutboxEventTest {
     void incrementRetry_incrementsRetryCountAndUpdatesLastErrorMessage() {
         // given
         OutboxEvent event = OutboxEvent.of(
-                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+            "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
         );
 
         // when
@@ -247,7 +247,7 @@ class OutboxEventTest {
 
     private OutboxEvent createFailedEvent() {
         OutboxEvent event = OutboxEvent.of(
-                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+            "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
         );
         for (int i = 0; i < 5; i++) {
             event.incrementRetry("에러 " + i, FIXED_CLOCK);

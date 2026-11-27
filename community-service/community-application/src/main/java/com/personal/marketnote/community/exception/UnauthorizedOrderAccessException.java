@@ -11,7 +11,7 @@ import com.personal.marketnote.common.domain.exception.BusinessSecurityException
  */
 public class UnauthorizedOrderAccessException extends BusinessSecurityException {
     private static final String UNAUTHORIZED_ORDER_ACCESS_EXCEPTION_MESSAGE
-            = "ERR_ORDER_AUTH_01::해당 주문에 대한 접근 권한이 없습니다.";
+        = "ERR_ORDER_AUTH_01::해당 주문에 대한 접근 권한이 없습니다.";
 
     public UnauthorizedOrderAccessException() {
         super(UNAUTHORIZED_ORDER_ACCESS_EXCEPTION_MESSAGE);

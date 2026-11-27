@@ -88,7 +88,7 @@ class SendEmailVerificationUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> sendEmailVerificationService.sendEmailVerification(email))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verify(saveEmailVerificationCodePort).save(eq(email), anyString(), eq(TTL_MINUTES));
         verifyNoInteractions(mailSender);
@@ -105,8 +105,8 @@ class SendEmailVerificationUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> sendEmailVerificationService.sendEmailVerification(email))
-                .isInstanceOf(MailSendException.class)
-                .hasMessageContaining("Failed to send verification email");
+            .isInstanceOf(MailSendException.class)
+            .hasMessageContaining("Failed to send verification email");
 
         verify(saveEmailVerificationCodePort).save(eq(email), anyString(), eq(TTL_MINUTES));
         verify(mailSender).createMimeMessage();

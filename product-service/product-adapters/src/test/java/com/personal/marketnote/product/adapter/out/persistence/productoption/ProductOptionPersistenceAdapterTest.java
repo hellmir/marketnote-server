@@ -75,7 +75,7 @@ class ProductOptionPersistenceAdapterTest {
 
         when(productOptionCategoryJpaRepository.save(any(ProductOptionCategoryJpaEntity.class))).thenReturn(savedCategory);
         when(productOptionCategoryJpaRepository.findActiveWithOptionsByProductId(productId))
-                .thenReturn(List.of(existingA, existingB, savedCategory));
+            .thenReturn(List.of(existingA, existingB, savedCategory));
         when(pricePolicyJpaRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(productOptionPricePolicyJpaRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -94,10 +94,10 @@ class ProductOptionPersistenceAdapterTest {
         assertThat(mappings).hasSize(expectedPolicies * 3);
 
         Map<PricePolicyJpaEntity, Long> counts = mappings.stream()
-                .collect(Collectors.groupingBy(
-                        ProductOptionPricePolicyJpaEntity::getPricePolicyJpaEntity,
-                        Collectors.counting()
-                ));
+            .collect(Collectors.groupingBy(
+                ProductOptionPricePolicyJpaEntity::getPricePolicyJpaEntity,
+                Collectors.counting()
+            ));
         assertThat(counts).hasSize(expectedPolicies);
         assertThat(counts.values()).allMatch(count -> count == 3L);
     }
@@ -117,7 +117,7 @@ class ProductOptionPersistenceAdapterTest {
         ProductOptionCategoryJpaEntity savedCategory = ProductOptionCategoryJpaEntity.from(newCategory, productJpaEntity);
         when(productOptionCategoryJpaRepository.save(any(ProductOptionCategoryJpaEntity.class))).thenReturn(savedCategory);
         when(productOptionCategoryJpaRepository.findActiveWithOptionsByProductId(productId))
-                .thenReturn(List.of(savedCategory));
+            .thenReturn(List.of(savedCategory));
         when(pricePolicyJpaRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(productOptionPricePolicyJpaRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -136,10 +136,10 @@ class ProductOptionPersistenceAdapterTest {
         assertThat(mappings).hasSize(expectedPolicies);
 
         Map<PricePolicyJpaEntity, Long> counts = mappings.stream()
-                .collect(Collectors.groupingBy(
-                        ProductOptionPricePolicyJpaEntity::getPricePolicyJpaEntity,
-                        Collectors.counting()
-                ));
+            .collect(Collectors.groupingBy(
+                ProductOptionPricePolicyJpaEntity::getPricePolicyJpaEntity,
+                Collectors.counting()
+            ));
         assertThat(counts).hasSize(expectedPolicies);
         assertThat(counts.values()).allMatch(count -> count == 1L);
     }
@@ -154,18 +154,18 @@ class ProductOptionPersistenceAdapterTest {
         when(productOptionJpaRepository.countByProductIdAndIds(productId, optionIds)).thenReturn(2L);
         when(pricePolicyJpaRepository.findByOptionIds(optionIds)).thenReturn(List.of());
         when(pricePolicyJpaRepository.getReferenceById(pricePolicyId))
-                .thenReturn(org.mockito.Mockito.mock(PricePolicyJpaEntity.class));
+            .thenReturn(org.mockito.Mockito.mock(PricePolicyJpaEntity.class));
         when(productOptionJpaRepository.getReferenceById(any()))
-                .thenAnswer(invocation -> {
-                    Long optionId = invocation.getArgument(0);
-                    return buildOptionRefMock(optionId);
-                });
+            .thenAnswer(invocation -> {
+                Long optionId = invocation.getArgument(0);
+                return buildOptionRefMock(optionId);
+            });
 
         adapter.assignPricePolicyToOptions(productId, pricePolicyId, optionIds);
 
         verify(productOptionJpaRepository).countByProductIdAndIds(productId, optionIds);
         verify(productOptionPricePolicyJpaRepository, org.mockito.Mockito.times(2))
-                .save(any(ProductOptionPricePolicyJpaEntity.class));
+            .save(any(ProductOptionPricePolicyJpaEntity.class));
     }
 
     @Test
@@ -178,7 +178,7 @@ class ProductOptionPersistenceAdapterTest {
         when(productOptionJpaRepository.countByProductIdAndIds(productId, optionIds)).thenReturn(1L);
 
         assertThatThrownBy(() -> adapter.assignPricePolicyToOptions(productId, pricePolicyId, optionIds))
-                .isInstanceOf(InvalidProductOptionOwnershipException.class);
+            .isInstanceOf(InvalidProductOptionOwnershipException.class);
 
         verify(productOptionPricePolicyJpaRepository, never()).save(any());
         verifyNoInteractions(pricePolicyJpaRepository);
@@ -186,7 +186,7 @@ class ProductOptionPersistenceAdapterTest {
 
     private com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionJpaEntity buildOptionRefMock(Long optionId) {
         com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionJpaEntity mock =
-                org.mockito.Mockito.mock(com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionJpaEntity.class);
+            org.mockito.Mockito.mock(com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionJpaEntity.class);
         when(mock.getId()).thenReturn(optionId);
         return mock;
     }
@@ -194,53 +194,53 @@ class ProductOptionPersistenceAdapterTest {
     private Product buildProduct(long id) {
         UUID productKey = UUID.randomUUID();
         return Product.from(
-                ProductSnapshotState.builder()
-                        .id(id)
-                        .productKey(productKey)
-                        .status(EntityStatus.ACTIVE)
-                        .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
-                        .build()
+            ProductSnapshotState.builder()
+                .id(id)
+                .productKey(productKey)
+                .status(EntityStatus.ACTIVE)
+                .fasstoProductCode(FasstoProductCodeGenerator.encode(productKey))
+                .build()
         );
     }
 
     private ProductOptionCategory buildCategory(Product product, String name, int optionCount) {
         List<ProductOptionCreateState> optionStates = IntStream.range(0, optionCount)
-                .mapToObj(index -> ProductOptionCreateState.builder()
-                        .category(null)
-                        .content(name + "-" + index)
-                        .build())
-                .toList();
+            .mapToObj(index -> ProductOptionCreateState.builder()
+                .category(null)
+                .content(name + "-" + index)
+                .build())
+            .toList();
 
         return ProductOptionCategory.from(
-                ProductOptionCategoryCreateState.builder()
-                        .product(product)
-                        .name(name)
-                        .optionStates(optionStates)
-                        .build()
+            ProductOptionCategoryCreateState.builder()
+                .product(product)
+                .name(name)
+                .optionStates(optionStates)
+                .build()
         );
     }
 
     private ProductOptionCategoryJpaEntity buildCategoryEntity(
-            ProductJpaEntity productJpaEntity,
-            Product product,
-            String name,
-            int optionCount
+        ProductJpaEntity productJpaEntity,
+        Product product,
+        String name,
+        int optionCount
     ) {
         return ProductOptionCategoryJpaEntity.from(
-                buildCategory(product, name, optionCount),
-                productJpaEntity
+            buildCategory(product, name, optionCount),
+            productJpaEntity
         );
     }
 
     private PricePolicyJpaEntity buildDefaultPolicy(ProductJpaEntity productJpaEntity) {
         PricePolicy pricePolicy = PricePolicy.from(
-                PricePolicyCreateState.builder()
-                        .price(100L)
-                        .discountPrice(80L)
-                        .discountRate(Rate.of(BigDecimal.valueOf(20.0)))
-                        .accumulatedPoint(10L)
-                        .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
-                        .build()
+            PricePolicyCreateState.builder()
+                .price(100L)
+                .discountPrice(80L)
+                .discountRate(Rate.of(BigDecimal.valueOf(20.0)))
+                .accumulatedPoint(10L)
+                .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
+                .build()
         );
 
         return PricePolicyJpaEntity.from(productJpaEntity, pricePolicy);

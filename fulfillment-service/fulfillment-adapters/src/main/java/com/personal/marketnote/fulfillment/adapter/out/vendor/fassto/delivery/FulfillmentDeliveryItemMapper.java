@@ -30,77 +30,77 @@ public class FulfillmentDeliveryItemMapper {
     private String remark;
 
     public static FulfillmentDeliveryItemMapper of(
-            String ordDt,
-            String ordNo,
-            Integer ordSeq,
-            String slipNo,
-            String custNm,
-            String custTelNo,
-            String custAddr,
-            String outWay,
-            String sendNm,
-            String sendTelNo,
-            String salChanel,
-            String shipReqTerm,
-            List<FulfillmentDeliveryGoodsMapper> godCds,
-            String oneDayDeliveryCd,
-            String remark
+        String ordDt,
+        String ordNo,
+        Integer ordSeq,
+        String slipNo,
+        String custNm,
+        String custTelNo,
+        String custAddr,
+        String outWay,
+        String sendNm,
+        String sendTelNo,
+        String salChanel,
+        String shipReqTerm,
+        List<FulfillmentDeliveryGoodsMapper> godCds,
+        String oneDayDeliveryCd,
+        String remark
     ) {
         FulfillmentDeliveryItemMapper mapper = FulfillmentDeliveryItemMapper.builder()
-                .ordDt(ordDt)
-                .ordNo(ordNo)
-                .ordSeq(ordSeq)
-                .slipNo(slipNo)
-                .custNm(custNm)
-                .custTelNo(custTelNo)
-                .custAddr(custAddr)
-                .outWay(outWay)
-                .sendNm(sendNm)
-                .sendTelNo(sendTelNo)
-                .salChanel(salChanel)
-                .shipReqTerm(shipReqTerm)
-                .godCds(godCds)
-                .oneDayDeliveryCd(oneDayDeliveryCd)
-                .remark(remark)
-                .build();
+            .ordDt(ordDt)
+            .ordNo(ordNo)
+            .ordSeq(ordSeq)
+            .slipNo(slipNo)
+            .custNm(custNm)
+            .custTelNo(custTelNo)
+            .custAddr(custAddr)
+            .outWay(outWay)
+            .sendNm(sendNm)
+            .sendTelNo(sendTelNo)
+            .salChanel(salChanel)
+            .shipReqTerm(shipReqTerm)
+            .godCds(godCds)
+            .oneDayDeliveryCd(oneDayDeliveryCd)
+            .remark(remark)
+            .build();
         mapper.validate();
         return mapper;
     }
 
     public static FulfillmentDeliveryItemMapper update(
-            String ordDt,
-            String ordNo,
-            Integer ordSeq,
-            String slipNo,
-            String custNm,
-            String custTelNo,
-            String custAddr,
-            String outWay,
-            String sendNm,
-            String sendTelNo,
-            String salChanel,
-            String shipReqTerm,
-            List<FulfillmentDeliveryGoodsMapper> godCds,
-            String oneDayDeliveryCd,
-            String remark
+        String ordDt,
+        String ordNo,
+        Integer ordSeq,
+        String slipNo,
+        String custNm,
+        String custTelNo,
+        String custAddr,
+        String outWay,
+        String sendNm,
+        String sendTelNo,
+        String salChanel,
+        String shipReqTerm,
+        List<FulfillmentDeliveryGoodsMapper> godCds,
+        String oneDayDeliveryCd,
+        String remark
     ) {
         FulfillmentDeliveryItemMapper mapper = FulfillmentDeliveryItemMapper.builder()
-                .ordDt(ordDt)
-                .ordNo(ordNo)
-                .ordSeq(ordSeq)
-                .slipNo(slipNo)
-                .custNm(custNm)
-                .custTelNo(custTelNo)
-                .custAddr(custAddr)
-                .outWay(outWay)
-                .sendNm(sendNm)
-                .sendTelNo(sendTelNo)
-                .salChanel(salChanel)
-                .shipReqTerm(shipReqTerm)
-                .godCds(godCds)
-                .oneDayDeliveryCd(oneDayDeliveryCd)
-                .remark(remark)
-                .build();
+            .ordDt(ordDt)
+            .ordNo(ordNo)
+            .ordSeq(ordSeq)
+            .slipNo(slipNo)
+            .custNm(custNm)
+            .custTelNo(custTelNo)
+            .custAddr(custAddr)
+            .outWay(outWay)
+            .sendNm(sendNm)
+            .sendTelNo(sendTelNo)
+            .salChanel(salChanel)
+            .shipReqTerm(shipReqTerm)
+            .godCds(godCds)
+            .oneDayDeliveryCd(oneDayDeliveryCd)
+            .remark(remark)
+            .build();
         mapper.validateForUpdate();
         return mapper;
     }
@@ -123,8 +123,8 @@ public class FulfillmentDeliveryItemMapper {
         putIfHasValue(payload, "shipReqTerm", shipReqTerm);
         if (FormatValidator.hasValue(godCds)) {
             payload.put("godCds", godCds.stream()
-                    .map(FulfillmentDeliveryGoodsMapper::toPayload)
-                    .toList());
+                .map(FulfillmentDeliveryGoodsMapper::toPayload)
+                .toList());
         }
         putIfHasValue(payload, "oneDayDeliveryCd", oneDayDeliveryCd);
         putIfHasValue(payload, "remark", remark);

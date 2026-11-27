@@ -6,7 +6,7 @@ import com.personal.marketnote.community.port.in.result.report.ReportItemResult;
 import java.util.List;
 
 public record GetReportsResponse(
-        List<ReportItemResult> reports
+    List<ReportItemResult> reports
 ) {
     public static GetReportsResponse from(GetReportsResult result) {
         return new GetReportsResponse(result.reports());

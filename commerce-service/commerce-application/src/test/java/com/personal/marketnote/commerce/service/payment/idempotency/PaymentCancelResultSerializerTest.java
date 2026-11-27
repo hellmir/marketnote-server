@@ -42,7 +42,7 @@ class PaymentCancelResultSerializerTest {
         void shouldReturnJsonContainingExpectedFieldsOnSuccess() {
             // given
             PaymentCancelResultSerializer serializer =
-                    new PaymentCancelResultSerializer(objectMapper, new CounterRegistryHelper(meterRegistry));
+                new PaymentCancelResultSerializer(objectMapper, new CounterRegistryHelper(meterRegistry));
             String orderKey = UUID.randomUUID().toString();
             PaymentCancelContext context = createContext(orderKey, 10000L, 8000L, 2000L, false);
 
@@ -64,7 +64,7 @@ class PaymentCancelResultSerializerTest {
         void shouldReturnJsonWithNullCancelIdOnFullCancel() {
             // given
             PaymentCancelResultSerializer serializer =
-                    new PaymentCancelResultSerializer(objectMapper, new CounterRegistryHelper(meterRegistry));
+                new PaymentCancelResultSerializer(objectMapper, new CounterRegistryHelper(meterRegistry));
             String orderKey = UUID.randomUUID().toString();
             PaymentCancelContext context = createContext(orderKey, 50000L, 50000L, 0L, true);
 
@@ -87,12 +87,12 @@ class PaymentCancelResultSerializerTest {
             // given
             ObjectMapper failingMapper = mock(ObjectMapper.class);
             when(failingMapper.writeValueAsString(any()))
-                    .thenThrow(new JsonProcessingException("boom") {
-                    });
+                .thenThrow(new JsonProcessingException("boom") {
+                });
             PaymentCancelResultSerializer serializer =
-                    new PaymentCancelResultSerializer(failingMapper, new CounterRegistryHelper(meterRegistry));
+                new PaymentCancelResultSerializer(failingMapper, new CounterRegistryHelper(meterRegistry));
             PaymentCancelContext context = createContext(
-                    UUID.randomUUID().toString(), 10000L, 8000L, 2000L, false
+                UUID.randomUUID().toString(), 10000L, 8000L, 2000L, false
             );
 
             // when
@@ -109,12 +109,12 @@ class PaymentCancelResultSerializerTest {
             // given
             ObjectMapper failingMapper = mock(ObjectMapper.class);
             when(failingMapper.writeValueAsString(any()))
-                    .thenThrow(new JsonProcessingException("boom") {
-                    });
+                .thenThrow(new JsonProcessingException("boom") {
+                });
             PaymentCancelResultSerializer serializer =
-                    new PaymentCancelResultSerializer(failingMapper, new CounterRegistryHelper(meterRegistry));
+                new PaymentCancelResultSerializer(failingMapper, new CounterRegistryHelper(meterRegistry));
             PaymentCancelContext context = createContext(
-                    UUID.randomUUID().toString(), 10000L, 8000L, 2000L, false
+                UUID.randomUUID().toString(), 10000L, 8000L, 2000L, false
             );
 
             // when
@@ -131,12 +131,12 @@ class PaymentCancelResultSerializerTest {
             // given
             ObjectMapper failingMapper = mock(ObjectMapper.class);
             when(failingMapper.writeValueAsString(any()))
-                    .thenThrow(new JsonProcessingException("boom") {
-                    });
+                .thenThrow(new JsonProcessingException("boom") {
+                });
             PaymentCancelResultSerializer serializer =
-                    new PaymentCancelResultSerializer(failingMapper, null);
+                new PaymentCancelResultSerializer(failingMapper, null);
             PaymentCancelContext context = createContext(
-                    UUID.randomUUID().toString(), 10000L, 8000L, 2000L, false
+                UUID.randomUUID().toString(), 10000L, 8000L, 2000L, false
             );
 
             // when
@@ -156,41 +156,41 @@ class PaymentCancelResultSerializerTest {
     }
 
     private PaymentCancelContext createContext(
-            String orderKey,
-            Long originalCancelAmount,
-            Long adjustedCancelAmount,
-            Long shippingFeeDeduction,
-            boolean isFullCancel
+        String orderKey,
+        Long originalCancelAmount,
+        Long adjustedCancelAmount,
+        Long shippingFeeDeduction,
+        boolean isFullCancel
     ) {
         CancelPaymentCommand command = CancelPaymentCommand.builder()
-                .buyerId(100L)
-                .orderKey(orderKey)
-                .cancelType(
-                        isFullCancel
-                                ? CancelPaymentCommand.CancelType.FULL
-                                : CancelPaymentCommand.CancelType.PARTIAL
-                )
-                .cancelAmount(originalCancelAmount)
-                .cancelReason("고객 요청")
-                .idempotencyKey(UUID.randomUUID().toString())
-                .build();
+            .buyerId(100L)
+            .orderKey(orderKey)
+            .cancelType(
+                isFullCancel
+                    ? CancelPaymentCommand.CancelType.FULL
+                    : CancelPaymentCommand.CancelType.PARTIAL
+            )
+            .cancelAmount(originalCancelAmount)
+            .cancelReason("고객 요청")
+            .idempotencyKey(UUID.randomUUID().toString())
+            .build();
         String cancelId = isFullCancel ? null : UUID.randomUUID().toString();
         return PaymentCancelContext.builder()
-                .payment(null)
-                .event(null)
-                .order(null)
-                .cancelAmount(originalCancelAmount)
-                .adjustedCancelAmount(adjustedCancelAmount)
-                .remainAmount(originalCancelAmount - adjustedCancelAmount)
-                .alreadyRefunded(0L)
-                .shippingFeeDeduction(shippingFeeDeduction)
-                .isFullCancel(isFullCancel)
-                .cancelReason("고객 요청")
-                .adjustedCancelReason("고객 요청")
-                .cancelId(cancelId)
-                .transactionNumber("tno_123")
-                .modType(isFullCancel ? "STSC" : "STPC")
-                .originalCommand(command)
-                .build();
+            .payment(null)
+            .event(null)
+            .order(null)
+            .cancelAmount(originalCancelAmount)
+            .adjustedCancelAmount(adjustedCancelAmount)
+            .remainAmount(originalCancelAmount - adjustedCancelAmount)
+            .alreadyRefunded(0L)
+            .shippingFeeDeduction(shippingFeeDeduction)
+            .isFullCancel(isFullCancel)
+            .cancelReason("고객 요청")
+            .adjustedCancelReason("고객 요청")
+            .cancelId(cancelId)
+            .transactionNumber("tno_123")
+            .modType(isFullCancel ? "STSC" : "STPC")
+            .originalCommand(command)
+            .build();
     }
 }

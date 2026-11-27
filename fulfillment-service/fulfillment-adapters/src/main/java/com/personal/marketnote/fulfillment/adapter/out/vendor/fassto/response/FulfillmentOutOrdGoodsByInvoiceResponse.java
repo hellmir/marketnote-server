@@ -6,7 +6,7 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FulfillmentOutOrdGoodsByInvoiceResponse(
-        String invoiceNo,
-        List<FulfillmentOutOrdGoodsDeliveredResponse> goodsDeliveredList
+    String invoiceNo,
+    List<FulfillmentOutOrdGoodsDeliveredResponse> goodsDeliveredList
 ) {
 }

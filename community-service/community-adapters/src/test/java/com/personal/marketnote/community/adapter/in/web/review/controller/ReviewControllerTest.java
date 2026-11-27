@@ -67,20 +67,20 @@ class ReviewControllerTest {
     void setUp() {
         principal = buildPrincipal(10L);
         sampleReview = Review.from(
-                ReviewCreateState.builder()
-                        .reviewerId(10L)
-                        .orderId(100L)
-                        .productId(1000L)
-                        .pricePolicyId(10000L)
-                        .productImageUrl("https://cdn.example.com/product.png")
-                        .selectedOptions("RED")
-                        .quantity(1)
-                        .reviewerName("리뷰어")
-                        .rating(Rating.of(5f))
-                        .content("테스트용 리뷰 내용입니다.")
-                        .isPhoto(false)
-                        .unitAmount(10000L)
-                        .build()
+            ReviewCreateState.builder()
+                .reviewerId(10L)
+                .orderId(100L)
+                .productId(1000L)
+                .pricePolicyId(10000L)
+                .productImageUrl("https://cdn.example.com/product.png")
+                .selectedOptions("RED")
+                .quantity(1)
+                .reviewerName("리뷰어")
+                .rating(Rating.of(5f))
+                .content("테스트용 리뷰 내용입니다.")
+                .isPhoto(false)
+                .unitAmount(10000L)
+                .build()
         );
         ReflectionTestUtils.setField(sampleReview, "id", 77L);
         ReflectionTestUtils.setField(sampleReview, "reviewKey", UUID.randomUUID());
@@ -98,7 +98,7 @@ class ReviewControllerTest {
             when(registerReviewUseCase.registerReview(any(RegisterReviewCommand.class))).thenReturn(result);
 
             ResponseEntity<BaseResponse<RegisterReviewResponse>> response =
-                    controller.registerReview(request, principal);
+                controller.registerReview(request, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             assertThat(response.getBody()).isNotNull();
@@ -117,17 +117,17 @@ class ReviewControllerTest {
         void delegatesWithUserIdWhenAuthenticated() {
             GetReviewsResult result = new GetReviewsResult(0L, -1L, false, List.of());
             when(getReviewUseCase.getProductReviews(
-                    10L, 1000L, false, null, 4, Sort.Direction.DESC, ReviewSortProperty.ID
+                10L, 1000L, false, null, 4, Sort.Direction.DESC, ReviewSortProperty.ID
             )).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetReviewsResponse>> response = controller.getProductReviews(
-                    1000L, false, null, 4, Sort.Direction.DESC, ReviewSortProperty.ID, principal
+                1000L, false, null, 4, Sort.Direction.DESC, ReviewSortProperty.ID, principal
             );
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
             verify(getReviewUseCase).getProductReviews(
-                    10L, 1000L, false, null, 4, Sort.Direction.DESC, ReviewSortProperty.ID
+                10L, 1000L, false, null, 4, Sort.Direction.DESC, ReviewSortProperty.ID
             );
         }
     }
@@ -141,10 +141,10 @@ class ReviewControllerTest {
         void returnsMyReviews() {
             GetMyReviewsResult result = new GetMyReviewsResult(0L, -1L, false, List.of());
             when(getReviewUseCase.getWriterReviews(10L, null, 4, Sort.Direction.DESC, ReviewSortProperty.ID))
-                    .thenReturn(result);
+                .thenReturn(result);
 
             ResponseEntity<BaseResponse<GetMyReviewsResponse>> response = controller.getMyReviews(
-                    null, 4, Sort.Direction.DESC, ReviewSortProperty.ID, principal
+                null, 4, Sort.Direction.DESC, ReviewSortProperty.ID, principal
             );
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -197,10 +197,10 @@ class ReviewControllerTest {
         @DisplayName("나의 리뷰 개수를 조회해 OK 응답을 반환한다")
         void returnsMyReviewCount() {
             when(getReviewUseCase.getWriterReviewCount(10L))
-                    .thenReturn(GetReviewCountResult.of(5L));
+                .thenReturn(GetReviewCountResult.of(5L));
 
             ResponseEntity<BaseResponse<GetReviewsCountResponse>> response =
-                    controller.getMyReviewsCount(principal);
+                controller.getMyReviewsCount(principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
@@ -220,7 +220,7 @@ class ReviewControllerTest {
             when(updateReviewUseCase.updateReview(any(UpdateReviewCommand.class))).thenReturn(result);
 
             ResponseEntity<BaseResponse<UpdateReviewResponse>> response =
-                    controller.updateReview(77L, request, principal);
+                controller.updateReview(77L, request, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
@@ -253,7 +253,7 @@ class ReviewControllerTest {
             when(getReviewUseCase.getProductReviewAggregates(List.of(1L, 2L))).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetProductReviewAggregatesResponse>> response =
-                    controller.getProductReviewAggregates(List.of(1L, 2L));
+                controller.getProductReviewAggregates(List.of(1L, 2L));
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
@@ -272,7 +272,7 @@ class ReviewControllerTest {
             when(getUserReviewsUseCase.getUserReviews(captor.capture())).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetUserReviewsResponse>> response = controller.getUserReviews(
-                    10L, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
+                10L, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
             );
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -293,23 +293,23 @@ class ReviewControllerTest {
         @DisplayName("집계가 존재하면 점수별 카운트를 매핑해 OK 응답을 반환한다")
         void returnsAggregateWhenFound() {
             ProductReviewAggregate aggregate = ProductReviewAggregate.from(
-                    ProductReviewAggregateSnapshotState.builder()
-                            .productId(1000L)
-                            .totalCount(5)
-                            .fivePointCount(3)
-                            .fourPointCount(2)
-                            .threePointCount(0)
-                            .twoPointCount(0)
-                            .onePointCount(0)
-                            .totalRating(23L)
-                            .averageRating(new java.math.BigDecimal("4.60"))
-                            .build()
+                ProductReviewAggregateSnapshotState.builder()
+                    .productId(1000L)
+                    .totalCount(5)
+                    .fivePointCount(3)
+                    .fourPointCount(2)
+                    .threePointCount(0)
+                    .twoPointCount(0)
+                    .onePointCount(0)
+                    .totalRating(23L)
+                    .averageRating(new java.math.BigDecimal("4.60"))
+                    .build()
             );
             when(getReviewUseCase.getProductReviewAggregate(1000L)).thenReturn(aggregate);
 
             ResponseEntity<BaseResponse<GetProductReviewAggregatesResponse>> ignored;
             ResponseEntity<BaseResponse<com.personal.marketnote.community.adapter.in.web.review.response.GetProductReviewAggregateResponse>> response =
-                    controller.getProductReviewAggregate(1000L);
+                controller.getProductReviewAggregate(1000L);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent().totalCount()).isEqualTo(5);
@@ -344,7 +344,7 @@ class ReviewControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
+            String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
         );
     }
 
@@ -360,9 +360,9 @@ class ReviewControllerTest {
         @DisplayName("getMyReviews 메서드에 @RateLimited(key=my-reviews, maxRequests=60, windowSeconds=60)이 부착되어 있다")
         void getMyReviewsHasRateLimited() throws NoSuchMethodException {
             Method method = ReviewController.class.getMethod(
-                    "getMyReviews",
-                    Long.class, int.class, Sort.Direction.class, ReviewSortProperty.class,
-                    OAuth2AuthenticatedPrincipal.class
+                "getMyReviews",
+                Long.class, int.class, Sort.Direction.class, ReviewSortProperty.class,
+                OAuth2AuthenticatedPrincipal.class
             );
 
             RateLimited rateLimited = method.getAnnotation(RateLimited.class);
@@ -377,9 +377,9 @@ class ReviewControllerTest {
         @DisplayName("getProductReviews 메서드에 @RateLimited(key=product-reviews, maxRequests=60, windowSeconds=60)이 부착되어 있다")
         void getProductReviewsHasRateLimited() throws NoSuchMethodException {
             Method method = ReviewController.class.getMethod(
-                    "getProductReviews",
-                    Long.class, Boolean.class, Long.class, int.class, Sort.Direction.class,
-                    ReviewSortProperty.class, OAuth2AuthenticatedPrincipal.class
+                "getProductReviews",
+                Long.class, Boolean.class, Long.class, int.class, Sort.Direction.class,
+                ReviewSortProperty.class, OAuth2AuthenticatedPrincipal.class
             );
 
             RateLimited rateLimited = method.getAnnotation(RateLimited.class);

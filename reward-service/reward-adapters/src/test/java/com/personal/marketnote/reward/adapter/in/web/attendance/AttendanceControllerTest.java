@@ -55,9 +55,9 @@ class AttendanceControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(String userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                userId,
-                Map.of("name", userId),
-                List.of(new SimpleGrantedAuthority("ROLE_BUYER"))
+            userId,
+            Map.of("name", userId),
+            List.of(new SimpleGrantedAuthority("ROLE_BUYER"))
         );
     }
 
@@ -72,11 +72,11 @@ class AttendanceControllerTest {
             RegisterAttendanceRequest request = new RegisterAttendanceRequest();
             ReflectionTestUtils.setField(request, "attendedAt", LocalDateTime.of(2026, 4, 15, 10, 0));
             RegisterAttendanceResult result =
-                    new RegisterAttendanceResult(100L, AttendanceRewardType.POINT, 50L, (short) 3);
+                new RegisterAttendanceResult(100L, AttendanceRewardType.POINT, 50L, (short) 3);
             given(registerAttendanceUseCase.register(any(RegisterAttendanceCommand.class))).willReturn(result);
 
             ResponseEntity<BaseResponse<RegisterAttendanceResponse>> response =
-                    controller.registerAttendance(principal, request);
+                controller.registerAttendance(principal, request);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             assertThat(response.getBody().getContent()).isNotNull();
@@ -95,12 +95,12 @@ class AttendanceControllerTest {
         void returnsOkWithRelayStatus() {
             OAuth2AuthenticatedPrincipal principal = buildPrincipal("7");
             GetAttendanceRelayStatusResult result = new GetAttendanceRelayStatusResult(
-                    (short) 3, true, List.of()
+                (short) 3, true, List.of()
             );
             given(getAttendanceRelayStatusUseCase.getRelayStatus(7L)).willReturn(result);
 
             ResponseEntity<BaseResponse<GetAttendanceRelayStatusResponse>> response =
-                    controller.getAttendanceRelayStatus(principal);
+                controller.getAttendanceRelayStatus(principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent()).isNotNull();
@@ -117,13 +117,13 @@ class AttendanceControllerTest {
         void returnsOkWithYearMonth() {
             OAuth2AuthenticatedPrincipal principal = buildPrincipal("7");
             GetMonthlyAttendanceResult result = new GetMonthlyAttendanceResult(
-                    List.of(LocalDate.of(2026, 4, 1)), 1, 50L
+                List.of(LocalDate.of(2026, 4, 1)), 1, 50L
             );
             given(getMonthlyAttendanceUseCase.getMonthlyAttendanceHistories(any(GetMonthlyAttendanceQuery.class)))
-                    .willReturn(result);
+                .willReturn(result);
 
             ResponseEntity<BaseResponse<GetMonthlyAttendanceResponse>> response =
-                    controller.getMonthlyAttendanceHistories(principal, 2026, 4);
+                controller.getMonthlyAttendanceHistories(principal, 2026, 4);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent()).isNotNull();
@@ -139,10 +139,10 @@ class AttendanceControllerTest {
         void returnsOkWhenYearMonthNull() {
             OAuth2AuthenticatedPrincipal principal = buildPrincipal("7");
             given(getMonthlyAttendanceUseCase.getMonthlyAttendanceHistories(any(GetMonthlyAttendanceQuery.class)))
-                    .willReturn(GetMonthlyAttendanceResult.empty());
+                .willReturn(GetMonthlyAttendanceResult.empty());
 
             ResponseEntity<BaseResponse<GetMonthlyAttendanceResponse>> response =
-                    controller.getMonthlyAttendanceHistories(principal, null, null);
+                controller.getMonthlyAttendanceHistories(principal, null, null);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<GetMonthlyAttendanceQuery> captor = ArgumentCaptor.forClass(GetMonthlyAttendanceQuery.class);

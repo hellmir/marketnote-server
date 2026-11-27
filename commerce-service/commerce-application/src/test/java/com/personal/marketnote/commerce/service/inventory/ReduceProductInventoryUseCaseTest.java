@@ -83,8 +83,8 @@ class ReduceProductInventoryUseCaseTest {
         @DisplayName("서로 다른 가격 정책의 복수 주문 상품 재고 차감 시 각각의 재고가 올바르게 감소한다")
         void reduce_differentPolicies_reducesEachInventory() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 5)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 5)
             );
             Inventory inventory1 = buildInventory(1L, 100L, 10);
             Inventory inventory2 = buildInventory(2L, 200L, 20);
@@ -102,8 +102,8 @@ class ReduceProductInventoryUseCaseTest {
         @DisplayName("동일 가격 정책의 복수 주문 상품 재고 차감 시 수량을 합산하여 차감한다")
         void reduce_samePolicyMultipleProducts_sumsQuantityAndReduces() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(100L, 3)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(100L, 3)
             );
             Inventory inventory = buildInventory(1L, 100L, 10);
 
@@ -119,9 +119,9 @@ class ReduceProductInventoryUseCaseTest {
         @DisplayName("동일/다른 가격 정책이 혼합된 주문 상품 재고 차감 시 올바르게 그룹화하여 차감한다")
         void reduce_mixedPolicies_groupsAndReducesCorrectly() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(100L, 3),
-                    buildOrderProduct(200L, 4)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(100L, 3),
+                buildOrderProduct(200L, 4)
             );
             Inventory inventory1 = buildInventory(1L, 100L, 20);
             Inventory inventory2 = buildInventory(2L, 200L, 15);
@@ -144,14 +144,14 @@ class ReduceProductInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void reduce_success_passesCorrectPricePolicyIdsToLock() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 3)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 3)
             );
 
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventory(1L, 100L, 10),
-                    buildInventory(2L, 200L, 20)
+                buildInventory(1L, 100L, 10),
+                buildInventory(2L, 200L, 20)
             ));
 
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
@@ -184,7 +184,7 @@ class ReduceProductInventoryUseCaseTest {
             doThrow(exception).when(inventoryLockPort).executeWithLock(any(), any());
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -193,10 +193,10 @@ class ReduceProductInventoryUseCaseTest {
             List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
 
             doThrow(new InventoryLockAcquisitionException(100L))
-                    .when(inventoryLockPort).executeWithLock(any(), any());
+                .when(inventoryLockPort).executeWithLock(any(), any());
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isInstanceOf(InventoryLockAcquisitionException.class);
+                .isInstanceOf(InventoryLockAcquisitionException.class);
 
             verifyNoInteractions(findInventoryPort);
             verifyNoInteractions(updateInventoryPort);
@@ -209,12 +209,12 @@ class ReduceProductInventoryUseCaseTest {
         void reduce_lockInterrupted_throwsInventoryLockInterruptedException() {
             List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
             InventoryLockInterruptedException exception =
-                    new InventoryLockInterruptedException(new InterruptedException());
+                new InventoryLockInterruptedException(new InterruptedException());
 
             doThrow(exception).when(inventoryLockPort).executeWithLock(any(), any());
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         // ==================================================================================
@@ -234,7 +234,7 @@ class ReduceProductInventoryUseCaseTest {
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
             InOrder inOrder = inOrder(findInventoryPort, updateInventoryPort,
-                    saveInventoryDeductionHistoryPort, saveCacheStockPort);
+                saveInventoryDeductionHistoryPort, saveCacheStockPort);
             inOrder.verify(findInventoryPort).findByPricePolicyIds(any());
             inOrder.verify(updateInventoryPort).update(any());
             inOrder.verify(saveInventoryDeductionHistoryPort).save(any(InventoryDeductionHistories.class));
@@ -251,15 +251,15 @@ class ReduceProductInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void reduce_success_findsInventoriesByCorrectPricePolicyIds() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 3),
-                    buildOrderProduct(100L, 1)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 3),
+                buildOrderProduct(100L, 1)
             );
 
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventory(1L, 100L, 10),
-                    buildInventory(2L, 200L, 20)
+                buildInventory(1L, 100L, 10),
+                buildInventory(2L, 200L, 20)
             ));
 
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
@@ -274,13 +274,13 @@ class ReduceProductInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void reduce_samePolicyMultipleProducts_findsWithDeduplicatedIds() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(100L, 3)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(100L, 3)
             );
 
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
-                    buildInventory(1L, 100L, 10)
+                buildInventory(1L, 100L, 10)
             ));
 
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
@@ -321,8 +321,8 @@ class ReduceProductInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void reduce_multipleProducts_passesAllReducedStocksToUpdatePort() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 5)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 5)
             );
             Inventory inventory1 = buildInventory(1L, 100L, 10);
             Inventory inventory2 = buildInventory(2L, 200L, 20);
@@ -338,16 +338,16 @@ class ReduceProductInventoryUseCaseTest {
 
             assertThat(updated).hasSize(2);
             assertThat(updated).extracting(Inventory::getPricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L);
+                .containsExactlyInAnyOrder(100L, 200L);
 
             Inventory updated1 = updated.stream()
-                    .filter(inv -> inv.getPricePolicyId().equals(100L))
-                    .findFirst().orElseThrow();
+                .filter(inv -> inv.getPricePolicyId().equals(100L))
+                .findFirst().orElseThrow();
             assertThat(updated1.getStockValue()).isEqualTo(8);
 
             Inventory updated2 = updated.stream()
-                    .filter(inv -> inv.getPricePolicyId().equals(200L))
-                    .findFirst().orElseThrow();
+                .filter(inv -> inv.getPricePolicyId().equals(200L))
+                .findFirst().orElseThrow();
             assertThat(updated2.getStockValue()).isEqualTo(15);
         }
 
@@ -367,10 +367,10 @@ class ReduceProductInventoryUseCaseTest {
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
             ArgumentCaptor<InventoryDeductionHistories> captor =
-                    ArgumentCaptor.forClass(InventoryDeductionHistories.class);
+                ArgumentCaptor.forClass(InventoryDeductionHistories.class);
             verify(saveInventoryDeductionHistoryPort).save(captor.capture());
             List<InventoryDeductionHistory> histories =
-                    captor.getValue().getInventoryDeductionHistories();
+                captor.getValue().getInventoryDeductionHistories();
 
             assertThat(histories).hasSize(1);
             assertThat(histories.get(0).getProductId()).isEqualTo(1L);
@@ -389,10 +389,10 @@ class ReduceProductInventoryUseCaseTest {
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
             ArgumentCaptor<InventoryDeductionHistories> captor =
-                    ArgumentCaptor.forClass(InventoryDeductionHistories.class);
+                ArgumentCaptor.forClass(InventoryDeductionHistories.class);
             verify(saveInventoryDeductionHistoryPort).save(captor.capture());
             List<InventoryDeductionHistory> histories =
-                    captor.getValue().getInventoryDeductionHistories();
+                captor.getValue().getInventoryDeductionHistories();
 
             assertThat(histories).hasSize(1);
             assertThat(histories.get(0).getStockValue()).isEqualTo(3);
@@ -411,10 +411,10 @@ class ReduceProductInventoryUseCaseTest {
             reduceProductInventoryService.reduce(orderProducts, 1L, reason);
 
             ArgumentCaptor<InventoryDeductionHistories> captor =
-                    ArgumentCaptor.forClass(InventoryDeductionHistories.class);
+                ArgumentCaptor.forClass(InventoryDeductionHistories.class);
             verify(saveInventoryDeductionHistoryPort).save(captor.capture());
             List<InventoryDeductionHistory> histories =
-                    captor.getValue().getInventoryDeductionHistories();
+                captor.getValue().getInventoryDeductionHistories();
 
             assertThat(histories).hasSize(1);
             assertThat(histories.get(0).getReason()).isEqualTo(reason);
@@ -432,10 +432,10 @@ class ReduceProductInventoryUseCaseTest {
             reduceProductInventoryService.reduce(orderProducts, 99L, "결제 완료");
 
             ArgumentCaptor<InventoryDeductionHistories> captor =
-                    ArgumentCaptor.forClass(InventoryDeductionHistories.class);
+                ArgumentCaptor.forClass(InventoryDeductionHistories.class);
             verify(saveInventoryDeductionHistoryPort).save(captor.capture());
             List<InventoryDeductionHistory> histories =
-                    captor.getValue().getInventoryDeductionHistories();
+                captor.getValue().getInventoryDeductionHistories();
 
             assertThat(histories).hasSize(1);
             assertThat(histories.get(0).getOrderId()).isEqualTo(99L);
@@ -445,8 +445,8 @@ class ReduceProductInventoryUseCaseTest {
         @DisplayName("복수 가격 정책 재고 차감 시 각 가격 정책별 차감 이력을 저장한다")
         void reduce_multipleProducts_savesHistoryForEachPolicy() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 5)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 5)
             );
             Inventory inventory1 = buildInventory(1L, 100L, 10);
             Inventory inventory2 = buildInventory(2L, 200L, 20);
@@ -457,24 +457,24 @@ class ReduceProductInventoryUseCaseTest {
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
             ArgumentCaptor<InventoryDeductionHistories> captor =
-                    ArgumentCaptor.forClass(InventoryDeductionHistories.class);
+                ArgumentCaptor.forClass(InventoryDeductionHistories.class);
             verify(saveInventoryDeductionHistoryPort).save(captor.capture());
             List<InventoryDeductionHistory> histories =
-                    captor.getValue().getInventoryDeductionHistories();
+                captor.getValue().getInventoryDeductionHistories();
 
             assertThat(histories).hasSize(2);
             assertThat(histories).extracting(InventoryDeductionHistory::getPricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L);
+                .containsExactlyInAnyOrder(100L, 200L);
             assertThat(histories).extracting(InventoryDeductionHistory::getStockValue)
-                    .containsExactlyInAnyOrder(2, 5);
+                .containsExactlyInAnyOrder(2, 5);
         }
 
         @Test
         @DisplayName("동일 가격 정책의 복수 주문 상품 차감 시 합산된 수량으로 이력을 저장한다")
         void reduce_samePolicyMultipleProducts_savesHistoryWithSummedQuantity() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(100L, 3)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(100L, 3)
             );
             Inventory inventory = buildInventory(1L, 100L, 10);
 
@@ -484,10 +484,10 @@ class ReduceProductInventoryUseCaseTest {
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
             ArgumentCaptor<InventoryDeductionHistories> captor =
-                    ArgumentCaptor.forClass(InventoryDeductionHistories.class);
+                ArgumentCaptor.forClass(InventoryDeductionHistories.class);
             verify(saveInventoryDeductionHistoryPort).save(captor.capture());
             List<InventoryDeductionHistory> histories =
-                    captor.getValue().getInventoryDeductionHistories();
+                captor.getValue().getInventoryDeductionHistories();
 
             assertThat(histories).hasSize(1);
             assertThat(histories.get(0).getStockValue()).isEqualTo(5);
@@ -524,8 +524,8 @@ class ReduceProductInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void reduce_multipleProducts_savesAllReducedInventoriesToCache() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 5)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 5)
             );
             Inventory inventory1 = buildInventory(1L, 100L, 10);
             Inventory inventory2 = buildInventory(2L, 200L, 20);
@@ -541,7 +541,7 @@ class ReduceProductInventoryUseCaseTest {
 
             assertThat(cached).hasSize(2);
             assertThat(cached).extracting(Inventory::getPricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L);
+                .containsExactlyInAnyOrder(100L, 200L);
         }
 
         // ==================================================================================
@@ -558,7 +558,7 @@ class ReduceProductInventoryUseCaseTest {
             when(findInventoryPort.findByPricePolicyIds(any())).thenThrow(exception);
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -570,7 +570,7 @@ class ReduceProductInventoryUseCaseTest {
             when(findInventoryPort.findByPricePolicyIds(any())).thenThrow(new RuntimeException("find fail"));
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verifyNoInteractions(updateInventoryPort);
             verifyNoInteractions(saveInventoryDeductionHistoryPort);
@@ -589,7 +589,7 @@ class ReduceProductInventoryUseCaseTest {
             doThrow(exception).when(updateInventoryPort).update(any());
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -603,7 +603,7 @@ class ReduceProductInventoryUseCaseTest {
             doThrow(new RuntimeException("update fail")).when(updateInventoryPort).update(any());
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verifyNoInteractions(saveInventoryDeductionHistoryPort);
             verifyNoInteractions(saveCacheStockPort);
@@ -621,7 +621,7 @@ class ReduceProductInventoryUseCaseTest {
             doThrow(exception).when(updateInventoryPort).update(any());
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -636,7 +636,7 @@ class ReduceProductInventoryUseCaseTest {
             doThrow(exception).when(saveInventoryDeductionHistoryPort).save(any());
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -648,10 +648,10 @@ class ReduceProductInventoryUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             doThrow(new RuntimeException("history save fail"))
-                    .when(saveInventoryDeductionHistoryPort).save(any());
+                .when(saveInventoryDeductionHistoryPort).save(any());
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verify(updateInventoryPort).update(any());
             verifyNoInteractions(saveCacheStockPort);
@@ -670,7 +670,7 @@ class ReduceProductInventoryUseCaseTest {
             doThrow(exception).when(saveCacheStockPort).save(any(Set.class));
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         @Test
@@ -683,10 +683,10 @@ class ReduceProductInventoryUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             doThrow(new RuntimeException("cache save fail"))
-                    .when(saveCacheStockPort).save(any(Set.class));
+                .when(saveCacheStockPort).save(any(Set.class));
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(RuntimeException.class);
 
             verify(findInventoryPort).findByPricePolicyIds(any());
             verify(updateInventoryPort).update(any());
@@ -703,9 +703,9 @@ class ReduceProductInventoryUseCaseTest {
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isInstanceOf(InsufficientQuantityException.class)
-                    .hasMessageContaining("10")
-                    .hasMessageContaining("11");
+                .isInstanceOf(InsufficientQuantityException.class)
+                .hasMessageContaining("10")
+                .hasMessageContaining("11");
         }
 
         @Test
@@ -718,7 +718,7 @@ class ReduceProductInventoryUseCaseTest {
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isInstanceOf(InsufficientQuantityException.class);
+                .isInstanceOf(InsufficientQuantityException.class);
 
             verifyNoInteractions(updateInventoryPort);
             verifyNoInteractions(saveInventoryDeductionHistoryPort);
@@ -741,7 +741,7 @@ class ReduceProductInventoryUseCaseTest {
             doThrow(exception).when(saveInventoryDeductionHistoryPort).save(any(InventoryDeductionHistories.class));
 
             assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
-                    .isSameAs(exception);
+                .isSameAs(exception);
         }
 
         // ==================================================================================
@@ -780,7 +780,7 @@ class ReduceProductInventoryUseCaseTest {
             assertThat(updateCaptor.getValue()).isEmpty();
 
             ArgumentCaptor<InventoryDeductionHistories> historyCaptor =
-                    ArgumentCaptor.forClass(InventoryDeductionHistories.class);
+                ArgumentCaptor.forClass(InventoryDeductionHistories.class);
             verify(saveInventoryDeductionHistoryPort).save(historyCaptor.capture());
             assertThat(historyCaptor.getValue().getInventoryDeductionHistories()).isEmpty();
 
@@ -835,8 +835,8 @@ class ReduceProductInventoryUseCaseTest {
         @DisplayName("일부 가격 정책의 재고만 조회된 경우 조회된 재고만 차감하고 이력은 모든 가격 정책에 대해 저장한다")
         void reduce_partialInventoryMatch_reducesOnlyFoundAndSavesHistoryForAll() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 5)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 5)
             );
             Inventory inventory = buildInventory(1L, 100L, 10);
 
@@ -848,18 +848,18 @@ class ReduceProductInventoryUseCaseTest {
             assertThat(inventory.getStockValue()).isEqualTo(8);
 
             ArgumentCaptor<InventoryDeductionHistories> captor =
-                    ArgumentCaptor.forClass(InventoryDeductionHistories.class);
+                ArgumentCaptor.forClass(InventoryDeductionHistories.class);
             verify(saveInventoryDeductionHistoryPort).save(captor.capture());
             List<InventoryDeductionHistory> histories =
-                    captor.getValue().getInventoryDeductionHistories();
+                captor.getValue().getInventoryDeductionHistories();
 
             assertThat(histories).hasSize(2);
             assertThat(histories).extracting(InventoryDeductionHistory::getPricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L);
+                .containsExactlyInAnyOrder(100L, 200L);
 
             InventoryDeductionHistory missingHistory = histories.stream()
-                    .filter(h -> h.getPricePolicyId().equals(200L))
-                    .findFirst().orElseThrow();
+                .filter(h -> h.getPricePolicyId().equals(200L))
+                .findFirst().orElseThrow();
             assertThat(missingHistory.getProductId()).isNull();
         }
 
@@ -867,10 +867,10 @@ class ReduceProductInventoryUseCaseTest {
         @DisplayName("다수의 동일 가격 정책 주문 상품 차감 시 모든 수량이 합산되어 차감된다")
         void reduce_manyProductsSamePolicy_sumsAllQuantities() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 1),
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(100L, 3),
-                    buildOrderProduct(100L, 4)
+                buildOrderProduct(100L, 1),
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(100L, 3),
+                buildOrderProduct(100L, 4)
             );
             Inventory inventory = buildInventory(1L, 100L, 50);
 
@@ -901,7 +901,7 @@ class ReduceProductInventoryUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
 
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
@@ -919,7 +919,7 @@ class ReduceProductInventoryUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
 
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
@@ -935,7 +935,7 @@ class ReduceProductInventoryUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
@@ -952,7 +952,7 @@ class ReduceProductInventoryUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
@@ -963,8 +963,8 @@ class ReduceProductInventoryUseCaseTest {
         @DisplayName("복수 가격 정책 중 일부만 예약 레코드가 있으면 해당 건만 confirmReservation, 나머지는 reduce로 처리한다")
         void reduce_partialReservation_mixesConfirmAndReduce() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 5)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 5)
             );
             Inventory inventory1 = buildInventoryWithReserved(1L, 100L, 10, 2);
             Inventory inventory2 = buildInventory(2L, 200L, 20);
@@ -973,7 +973,7 @@ class ReduceProductInventoryUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory1, inventory2));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
 
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
@@ -993,7 +993,7 @@ class ReduceProductInventoryUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
 
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
@@ -1001,7 +1001,7 @@ class ReduceProductInventoryUseCaseTest {
             verify(saveInventoryDeductionHistoryPort).save(any(InventoryDeductionHistories.class));
             verify(saveCacheStockPort).save(any(Set.class));
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    100L, 1L, 7, InventoryChangeAction.UPDATED
+                100L, 1L, 7, InventoryChangeAction.UPDATED
             );
         }
 
@@ -1016,13 +1016,13 @@ class ReduceProductInventoryUseCaseTest {
             stubLockToExecuteTask();
             when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
             when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
+                .thenReturn(List.of(reservation));
 
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
             InOrder inOrder = inOrder(findInventoryPort, findInventoryReservationPort,
-                    deleteInventoryReservationPort, updateInventoryPort,
-                    saveInventoryDeductionHistoryPort, saveCacheStockPort);
+                deleteInventoryReservationPort, updateInventoryPort,
+                saveInventoryDeductionHistoryPort, saveCacheStockPort);
             inOrder.verify(findInventoryPort).findByPricePolicyIds(any());
             inOrder.verify(findInventoryReservationPort).findByOrderIdAndPricePolicyIds(eq(1L), any());
             inOrder.verify(deleteInventoryReservationPort).deleteByOrderIdAndPricePolicyIds(eq(1L), any());
@@ -1046,12 +1046,12 @@ class ReduceProductInventoryUseCaseTest {
 
     private OrderProduct buildOrderProduct(Long pricePolicyId, int quantity) {
         return OrderProduct.from(
-                OrderProductSnapshotState.builder()
-                        .pricePolicyId(pricePolicyId)
-                        .quantity(quantity)
-                        .unitAmount(0L)
-                        .accumulatedPoint(0L)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .pricePolicyId(pricePolicyId)
+                .quantity(quantity)
+                .unitAmount(0L)
+                .accumulatedPoint(0L)
+                .build()
         );
     }
 
@@ -1061,22 +1061,22 @@ class ReduceProductInventoryUseCaseTest {
 
     private Inventory buildInventoryWithReserved(Long productId, Long pricePolicyId, int stock, int reserved) {
         return Inventory.from(InventorySnapshotState.builder()
-                .productId(productId)
-                .pricePolicyId(pricePolicyId)
-                .stock(stock)
-                .version(0L)
-                .reserved(reserved)
-                .build());
+            .productId(productId)
+            .pricePolicyId(pricePolicyId)
+            .stock(stock)
+            .version(0L)
+            .reserved(reserved)
+            .build());
     }
 
     private InventoryReservation buildReservation(Long orderId, Long pricePolicyId, int quantity) {
         return InventoryReservation.from(InventoryReservationSnapshotState.builder()
-                .id(1L)
-                .orderId(orderId)
-                .pricePolicyId(pricePolicyId)
-                .quantity(quantity)
-                .reservedAt(LocalDateTime.now())
-                .build());
+            .id(1L)
+            .orderId(orderId)
+            .pricePolicyId(pricePolicyId)
+            .quantity(quantity)
+            .reservedAt(LocalDateTime.now())
+            .build());
     }
 
     // ==================================================================================
@@ -1099,7 +1099,7 @@ class ReduceProductInventoryUseCaseTest {
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    100L, 1L, 7, InventoryChangeAction.UPDATED
+                100L, 1L, 7, InventoryChangeAction.UPDATED
             );
         }
 
@@ -1107,8 +1107,8 @@ class ReduceProductInventoryUseCaseTest {
         @DisplayName("서로 다른 가격 정책의 복수 주문 상품 재고 차감 시 각각 UPDATED 이벤트를 발행한다")
         void reduce_differentPolicies_publishesUpdatedEventForEach() {
             List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 5)
+                buildOrderProduct(100L, 2),
+                buildOrderProduct(200L, 5)
             );
             Inventory inventory1 = buildInventory(1L, 100L, 10);
             Inventory inventory2 = buildInventory(2L, 200L, 20);
@@ -1119,10 +1119,10 @@ class ReduceProductInventoryUseCaseTest {
             reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
 
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    100L, 1L, 8, InventoryChangeAction.UPDATED
+                100L, 1L, 8, InventoryChangeAction.UPDATED
             );
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    200L, 2L, 15, InventoryChangeAction.UPDATED
+                200L, 2L, 15, InventoryChangeAction.UPDATED
             );
         }
 

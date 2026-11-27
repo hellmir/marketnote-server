@@ -68,13 +68,13 @@ class JwtDelegatingTokenSupportProxyTest {
             JwtDelegatingTokenSupportProxy proxy = createProxy(kakaoProcessor);
 
             GrantedTokenInfo thirdPartyToken = GrantedTokenInfo.builder()
-                    .accessToken("third-party-access")
-                    .refreshToken("third-party-refresh")
-                    .id("kakao-oidc-1")
-                    .authVendor(AuthVendor.KAKAO)
-                    .build();
+                .accessToken("third-party-access")
+                .refreshToken("third-party-refresh")
+                .id("kakao-oidc-1")
+                .authVendor(AuthVendor.KAKAO)
+                .build();
             when(kakaoProcessor.grantToken("auth-code", "https://example.com/callback"))
-                    .thenReturn(thirdPartyToken);
+                .thenReturn(thirdPartyToken);
 
             User user = mock(User.class);
             when(user.isGuest()).thenReturn(false);
@@ -82,12 +82,12 @@ class JwtDelegatingTokenSupportProxyTest {
             when(user.getId()).thenReturn(100L);
             when(user.getRole()).thenReturn(Role.of("ROLE_BUYER", "구매자"));
             when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(AuthVendor.KAKAO, "kakao-oidc-1"))
-                    .thenReturn(Optional.of(user));
+                .thenReturn(Optional.of(user));
 
             when(jwtUtil.generateAccessToken("kakao-oidc-1", 100L, List.of("ROLE_BUYER"), AuthVendor.KAKAO))
-                    .thenReturn("jwt-access-token");
+                .thenReturn("jwt-access-token");
             when(jwtUtil.generateRefreshToken("kakao-oidc-1", List.of("ROLE_BUYER"), AuthVendor.KAKAO))
-                    .thenReturn("jwt-refresh-token");
+                .thenReturn("jwt-refresh-token");
 
             // when
             GrantedTokenInfo result = proxy.grantToken("auth-code", "https://example.com/callback", AuthVendor.KAKAO);
@@ -109,27 +109,27 @@ class JwtDelegatingTokenSupportProxyTest {
             JwtDelegatingTokenSupportProxy proxy = createProxy(kakaoProcessor);
 
             GrantedTokenInfo thirdPartyToken = GrantedTokenInfo.builder()
-                    .accessToken("third-party-access")
-                    .refreshToken("third-party-refresh")
-                    .id("kakao-oidc-new")
-                    .authVendor(AuthVendor.KAKAO)
-                    .build();
+                .accessToken("third-party-access")
+                .refreshToken("third-party-refresh")
+                .id("kakao-oidc-new")
+                .authVendor(AuthVendor.KAKAO)
+                .build();
             when(kakaoProcessor.grantToken("auth-code", "https://example.com/callback"))
-                    .thenReturn(thirdPartyToken);
+                .thenReturn(thirdPartyToken);
 
             when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(AuthVendor.KAKAO, "kakao-oidc-new"))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             OAuth2UserInfo userInfoFromVendor = OAuth2UserInfo.builder()
-                    .id("kakao-oidc-new")
-                    .name("홍길동")
-                    .build();
+                .id("kakao-oidc-new")
+                .name("홍길동")
+                .build();
             when(kakaoProcessor.retrieveUserInfo("third-party-access")).thenReturn(userInfoFromVendor);
 
             when(jwtUtil.generateAccessToken("kakao-oidc-new", null, List.of("ROLE_GUEST"), AuthVendor.KAKAO))
-                    .thenReturn("jwt-access-token");
+                .thenReturn("jwt-access-token");
             when(jwtUtil.generateRefreshToken("kakao-oidc-new", List.of("ROLE_GUEST"), AuthVendor.KAKAO))
-                    .thenReturn("jwt-refresh-token");
+                .thenReturn("jwt-refresh-token");
 
             // when
             GrantedTokenInfo result = proxy.grantToken("auth-code", "https://example.com/callback", AuthVendor.KAKAO);
@@ -147,23 +147,23 @@ class JwtDelegatingTokenSupportProxyTest {
             JwtDelegatingTokenSupportProxy proxy = createProxy(kakaoProcessor);
 
             GrantedTokenInfo thirdPartyToken = GrantedTokenInfo.builder()
-                    .accessToken("third-party-access")
-                    .refreshToken("third-party-refresh")
-                    .id("kakao-oidc-inactive")
-                    .authVendor(AuthVendor.KAKAO)
-                    .build();
+                .accessToken("third-party-access")
+                .refreshToken("third-party-refresh")
+                .id("kakao-oidc-inactive")
+                .authVendor(AuthVendor.KAKAO)
+                .build();
             when(kakaoProcessor.grantToken("auth-code", "https://example.com/callback"))
-                    .thenReturn(thirdPartyToken);
+                .thenReturn(thirdPartyToken);
 
             User user = mock(User.class);
             when(user.isGuest()).thenReturn(false);
             when(user.isActive()).thenReturn(false);
             when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(AuthVendor.KAKAO, "kakao-oidc-inactive"))
-                    .thenReturn(Optional.of(user));
+                .thenReturn(Optional.of(user));
 
             // when & then
             assertThatThrownBy(() -> proxy.grantToken(
-                    "auth-code", "https://example.com/callback", AuthVendor.KAKAO
+                "auth-code", "https://example.com/callback", AuthVendor.KAKAO
             )).isInstanceOf(UserNotActiveException.class);
         }
     }
@@ -179,10 +179,10 @@ class JwtDelegatingTokenSupportProxyTest {
             JwtDelegatingTokenSupportProxy proxy = createProxy(kakaoProcessor);
 
             TokenClaims claims = TokenClaims.builder()
-                    .id("kakao-oidc-1")
-                    .userId(100L)
-                    .authVendor(AuthVendor.KAKAO)
-                    .build();
+                .id("kakao-oidc-1")
+                .userId(100L)
+                .authVendor(AuthVendor.KAKAO)
+                .build();
             when(jwtUtil.parseAccessToken("jwt-access-token")).thenReturn(claims);
 
             // when
@@ -202,13 +202,13 @@ class JwtDelegatingTokenSupportProxyTest {
             JwtDelegatingTokenSupportProxy proxy = createProxy(kakaoProcessor);
 
             when(jwtUtil.parseAccessToken("expired-jwt"))
-                    .thenThrow(new ExpiredJwtException(null, null, "expired"));
+                .thenThrow(new ExpiredJwtException(null, null, "expired"));
 
             OAuth2AuthenticationInfo vendorResult = OAuth2AuthenticationInfo.builder()
-                    .id("kakao-oidc-2")
-                    .userId(null)
-                    .authVendor(AuthVendor.KAKAO)
-                    .build();
+                .id("kakao-oidc-2")
+                .userId(null)
+                .authVendor(AuthVendor.KAKAO)
+                .build();
             when(kakaoProcessor.authenticate("expired-jwt")).thenReturn(vendorResult);
 
             // when
@@ -226,15 +226,15 @@ class JwtDelegatingTokenSupportProxyTest {
             JwtDelegatingTokenSupportProxy proxy = createProxy(kakaoProcessor, googleProcessor);
 
             when(jwtUtil.parseAccessToken("tampered-jwt"))
-                    .thenThrow(new SignatureException("signature mismatch"));
+                .thenThrow(new SignatureException("signature mismatch"));
             when(kakaoProcessor.authenticate("tampered-jwt"))
-                    .thenThrow(new InvalidAccessTokenException("not a kakao token"));
+                .thenThrow(new InvalidAccessTokenException("not a kakao token"));
             when(googleProcessor.authenticate("tampered-jwt"))
-                    .thenThrow(new InvalidAccessTokenException("not a google token"));
+                .thenThrow(new InvalidAccessTokenException("not a google token"));
 
             // when & then
             assertThatThrownBy(() -> proxy.authenticate("tampered-jwt"))
-                    .isInstanceOf(InvalidAccessTokenException.class);
+                .isInstanceOf(InvalidAccessTokenException.class);
             verify(kakaoProcessor).authenticate("tampered-jwt");
             verify(googleProcessor).authenticate("tampered-jwt");
         }
@@ -246,12 +246,12 @@ class JwtDelegatingTokenSupportProxyTest {
             JwtDelegatingTokenSupportProxy proxy = createProxy(kakaoProcessor);
 
             when(jwtUtil.parseAccessToken("malformed-jwt"))
-                    .thenThrow(new MalformedJwtException("malformed"));
+                .thenThrow(new MalformedJwtException("malformed"));
 
             OAuth2AuthenticationInfo vendorResult = OAuth2AuthenticationInfo.builder()
-                    .id("kakao-oidc-3")
-                    .authVendor(AuthVendor.KAKAO)
-                    .build();
+                .id("kakao-oidc-3")
+                .authVendor(AuthVendor.KAKAO)
+                .build();
             when(kakaoProcessor.authenticate("malformed-jwt")).thenReturn(vendorResult);
 
             // when
@@ -273,16 +273,16 @@ class JwtDelegatingTokenSupportProxyTest {
             JwtDelegatingTokenSupportProxy proxy = createProxy(kakaoProcessor);
 
             TokenClaims claims = TokenClaims.builder()
-                    .id("200")
-                    .userId(200L)
-                    .roleIds(List.of("ROLE_BUYER"))
-                    .authVendor(AuthVendor.KAKAO)
-                    .build();
+                .id("200")
+                .userId(200L)
+                .roleIds(List.of("ROLE_BUYER"))
+                .authVendor(AuthVendor.KAKAO)
+                .build();
             when(jwtUtil.parseRefreshToken("valid-refresh")).thenReturn(claims);
             when(jwtUtil.generateAccessToken("200", 200L, List.of("ROLE_BUYER"), AuthVendor.KAKAO))
-                    .thenReturn("new-access");
+                .thenReturn("new-access");
             when(jwtUtil.generateRefreshToken("200", List.of("ROLE_BUYER"), AuthVendor.KAKAO))
-                    .thenReturn("new-refresh");
+                .thenReturn("new-refresh");
 
             // when
             GrantedTokenInfo result = proxy.refreshToken("valid-refresh");
@@ -301,11 +301,11 @@ class JwtDelegatingTokenSupportProxyTest {
             JwtDelegatingTokenSupportProxy proxy = createProxy(kakaoProcessor);
 
             when(jwtUtil.parseRefreshToken("expired-refresh"))
-                    .thenThrow(new ExpiredJwtException(null, null, "expired"));
+                .thenThrow(new ExpiredJwtException(null, null, "expired"));
 
             // when & then
             assertThatThrownBy(() -> proxy.refreshToken("expired-refresh"))
-                    .isInstanceOf(InvalidRefreshTokenException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
         }
 
         @Test
@@ -315,11 +315,11 @@ class JwtDelegatingTokenSupportProxyTest {
             JwtDelegatingTokenSupportProxy proxy = createProxy(kakaoProcessor);
 
             when(jwtUtil.parseRefreshToken("tampered-refresh"))
-                    .thenThrow(new SignatureException("signature mismatch"));
+                .thenThrow(new SignatureException("signature mismatch"));
 
             // when & then
             assertThatThrownBy(() -> proxy.refreshToken("tampered-refresh"))
-                    .isInstanceOf(InvalidRefreshTokenException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
         }
     }
 }

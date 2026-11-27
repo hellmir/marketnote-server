@@ -18,11 +18,11 @@ class RegisterFulfillmentGoodsItemCommandTest {
 
         // when
         RegisterFulfillmentGoodsItemCommand command = RegisterFulfillmentGoodsItemCommand.builder()
-                .productCode(productCode)
-                .productName(productName)
-                .productType(productType)
-                .giftDivision(giftDivision)
-                .build();
+            .productCode(productCode)
+            .productName(productName)
+            .productType(productType)
+            .giftDivision(giftDivision)
+            .build();
 
         // then
         assertThat(command.productCode()).isEqualTo("123");

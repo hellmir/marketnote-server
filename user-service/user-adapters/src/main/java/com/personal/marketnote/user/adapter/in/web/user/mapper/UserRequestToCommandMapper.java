@@ -12,14 +12,14 @@ import com.personal.marketnote.user.port.in.command.VerifyCodeCommand;
 public class UserRequestToCommandMapper {
     public static SignUpCommand mapToCommand(SignUpRequest signUpRequest) {
         return SignUpCommand.builder()
-                .email(signUpRequest.getEmail())
-                .password(signUpRequest.getPassword())
-                .verificationCode(signUpRequest.getVerificationCode())
-                .nickname(signUpRequest.getNickname())
-                .fullName(signUpRequest.getFullName())
-                .phoneNumber(signUpRequest.getPhoneNumber())
-                .fingerprint(signUpRequest.getFingerprint())
-                .build();
+            .email(signUpRequest.getEmail())
+            .password(signUpRequest.getPassword())
+            .verificationCode(signUpRequest.getVerificationCode())
+            .nickname(signUpRequest.getNickname())
+            .fullName(signUpRequest.getFullName())
+            .phoneNumber(signUpRequest.getPhoneNumber())
+            .fingerprint(signUpRequest.getFingerprint())
+            .build();
     }
 
     public static SignInCommand mapToCommand(SignInRequest signInRequest) {
@@ -28,18 +28,18 @@ public class UserRequestToCommandMapper {
 
     public static UpdateUserInfoCommand mapToCommand(UpdateUserInfoRequest updateUserInfoRequest) {
         return UpdateUserInfoCommand.builder()
-                .isActive(updateUserInfoRequest.getIsActive())
-                .email(updateUserInfoRequest.getEmail())
-                .nickname(updateUserInfoRequest.getNickname())
-                .phoneNumber(updateUserInfoRequest.getPhoneNumber())
-                .password(updateUserInfoRequest.getPassword())
-                .build();
+            .isActive(updateUserInfoRequest.getIsActive())
+            .email(updateUserInfoRequest.getEmail())
+            .nickname(updateUserInfoRequest.getNickname())
+            .phoneNumber(updateUserInfoRequest.getPhoneNumber())
+            .password(updateUserInfoRequest.getPassword())
+            .build();
     }
 
     public static VerifyCodeCommand mapToCommand(VerifyCodeRequest verifyCodeRequest) {
         return VerifyCodeCommand.of(
-                verifyCodeRequest.getEmail(),
-                verifyCodeRequest.getVerificationCode()
+            verifyCodeRequest.getEmail(),
+            verifyCodeRequest.getVerificationCode()
         );
     }
 }

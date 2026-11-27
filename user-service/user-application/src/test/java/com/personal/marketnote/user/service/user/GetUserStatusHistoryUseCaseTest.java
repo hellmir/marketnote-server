@@ -38,25 +38,25 @@ class GetUserStatusHistoryUseCaseTest {
     void shouldReturnPagedStatusHistories() {
         // given
         UserStatusHistory history = UserStatusHistory.from(
-                UserStatusHistorySnapshotState.builder()
-                        .id(1L)
-                        .userId(USER_ID)
-                        .statusAction(UserStatusAction.DEACTIVATE)
-                        .reason("욕설 사용")
-                        .deactivatedUntil(LocalDateTime.of(2026, 5, 13, 0, 0))
-                        .createdBy(100L)
-                        .createdAt(LocalDateTime.of(2026, 4, 13, 10, 0))
-                        .build()
+            UserStatusHistorySnapshotState.builder()
+                .id(1L)
+                .userId(USER_ID)
+                .statusAction(UserStatusAction.DEACTIVATE)
+                .reason("욕설 사용")
+                .deactivatedUntil(LocalDateTime.of(2026, 5, 13, 0, 0))
+                .createdBy(100L)
+                .createdAt(LocalDateTime.of(2026, 4, 13, 10, 0))
+                .build()
         );
 
         Pageable pageable = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "id"));
         Page<UserStatusHistory> historyPage = new PageImpl<>(List.of(history), pageable, 1);
         when(findUserStatusHistoryPort.findUserStatusHistoriesByUserId(any(Pageable.class), eq(USER_ID)))
-                .thenReturn(historyPage);
+            .thenReturn(historyPage);
 
         // when
         Page<GetUserStatusHistoryResult> result = getUserStatusHistoryService.getUserStatusHistories(
-                USER_ID, 20, 0, Sort.Direction.DESC, UserStatusHistorySortProperty.ID
+            USER_ID, 20, 0, Sort.Direction.DESC, UserStatusHistorySortProperty.ID
         );
 
         // then
@@ -80,11 +80,11 @@ class GetUserStatusHistoryUseCaseTest {
         Pageable pageable = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "id"));
         Page<UserStatusHistory> emptyPage = new PageImpl<>(List.of(), pageable, 0);
         when(findUserStatusHistoryPort.findUserStatusHistoriesByUserId(any(Pageable.class), eq(USER_ID)))
-                .thenReturn(emptyPage);
+            .thenReturn(emptyPage);
 
         // when
         Page<GetUserStatusHistoryResult> result = getUserStatusHistoryService.getUserStatusHistories(
-                USER_ID, 20, 0, Sort.Direction.DESC, UserStatusHistorySortProperty.ID
+            USER_ID, 20, 0, Sort.Direction.DESC, UserStatusHistorySortProperty.ID
         );
 
         // then

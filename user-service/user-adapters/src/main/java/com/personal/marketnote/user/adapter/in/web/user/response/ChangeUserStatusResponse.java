@@ -7,10 +7,10 @@ import java.time.LocalDateTime;
 public record ChangeUserStatusResponse(Long userId, String status, LocalDateTime deactivatedUntil, Long historyId) {
     public static ChangeUserStatusResponse from(ChangeUserStatusResult result) {
         return new ChangeUserStatusResponse(
-                result.userId(),
-                result.status(),
-                result.deactivatedUntil(),
-                result.historyId()
+            result.userId(),
+            result.status(),
+            result.deactivatedUntil(),
+            result.historyId()
         );
     }
 }

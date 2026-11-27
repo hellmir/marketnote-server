@@ -41,31 +41,31 @@ class AligoAlimTalkControllerTest {
     private SendAligoAlimTalkUseCase sendAligoAlimTalkUseCase;
 
     private SendAligoAlimTalkRequest buildRequest(
-            Map<String, String> variables,
-            SendAligoAlimTalkRequest.FailoverRequest failover
+        Map<String, String> variables,
+        SendAligoAlimTalkRequest.FailoverRequest failover
     ) {
         return new SendAligoAlimTalkRequest(
-                "CODE-1",
-                "01012345678",
-                variables,
-                List.of(
-                        new SendAligoAlimTalkRequest.RecipientRequest("01011112222", "홍길동"),
-                        new SendAligoAlimTalkRequest.RecipientRequest("01033334444", "김철수")
-                ),
-                failover
+            "CODE-1",
+            "01012345678",
+            variables,
+            List.of(
+                new SendAligoAlimTalkRequest.RecipientRequest("01011112222", "홍길동"),
+                new SendAligoAlimTalkRequest.RecipientRequest("01033334444", "김철수")
+            ),
+            failover
         );
     }
 
     private SendAligoAlimTalkCommand captureCommand() {
         ArgumentCaptor<SendAligoAlimTalkCommand> captor =
-                ArgumentCaptor.forClass(SendAligoAlimTalkCommand.class);
+            ArgumentCaptor.forClass(SendAligoAlimTalkCommand.class);
         verify(sendAligoAlimTalkUseCase).sendAlimTalk(captor.capture());
         return captor.getValue();
     }
 
     private void stubUseCase() {
         when(sendAligoAlimTalkUseCase.sendAlimTalk(any()))
-                .thenReturn(new SendAligoAlimTalkResult(1L, "MID-1", 2, 0));
+            .thenReturn(new SendAligoAlimTalkResult(1L, "MID-1", 2, 0));
     }
 
     @Nested
@@ -78,11 +78,11 @@ class AligoAlimTalkControllerTest {
             // given
             stubUseCase();
             SendAligoAlimTalkRequest.FailoverRequest failover =
-                    new SendAligoAlimTalkRequest.FailoverRequest(true, "제목", "대체발송 본문");
+                new SendAligoAlimTalkRequest.FailoverRequest(true, "제목", "대체발송 본문");
 
             // when
             ResponseEntity<BaseResponse<SendAligoAlimTalkResponse>> response =
-                    controller.sendAlimTalk(buildRequest(Map.of("name", "홍길동"), failover));
+                controller.sendAlimTalk(buildRequest(Map.of("name", "홍길동"), failover));
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -145,8 +145,8 @@ class AligoAlimTalkControllerTest {
             // then
             SendAligoAlimTalkCommand command = captureCommand();
             assertThat(command.variables())
-                    .containsEntry("name", "홍길동")
-                    .containsEntry("amount", "1000");
+                .containsEntry("name", "홍길동")
+                .containsEntry("amount", "1000");
         }
     }
 
@@ -177,7 +177,7 @@ class AligoAlimTalkControllerTest {
         @DisplayName("sendAlimTalk 메서드에 관리자 전용 @PreAuthorize가 부착되어 있다")
         void shouldHaveAdminPreAuthorizeOnSendAlimTalk() throws NoSuchMethodException {
             Method method = AligoAlimTalkController.class.getMethod(
-                    "sendAlimTalk", SendAligoAlimTalkRequest.class
+                "sendAlimTalk", SendAligoAlimTalkRequest.class
             );
             PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
 

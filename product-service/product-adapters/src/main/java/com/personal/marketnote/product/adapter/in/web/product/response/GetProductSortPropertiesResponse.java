@@ -17,7 +17,7 @@ public class GetProductSortPropertiesResponse {
 
     public static GetProductSortPropertiesResponse from(GetProductSortPropertiesResult result) {
         return new GetProductSortPropertiesResponse(Arrays.stream(result.properties())
-                .map(ProductSortPropertyItemResponse::from)
-                .toList());
+            .map(ProductSortPropertyItemResponse::from)
+            .toList());
     }
 }

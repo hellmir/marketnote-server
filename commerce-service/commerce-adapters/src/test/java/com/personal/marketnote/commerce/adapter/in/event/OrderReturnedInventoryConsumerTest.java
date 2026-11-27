@@ -48,20 +48,20 @@ class OrderReturnedInventoryConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, boolean isFullReturn,
                                                                  List<OrderProductItem> returnProducts) {
         OrderReturnedEvent event = new OrderReturnedEvent(
-                orderId, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
-                isFullReturn, 2500L, returnProducts, null
+            orderId, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
+            isFullReturn, 2500L, returnProducts, null
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "commerce.order.returned", "commerce-service",
-                LocalDateTime.of(2026, 4, 9, 10, 0), event
+            "test-event-id", "commerce.order.returned", "commerce-service",
+            LocalDateTime.of(2026, 4, 9, 10, 0), event
         );
         return new ConsumerRecord<>("commerce.order.returned", 0, 0L, String.valueOf(orderId), envelope);
     }
 
     private List<OrderProductItem> createReturnProductItems() {
         return List.of(
-                new OrderProductItem(100L, SHARER_KEY, 2, 30000L),
-                new OrderProductItem(101L, null, 1, 20000L)
+            new OrderProductItem(100L, SHARER_KEY, 2, 30000L),
+            new OrderProductItem(101L, null, 1, 20000L)
         );
     }
 
@@ -154,7 +154,7 @@ class OrderReturnedInventoryConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true, createReturnProductItems());
         doThrow(new DuplicateInventoryRestorationException(1L))
-                .when(restoreProductInventoryUseCase).restore(anyList(), eq(1L), anyString());
+            .when(restoreProductInventoryUseCase).restore(anyList(), eq(1L), anyString());
 
         // when
         consumer.handleOrderReturnedEvent(record, acknowledgment);
@@ -169,7 +169,7 @@ class OrderReturnedInventoryConsumerTest {
     void handleOrderReturnedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.returned", 0, 0L, "1", null
+            "commerce.order.returned", 0, 0L, "1", null
         );
 
         // when
@@ -185,15 +185,15 @@ class OrderReturnedInventoryConsumerTest {
     void handleOrderReturnedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         OrderReturnedEvent event = new OrderReturnedEvent(
-                1L, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
-                true, 2500L, createReturnProductItems(), null
+            1L, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
+            true, 2500L, createReturnProductItems(), null
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "commerce-service",
-                LocalDateTime.of(2026, 4, 9, 10, 0), event
+            "test-event-id", "wrong.event.type", "commerce-service",
+            LocalDateTime.of(2026, 4, 9, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "commerce.order.returned", 0, 0L, "1", envelope
+            "commerce.order.returned", 0, 0L, "1", envelope
         );
 
         // when
@@ -251,7 +251,7 @@ class OrderReturnedInventoryConsumerTest {
     void handleOrderReturnedEvent_zeroPricePolicyId_skipsRestoreAndAcknowledges() {
         // given
         List<OrderProductItem> invalidItems = List.of(
-                new OrderProductItem(0L, SHARER_KEY, 2, 30000L)
+            new OrderProductItem(0L, SHARER_KEY, 2, 30000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true, invalidItems);
 
@@ -268,7 +268,7 @@ class OrderReturnedInventoryConsumerTest {
     void handleOrderReturnedEvent_zeroQuantity_skipsRestoreAndAcknowledges() {
         // given
         List<OrderProductItem> invalidItems = List.of(
-                new OrderProductItem(100L, SHARER_KEY, 0, 30000L)
+            new OrderProductItem(100L, SHARER_KEY, 0, 30000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true, invalidItems);
 
@@ -285,7 +285,7 @@ class OrderReturnedInventoryConsumerTest {
     void handleOrderReturnedEvent_negativeQuantity_skipsRestoreAndAcknowledges() {
         // given
         List<OrderProductItem> invalidItems = List.of(
-                new OrderProductItem(100L, SHARER_KEY, -1, 30000L)
+            new OrderProductItem(100L, SHARER_KEY, -1, 30000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true, invalidItems);
 
@@ -303,12 +303,12 @@ class OrderReturnedInventoryConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true, createReturnProductItems());
         doThrow(new RuntimeException("DB 연결 오류"))
-                .when(restoreProductInventoryUseCase).restore(anyList(), eq(1L), anyString());
+            .when(restoreProductInventoryUseCase).restore(anyList(), eq(1L), anyString());
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderReturnedEvent(record, acknowledgment))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 오류");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB 연결 오류");
 
         verify(restoreProductInventoryUseCase).restore(anyList(), eq(1L), eq("반품 완료 전체 재고 복구"));
         verify(acknowledgment, never()).acknowledge();

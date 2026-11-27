@@ -13,11 +13,11 @@ class OrderStatusHistoryTest {
     @DisplayName("reason이 있으면 그대로 사용하여 OrderStatusHistory를 생성한다")
     void from_createState_withReason_usesGivenReason() {
         OrderStatusHistoryCreateState state = OrderStatusHistoryCreateState.builder()
-                .orderId(1L)
-                .orderStatus(OrderStatus.CANCELLED)
-                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                .reason("단순 변심으로 인한 취소")
-                .build();
+            .orderId(1L)
+            .orderStatus(OrderStatus.CANCELLED)
+            .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+            .reason("단순 변심으로 인한 취소")
+            .build();
 
         OrderStatusHistory history = OrderStatusHistory.from(state);
 
@@ -31,11 +31,11 @@ class OrderStatusHistoryTest {
     @DisplayName("reason이 null이면 orderStatus의 description으로 폴백하여 OrderStatusHistory를 생성한다")
     void from_createState_withNullReason_fallsBackToOrderStatusDescription() {
         OrderStatusHistoryCreateState state = OrderStatusHistoryCreateState.builder()
-                .orderId(2L)
-                .orderStatus(OrderStatus.CANCELLED)
-                .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
-                .reason(null)
-                .build();
+            .orderId(2L)
+            .orderStatus(OrderStatus.CANCELLED)
+            .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+            .reason(null)
+            .build();
 
         OrderStatusHistory history = OrderStatusHistory.from(state);
 
@@ -47,13 +47,13 @@ class OrderStatusHistoryTest {
     void from_snapshotState_restoresAllFields() {
         LocalDateTime createdAt = LocalDateTime.of(2026, 1, 1, 0, 0, 0);
         OrderStatusHistorySnapshotState state = OrderStatusHistorySnapshotState.builder()
-                .id(10L)
-                .orderId(1L)
-                .orderStatus(OrderStatus.PAID)
-                .reasonCategory(OrderStatusReasonCategory.ETC)
-                .reason("결제 완료")
-                .createdAt(createdAt)
-                .build();
+            .id(10L)
+            .orderId(1L)
+            .orderStatus(OrderStatus.PAID)
+            .reasonCategory(OrderStatusReasonCategory.ETC)
+            .reason("결제 완료")
+            .createdAt(createdAt)
+            .build();
 
         OrderStatusHistory history = OrderStatusHistory.from(state);
 

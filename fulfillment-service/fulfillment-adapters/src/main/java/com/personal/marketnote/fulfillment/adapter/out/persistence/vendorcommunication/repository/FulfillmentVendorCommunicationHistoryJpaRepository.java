@@ -4,5 +4,5 @@ import com.personal.marketnote.fulfillment.adapter.out.persistence.vendorcommuni
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FulfillmentVendorCommunicationHistoryJpaRepository
-        extends JpaRepository<FulfillmentVendorCommunicationHistoryJpaEntity, Long> {
+    extends JpaRepository<FulfillmentVendorCommunicationHistoryJpaEntity, Long> {
 }

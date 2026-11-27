@@ -59,7 +59,7 @@ class ShippingAddressPersistenceAdapterTest {
             entityMock.when(() -> ShippingAddressJpaEntity.from(shippingAddress)).thenReturn(builtEntity);
             when(shippingAddressJpaRepository.save(builtEntity)).thenReturn(savedEntity);
             mapperMock.when(() -> ShippingAddressJpaEntityToDomainMapper.mapToDomain(savedEntity))
-                    .thenReturn(mappedDomain);
+                .thenReturn(mappedDomain);
 
             // when
             ShippingAddress result = shippingAddressPersistenceAdapter.save(shippingAddress);
@@ -77,7 +77,7 @@ class ShippingAddressPersistenceAdapterTest {
         void checksExistence() {
             // given
             when(shippingAddressJpaRepository.existsByUserIdAndAddressTypeAndStatus(
-                    1L, ShippingAddressType.HOME, EntityStatus.ACTIVE
+                1L, ShippingAddressType.HOME, EntityStatus.ACTIVE
             )).thenReturn(true);
 
             // when
@@ -96,7 +96,7 @@ class ShippingAddressPersistenceAdapterTest {
         void countsAddresses() {
             // given
             when(shippingAddressJpaRepository.countByUserIdAndAddressTypeAndStatus(
-                    1L, ShippingAddressType.HOME, EntityStatus.ACTIVE
+                1L, ShippingAddressType.HOME, EntityStatus.ACTIVE
             )).thenReturn(3L);
 
             // when
@@ -135,9 +135,9 @@ class ShippingAddressPersistenceAdapterTest {
             ShippingAddress domain = mock(ShippingAddress.class);
 
             when(shippingAddressJpaRepository.findAllByUserIdAndStatus(1L, EntityStatus.ACTIVE))
-                    .thenReturn(List.of(entity));
+                .thenReturn(List.of(entity));
             mapperMock.when(() -> ShippingAddressJpaEntityToDomainMapper.mapToDomain(entity))
-                    .thenReturn(domain);
+                .thenReturn(domain);
 
             // when
             List<ShippingAddress> result = shippingAddressPersistenceAdapter.findAllByUserId(1L);
@@ -151,7 +151,7 @@ class ShippingAddressPersistenceAdapterTest {
         void returnsEmptyWhenNone() {
             // given
             when(shippingAddressJpaRepository.findAllByUserIdAndStatus(1L, EntityStatus.ACTIVE))
-                    .thenReturn(List.of());
+                .thenReturn(List.of());
 
             // when
             List<ShippingAddress> result = shippingAddressPersistenceAdapter.findAllByUserId(1L);
@@ -172,9 +172,9 @@ class ShippingAddressPersistenceAdapterTest {
             ShippingAddress domain = mock(ShippingAddress.class);
 
             when(shippingAddressJpaRepository.findByIdAndUserIdAndStatus(1L, 1L, EntityStatus.ACTIVE))
-                    .thenReturn(Optional.of(entity));
+                .thenReturn(Optional.of(entity));
             mapperMock.when(() -> ShippingAddressJpaEntityToDomainMapper.mapToDomain(entity))
-                    .thenReturn(domain);
+                .thenReturn(domain);
 
             // when
             Optional<ShippingAddress> result = shippingAddressPersistenceAdapter.findByIdAndUserId(1L, 1L);
@@ -188,7 +188,7 @@ class ShippingAddressPersistenceAdapterTest {
         void returnsEmptyWhenNotFound() {
             // given
             when(shippingAddressJpaRepository.findByIdAndUserIdAndStatus(999L, 1L, EntityStatus.ACTIVE))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             // when
             Optional<ShippingAddress> result = shippingAddressPersistenceAdapter.findByIdAndUserId(999L, 1L);
@@ -209,9 +209,9 @@ class ShippingAddressPersistenceAdapterTest {
             ShippingAddress domain = mock(ShippingAddress.class);
 
             when(shippingAddressJpaRepository.findAllByUserIdAndIsDefaultAndStatus(1L, true, EntityStatus.ACTIVE))
-                    .thenReturn(List.of(entity));
+                .thenReturn(List.of(entity));
             mapperMock.when(() -> ShippingAddressJpaEntityToDomainMapper.mapToDomain(entity))
-                    .thenReturn(domain);
+                .thenReturn(domain);
 
             // when
             List<ShippingAddress> result = shippingAddressPersistenceAdapter.findDefaultsByUserId(1L);
@@ -250,7 +250,7 @@ class ShippingAddressPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> shippingAddressPersistenceAdapter.update(shippingAddress))
-                    .isInstanceOf(ShippingAddressNotFoundException.class);
+                .isInstanceOf(ShippingAddressNotFoundException.class);
         }
     }
 }

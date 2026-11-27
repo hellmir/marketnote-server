@@ -56,10 +56,10 @@ class PollAligoMessageDetailUseCaseTest {
     @BeforeEach
     void setUpTransactionTemplate() {
         lenient().when(transactionTemplate.execute(any()))
-                .thenAnswer(invocation -> {
-                    TransactionCallback<?> callback = invocation.getArgument(0);
-                    return callback.doInTransaction(null);
-                });
+            .thenAnswer(invocation -> {
+                TransactionCallback<?> callback = invocation.getArgument(0);
+                return callback.doInTransaction(null);
+            });
     }
 
     private void setupClock() {
@@ -74,7 +74,7 @@ class PollAligoMessageDetailUseCaseTest {
         // given
         setupClock();
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         // when
         int result = pollAligoMessageDetailService.poll();
@@ -92,16 +92,16 @@ class PollAligoMessageDetailUseCaseTest {
         setupClock();
         AligoMessage message = createSentMessageWithRecipients("MID_001", List.of("01012345678"));
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of(message));
+            .thenReturn(List.of(message));
 
         LocalDateTime detailSentAt = NOW.minusMinutes(5);
         LocalDateTime detailResultAt = NOW.minusMinutes(3);
         LocalDateTime detailReportAt = NOW.minusMinutes(2);
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_001"))
-                .thenReturn(List.of(new AligoRecipientDetailResult(
-                        "MSG_001", "01012345678", "0", "성공",
-                        detailSentAt, detailResultAt, detailReportAt
-                )));
+            .thenReturn(List.of(new AligoRecipientDetailResult(
+                "MSG_001", "01012345678", "0", "성공",
+                detailSentAt, detailResultAt, detailReportAt
+            )));
 
         // when
         int result = pollAligoMessageDetailService.poll();
@@ -125,12 +125,12 @@ class PollAligoMessageDetailUseCaseTest {
         setupClock();
         AligoMessage message = createSentMessageWithRecipients("MID_002", List.of("01098765432"));
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of(message));
+            .thenReturn(List.of(message));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_002"))
-                .thenReturn(List.of(new AligoRecipientDetailResult(
-                        "MSG_002", "01098765432", "-1", "수신 실패",
-                        NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
-                )));
+            .thenReturn(List.of(new AligoRecipientDetailResult(
+                "MSG_002", "01098765432", "-1", "수신 실패",
+                NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
+            )));
 
         // when
         int result = pollAligoMessageDetailService.poll();
@@ -154,12 +154,12 @@ class PollAligoMessageDetailUseCaseTest {
         setupClock();
         AligoMessage message = createSentMessageWithRecipients("MID_003", List.of("01011112222"));
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of(message));
+            .thenReturn(List.of(message));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_003"))
-                .thenReturn(List.of(new AligoRecipientDetailResult(
-                        "Q12345678", "01011112222", null, null,
-                        null, null, null
-                )));
+            .thenReturn(List.of(new AligoRecipientDetailResult(
+                "Q12345678", "01011112222", null, null,
+                null, null, null
+            )));
 
         // when
         int result = pollAligoMessageDetailService.poll();
@@ -182,18 +182,18 @@ class PollAligoMessageDetailUseCaseTest {
         setupClock();
         AligoMessage message = createSentMessageWithRecipients("MID_004", List.of("01011111111", "01022222222"));
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of(message));
+            .thenReturn(List.of(message));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_004"))
-                .thenReturn(List.of(
-                        new AligoRecipientDetailResult(
-                                "MSG_010", "01011111111", "0", "성공",
-                                NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
-                        ),
-                        new AligoRecipientDetailResult(
-                                "Q999999", "01022222222", null, null,
-                                null, null, null
-                        )
-                ));
+            .thenReturn(List.of(
+                new AligoRecipientDetailResult(
+                    "MSG_010", "01011111111", "0", "성공",
+                    NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
+                ),
+                new AligoRecipientDetailResult(
+                    "Q999999", "01022222222", null, null,
+                    null, null, null
+                )
+            ));
 
         // when
         int result = pollAligoMessageDetailService.poll();
@@ -216,15 +216,15 @@ class PollAligoMessageDetailUseCaseTest {
         // given
         setupClock();
         AligoMessage message = createSentMessageWithRecipientsAndCreatedAt(
-                "MID_005", List.of("01033333333"), NOW.minusHours(25)
+            "MID_005", List.of("01033333333"), NOW.minusHours(25)
         );
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of(message));
+            .thenReturn(List.of(message));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_005"))
-                .thenReturn(List.of(new AligoRecipientDetailResult(
-                        "Q777777", "01033333333", null, null,
-                        null, null, null
-                )));
+            .thenReturn(List.of(new AligoRecipientDetailResult(
+                "Q777777", "01033333333", null, null,
+                null, null, null
+            )));
 
         // when
         int result = pollAligoMessageDetailService.poll();
@@ -249,17 +249,17 @@ class PollAligoMessageDetailUseCaseTest {
         AligoMessage message1 = createSentMessageWithRecipients("MID_A", List.of("01011111111"));
         AligoMessage message2 = createSentMessageWithRecipients("MID_B", List.of("01022222222"));
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of(message1, message2));
+            .thenReturn(List.of(message1, message2));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_A"))
-                .thenReturn(List.of(new AligoRecipientDetailResult(
-                        "MSG_A1", "01011111111", "0", "성공",
-                        NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
-                )));
+            .thenReturn(List.of(new AligoRecipientDetailResult(
+                "MSG_A1", "01011111111", "0", "성공",
+                NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
+            )));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_B"))
-                .thenReturn(List.of(new AligoRecipientDetailResult(
-                        "MSG_B1", "01022222222", "0", "성공",
-                        NOW.minusMinutes(4), NOW.minusMinutes(2), NOW.minusMinutes(1)
-                )));
+            .thenReturn(List.of(new AligoRecipientDetailResult(
+                "MSG_B1", "01022222222", "0", "성공",
+                NOW.minusMinutes(4), NOW.minusMinutes(2), NOW.minusMinutes(1)
+            )));
 
         // when
         int result = pollAligoMessageDetailService.poll();
@@ -277,14 +277,14 @@ class PollAligoMessageDetailUseCaseTest {
         AligoMessage message1 = createSentMessageWithRecipients("MID_FAIL", List.of("01011111111"));
         AligoMessage message2 = createSentMessageWithRecipients("MID_OK", List.of("01022222222"));
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of(message1, message2));
+            .thenReturn(List.of(message1, message2));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_FAIL"))
-                .thenThrow(new AligoApiRequestFailedException("외부 API 오류"));
+            .thenThrow(new AligoApiRequestFailedException("외부 API 오류"));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_OK"))
-                .thenReturn(List.of(new AligoRecipientDetailResult(
-                        "MSG_OK1", "01022222222", "0", "성공",
-                        NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
-                )));
+            .thenReturn(List.of(new AligoRecipientDetailResult(
+                "MSG_OK1", "01022222222", "0", "성공",
+                NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
+            )));
 
         // when
         int result = pollAligoMessageDetailService.poll();
@@ -303,9 +303,9 @@ class PollAligoMessageDetailUseCaseTest {
         setupClock();
         AligoMessage message = createSentMessageWithRecipients("MID_API_FAIL", List.of("01011111111"));
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of(message));
+            .thenReturn(List.of(message));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_API_FAIL"))
-                .thenThrow(new AligoApiRequestFailedException("외부 API 오류"));
+            .thenThrow(new AligoApiRequestFailedException("외부 API 오류"));
 
         // when
         int result = pollAligoMessageDetailService.poll();
@@ -322,18 +322,18 @@ class PollAligoMessageDetailUseCaseTest {
         setupClock();
         AligoMessage message = createSentMessageWithRecipients("MID_DB_FAIL", List.of("01011111111"));
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of(message));
+            .thenReturn(List.of(message));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_DB_FAIL"))
-                .thenReturn(List.of(new AligoRecipientDetailResult(
-                        "MSG_DB", "01011111111", "0", "성공",
-                        NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
-                )));
+            .thenReturn(List.of(new AligoRecipientDetailResult(
+                "MSG_DB", "01011111111", "0", "성공",
+                NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
+            )));
         doThrow(new DataIntegrityViolationException("DB 제약 위반"))
-                .when(updateAligoMessagePort).update(any(AligoMessage.class));
+            .when(updateAligoMessagePort).update(any(AligoMessage.class));
 
         // when & then
         assertThatThrownBy(() -> pollAligoMessageDetailService.poll())
-                .isInstanceOf(DataIntegrityViolationException.class);
+            .isInstanceOf(DataIntegrityViolationException.class);
         verify(updateAligoMessagePort).update(any(AligoMessage.class));
     }
 
@@ -345,18 +345,18 @@ class PollAligoMessageDetailUseCaseTest {
         AligoMessage message1 = createSentMessageWithRecipients("MID_DB_FAIL", List.of("01011111111"));
         AligoMessage message2 = createSentMessageWithRecipients("MID_AFTER", List.of("01022222222"));
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of(message1, message2));
+            .thenReturn(List.of(message1, message2));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_DB_FAIL"))
-                .thenReturn(List.of(new AligoRecipientDetailResult(
-                        "MSG_DB", "01011111111", "0", "성공",
-                        NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
-                )));
+            .thenReturn(List.of(new AligoRecipientDetailResult(
+                "MSG_DB", "01011111111", "0", "성공",
+                NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
+            )));
         doThrow(new DataIntegrityViolationException("DB 제약 위반"))
-                .when(updateAligoMessagePort).update(any(AligoMessage.class));
+            .when(updateAligoMessagePort).update(any(AligoMessage.class));
 
         // when & then
         assertThatThrownBy(() -> pollAligoMessageDetailService.poll())
-                .isInstanceOf(DataIntegrityViolationException.class);
+            .isInstanceOf(DataIntegrityViolationException.class);
 
         verify(getAligoMessageDetailExternalPort).getMessageDetail("MID_DB_FAIL");
         verify(getAligoMessageDetailExternalPort, never()).getMessageDetail("MID_AFTER");
@@ -371,14 +371,14 @@ class PollAligoMessageDetailUseCaseTest {
         AligoMessage message1 = createSentMessageWithRecipients("MID_UNEXPECTED", List.of("01011111111"));
         AligoMessage message2 = createSentMessageWithRecipients("MID_OK2", List.of("01022222222"));
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of(message1, message2));
+            .thenReturn(List.of(message1, message2));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_UNEXPECTED"))
-                .thenThrow(new NullPointerException("예상치 못한 매핑 오류"));
+            .thenThrow(new NullPointerException("예상치 못한 매핑 오류"));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_OK2"))
-                .thenReturn(List.of(new AligoRecipientDetailResult(
-                        "MSG_OK2", "01022222222", "0", "성공",
-                        NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
-                )));
+            .thenReturn(List.of(new AligoRecipientDetailResult(
+                "MSG_OK2", "01022222222", "0", "성공",
+                NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
+            )));
 
         // when
         int result = pollAligoMessageDetailService.poll();
@@ -397,9 +397,9 @@ class PollAligoMessageDetailUseCaseTest {
         setupClock();
         AligoMessage message = createSentMessageWithRecipients("MID_NPE", List.of("01011111111"));
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of(message));
+            .thenReturn(List.of(message));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_NPE"))
-                .thenThrow(new NullPointerException("예상치 못한 매핑 오류"));
+            .thenThrow(new NullPointerException("예상치 못한 매핑 오류"));
 
         // when
         int result = pollAligoMessageDetailService.poll();
@@ -416,18 +416,18 @@ class PollAligoMessageDetailUseCaseTest {
         setupClock();
         AligoMessage message = createSentMessageWithRecipients("MID_MIX", List.of("01011111111", "01022222222"));
         when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
-                .thenReturn(List.of(message));
+            .thenReturn(List.of(message));
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_MIX"))
-                .thenReturn(List.of(
-                        new AligoRecipientDetailResult(
-                                "MSG_S1", "01011111111", "0", "성공",
-                                NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
-                        ),
-                        new AligoRecipientDetailResult(
-                                "MSG_F1", "01022222222", "-1", "수신 실패",
-                                NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
-                        )
-                ));
+            .thenReturn(List.of(
+                new AligoRecipientDetailResult(
+                    "MSG_S1", "01011111111", "0", "성공",
+                    NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
+                ),
+                new AligoRecipientDetailResult(
+                    "MSG_F1", "01022222222", "-1", "수신 실패",
+                    NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
+                )
+            ));
 
         // when
         int result = pollAligoMessageDetailService.poll();
@@ -447,35 +447,35 @@ class PollAligoMessageDetailUseCaseTest {
     }
 
     private AligoMessage createSentMessageWithRecipientsAndCreatedAt(
-            String aligoMid, List<String> receivers, LocalDateTime createdAt
+        String aligoMid, List<String> receivers, LocalDateTime createdAt
     ) {
         List<AligoMessageRecipientSnapshotState> recipientStates = receivers.stream()
-                .map(receiver -> AligoMessageRecipientSnapshotState.builder()
-                        .id((long) receiver.hashCode())
-                        .receiver(receiver)
-                        .recvName("테스트")
-                        .recipientStatus(AligoMessageRecipientStatus.PENDING)
-                        .build())
-                .toList();
+            .map(receiver -> AligoMessageRecipientSnapshotState.builder()
+                .id((long) receiver.hashCode())
+                .receiver(receiver)
+                .recvName("테스트")
+                .recipientStatus(AligoMessageRecipientStatus.PENDING)
+                .build())
+            .toList();
 
         return AligoMessage.from(AligoMessageSnapshotState.builder()
-                .id((long) aligoMid.hashCode())
-                .senderKey("test-sender-key")
-                .templateCode("TPL_TEST")
-                .sender("01012345678")
-                .messageType(AligoMessageType.AT)
-                .content("테스트 메시지")
-                .title("테스트")
-                .messageStatus(AligoMessageStatus.SENT)
-                .aligoMid(aligoMid)
-                .successCount(receivers.size())
-                .failCount(0)
-                .requestedAt(createdAt.minusMinutes(5))
-                .sentAt(createdAt)
-                .recipients(recipientStates)
-                .status(EntityStatus.ACTIVE)
-                .createdAt(createdAt)
-                .modifiedAt(createdAt)
-                .build());
+            .id((long) aligoMid.hashCode())
+            .senderKey("test-sender-key")
+            .templateCode("TPL_TEST")
+            .sender("01012345678")
+            .messageType(AligoMessageType.AT)
+            .content("테스트 메시지")
+            .title("테스트")
+            .messageStatus(AligoMessageStatus.SENT)
+            .aligoMid(aligoMid)
+            .successCount(receivers.size())
+            .failCount(0)
+            .requestedAt(createdAt.minusMinutes(5))
+            .sentAt(createdAt)
+            .recipients(recipientStates)
+            .status(EntityStatus.ACTIVE)
+            .createdAt(createdAt)
+            .modifiedAt(createdAt)
+            .build());
     }
 }

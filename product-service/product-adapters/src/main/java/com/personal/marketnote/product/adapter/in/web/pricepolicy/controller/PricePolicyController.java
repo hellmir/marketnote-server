@@ -60,30 +60,30 @@ public class PricePolicyController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @RegisterPricePolicyApiDocs
     public ResponseEntity<BaseResponse<RegisterPricePolicyResponse>> registerPricePolicy(
-            @PathVariable("productId") Long productId,
-            @Valid @RequestBody RegisterPricePolicyRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("productId") Long productId,
+        @Valid @RequestBody RegisterPricePolicyRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         RegisterPricePolicyResult result = registerPricePolicyUseCase.registerPricePolicy(
-                ElementExtractor.extractUserId(principal),
-                AuthorityValidator.hasAdminRole(principal),
-                RegisterPricePolicyCommand.of(
-                        productId,
-                        request.getPrice(),
-                        request.getDiscountPrice(),
-                        request.getAccumulatedPoint(),
-                        request.getOptionIds()
-                )
+            ElementExtractor.extractUserId(principal),
+            AuthorityValidator.hasAdminRole(principal),
+            RegisterPricePolicyCommand.of(
+                productId,
+                request.getPrice(),
+                request.getDiscountPrice(),
+                request.getAccumulatedPoint(),
+                request.getOptionIds()
+            )
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterPricePolicyResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 가격 정책 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterPricePolicyResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "상품 가격 정책 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
@@ -99,16 +99,16 @@ public class PricePolicyController {
     @GetMapping
     @GetPricePoliciesApiDocs
     public ResponseEntity<BaseResponse<GetPricePoliciesResponse>> getPricePolicies(
-            @PathVariable("productId") Long productId
+        @PathVariable("productId") Long productId
     ) {
         GetPricePoliciesResult result = getPricePoliciesUseCase.getPricePoliciesAndOptions(productId);
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        GetPricePoliciesResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 가격 정책 목록 조회 성공"
-                )
+            BaseResponse.of(
+                GetPricePoliciesResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 가격 정책 목록 조회 성공"
+            )
         );
     }
 
@@ -126,23 +126,23 @@ public class PricePolicyController {
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @DeletePricePolicyApiDocs
     public ResponseEntity<BaseResponse<Void>> deletePricePolicy(
-            @PathVariable("productId") Long productId,
-            @PathVariable("pricePolicyId") Long pricePolicyId,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("productId") Long productId,
+        @PathVariable("pricePolicyId") Long pricePolicyId,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         deletePricePolicyUseCase.delete(
-                ElementExtractor.extractUserId(principal),
-                AuthorityValidator.hasAdminRole(principal),
-                productId,
-                pricePolicyId
+            ElementExtractor.extractUserId(principal),
+            AuthorityValidator.hasAdminRole(principal),
+            productId,
+            pricePolicyId
         );
 
         return ResponseEntity.ok(
-                BaseResponse.of(
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "상품 가격 정책 삭제 성공"
-                )
+            BaseResponse.of(
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "상품 가격 정책 삭제 성공"
+            )
         );
     }
 }

@@ -56,15 +56,15 @@ public class SettlementPolicyJpaEntity {
 
     public static SettlementPolicyJpaEntity from(SettlementPolicy policy) {
         return SettlementPolicyJpaEntity.builder()
-                .id(policy.getId())
-                .sellerId(policy.getSellerId())
-                .pgFeeRate(policy.getPgFeeRate().getValue())
-                .platformFeeRate(policy.getPlatformFeeRate().getValue())
-                .settlementCycle(policy.getSettlementCycle())
-                .minPayoutAmount(policy.getMinPayoutAmount().getValue())
-                .status(policy.getStatus())
-                .createdAt(policy.getCreatedAt())
-                .modifiedAt(policy.getModifiedAt())
-                .build();
+            .id(policy.getId())
+            .sellerId(policy.getSellerId())
+            .pgFeeRate(policy.getPgFeeRate().getValue())
+            .platformFeeRate(policy.getPlatformFeeRate().getValue())
+            .settlementCycle(policy.getSettlementCycle())
+            .minPayoutAmount(policy.getMinPayoutAmount().getValue())
+            .status(policy.getStatus())
+            .createdAt(policy.getCreatedAt())
+            .modifiedAt(policy.getModifiedAt())
+            .build();
     }
 }

@@ -66,14 +66,14 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
     private final Sleeper sleeper;
 
     public FulfillmentReturnDeliveryClient(
-            RestClient.Builder restClientBuilder,
-            ObjectMapper objectMapper,
-            FulfillmentAuthProperties properties,
-            VendorCommunicationRecorder vendorCommunicationRecorder,
-            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
-            VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
-            ExternalCallLogger externalCallLogger,
-            Sleeper sleeper
+        RestClient.Builder restClientBuilder,
+        ObjectMapper objectMapper,
+        FulfillmentAuthProperties properties,
+        VendorCommunicationRecorder vendorCommunicationRecorder,
+        VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+        VendorCommunicationFailureHandler vendorCommunicationFailureHandler,
+        ExternalCallLogger externalCallLogger,
+        Sleeper sleeper
     ) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
@@ -133,10 +133,10 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             ResponseEntity<String> response;
             try {
                 response = restClient.get()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -144,12 +144,12 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -176,22 +176,22 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             String exception = isSuccess ? null : resolveReturnGodDetailException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -205,9 +205,9 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             }
 
             log.warn("Fulfillment return god detail request failed: attempt={}, status={}, exception={}",
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -225,8 +225,8 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
     // ── 반품 등록 (POST) ──
 
     private RegisterFulfillmentDeliveryResponse executeReturnDeliveryMutation(
-            FulfillmentReturnDeliveryMapper request,
-            String action
+        FulfillmentReturnDeliveryMapper request,
+        String action
     ) {
         if (FormatValidator.hasNoValue(request)) {
             throw new FulfillmentClientInvalidRequestException("Fulfillment return delivery request is required.");
@@ -249,11 +249,11 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             ResponseEntity<String> response;
             try {
                 response = restClient.post()
-                        .uri(uri)
-                        .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
-                        .body(request.toPayload())
-                        .retrieve()
-                        .toEntity(String.class);
+                    .uri(uri)
+                    .headers(h -> h.addAll(buildHeaders(request.getAccessToken())))
+                    .body(request.toPayload())
+                    .retrieve()
+                    .toEntity(String.class);
             } catch (RestClientException e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -261,12 +261,12 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
                 errorPayload.put("attempt", attempt);
 
                 vendorCommunicationFailureHandler.handleFailure(
-                        targetType,
-                        vendorName,
-                        requestPayload,
-                        requestPayloadJson,
-                        errorPayload,
-                        maskExceptionForHandler(path, e)
+                    targetType,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    errorPayload,
+                    maskExceptionForHandler(path, e)
                 );
 
                 String vendorMessage = resolveVendorMessageFromException(e);
@@ -276,8 +276,8 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
                 }
 
                 logVendorFailureWarn(
-                        "Failed to " + action.toLowerCase() + " Fulfillment return delivery",
-                        attempt, path, e
+                    "Failed to " + action.toLowerCase() + " Fulfillment return delivery",
+                    attempt, path, e
                 );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     error = e;
@@ -294,26 +294,26 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             RegisterFulfillmentDeliveryResponse parsedResponse = parseResponseBody(response);
             boolean isSuccess = isSuccessResponse(response, parsedResponse);
             String exception = isSuccess
-                    ? null
-                    : resolveResponseException(response, parsedResponse);
+                ? null
+                : resolveResponseException(response, parsedResponse);
 
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.REQUEST,
-                    FulfillmentVendorCommunicationSenderType.SERVER,
-                    vendorName,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.REQUEST,
+                FulfillmentVendorCommunicationSenderType.SERVER,
+                vendorName,
+                requestPayload,
+                requestPayloadJson,
+                exception
             );
             vendorCommunicationRecorder.record(
-                    targetType,
-                    FulfillmentVendorCommunicationType.RESPONSE,
-                    FulfillmentVendorCommunicationSenderType.VENDOR,
-                    vendorName,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
+                targetType,
+                FulfillmentVendorCommunicationType.RESPONSE,
+                FulfillmentVendorCommunicationSenderType.VENDOR,
+                vendorName,
+                responsePayload,
+                responsePayloadJson,
+                exception
             );
 
             if (isSuccess) {
@@ -329,10 +329,10 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             }
 
             log.warn("Fulfillment return delivery {} failed: attempt={}, status={}, exception={}",
-                    action.toLowerCase(),
-                    attempt,
-                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
-                    exception
+                action.toLowerCase(),
+                attempt,
+                FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                exception
             );
 
             if (CommunicationFailureHandler.isCertainFailure(response)) {
@@ -344,8 +344,8 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
         }
 
         logVendorFailureError(
-                "Failed to " + action.toLowerCase() + " Fulfillment return delivery request",
-                uri, path, error
+            "Failed to " + action.toLowerCase() + " Fulfillment return delivery request",
+            uri, path, error
         );
 
         throw new RegisterFulfillmentReturnDeliveryFailedException(failureMessage, wrapCauseIfSensitive(path, error));
@@ -356,15 +356,15 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
     private URI buildReturnDeliveryUri(String customerCode) {
         validateReturnDeliveryProperties();
         return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getReturnDeliveryPath())
-                .buildAndExpand(customerCode)
-                .toUri();
+            .path(properties.getReturnDeliveryPath())
+            .buildAndExpand(customerCode)
+            .toUri();
     }
 
     private URI buildReturnGodDetailUri(FulfillmentReturnGodDetailQuery query) {
         validateReturnGodDetailProperties();
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(properties.getBaseUrl())
-                .path(properties.getReturnGodDetailPath());
+            .path(properties.getReturnGodDetailPath());
         if (FormatValidator.hasValue(query.getStartDate())) {
             builder.queryParam("strDt", query.getStartDate());
         }
@@ -378,8 +378,8 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             builder.queryParam("whCd", query.getWhCd());
         }
         return builder
-                .buildAndExpand(query.getCustomerCode())
-                .toUri();
+            .buildAndExpand(query.getCustomerCode())
+            .toUri();
     }
 
     // ── 헤더 빌드 ──
@@ -450,9 +450,9 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
 
     private boolean isSuccessResponse(ResponseEntity<String> response, RegisterFulfillmentDeliveryResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private String resolveResponseException(ResponseEntity<String> response, RegisterFulfillmentDeliveryResponse parsedResponse) {
@@ -473,22 +473,22 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
 
     private RegisterFulfillmentDeliveryResult mapDeliveryResult(RegisterFulfillmentDeliveryResponse response) {
         List<RegisterFulfillmentDeliveryItemResult> deliveries = FormatValidator.hasValue(response.data())
-                ? response.data().stream().map(this::mapDeliveryItem).toList()
-                : List.of();
+            ? response.data().stream().map(this::mapDeliveryItem).toList()
+            : List.of();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return RegisterFulfillmentDeliveryResult.of(dataCount, deliveries);
     }
 
     private RegisterFulfillmentDeliveryItemResult mapDeliveryItem(
-            RegisterFulfillmentDeliveryItemResponse item
+        RegisterFulfillmentDeliveryItemResponse item
     ) {
         return RegisterFulfillmentDeliveryItemResult.builder()
-                .fulfillmentSlipNumber(item.fmsSlipNo())
-                .orderNumber(item.orderNo())
-                .message(item.msg())
-                .code(item.code())
-                .outOfStockGoodsDetail(item.outOfStockGoodsDetail())
-                .build();
+            .fulfillmentSlipNumber(item.fmsSlipNo())
+            .orderNumber(item.orderNo())
+            .message(item.msg())
+            .code(item.code())
+            .outOfStockGoodsDetail(item.outOfStockGoodsDetail())
+            .build();
     }
 
     // ── 반품 상품 상세 조회 응답 파싱/매핑 ──
@@ -513,9 +513,9 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
 
     private boolean isReturnGodDetailSuccess(ResponseEntity<String> response, FulfillmentReturnGodDetailListResponse parsedResponse) {
         return FormatValidator.hasValue(response)
-                && response.getStatusCode().value() == 200
-                && FormatValidator.hasValue(parsedResponse)
-                && parsedResponse.isSuccess();
+            && response.getStatusCode().value() == 200
+            && FormatValidator.hasValue(parsedResponse)
+            && parsedResponse.isSuccess();
     }
 
     private String resolveReturnGodDetailException(ResponseEntity<String> response, FulfillmentReturnGodDetailListResponse parsedResponse) {
@@ -536,58 +536,58 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
 
     private GetFulfillmentReturnGodDetailResult mapReturnGodDetailResult(FulfillmentReturnGodDetailListResponse response) {
         List<FulfillmentReturnGodDetailInfoResult> returnGodInfos = FormatValidator.hasValue(response.data())
-                ? response.data().stream().map(this::mapReturnGodDetailItem).toList()
-                : List.of();
+            ? response.data().stream().map(this::mapReturnGodDetailItem).toList()
+            : List.of();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFulfillmentReturnGodDetailResult.of(dataCount, returnGodInfos);
     }
 
     private FulfillmentReturnGodDetailInfoResult mapReturnGodDetailItem(FulfillmentReturnGodDetailItemResponse item) {
         List<FulfillmentReturnGodDetailGoodsResult> godList = FormatValidator.hasValue(item.godList())
-                ? item.godList().stream().map(this::mapReturnGodDetailGoods).toList()
-                : List.of();
+            ? item.godList().stream().map(this::mapReturnGodDetailGoods).toList()
+            : List.of();
 
         return FulfillmentReturnGodDetailInfoResult.builder()
-                .orderNumber(item.ordNo())
-                .supplierCode(item.supCd())
-                .inboundSlipNumber(item.inSlipNo())
-                .customerCode(item.cstCd())
-                .warehouseCode(item.whCd())
-                .inboundOrderSlipNumber(item.inOrdSlipNo())
-                .inboundOrderDate(item.inOrdDt())
-                .releaseOrderSlipNumber(item.outOrdSlipNo())
-                .supplierName(item.supNm())
-                .recipientName(item.custNm())
-                .releaseInvoiceNumber(item.outInvoiceNo())
-                .returnInvoiceNumber(item.rtnInvoiceNo())
-                .returnShippingPaymentCode(item.inRtnPayCd())
-                .returnShippingPaymentName(item.inRtnPayNm())
-                .returnShippingPayment(item.inRtnPay())
-                .returnMismatchYn(item.rtnMisYn())
-                .returnType(item.rtnType())
-                .returnTypeName(item.rtnTypeNm())
-                .recipientPhoneNumber(item.custTelNo())
-                .customerMemo(item.cstMemo())
-                .returnReason(item.rtnReason())
-                .returnReasonName(item.rtnReasonNm())
-                .returnDetailReason(item.rtnDetailReason())
-                .returnClassification(item.rtnGubun())
-                .returnClassificationName(item.rtnGubunNm())
-                .products(godList)
-                .build();
+            .orderNumber(item.ordNo())
+            .supplierCode(item.supCd())
+            .inboundSlipNumber(item.inSlipNo())
+            .customerCode(item.cstCd())
+            .warehouseCode(item.whCd())
+            .inboundOrderSlipNumber(item.inOrdSlipNo())
+            .inboundOrderDate(item.inOrdDt())
+            .releaseOrderSlipNumber(item.outOrdSlipNo())
+            .supplierName(item.supNm())
+            .recipientName(item.custNm())
+            .releaseInvoiceNumber(item.outInvoiceNo())
+            .returnInvoiceNumber(item.rtnInvoiceNo())
+            .returnShippingPaymentCode(item.inRtnPayCd())
+            .returnShippingPaymentName(item.inRtnPayNm())
+            .returnShippingPayment(item.inRtnPay())
+            .returnMismatchYn(item.rtnMisYn())
+            .returnType(item.rtnType())
+            .returnTypeName(item.rtnTypeNm())
+            .recipientPhoneNumber(item.custTelNo())
+            .customerMemo(item.cstMemo())
+            .returnReason(item.rtnReason())
+            .returnReasonName(item.rtnReasonNm())
+            .returnDetailReason(item.rtnDetailReason())
+            .returnClassification(item.rtnGubun())
+            .returnClassificationName(item.rtnGubunNm())
+            .products(godList)
+            .build();
     }
 
     private FulfillmentReturnGodDetailGoodsResult mapReturnGodDetailGoods(FulfillmentReturnGodDetailGoodsResponse goods) {
         return FulfillmentReturnGodDetailGoodsResult.builder()
-                .customerProductCode(goods.cstGodCd())
-                .productName(goods.godNm())
-                .manufacturingDate(goods.makeDt())
-                .expirationDate(goods.distTermDt())
-                .inboundQuantity(goods.inQty())
-                .remark(goods.remark())
-                .returnProductCheckStatus(goods.rtnGodCheckStat())
-                .returnProductCheckStatusName(goods.rtnGodCheckStatNm())
-                .build();
+            .customerProductCode(goods.cstGodCd())
+            .productName(goods.godNm())
+            .manufacturingDate(goods.makeDt())
+            .expirationDate(goods.distTermDt())
+            .inboundQuantity(goods.inQty())
+            .remark(goods.remark())
+            .returnProductCheckStatus(goods.rtnGodCheckStat())
+            .returnProductCheckStatusName(goods.rtnGodCheckStatNm())
+            .build();
     }
 
     private String resolveReturnGodDetailVendorMessage(FulfillmentReturnGodDetailListResponse parsedResponse, String rawBody) {
@@ -613,10 +613,10 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
     // ── 페이로드 빌드 ──
 
     private JsonNode buildRequestPayloadJson(
-            FulfillmentReturnDeliveryMapper request,
-            URI uri,
-            int attempt,
-            String action
+        FulfillmentReturnDeliveryMapper request,
+        URI uri,
+        int attempt,
+        String action
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.POST.name());
@@ -630,9 +630,9 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
     }
 
     private JsonNode buildReturnGodDetailRequestPayloadJson(
-            FulfillmentReturnGodDetailQuery query,
-            URI uri,
-            int attempt
+        FulfillmentReturnGodDetailQuery query,
+        URI uri,
+        int attempt
     ) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", HttpMethod.GET.name());
@@ -739,8 +739,8 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
     private void logVendorFailureWarn(String message, int attempt, String path, Exception e) {
         if (isSensitivePath(path)) {
             log.warn(
-                    "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, attempt, e.getClass().getSimpleName()
+                "{}: attempt={}, exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, attempt, e.getClass().getSimpleName()
             );
             return;
         }
@@ -750,8 +750,8 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
     private void logVendorFailureError(String message, Object uri, String path, Throwable error) {
         if (isSensitivePath(path)) {
             log.error(
-                    "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
-                    message, uri, error.getClass().getSimpleName()
+                "{}: {} with exception={} (민감 데이터 포함 응답 — 메시지/스택 로깅 생략)",
+                message, uri, error.getClass().getSimpleName()
             );
             return;
         }

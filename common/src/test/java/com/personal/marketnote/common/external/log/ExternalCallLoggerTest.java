@@ -59,13 +59,13 @@ class ExternalCallLoggerTest {
     @DisplayName("정상 호출 시 결과를 그대로 반환하고 success Timer를 기록한다")
     void shouldReturnResultAndRecordSuccessTimerOnNormalCall() {
         String result = externalCallLogger.record(
-                SYSTEM, OPERATION, Map.of("orderKey", "ORD-1"), () -> "OK"
+            SYSTEM, OPERATION, Map.of("orderKey", "ORD-1"), () -> "OK"
         );
 
         assertThat(result).isEqualTo("OK");
         Timer timer = meterRegistry.find("external.call")
-                .tags("system", SYSTEM.metricTag(), "operation", OPERATION, "outcome", "success")
-                .timer();
+            .tags("system", SYSTEM.metricTag(), "operation", OPERATION, "outcome", "success")
+            .timer();
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1L);
     }
@@ -76,12 +76,14 @@ class ExternalCallLoggerTest {
         IllegalStateException cause = new IllegalStateException("boom");
 
         assertThatThrownBy(() -> externalCallLogger.record(
-                SYSTEM, OPERATION, Map.of(), () -> { throw cause; }
+            SYSTEM, OPERATION, Map.of(), () -> {
+                throw cause;
+            }
         )).isSameAs(cause);
 
         Timer timer = meterRegistry.find("external.call")
-                .tags("system", SYSTEM.metricTag(), "operation", OPERATION, "outcome", "failure")
-                .timer();
+            .tags("system", SYSTEM.metricTag(), "operation", OPERATION, "outcome", "failure")
+            .timer();
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1L);
     }
@@ -92,13 +94,13 @@ class ExternalCallLoggerTest {
         logger.setLevel(Level.INFO);
 
         String result = externalCallLogger.record(
-                SYSTEM, OPERATION, Map.of(), () -> "OK"
+            SYSTEM, OPERATION, Map.of(), () -> "OK"
         );
 
         assertThat(result).isEqualTo("OK");
         Timer timer = meterRegistry.find("external.call")
-                .tags("system", SYSTEM.metricTag(), "operation", OPERATION, "outcome", "success")
-                .timer();
+            .tags("system", SYSTEM.metricTag(), "operation", OPERATION, "outcome", "success")
+            .timer();
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1L);
         assertThat(appender.list).isEmpty();
@@ -108,16 +110,16 @@ class ExternalCallLoggerTest {
     @DisplayName("operation/tags가 로그에 포함된다")
     void shouldIncludeOperationAndTagsInLog() {
         externalCallLogger.record(
-                SYSTEM, OPERATION, Map.of("orderKey", "ORD-1"), () -> "OK"
+            SYSTEM, OPERATION, Map.of("orderKey", "ORD-1"), () -> "OK"
         );
 
         assertThat(appender.list).isNotEmpty();
         boolean hasOperation = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains(OPERATION));
+            .anyMatch(event -> event.getFormattedMessage().contains(OPERATION));
         boolean hasTagKey = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains("orderKey"));
+            .anyMatch(event -> event.getFormattedMessage().contains("orderKey"));
         boolean hasTagValue = appender.list.stream()
-                .anyMatch(event -> event.getFormattedMessage().contains("ORD-1"));
+            .anyMatch(event -> event.getFormattedMessage().contains("ORD-1"));
         assertThat(hasOperation).isTrue();
         assertThat(hasTagKey).isTrue();
         assertThat(hasTagValue).isTrue();
@@ -129,13 +131,15 @@ class ExternalCallLoggerTest {
         IllegalStateException cause = new IllegalStateException("boom-message");
 
         assertThatThrownBy(() -> externalCallLogger.record(
-                SYSTEM, OPERATION, Map.of(), () -> { throw cause; }
+            SYSTEM, OPERATION, Map.of(), () -> {
+                throw cause;
+            }
         )).isSameAs(cause);
 
         boolean hasErrorWithMessage = appender.list.stream()
-                .anyMatch(event -> event.getLevel() == Level.ERROR
-                        && event.getFormattedMessage().contains("boom-message")
-                        && event.getFormattedMessage().contains("IllegalStateException"));
+            .anyMatch(event -> event.getLevel() == Level.ERROR
+                && event.getFormattedMessage().contains("boom-message")
+                && event.getFormattedMessage().contains("IllegalStateException"));
         assertThat(hasErrorWithMessage).isTrue();
     }
 
@@ -145,13 +149,13 @@ class ExternalCallLoggerTest {
         AtomicInteger counter = new AtomicInteger(0);
 
         externalCallLogger.recordVoid(
-                SYSTEM, OPERATION, Map.of(), counter::incrementAndGet
+            SYSTEM, OPERATION, Map.of(), counter::incrementAndGet
         );
 
         assertThat(counter.get()).isEqualTo(1);
         Timer timer = meterRegistry.find("external.call")
-                .tags("system", SYSTEM.metricTag(), "operation", OPERATION, "outcome", "success")
-                .timer();
+            .tags("system", SYSTEM.metricTag(), "operation", OPERATION, "outcome", "success")
+            .timer();
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1L);
     }
@@ -162,12 +166,14 @@ class ExternalCallLoggerTest {
         IllegalArgumentException cause = new IllegalArgumentException("invalid");
 
         assertThatThrownBy(() -> externalCallLogger.recordVoid(
-                SYSTEM, OPERATION, Map.of(), () -> { throw cause; }
+            SYSTEM, OPERATION, Map.of(), () -> {
+                throw cause;
+            }
         )).isSameAs(cause);
 
         Timer timer = meterRegistry.find("external.call")
-                .tags("system", SYSTEM.metricTag(), "operation", OPERATION, "outcome", "failure")
-                .timer();
+            .tags("system", SYSTEM.metricTag(), "operation", OPERATION, "outcome", "failure")
+            .timer();
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1L);
     }
@@ -179,16 +185,18 @@ class ExternalCallLoggerTest {
         RuntimeException cause = new RuntimeException("raw body with PIN " + forbiddenToken);
 
         assertThatThrownBy(() -> externalCallLogger.recordSensitive(
-                SYSTEM, "test.sensitive", Map.of(), () -> { throw cause; }
+            SYSTEM, "test.sensitive", Map.of(), () -> {
+                throw cause;
+            }
         )).isSameAs(cause);
 
         assertThat(appender.list)
-                .filteredOn(event -> event.getLevel() == Level.ERROR)
-                .isNotEmpty()
-                .allSatisfy(event -> {
-                    assertThat(event.getFormattedMessage()).doesNotContain(forbiddenToken);
-                    assertThat(event.getThrowableProxy()).isNull();
-                });
+            .filteredOn(event -> event.getLevel() == Level.ERROR)
+            .isNotEmpty()
+            .allSatisfy(event -> {
+                assertThat(event.getFormattedMessage()).doesNotContain(forbiddenToken);
+                assertThat(event.getThrowableProxy()).isNull();
+            });
     }
 
     @Test
@@ -198,15 +206,17 @@ class ExternalCallLoggerTest {
         RuntimeException cause = new RuntimeException("raw body " + forbiddenToken);
 
         assertThatThrownBy(() -> externalCallLogger.recordVoidSensitive(
-                SYSTEM, "test.void.sensitive", Map.of(), () -> { throw cause; }
+            SYSTEM, "test.void.sensitive", Map.of(), () -> {
+                throw cause;
+            }
         )).isSameAs(cause);
 
         assertThat(appender.list)
-                .filteredOn(event -> event.getLevel() == Level.ERROR)
-                .isNotEmpty()
-                .allSatisfy(event -> {
-                    assertThat(event.getFormattedMessage()).doesNotContain(forbiddenToken);
-                    assertThat(event.getThrowableProxy()).isNull();
-                });
+            .filteredOn(event -> event.getLevel() == Level.ERROR)
+            .isNotEmpty()
+            .allSatisfy(event -> {
+                assertThat(event.getFormattedMessage()).doesNotContain(forbiddenToken);
+                assertThat(event.getThrowableProxy()).isNull();
+            });
     }
 }

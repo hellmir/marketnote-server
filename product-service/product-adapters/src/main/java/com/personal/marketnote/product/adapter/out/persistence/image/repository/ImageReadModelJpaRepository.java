@@ -14,16 +14,16 @@ public interface ImageReadModelJpaRepository extends JpaRepository<ImageReadMode
     Optional<ImageReadModelJpaEntity> findByImageId(Long imageId);
 
     @Query("""
-            SELECT DISTINCT i FROM ImageReadModelJpaEntity i
-            LEFT JOIN FETCH i.resizedFiles
-            WHERE i.targetId = :targetId
-              AND i.fileSort = :fileSort
-              AND i.status = :status
-            ORDER BY i.sortOrder ASC
-            """)
+        SELECT DISTINCT i FROM ImageReadModelJpaEntity i
+        LEFT JOIN FETCH i.resizedFiles
+        WHERE i.targetId = :targetId
+          AND i.fileSort = :fileSort
+          AND i.status = :status
+        ORDER BY i.sortOrder ASC
+        """)
     List<ImageReadModelJpaEntity> findByTargetIdAndFileSortAndStatusOrderBySortOrderAsc(
-            @Param("targetId") Long targetId,
-            @Param("fileSort") String fileSort,
-            @Param("status") EntityStatus status
+        @Param("targetId") Long targetId,
+        @Param("fileSort") String fileSort,
+        @Param("status") EntityStatus status
     );
 }

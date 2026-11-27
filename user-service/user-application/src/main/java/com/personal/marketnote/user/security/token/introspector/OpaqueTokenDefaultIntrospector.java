@@ -48,7 +48,7 @@ public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
             AuthVendor authVendor = userInfo.authVendor();
             String issuer = authVendor.name();
             User user = findUserPort.findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId)
-                    .orElseGet(() -> findUserPort.findAllStatusUserById(userInfo.userId()).orElse(null));
+                .orElseGet(() -> findUserPort.findAllStatusUserById(userInfo.userId()).orElse(null));
 
             return resolvePrincipal(user, oidcId, issuer);
         } catch (InvalidAccessTokenException ignored) {
@@ -123,32 +123,32 @@ public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
 
     private OAuth2AuthenticatedPrincipal buildUserPrincipal(User user, String oidcId, String issuer) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(user.getId()),
-                buildAttributes(oidcId, issuer),
-                List.of(new SimpleGrantedAuthority(user.getRole().getId()))
+            String.valueOf(user.getId()),
+            buildAttributes(oidcId, issuer),
+            List.of(new SimpleGrantedAuthority(user.getRole().getId()))
         );
     }
 
     private OAuth2AuthenticatedPrincipal buildGuestPrincipal(String oidcId, String issuer) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                "-1",
-                buildAttributes(oidcId, issuer),
-                List.of(new SimpleGrantedAuthority(PrimaryRole.ROLE_GUEST.name()))
+            "-1",
+            buildAttributes(oidcId, issuer),
+            List.of(new SimpleGrantedAuthority(PrimaryRole.ROLE_GUEST.name()))
         );
     }
 
     private OAuth2AuthenticatedPrincipal buildAnonymousPrincipal(String oidcId, String issuer) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                "-1",
-                buildAttributes(oidcId, issuer),
-                List.of(new SimpleGrantedAuthority(PrimaryRole.ROLE_ANONYMOUS.name()))
+            "-1",
+            buildAttributes(oidcId, issuer),
+            List.of(new SimpleGrantedAuthority(PrimaryRole.ROLE_ANONYMOUS.name()))
         );
     }
 
     private Map<String, Object> buildAttributes(String oidcId, String issuer) {
         return Map.of(
-                SUB_CLAIM_KEY, FormatValidator.hasValue(oidcId) ? oidcId : "",
-                ISS_CLAIM_KEY, issuer
+            SUB_CLAIM_KEY, FormatValidator.hasValue(oidcId) ? oidcId : "",
+            ISS_CLAIM_KEY, issuer
         );
     }
 }

@@ -281,14 +281,14 @@ class FormatValidatorTest {
         @DisplayName("target이 null이면 NullPointerException이 발생한다")
         void throwsNpeWhenTargetIsNull() {
             assertThatThrownBy(() -> FormatValidator.containsKeyword(null, "x"))
-                    .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(NullPointerException.class);
         }
 
         @Test
         @DisplayName("keyword가 null이면 NullPointerException이 발생한다")
         void throwsNpeWhenKeywordIsNull() {
             assertThatThrownBy(() -> FormatValidator.containsKeyword("Hello", null))
-                    .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(NullPointerException.class);
         }
     }
 }

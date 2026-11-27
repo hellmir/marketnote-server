@@ -29,19 +29,19 @@ public class PaymentPersistenceAdapter implements SavePaymentPort, FindPaymentPo
     @Override
     public Optional<Payment> findByOrderId(Long orderId) {
         return paymentJpaRepository.findByOrderId(orderId)
-                .map(PaymentEntityToDomainMapper::toDomain);
+            .map(PaymentEntityToDomainMapper::toDomain);
     }
 
     @Override
     public Optional<Payment> findByOrderKey(UUID orderKey) {
         return paymentJpaRepository.findByOrderKey(orderKey)
-                .map(PaymentEntityToDomainMapper::toDomain);
+            .map(PaymentEntityToDomainMapper::toDomain);
     }
 
     @Override
     public void update(Payment payment) {
         PaymentJpaEntity entity = paymentJpaRepository.findByOrderKey(payment.getOrderKey())
-                .orElseThrow(() -> new DomainNotFoundException("결제 엔티티를 찾을 수 없습니다."));
+            .orElseThrow(() -> new DomainNotFoundException("결제 엔티티를 찾을 수 없습니다."));
         entity.updateFrom(payment);
     }
 }

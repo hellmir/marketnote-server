@@ -6,14 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record CancelPendingPointRequest(
-        @NotNull
-        UserPointSourceType sourceType,
+    @NotNull
+    UserPointSourceType sourceType,
 
-        @NotNull
-        @Min(1)
-        Long sourceId,
+    @NotNull
+    @Min(1)
+    Long sourceId,
 
-        @Size(max = 500)
-        String reason
+    @Size(max = 500)
+    String reason
 ) {
 }

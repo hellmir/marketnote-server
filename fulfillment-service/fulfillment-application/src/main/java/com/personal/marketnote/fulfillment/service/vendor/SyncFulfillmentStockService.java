@@ -21,12 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -57,9 +52,9 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
         }
 
         List<String> fasstoProductCodes = command.fasstoProductCodes().stream()
-                .filter(FormatValidator::hasValue)
-                .distinct()
-                .toList();
+            .filter(FormatValidator::hasValue)
+            .distinct()
+            .toList();
         if (FormatValidator.hasNoValue(fasstoProductCodes)) {
             throw new FulfillmentQueryParameterNoValueException("Valid Fassto product codes", "Fulfillment stock sync");
         }
@@ -67,26 +62,26 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
         List<FulfillmentInventorySyncedEvent.InventoryItem> inventories = new ArrayList<>();
         for (String fasstoProductCode : fasstoProductCodes) {
             Optional<UUID> resolvedProductKey =
-                    findFulfillmentGoodsRegistrationPort.findProductKeyByFasstoProductCode(fasstoProductCode);
+                findFulfillmentGoodsRegistrationPort.findProductKeyByFasstoProductCode(fasstoProductCode);
             if (resolvedProductKey.isEmpty()) {
                 log.warn(
-                        "Fulfillment stock sync skipped — productKey 매칭 실패. fasstoProductCode={}",
-                        fasstoProductCode
+                    "Fulfillment stock sync skipped — productKey 매칭 실패. fasstoProductCode={}",
+                    fasstoProductCode
                 );
                 continue;
             }
             UUID productKey = resolvedProductKey.get();
 
             GetFulfillmentStocksResult stockDetail = fulfillmentAuthenticatedCaller.call(token ->
-                    getFulfillmentStockDetailUseCase.getStockDetail(
-                            GetFulfillmentStockDetailCommand.forFasstoProductCode(
-                                    command.customerCode(),
-                                    token,
-                                    productKey,
-                                    fasstoProductCode,
-                                    DEFAULT_OUT_OF_STOCK_INCLUDED
-                            )
+                getFulfillmentStockDetailUseCase.getStockDetail(
+                    GetFulfillmentStockDetailCommand.forFasstoProductCode(
+                        command.customerCode(),
+                        token,
+                        productKey,
+                        fasstoProductCode,
+                        DEFAULT_OUT_OF_STOCK_INCLUDED
                     )
+                )
             );
             int stockQuantity = resolveStockQuantity(stockDetail);
             inventories.add(new FulfillmentInventorySyncedEvent.InventoryItem(productKey, stockQuantity));
@@ -109,14 +104,14 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
         }
 
         GetFulfillmentStocksResult stocksResult = fulfillmentAuthenticatedCaller.call(token ->
-                getFulfillmentStocksUseCase.getStocks(
-                        GetFulfillmentStocksCommand.of(
-                                command.customerCode(),
-                                token,
-                                null,
-                                command.warehouseCode()
-                        )
+            getFulfillmentStocksUseCase.getStocks(
+                GetFulfillmentStocksCommand.of(
+                    command.customerCode(),
+                    token,
+                    null,
+                    command.warehouseCode()
                 )
+            )
         );
         List<FulfillmentInventorySyncedEvent.InventoryItem> inventories = resolveInventories(stocksResult);
         if (FormatValidator.hasNoValue(inventories)) {
@@ -171,11 +166,11 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
 
             String fasstoProductCode = stockInfo.customerProductCode();
             Optional<UUID> resolvedProductKey =
-                    findFulfillmentGoodsRegistrationPort.findProductKeyByFasstoProductCode(fasstoProductCode);
+                findFulfillmentGoodsRegistrationPort.findProductKeyByFasstoProductCode(fasstoProductCode);
             if (resolvedProductKey.isEmpty()) {
                 log.warn(
-                        "Fulfillment stock sync row skipped — productKey 매칭 실패. customerProductCode={}",
-                        fasstoProductCode
+                    "Fulfillment stock sync row skipped — productKey 매칭 실패. customerProductCode={}",
+                    fasstoProductCode
                 );
                 continue;
             }
@@ -195,7 +190,7 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
         }
 
         return stockByKey.entrySet().stream()
-                .map(entry -> new FulfillmentInventorySyncedEvent.InventoryItem(entry.getKey(), entry.getValue()))
-                .toList();
+            .map(entry -> new FulfillmentInventorySyncedEvent.InventoryItem(entry.getKey(), entry.getValue()))
+            .toList();
     }
 }

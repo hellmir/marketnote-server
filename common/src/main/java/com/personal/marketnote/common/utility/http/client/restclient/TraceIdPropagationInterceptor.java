@@ -14,7 +14,7 @@ public class TraceIdPropagationInterceptor implements ClientHttpRequestIntercept
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
-            throws IOException {
+        throws IOException {
         String requestId = MDC.get(TraceIdMdcFilter.REQUEST_ID_MDC_KEY);
 
         if (FormatValidator.hasNoValue(requestId)) {

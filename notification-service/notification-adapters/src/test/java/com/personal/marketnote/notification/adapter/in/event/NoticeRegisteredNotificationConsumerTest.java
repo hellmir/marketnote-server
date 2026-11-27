@@ -49,8 +49,8 @@ class NoticeRegisteredNotificationConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long postId, String title, boolean isImportant) {
         NoticeRegisteredEvent event = new NoticeRegisteredEvent(postId, title, isImportant);
         EventEnvelope<NoticeRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "community.notice.registered", "community-service",
-                LocalDateTime.of(2026, 4, 10, 10, 0), event
+            "test-event-id", "community.notice.registered", "community-service",
+            LocalDateTime.of(2026, 4, 10, 10, 0), event
         );
         return new ConsumerRecord<>("community.notice.registered", 0, 0L, "key-1", envelope);
     }
@@ -67,7 +67,7 @@ class NoticeRegisteredNotificationConsumerTest {
 
         // then
         ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
-                SendBatchNotificationCommand.class
+            SendBatchNotificationCommand.class
         );
         verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
 
@@ -95,7 +95,7 @@ class NoticeRegisteredNotificationConsumerTest {
 
         // then
         ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
-                SendBatchNotificationCommand.class
+            SendBatchNotificationCommand.class
         );
         verify(sendBatchNotificationUseCase, times(2)).sendBatchNotification(captor.capture());
 
@@ -111,7 +111,7 @@ class NoticeRegisteredNotificationConsumerTest {
     void shouldSkipWhenEnvelopeIsNull() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "community.notice.registered", 0, 0L, "1", null
+            "community.notice.registered", 0, 0L, "1", null
         );
 
         // when
@@ -128,11 +128,11 @@ class NoticeRegisteredNotificationConsumerTest {
         // given
         NoticeRegisteredEvent event = new NoticeRegisteredEvent(100L, "공지사항", false);
         EventEnvelope<NoticeRegisteredEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "community-service",
-                LocalDateTime.of(2026, 4, 10, 10, 0), event
+            "test-event-id", "wrong.event.type", "community-service",
+            LocalDateTime.of(2026, 4, 10, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "community.notice.registered", 0, 0L, "key-1", envelope
+            "community.notice.registered", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -178,7 +178,7 @@ class NoticeRegisteredNotificationConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, "공지사항");
         when(findNotificationPreferencePort.findAllDistinctUserIds()).thenReturn(List.of(1L, 2L));
         doThrow(new RuntimeException("발송 실패"))
-                .when(sendBatchNotificationUseCase).sendBatchNotification(any());
+            .when(sendBatchNotificationUseCase).sendBatchNotification(any());
 
         // when
         consumer.handleNoticeRegisteredEvent(record, acknowledgment);
@@ -214,7 +214,7 @@ class NoticeRegisteredNotificationConsumerTest {
 
         // then
         ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
-                SendBatchNotificationCommand.class
+            SendBatchNotificationCommand.class
         );
         verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
 
@@ -238,7 +238,7 @@ class NoticeRegisteredNotificationConsumerTest {
 
         // then
         ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
-                SendBatchNotificationCommand.class
+            SendBatchNotificationCommand.class
         );
         verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
 
@@ -260,7 +260,7 @@ class NoticeRegisteredNotificationConsumerTest {
 
         // then
         ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
-                SendBatchNotificationCommand.class
+            SendBatchNotificationCommand.class
         );
         verify(sendBatchNotificationUseCase, times(1)).sendBatchNotification(captor.capture());
 
@@ -282,7 +282,7 @@ class NoticeRegisteredNotificationConsumerTest {
 
         // then
         ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
-                SendBatchNotificationCommand.class
+            SendBatchNotificationCommand.class
         );
         verify(sendBatchNotificationUseCase, times(1)).sendBatchNotification(captor.capture());
 
@@ -334,7 +334,7 @@ class NoticeRegisteredNotificationConsumerTest {
 
         // then
         ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
-                SendBatchNotificationCommand.class
+            SendBatchNotificationCommand.class
         );
         verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
         assertThat(captor.getValue().deliveryChannel()).isEqualTo("IN_APP_ONLY");
@@ -352,7 +352,7 @@ class NoticeRegisteredNotificationConsumerTest {
 
         // then
         ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
-                SendBatchNotificationCommand.class
+            SendBatchNotificationCommand.class
         );
         verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
         assertThat(captor.getValue().templateCode()).isEqualTo("NOTICE_REGISTERED");

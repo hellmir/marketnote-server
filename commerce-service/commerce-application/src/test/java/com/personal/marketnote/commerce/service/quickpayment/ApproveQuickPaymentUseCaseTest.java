@@ -72,21 +72,21 @@ class ApproveQuickPaymentUseCaseTest {
             ApproveQuickPaymentResult expectedResult = createExpectedResult();
 
             when(findQuickPaymentCardPort.findActiveByIdAndUserId(CARD_ID, BUYER_ID))
-                    .thenReturn(Optional.of(card));
+                .thenReturn(Optional.of(card));
             when(paymentVendorPort.getVendorKey()).thenReturn("NHN_KCP");
             when(paymentVendorPort.getShopCode()).thenReturn("T0000");
             when(txHelper.prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000"))
-                    .thenReturn(context);
+                .thenReturn(context);
             when(approveQuickPaymentPort.approvePayment(any())).thenReturn(portResult);
             when(txHelper.commitSuccess(eq(context), any(PaymentApprovalVendorResult.class), any(Installment.class)))
-                    .thenReturn(buildApprovePaymentResult());
+                .thenReturn(buildApprovePaymentResult());
 
             ApproveQuickPaymentResult result = approveQuickPaymentService.approve(command);
 
             assertThat(result.pgPaymentKey()).isEqualTo("tno_quick_123");
             assertThat(result.resultCode()).isEqualTo("0000");
             verify(txHelper).commitSuccess(
-                    eq(context), any(PaymentApprovalVendorResult.class), eq(Installment.of((short) 0))
+                eq(context), any(PaymentApprovalVendorResult.class), eq(Installment.of((short) 0))
             );
             verify(txHelper, never()).commitFailure(any(), any(), any());
         }
@@ -103,22 +103,22 @@ class ApproveQuickPaymentUseCaseTest {
             QuickPaymentCard card = createCard();
             PaymentApprovalContext context = createContext();
             ApproveQuickPaymentPortResult portResult = ApproveQuickPaymentPortResult.builder()
-                    .success(false)
-                    .resultCode("8001")
-                    .resultMessage("카드 인증 실패")
-                    .rawResponse("{}")
-                    .build();
+                .success(false)
+                .resultCode("8001")
+                .resultMessage("카드 인증 실패")
+                .rawResponse("{}")
+                .build();
 
             when(findQuickPaymentCardPort.findActiveByIdAndUserId(CARD_ID, BUYER_ID))
-                    .thenReturn(Optional.of(card));
+                .thenReturn(Optional.of(card));
             when(paymentVendorPort.getVendorKey()).thenReturn("NHN_KCP");
             when(paymentVendorPort.getShopCode()).thenReturn("T0000");
             when(txHelper.prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000"))
-                    .thenReturn(context);
+                .thenReturn(context);
             when(approveQuickPaymentPort.approvePayment(any())).thenReturn(portResult);
 
             assertThatThrownBy(() -> approveQuickPaymentService.approve(command))
-                    .isInstanceOf(QuickPaymentApprovalFailedException.class);
+                .isInstanceOf(QuickPaymentApprovalFailedException.class);
 
             verify(txHelper).commitFailure(context, "8001", "카드 인증 실패");
             verify(txHelper, never()).commitSuccess(any(), any(), any());
@@ -132,16 +132,16 @@ class ApproveQuickPaymentUseCaseTest {
             PaymentApprovalContext context = createContext();
 
             when(findQuickPaymentCardPort.findActiveByIdAndUserId(CARD_ID, BUYER_ID))
-                    .thenReturn(Optional.of(card));
+                .thenReturn(Optional.of(card));
             when(paymentVendorPort.getVendorKey()).thenReturn("NHN_KCP");
             when(paymentVendorPort.getShopCode()).thenReturn("T0000");
             when(txHelper.prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000"))
-                    .thenReturn(context);
+                .thenReturn(context);
             when(approveQuickPaymentPort.approvePayment(any()))
-                    .thenThrow(new RuntimeException("Connection timeout"));
+                .thenThrow(new RuntimeException("Connection timeout"));
 
             assertThatThrownBy(() -> approveQuickPaymentService.approve(command))
-                    .isInstanceOf(QuickPaymentApprovalFailedException.class);
+                .isInstanceOf(QuickPaymentApprovalFailedException.class);
 
             verify(txHelper).commitUnknown(eq(context), eq("UNKNOWN"), contains("Connection timeout"));
             verify(txHelper, never()).commitSuccess(any(), any(), any());
@@ -155,16 +155,16 @@ class ApproveQuickPaymentUseCaseTest {
             PaymentApprovalContext context = createContext();
 
             when(findQuickPaymentCardPort.findActiveByIdAndUserId(CARD_ID, BUYER_ID))
-                    .thenReturn(Optional.of(card));
+                .thenReturn(Optional.of(card));
             when(paymentVendorPort.getVendorKey()).thenReturn("NHN_KCP");
             when(paymentVendorPort.getShopCode()).thenReturn("T0000");
             when(txHelper.prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000"))
-                    .thenReturn(context);
+                .thenReturn(context);
             when(approveQuickPaymentPort.approvePayment(any()))
-                    .thenThrow(new PaymentVendorConnectionFailedException("KCP 연결 실패"));
+                .thenThrow(new PaymentVendorConnectionFailedException("KCP 연결 실패"));
 
             assertThatThrownBy(() -> approveQuickPaymentService.approve(command))
-                    .isInstanceOf(QuickPaymentApprovalFailedException.class);
+                .isInstanceOf(QuickPaymentApprovalFailedException.class);
 
             verify(txHelper).commitFailure(eq(context), eq("CONN_FAIL"), contains("KCP 연결 실패"));
         }
@@ -180,10 +180,10 @@ class ApproveQuickPaymentUseCaseTest {
             ApproveQuickPaymentCommand command = createCommand();
 
             when(findQuickPaymentCardPort.findActiveByIdAndUserId(CARD_ID, BUYER_ID))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> approveQuickPaymentService.approve(command))
-                    .isInstanceOf(QuickPaymentCardNotFoundException.class);
+                .isInstanceOf(QuickPaymentCardNotFoundException.class);
 
             verify(txHelper, never()).prepareExecutionForQuickPayment(any(), any(), any(), any());
             verify(approveQuickPaymentPort, never()).approvePayment(any());
@@ -196,14 +196,14 @@ class ApproveQuickPaymentUseCaseTest {
             QuickPaymentCard card = createCard();
 
             when(findQuickPaymentCardPort.findActiveByIdAndUserId(CARD_ID, BUYER_ID))
-                    .thenReturn(Optional.of(card));
+                .thenReturn(Optional.of(card));
             when(paymentVendorPort.getVendorKey()).thenReturn("NHN_KCP");
             when(paymentVendorPort.getShopCode()).thenReturn("T0000");
             when(txHelper.prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000"))
-                    .thenThrow(new PaymentNotFoundException());
+                .thenThrow(new PaymentNotFoundException());
 
             assertThatThrownBy(() -> approveQuickPaymentService.approve(command))
-                    .isInstanceOf(PaymentNotFoundException.class);
+                .isInstanceOf(PaymentNotFoundException.class);
 
             verify(approveQuickPaymentPort, never()).approvePayment(any());
         }
@@ -222,14 +222,14 @@ class ApproveQuickPaymentUseCaseTest {
             ApproveQuickPaymentPortResult portResult = createSuccessPortResult();
 
             when(findQuickPaymentCardPort.findActiveByIdAndUserId(CARD_ID, BUYER_ID))
-                    .thenReturn(Optional.of(card));
+                .thenReturn(Optional.of(card));
             when(paymentVendorPort.getVendorKey()).thenReturn("NHN_KCP");
             when(paymentVendorPort.getShopCode()).thenReturn("T0000");
             when(txHelper.prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000"))
-                    .thenReturn(context);
+                .thenReturn(context);
             when(approveQuickPaymentPort.approvePayment(any())).thenReturn(portResult);
             when(txHelper.commitSuccess(eq(context), any(PaymentApprovalVendorResult.class), any(Installment.class)))
-                    .thenReturn(buildApprovePaymentResult());
+                .thenReturn(buildApprovePaymentResult());
 
             approveQuickPaymentService.approve(command);
 
@@ -238,96 +238,96 @@ class ApproveQuickPaymentUseCaseTest {
             inOrder.verify(txHelper).prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000");
             inOrder.verify(approveQuickPaymentPort).approvePayment(any());
             inOrder.verify(txHelper).commitSuccess(
-                    eq(context), any(PaymentApprovalVendorResult.class), any(Installment.class)
+                eq(context), any(PaymentApprovalVendorResult.class), any(Installment.class)
             );
         }
     }
 
     private ApproveQuickPaymentCommand createCommand() {
         return ApproveQuickPaymentCommand.builder()
-                .buyerId(BUYER_ID)
-                .orderKey(ORDER_KEY_STR)
-                .quickPaymentCardId(CARD_ID)
-                .goodName("테스트 상품")
-                .build();
+            .buyerId(BUYER_ID)
+            .orderKey(ORDER_KEY_STR)
+            .quickPaymentCardId(CARD_ID)
+            .goodName("테스트 상품")
+            .build();
     }
 
     private QuickPaymentCard createCard() {
         return QuickPaymentCard.from(QuickPaymentCardSnapshotState.builder()
-                .id(CARD_ID)
-                .userId(BUYER_ID)
-                .batchKey("batch_key_test")
-                .groupId("group_test")
-                .cardCode("CCDI")
-                .cardName("현대카드")
-                .cardBinType01("0")
-                .cardBinType02("0")
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(CARD_ID)
+            .userId(BUYER_ID)
+            .batchKey("batch_key_test")
+            .groupId("group_test")
+            .cardCode("CCDI")
+            .cardName("현대카드")
+            .cardBinType01("0")
+            .cardBinType02("0")
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 
     private PaymentApprovalContext createContext() {
         Payment payment = Payment.from(PaymentCreateState.builder()
-                .orderId(1L)
-                .orderKey(ORDER_KEY)
-                .paymentAmount(50000L)
-                .build());
+            .orderId(1L)
+            .orderKey(ORDER_KEY)
+            .paymentAmount(50000L)
+            .build());
         PspPaymentEvent event = PspPaymentEvent.from(PspPaymentEventSnapshotState.builder()
-                .id(1L)
-                .orderId(1L)
-                .orderKey(ORDER_KEY_STR)
-                .pgCompanyKey("NHN_KCP")
-                .pgShopKey("T0000")
-                .poStatus(PaymentEventStatus.EXECUTING)
-                .method("PACA")
-                .amount(50000L)
-                .build());
+            .id(1L)
+            .orderId(1L)
+            .orderKey(ORDER_KEY_STR)
+            .pgCompanyKey("NHN_KCP")
+            .pgShopKey("T0000")
+            .poStatus(PaymentEventStatus.EXECUTING)
+            .method("PACA")
+            .amount(50000L)
+            .build());
         return PaymentApprovalContext.of(payment, event);
     }
 
     private ApproveQuickPaymentPortResult createSuccessPortResult() {
         return ApproveQuickPaymentPortResult.builder()
-                .success(true)
-                .resultCode("0000")
-                .resultMessage("승인 성공")
-                .transactionId("tno_quick_123")
-                .amount("50000")
-                .payMethod("PACA")
-                .cardCode("CCDI")
-                .cardName("현대카드")
-                .cardNumber("1234****5678")
-                .approvalNumber("12345678")
-                .approvalTime("20260405171933")
-                .installmentMonths("00")
-                .cardAmount("50000")
-                .partialCancelYn("Y")
-                .cardBinType01("0")
-                .cardBinType02("0")
-                .rawResponse("{}")
-                .build();
+            .success(true)
+            .resultCode("0000")
+            .resultMessage("승인 성공")
+            .transactionId("tno_quick_123")
+            .amount("50000")
+            .payMethod("PACA")
+            .cardCode("CCDI")
+            .cardName("현대카드")
+            .cardNumber("1234****5678")
+            .approvalNumber("12345678")
+            .approvalTime("20260405171933")
+            .installmentMonths("00")
+            .cardAmount("50000")
+            .partialCancelYn("Y")
+            .cardBinType01("0")
+            .cardBinType02("0")
+            .rawResponse("{}")
+            .build();
     }
 
     private ApproveQuickPaymentResult createExpectedResult() {
         return ApproveQuickPaymentResult.builder()
-                .orderId(1L)
-                .orderKey(ORDER_KEY_STR)
-                .pgPaymentKey("tno_quick_123")
-                .amount(50000L)
-                .resultCode("0000")
-                .resultMessage("승인 성공")
-                .payMethod("PACA")
-                .build();
+            .orderId(1L)
+            .orderKey(ORDER_KEY_STR)
+            .pgPaymentKey("tno_quick_123")
+            .amount(50000L)
+            .resultCode("0000")
+            .resultMessage("승인 성공")
+            .payMethod("PACA")
+            .build();
     }
 
     private com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult buildApprovePaymentResult() {
         return com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult.builder()
-                .orderId(1L)
-                .orderKey(ORDER_KEY_STR)
-                .pgPaymentKey("tno_quick_123")
-                .amount(50000L)
-                .resultCode("0000")
-                .resultMessage("승인 성공")
-                .payMethod("PACA")
-                .build();
+            .orderId(1L)
+            .orderKey(ORDER_KEY_STR)
+            .pgPaymentKey("tno_quick_123")
+            .amount(50000L)
+            .resultCode("0000")
+            .resultMessage("승인 성공")
+            .payMethod("PACA")
+            .build();
     }
 }

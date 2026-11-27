@@ -75,7 +75,7 @@ class CompleteReturnUseCaseTest {
 
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
 
             service.completeReturn(new CompleteReturnCommand(1L));
@@ -84,9 +84,9 @@ class CompleteReturnUseCaseTest {
             verify(order).changeProductsStatus(eq(List.of(10L)), eq(OrderStatus.RETURNED), any(LocalDateTime.class), eq(0L));
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
             verify(publishOrderEventPort).publishOrderReturnedEvent(
-                    eq(1L), anyString(), eq(100L),
-                    eq(30000L), eq(49000L), eq(1000L), eq(3000L),
-                    eq(true), eq(3000L), anyList(), anyString()
+                eq(1L), anyString(), eq(100L),
+                eq(30000L), eq(49000L), eq(1000L), eq(3000L),
+                eq(true), eq(3000L), anyList(), anyString()
             );
         }
 
@@ -101,7 +101,7 @@ class CompleteReturnUseCaseTest {
 
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(0L).build());
 
             service.completeReturn(new CompleteReturnCommand(1L));
@@ -109,9 +109,9 @@ class CompleteReturnUseCaseTest {
             verify(order, times(2)).changeProductsStatus(eq(List.of(10L)), any(OrderStatus.class), any(LocalDateTime.class), eq(0L));
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
             verify(publishOrderEventPort).publishOrderReturnedEvent(
-                    eq(1L), anyString(), eq(100L),
-                    eq(30000L), eq(49000L), eq(1000L), eq(3000L),
-                    eq(true), eq(0L), anyList(), anyString()
+                eq(1L), anyString(), eq(100L),
+                eq(30000L), eq(49000L), eq(1000L), eq(3000L),
+                eq(true), eq(0L), anyList(), anyString()
             );
         }
 
@@ -126,7 +126,7 @@ class CompleteReturnUseCaseTest {
 
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(0L).build());
 
             service.completeReturn(new CompleteReturnCommand(1L));
@@ -147,21 +147,21 @@ class CompleteReturnUseCaseTest {
 
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(5000L).build());
 
             service.completeReturn(new CompleteReturnCommand(1L));
 
             verify(calculateReturnShippingFeeUseCase).calculateReturnShippingFee(
-                    argThat(cmd -> cmd.orderId().equals(1L)
-                            && cmd.reasonCategory() == OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND
-                            && cmd.returnPricePolicyIds().equals(List.of(10L))
-                    )
+                argThat(cmd -> cmd.orderId().equals(1L)
+                    && cmd.reasonCategory() == OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND
+                    && cmd.returnPricePolicyIds().equals(List.of(10L))
+                )
             );
             verify(publishOrderEventPort).publishOrderReturnedEvent(
-                    eq(1L), anyString(), eq(100L),
-                    eq(30000L), eq(49000L), eq(1000L), eq(3000L),
-                    eq(true), eq(5000L), anyList(), anyString()
+                eq(1L), anyString(), eq(100L),
+                eq(30000L), eq(49000L), eq(1000L), eq(3000L),
+                eq(true), eq(5000L), anyList(), anyString()
             );
         }
     }
@@ -181,15 +181,15 @@ class CompleteReturnUseCaseTest {
 
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
 
             service.completeReturn(new CompleteReturnCommand(1L));
 
             verify(publishOrderEventPort).publishOrderReturnedEvent(
-                    eq(1L), anyString(), eq(100L),
-                    eq(30000L), eq(49000L), eq(1000L), eq(3000L),
-                    eq(true), eq(3000L), anyList(), anyString()
+                eq(1L), anyString(), eq(100L),
+                eq(30000L), eq(49000L), eq(1000L), eq(3000L),
+                eq(true), eq(3000L), anyList(), anyString()
             );
         }
 
@@ -228,7 +228,7 @@ class CompleteReturnUseCaseTest {
 
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
 
             // when
@@ -238,9 +238,9 @@ class CompleteReturnUseCaseTest {
             verify(order).changeProductsStatus(eq(List.of(10L)), eq(OrderStatus.RETURN_IN_PROGRESS), any(LocalDateTime.class), eq(0L));
             verify(order).changeProductsStatus(eq(List.of(10L)), eq(OrderStatus.RETURNED), any(LocalDateTime.class), eq(0L));
             verify(publishOrderEventPort).publishOrderReturnedEvent(
-                    eq(1L), anyString(), eq(100L),
-                    eq(30000L), eq(79000L), eq(1000L), eq(3000L),
-                    eq(false), eq(3000L), anyList(), anyString()
+                eq(1L), anyString(), eq(100L),
+                eq(30000L), eq(79000L), eq(1000L), eq(3000L),
+                eq(false), eq(3000L), anyList(), anyString()
             );
         }
 
@@ -285,7 +285,7 @@ class CompleteReturnUseCaseTest {
 
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
 
             // when
@@ -295,9 +295,9 @@ class CompleteReturnUseCaseTest {
             verify(order).changeProductsStatus(eq(List.of(20L)), eq(OrderStatus.RETURN_IN_PROGRESS), any(LocalDateTime.class), eq(0L));
             verify(order).changeProductsStatus(eq(List.of(20L)), eq(OrderStatus.RETURNED), any(LocalDateTime.class), eq(0L));
             verify(publishOrderEventPort).publishOrderReturnedEvent(
-                    eq(1L), anyString(), eq(100L),
-                    eq(20000L), eq(79000L), eq(1000L), eq(3000L),
-                    eq(true), eq(3000L), anyList(), anyString()
+                eq(1L), anyString(), eq(100L),
+                eq(20000L), eq(79000L), eq(1000L), eq(3000L),
+                eq(true), eq(3000L), anyList(), anyString()
             );
         }
     }
@@ -312,8 +312,8 @@ class CompleteReturnUseCaseTest {
             OrderReturnSagaStarter sagaStarter = mock(OrderReturnSagaStarter.class);
             orderReturnSagaStarter = Optional.of(sagaStarter);
             CompleteReturnService sagaService = new CompleteReturnService(
-                    getOrderUseCase, updateOrderPort, publishOrderEventPort,
-                    calculateReturnShippingFeeUseCase, clock, orderReturnSagaStarter
+                getOrderUseCase, updateOrderPort, publishOrderEventPort,
+                calculateReturnShippingFeeUseCase, clock, orderReturnSagaStarter
             );
 
             OrderProduct product = mock(OrderProduct.class);
@@ -324,13 +324,13 @@ class CompleteReturnUseCaseTest {
 
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
-                    any(CalculateReturnShippingFeeCommand.class)
+                any(CalculateReturnShippingFeeCommand.class)
             )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
 
             sagaService.completeReturn(new CompleteReturnCommand(1L));
 
             ArgumentCaptor<OrderReturnSagaContext> contextCaptor =
-                    ArgumentCaptor.forClass(OrderReturnSagaContext.class);
+                ArgumentCaptor.forClass(OrderReturnSagaContext.class);
             verify(sagaStarter).start(contextCaptor.capture());
 
             OrderReturnSagaContext capturedContext = contextCaptor.getValue();
@@ -351,7 +351,7 @@ class CompleteReturnUseCaseTest {
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
 
             assertThatThrownBy(() -> service.completeReturn(new CompleteReturnCommand(1L)))
-                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);

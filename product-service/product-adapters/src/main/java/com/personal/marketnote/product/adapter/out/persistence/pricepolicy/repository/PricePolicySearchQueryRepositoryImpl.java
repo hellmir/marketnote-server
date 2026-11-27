@@ -25,20 +25,20 @@ public class PricePolicySearchQueryRepositoryImpl implements PricePolicySearchQu
 
     @Override
     public List<PricePolicyJpaEntity> findActivePricePoliciesByOffset(
-            List<Long> pricePolicyIds,
-            int page,
-            int pageSize,
-            boolean isAsc,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword,
-            Long categoryId
+        List<Long> pricePolicyIds,
+        int page,
+        int pageSize,
+        boolean isAsc,
+        ProductSortProperty sortProperty,
+        ProductSearchTarget searchTarget,
+        String searchKeyword,
+        Long categoryId
     ) {
         QPricePolicyJpaEntity pp = QPricePolicyJpaEntity.pricePolicyJpaEntity;
 
         BooleanBuilder where = new BooleanBuilder()
-                .and(pp.status.eq(EntityStatus.ACTIVE))
-                .and(pp.productJpaEntity.status.eq(EntityStatus.ACTIVE));
+            .and(pp.status.eq(EntityStatus.ACTIVE))
+            .and(pp.productJpaEntity.status.eq(EntityStatus.ACTIVE));
 
         if (FormatValidator.hasValue(pricePolicyIds)) {
             where.and(pp.id.in(pricePolicyIds));
@@ -47,10 +47,10 @@ public class PricePolicySearchQueryRepositoryImpl implements PricePolicySearchQu
         if (FormatValidator.hasValue(categoryId)) {
             QProductCategoryJpaEntity pc = QProductCategoryJpaEntity.productCategoryJpaEntity;
             where.and(JPAExpressions
-                    .selectOne()
-                    .from(pc)
-                    .where(pc.productId.eq(pp.productJpaEntity.id).and(pc.categoryId.eq(categoryId)))
-                    .exists());
+                .selectOne()
+                .from(pc)
+                .where(pc.productId.eq(pp.productJpaEntity.id).and(pc.categoryId.eq(categoryId)))
+                .exists());
         }
 
         if (FormatValidator.hasValue(searchKeyword) && FormatValidator.hasValue(searchTarget)) {
@@ -60,19 +60,19 @@ public class PricePolicySearchQueryRepositoryImpl implements PricePolicySearchQu
         List<OrderSpecifier<?>> orders = buildOrderSpecifiers(pp, sortProperty, isAsc);
 
         return queryFactory
-                .selectFrom(pp)
-                .join(pp.productJpaEntity)
-                .where(where)
-                .orderBy(orders.toArray(new OrderSpecifier<?>[0]))
-                .offset((long) page * pageSize)
-                .limit(pageSize)
-                .fetch();
+            .selectFrom(pp)
+            .join(pp.productJpaEntity)
+            .where(where)
+            .orderBy(orders.toArray(new OrderSpecifier<?>[0]))
+            .offset((long) page * pageSize)
+            .limit(pageSize)
+            .fetch();
     }
 
     private BooleanExpression buildSearchExpression(
-            QPricePolicyJpaEntity pp,
-            ProductSearchTarget searchTarget,
-            String searchKeyword
+        QPricePolicyJpaEntity pp,
+        ProductSearchTarget searchTarget,
+        String searchKeyword
     ) {
         String pattern = "%" + searchKeyword + "%";
         return switch (searchTarget) {
@@ -82,9 +82,9 @@ public class PricePolicySearchQueryRepositoryImpl implements PricePolicySearchQu
     }
 
     private List<OrderSpecifier<?>> buildOrderSpecifiers(
-            QPricePolicyJpaEntity pp,
-            ProductSortProperty sortProperty,
-            boolean isAsc
+        QPricePolicyJpaEntity pp,
+        ProductSortProperty sortProperty,
+        boolean isAsc
     ) {
         Order direction = isAsc ? Order.ASC : Order.DESC;
         List<OrderSpecifier<?>> orders = new ArrayList<>();

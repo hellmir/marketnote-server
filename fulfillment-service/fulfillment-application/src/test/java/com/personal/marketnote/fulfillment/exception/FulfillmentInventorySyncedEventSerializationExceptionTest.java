@@ -15,16 +15,16 @@ class FulfillmentInventorySyncedEventSerializationExceptionTest {
         };
 
         FulfillmentInventorySyncedEventSerializationException ex =
-                new FulfillmentInventorySyncedEventSerializationException(
-                        "fulfillment.inventory.synced", "fulfillment-inventory-sync", "evt-1", root
-                );
+            new FulfillmentInventorySyncedEventSerializationException(
+                "fulfillment.inventory.synced", "fulfillment-inventory-sync", "evt-1", root
+            );
 
         assertThat(ex.getMessage())
-                .contains("ERR_FULFILLMENT_INVENTORY_SYNCED_EVENT_01")
-                .contains("풀필먼트 재고 동기화 이벤트")
-                .contains("topic=fulfillment.inventory.synced")
-                .contains("partitionKey=fulfillment-inventory-sync")
-                .contains("eventId=evt-1");
+            .contains("ERR_FULFILLMENT_INVENTORY_SYNCED_EVENT_01")
+            .contains("풀필먼트 재고 동기화 이벤트")
+            .contains("topic=fulfillment.inventory.synced")
+            .contains("partitionKey=fulfillment-inventory-sync")
+            .contains("eventId=evt-1");
         assertThat(ex.getCause()).isSameAs(root);
         assertThat(ex).hasCause(root);
         assertThat(ex).hasRootCause(root);

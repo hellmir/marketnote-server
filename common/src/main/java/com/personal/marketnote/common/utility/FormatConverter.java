@@ -128,7 +128,7 @@ public class FormatConverter {
             return null;
         }
         return filename.replaceAll("\\s+", "-")
-                .replaceAll("[^a-zA-Z0-9._-]", "");
+            .replaceAll("[^a-zA-Z0-9._-]", "");
     }
 
     public static String parseToNumberTime(LocalDateTime time) {

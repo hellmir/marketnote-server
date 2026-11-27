@@ -68,15 +68,15 @@ class SettlementEventKafkaProducerTest {
     void shouldThrowSettlementEventSerializationExceptionOnJsonProcessingFailure() throws JsonProcessingException {
         // given
         when(objectMapper.writeValueAsString(org.mockito.ArgumentMatchers.any()))
-                .thenThrow(new JsonProcessingException("test error") {
-                });
+            .thenThrow(new JsonProcessingException("test error") {
+            });
 
         // when & then
         assertThatThrownBy(() -> producer.publishSettlementExecutedEvent(
-                1L, 100L, 100000L, 3000L, 1000L, 2000L, 100000L
+            1L, 100L, 100000L, 3000L, 1000L, 2000L, 100000L
         ))
-                .isInstanceOf(SettlementEventSerializationException.class)
-                .hasCauseInstanceOf(JsonProcessingException.class);
+            .isInstanceOf(SettlementEventSerializationException.class)
+            .hasCauseInstanceOf(JsonProcessingException.class);
 
         verifyNoInteractions(saveOutboxEventPort);
     }
@@ -90,9 +90,9 @@ class SettlementEventKafkaProducerTest {
 
         // when & then
         assertThatThrownBy(() -> producer.publishSettlementExecutedEvent(
-                1L, 100L, 100000L, 3000L, 1000L, 2000L, 100000L
+            1L, 100L, 100000L, 3000L, 1000L, 2000L, 100000L
         ))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("save failed");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("save failed");
     }
 }

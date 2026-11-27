@@ -30,7 +30,7 @@ import static jakarta.persistence.CascadeType.PERSIST;
 
 @Entity
 @Table(name = "orders",
-        indexes = @Index(name = "idx_orders_buyer_id_created_at", columnList = "buyer_id, created_at"))
+    indexes = @Index(name = "idx_orders_buyer_id_created_at", columnList = "buyer_id, created_at"))
 @DynamicInsert
 @DynamicUpdate
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -128,38 +128,38 @@ public class OrderJpaEntity extends BaseEntity {
 
     public static OrderJpaEntity from(Order order) {
         return OrderJpaEntity.builder()
-                .buyerId(order.getBuyerId())
-                .orderKey(order.getOrderKey())
-                .orderNumber(order.getOrderNumber().getValue())
-                .orderStatus(order.getOrderStatus())
-                .totalAmount(order.getAmount().getTotalAmount().getValue())
-                .paidAmount(order.getAmount().getPaidAmount().getValue())
-                .couponAmount(order.getAmount().getCouponAmount().getValue())
-                .pointAmount(order.getAmount().getPointAmount().getValue())
-                .shippingFee(order.getAmount().getShippingFee().getValue())
-                .recipientName(toRecipientNameValue(order.getShippingAddress().getRecipientName()))
-                .recipientPhoneNumber(toPhoneNumberValue(order.getShippingAddress().getRecipientPhoneNumber()))
-                .zipCode(order.getShippingAddress().getZipCode())
-                .address(order.getShippingAddress().getAddress())
-                .addressDetail(order.getShippingAddress().getAddressDetail())
-                .deliveryRequestType(order.getShippingAddress().getDeliveryRequestType())
-                .deliveryRequestMessage(toDeliveryRequestMessageValue(
-                        order.getShippingAddress().getDeliveryRequestMessage()
-                ))
-                .pickupRecipientName(toRecipientNameValue(resolvePickupField(order, ShippingAddress::getRecipientName)))
-                .pickupRecipientPhoneNumber(toPhoneNumberValue(
-                        resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber)
-                ))
-                .pickupZipCode(resolvePickupField(order, ShippingAddress::getZipCode))
-                .pickupAddress(resolvePickupField(order, ShippingAddress::getAddress))
-                .pickupAddressDetail(resolvePickupField(order, ShippingAddress::getAddressDetail))
-                .pickupDeliveryRequestType(resolvePickupField(order, ShippingAddress::getPickupRequestType))
-                .pickupDeliveryRequestMessage(toDeliveryRequestMessageValue(
-                        resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)
-                ))
-                .shippingRegionType(order.getShippingRegionType())
-                .scheduledAutoConfirmAt(order.getScheduledAutoConfirmAt())
-                .build();
+            .buyerId(order.getBuyerId())
+            .orderKey(order.getOrderKey())
+            .orderNumber(order.getOrderNumber().getValue())
+            .orderStatus(order.getOrderStatus())
+            .totalAmount(order.getAmount().getTotalAmount().getValue())
+            .paidAmount(order.getAmount().getPaidAmount().getValue())
+            .couponAmount(order.getAmount().getCouponAmount().getValue())
+            .pointAmount(order.getAmount().getPointAmount().getValue())
+            .shippingFee(order.getAmount().getShippingFee().getValue())
+            .recipientName(toRecipientNameValue(order.getShippingAddress().getRecipientName()))
+            .recipientPhoneNumber(toPhoneNumberValue(order.getShippingAddress().getRecipientPhoneNumber()))
+            .zipCode(order.getShippingAddress().getZipCode())
+            .address(order.getShippingAddress().getAddress())
+            .addressDetail(order.getShippingAddress().getAddressDetail())
+            .deliveryRequestType(order.getShippingAddress().getDeliveryRequestType())
+            .deliveryRequestMessage(toDeliveryRequestMessageValue(
+                order.getShippingAddress().getDeliveryRequestMessage()
+            ))
+            .pickupRecipientName(toRecipientNameValue(resolvePickupField(order, ShippingAddress::getRecipientName)))
+            .pickupRecipientPhoneNumber(toPhoneNumberValue(
+                resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber)
+            ))
+            .pickupZipCode(resolvePickupField(order, ShippingAddress::getZipCode))
+            .pickupAddress(resolvePickupField(order, ShippingAddress::getAddress))
+            .pickupAddressDetail(resolvePickupField(order, ShippingAddress::getAddressDetail))
+            .pickupDeliveryRequestType(resolvePickupField(order, ShippingAddress::getPickupRequestType))
+            .pickupDeliveryRequestMessage(toDeliveryRequestMessageValue(
+                resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)
+            ))
+            .shippingRegionType(order.getShippingRegionType())
+            .scheduledAutoConfirmAt(order.getScheduledAutoConfirmAt())
+            .build();
     }
 
     public void addOrderProduct(OrderProductJpaEntity orderProductJpaEntity) {
@@ -175,23 +175,23 @@ public class OrderJpaEntity extends BaseEntity {
         shippingFee = order.getAmount().getShippingFee().getValue();
         pickupRecipientName = toRecipientNameValue(resolvePickupField(order, ShippingAddress::getRecipientName));
         pickupRecipientPhoneNumber = toPhoneNumberValue(
-                resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber)
+            resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber)
         );
         pickupZipCode = resolvePickupField(order, ShippingAddress::getZipCode);
         pickupAddress = resolvePickupField(order, ShippingAddress::getAddress);
         pickupAddressDetail = resolvePickupField(order, ShippingAddress::getAddressDetail);
         pickupDeliveryRequestType = resolvePickupField(order, ShippingAddress::getPickupRequestType);
         pickupDeliveryRequestMessage = toDeliveryRequestMessageValue(
-                resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)
+            resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)
         );
         scheduledAutoConfirmAt = order.getScheduledAutoConfirmAt();
 
         Map<Long, OrderProduct> orderProductsByPricePolicyId = order.getOrderProducts()
-                .stream()
-                .collect(Collectors.toMap(
-                        OrderProduct::getPricePolicyId,
-                        op -> op
-                ));
+            .stream()
+            .collect(Collectors.toMap(
+                OrderProduct::getPricePolicyId,
+                op -> op
+            ));
 
         orderProductJpaEntities.forEach(entity -> {
             OrderProduct orderProduct = orderProductsByPricePolicyId.get(entity.getPricePolicyId());

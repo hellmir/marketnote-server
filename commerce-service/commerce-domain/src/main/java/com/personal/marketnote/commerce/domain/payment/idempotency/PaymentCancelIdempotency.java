@@ -35,25 +35,25 @@ public class PaymentCancelIdempotency {
 
     public static PaymentCancelIdempotency from(PaymentCancelIdempotencyCreateState state) {
         return PaymentCancelIdempotency.builder()
-                .idempotencyKey(state.getIdempotencyKey())
-                .paymentId(state.getPaymentId())
-                .buyerId(state.getBuyerId())
-                .status(PaymentCancelIdempotencyStatus.IN_PROGRESS)
-                .build();
+            .idempotencyKey(state.getIdempotencyKey())
+            .paymentId(state.getPaymentId())
+            .buyerId(state.getBuyerId())
+            .status(PaymentCancelIdempotencyStatus.IN_PROGRESS)
+            .build();
     }
 
     public static PaymentCancelIdempotency from(PaymentCancelIdempotencySnapshotState state) {
         return PaymentCancelIdempotency.builder()
-                .id(state.getId())
-                .idempotencyKey(state.getIdempotencyKey())
-                .paymentId(state.getPaymentId())
-                .buyerId(state.getBuyerId())
-                .status(state.getStatus())
-                .result(state.getResult())
-                .failedReason(state.getFailedReason())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .idempotencyKey(state.getIdempotencyKey())
+            .paymentId(state.getPaymentId())
+            .buyerId(state.getBuyerId())
+            .status(state.getStatus())
+            .result(state.getResult())
+            .failedReason(state.getFailedReason())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     public boolean isInProgress() {

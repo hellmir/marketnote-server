@@ -7,11 +7,11 @@ public interface QueryGifticonCouponStatusPort {
 
     @Builder
     record CouponStatusResult(
-            boolean success,
-            String pinStatusCd,
-            String validPrdEndDt,
-            String errorCode,
-            String errorMessage
+        boolean success,
+        String pinStatusCd,
+        String validPrdEndDt,
+        String errorCode,
+        String errorMessage
     ) {
     }
 }

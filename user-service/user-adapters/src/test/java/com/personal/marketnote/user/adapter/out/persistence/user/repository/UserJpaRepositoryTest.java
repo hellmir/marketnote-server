@@ -57,28 +57,28 @@ class UserJpaRepositoryTest {
     }
 
     private Long persistUserWithVendor(
-            String nickname, String phoneNumber, String email, String referenceCode,
-            AuthVendor vendor, String oidcId, EntityStatus targetStatus
+        String nickname, String phoneNumber, String email, String referenceCode,
+        AuthVendor vendor, String oidcId, EntityStatus targetStatus
     ) {
         User user = User.from(
-                UserSnapshotState.builder()
-                        .userKey(UUID.randomUUID())
-                        .nickname(Nickname.of(nickname))
-                        .email(email)
-                        .password("encoded-password")
-                        .fullName("테스트")
-                        .phoneNumber(phoneNumber)
-                        // 순수 null 체크 — 빈 문자열은 ReferenceCode.of()의 도메인 검증을 통과해야 하므로 blank 검사 포함 FormatValidator는 부적합
-                        .referenceCode(referenceCode != null ? com.personal.marketnote.user.domain.user.ReferenceCode.of(referenceCode) : null)
-                        .role(Role.getBuyer())
-                        .userAuthProviders(List.of(UserAuthProvider.of(vendor, oidcId)))
-                        .userTerms(List.of())
-                        .signedUpAt(LocalDateTime.now())
-                        .lastLoggedInAt(LocalDateTime.now())
-                        .status(EntityStatus.ACTIVE)
-                        .withdrawalYn(false)
-                        .penaltyCount(0)
-                        .build()
+            UserSnapshotState.builder()
+                .userKey(UUID.randomUUID())
+                .nickname(Nickname.of(nickname))
+                .email(email)
+                .password("encoded-password")
+                .fullName("테스트")
+                .phoneNumber(phoneNumber)
+                // 순수 null 체크 — 빈 문자열은 ReferenceCode.of()의 도메인 검증을 통과해야 하므로 blank 검사 포함 FormatValidator는 부적합
+                .referenceCode(referenceCode != null ? com.personal.marketnote.user.domain.user.ReferenceCode.of(referenceCode) : null)
+                .role(Role.getBuyer())
+                .userAuthProviders(List.of(UserAuthProvider.of(vendor, oidcId)))
+                .userTerms(List.of())
+                .signedUpAt(LocalDateTime.now())
+                .lastLoggedInAt(LocalDateTime.now())
+                .status(EntityStatus.ACTIVE)
+                .withdrawalYn(false)
+                .penaltyCount(0)
+                .build()
         );
 
         UserJpaEntity entity = UserJpaEntity.from(user);
@@ -88,13 +88,13 @@ class UserJpaRepositoryTest {
 
         if (targetStatus == EntityStatus.INACTIVE) {
             em.createNativeQuery("UPDATE users SET status = 'INACTIVE' WHERE id = :id")
-                    .setParameter("id", saved.getId())
-                    .executeUpdate();
+                .setParameter("id", saved.getId())
+                .executeUpdate();
         }
         if (targetStatus == EntityStatus.UNEXPOSED) {
             em.createNativeQuery("UPDATE users SET status = 'UNEXPOSED' WHERE id = :id")
-                    .setParameter("id", saved.getId())
-                    .executeUpdate();
+                .setParameter("id", saved.getId())
+                .executeUpdate();
         }
         em.flush();
         em.clear();
@@ -281,7 +281,7 @@ class UserJpaRepositoryTest {
             persistUser("searchNick", "01000100001", "search@test.com", null, EntityStatus.ACTIVE);
 
             Page<UserJpaEntity> result = repository.findAllStatusUsersByPage(
-                    PageRequest.of(0, 10), false, true, false, false, false, "searchNick"
+                PageRequest.of(0, 10), false, true, false, false, false, "searchNick"
             );
 
             assertThat(result.getContent()).isNotEmpty();
@@ -294,7 +294,7 @@ class UserJpaRepositoryTest {
             persistUser("anyUser", "01000100002", "any@test.com", null, EntityStatus.ACTIVE);
 
             Page<UserJpaEntity> result = repository.findAllStatusUsersByPage(
-                    PageRequest.of(0, 10), false, false, false, false, false, ""
+                PageRequest.of(0, 10), false, false, false, false, false, ""
             );
 
             assertThat(result.getContent()).isNotEmpty();
@@ -309,14 +309,14 @@ class UserJpaRepositoryTest {
         void returnsExpiredDeactivatedUsers() {
             Long id = persistUser("deactUser", "01000110001", "deact@test.com", null, EntityStatus.INACTIVE);
             em.createNativeQuery("UPDATE users SET deactivated_until = :until WHERE id = :id")
-                    .setParameter("until", LocalDateTime.of(2026, 4, 1, 0, 0))
-                    .setParameter("id", id)
-                    .executeUpdate();
+                .setParameter("until", LocalDateTime.of(2026, 4, 1, 0, 0))
+                .setParameter("id", id)
+                .executeUpdate();
             em.flush();
             em.clear();
 
             List<UserJpaEntity> result = repository.findAllByDeactivatedUntilExpired(
-                    LocalDateTime.of(2026, 4, 14, 12, 0)
+                LocalDateTime.of(2026, 4, 14, 12, 0)
             );
 
             assertThat(result).isNotEmpty();
@@ -328,14 +328,14 @@ class UserJpaRepositoryTest {
         void doesNotReturnNotExpiredUsers() {
             Long id = persistUser("notExpired", "01000110002", "notexpired@test.com", null, EntityStatus.INACTIVE);
             em.createNativeQuery("UPDATE users SET deactivated_until = :until WHERE id = :id")
-                    .setParameter("until", LocalDateTime.of(2026, 12, 31, 23, 59))
-                    .setParameter("id", id)
-                    .executeUpdate();
+                .setParameter("until", LocalDateTime.of(2026, 12, 31, 23, 59))
+                .setParameter("id", id)
+                .executeUpdate();
             em.flush();
             em.clear();
 
             List<UserJpaEntity> result = repository.findAllByDeactivatedUntilExpired(
-                    LocalDateTime.of(2026, 4, 14, 12, 0)
+                LocalDateTime.of(2026, 4, 14, 12, 0)
             );
 
             assertThat(result.stream().noneMatch(u -> u.getId().equals(id))).isTrue();

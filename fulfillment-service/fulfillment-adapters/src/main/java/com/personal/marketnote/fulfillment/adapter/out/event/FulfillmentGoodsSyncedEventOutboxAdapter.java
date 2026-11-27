@@ -29,20 +29,20 @@ public class FulfillmentGoodsSyncedEventOutboxAdapter implements PublishFulfillm
         String topic = KafkaTopicConstants.FULFILLMENT_GOODS_SYNCED;
         String partitionKey = event.customerGoodsCode();
         EventEnvelope<FulfillmentGoodsSyncedEvent> envelope = EventEnvelope.of(
-                topic,
-                EVENT_SOURCE,
-                event,
-                clock
+            topic,
+            EVENT_SOURCE,
+            event,
+            clock
         );
         String payload = serialize(envelope, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(),
-                topic,
-                partitionKey,
-                FulfillmentGoodsSyncedEvent.class.getSimpleName(),
-                EVENT_SOURCE,
-                payload,
-                clock
+            envelope.eventId(),
+            topic,
+            partitionKey,
+            FulfillmentGoodsSyncedEvent.class.getSimpleName(),
+            EVENT_SOURCE,
+            payload,
+            clock
         );
         saveOutboxEventPort.save(outboxEvent);
     }
@@ -52,7 +52,7 @@ public class FulfillmentGoodsSyncedEventOutboxAdapter implements PublishFulfillm
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
             throw new FulfillmentGoodsSyncedEventSerializationException(
-                    envelope.eventType(), partitionKey, envelope.eventId(), e
+                envelope.eventType(), partitionKey, envelope.eventId(), e
             );
         }
     }

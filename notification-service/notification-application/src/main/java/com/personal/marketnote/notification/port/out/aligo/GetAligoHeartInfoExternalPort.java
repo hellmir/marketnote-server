@@ -5,10 +5,10 @@ public interface GetAligoHeartInfoExternalPort {
     AligoHeartInfoResult getHeartInfo();
 
     record AligoHeartInfoResult(
-            int smsCnt,
-            int lmsCnt,
-            int mmsCnt,
-            int altCnt
+        int smsCnt,
+        int lmsCnt,
+        int mmsCnt,
+        int altCnt
     ) {
     }
 }

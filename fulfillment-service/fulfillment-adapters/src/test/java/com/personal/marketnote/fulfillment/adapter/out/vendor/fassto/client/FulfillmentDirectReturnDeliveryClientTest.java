@@ -85,20 +85,20 @@ class FulfillmentDirectReturnDeliveryClientTest {
         externalCallLogger = spy(new ExternalCallLogger(new SimpleMeterRegistry()));
 
         client = new FulfillmentDirectReturnDeliveryClient(
-                builder,
-                objectMapper,
-                properties,
-                vendorCommunicationRecorder,
-                vendorCommunicationPayloadGenerator,
-                vendorCommunicationFailureHandler,
-                externalCallLogger,
-                new NoOpSleeper()
+            builder,
+            objectMapper,
+            properties,
+            vendorCommunicationRecorder,
+            vendorCommunicationPayloadGenerator,
+            vendorCommunicationFailureHandler,
+            externalCallLogger,
+            new NoOpSleeper()
         );
     }
 
     private void stubPayloadGenerator() {
         lenient().when(vendorCommunicationPayloadGenerator.buildPayloadJson(any()))
-                .thenReturn(objectMapper.createObjectNode());
+            .thenReturn(objectMapper.createObjectNode());
     }
 
     private void stubDirectReturnDeliveryProperties() {
@@ -108,19 +108,19 @@ class FulfillmentDirectReturnDeliveryClientTest {
 
     private RegisterFulfillmentDirectReturnDeliveryCommand buildValidRegisterCommand() {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
-                null, "PROD001", "PROD001", "20260414", 1
+            null, "PROD001", "PROD001", "20260414", 1
         );
         RegisterFulfillmentDirectReturnDeliveryItemCommand itemCommand = RegisterFulfillmentDirectReturnDeliveryItemCommand.builder()
-                .orderDate("20260414")
-                .supplierCode("SUP001")
-                .originalCourierCode("04")
-                .originalInvoiceNumber("1234567890")
-                .returnReceiveMethod("01")
-                .recipientName("홍길동")
-                .returnType("01")
-                .returnReason("01")
-                .products(List.of(goodsCommand))
-                .build();
+            .orderDate("20260414")
+            .supplierCode("SUP001")
+            .originalCourierCode("04")
+            .originalInvoiceNumber("1234567890")
+            .returnReceiveMethod("01")
+            .recipientName("홍길동")
+            .returnType("01")
+            .returnReason("01")
+            .products(List.of(goodsCommand))
+            .build();
         return RegisterFulfillmentDirectReturnDeliveryCommand.of("CUST001", "valid-token", List.of(itemCommand));
     }
 
@@ -168,7 +168,7 @@ class FulfillmentDirectReturnDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerDirectReturnDelivery(command))
-                    .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
         }
     }
 
@@ -186,7 +186,7 @@ class FulfillmentDirectReturnDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerDirectReturnDelivery(command))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -201,9 +201,9 @@ class FulfillmentDirectReturnDeliveryClientTest {
             stubDirectReturnDeliveryProperties();
             stubPayloadGenerator();
             RegisterFulfillmentDeliveryResponse payload = new RegisterFulfillmentDeliveryResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new RegisterFulfillmentDeliveryItemResponse("FMS001", "ORD001", "OK", "200", null)),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(new RegisterFulfillmentDeliveryItemResponse("FMS001", "ORD001", "OK", "200", null)),
+                null
             );
             stubPostChain(ResponseEntity.ok(toJson(payload)));
 
@@ -227,15 +227,15 @@ class FulfillmentDirectReturnDeliveryClientTest {
             stubDirectReturnDeliveryProperties();
             stubPayloadGenerator();
             stubPostChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    "client error".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "client error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.registerDirectReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
         }
 
         @Test
@@ -245,15 +245,15 @@ class FulfillmentDirectReturnDeliveryClientTest {
             stubDirectReturnDeliveryProperties();
             stubPayloadGenerator();
             stubPostChainThrows(new HttpServerErrorException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Internal Server Error",
-                    "boom".getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                "boom".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.registerDirectReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
         }
 
         @Test
@@ -263,15 +263,15 @@ class FulfillmentDirectReturnDeliveryClientTest {
             stubDirectReturnDeliveryProperties();
             stubPayloadGenerator();
             RegisterFulfillmentDeliveryResponse payload = new RegisterFulfillmentDeliveryResponse(
-                    new FulfillmentResponseHeader("500", "vendor failure", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("500", "vendor failure", 0),
+                List.of(),
+                null
             );
             stubPostChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.registerDirectReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
         }
 
         @Test
@@ -281,18 +281,18 @@ class FulfillmentDirectReturnDeliveryClientTest {
             stubDirectReturnDeliveryProperties();
             stubPayloadGenerator();
             RegisterFulfillmentDeliveryResponse payload = new RegisterFulfillmentDeliveryResponse(
-                    new FulfillmentResponseHeader("200", "success", 1),
-                    List.of(new RegisterFulfillmentDeliveryItemResponse(
-                            null, "ORD001", "item-level vendor error", "400", null
-                    )),
-                    null
+                new FulfillmentResponseHeader("200", "success", 1),
+                List.of(new RegisterFulfillmentDeliveryItemResponse(
+                    null, "ORD001", "item-level vendor error", "400", null
+                )),
+                null
             );
             stubPostChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.registerDirectReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class)
-                    .hasMessageContaining("item-level vendor error");
+                .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class)
+                .hasMessageContaining("item-level vendor error");
         }
 
         @Test
@@ -305,7 +305,7 @@ class FulfillmentDirectReturnDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerDirectReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
         }
 
         @Test
@@ -315,15 +315,15 @@ class FulfillmentDirectReturnDeliveryClientTest {
             stubDirectReturnDeliveryProperties();
             stubPayloadGenerator();
             RegisterFulfillmentDeliveryResponse payload = new RegisterFulfillmentDeliveryResponse(
-                    new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
-                    List.of(),
-                    null
+                new FulfillmentResponseHeader("401", "INVALID_ACCESS", 0),
+                List.of(),
+                null
             );
             stubPostChain(ResponseEntity.ok(toJson(payload)));
 
             // when & then
             assertThatThrownBy(() -> client.registerDirectReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
+                .isInstanceOf(com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException.class);
         }
 
         @Test
@@ -334,16 +334,16 @@ class FulfillmentDirectReturnDeliveryClientTest {
             stubPayloadGenerator();
             String errorBody = "{\"errorInfo\":{\"errorCode\":\"E_VENDOR\",\"errorMessage\":\"vendor down\"}}";
             stubPostChainThrows(new HttpClientErrorException(
-                    HttpStatus.BAD_REQUEST,
-                    "Bad Request",
-                    errorBody.getBytes(StandardCharsets.UTF_8),
-                    StandardCharsets.UTF_8
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                errorBody.getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8
             ));
 
             // when & then
             assertThatThrownBy(() -> client.registerDirectReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class)
-                    .hasMessageContaining("vendor down");
+                .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class)
+                .hasMessageContaining("vendor down");
         }
     }
 
@@ -360,7 +360,7 @@ class FulfillmentDirectReturnDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerDirectReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
 
         @Test
@@ -372,7 +372,7 @@ class FulfillmentDirectReturnDeliveryClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.registerDirectReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(FulfillmentConfigurationException.class);
+                .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -392,14 +392,14 @@ class FulfillmentDirectReturnDeliveryClientTest {
 
             // when
             assertThatThrownBy(() -> client.registerDirectReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
 
             // then
             verify(externalCallLogger).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("registerDirectReturnDelivery"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("registerDirectReturnDelivery"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).record(
-                    eq(ExternalSystem.FASSTO), eq("registerDirectReturnDelivery"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("registerDirectReturnDelivery"), any(Map.class), any(Supplier.class)
             );
         }
 
@@ -414,14 +414,14 @@ class FulfillmentDirectReturnDeliveryClientTest {
 
             // when
             assertThatThrownBy(() -> client.registerDirectReturnDelivery(buildValidRegisterCommand()))
-                    .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
+                .isInstanceOf(RegisterFulfillmentDirectReturnDeliveryFailedException.class);
 
             // then
             verify(externalCallLogger).record(
-                    eq(ExternalSystem.FASSTO), eq("registerDirectReturnDelivery"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("registerDirectReturnDelivery"), any(Map.class), any(Supplier.class)
             );
             verify(externalCallLogger, never()).recordSensitive(
-                    eq(ExternalSystem.FASSTO), eq("registerDirectReturnDelivery"), any(Map.class), any(Supplier.class)
+                eq(ExternalSystem.FASSTO), eq("registerDirectReturnDelivery"), any(Map.class), any(Supplier.class)
             );
         }
     }

@@ -15,15 +15,15 @@ class ShippingStatusEventSerializationExceptionTest {
         };
 
         ShippingStatusEventSerializationException ex = new ShippingStatusEventSerializationException(
-                "shipping.status.changed", "999", "evt-1", root
+            "shipping.status.changed", "999", "evt-1", root
         );
 
         assertThat(ex.getMessage())
-                .contains("ERR_SHIPPING_STATUS_EVENT_01")
-                .contains("배송 상태 변경 이벤트")
-                .contains("topic=shipping.status.changed")
-                .contains("partitionKey=999")
-                .contains("eventId=evt-1");
+            .contains("ERR_SHIPPING_STATUS_EVENT_01")
+            .contains("배송 상태 변경 이벤트")
+            .contains("topic=shipping.status.changed")
+            .contains("partitionKey=999")
+            .contains("eventId=evt-1");
         assertThat(ex.getCause()).isSameAs(root);
         assertThat(ex).hasCause(root);
         assertThat(ex).hasRootCause(root);

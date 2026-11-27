@@ -16,10 +16,10 @@ public class RegisterCategoryResponse {
 
     public static RegisterCategoryResponse from(RegisterCategoryResult result) {
         return RegisterCategoryResponse.builder()
-                .id(result.id())
-                .parentCategoryId(result.parentCategoryId())
-                .name(result.name())
-                .build();
+            .id(result.id())
+            .parentCategoryId(result.parentCategoryId())
+            .name(result.name())
+            .build();
     }
 }
 

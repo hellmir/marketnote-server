@@ -12,9 +12,9 @@ class AligoTemplateStatusTest {
 
     @ParameterizedTest
     @CsvSource({
-            "S, 중단",
-            "A, 정상",
-            "R, 대기"
+        "S, 중단",
+        "A, 정상",
+        "R, 대기"
     })
     @DisplayName("AligoTemplateStatus.from — 유효 코드(S/A/R)를 Enum으로 변환한다")
     void shouldConvertValidCodes(String code, String expectedDescription) {
@@ -30,15 +30,15 @@ class AligoTemplateStatusTest {
     @DisplayName("AligoTemplateStatus.from — 무효 코드 시 InvalidAligoTemplateException이 발생한다")
     void shouldThrowExceptionForInvalidCode() {
         assertThatThrownBy(() -> AligoTemplateStatus.from("UNKNOWN"))
-                .isInstanceOf(InvalidAligoTemplateException.class)
-                .hasMessageContaining("알 수 없는 templateStatus");
+            .isInstanceOf(InvalidAligoTemplateException.class)
+            .hasMessageContaining("알 수 없는 templateStatus");
     }
 
     @Test
     @DisplayName("AligoTemplateStatus.from — null 코드 시 InvalidAligoTemplateException이 발생한다")
     void shouldThrowExceptionForNullCode() {
         assertThatThrownBy(() -> AligoTemplateStatus.from(null))
-                .isInstanceOf(InvalidAligoTemplateException.class);
+            .isInstanceOf(InvalidAligoTemplateException.class);
     }
 
     @Test

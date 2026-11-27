@@ -34,35 +34,35 @@ public class GifticonOrder {
 
     public static GifticonOrder from(GifticonOrderCreateState state) {
         return GifticonOrder.builder()
-                .userId(state.getUserId())
-                .goodsCode(GoodsCode.of(state.getGoodsCode()))
-                .goodsName(state.getGoodsName())
-                .brandName(state.getBrandName())
-                .productImageUrl(state.getProductImageUrl())
-                .trId(state.getTrId())
-                .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
-                .orderStatus(GifticonOrderStatus.PENDING)
-                .build();
+            .userId(state.getUserId())
+            .goodsCode(GoodsCode.of(state.getGoodsCode()))
+            .goodsName(state.getGoodsName())
+            .brandName(state.getBrandName())
+            .productImageUrl(state.getProductImageUrl())
+            .trId(state.getTrId())
+            .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
+            .orderStatus(GifticonOrderStatus.PENDING)
+            .build();
     }
 
     public static GifticonOrder from(GifticonOrderSnapshotState state) {
         return GifticonOrder.builder()
-                .id(state.getId())
-                .userId(state.getUserId())
-                .goodsCode(GoodsCode.fromSnapshot(state.getGoodsCode()))
-                .goodsName(state.getGoodsName())
-                .brandName(state.getBrandName())
-                .productImageUrl(state.getProductImageUrl())
-                .trId(state.getTrId())
-                .orderNo(state.getOrderNo())
-                .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
-                .orderStatus(state.getOrderStatus())
-                .couponImageUrl(state.getCouponImageUrl())
-                .pinNo(state.getPinNo())
-                .validEndDate(state.getValidEndDate())
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .userId(state.getUserId())
+            .goodsCode(GoodsCode.fromSnapshot(state.getGoodsCode()))
+            .goodsName(state.getGoodsName())
+            .brandName(state.getBrandName())
+            .productImageUrl(state.getProductImageUrl())
+            .trId(state.getTrId())
+            .orderNo(state.getOrderNo())
+            .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
+            .orderStatus(state.getOrderStatus())
+            .couponImageUrl(state.getCouponImageUrl())
+            .pinNo(state.getPinNo())
+            .validEndDate(state.getValidEndDate())
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
     }
 
     private static Money resolveMoneyOrZero(Long value) {

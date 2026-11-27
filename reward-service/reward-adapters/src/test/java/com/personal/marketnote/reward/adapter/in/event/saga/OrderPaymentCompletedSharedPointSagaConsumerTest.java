@@ -86,17 +86,17 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("공유자 있을 때 적립 성공 응답을 발행한다")
         void shouldPublishSuccessOnAccrual() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
-                    "sharerKeys", List.of(SHARER_KEY.toString())
+                "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
+                "sharerKeys", List.of(SHARER_KEY.toString())
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
 
             consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
 
             verify(modifyPendingSharedPointUseCase).modifyPending(any(ModifyPendingSharedPointCommand.class));
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -105,18 +105,18 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("공유자가 없으면 skip 응답을 발행한다")
         void shouldSkipWhenNoSharer() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
-                    "sharerKeys", List.of()
+                "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
+                "sharerKeys", List.of()
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
 
             consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
 
             verifyNoInteractions(modifyPendingSharedPointUseCase);
             verify(sagaResponsePublisher).publishSuccess(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("skipped")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("skipped")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -127,25 +127,25 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
             // given
             long totalAmount = 10_000_000_000L;
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "totalAmount", totalAmount,
-                    "sharerKeys", List.of(SHARER_KEY.toString())
+                "orderId", 1L, "buyerId", 100L, "totalAmount", totalAmount,
+                "sharerKeys", List.of(SHARER_KEY.toString())
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
 
             // when
             consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
 
             // then
             ArgumentCaptor<ModifyPendingSharedPointCommand> captor = ArgumentCaptor.forClass(
-                    ModifyPendingSharedPointCommand.class
+                ModifyPendingSharedPointCommand.class
             );
             verify(modifyPendingSharedPointUseCase).modifyPending(captor.capture());
             // BigDecimal 기대값: 10_000_000_000 * 0.1 = 1_000_000_000 (정확)
             // float 버그 시: Math.round(1e10 * 0.1f) = 1_000_000_077 (오차)
             assertThat(captor.getValue().amount()).isEqualTo(1_000_000_000L);
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -159,18 +159,18 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("orderId가 없으면 검증 실패 응답을 발행한다")
         void shouldPublishFailureWhenOrderIdMissing() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "buyerId", 100L, "totalAmount", 60000L,
-                    "sharerKeys", List.of(SHARER_KEY.toString())
+                "buyerId", 100L, "totalAmount", 60000L,
+                "sharerKeys", List.of(SHARER_KEY.toString())
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
 
             consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
 
             verifyNoInteractions(modifyPendingSharedPointUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("페이로드 검증 실패")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("페이로드 검증 실패")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -179,18 +179,18 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("buyerId가 없으면 검증 실패 응답을 발행한다")
         void shouldPublishFailureWhenBuyerIdMissing() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "totalAmount", 60000L,
-                    "sharerKeys", List.of(SHARER_KEY.toString())
+                "orderId", 1L, "totalAmount", 60000L,
+                "sharerKeys", List.of(SHARER_KEY.toString())
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
 
             consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
 
             verifyNoInteractions(modifyPendingSharedPointUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("페이로드 검증 실패")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("페이로드 검증 실패")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -199,18 +199,18 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("totalAmount가 0 이하이면 skip 응답을 발행한다")
         void shouldSkipWhenTotalAmountIsZero() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "totalAmount", 0L,
-                    "sharerKeys", List.of(SHARER_KEY.toString())
+                "orderId", 1L, "buyerId", 100L, "totalAmount", 0L,
+                "sharerKeys", List.of(SHARER_KEY.toString())
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
 
             consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
 
             verifyNoInteractions(modifyPendingSharedPointUseCase);
             verify(sagaResponsePublisher).publishSuccess(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("skipped")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("skipped")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -220,18 +220,18 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         void shouldSkipWhenCalculatedAmountIsZero() throws Exception {
             rewardProperties.setSharePointRate(BigDecimal.ZERO);
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
-                    "sharerKeys", List.of(SHARER_KEY.toString())
+                "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
+                "sharerKeys", List.of(SHARER_KEY.toString())
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
 
             consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
 
             verifyNoInteractions(modifyPendingSharedPointUseCase);
             verify(sagaResponsePublisher).publishSuccess(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("skipped")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("skipped")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -240,22 +240,22 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("이미 처리된 공유 적립이면 멱등 처리하고 성공 응답을 발행한다")
         void shouldHandleDuplicateAsIdempotent() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
-                    "sharerKeys", List.of(SHARER_KEY.toString())
+                "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
+                "sharerKeys", List.of(SHARER_KEY.toString())
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
 
             doThrow(new DuplicateUserPointHistoryException())
-                    .when(modifyPendingSharedPointUseCase).modifyPending(any(ModifyPendingSharedPointCommand.class));
+                .when(modifyPendingSharedPointUseCase).modifyPending(any(ModifyPendingSharedPointCommand.class));
 
             consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
 
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
             );
             verify(sagaResponsePublisher, never()).publishFailure(
-                    anyString(), anyString(), anyString(), anyString(), anyString()
+                anyString(), anyString(), anyString(), anyString(), anyString()
             );
             verify(acknowledgment).acknowledge();
         }
@@ -264,20 +264,20 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("ACTION 처리 중 예외가 발생하면 실패 응답을 발행한다")
         void shouldPublishFailureWhenActionThrows() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
-                    "sharerKeys", List.of(SHARER_KEY.toString())
+                "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
+                "sharerKeys", List.of(SHARER_KEY.toString())
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
 
             doThrow(new RuntimeException("DB 장애"))
-                    .when(modifyPendingSharedPointUseCase).modifyPending(any(ModifyPendingSharedPointCommand.class));
+                .when(modifyPendingSharedPointUseCase).modifyPending(any(ModifyPendingSharedPointCommand.class));
 
             consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("공유 적립 예정 포인트 처리 실패")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("공유 적립 예정 포인트 처리 실패")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -291,20 +291,20 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("공유자 각각에 cancelPending을 호출하고 보상 성공 응답을 발행한다")
         void shouldCancelPendingForEachSharer() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
-                    "sharerKeys", List.of(SHARER_KEY.toString())
+                "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
+                "sharerKeys", List.of(SHARER_KEY.toString())
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
 
             UserPoint sharerPoint = UserPoint.from(
-                    UserPointSnapshotState.builder()
-                            .userId(999L)
-                            .userKey(SHARER_KEY.toString())
-                            .amount(PointAmount.of(0L))
-                            .addExpectedAmount(PointAmount.of(0L))
-                            .expireExpectedAmount(PointAmount.of(0L))
-                            .build()
+                UserPointSnapshotState.builder()
+                    .userId(999L)
+                    .userKey(SHARER_KEY.toString())
+                    .amount(PointAmount.of(0L))
+                    .addExpectedAmount(PointAmount.of(0L))
+                    .expireExpectedAmount(PointAmount.of(0L))
+                    .build()
             );
             when(findUserPointPort.findByUserKey(anyString())).thenReturn(Optional.of(sharerPoint));
 
@@ -312,7 +312,7 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
 
             verify(cancelPendingPointUseCase, times(1)).cancelPending(any(CancelPendingPointCommand.class));
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{\"compensated\":true}"
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{\"compensated\":true}"
             );
             verify(acknowledgment).acknowledge();
         }
@@ -321,18 +321,18 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("공유자가 없으면 보상 skip 응답을 발행한다")
         void shouldSkipCompensationWhenNoSharer() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
-                    "sharerKeys", List.of()
+                "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
+                "sharerKeys", List.of()
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
 
             consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
 
             verifyNoInteractions(cancelPendingPointUseCase);
             verify(sagaResponsePublisher).publishSuccess(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.COMPENSATION), contains("skipped")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.COMPENSATION), contains("skipped")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -346,18 +346,18 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("orderId가 없으면 검증 실패 응답을 발행한다")
         void shouldPublishFailureWhenOrderIdMissingOnCompensation() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "buyerId", 100L, "totalAmount", 60000L,
-                    "sharerKeys", List.of(SHARER_KEY.toString())
+                "buyerId", 100L, "totalAmount", 60000L,
+                "sharerKeys", List.of(SHARER_KEY.toString())
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
 
             consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
 
             verifyNoInteractions(cancelPendingPointUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.COMPENSATION), contains("페이로드 검증 실패")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.COMPENSATION), contains("페이로드 검증 실패")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -366,11 +366,11 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("회원 포인트가 존재하지 않으면 보상 실패 응답을 발행한다")
         void shouldPublishFailureWhenUserPointNotFound() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
-                    "sharerKeys", List.of(SHARER_KEY.toString())
+                "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
+                "sharerKeys", List.of(SHARER_KEY.toString())
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
 
             when(findUserPointPort.findByUserKey(anyString())).thenReturn(Optional.empty());
 
@@ -378,8 +378,8 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
 
             verifyNoInteractions(cancelPendingPointUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.COMPENSATION), contains("공유 적립 예정 포인트 보상 처리 실패")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.COMPENSATION), contains("공유 적립 예정 포인트 보상 처리 실패")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -388,30 +388,30 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("COMPENSATION 처리 중 예외가 발생하면 실패 응답을 발행한다")
         void shouldPublishFailureWhenCompensationThrows() throws Exception {
             String payload = objectMapper.writeValueAsString(Map.of(
-                    "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
-                    "sharerKeys", List.of(SHARER_KEY.toString())
+                "orderId", 1L, "buyerId", 100L, "totalAmount", 60000L,
+                "sharerKeys", List.of(SHARER_KEY.toString())
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
 
             UserPoint sharerPoint = UserPoint.from(
-                    UserPointSnapshotState.builder()
-                            .userId(999L)
-                            .userKey(SHARER_KEY.toString())
-                            .amount(PointAmount.of(0L))
-                            .addExpectedAmount(PointAmount.of(0L))
-                            .expireExpectedAmount(PointAmount.of(0L))
-                            .build()
+                UserPointSnapshotState.builder()
+                    .userId(999L)
+                    .userKey(SHARER_KEY.toString())
+                    .amount(PointAmount.of(0L))
+                    .addExpectedAmount(PointAmount.of(0L))
+                    .expireExpectedAmount(PointAmount.of(0L))
+                    .build()
             );
             when(findUserPointPort.findByUserKey(anyString())).thenReturn(Optional.of(sharerPoint));
             doThrow(new RuntimeException("DB 장애"))
-                    .when(cancelPendingPointUseCase).cancelPending(any(CancelPendingPointCommand.class));
+                .when(cancelPendingPointUseCase).cancelPending(any(CancelPendingPointCommand.class));
 
             consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.COMPENSATION), contains("공유 적립 예정 포인트 보상 처리 실패")
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.COMPENSATION), contains("공유 적립 예정 포인트 보상 처리 실패")
             );
             verify(acknowledgment).acknowledge();
         }
@@ -425,7 +425,7 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("envelope이 null이면 처리하지 않고 ack만 한다")
         void shouldSkipWhenEnvelopeIsNull() {
             ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                    "saga.order-payment-downstream.shared-point", 0, 0, SAGA_ID, null
+                "saga.order-payment-downstream.shared-point", 0, 0, SAGA_ID, null
             );
 
             consumer.handleSharedPointStep(record, acknowledgment);
@@ -440,7 +440,7 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
         @DisplayName("알 수 없는 messageType이면 처리하지 않고 ack만 한다")
         void shouldSkipUnknownMessageType() {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, "UNKNOWN", "{}");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, "UNKNOWN", "{}");
 
             consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
 
@@ -455,12 +455,12 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(SagaStepMessage stepMessage) {
         Clock clock = Clock.fixed(Instant.parse("2026-10-17T01:00:00Z"), ZoneId.of("Asia/Seoul"));
         EventEnvelope<SagaStepMessage> envelope = EventEnvelope.of(
-                "saga.ORDER_PAYMENT_COMPLETED.ACCRUE_SHARED_POINT.action",
-                "saga-orchestrator", stepMessage, clock
+            "saga.ORDER_PAYMENT_COMPLETED.ACCRUE_SHARED_POINT.action",
+            "saga-orchestrator", stepMessage, clock
         );
         return new ConsumerRecord<>(
-                "saga.order-payment-downstream.shared-point", 0, 0, SAGA_ID,
-                (EventEnvelope<?>) (EventEnvelope) envelope
+            "saga.order-payment-downstream.shared-point", 0, 0, SAGA_ID,
+            (EventEnvelope<?>) (EventEnvelope) envelope
         );
     }
 }

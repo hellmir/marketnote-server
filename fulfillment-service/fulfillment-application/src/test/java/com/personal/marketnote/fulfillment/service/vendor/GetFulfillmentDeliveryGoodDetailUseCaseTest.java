@@ -31,12 +31,12 @@ class GetFulfillmentDeliveryGoodDetailUseCaseTest {
     void shouldReturnDeliveryGoodDetailResultFromPort() {
         // given
         GetFulfillmentDeliveryGoodDetailCommand command = GetFulfillmentDeliveryGoodDetailCommand.builder()
-                .customerCode("CUST001")
-                .accessToken("token")
-                .startDate("2026-01-01")
-                .endDate("2026-01-31")
-                .orderNumber("ORD001")
-                .build();
+            .customerCode("CUST001")
+            .accessToken("token")
+            .startDate("2026-01-01")
+            .endDate("2026-01-31")
+            .orderNumber("ORD001")
+            .build();
         GetFulfillmentDeliveryGoodDetailResult expectedResult = GetFulfillmentDeliveryGoodDetailResult.of(0, List.of());
         when(getFulfillmentDeliveryGoodDetailPort.getDeliveryGoodDetail(any())).thenReturn(expectedResult);
 

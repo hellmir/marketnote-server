@@ -56,7 +56,7 @@ class PspPaymentEventTest {
             event.startExecution();
 
             assertThatThrownBy(event::startExecution)
-                    .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(IllegalStateException.class);
         }
     }
 
@@ -92,7 +92,7 @@ class PspPaymentEventTest {
             PspPaymentEvent event = createReadyEvent();
 
             assertThatThrownBy(() -> event.completeWithApproval(createApprovalInfo(LocalDateTime.now())))
-                    .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(IllegalStateException.class);
         }
     }
 
@@ -118,7 +118,7 @@ class PspPaymentEventTest {
             PspPaymentEvent event = createReadyEvent();
 
             assertThatThrownBy(() -> event.failExecution("8001", "결제 실패"))
-                    .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(IllegalStateException.class);
         }
     }
 
@@ -144,7 +144,7 @@ class PspPaymentEventTest {
             PspPaymentEvent event = createReadyEvent();
 
             assertThatThrownBy(() -> event.markUnknown("UNKNOWN", "타임아웃"))
-                    .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(IllegalStateException.class);
         }
     }
 
@@ -173,7 +173,7 @@ class PspPaymentEventTest {
             PspPaymentEvent event = createExecutingEvent();
 
             assertThatThrownBy(() -> event.resolveToComplete(createApprovalInfo(LocalDateTime.now())))
-                    .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(IllegalStateException.class);
         }
     }
 
@@ -199,7 +199,7 @@ class PspPaymentEventTest {
             PspPaymentEvent event = createReadyEvent();
 
             assertThatThrownBy(() -> event.resolveToFailed("8001", "미승인"))
-                    .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(IllegalStateException.class);
         }
     }
 
@@ -270,7 +270,7 @@ class PspPaymentEventTest {
             PspPaymentEvent event = createReadyEvent();
 
             assertThatThrownBy(() -> event.cancel("{}"))
-                    .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(IllegalStateException.class);
         }
 
         @Test
@@ -280,7 +280,7 @@ class PspPaymentEventTest {
             event.cancel("{\"first\"}");
 
             assertThatThrownBy(() -> event.cancel("{\"second\"}"))
-                    .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(IllegalStateException.class);
             assertThat(event.getPoStatus()).isEqualTo(PaymentEventStatus.CANCELLED);
             assertThat(event.getPgCancelApprovalResult()).isEqualTo("{\"first\"}");
         }
@@ -292,7 +292,7 @@ class PspPaymentEventTest {
             event.refund("{\"refund\"}");
 
             assertThatThrownBy(() -> event.cancel("{}"))
-                    .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(IllegalStateException.class);
             assertThat(event.getPoStatus()).isEqualTo(PaymentEventStatus.REFUNDED);
         }
     }
@@ -331,7 +331,7 @@ class PspPaymentEventTest {
             PspPaymentEvent event = createReadyEvent();
 
             assertThatThrownBy(() -> event.partialRefund("{}"))
-                    .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(IllegalStateException.class);
         }
     }
 
@@ -367,16 +367,16 @@ class PspPaymentEventTest {
             PspPaymentEvent event = createReadyEvent();
 
             assertThatThrownBy(() -> event.refund("{}"))
-                    .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(IllegalStateException.class);
         }
     }
 
     private Payment createPayment(Long orderId, UUID orderKey, Long amount) {
         PaymentCreateState state = PaymentCreateState.builder()
-                .orderId(orderId)
-                .orderKey(orderKey)
-                .paymentAmount(amount)
-                .build();
+            .orderId(orderId)
+            .orderKey(orderKey)
+            .paymentAmount(amount)
+            .build();
         return Payment.from(state);
     }
 
@@ -405,17 +405,17 @@ class PspPaymentEventTest {
 
     private PaymentApprovalInfo createApprovalInfo(LocalDateTime appTime) {
         return PaymentApprovalInfo.builder()
-                .pgPaymentKey("tno_123")
-                .method("PACA")
-                .cardNumber(MaskedCardNumber.of("1234-****-****-5678"))
-                .approvalNumber("12345678")
-                .installment(Installment.of((short) 0))
-                .issueCompanyCode("CCLG")
-                .issueCompanyName("신한카드")
-                .resultCode("0000")
-                .resultMessage("승인 성공")
-                .pgApprovalResult("{\"res_cd\":\"0000\"}")
-                .appTime(appTime)
-                .build();
+            .pgPaymentKey("tno_123")
+            .method("PACA")
+            .cardNumber(MaskedCardNumber.of("1234-****-****-5678"))
+            .approvalNumber("12345678")
+            .installment(Installment.of((short) 0))
+            .issueCompanyCode("CCLG")
+            .issueCompanyName("신한카드")
+            .resultCode("0000")
+            .resultMessage("승인 성공")
+            .pgApprovalResult("{\"res_cd\":\"0000\"}")
+            .appTime(appTime)
+            .build();
     }
 }

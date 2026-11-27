@@ -63,8 +63,8 @@ class PurchaseGifticonTransactionHelperTest {
 
     @Spy
     private Clock clock = Clock.fixed(
-            Instant.parse("2026-04-06T12:00:00Z"),
-            ZoneId.of("Asia/Seoul")
+        Instant.parse("2026-04-06T12:00:00Z"),
+        ZoneId.of("Asia/Seoul")
     );
 
     private static final Long USER_ID = 100L;
@@ -83,22 +83,22 @@ class PurchaseGifticonTransactionHelperTest {
         when(saveGifticonOrderPort.save(any())).thenAnswer(invocation -> {
             GifticonOrder order = invocation.getArgument(0);
             return GifticonOrder.from(GifticonOrderSnapshotState.builder()
-                    .id(1L)
-                    .userId(order.getUserId())
-                    .goodsCode(order.getGoodsCode().getValue())
-                    .goodsName(order.getGoodsName())
-                    .brandName(order.getBrandName())
-                    .productImageUrl(order.getProductImageUrl())
-                    .trId(order.getTrId())
-                    .cashPrice(order.getCashPrice().getValue())
-                    .orderStatus(order.getOrderStatus())
-                    .build()
+                .id(1L)
+                .userId(order.getUserId())
+                .goodsCode(order.getGoodsCode().getValue())
+                .goodsName(order.getGoodsName())
+                .brandName(order.getBrandName())
+                .productImageUrl(order.getProductImageUrl())
+                .trId(order.getTrId())
+                .cashPrice(order.getCashPrice().getValue())
+                .orderStatus(order.getOrderStatus())
+                .build()
             );
         });
 
         // when
         DeductCashAndCreateOrderContext context = helper.deductCashAndCreateOrder(
-                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
+            USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
         );
 
         // then
@@ -119,13 +119,13 @@ class PurchaseGifticonTransactionHelperTest {
 
         // when & then
         assertThatThrownBy(() -> helper.deductCashAndCreateOrder(
-                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
+            USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
         ))
-                .isInstanceOf(GifticonInsufficientCashException.class)
-                .satisfies(ex -> {
-                    GifticonInsufficientCashException e = (GifticonInsufficientCashException) ex;
-                    assertThat(e.getShortfallAmount()).isEqualTo(2000L);
-                });
+            .isInstanceOf(GifticonInsufficientCashException.class)
+            .satisfies(ex -> {
+                GifticonInsufficientCashException e = (GifticonInsufficientCashException) ex;
+                assertThat(e.getShortfallAmount()).isEqualTo(2000L);
+            });
 
         verify(saveGifticonOrderPort, never()).save(any());
     }
@@ -139,22 +139,22 @@ class PurchaseGifticonTransactionHelperTest {
         when(saveGifticonOrderPort.save(any())).thenAnswer(invocation -> {
             GifticonOrder order = invocation.getArgument(0);
             return GifticonOrder.from(GifticonOrderSnapshotState.builder()
-                    .id(1L)
-                    .userId(order.getUserId())
-                    .goodsCode(order.getGoodsCode().getValue())
-                    .goodsName(order.getGoodsName())
-                    .brandName(order.getBrandName())
-                    .productImageUrl(order.getProductImageUrl())
-                    .trId(order.getTrId())
-                    .cashPrice(order.getCashPrice().getValue())
-                    .orderStatus(order.getOrderStatus())
-                    .build()
+                .id(1L)
+                .userId(order.getUserId())
+                .goodsCode(order.getGoodsCode().getValue())
+                .goodsName(order.getGoodsName())
+                .brandName(order.getBrandName())
+                .productImageUrl(order.getProductImageUrl())
+                .trId(order.getTrId())
+                .cashPrice(order.getCashPrice().getValue())
+                .orderStatus(order.getOrderStatus())
+                .build()
             );
         });
 
         // when
         helper.deductCashAndCreateOrder(
-                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
+            USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
         );
 
         // then
@@ -170,22 +170,22 @@ class PurchaseGifticonTransactionHelperTest {
         when(saveGifticonOrderPort.save(any())).thenAnswer(invocation -> {
             GifticonOrder order = invocation.getArgument(0);
             return GifticonOrder.from(GifticonOrderSnapshotState.builder()
-                    .id(1L)
-                    .userId(order.getUserId())
-                    .goodsCode(order.getGoodsCode().getValue())
-                    .goodsName(order.getGoodsName())
-                    .brandName(order.getBrandName())
-                    .productImageUrl(order.getProductImageUrl())
-                    .trId(order.getTrId())
-                    .cashPrice(order.getCashPrice().getValue())
-                    .orderStatus(order.getOrderStatus())
-                    .build()
+                .id(1L)
+                .userId(order.getUserId())
+                .goodsCode(order.getGoodsCode().getValue())
+                .goodsName(order.getGoodsName())
+                .brandName(order.getBrandName())
+                .productImageUrl(order.getProductImageUrl())
+                .trId(order.getTrId())
+                .cashPrice(order.getCashPrice().getValue())
+                .orderStatus(order.getOrderStatus())
+                .build()
             );
         });
 
         // when
         DeductCashAndCreateOrderContext context = helper.deductCashAndCreateOrder(
-                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
+            USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
         );
 
         // then
@@ -205,22 +205,22 @@ class PurchaseGifticonTransactionHelperTest {
         when(saveGifticonOrderPort.save(any())).thenAnswer(invocation -> {
             GifticonOrder order = invocation.getArgument(0);
             return GifticonOrder.from(GifticonOrderSnapshotState.builder()
-                    .id(1L)
-                    .userId(order.getUserId())
-                    .goodsCode(order.getGoodsCode().getValue())
-                    .goodsName(order.getGoodsName())
-                    .brandName(order.getBrandName())
-                    .productImageUrl(order.getProductImageUrl())
-                    .trId(order.getTrId())
-                    .cashPrice(order.getCashPrice().getValue())
-                    .orderStatus(order.getOrderStatus())
-                    .build()
+                .id(1L)
+                .userId(order.getUserId())
+                .goodsCode(order.getGoodsCode().getValue())
+                .goodsName(order.getGoodsName())
+                .brandName(order.getBrandName())
+                .productImageUrl(order.getProductImageUrl())
+                .trId(order.getTrId())
+                .cashPrice(order.getCashPrice().getValue())
+                .orderStatus(order.getOrderStatus())
+                .build()
             );
         });
 
         // when
         helper.deductCashAndCreateOrder(
-                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
+            USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE, 30
         );
 
         // then
@@ -242,14 +242,14 @@ class PurchaseGifticonTransactionHelperTest {
         when(encryptGifticonPinPort.encrypt("900343630367")).thenReturn("encryptedPin123");
 
         DeductCashAndCreateOrderContext context = new DeductCashAndCreateOrderContext(
-                1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID, 30
+            1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID, 30
         );
         SendCouponResult sendResult = SendCouponResult.builder()
-                .success(true)
-                .orderNo("20260404000001")
-                .pinNo("900343630367")
-                .couponImageUrl("http://t.giftishow.co.kr/coupon_image.jpg")
-                .build();
+            .success(true)
+            .orderNo("20260404000001")
+            .pinNo("900343630367")
+            .couponImageUrl("http://t.giftishow.co.kr/coupon_image.jpg")
+            .build();
 
         // when
         helper.commitSuccess(context, sendResult);
@@ -274,14 +274,14 @@ class PurchaseGifticonTransactionHelperTest {
         when(encryptGifticonPinPort.encrypt("plainPin")).thenReturn("encryptedPin");
 
         DeductCashAndCreateOrderContext context = new DeductCashAndCreateOrderContext(
-                1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID, 30
+            1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID, 30
         );
         SendCouponResult sendResult = SendCouponResult.builder()
-                .success(true)
-                .orderNo("20260404000001")
-                .pinNo("plainPin")
-                .couponImageUrl("http://example.com/coupon.jpg")
-                .build();
+            .success(true)
+            .orderNo("20260404000001")
+            .pinNo("plainPin")
+            .couponImageUrl("http://example.com/coupon.jpg")
+            .build();
 
         // when
         helper.commitSuccess(context, sendResult);
@@ -301,7 +301,7 @@ class PurchaseGifticonTransactionHelperTest {
         when(findGifticonOrderPort.findByTrId("NC100_260404210000")).thenReturn(Optional.of(pendingOrder));
 
         DeductCashAndCreateOrderContext context = new DeductCashAndCreateOrderContext(
-                1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID, 30
+            1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID, 30
         );
 
         // when
@@ -325,7 +325,7 @@ class PurchaseGifticonTransactionHelperTest {
         when(findGifticonOrderPort.findByTrId("NC100_260404210000")).thenReturn(Optional.of(pendingOrder));
 
         DeductCashAndCreateOrderContext context = new DeductCashAndCreateOrderContext(
-                1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID, 30
+            1L, "NC100_260404210000", GOODS_CODE, GOODS_NAME, CASH_PRICE, USER_ID, 30
         );
 
         // when
@@ -339,27 +339,27 @@ class PurchaseGifticonTransactionHelperTest {
 
     private UserPoint createUserPointWithAmount(Long amount) {
         return UserPoint.from(
-                com.personal.marketnote.reward.domain.point.UserPointSnapshotState.builder()
-                        .userId(USER_ID)
-                        .amount(com.personal.marketnote.reward.domain.point.PointAmount.of(amount))
-                        .addExpectedAmount(com.personal.marketnote.reward.domain.point.PointAmount.zero())
-                        .expireExpectedAmount(com.personal.marketnote.reward.domain.point.PointAmount.zero())
-                        .build()
+            com.personal.marketnote.reward.domain.point.UserPointSnapshotState.builder()
+                .userId(USER_ID)
+                .amount(com.personal.marketnote.reward.domain.point.PointAmount.of(amount))
+                .addExpectedAmount(com.personal.marketnote.reward.domain.point.PointAmount.zero())
+                .expireExpectedAmount(com.personal.marketnote.reward.domain.point.PointAmount.zero())
+                .build()
         );
     }
 
     private GifticonOrder createPendingOrder() {
         return GifticonOrder.from(GifticonOrderSnapshotState.builder()
-                .id(1L)
-                .userId(USER_ID)
-                .goodsCode(GOODS_CODE)
-                .goodsName(GOODS_NAME)
-                .brandName(BRAND_NAME)
-                .productImageUrl(PRODUCT_IMAGE_URL)
-                .trId("NC100_260404210000")
-                .cashPrice(CASH_PRICE)
-                .orderStatus(GifticonOrderStatus.PENDING)
-                .build()
+            .id(1L)
+            .userId(USER_ID)
+            .goodsCode(GOODS_CODE)
+            .goodsName(GOODS_NAME)
+            .brandName(BRAND_NAME)
+            .productImageUrl(PRODUCT_IMAGE_URL)
+            .trId("NC100_260404210000")
+            .cashPrice(CASH_PRICE)
+            .orderStatus(GifticonOrderStatus.PENDING)
+            .build()
         );
     }
 }

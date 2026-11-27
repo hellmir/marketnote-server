@@ -72,11 +72,11 @@ class FulfillmentSupplierControllerTest {
         void returnsCreated() {
             // given
             when(registerFulfillmentSupplierUseCase.registerSupplier(any(RegisterFulfillmentSupplierCommand.class)))
-                    .thenReturn(RegisterFulfillmentSupplierResult.of("ok", "SUC", "SUPP-01"));
+                .thenReturn(RegisterFulfillmentSupplierResult.of("ok", "SUC", "SUPP-01"));
 
             // when
             ResponseEntity<BaseResponse<RegisterFulfillmentSupplierResponse>> response =
-                    controller.registerSupplier(CUSTOMER_CODE, ACCESS_TOKEN, registerRequest());
+                controller.registerSupplier(CUSTOMER_CODE, ACCESS_TOKEN, registerRequest());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -93,11 +93,11 @@ class FulfillmentSupplierControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentSuppliersUseCase.getSuppliers(any(GetFulfillmentSuppliersCommand.class)))
-                    .thenReturn(GetFulfillmentSuppliersResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentSuppliersResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentSuppliersResponse>> response =
-                    controller.getSuppliers(CUSTOMER_CODE, ACCESS_TOKEN);
+                controller.getSuppliers(CUSTOMER_CODE, ACCESS_TOKEN);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -114,11 +114,11 @@ class FulfillmentSupplierControllerTest {
         void returnsOk() {
             // given
             when(updateFulfillmentSupplierUseCase.updateSupplier(any(UpdateFulfillmentSupplierCommand.class)))
-                    .thenReturn(UpdateFulfillmentSupplierResult.of("ok", "SUC", "SUPP-01"));
+                .thenReturn(UpdateFulfillmentSupplierResult.of("ok", "SUC", "SUPP-01"));
 
             // when
             ResponseEntity<BaseResponse<UpdateFulfillmentSupplierResponse>> response =
-                    controller.updateSupplier(CUSTOMER_CODE, ACCESS_TOKEN, updateRequest());
+                controller.updateSupplier(CUSTOMER_CODE, ACCESS_TOKEN, updateRequest());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

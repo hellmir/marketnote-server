@@ -20,8 +20,8 @@ class RemoteAreaTest {
         void shouldCreateRemoteAreaWithProvinceOnly() {
             // given
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .province("인천")
-                    .build();
+                .province("인천")
+                .build();
 
             // when
             RemoteArea remoteArea = RemoteArea.from(state);
@@ -39,10 +39,10 @@ class RemoteAreaTest {
         void shouldCreateRemoteAreaWithProvinceDistrictVillage() {
             // given
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .province("경남")
-                    .district("통영시")
-                    .village("사량면")
-                    .build();
+                .province("경남")
+                .district("통영시")
+                .village("사량면")
+                .build();
 
             // when
             RemoteArea remoteArea = RemoteArea.from(state);
@@ -59,11 +59,11 @@ class RemoteAreaTest {
         void shouldCreateRemoteAreaWithAllFields() {
             // given
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .province("충남")
-                    .district("보령시")
-                    .village("오천면")
-                    .subarea("녹도리")
-                    .build();
+                .province("충남")
+                .district("보령시")
+                .village("오천면")
+                .subarea("녹도리")
+                .build();
 
             // when
             RemoteArea remoteArea = RemoteArea.from(state);
@@ -80,9 +80,9 @@ class RemoteAreaTest {
         void shouldDefaultRegionTypeToIslandWhenNotSpecified() {
             // given
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .province("인천")
-                    .district("옹진군")
-                    .build();
+                .province("인천")
+                .district("옹진군")
+                .build();
 
             // when
             RemoteArea remoteArea = RemoteArea.from(state);
@@ -96,12 +96,12 @@ class RemoteAreaTest {
         void shouldCreateRemoteAreaWithDeliveryImpossibleRegionType() {
             // given
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .province("충남")
-                    .district("보령시")
-                    .village("오천면")
-                    .subarea("외연도리")
-                    .regionType(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE)
-                    .build();
+                .province("충남")
+                .district("보령시")
+                .village("오천면")
+                .subarea("외연도리")
+                .regionType(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE)
+                .build();
 
             // when
             RemoteArea remoteArea = RemoteArea.from(state);
@@ -116,10 +116,10 @@ class RemoteAreaTest {
         void shouldReturnFalseForIsDeliveryImpossibleWhenIsland() {
             // given
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .province("인천")
-                    .district("옹진군")
-                    .regionType(ShippingAddressRegionType.ISLAND)
-                    .build();
+                .province("인천")
+                .district("옹진군")
+                .regionType(ShippingAddressRegionType.ISLAND)
+                .build();
 
             // when
             RemoteArea remoteArea = RemoteArea.from(state);
@@ -133,13 +133,13 @@ class RemoteAreaTest {
         void shouldThrowWhenProvinceIsNull() {
             // given
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .province(null)
-                    .district("옹진군")
-                    .build();
+                .province(null)
+                .district("옹진군")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> RemoteArea.from(state))
-                    .isInstanceOf(RemoteAreaProvinceNoValueException.class);
+                .isInstanceOf(RemoteAreaProvinceNoValueException.class);
         }
 
         @Test
@@ -147,12 +147,12 @@ class RemoteAreaTest {
         void shouldThrowWhenProvinceIsBlank() {
             // given
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .province("   ")
-                    .build();
+                .province("   ")
+                .build();
 
             // when & then
             assertThatThrownBy(() -> RemoteArea.from(state))
-                    .isInstanceOf(RemoteAreaProvinceNoValueException.class);
+                .isInstanceOf(RemoteAreaProvinceNoValueException.class);
         }
 
         @Test
@@ -161,12 +161,12 @@ class RemoteAreaTest {
             // given
             String longProvince = "가".repeat(51);
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .province(longProvince)
-                    .build();
+                .province(longProvince)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> RemoteArea.from(state))
-                    .isInstanceOf(InvalidRemoteAreaProvinceLengthException.class);
+                .isInstanceOf(InvalidRemoteAreaProvinceLengthException.class);
         }
 
         @Test
@@ -175,13 +175,13 @@ class RemoteAreaTest {
             // given
             String longDistrict = "가".repeat(51);
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .province("충남")
-                    .district(longDistrict)
-                    .build();
+                .province("충남")
+                .district(longDistrict)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> RemoteArea.from(state))
-                    .isInstanceOf(InvalidRemoteAreaDistrictLengthException.class);
+                .isInstanceOf(InvalidRemoteAreaDistrictLengthException.class);
         }
 
         @Test
@@ -190,14 +190,14 @@ class RemoteAreaTest {
             // given
             String longVillage = "가".repeat(51);
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .province("충남")
-                    .district("보령시")
-                    .village(longVillage)
-                    .build();
+                .province("충남")
+                .district("보령시")
+                .village(longVillage)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> RemoteArea.from(state))
-                    .isInstanceOf(InvalidRemoteAreaVillageLengthException.class);
+                .isInstanceOf(InvalidRemoteAreaVillageLengthException.class);
         }
 
         @Test
@@ -206,15 +206,15 @@ class RemoteAreaTest {
             // given
             String longSubarea = "가".repeat(51);
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .province("충남")
-                    .district("보령시")
-                    .village("오천면")
-                    .subarea(longSubarea)
-                    .build();
+                .province("충남")
+                .district("보령시")
+                .village("오천면")
+                .subarea(longSubarea)
+                .build();
 
             // when & then
             assertThatThrownBy(() -> RemoteArea.from(state))
-                    .isInstanceOf(InvalidRemoteAreaSubareaLengthException.class);
+                .isInstanceOf(InvalidRemoteAreaSubareaLengthException.class);
         }
     }
 
@@ -227,13 +227,13 @@ class RemoteAreaTest {
         void shouldChangeStatusToInactive() {
             // given
             RemoteArea remoteArea = RemoteArea.from(
-                    RemoteAreaSnapshotState.builder()
-                            .id(1L)
-                            .province("충남")
-                            .district("보령시")
-                            .village("오천면")
-                            .subarea("녹도리")
-                            .build()
+                RemoteAreaSnapshotState.builder()
+                    .id(1L)
+                    .province("충남")
+                    .district("보령시")
+                    .village("오천면")
+                    .subarea("녹도리")
+                    .build()
             );
 
             // when
@@ -254,13 +254,13 @@ class RemoteAreaTest {
         void shouldRestoreRemoteAreaFromSnapshotState() {
             // given
             RemoteAreaSnapshotState state = RemoteAreaSnapshotState.builder()
-                    .id(1L)
-                    .province("충남")
-                    .district("보령시")
-                    .village("오천면")
-                    .subarea("녹도리")
-                    .regionType(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE)
-                    .build();
+                .id(1L)
+                .province("충남")
+                .district("보령시")
+                .village("오천면")
+                .subarea("녹도리")
+                .regionType(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE)
+                .build();
 
             // when
             RemoteArea remoteArea = RemoteArea.from(state);

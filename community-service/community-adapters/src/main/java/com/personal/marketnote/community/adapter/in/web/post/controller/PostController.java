@@ -71,36 +71,36 @@ public class PostController {
     @PostMapping
     @RegisterPostApiDocs
     public ResponseEntity<BaseResponse<RegisterPostResponse>> registerPost(
-            @Valid @RequestBody RegisterPostRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @Valid @RequestBody RegisterPostRequest request,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         boolean isSeller = validateAuthentication(request, principal);
 
         RegisterPostResult result = registerPostUseCase.registerPost(
-                isSeller, PostRequestToCommandMapper.mapToCommand(request, ElementExtractor.extractUserId(principal))
+            isSeller, PostRequestToCommandMapper.mapToCommand(request, ElementExtractor.extractUserId(principal))
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        RegisterPostResponse.from(result),
-                        HttpStatus.CREATED,
-                        DEFAULT_SUCCESS_CODE,
-                        "게시글 등록 성공"
-                ),
-                HttpStatus.CREATED
+            BaseResponse.of(
+                RegisterPostResponse.from(result),
+                HttpStatus.CREATED,
+                DEFAULT_SUCCESS_CODE,
+                "게시글 등록 성공"
+            ),
+            HttpStatus.CREATED
         );
     }
 
     private boolean validateAuthentication(RegisterPostRequest request, OAuth2AuthenticatedPrincipal principal) {
         List<String> authorities = principal.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
+            .stream()
+            .map(GrantedAuthority::getAuthority)
+            .toList();
 
         boolean isAdmin = authorities.stream()
-                .anyMatch(Role::isAdmin);
+            .anyMatch(Role::isAdmin);
         boolean isSeller = authorities.stream()
-                .anyMatch(Role::isSeller);
+            .anyMatch(Role::isSeller);
         request.validate(isAdmin, isSeller);
 
         return isSeller;
@@ -131,21 +131,21 @@ public class PostController {
     @GetPostsApiDocs
     @RateLimited(key = "posts-cursor", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetPostsResponse>> getPosts(
-            @RequestParam("board") Board board,
-            @RequestParam(value = "category", required = false) String category,
-            @RequestParam(value = "targetGroupType", required = false) PostTargetGroupType targetGroupType,
-            @RequestParam(value = "targetGroupId", required = false) Long targetGroupId,
-            @RequestParam(value = "targetType", required = false) PostTargetType targetType,
-            @RequestParam(value = "targetId", required = false) Long targetId,
-            @RequestParam(value = "cursor", required = false) Long cursor,
-            @RequestParam(value = "pageSize", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
-            @RequestParam(required = false, defaultValue = "ID") PostSortProperty sortProperty,
-            @RequestParam(value = "searchTarget", required = false) PostSearchTarget searchTarget,
-            @RequestParam(value = "searchKeyword", required = false) String searchKeyword,
-            @RequestParam(value = "filterCategory", required = false) PostFilterCategory filterCategory,
-            @RequestParam(value = "filterValue", required = false) PostFilterValue filterValue,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @RequestParam("board") Board board,
+        @RequestParam(value = "category", required = false) String category,
+        @RequestParam(value = "targetGroupType", required = false) PostTargetGroupType targetGroupType,
+        @RequestParam(value = "targetGroupId", required = false) Long targetGroupId,
+        @RequestParam(value = "targetType", required = false) PostTargetType targetType,
+        @RequestParam(value = "targetId", required = false) Long targetId,
+        @RequestParam(value = "cursor", required = false) Long cursor,
+        @RequestParam(value = "pageSize", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
+        @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+        @RequestParam(required = false, defaultValue = "ID") PostSortProperty sortProperty,
+        @RequestParam(value = "searchTarget", required = false) PostSearchTarget searchTarget,
+        @RequestParam(value = "searchKeyword", required = false) String searchKeyword,
+        @RequestParam(value = "filterCategory", required = false) PostFilterCategory filterCategory,
+        @RequestParam(value = "filterValue", required = false) PostFilterValue filterValue,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         validateAuthentication(board, targetType, principal);
         Long userId = null;
@@ -154,34 +154,34 @@ public class PostController {
         }
 
         GetPostsResult result = getPostUseCase.getPosts(
-                GetPostsQuery.builder()
-                        .principal(principal)
-                        .userId(userId)
-                        .board(board)
-                        .category(category)
-                        .targetGroupType(targetGroupType)
-                        .targetGroupId(targetGroupId)
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .cursor(cursor)
-                        .pageSize(pageSize)
-                        .sortDirection(sortDirection)
-                        .sortProperty(sortProperty)
-                        .searchTarget(searchTarget)
-                        .searchKeyword(FormatConverter.toLowerCase(searchKeyword))
-                        .filter(filterCategory)
-                        .filterValue(filterValue)
-                        .build()
+            GetPostsQuery.builder()
+                .principal(principal)
+                .userId(userId)
+                .board(board)
+                .category(category)
+                .targetGroupType(targetGroupType)
+                .targetGroupId(targetGroupId)
+                .targetType(targetType)
+                .targetId(targetId)
+                .cursor(cursor)
+                .pageSize(pageSize)
+                .sortDirection(sortDirection)
+                .sortProperty(sortProperty)
+                .searchTarget(searchTarget)
+                .searchKeyword(FormatConverter.toLowerCase(searchKeyword))
+                .filter(filterCategory)
+                .filterValue(filterValue)
+                .build()
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetPostsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "게시글 목록 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetPostsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "게시글 목록 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -200,10 +200,10 @@ public class PostController {
     @GetMapping("/{id}")
     @GetPostApiDocs
     public ResponseEntity<BaseResponse<PostItemResponse>> getPost(
-            @RequestParam("board") Board board,
-            @RequestParam(value = "targetType", required = false) PostTargetType targetType,
-            @PathVariable("id") Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @RequestParam("board") Board board,
+        @RequestParam(value = "targetType", required = false) PostTargetType targetType,
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         validateAuthentication(board, targetType, principal);
         Long userId = null;
@@ -212,23 +212,23 @@ public class PostController {
         }
 
         PostItemResult result = getPostUseCase.getPost(
-                GetPostQuery.builder()
-                        .principal(principal)
-                        .userId(userId)
-                        .board(board)
-                        .targetType(targetType)
-                        .id(id)
-                        .build()
+            GetPostQuery.builder()
+                .principal(principal)
+                .userId(userId)
+                .board(board)
+                .targetType(targetType)
+                .id(id)
+                .build()
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        PostItemResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "게시글 정보 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                PostItemResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "게시글 정보 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -245,26 +245,26 @@ public class PostController {
     @GetMapping("/{id}/post-key")
     @GetPostKeyApiDocs
     public ResponseEntity<BaseResponse<GetPostKeyResponse>> getPostKey(
-            @PathVariable("id") Long id,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long userId = ElementExtractor.extractUserId(principal);
 
         GetPostKeyResult result = getPostKeyUseCase.getPostKey(id, userId);
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetPostKeyResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "게시글 postKey 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetPostKeyResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "게시글 postKey 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
     private void validateAuthentication(
-            Board board, PostTargetType targetType, OAuth2AuthenticatedPrincipal principal
+        Board board, PostTargetType targetType, OAuth2AuthenticatedPrincipal principal
     ) {
         // 비회원 전용 게시판이거나 상품 상세 정보의 문의 게시판인 경우 인증 제외
         if (board.isNonMemberViewBoard() || FormatValidator.hasValue(targetType)) {
@@ -293,24 +293,24 @@ public class PostController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetUserProductInquiryPostsApiDocs
     public ResponseEntity<BaseResponse<GetUserProductInquiryPostsResponse>> getUserProductInquiryPosts(
-            @PathVariable("userId") Long userId,
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "page-size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(value = "sort-direction", required = false, defaultValue = "DESC") Sort.Direction sortDirection,
-            @RequestParam(value = "sort-property", required = false, defaultValue = "ID") PostSortProperty sortProperty
+        @PathVariable("userId") Long userId,
+        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+        @RequestParam(value = "page-size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
+        @RequestParam(value = "sort-direction", required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+        @RequestParam(value = "sort-property", required = false, defaultValue = "ID") PostSortProperty sortProperty
     ) {
         GetUserProductInquiryPostsResult result = getUserProductInquiryPostsUseCase.getUserProductInquiryPosts(
-                new GetUserProductInquiryPostsCommand(userId, page, pageSize, sortDirection, sortProperty)
+            new GetUserProductInquiryPostsCommand(userId, page, pageSize, sortDirection, sortProperty)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetUserProductInquiryPostsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 상품 문의 내역 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetUserProductInquiryPostsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 상품 문의 내역 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -331,24 +331,24 @@ public class PostController {
     @PreAuthorize(ADMIN_POINTCUT)
     @GetUserOneOnOneInquiryPostsApiDocs
     public ResponseEntity<BaseResponse<GetUserOneOnOneInquiryPostsResponse>> getUserOneOnOneInquiryPosts(
-            @PathVariable("userId") Long userId,
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "page-size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
-            @RequestParam(value = "sort-direction", required = false, defaultValue = "DESC") Sort.Direction sortDirection,
-            @RequestParam(value = "sort-property", required = false, defaultValue = "ID") PostSortProperty sortProperty
+        @PathVariable("userId") Long userId,
+        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+        @RequestParam(value = "page-size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
+        @RequestParam(value = "sort-direction", required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+        @RequestParam(value = "sort-property", required = false, defaultValue = "ID") PostSortProperty sortProperty
     ) {
         GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsUseCase.getUserOneOnOneInquiryPosts(
-                new GetUserOneOnOneInquiryPostsCommand(userId, page, pageSize, sortDirection, sortProperty)
+            new GetUserOneOnOneInquiryPostsCommand(userId, page, pageSize, sortDirection, sortProperty)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        GetUserOneOnOneInquiryPostsResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "회원 1:1 문의 내역 조회 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                GetUserOneOnOneInquiryPostsResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "회원 1:1 문의 내역 조회 성공"
+            ),
+            HttpStatus.OK
         );
     }
 
@@ -364,21 +364,21 @@ public class PostController {
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdatePostApiDocs
     public ResponseEntity<BaseResponse<UpdatePostResponse>> updatePost(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdatePostRequest request
+        @PathVariable Long id,
+        @Valid @RequestBody UpdatePostRequest request
     ) {
         UpdatePostResult result = updatePostUseCase.updatePost(
-                PostRequestToCommandMapper.mapToCommand(id, request)
+            PostRequestToCommandMapper.mapToCommand(id, request)
         );
 
         return new ResponseEntity<>(
-                BaseResponse.of(
-                        UpdatePostResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "게시글 수정 성공"
-                ),
-                HttpStatus.OK
+            BaseResponse.of(
+                UpdatePostResponse.from(result),
+                HttpStatus.OK,
+                DEFAULT_SUCCESS_CODE,
+                "게시글 수정 성공"
+            ),
+            HttpStatus.OK
         );
     }
 }

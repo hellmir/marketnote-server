@@ -49,7 +49,7 @@ class UpdateCartProductOptionsUseCaseTest {
         List<Long> newOptionIds = List.of(10L, 20L);
 
         UpdateCartProductOptionCommand command =
-                UpdateCartProductOptionCommand.of(userId, originalPolicyId, newOptionIds);
+            UpdateCartProductOptionCommand.of(userId, originalPolicyId, newOptionIds);
         CartProduct cartProduct = buildCartProduct(userId, originalPolicyId, (short) 2);
         PricePolicy newPricePolicy = buildPricePolicy(newPolicyId);
 
@@ -78,7 +78,7 @@ class UpdateCartProductOptionsUseCaseTest {
         List<Long> newOptionIds = List.of(10L, 20L);
 
         UpdateCartProductOptionCommand command =
-                UpdateCartProductOptionCommand.of(userId, policyId, newOptionIds);
+            UpdateCartProductOptionCommand.of(userId, policyId, newOptionIds);
         CartProduct cartProduct = buildCartProduct(userId, policyId, (short) 2);
         PricePolicy samePricePolicy = buildPricePolicy(policyId);
 
@@ -103,7 +103,7 @@ class UpdateCartProductOptionsUseCaseTest {
         List<Long> newOptionIds = List.of(30L, 40L);
 
         UpdateCartProductOptionCommand command =
-                UpdateCartProductOptionCommand.of(userId, originalPolicyId, newOptionIds);
+            UpdateCartProductOptionCommand.of(userId, originalPolicyId, newOptionIds);
         CartProduct cartProduct = buildCartProduct(userId, originalPolicyId, (short) 1);
         PricePolicy newPricePolicy = buildPricePolicy(newPolicyId);
 
@@ -113,7 +113,7 @@ class UpdateCartProductOptionsUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> updateCartProductOptionsService.updateCartProductOptions(command))
-                .isInstanceOf(CartProductAlreadyExistsException.class);
+            .isInstanceOf(CartProductAlreadyExistsException.class);
 
         verifyNoInteractions(updateCartProductPort);
     }
@@ -127,14 +127,14 @@ class UpdateCartProductOptionsUseCaseTest {
         List<Long> newOptionIds = List.of(10L);
 
         UpdateCartProductOptionCommand command =
-                UpdateCartProductOptionCommand.of(userId, pricePolicyId, newOptionIds);
+            UpdateCartProductOptionCommand.of(userId, pricePolicyId, newOptionIds);
         CartProductNotFoundException exception = new CartProductNotFoundException();
 
         when(getCartProductUseCase.getCartProduct(userId, pricePolicyId)).thenThrow(exception);
 
         // when & then
         assertThatThrownBy(() -> updateCartProductOptionsService.updateCartProductOptions(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(getPricePolicyUseCase);
         verifyNoInteractions(updateCartProductPort);
@@ -149,7 +149,7 @@ class UpdateCartProductOptionsUseCaseTest {
         List<Long> newOptionIds = List.of(99L);
 
         UpdateCartProductOptionCommand command =
-                UpdateCartProductOptionCommand.of(userId, originalPolicyId, newOptionIds);
+            UpdateCartProductOptionCommand.of(userId, originalPolicyId, newOptionIds);
         CartProduct cartProduct = buildCartProduct(userId, originalPolicyId, (short) 1);
         RuntimeException exception = new RuntimeException("price policy not found");
 
@@ -158,22 +158,22 @@ class UpdateCartProductOptionsUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> updateCartProductOptionsService.updateCartProductOptions(command))
-                .isSameAs(exception);
+            .isSameAs(exception);
 
         verifyNoInteractions(updateCartProductPort);
     }
 
     private PricePolicy buildPricePolicy(Long id) {
         return PricePolicy.from(
-                PricePolicySnapshotState.builder()
-                        .id(id)
-                        .price(10000L)
-                        .discountPrice(8000L)
-                        .discountRate(Rate.of(new BigDecimal("20.0")))
-                        .accumulatedPoint(200L)
-                        .accumulationRate(Rate.of(new BigDecimal("2.5")))
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            PricePolicySnapshotState.builder()
+                .id(id)
+                .price(10000L)
+                .discountPrice(8000L)
+                .discountRate(Rate.of(new BigDecimal("20.0")))
+                .accumulatedPoint(200L)
+                .accumulationRate(Rate.of(new BigDecimal("2.5")))
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 
@@ -181,13 +181,13 @@ class UpdateCartProductOptionsUseCaseTest {
         PricePolicy pricePolicy = buildPricePolicy(pricePolicyId);
 
         return CartProduct.from(
-                CartProductSnapshotState.builder()
-                        .userId(userId)
-                        .pricePolicy(pricePolicy)
-                        .imageUrl("https://example.com/image.png")
-                        .quantity(quantity)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            CartProductSnapshotState.builder()
+                .userId(userId)
+                .pricePolicy(pricePolicy)
+                .imageUrl("https://example.com/image.png")
+                .quantity(quantity)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

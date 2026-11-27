@@ -6,9 +6,9 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ProductTagChangedEvent(
-        Long productId,
-        List<ProductTagSnapshot> productTags,
-        Action action
+    Long productId,
+    List<ProductTagSnapshot> productTags,
+    Action action
 ) {
 
     public enum Action {
@@ -18,9 +18,9 @@ public record ProductTagChangedEvent(
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ProductTagSnapshot(
-            Long id,
-            String name,
-            Long orderNum
+        Long id,
+        String name,
+        Long orderNum
     ) {
     }
 }

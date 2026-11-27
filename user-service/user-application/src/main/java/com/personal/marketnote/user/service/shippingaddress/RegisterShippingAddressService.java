@@ -50,10 +50,10 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
 
         if (isDefault && !isFirstAddress) {
             findShippingAddressPort.findDefaultsByUserId(userId)
-                    .forEach(currentDefault -> {
-                        currentDefault.unsetAsDefault();
-                        updateShippingAddressPort.update(currentDefault);
-                    });
+                .forEach(currentDefault -> {
+                    currentDefault.unsetAsDefault();
+                    updateShippingAddressPort.update(currentDefault);
+                });
         }
 
         ShippingAddressRegionType regionType = classifyShippingAddressRegionPort.classify(command.address());
@@ -66,11 +66,11 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
         ShippingAddress savedShippingAddress = saveShippingAddressPort.save(shippingAddress);
 
         publishShippingAddressEventPort.publishShippingAddressChangedEvent(
-                savedShippingAddress.getId(), savedShippingAddress.getUserId(),
-                savedShippingAddress.getRecipientName().getValue(), savedShippingAddress.getRecipientPhoneNumber().getValue(),
-                savedShippingAddress.getAddress(), savedShippingAddress.getAddressDetail(),
-                regionType.name(),
-                ShippingAddressChangeAction.CREATED
+            savedShippingAddress.getId(), savedShippingAddress.getUserId(),
+            savedShippingAddress.getRecipientName().getValue(), savedShippingAddress.getRecipientPhoneNumber().getValue(),
+            savedShippingAddress.getAddress(), savedShippingAddress.getAddressDetail(),
+            regionType.name(),
+            ShippingAddressChangeAction.CREATED
         );
 
         return RegisterShippingAddressResult.from(savedShippingAddress);
@@ -81,14 +81,14 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
             case HOME -> {
                 if (findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME)) {
                     throw new DomainAlreadyExistsException(
-                            String.format("%s:: 이미 등록된 집 배송지가 존재합니다.", FIRST_ERROR_CODE)
+                        String.format("%s:: 이미 등록된 집 배송지가 존재합니다.", FIRST_ERROR_CODE)
                     );
                 }
             }
             case COMPANY -> {
                 if (findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.COMPANY)) {
                     throw new DomainAlreadyExistsException(
-                            String.format("%s:: 이미 등록된 회사 배송지가 존재합니다.", FIRST_ERROR_CODE)
+                        String.format("%s:: 이미 등록된 회사 배송지가 존재합니다.", FIRST_ERROR_CODE)
                     );
                 }
             }
@@ -96,8 +96,8 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
                 long count = findShippingAddressPort.countByUserIdAndAddressType(userId, ShippingAddressType.OTHER);
                 if (count >= MAX_OTHER_ADDRESS_COUNT) {
                     log.warn(
-                            "기타 배송지 등록 개수 제한 초과. userId={}, currentCount={}, maxCount={}",
-                            userId, count, MAX_OTHER_ADDRESS_COUNT
+                        "기타 배송지 등록 개수 제한 초과. userId={}, currentCount={}, maxCount={}",
+                        userId, count, MAX_OTHER_ADDRESS_COUNT
                     );
                     throw new TooManyOtherAddressesException();
                 }

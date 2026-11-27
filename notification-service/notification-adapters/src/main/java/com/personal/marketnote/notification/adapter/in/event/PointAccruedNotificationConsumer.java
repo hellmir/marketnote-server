@@ -25,12 +25,12 @@ public class PointAccruedNotificationConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.POINT_ACCRUED,
-            groupId = "notification-point-accrued"
+        topics = KafkaTopicConstants.POINT_ACCRUED,
+        groupId = "notification-point-accrued"
     )
     public void handlePointAccruedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -47,21 +47,21 @@ public class PointAccruedNotificationConsumer {
         PointAccruedEvent payload = envelope.getPayloadAs(PointAccruedEvent.class, objectMapper);
 
         log.info("포인트 적립 이벤트 수신 (알림 발송). eventId={}, userId={}, amount={}",
-                envelope.eventId(), payload.userId(), payload.amount());
+            envelope.eventId(), payload.userId(), payload.amount());
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("userId", payload.userId()),
-                EventPayloadValidator.id("amount", payload.amount()))) {
+            EventPayloadValidator.id("userId", payload.userId()),
+            EventPayloadValidator.id("amount", payload.amount()))) {
             acknowledgment.acknowledge();
             return;
         }
 
         SendNotificationCommand command = new SendNotificationCommand(
-                payload.userId(),
-                "POINT_ACCRUAL",
-                Map.of("amount", String.valueOf(payload.amount())),
-                "PUSH_ONLY",
-                null
+            payload.userId(),
+            "POINT_ACCRUAL",
+            Map.of("amount", String.valueOf(payload.amount())),
+            "PUSH_ONLY",
+            null
         );
         sendNotificationUseCase.sendNotification(command);
 

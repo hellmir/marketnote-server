@@ -39,7 +39,7 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
     public Long save(PricePolicy pricePolicy) {
         ProductJpaEntity productRef = productJpaRepository.getReferenceById(pricePolicy.getProduct().getId());
         PricePolicyJpaEntity savedPricePolicyJpaEntity
-                = pricePolicyJpaRepository.save(PricePolicyJpaEntity.from(productRef, pricePolicy));
+            = pricePolicyJpaRepository.save(PricePolicyJpaEntity.from(productRef, pricePolicy));
         savedPricePolicyJpaEntity.setIdToOrderNum();
 
         return savedPricePolicyJpaEntity.getId();
@@ -64,9 +64,9 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
         List<PricePolicyJpaEntity> candidates = pricePolicyJpaRepository.findAllById(candidateIds);
 
         PricePolicyJpaEntity entity = candidates.stream()
-                .filter(p -> productId.equals(p.getProductJpaEntity().getId()))
-                .max(Comparator.comparingLong(PricePolicyJpaEntity::getId))
-                .orElse(null);
+            .filter(p -> productId.equals(p.getProductJpaEntity().getId()))
+            .max(Comparator.comparingLong(PricePolicyJpaEntity::getId))
+            .orElse(null);
 
         if (FormatValidator.hasNoValue(entity)) {
             return Optional.empty();
@@ -74,41 +74,41 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
 
         ProductJpaEntity productJpaEntity = entity.getProductJpaEntity();
         Product product = Product.from(
-                ProductSnapshotState.builder()
-                        .id(productJpaEntity.getId())
-                        .productKey(productJpaEntity.getProductKey())
-                        .sellerId(productJpaEntity.getSellerId())
-                        .name(productJpaEntity.getName())
-                        .brandName(productJpaEntity.getBrandName())
-                        .detail(productJpaEntity.getDetail())
-                        .defaultPricePolicy(
-                                PricePolicyJpaEntityToDomainMapper.mapToDomain(productJpaEntity.getDefaultPricePolicy())
-                                        .orElse(null)
-                        )
-                        .sales(productJpaEntity.getSales())
-                        .viewCount(productJpaEntity.getViewCount())
-                        .popularity(productJpaEntity.getPopularity())
-                        .findAllOptionsYn(productJpaEntity.isFindAllOptionsYn())
-                        .productTags(java.util.List.of())
-                        .orderNum(productJpaEntity.getOrderNum())
-                        .status(productJpaEntity.getStatus())
-                        .fasstoProductCode(productJpaEntity.getFasstoProductCode())
-                        .build()
+            ProductSnapshotState.builder()
+                .id(productJpaEntity.getId())
+                .productKey(productJpaEntity.getProductKey())
+                .sellerId(productJpaEntity.getSellerId())
+                .name(productJpaEntity.getName())
+                .brandName(productJpaEntity.getBrandName())
+                .detail(productJpaEntity.getDetail())
+                .defaultPricePolicy(
+                    PricePolicyJpaEntityToDomainMapper.mapToDomain(productJpaEntity.getDefaultPricePolicy())
+                        .orElse(null)
+                )
+                .sales(productJpaEntity.getSales())
+                .viewCount(productJpaEntity.getViewCount())
+                .popularity(productJpaEntity.getPopularity())
+                .findAllOptionsYn(productJpaEntity.isFindAllOptionsYn())
+                .productTags(java.util.List.of())
+                .orderNum(productJpaEntity.getOrderNum())
+                .status(productJpaEntity.getStatus())
+                .fasstoProductCode(productJpaEntity.getFasstoProductCode())
+                .build()
         );
 
         PricePolicy pricePolicy = PricePolicy.from(
-                PricePolicySnapshotState.builder()
-                        .id(entity.getId())
-                        .product(product)
-                        .price(entity.getPrice())
-                        .discountPrice(entity.getDiscountPrice())
-                        .discountRate(Rate.of(entity.getDiscountRate()))
-                        .accumulatedPoint(entity.getAccumulatedPoint())
-                        .accumulationRate(Rate.of(entity.getAccumulationRate()))
-                        .popularity(entity.getPopularity())
-                        .status(entity.getStatus())
-                        .orderNum(entity.getOrderNum())
-                        .build()
+            PricePolicySnapshotState.builder()
+                .id(entity.getId())
+                .product(product)
+                .price(entity.getPrice())
+                .discountPrice(entity.getDiscountPrice())
+                .discountRate(Rate.of(entity.getDiscountRate()))
+                .accumulatedPoint(entity.getAccumulatedPoint())
+                .accumulationRate(Rate.of(entity.getAccumulationRate()))
+                .popularity(entity.getPopularity())
+                .status(entity.getStatus())
+                .orderNum(entity.getOrderNum())
+                .build()
         );
 
         return Optional.of(pricePolicy);
@@ -117,95 +117,95 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
     @Override
     public Optional<PricePolicy> findByOptionIds(List<Long> optionIds) {
         return pricePolicyJpaRepository.findOneByOptionIds(optionIds)
-                .flatMap(PricePolicyJpaEntityToDomainMapper::mapToDomain);
+            .flatMap(PricePolicyJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override
     public List<PricePolicy> findByProductId(Long productId) {
         List<PricePolicyJpaEntity> policyEntities = loadPricePoliciesWithAssociations(
-                pricePolicyJpaRepository.findAllByProductJpaEntity_IdOrderByIdDesc(productId)
+            pricePolicyJpaRepository.findAllByProductJpaEntity_IdOrderByIdDesc(productId)
         );
 
         Map<Long, List<Long>> optionIdsByPolicyId = fetchOptionIdsByPricePolicyIds(
-                policyEntities.stream().map(PricePolicyJpaEntity::getId).toList()
+            policyEntities.stream().map(PricePolicyJpaEntity::getId).toList()
         );
 
         return policyEntities.stream()
-                .map(policyEntity -> PricePolicyJpaEntityToDomainMapper.mapToDomain(
-                        policyEntity,
-                        optionIdsByPolicyId.getOrDefault(policyEntity.getId(), List.of())
-                ))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+            .map(policyEntity -> PricePolicyJpaEntityToDomainMapper.mapToDomain(
+                policyEntity,
+                optionIdsByPolicyId.getOrDefault(policyEntity.getId(), List.of())
+            ))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
     }
 
     @Override
     public List<PricePolicy> findByIds(List<Long> ids) {
         return loadPricePoliciesWithAssociationsByIds(ids).stream()
-                .map(PricePolicyJpaEntityToDomainMapper::mapToDomainWithOptions)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+            .map(PricePolicyJpaEntityToDomainMapper::mapToDomainWithOptions)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
     }
 
     @Override
     public long countActivePricePoliciesByCategoryId(
-            Long categoryId, ProductSearchTarget searchTarget, String searchKeyword
+        Long categoryId, ProductSearchTarget searchTarget, String searchKeyword
     ) {
         String searchPattern = generateSearchPattern(searchKeyword);
 
         if (FormatValidator.hasValue(categoryId)) {
             return pricePolicyJpaRepository.countActiveByCategoryId(
-                    categoryId,
-                    searchTarget.getCamelCaseValue(),
-                    searchPattern
+                categoryId,
+                searchTarget.getCamelCaseValue(),
+                searchPattern
             );
         }
 
         return pricePolicyJpaRepository.countActive(
-                searchTarget.getCamelCaseValue(),
-                searchPattern
+            searchTarget.getCamelCaseValue(),
+            searchPattern
         );
     }
 
     @Override
     public List<PricePolicy> findPricePoliciesByOffset(
-            List<Long> pricePolicyIds,
-            int page,
-            int pageSize,
-            Sort.Direction sortDirection,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword,
-            Long categoryId
+        List<Long> pricePolicyIds,
+        int page,
+        int pageSize,
+        Sort.Direction sortDirection,
+        ProductSortProperty sortProperty,
+        ProductSearchTarget searchTarget,
+        String searchKeyword,
+        Long categoryId
     ) {
         boolean isAsc = sortDirection == Sort.Direction.ASC;
 
         List<PricePolicyJpaEntity> entities = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
-                pricePolicyIds,
-                page,
-                pageSize,
-                isAsc,
-                sortProperty,
-                searchTarget,
-                searchKeyword,
-                categoryId
+            pricePolicyIds,
+            page,
+            pageSize,
+            isAsc,
+            sortProperty,
+            searchTarget,
+            searchKeyword,
+            categoryId
         );
 
         List<PricePolicyJpaEntity> hydrated = loadPricePoliciesWithAssociations(entities);
         Map<Long, List<Long>> optionIdsByPolicyId = fetchOptionIdsByPricePolicyIds(
-                hydrated.stream().map(PricePolicyJpaEntity::getId).toList()
+            hydrated.stream().map(PricePolicyJpaEntity::getId).toList()
         );
 
         return new ArrayList<>(hydrated.stream()
-                .map(policyEntity -> PricePolicyJpaEntityToDomainMapper.mapToDomain(
-                        policyEntity,
-                        optionIdsByPolicyId.getOrDefault(policyEntity.getId(), List.of())
-                ))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList());
+            .map(policyEntity -> PricePolicyJpaEntityToDomainMapper.mapToDomain(
+                policyEntity,
+                optionIdsByPolicyId.getOrDefault(policyEntity.getId(), List.of())
+            ))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList());
     }
 
     private Map<Long, List<Long>> fetchOptionIdsByPricePolicyIds(List<Long> pricePolicyIds) {
@@ -213,13 +213,13 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
             return Map.of();
         }
         return productOptionPricePolicyJpaRepository.findAllOptionIdsByPricePolicyIds(pricePolicyIds).stream()
-                .collect(Collectors.groupingBy(
-                        ProductOptionPricePolicyJpaRepository.PricePolicyOptionMapping::getPricePolicyId,
-                        Collectors.mapping(
-                                ProductOptionPricePolicyJpaRepository.PricePolicyOptionMapping::getProductOptionId,
-                                Collectors.toList()
-                        )
-                ));
+            .collect(Collectors.groupingBy(
+                ProductOptionPricePolicyJpaRepository.PricePolicyOptionMapping::getPricePolicyId,
+                Collectors.mapping(
+                    ProductOptionPricePolicyJpaRepository.PricePolicyOptionMapping::getProductOptionId,
+                    Collectors.toList()
+                )
+            ));
     }
 
     private String generateSearchPattern(String searchKeyword) {
@@ -233,11 +233,11 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
     @Override
     public void deleteById(Long pricePolicyId) {
         Long productId = pricePolicyJpaRepository.findById(pricePolicyId)
-                .map(entity -> entity.getProductJpaEntity().getId())
-                .orElseThrow(() -> {
-                    log.warn("가격 정책을 찾을 수 없습니다. pricePolicyId={}", pricePolicyId);
-                    return new PricePolicyNotFoundException();
-                });
+            .map(entity -> entity.getProductJpaEntity().getId())
+            .orElseThrow(() -> {
+                log.warn("가격 정책을 찾을 수 없습니다. pricePolicyId={}", pricePolicyId);
+                return new PricePolicyNotFoundException();
+            });
         deleteByIdInternal(productId, pricePolicyId);
     }
 
@@ -258,9 +258,9 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
         }
 
         List<Long> ids = baseEntities.stream()
-                .map(PricePolicyJpaEntity::getId)
-                .filter(Objects::nonNull)
-                .toList();
+            .map(PricePolicyJpaEntity::getId)
+            .filter(Objects::nonNull)
+            .toList();
 
         return loadPricePoliciesWithAssociationsByIds(ids);
     }
@@ -281,8 +281,8 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
         }
 
         return ids.stream()
-                .map(hydratedById::get)
-                .filter(Objects::nonNull)
-                .toList();
+            .map(hydratedById::get)
+            .filter(Objects::nonNull)
+            .toList();
     }
 }

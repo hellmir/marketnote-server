@@ -23,19 +23,19 @@ public class GetPricePolicyService implements GetPricePolicyUseCase {
     @Override
     public PricePolicy getPricePolicy(Long id) {
         return findPricePolicyPort.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("가격 정책을 찾을 수 없습니다. pricePolicyId={}", id);
-                    return new PricePolicyNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("가격 정책을 찾을 수 없습니다. pricePolicyId={}", id);
+                return new PricePolicyNotFoundException();
+            });
     }
 
     @Override
     public PricePolicy getPricePolicy(List<Long> optionIds) {
         return findPricePolicyPort.findByOptionIds(optionIds)
-                .orElseThrow(() -> {
-                    log.warn("가격 정책을 찾을 수 없습니다. optionIds={}", optionIds);
-                    return new PricePolicyNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("가격 정책을 찾을 수 없습니다. optionIds={}", optionIds);
+                return new PricePolicyNotFoundException();
+            });
     }
 }
 

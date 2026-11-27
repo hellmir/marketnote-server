@@ -6,8 +6,8 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfill
 import java.util.List;
 
 public record RegisterFulfillmentGoodsResponse(
-        Integer dataCount,
-        List<RegisterFulfillmentGoodsItemResult> goods
+    Integer dataCount,
+    List<RegisterFulfillmentGoodsItemResult> goods
 ) {
     public static RegisterFulfillmentGoodsResponse from(RegisterFulfillmentGoodsResult result) {
         return new RegisterFulfillmentGoodsResponse(result.dataCount(), result.goods());

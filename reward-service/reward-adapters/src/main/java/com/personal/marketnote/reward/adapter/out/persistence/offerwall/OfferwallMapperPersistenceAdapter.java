@@ -24,7 +24,7 @@ public class OfferwallMapperPersistenceAdapter implements SaveOfferwallMapperPor
 
     @Override
     public boolean existsByOfferwallTypeAndRewardKeyAndIsSuccess(
-            OfferwallType offerwallType, String rewardKey, boolean isSuccess
+        OfferwallType offerwallType, String rewardKey, boolean isSuccess
     ) {
         return repository.existsByOfferwallTypeAndRewardKeyAndIsSuccess(offerwallType, rewardKey, isSuccess);
     }
@@ -32,8 +32,8 @@ public class OfferwallMapperPersistenceAdapter implements SaveOfferwallMapperPor
     @Override
     public Optional<OfferwallMapper> findTopFailedOfferwallMapper(OfferwallType offerwallType, String rewardKey) {
         return repository.findTop1ByOfferwallTypeAndRewardKeyAndIsSuccessFalseOrderByFailureCountDesc(
-                        offerwallType, rewardKey
-                )
-                .map(OfferwallMapperJpaEntity::toDomain);
+                offerwallType, rewardKey
+            )
+            .map(OfferwallMapperJpaEntity::toDomain);
     }
 }

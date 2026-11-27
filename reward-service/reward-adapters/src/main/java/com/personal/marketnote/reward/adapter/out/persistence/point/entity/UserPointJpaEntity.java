@@ -36,27 +36,27 @@ public class UserPointJpaEntity extends BaseEntity {
 
     public static UserPointJpaEntity from(UserPoint userPoint) {
         return UserPointJpaEntity.builder()
-                .userId(userPoint.getUserId())
-                .userKey(userPoint.getUserKey())
-                .amount(userPoint.getAmountValue())
-                .addExpectedAmount(userPoint.getAddExpectedAmountValue())
-                .expireExpectedAmount(userPoint.getExpireExpectedAmountValue())
-                .version(userPoint.getVersion())
-                .build();
+            .userId(userPoint.getUserId())
+            .userKey(userPoint.getUserKey())
+            .amount(userPoint.getAmountValue())
+            .addExpectedAmount(userPoint.getAddExpectedAmountValue())
+            .expireExpectedAmount(userPoint.getExpireExpectedAmountValue())
+            .version(userPoint.getVersion())
+            .build();
     }
 
     public UserPoint toDomain() {
         return UserPoint.from(
-                UserPointSnapshotState.builder()
-                        .userId(userId)
-                        .userKey(userKey)
-                        .amount(PointAmount.of(amount))
-                        .addExpectedAmount(PointAmount.of(addExpectedAmount))
-                        .expireExpectedAmount(PointAmount.of(expireExpectedAmount))
-                        .createdAt(getCreatedAt())
-                        .modifiedAt(getModifiedAt())
-                        .version(version)
-                        .build()
+            UserPointSnapshotState.builder()
+                .userId(userId)
+                .userKey(userKey)
+                .amount(PointAmount.of(amount))
+                .addExpectedAmount(PointAmount.of(addExpectedAmount))
+                .expireExpectedAmount(PointAmount.of(expireExpectedAmount))
+                .createdAt(getCreatedAt())
+                .modifiedAt(getModifiedAt())
+                .version(version)
+                .build()
         );
     }
 }

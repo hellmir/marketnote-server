@@ -40,7 +40,7 @@ class UpdateOrderProductUseCaseTest {
         Long pricePolicyId = 100L;
         OrderProduct orderProduct = buildOrderProduct(orderId, pricePolicyId, false);
         UpdateOrderProductReviewStatusCommand command =
-                UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, true);
+            UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, true);
         when(getOrderUseCase.getOrderProduct(orderId, pricePolicyId)).thenReturn(orderProduct);
 
         // when
@@ -64,7 +64,7 @@ class UpdateOrderProductUseCaseTest {
         Long pricePolicyId = 200L;
         OrderProduct orderProduct = buildOrderProduct(orderId, pricePolicyId, true);
         UpdateOrderProductReviewStatusCommand command =
-                UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, false);
+            UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, false);
         when(getOrderUseCase.getOrderProduct(orderId, pricePolicyId)).thenReturn(orderProduct);
 
         // when
@@ -84,7 +84,7 @@ class UpdateOrderProductUseCaseTest {
         Long pricePolicyId = 300L;
         OrderProduct orderProduct = buildOrderProduct(orderId, pricePolicyId, true);
         UpdateOrderProductReviewStatusCommand command =
-                UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, null);
+            UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, null);
         when(getOrderUseCase.getOrderProduct(orderId, pricePolicyId)).thenReturn(orderProduct);
 
         // when
@@ -103,13 +103,13 @@ class UpdateOrderProductUseCaseTest {
         Long orderId = 999L;
         Long pricePolicyId = 999L;
         UpdateOrderProductReviewStatusCommand command =
-                UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, true);
+            UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, true);
         when(getOrderUseCase.getOrderProduct(orderId, pricePolicyId))
-                .thenThrow(new OrderProductNotFoundException());
+            .thenThrow(new OrderProductNotFoundException());
 
         // when & then
         assertThatThrownBy(() -> updateOrderProductService.updateReviewStatus(command))
-                .isInstanceOf(OrderProductNotFoundException.class);
+            .isInstanceOf(OrderProductNotFoundException.class);
         verifyNoInteractions(updateOrderProductPort);
     }
 
@@ -121,7 +121,7 @@ class UpdateOrderProductUseCaseTest {
         Long pricePolicyId = 400L;
         OrderProduct orderProduct = buildOrderProduct(orderId, pricePolicyId, false);
         UpdateOrderProductReviewStatusCommand command =
-                UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, true);
+            UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, true);
         when(getOrderUseCase.getOrderProduct(orderId, pricePolicyId)).thenReturn(orderProduct);
 
         // when
@@ -142,7 +142,7 @@ class UpdateOrderProductUseCaseTest {
         Long pricePolicyId = 500L;
         OrderProduct orderProduct = buildOrderProduct(orderId, pricePolicyId, false);
         UpdateOrderProductReviewStatusCommand command =
-                UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, true);
+            UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, true);
         when(getOrderUseCase.getOrderProduct(orderId, pricePolicyId)).thenReturn(orderProduct);
 
         // when
@@ -158,16 +158,16 @@ class UpdateOrderProductUseCaseTest {
 
     private OrderProduct buildOrderProduct(Long orderId, Long pricePolicyId, Boolean isReviewed) {
         return OrderProduct.from(
-                OrderProductSnapshotState.builder()
-                        .orderId(orderId)
-                        .sellerId(10L)
-                        .pricePolicyId(pricePolicyId)
-                        .quantity(1)
-                        .unitAmount(10000L)
-                        .accumulatedPoint(0L)
-                        .orderStatus(OrderStatus.DELIVERED)
-                        .isReviewed(isReviewed)
-                        .build()
+            OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId)
+                .quantity(1)
+                .unitAmount(10000L)
+                .accumulatedPoint(0L)
+                .orderStatus(OrderStatus.DELIVERED)
+                .isReviewed(isReviewed)
+                .build()
         );
     }
 }

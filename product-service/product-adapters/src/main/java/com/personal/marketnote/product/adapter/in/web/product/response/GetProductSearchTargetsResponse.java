@@ -17,8 +17,8 @@ public class GetProductSearchTargetsResponse {
 
     public static GetProductSearchTargetsResponse from(GetProductSearchTargetsResult result) {
         return new GetProductSearchTargetsResponse(Arrays.stream(result.targets())
-                .map(ProductSearchTargetItemResponse::from)
-                .toList());
+            .map(ProductSearchTargetItemResponse::from)
+            .toList());
     }
 }
 

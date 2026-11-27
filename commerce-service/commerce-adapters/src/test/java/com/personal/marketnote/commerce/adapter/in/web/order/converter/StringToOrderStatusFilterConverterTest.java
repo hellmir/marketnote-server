@@ -63,6 +63,6 @@ class StringToOrderStatusFilterConverterTest {
     @DisplayName("존재하지 않는 값은 IllegalArgumentException을 발생시킨다")
     void throws_exception_for_unknownValue() {
         assertThatThrownBy(() -> converter.convert("INVALID_VALUE"))
-                .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(IllegalArgumentException.class);
     }
 }

@@ -56,26 +56,26 @@ public class GetAdminProductsService implements GetAdminProductsUseCase {
 
     @Override
     public GetAdminProductsResult getAdminProducts(
-            Long categoryId,
-            List<Long> pricePolicyIds,
-            int page,
-            int pageSize,
-            Sort.Direction sortDirection,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword
+        Long categoryId,
+        List<Long> pricePolicyIds,
+        int page,
+        int pageSize,
+        Sort.Direction sortDirection,
+        ProductSortProperty sortProperty,
+        ProductSearchTarget searchTarget,
+        String searchKeyword
     ) {
         if (pageSize <= 0) {
             throw new InvalidProductPageSizeException(pageSize);
         }
 
         List<PricePolicy> pricePolicies = findPricePoliciesPort.findPricePoliciesByOffset(
-                pricePolicyIds, page, pageSize, sortDirection,
-                sortProperty, searchTarget, searchKeyword, categoryId
+            pricePolicyIds, page, pageSize, sortDirection,
+            sortProperty, searchTarget, searchKeyword, categoryId
         );
 
         long totalElements = findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                categoryId, searchTarget, searchKeyword
+            categoryId, searchTarget, searchKeyword
         );
 
         int totalPages = computeTotalPages(totalElements, pageSize);
@@ -85,29 +85,29 @@ public class GetAdminProductsService implements GetAdminProductsUseCase {
         }
 
         List<ProductItemResult> productItems = pricePolicies.stream()
-                .map(this::toProductItem)
-                .toList();
+            .map(this::toProductItem)
+            .toList();
 
         Map<Long, ProductReviewAggregateResult> reviewAggregatesByProductId
-                = findReviewAggregatesByProductId(productItems);
+            = findReviewAggregatesByProductId(productItems);
 
         Map<Long, GetFilesResult> productIdToImages = findCatalogImages(productItems);
 
         Map<Long, Integer> inventories = getProductInventoryUseCase.getProductStocks(
-                pricePolicies.stream()
-                        .map(PricePolicy::getId)
-                        .toList()
+            pricePolicies.stream()
+                .map(PricePolicy::getId)
+                .toList()
         );
 
         List<ProductItemResult> enrichedProducts = productItems.stream()
-                .map(item -> ProductItemResult.from(
-                        item,
-                        extractFirstImage(productIdToImages.get(item.getId())),
-                        inventories.get(item.getPricePolicyId()),
-                        getAverageRating(reviewAggregatesByProductId, item.getId()),
-                        getTotalCount(reviewAggregatesByProductId, item.getId())
-                ))
-                .toList();
+            .map(item -> ProductItemResult.from(
+                item,
+                extractFirstImage(productIdToImages.get(item.getId())),
+                inventories.get(item.getPricePolicyId()),
+                getAverageRating(reviewAggregatesByProductId, item.getId()),
+                getTotalCount(reviewAggregatesByProductId, item.getId())
+            ))
+            .toList();
 
         return GetAdminProductsResult.of(page, pageSize, totalElements, totalPages, enrichedProducts);
     }
@@ -124,12 +124,12 @@ public class GetAdminProductsService implements GetAdminProductsUseCase {
 
     private ProductItemResult toProductItem(PricePolicy pricePolicy) {
         Product product = FormatValidator.hasValue(pricePolicy.getProduct())
-                ? pricePolicy.getProduct()
-                : findProductPort.findById(pricePolicy.getProductId())
-                .orElseThrow(() -> {
-                    log.warn("상품을 찾을 수 없습니다. productId={}", pricePolicy.getProductId());
-                    return new ProductNotFoundException();
-                });
+            ? pricePolicy.getProduct()
+            : findProductPort.findById(pricePolicy.getProductId())
+            .orElseThrow(() -> {
+                log.warn("상품을 찾을 수 없습니다. productId={}", pricePolicy.getProductId());
+                return new ProductNotFoundException();
+            });
 
         if (!product.isFindAllOptionsYn()) {
             return ProductItemResult.from(product, pricePolicy);
@@ -141,36 +141,36 @@ public class GetAdminProductsService implements GetAdminProductsUseCase {
         }
 
         List<ProductOptionCategory> categories =
-                findProductOptionCategoryPort.findActiveWithOptionsByProductId(product.getId());
+            findProductOptionCategoryPort.findActiveWithOptionsByProductId(product.getId());
 
         if (FormatValidator.hasNoValue(categories)) {
             return ProductItemResult.from(product, pricePolicy);
         }
 
         Map<Long, ProductOption> productOptionsById = categories.stream()
-                .flatMap(c -> c.getOptions().stream())
-                .collect(Collectors.toMap(ProductOption::getId, o -> o, (o1, o2) -> o1));
+            .flatMap(c -> c.getOptions().stream())
+            .collect(Collectors.toMap(ProductOption::getId, o -> o, (o1, o2) -> o1));
 
         List<ProductOption> selectedOptions = optionIds.stream()
-                .map(productOptionsById::get)
-                .filter(Objects::nonNull)
-                .toList();
+            .map(productOptionsById::get)
+            .filter(Objects::nonNull)
+            .toList();
 
         return ProductItemResult.from(product, selectedOptions, pricePolicy);
     }
 
     private Map<Long, ProductReviewAggregateResult> findReviewAggregatesByProductId(
-            List<ProductItemResult> productItems
+        List<ProductItemResult> productItems
     ) {
         if (FormatValidator.hasNoValue(productItems)) {
             return Map.of();
         }
 
         List<Long> productIds = productItems.stream()
-                .map(ProductItemResult::getId)
-                .filter(FormatValidator::hasValue)
-                .distinct()
-                .toList();
+            .map(ProductItemResult::getId)
+            .filter(FormatValidator::hasValue)
+            .distinct()
+            .toList();
 
         if (FormatValidator.hasNoValue(productIds)) {
             return Map.of();
@@ -182,18 +182,18 @@ public class GetAdminProductsService implements GetAdminProductsUseCase {
     private Map<Long, GetFilesResult> findCatalogImages(List<ProductItemResult> productItems) {
         Map<Long, GetFilesResult> productIdToImages = new ConcurrentHashMap<>();
         List<CompletableFuture<Void>> futures = productItems.stream()
-                .map(item -> CompletableFuture.runAsync(
-                        () -> findProductImagesPort.findImagesByProductIdAndSort(item.getId(), PRODUCT_CATALOG_IMAGE)
-                                .ifPresent(result -> productIdToImages.put(item.getId(), result)),
-                        productImageExecutor
-                ))
-                .toList();
+            .map(item -> CompletableFuture.runAsync(
+                () -> findProductImagesPort.findImagesByProductIdAndSort(item.getId(), PRODUCT_CATALOG_IMAGE)
+                    .ifPresent(result -> productIdToImages.put(item.getId(), result)),
+                productImageExecutor
+            ))
+            .toList();
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         return productIdToImages;
     }
 
     private com.personal.marketnote.common.application.file.port.in.result.GetFileResult extractFirstImage(
-            GetFilesResult filesResult
+        GetFilesResult filesResult
     ) {
         if (FormatValidator.hasNoValue(filesResult) || FormatValidator.hasNoValue(filesResult.images())) {
             return null;
@@ -202,11 +202,11 @@ public class GetAdminProductsService implements GetAdminProductsUseCase {
     }
 
     private BigDecimal getAverageRating(
-            Map<Long, ProductReviewAggregateResult> reviewAggregatesByProductId,
-            Long productId
+        Map<Long, ProductReviewAggregateResult> reviewAggregatesByProductId,
+        Long productId
     ) {
         if (FormatValidator.hasNoValue(reviewAggregatesByProductId)
-                || FormatValidator.hasNoValue(productId)) {
+            || FormatValidator.hasNoValue(productId)) {
             return BigDecimal.ZERO;
         }
 
@@ -219,11 +219,11 @@ public class GetAdminProductsService implements GetAdminProductsUseCase {
     }
 
     private Integer getTotalCount(
-            Map<Long, ProductReviewAggregateResult> reviewAggregatesByProductId,
-            Long productId
+        Map<Long, ProductReviewAggregateResult> reviewAggregatesByProductId,
+        Long productId
     ) {
         if (FormatValidator.hasNoValue(reviewAggregatesByProductId)
-                || FormatValidator.hasNoValue(productId)) {
+            || FormatValidator.hasNoValue(productId)) {
             return 0;
         }
 

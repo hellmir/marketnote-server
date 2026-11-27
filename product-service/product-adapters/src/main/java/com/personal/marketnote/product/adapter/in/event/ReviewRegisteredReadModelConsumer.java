@@ -22,12 +22,12 @@ public class ReviewRegisteredReadModelConsumer {
     private final SaveReviewAggregateReadModelPort saveReviewAggregateReadModelPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.REVIEW_REGISTERED,
-            groupId = "product-review-aggregate-read-model"
+        topics = KafkaTopicConstants.REVIEW_REGISTERED,
+        groupId = "product-review-aggregate-read-model"
     )
     public void handleReviewRegisteredEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -44,7 +44,7 @@ public class ReviewRegisteredReadModelConsumer {
         ReviewRegisteredEvent payload = envelope.getPayloadAs(ReviewRegisteredEvent.class, objectMapper);
 
         log.info("리뷰 등록 Read Model 이벤트 수신. eventId={}, productId={}, totalCount={}, averageRating={}",
-                envelope.eventId(), payload.productId(), payload.totalCount(), payload.averageRating()
+            envelope.eventId(), payload.productId(), payload.totalCount(), payload.averageRating()
         );
 
         if (FormatValidator.hasNoValue(payload.productId()) || payload.productId() <= 0) {

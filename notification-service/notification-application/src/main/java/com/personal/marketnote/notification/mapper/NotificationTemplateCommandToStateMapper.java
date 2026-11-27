@@ -12,12 +12,12 @@ public class NotificationTemplateCommandToStateMapper {
 
     public static NotificationTemplateCreateState mapToState(RegisterNotificationTemplateCommand command) {
         return NotificationTemplateCreateState.builder()
-                .templateCode(command.templateCode())
-                .notificationType(NotificationType.valueOf(command.notificationType()))
-                .notificationCategory(NotificationCategory.valueOf(command.notificationCategory()))
-                .title(command.title())
-                .bodyTemplate(command.bodyTemplate())
-                .urlTemplate(command.urlTemplate())
-                .build();
+            .templateCode(command.templateCode())
+            .notificationType(NotificationType.valueOf(command.notificationType()))
+            .notificationCategory(NotificationCategory.valueOf(command.notificationCategory()))
+            .title(command.title())
+            .bodyTemplate(command.bodyTemplate())
+            .urlTemplate(command.urlTemplate())
+            .build();
     }
 }

@@ -37,13 +37,13 @@ class DeleteRemoteAreaUseCaseTest {
         // given
         Long id = 1L;
         RemoteArea remoteArea = RemoteArea.from(
-                RemoteAreaSnapshotState.builder()
-                        .id(id)
-                        .province("충남")
-                        .district("보령시")
-                        .village("오천면")
-                        .subarea("녹도리")
-                        .build()
+            RemoteAreaSnapshotState.builder()
+                .id(id)
+                .province("충남")
+                .district("보령시")
+                .village("오천면")
+                .subarea("녹도리")
+                .build()
         );
         when(findRemoteAreaPort.findActiveById(id)).thenReturn(Optional.of(remoteArea));
 
@@ -63,7 +63,7 @@ class DeleteRemoteAreaUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> deleteRemoteAreaService.deleteRemoteArea(id))
-                .isInstanceOf(RemoteAreaNotFoundException.class);
+            .isInstanceOf(RemoteAreaNotFoundException.class);
 
         verifyNoInteractions(deleteRemoteAreaPort);
     }
@@ -74,13 +74,13 @@ class DeleteRemoteAreaUseCaseTest {
         // given
         Long id = 1L;
         RemoteArea remoteArea = RemoteArea.from(
-                RemoteAreaSnapshotState.builder()
-                        .id(id)
-                        .province("인천")
-                        .district("옹진군")
-                        .village("덕적면")
-                        .subarea("")
-                        .build()
+            RemoteAreaSnapshotState.builder()
+                .id(id)
+                .province("인천")
+                .district("옹진군")
+                .village("덕적면")
+                .subarea("")
+                .build()
         );
         when(findRemoteAreaPort.findActiveById(id)).thenReturn(Optional.of(remoteArea));
 

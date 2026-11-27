@@ -82,12 +82,12 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
-                CancelFulfillmentDeliveryItemResult.builder()
-                        .fulfillmentSlipNumber("SLIP001")
-                        .orderNumber(String.valueOf(orderId))
-                        .message("성공")
-                        .code("00")
-                        .build()
+            CancelFulfillmentDeliveryItemResult.builder()
+                .fulfillmentSlipNumber("SLIP001")
+                .orderNumber(String.valueOf(orderId))
+                .message("성공")
+                .code("00")
+                .build()
         ));
         when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(fasstoResult);
 
@@ -114,7 +114,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> cancelInternalFulfillmentDeliveryService.cancelDelivery(command))
-                .isInstanceOf(FulfillmentDeliveryCancellationNotAllowedException.class);
+            .isInstanceOf(FulfillmentDeliveryCancellationNotAllowedException.class);
 
         verifyNoInteractions(requestFulfillmentAuthUseCase);
         verifyNoInteractions(cancelFulfillmentDeliveryPort);
@@ -131,7 +131,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> cancelInternalFulfillmentDeliveryService.cancelDelivery(command))
-                .isInstanceOf(FulfillmentDeliveryRegistrationNotFoundException.class);
+            .isInstanceOf(FulfillmentDeliveryRegistrationNotFoundException.class);
 
         verifyNoInteractions(requestFulfillmentAuthUseCase);
         verifyNoInteractions(cancelFulfillmentDeliveryPort);
@@ -155,8 +155,8 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> cancelInternalFulfillmentDeliveryService.cancelDelivery(command))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Fassto 호출 실패");
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Fassto 호출 실패");
 
         verify(disconnectFulfillmentAuthPort).disconnectAccessToken("test-token");
     }
@@ -176,12 +176,12 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
-                CancelFulfillmentDeliveryItemResult.builder()
-                        .fulfillmentSlipNumber("SLIP001")
-                        .orderNumber(String.valueOf(orderId))
-                        .message("성공")
-                        .code("00")
-                        .build()
+            CancelFulfillmentDeliveryItemResult.builder()
+                .fulfillmentSlipNumber("SLIP001")
+                .orderNumber(String.valueOf(orderId))
+                .message("성공")
+                .code("00")
+                .build()
         ));
         when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(fasstoResult);
 
@@ -211,12 +211,12 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
-                CancelFulfillmentDeliveryItemResult.builder()
-                        .fulfillmentSlipNumber("SLIP001")
-                        .orderNumber(String.valueOf(orderId))
-                        .message("성공")
-                        .code("00")
-                        .build()
+            CancelFulfillmentDeliveryItemResult.builder()
+                .fulfillmentSlipNumber("SLIP001")
+                .orderNumber(String.valueOf(orderId))
+                .message("성공")
+                .code("00")
+                .build()
         ));
         when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(fasstoResult);
 
@@ -250,12 +250,12 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
-                CancelFulfillmentDeliveryItemResult.builder()
-                        .fulfillmentSlipNumber("SLIP001")
-                        .orderNumber(String.valueOf(orderId))
-                        .message("성공")
-                        .code("00")
-                        .build()
+            CancelFulfillmentDeliveryItemResult.builder()
+                .fulfillmentSlipNumber("SLIP001")
+                .orderNumber(String.valueOf(orderId))
+                .message("성공")
+                .code("00")
+                .build()
         ));
         when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(fasstoResult);
 
@@ -284,12 +284,12 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
-                CancelFulfillmentDeliveryItemResult.builder()
-                        .fulfillmentSlipNumber("SLIP001")
-                        .orderNumber(String.valueOf(orderId))
-                        .message("성공")
-                        .code("00")
-                        .build()
+            CancelFulfillmentDeliveryItemResult.builder()
+                .fulfillmentSlipNumber("SLIP001")
+                .orderNumber(String.valueOf(orderId))
+                .message("성공")
+                .code("00")
+                .build()
         ));
         when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(fasstoResult);
 
@@ -304,23 +304,23 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
 
     private ShippingTracker createShippingTracker(Long orderId, ShippingStatus status) {
         return ShippingTracker.from(ShippingTrackerSnapshotState.builder()
-                .id(1L)
-                .orderId(orderId)
-                .shippingStatus(status)
-                .pollingActive(!status.isTerminal())
-                .createdAt(LocalDateTime.of(2026, 4, 7, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 7, 10, 0))
-                .build());
+            .id(1L)
+            .orderId(orderId)
+            .shippingStatus(status)
+            .pollingActive(!status.isTerminal())
+            .createdAt(LocalDateTime.of(2026, 4, 7, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 7, 10, 0))
+            .build());
     }
 
     private FulfillmentDeliveryRegistration createRegistration(Long orderId, FulfillmentWorkStatus workStatus) {
         return FulfillmentDeliveryRegistration.from(
-                FulfillmentDeliveryRegistrationSnapshotState.builder()
-                        .id(1L)
-                        .orderId(orderId)
-                        .workStatus(workStatus)
-                        .createdAt(LocalDateTime.of(2026, 4, 7, 10, 0))
-                        .build()
+            FulfillmentDeliveryRegistrationSnapshotState.builder()
+                .id(1L)
+                .orderId(orderId)
+                .workStatus(workStatus)
+                .createdAt(LocalDateTime.of(2026, 4, 7, 10, 0))
+                .build()
         );
     }
 }

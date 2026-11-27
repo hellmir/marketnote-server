@@ -60,7 +60,7 @@ class RedisSseEventPublishAdapterTest {
         UnreadCountChangedPayload payload = UnreadCountChangedPayload.of(7L);
         ObjectMapper realObjectMapper = new ObjectMapper();
         RedisSseEventPublishAdapter adapter =
-                new RedisSseEventPublishAdapter(stringRedisTemplate, realObjectMapper);
+            new RedisSseEventPublishAdapter(stringRedisTemplate, realObjectMapper);
         ArgumentCaptor<String> wireCaptor = ArgumentCaptor.forClass(String.class);
 
         // when
@@ -68,7 +68,7 @@ class RedisSseEventPublishAdapterTest {
 
         // then
         verify(stringRedisTemplate)
-                .convertAndSend(eq(SSE_NOTIFICATION_EVENTS_CHANNEL), wireCaptor.capture());
+            .convertAndSend(eq(SSE_NOTIFICATION_EVENTS_CHANNEL), wireCaptor.capture());
         String wire = wireCaptor.getValue();
         assertThat(wire).contains("\"payload\":{\"unreadCount\":7}");
         assertThat(wire).doesNotContain("\"payload\":\"");
@@ -80,8 +80,8 @@ class RedisSseEventPublishAdapterTest {
         // given
         UnreadCountChangedPayload payload = UnreadCountChangedPayload.of(5L);
         when(objectMapper.writeValueAsString(any(SseEventMessage.class)))
-                .thenThrow(new JsonProcessingException("message serialization error") {
-                });
+            .thenThrow(new JsonProcessingException("message serialization error") {
+            });
 
         // when
         redisSseEventPublishAdapter.publish(1L, NotificationSseEventType.UNREAD_COUNT_CHANGED, payload);

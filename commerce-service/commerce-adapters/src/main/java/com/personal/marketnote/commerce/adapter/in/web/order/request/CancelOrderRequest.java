@@ -11,24 +11,24 @@ import java.util.List;
 @Getter
 public class CancelOrderRequest {
     @Schema(
-            name = "reasonCategory",
-            description = "취소 사유 카테고리",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "reasonCategory",
+        description = "취소 사유 카테고리",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     private OrderStatusReasonCategory reasonCategory;
 
     @Schema(
-            name = "reason",
-            description = "취소 사유",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "reason",
+        description = "취소 사유",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Size(max = 500, message = "취소 사유는 500자 이내여야 합니다.")
     private String reason;
 
     @Schema(
-            name = "pricePolicyIds",
-            description = "취소 대상 상품의 가격 정책 ID 목록 (미지정/빈 배열이면 전체 취소)",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        name = "pricePolicyIds",
+        description = "취소 대상 상품의 가격 정책 ID 목록 (미지정/빈 배열이면 전체 취소)",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Size(max = 100, message = "취소 대상 상품은 100개를 초과할 수 없습니다.")
     private List<@NotNull(message = "pricePolicyId는 null일 수 없습니다.") Long> pricePolicyIds;

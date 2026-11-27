@@ -40,8 +40,8 @@ public class GifticonPinEncryptAdapter implements EncryptGifticonPinPort, Decryp
         byte[] keyBytes = validateAndResolveKey(properties.getEncryptKey());
         this.keySpec = new SecretKeySpec(keyBytes, "AES");
         this.legacyCbcRejectedCounter = Counter.builder("gifticon.pin.decrypt.legacy_cbc.rejected.total")
-                .description("기프티콘 PIN 복호화 시 GCM1 매직 프리픽스 미존재로 거부된 건수")
-                .register(meterRegistry);
+            .description("기프티콘 PIN 복호화 시 GCM1 매직 프리픽스 미존재로 거부된 건수")
+            .register(meterRegistry);
     }
 
     private static byte[] validateAndResolveKey(String encryptKey) {

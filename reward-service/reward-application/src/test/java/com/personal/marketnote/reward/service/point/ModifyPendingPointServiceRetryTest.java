@@ -51,12 +51,12 @@ class ModifyPendingPointServiceRetryTest {
 
         @Bean
         ModifyPendingPointUseCase modifyPendingPointService(
-                FindUserPointPort findUserPointPort,
-                UpdateUserPointPort updateUserPointPort,
-                SaveUserPointHistoryPort saveUserPointHistoryPort
+            FindUserPointPort findUserPointPort,
+            UpdateUserPointPort updateUserPointPort,
+            SaveUserPointHistoryPort saveUserPointHistoryPort
         ) {
             return new ModifyPendingPointService(
-                    findUserPointPort, updateUserPointPort, saveUserPointHistoryPort
+                findUserPointPort, updateUserPointPort, saveUserPointHistoryPort
             );
         }
     }
@@ -80,25 +80,25 @@ class ModifyPendingPointServiceRetryTest {
 
     private UserPoint createUserPoint() {
         return UserPoint.from(UserPointSnapshotState.builder()
-                .userId(USER_ID)
-                .amount(PointAmount.of(1000L))
-                .addExpectedAmount(PointAmount.zero())
-                .expireExpectedAmount(PointAmount.zero())
-                .createdAt(LocalDateTime.of(2026, 3, 5, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 3, 5, 10, 0))
-                .build()
+            .userId(USER_ID)
+            .amount(PointAmount.of(1000L))
+            .addExpectedAmount(PointAmount.zero())
+            .expireExpectedAmount(PointAmount.zero())
+            .createdAt(LocalDateTime.of(2026, 3, 5, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 3, 5, 10, 0))
+            .build()
         );
     }
 
     private ModifyPendingPointCommand createAccrualCommand() {
         return ModifyPendingPointCommand.builder()
-                .userId(USER_ID)
-                .changeType(UserPointChangeType.ACCRUAL)
-                .amount(500L)
-                .sourceType(UserPointSourceType.ORDER)
-                .sourceId(100L)
-                .reason("주문 결제 적립 예정")
-                .build();
+            .userId(USER_ID)
+            .changeType(UserPointChangeType.ACCRUAL)
+            .amount(500L)
+            .sourceType(UserPointSourceType.ORDER)
+            .sourceId(100L)
+            .reason("주문 결제 적립 예정")
+            .build();
     }
 
     @Test
@@ -108,11 +108,11 @@ class ModifyPendingPointServiceRetryTest {
         ModifyPendingPointCommand command = createAccrualCommand();
         when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(java.util.Optional.of(createUserPoint()));
         when(updateUserPointPort.update(any(UserPoint.class)))
-                .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID))
-                .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID))
+            .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID))
+            .thenAnswer(invocation -> invocation.getArgument(0));
         when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
         modifyPendingPointService.modifyPending(command);
@@ -128,11 +128,11 @@ class ModifyPendingPointServiceRetryTest {
         ModifyPendingPointCommand command = createAccrualCommand();
         when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(java.util.Optional.of(createUserPoint()));
         when(updateUserPointPort.update(any(UserPoint.class)))
-                .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID));
+            .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID));
 
         // expect
         assertThatThrownBy(() -> modifyPendingPointService.modifyPending(command))
-                .isInstanceOf(ObjectOptimisticLockingFailureException.class);
+            .isInstanceOf(ObjectOptimisticLockingFailureException.class);
 
         verify(updateUserPointPort, times(3)).update(any(UserPoint.class));
     }
@@ -144,11 +144,11 @@ class ModifyPendingPointServiceRetryTest {
         ModifyPendingPointCommand command = createAccrualCommand();
         when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(java.util.Optional.of(createUserPoint()));
         when(updateUserPointPort.update(any(UserPoint.class)))
-                .thenThrow(new IllegalStateException("other error"));
+            .thenThrow(new IllegalStateException("other error"));
 
         // expect
         assertThatThrownBy(() -> modifyPendingPointService.modifyPending(command))
-                .isInstanceOf(IllegalStateException.class);
+            .isInstanceOf(IllegalStateException.class);
 
         verify(updateUserPointPort, times(1)).update(any(UserPoint.class));
     }
@@ -157,6 +157,6 @@ class ModifyPendingPointServiceRetryTest {
     @DisplayName("ModifyPendingPointService는 AOP 프록시로 생성되어 @Retryable이 실제로 적용된다")
     void shouldBeAopProxy() {
         assertThat(org.springframework.aop.support.AopUtils.isAopProxy(modifyPendingPointService))
-                .as("@Retryable 적용을 위해 AOP 프록시여야 한다").isTrue();
+            .as("@Retryable 적용을 위해 AOP 프록시여야 한다").isTrue();
     }
 }

@@ -11,6 +11,6 @@ public interface OrderProductReadModelJpaRepository extends JpaRepository<OrderP
     Optional<OrderProductReadModelJpaEntity> findByOrderIdAndPricePolicyId(Long orderId, Long pricePolicyId);
 
     Optional<OrderProductReadModelJpaEntity> findByOrderIdAndPricePolicyIdAndStatus(
-            Long orderId, Long pricePolicyId, EntityStatus status
+        Long orderId, Long pricePolicyId, EntityStatus status
     );
 }

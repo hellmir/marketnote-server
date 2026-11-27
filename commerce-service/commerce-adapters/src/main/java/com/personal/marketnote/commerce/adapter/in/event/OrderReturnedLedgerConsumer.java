@@ -27,12 +27,12 @@ public class OrderReturnedLedgerConsumer {
     private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.ORDER_RETURNED,
-            groupId = "commerce-order-returned-ledger"
+        topics = KafkaTopicConstants.ORDER_RETURNED,
+        groupId = "commerce-order-returned-ledger"
     )
     public void handleOrderReturnedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -49,11 +49,11 @@ public class OrderReturnedLedgerConsumer {
         OrderReturnedEvent payload = envelope.getPayloadAs(OrderReturnedEvent.class, objectMapper);
 
         log.info("반품 완료 이벤트 수신 (회계 역분개). eventId={}, orderId={}, isFullReturn={}, returnAmount={}",
-                envelope.eventId(), payload.orderId(), payload.isFullReturn(), payload.returnAmount()
+            envelope.eventId(), payload.orderId(), payload.isFullReturn(), payload.returnAmount()
         );
 
         if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+            envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
         )) {
             acknowledgment.acknowledge();
             return;
@@ -63,14 +63,14 @@ public class OrderReturnedLedgerConsumer {
 
         try {
             recordLedgerEntryUseCase.recordPaymentCancellation(
-                    payload.orderId(), payload.returnAmount(), idempotencyKey
+                payload.orderId(), payload.returnAmount(), idempotencyKey
             );
             log.info("반품 완료 역분개 완료. orderId={}, returnAmount={}, returnId={}, idempotencyKey={}",
-                    payload.orderId(), payload.returnAmount(), payload.returnId(), idempotencyKey
+                payload.orderId(), payload.returnAmount(), payload.returnId(), idempotencyKey
             );
         } catch (DuplicateLedgerTransactionException e) {
             log.info("이미 처리된 반품 완료 역분개 이벤트 (멱등 처리). eventId={}, returnId={}, message={}",
-                    envelope.eventId(), payload.returnId(), e.getMessage()
+                envelope.eventId(), payload.returnId(), e.getMessage()
             );
         }
 

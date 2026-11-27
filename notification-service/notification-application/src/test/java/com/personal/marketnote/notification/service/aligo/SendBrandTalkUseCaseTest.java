@@ -60,34 +60,34 @@ class SendBrandTalkUseCaseTest {
         when(saveBrandTalkMessagePort.save(any())).thenAnswer(invocation -> {
             AligoBrandTalkMessage msg = invocation.getArgument(0);
             return AligoBrandTalkMessage.from(
-                    AligoBrandTalkMessageSnapshotState.builder()
+                AligoBrandTalkMessageSnapshotState.builder()
+                    .id(1L)
+                    .senderKey(msg.getSenderKey())
+                    .sender(msg.getSender())
+                    .kakaoTarget(msg.getKakaoTarget())
+                    .advertYn(msg.isAdvertYn())
+                    .templateCode(msg.getTemplateCode())
+                    .messageStatus(BrandTalkMessageStatus.REQUESTED)
+                    .successCount(0)
+                    .failCount(0)
+                    .failoverEnabled(msg.isFailoverEnabled())
+                    .requestedAt(msg.getRequestedAt())
+                    .recipients(List.of(
+                        AligoBrandTalkMessageRecipientSnapshotState.builder()
                             .id(1L)
-                            .senderKey(msg.getSenderKey())
-                            .sender(msg.getSender())
-                            .kakaoTarget(msg.getKakaoTarget())
-                            .advertYn(msg.isAdvertYn())
-                            .templateCode(msg.getTemplateCode())
-                            .messageStatus(BrandTalkMessageStatus.REQUESTED)
-                            .successCount(0)
-                            .failCount(0)
-                            .failoverEnabled(msg.isFailoverEnabled())
-                            .requestedAt(msg.getRequestedAt())
-                            .recipients(List.of(
-                                    AligoBrandTalkMessageRecipientSnapshotState.builder()
-                                            .id(1L)
-                                            .receiver("01012345678")
-                                            .receiverMessage("{\"#{name}\":\"홍길동\"}")
-                                            .recipientStatus(AligoMessageRecipientStatus.PENDING)
-                                            .build()
-                            ))
+                            .receiver("01012345678")
+                            .receiverMessage("{\"#{name}\":\"홍길동\"}")
+                            .recipientStatus(AligoMessageRecipientStatus.PENDING)
                             .build()
+                    ))
+                    .build()
             );
         });
 
         when(sendBrandTalkExternalPort.send(any(), anyList(), anyList()))
-                .thenReturn(new SendBrandTalkExternalPort.BrandTalkSendResponse(
-                        "mid123", 1, 0, "BW", 12, 12
-                ));
+            .thenReturn(new SendBrandTalkExternalPort.BrandTalkSendResponse(
+                "mid123", 1, 0, "BW", 12, 12
+            ));
 
         // when
         SendBrandTalkResult result = sendBrandTalkService.sendBrandTalk(command);
@@ -111,14 +111,14 @@ class SendBrandTalkUseCaseTest {
     void shouldThrowWhenKakaoTargetMissing() {
         // given
         SendBrandTalkCommand command = new SendBrandTalkCommand(
-                "sender-key", "01000000000", "TPL001", null, false,
-                List.of(new BrandTalkRecipientCommand("01012345678", Map.of("#{name}", "홍길동"))),
-                null
+            "sender-key", "01000000000", "TPL001", null, false,
+            List.of(new BrandTalkRecipientCommand("01012345678", Map.of("#{name}", "홍길동"))),
+            null
         );
 
         // when & then
         assertThatThrownBy(() -> sendBrandTalkService.sendBrandTalk(command))
-                .isInstanceOf(InvalidBrandTalkKakaoTargetException.class);
+            .isInstanceOf(InvalidBrandTalkKakaoTargetException.class);
     }
 
     @Test
@@ -130,32 +130,32 @@ class SendBrandTalkUseCaseTest {
         when(saveBrandTalkMessagePort.save(any())).thenAnswer(invocation -> {
             AligoBrandTalkMessage msg = invocation.getArgument(0);
             return AligoBrandTalkMessage.from(
-                    AligoBrandTalkMessageSnapshotState.builder()
+                AligoBrandTalkMessageSnapshotState.builder()
+                    .id(1L)
+                    .senderKey(msg.getSenderKey())
+                    .sender(msg.getSender())
+                    .kakaoTarget(msg.getKakaoTarget())
+                    .templateCode(msg.getTemplateCode())
+                    .messageStatus(BrandTalkMessageStatus.REQUESTED)
+                    .requestedAt(msg.getRequestedAt())
+                    .recipients(List.of(
+                        AligoBrandTalkMessageRecipientSnapshotState.builder()
                             .id(1L)
-                            .senderKey(msg.getSenderKey())
-                            .sender(msg.getSender())
-                            .kakaoTarget(msg.getKakaoTarget())
-                            .templateCode(msg.getTemplateCode())
-                            .messageStatus(BrandTalkMessageStatus.REQUESTED)
-                            .requestedAt(msg.getRequestedAt())
-                            .recipients(List.of(
-                                    AligoBrandTalkMessageRecipientSnapshotState.builder()
-                                            .id(1L)
-                                            .receiver("01012345678")
-                                            .receiverMessage("{}")
-                                            .recipientStatus(AligoMessageRecipientStatus.PENDING)
-                                            .build()
-                            ))
+                            .receiver("01012345678")
+                            .receiverMessage("{}")
+                            .recipientStatus(AligoMessageRecipientStatus.PENDING)
                             .build()
+                    ))
+                    .build()
             );
         });
 
         when(sendBrandTalkExternalPort.send(any(), anyList(), anyList()))
-                .thenThrow(new AligoApiRequestFailedException("포인트 부족"));
+            .thenThrow(new AligoApiRequestFailedException("포인트 부족"));
 
         // when & then
         assertThatThrownBy(() -> sendBrandTalkService.sendBrandTalk(command))
-                .isInstanceOf(AligoApiRequestFailedException.class);
+            .isInstanceOf(AligoApiRequestFailedException.class);
 
         verify(saveBrandTalkMessagePort).save(any());
         verify(updateBrandTalkMessagePort).update(any());
@@ -166,16 +166,16 @@ class SendBrandTalkUseCaseTest {
     void shouldThrowWhenRecipientsExceed500() {
         // given
         List<BrandTalkRecipientCommand> recipients = java.util.stream.IntStream.rangeClosed(1, 501)
-                .mapToObj(i -> new BrandTalkRecipientCommand("010" + String.format("%08d", i), Map.of()))
-                .toList();
+            .mapToObj(i -> new BrandTalkRecipientCommand("010" + String.format("%08d", i), Map.of()))
+            .toList();
 
         SendBrandTalkCommand command = new SendBrandTalkCommand(
-                "sender-key", "01000000000", "TPL001", "M", false, recipients, null
+            "sender-key", "01000000000", "TPL001", "M", false, recipients, null
         );
 
         // when & then
         assertThatThrownBy(() -> sendBrandTalkService.sendBrandTalk(command))
-                .isInstanceOf(InvalidBrandTalkMessageRecipientCountException.class);
+            .isInstanceOf(InvalidBrandTalkMessageRecipientCountException.class);
     }
 
     @Test
@@ -187,30 +187,30 @@ class SendBrandTalkUseCaseTest {
         when(saveBrandTalkMessagePort.save(any())).thenAnswer(invocation -> {
             AligoBrandTalkMessage msg = invocation.getArgument(0);
             return AligoBrandTalkMessage.from(
-                    AligoBrandTalkMessageSnapshotState.builder()
-                            .id(2L)
-                            .senderKey(msg.getSenderKey())
-                            .sender(msg.getSender())
-                            .kakaoTarget(msg.getKakaoTarget())
-                            .templateCode(msg.getTemplateCode())
-                            .messageStatus(BrandTalkMessageStatus.REQUESTED)
-                            .requestedAt(msg.getRequestedAt())
-                            .recipients(List.of(
-                                    AligoBrandTalkMessageRecipientSnapshotState.builder()
-                                            .id(1L)
-                                            .receiver("01012345678")
-                                            .receiverMessage("{}")
-                                            .recipientStatus(AligoMessageRecipientStatus.PENDING)
-                                            .build()
-                            ))
+                AligoBrandTalkMessageSnapshotState.builder()
+                    .id(2L)
+                    .senderKey(msg.getSenderKey())
+                    .sender(msg.getSender())
+                    .kakaoTarget(msg.getKakaoTarget())
+                    .templateCode(msg.getTemplateCode())
+                    .messageStatus(BrandTalkMessageStatus.REQUESTED)
+                    .requestedAt(msg.getRequestedAt())
+                    .recipients(List.of(
+                        AligoBrandTalkMessageRecipientSnapshotState.builder()
+                            .id(1L)
+                            .receiver("01012345678")
+                            .receiverMessage("{}")
+                            .recipientStatus(AligoMessageRecipientStatus.PENDING)
                             .build()
+                    ))
+                    .build()
             );
         });
 
         when(sendBrandTalkExternalPort.send(any(), anyList(), anyList()))
-                .thenReturn(new SendBrandTalkExternalPort.BrandTalkSendResponse(
-                        "mid456", 1, 0, "BN", 8, 8
-                ));
+            .thenReturn(new SendBrandTalkExternalPort.BrandTalkSendResponse(
+                "mid456", 1, 0, "BN", 8, 8
+            ));
 
         // when
         SendBrandTalkResult result = sendBrandTalkService.sendBrandTalk(command);
@@ -222,13 +222,13 @@ class SendBrandTalkUseCaseTest {
 
     private SendBrandTalkCommand createCommand(String kakaoTarget, boolean failoverEnabled) {
         BrandTalkFailoverCommand failover = failoverEnabled
-                ? new BrandTalkFailoverCommand(true, "대체 제목", "SMS", List.of(), List.of())
-                : null;
+            ? new BrandTalkFailoverCommand(true, "대체 제목", "SMS", List.of(), List.of())
+            : null;
 
         return new SendBrandTalkCommand(
-                "sender-key", "01000000000", "TPL001", kakaoTarget, false,
-                List.of(new BrandTalkRecipientCommand("01012345678", Map.of("#{name}", "홍길동"))),
-                failover
+            "sender-key", "01000000000", "TPL001", kakaoTarget, false,
+            List.of(new BrandTalkRecipientCommand("01012345678", Map.of("#{name}", "홍길동"))),
+            failover
         );
     }
 }

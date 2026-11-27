@@ -19,22 +19,22 @@ import static org.assertj.core.api.Assertions.assertThat;
  * 필드 값과 정합함을 의미한다.</p>
  */
 @SpringBootTest(
-        classes = {
-                GiftishowApiPropertiesIntegrationTest.TestConfig.class
-        },
-        properties = {
-                "vendor.giftishow.api.product-list-path=/bizApi/goods",
-                "vendor.giftishow.api.product-detail-path=/bizApi/goods",
-                "vendor.giftishow.api.brand-list-path=/bizApi/brands",
-                "vendor.giftishow.api.brand-detail-path=/bizApi/brands",
-                "vendor.giftishow.api.coupon-send-path=/bizApi/send",
-                "vendor.giftishow.api.coupon-detail-path=/bizApi/coupons",
-                "vendor.giftishow.api.coupon-cancel-path=/bizApi/cancel",
-                "vendor.giftishow.api.coupon-resend-path=/bizApi/resend",
-                "vendor.giftishow.api.biz-money-balance-path=/bizApi/bizmoney",
-                "vendor.giftishow.api.coupon-send-fail-cancel-path=/bizApi/sendFail/cancel",
-                "vendor.giftishow.api.sensitive-paths=/bizApi/send,/bizApi/coupons,/bizApi/resend"
-        }
+    classes = {
+        GiftishowApiPropertiesIntegrationTest.TestConfig.class
+    },
+    properties = {
+        "vendor.giftishow.api.product-list-path=/bizApi/goods",
+        "vendor.giftishow.api.product-detail-path=/bizApi/goods",
+        "vendor.giftishow.api.brand-list-path=/bizApi/brands",
+        "vendor.giftishow.api.brand-detail-path=/bizApi/brands",
+        "vendor.giftishow.api.coupon-send-path=/bizApi/send",
+        "vendor.giftishow.api.coupon-detail-path=/bizApi/coupons",
+        "vendor.giftishow.api.coupon-cancel-path=/bizApi/cancel",
+        "vendor.giftishow.api.coupon-resend-path=/bizApi/resend",
+        "vendor.giftishow.api.biz-money-balance-path=/bizApi/bizmoney",
+        "vendor.giftishow.api.coupon-send-fail-cancel-path=/bizApi/sendFail/cancel",
+        "vendor.giftishow.api.sensitive-paths=/bizApi/send,/bizApi/coupons,/bizApi/resend"
+    }
 )
 @DisplayName("GiftishowApiProperties yml ↔ Validator 정합성 통합 테스트")
 class GiftishowApiPropertiesIntegrationTest {
@@ -46,11 +46,11 @@ class GiftishowApiPropertiesIntegrationTest {
     @DisplayName("application.yml과 동일한 정합 설정으로 Spring context 로딩 시 Validator 통과")
     void shouldLoadContextWhenSensitivePathsConsistentWithDefinedPaths() {
         assertThat(properties.getApi().getSensitivePaths())
-                .containsExactlyInAnyOrder(
-                        "/bizApi/send",
-                        "/bizApi/coupons",
-                        "/bizApi/resend"
-                );
+            .containsExactlyInAnyOrder(
+                "/bizApi/send",
+                "/bizApi/coupons",
+                "/bizApi/resend"
+            );
     }
 
     @Configuration

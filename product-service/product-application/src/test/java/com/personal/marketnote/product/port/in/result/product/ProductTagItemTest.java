@@ -40,8 +40,8 @@ class ProductTagItemTest {
 
         // when
         Set<String> componentNames = Arrays.stream(components)
-                .map(RecordComponent::getName)
-                .collect(Collectors.toSet());
+            .map(RecordComponent::getName)
+            .collect(Collectors.toSet());
 
         // then
         assertThat(components).hasSize(3);
@@ -54,36 +54,36 @@ class ProductTagItemTest {
     void shouldCreateProductTagItemsFromMultipleTags() {
         // given
         List<ProductTag> tags = List.of(
-                createTag(1L, "NEW", 1L),
-                createTag(2L, "HOT", 2L),
-                createTag(3L, "BEST", 3L)
+            createTag(1L, "NEW", 1L),
+            createTag(2L, "HOT", 2L),
+            createTag(3L, "BEST", 3L)
         );
 
         // when
         List<ProductTagItem> items = tags.stream()
-                .map(ProductTagItem::from)
-                .toList();
+            .map(ProductTagItem::from)
+            .toList();
 
         // then
         assertThat(items).hasSize(3);
         assertThat(items)
-                .extracting(ProductTagItem::id, ProductTagItem::name, ProductTagItem::orderNum)
-                .containsExactly(
-                        Tuple.tuple(1L, "NEW", 1L),
-                        Tuple.tuple(2L, "HOT", 2L),
-                        Tuple.tuple(3L, "BEST", 3L)
-                );
+            .extracting(ProductTagItem::id, ProductTagItem::name, ProductTagItem::orderNum)
+            .containsExactly(
+                Tuple.tuple(1L, "NEW", 1L),
+                Tuple.tuple(2L, "HOT", 2L),
+                Tuple.tuple(3L, "BEST", 3L)
+            );
     }
 
     private ProductTag createTag(Long id, String name, Long orderNum) {
         return ProductTag.from(
-                ProductTagSnapshotState.builder()
-                        .id(id)
-                        .productId(100L)
-                        .name(name)
-                        .orderNum(orderNum)
-                        .status(EntityStatus.ACTIVE)
-                        .build()
+            ProductTagSnapshotState.builder()
+                .id(id)
+                .productId(100L)
+                .name(name)
+                .orderNum(orderNum)
+                .status(EntityStatus.ACTIVE)
+                .build()
         );
     }
 }

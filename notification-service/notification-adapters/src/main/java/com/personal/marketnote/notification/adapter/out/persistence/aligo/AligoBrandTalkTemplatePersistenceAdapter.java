@@ -23,8 +23,8 @@ import java.util.Optional;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class AligoBrandTalkTemplatePersistenceAdapter
-        implements SaveBrandTalkTemplatePort, FindBrandTalkTemplatePort,
-        FindBrandTalkTemplateListPort, UpdateBrandTalkTemplatePort {
+    implements SaveBrandTalkTemplatePort, FindBrandTalkTemplatePort,
+    FindBrandTalkTemplateListPort, UpdateBrandTalkTemplatePort {
 
     private final AligoBrandTalkTemplateJpaRepository repository;
     private final ObjectMapper objectMapper;
@@ -41,15 +41,15 @@ public class AligoBrandTalkTemplatePersistenceAdapter
         String commerceInfoJson = serializeCommerceInfo(template.getCommerceInfo());
 
         AligoBrandTalkTemplateJpaEntity entity = AligoBrandTalkTemplateJpaEntity.create(
-                template.getSenderKey(), template.getTemplateCode(), template.getTemplateName(),
-                template.getTemplateType(), template.getTemplateContent(),
-                template.isAdult(), template.getImageUrl(), template.getImageLink(),
-                buttonsJson, couponJson,
-                template.getTemplateHeader(), mainWideItemJson, subWideItemsJson,
-                template.getCarouselHeader(), carouselItemsJson,
-                carouselCommercesJson, carouselTailJson,
-                template.getVideoUrl(), template.getVideoThumbnailUrl(), commerceInfoJson,
-                template.getTemplateStatus()
+            template.getSenderKey(), template.getTemplateCode(), template.getTemplateName(),
+            template.getTemplateType(), template.getTemplateContent(),
+            template.isAdult(), template.getImageUrl(), template.getImageLink(),
+            buttonsJson, couponJson,
+            template.getTemplateHeader(), mainWideItemJson, subWideItemsJson,
+            template.getCarouselHeader(), carouselItemsJson,
+            carouselCommercesJson, carouselTailJson,
+            template.getVideoUrl(), template.getVideoThumbnailUrl(), commerceInfoJson,
+            template.getTemplateStatus()
         );
 
         AligoBrandTalkTemplateJpaEntity saved = repository.save(entity);
@@ -59,20 +59,20 @@ public class AligoBrandTalkTemplatePersistenceAdapter
     @Override
     public Optional<AligoBrandTalkTemplate> findByTemplateCode(String templateCode) {
         return repository.findByTemplateCode(templateCode)
-                .map(entity -> AligoBrandTalkTemplateJpaEntityToDomainMapper.mapToDomain(entity, objectMapper));
+            .map(entity -> AligoBrandTalkTemplateJpaEntityToDomainMapper.mapToDomain(entity, objectMapper));
     }
 
     @Override
     public List<AligoBrandTalkTemplate> findAllBySenderKey(String senderKey) {
         return repository.findAllBySenderKey(senderKey).stream()
-                .map(entity -> AligoBrandTalkTemplateJpaEntityToDomainMapper.mapToDomain(entity, objectMapper))
-                .toList();
+            .map(entity -> AligoBrandTalkTemplateJpaEntityToDomainMapper.mapToDomain(entity, objectMapper))
+            .toList();
     }
 
     @Override
     public void update(AligoBrandTalkTemplate template) {
         repository.findByTemplateCode(template.getTemplateCode())
-                .ifPresent(entity -> entity.updateTemplateStatus(template.getTemplateStatus()));
+            .ifPresent(entity -> entity.updateTemplateStatus(template.getTemplateStatus()));
     }
 
     private String serializeButtons(List<BrandTalkButton> buttons) {
@@ -80,8 +80,8 @@ public class AligoBrandTalkTemplatePersistenceAdapter
             return null;
         }
         List<Map<String, String>> buttonList = buttons.stream()
-                .map(this::buttonToMap)
-                .toList();
+            .map(this::buttonToMap)
+            .toList();
         try {
             return objectMapper.writeValueAsString(buttonList);
         } catch (JsonProcessingException e) {

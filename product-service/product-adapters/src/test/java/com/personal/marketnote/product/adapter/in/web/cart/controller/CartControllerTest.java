@@ -76,7 +76,7 @@ class CartControllerTest {
             when(getCartProductUseCase.getMyCartProducts(eq(100L))).thenReturn(result);
 
             ResponseEntity<BaseResponse<GetMyCartProductsResponse>> response =
-                    cartController.getMyCartProducts(principal);
+                cartController.getMyCartProducts(principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent()).isNotNull();
@@ -94,11 +94,11 @@ class CartControllerTest {
             UpdateCartProductQuantityRequest request = new UpdateCartProductQuantityRequest(1L, (short) 5);
 
             ResponseEntity<BaseResponse<Void>> response =
-                    cartController.updateCartProductQuantity(request, principal);
+                cartController.updateCartProductQuantity(request, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(updateCartProductQuantityUseCase)
-                    .updateCartProductQuantity(any(UpdateCartProductQuantityCommand.class));
+                .updateCartProductQuantity(any(UpdateCartProductQuantityCommand.class));
         }
     }
 
@@ -113,11 +113,11 @@ class CartControllerTest {
             UpdateCartProductOptionsRequest request = new UpdateCartProductOptionsRequest(1L, List.of(2L, 3L));
 
             ResponseEntity<BaseResponse<Void>> response =
-                    cartController.updateCartProductOptions(request, principal);
+                cartController.updateCartProductOptions(request, principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(updateCartProductOptionsUseCase)
-                    .updateCartProductOptions(any(UpdateCartProductOptionCommand.class));
+                .updateCartProductOptions(any(UpdateCartProductOptionCommand.class));
         }
     }
 
@@ -131,7 +131,7 @@ class CartControllerTest {
             OAuth2AuthenticatedPrincipal principal = mockPrincipal();
 
             ResponseEntity<BaseResponse<Void>> response =
-                    cartController.deleteCartProducts(List.of(1L, 2L), principal);
+                cartController.deleteCartProducts(List.of(1L, 2L), principal);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(deleteCartProductsUseCase).deleteCartProducts(any(DeleteCartProductCommand.class));

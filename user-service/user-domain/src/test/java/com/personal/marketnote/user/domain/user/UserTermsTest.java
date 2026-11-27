@@ -13,10 +13,10 @@ class UserTermsTest {
     void shouldCreateUserTermsFromCreateState() {
         Terms terms = createRequiredTerms();
         UserTermsCreateState state = UserTermsCreateState.builder()
-                .user(null)
-                .terms(terms)
-                .agreementYn(true)
-                .build();
+            .user(null)
+            .terms(terms)
+            .agreementYn(true)
+            .build();
 
         UserTerms userTerms = UserTerms.from(state);
 
@@ -80,32 +80,32 @@ class UserTermsTest {
 
     private UserTerms createUserTerms(boolean agreementYn) {
         return UserTerms.from(UserTermsCreateState.builder()
-                .user(null)
-                .terms(createRequiredTerms())
-                .agreementYn(agreementYn)
-                .build());
+            .user(null)
+            .terms(createRequiredTerms())
+            .agreementYn(agreementYn)
+            .build());
     }
 
     private UserTerms createUserTermsWithRequiredTerms(boolean requiredYn, boolean agreementYn) {
         Terms terms = Terms.from(TermsSnapshotState.builder()
-                .id(1L)
-                .content("약관 내용")
-                .requiredYn(requiredYn)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .content("약관 내용")
+            .requiredYn(requiredYn)
+            .status(EntityStatus.ACTIVE)
+            .build());
         return UserTerms.from(UserTermsCreateState.builder()
-                .user(null)
-                .terms(terms)
-                .agreementYn(agreementYn)
-                .build());
+            .user(null)
+            .terms(terms)
+            .agreementYn(agreementYn)
+            .build());
     }
 
     private Terms createRequiredTerms() {
         return Terms.from(TermsSnapshotState.builder()
-                .id(1L)
-                .content("필수 약관")
-                .requiredYn(true)
-                .status(EntityStatus.ACTIVE)
-                .build());
+            .id(1L)
+            .content("필수 약관")
+            .requiredYn(true)
+            .status(EntityStatus.ACTIVE)
+            .build());
     }
 }

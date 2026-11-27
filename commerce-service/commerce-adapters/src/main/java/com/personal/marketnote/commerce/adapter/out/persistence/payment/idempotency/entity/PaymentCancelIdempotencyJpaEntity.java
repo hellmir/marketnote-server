@@ -10,15 +10,15 @@ import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(
-        name = "payment_cancel_idempotency",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_payment_cancel_idempotency_key",
-                columnNames = "idempotency_key"
-        ),
-        indexes = @Index(
-                name = "idx_payment_cancel_idempotency_created_at",
-                columnList = "created_at"
-        )
+    name = "payment_cancel_idempotency",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_payment_cancel_idempotency_key",
+        columnNames = "idempotency_key"
+    ),
+    indexes = @Index(
+        name = "idx_payment_cancel_idempotency_created_at",
+        columnList = "created_at"
+    )
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -52,14 +52,14 @@ public class PaymentCancelIdempotencyJpaEntity extends BaseEntity {
 
     public static PaymentCancelIdempotencyJpaEntity from(PaymentCancelIdempotency domain) {
         return PaymentCancelIdempotencyJpaEntity.builder()
-                .id(domain.getId())
-                .idempotencyKey(domain.getIdempotencyKey())
-                .paymentId(domain.getPaymentId())
-                .buyerId(domain.getBuyerId())
-                .status(domain.getStatus())
-                .result(domain.getResult())
-                .failedReason(domain.getFailedReason())
-                .build();
+            .id(domain.getId())
+            .idempotencyKey(domain.getIdempotencyKey())
+            .paymentId(domain.getPaymentId())
+            .buyerId(domain.getBuyerId())
+            .status(domain.getStatus())
+            .result(domain.getResult())
+            .failedReason(domain.getFailedReason())
+            .build();
     }
 
     public void updateFrom(PaymentCancelIdempotency domain) {

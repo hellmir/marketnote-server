@@ -42,7 +42,7 @@ class ManageGifticonCategoryOrderUseCaseTest {
         GifticonCategory category = createCategory(1L, true, null);
         when(findGifticonCategoryPort.findById(1L)).thenReturn(Optional.of(category));
         ManageGifticonCategoryOrderCommand command = new ManageGifticonCategoryOrderCommand(
-                List.of(new OrderItem(1L, 1))
+            List.of(new OrderItem(1L, 1))
         );
 
         // when
@@ -62,7 +62,7 @@ class ManageGifticonCategoryOrderUseCaseTest {
         when(findGifticonCategoryPort.findById(1L)).thenReturn(Optional.of(category1));
         when(findGifticonCategoryPort.findById(2L)).thenReturn(Optional.of(category2));
         ManageGifticonCategoryOrderCommand command = new ManageGifticonCategoryOrderCommand(
-                List.of(new OrderItem(1L, 1), new OrderItem(2L, 2))
+            List.of(new OrderItem(1L, 1), new OrderItem(2L, 2))
         );
 
         // when
@@ -82,12 +82,12 @@ class ManageGifticonCategoryOrderUseCaseTest {
         GifticonCategory category = createCategory(1L, false, null);
         when(findGifticonCategoryPort.findById(1L)).thenReturn(Optional.of(category));
         ManageGifticonCategoryOrderCommand command = new ManageGifticonCategoryOrderCommand(
-                List.of(new OrderItem(1L, 1))
+            List.of(new OrderItem(1L, 1))
         );
 
         // when & then
         assertThatThrownBy(() -> manageGifticonCategoryOrderService.manageOrder(command))
-                .isInstanceOf(GifticonCategoryNotExposedException.class);
+            .isInstanceOf(GifticonCategoryNotExposedException.class);
         verify(updateGifticonCategoryPort, never()).update(any());
     }
 
@@ -97,12 +97,12 @@ class ManageGifticonCategoryOrderUseCaseTest {
         // given
         when(findGifticonCategoryPort.findById(999L)).thenReturn(Optional.empty());
         ManageGifticonCategoryOrderCommand command = new ManageGifticonCategoryOrderCommand(
-                List.of(new OrderItem(999L, 1))
+            List.of(new OrderItem(999L, 1))
         );
 
         // when & then
         assertThatThrownBy(() -> manageGifticonCategoryOrderService.manageOrder(command))
-                .isInstanceOf(GifticonCategoryNotFoundException.class);
+            .isInstanceOf(GifticonCategoryNotFoundException.class);
         verify(updateGifticonCategoryPort, never()).update(any());
     }
 
@@ -113,7 +113,7 @@ class ManageGifticonCategoryOrderUseCaseTest {
         GifticonCategory category = createCategory(1L, true, 3);
         when(findGifticonCategoryPort.findById(1L)).thenReturn(Optional.of(category));
         ManageGifticonCategoryOrderCommand command = new ManageGifticonCategoryOrderCommand(
-                List.of(new OrderItem(1L, 5))
+            List.of(new OrderItem(1L, 5))
         );
 
         // when
@@ -126,14 +126,14 @@ class ManageGifticonCategoryOrderUseCaseTest {
 
     private GifticonCategory createCategory(Long id, boolean exposed, Integer orderNum) {
         return GifticonCategory.from(GifticonCategorySnapshotState.builder()
-                .id(id)
-                .categoryCode(String.valueOf(id))
-                .categoryName("카테고리" + id)
-                .exposed(exposed)
-                .orderNum(orderNum)
-                .createdAt(LocalDateTime.of(2026, 4, 3, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 3, 10, 0))
-                .build()
+            .id(id)
+            .categoryCode(String.valueOf(id))
+            .categoryName("카테고리" + id)
+            .exposed(exposed)
+            .orderNum(orderNum)
+            .createdAt(LocalDateTime.of(2026, 4, 3, 10, 0))
+            .modifiedAt(LocalDateTime.of(2026, 4, 3, 10, 0))
+            .build()
         );
     }
 }

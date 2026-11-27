@@ -51,22 +51,22 @@ class CacheStockRedisAdapterTest {
         // given
         when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
         Inventory inventory1 = Inventory.from(
-                InventorySnapshotState.builder()
-                        .productId(1L)
-                        .pricePolicyId(10L)
-                        .stock(50)
-                        .version(0L)
-                        .reserved(0)
-                        .build()
+            InventorySnapshotState.builder()
+                .productId(1L)
+                .pricePolicyId(10L)
+                .stock(50)
+                .version(0L)
+                .reserved(0)
+                .build()
         );
         Inventory inventory2 = Inventory.from(
-                InventorySnapshotState.builder()
-                        .productId(2L)
-                        .pricePolicyId(20L)
-                        .stock(100)
-                        .version(0L)
-                        .reserved(0)
-                        .build()
+            InventorySnapshotState.builder()
+                .productId(2L)
+                .pricePolicyId(20L)
+                .stock(100)
+                .version(0L)
+                .reserved(0)
+                .build()
         );
 
         // when

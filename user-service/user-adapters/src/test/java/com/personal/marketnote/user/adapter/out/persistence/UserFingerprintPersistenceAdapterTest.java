@@ -45,7 +45,7 @@ class UserFingerprintPersistenceAdapterTest {
             UserFingerprint domain = buildDomain(10L, "fp-abc", FIRST_SEEN_AT, LAST_SEEN_AT);
             UserFingerprintJpaEntity existing = UserFingerprintJpaEntity.of(10L, "fp-abc", FingerprintSource.LOGIN, FIRST_SEEN_AT);
             when(userFingerprintJpaRepository.findByUserIdAndFingerprint(10L, "fp-abc"))
-                    .thenReturn(Optional.of(existing));
+                .thenReturn(Optional.of(existing));
 
             adapter.save(domain);
 
@@ -58,7 +58,7 @@ class UserFingerprintPersistenceAdapterTest {
         void savesNewEntityWhenNotExists() {
             UserFingerprint domain = buildDomain(20L, "fp-new", FIRST_SEEN_AT, FIRST_SEEN_AT);
             when(userFingerprintJpaRepository.findByUserIdAndFingerprint(20L, "fp-new"))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             adapter.save(domain);
 
@@ -82,7 +82,7 @@ class UserFingerprintPersistenceAdapterTest {
         void returnsDomainWhenFound() {
             UserFingerprintJpaEntity entity = UserFingerprintJpaEntity.of(30L, "fp-xyz", FingerprintSource.SIGNUP, FIRST_SEEN_AT);
             when(userFingerprintJpaRepository.findByUserIdAndFingerprint(30L, "fp-xyz"))
-                    .thenReturn(Optional.of(entity));
+                .thenReturn(Optional.of(entity));
 
             Optional<UserFingerprint> result = adapter.findByUserIdAndFingerprint(30L, "fp-xyz");
 
@@ -96,7 +96,7 @@ class UserFingerprintPersistenceAdapterTest {
         @DisplayName("엔티티가 없으면 empty를 반환한다")
         void returnsEmptyWhenNotFound() {
             when(userFingerprintJpaRepository.findByUserIdAndFingerprint(99L, "missing"))
-                    .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
             Optional<UserFingerprint> result = adapter.findByUserIdAndFingerprint(99L, "missing");
 
@@ -119,7 +119,7 @@ class UserFingerprintPersistenceAdapterTest {
 
             assertThat(result).hasSize(2);
             assertThat(result).extracting(UserFingerprint::getFingerprint)
-                    .containsExactly("fp-1", "fp-2");
+                .containsExactly("fp-1", "fp-2");
         }
 
         @Test
@@ -135,13 +135,13 @@ class UserFingerprintPersistenceAdapterTest {
 
     private UserFingerprint buildDomain(Long userId, String fingerprint, LocalDateTime firstSeenAt, LocalDateTime lastSeenAt) {
         return UserFingerprint.from(
-                UserFingerprintSnapshotState.builder()
-                        .userId(userId)
-                        .fingerprint(fingerprint)
-                        .source(FingerprintSource.LOGIN)
-                        .firstSeenAt(firstSeenAt)
-                        .lastSeenAt(lastSeenAt)
-                        .build()
+            UserFingerprintSnapshotState.builder()
+                .userId(userId)
+                .fingerprint(fingerprint)
+                .source(FingerprintSource.LOGIN)
+                .firstSeenAt(firstSeenAt)
+                .lastSeenAt(lastSeenAt)
+                .build()
         );
     }
 }

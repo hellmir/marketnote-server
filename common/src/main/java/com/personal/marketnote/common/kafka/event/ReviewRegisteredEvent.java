@@ -6,12 +6,12 @@ import java.math.BigDecimal;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ReviewRegisteredEvent(
-        Long orderId,
-        Long pricePolicyId,
-        Long productId,
-        Integer totalCount,
-        BigDecimal averageRating,
-        Long reviewerId,
-        Long reviewId
+    Long orderId,
+    Long pricePolicyId,
+    Long productId,
+    Integer totalCount,
+    BigDecimal averageRating,
+    Long reviewerId,
+    Long reviewId
 ) {
 }

@@ -36,12 +36,12 @@ class UserPointPersistenceAdapterTest {
 
     private UserPointJpaEntity buildEntity(long amount) {
         UserPoint domain = UserPoint.from(UserPointSnapshotState.builder()
-                .userId(USER_ID)
-                .userKey(USER_KEY)
-                .amount(PointAmount.of(amount))
-                .addExpectedAmount(PointAmount.of(0L))
-                .expireExpectedAmount(PointAmount.of(0L))
-                .build());
+            .userId(USER_ID)
+            .userKey(USER_KEY)
+            .amount(PointAmount.of(amount))
+            .addExpectedAmount(PointAmount.of(0L))
+            .expireExpectedAmount(PointAmount.of(0L))
+            .build());
         return UserPointJpaEntity.from(domain);
     }
 
@@ -50,14 +50,14 @@ class UserPointPersistenceAdapterTest {
     void shouldSaveAndReturnDomain() {
         // given
         UserPoint userPoint = UserPoint.from(UserPointCreateState.builder()
-                .userId(USER_ID)
-                .userKey(USER_KEY)
-                .amount(PointAmount.of(0L))
-                .addExpectedAmount(PointAmount.of(0L))
-                .expireExpectedAmount(PointAmount.of(0L))
-                .build());
+            .userId(USER_ID)
+            .userKey(USER_KEY)
+            .amount(PointAmount.of(0L))
+            .addExpectedAmount(PointAmount.of(0L))
+            .expireExpectedAmount(PointAmount.of(0L))
+            .build());
         given(repository.save(any(UserPointJpaEntity.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
+            .willAnswer(invocation -> invocation.getArgument(0));
 
         // when
         UserPoint saved = adapter.save(userPoint);

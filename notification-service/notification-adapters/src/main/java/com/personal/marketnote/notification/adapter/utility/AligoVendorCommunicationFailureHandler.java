@@ -32,87 +32,87 @@ public class AligoVendorCommunicationFailureHandler {
     private final VendorCommunicationPayloadGenerator payloadGenerator;
 
     public void handleHttpFailure(
-            NotificationVendorCommunicationTargetType targetType,
-            String requestPayload,
-            JsonNode requestPayloadJson,
-            int statusCode,
-            String responseBody,
-            boolean masked,
-            int attemptCount,
-            List<AttemptResult> attempts
+        NotificationVendorCommunicationTargetType targetType,
+        String requestPayload,
+        JsonNode requestPayloadJson,
+        int statusCode,
+        String responseBody,
+        boolean masked,
+        int attemptCount,
+        List<AttemptResult> attempts
     ) {
         String exception = "HTTP_" + statusCode;
 
         recorder.record(
-                targetType,
-                NotificationVendorCommunicationType.REQUEST,
-                NotificationVendorCommunicationSenderType.SERVER,
-                NotificationVendorName.ALIGO,
-                requestPayload,
-                requestPayloadJson,
-                exception,
-                attemptCount
+            targetType,
+            NotificationVendorCommunicationType.REQUEST,
+            NotificationVendorCommunicationSenderType.SERVER,
+            NotificationVendorName.ALIGO,
+            requestPayload,
+            requestPayloadJson,
+            exception,
+            attemptCount
         );
 
         Map<String, Object> responsePayloadMap = buildResponsePayloadMap(
-                statusCode, responseBody, masked, attemptCount, attempts
+            statusCode, responseBody, masked, attemptCount, attempts
         );
         JsonNode responsePayloadJson = payloadGenerator.buildPayloadJson(responsePayloadMap);
         String responsePayload = responsePayloadJson.toString();
 
         recorder.record(
-                targetType,
-                NotificationVendorCommunicationType.RESPONSE,
-                NotificationVendorCommunicationSenderType.VENDOR,
-                NotificationVendorName.ALIGO,
-                responsePayload,
-                responsePayloadJson,
-                exception,
-                attemptCount
+            targetType,
+            NotificationVendorCommunicationType.RESPONSE,
+            NotificationVendorCommunicationSenderType.VENDOR,
+            NotificationVendorName.ALIGO,
+            responsePayload,
+            responsePayloadJson,
+            exception,
+            attemptCount
         );
     }
 
     public void handleParseFailure(
-            NotificationVendorCommunicationTargetType targetType,
-            String requestPayload,
-            JsonNode requestPayloadJson,
-            String responseBody,
-            String exceptionName,
-            boolean masked,
-            int attemptCount,
-            List<AttemptResult> attempts
+        NotificationVendorCommunicationTargetType targetType,
+        String requestPayload,
+        JsonNode requestPayloadJson,
+        String responseBody,
+        String exceptionName,
+        boolean masked,
+        int attemptCount,
+        List<AttemptResult> attempts
     ) {
         recorder.record(
-                targetType,
-                NotificationVendorCommunicationType.REQUEST,
-                NotificationVendorCommunicationSenderType.SERVER,
-                NotificationVendorName.ALIGO,
-                requestPayload,
-                requestPayloadJson,
-                exceptionName,
-                attemptCount
+            targetType,
+            NotificationVendorCommunicationType.REQUEST,
+            NotificationVendorCommunicationSenderType.SERVER,
+            NotificationVendorName.ALIGO,
+            requestPayload,
+            requestPayloadJson,
+            exceptionName,
+            attemptCount
         );
 
         Map<String, Object> responsePayloadMap = buildParseFailurePayloadMap(
-                responseBody, exceptionName, masked, attemptCount, attempts
+            responseBody, exceptionName, masked, attemptCount, attempts
         );
         JsonNode responsePayloadJson = payloadGenerator.buildPayloadJson(responsePayloadMap);
         String responsePayload = responsePayloadJson.toString();
 
         recorder.record(
-                targetType,
-                NotificationVendorCommunicationType.RESPONSE,
-                NotificationVendorCommunicationSenderType.VENDOR,
-                NotificationVendorName.ALIGO,
-                responsePayload,
-                responsePayloadJson,
-                exceptionName,
-                attemptCount
+            targetType,
+            NotificationVendorCommunicationType.RESPONSE,
+            NotificationVendorCommunicationSenderType.VENDOR,
+            NotificationVendorName.ALIGO,
+            responsePayload,
+            responsePayloadJson,
+            exceptionName,
+            attemptCount
         );
     }
 
     private Map<String, Object> buildResponsePayloadMap(
-            int statusCode, String responseBody, boolean masked, int attemptCount, List<AttemptResult> attempts
+        int statusCode, String responseBody, boolean masked, int attemptCount, List<AttemptResult> attempts
     ) {
         Map<String, Object> map = new LinkedHashMap<>();
         if (masked) {
@@ -132,7 +132,7 @@ public class AligoVendorCommunicationFailureHandler {
     }
 
     private Map<String, Object> buildParseFailurePayloadMap(
-            String responseBody, String exceptionName, boolean masked, int attemptCount, List<AttemptResult> attempts
+        String responseBody, String exceptionName, boolean masked, int attemptCount, List<AttemptResult> attempts
     ) {
         Map<String, Object> map = new LinkedHashMap<>();
         if (masked) {

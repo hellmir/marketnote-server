@@ -6,12 +6,12 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import java.util.List;
 
 public record ProductInfoResult(
-        Long sellerId,
-        String name,
-        String brandName,
-        ProductPricePolicyInfoResult pricePolicy,
-        List<ProductOptionInfoResult> selectedOptions,
-        GetFileResult catalogImage
+    Long sellerId,
+    String name,
+    String brandName,
+    ProductPricePolicyInfoResult pricePolicy,
+    List<ProductOptionInfoResult> selectedOptions,
+    GetFileResult catalogImage
 ) {
     public boolean isMyProduct(Long userId) {
         return FormatValidator.equals(userId, sellerId);

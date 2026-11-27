@@ -49,14 +49,14 @@ class RegisterUserPointUseCaseTest {
 
     private UserPoint createSavedUserPoint() {
         return UserPoint.from(UserPointSnapshotState.builder()
-                .userId(USER_ID)
-                .userKey(USER_KEY)
-                .amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero())
-                .expireExpectedAmount(PointAmount.zero())
-                .createdAt(NOW)
-                .modifiedAt(NOW)
-                .build()
+            .userId(USER_ID)
+            .userKey(USER_KEY)
+            .amount(PointAmount.zero())
+            .addExpectedAmount(PointAmount.zero())
+            .expireExpectedAmount(PointAmount.zero())
+            .createdAt(NOW)
+            .modifiedAt(NOW)
+            .build()
         );
     }
 
@@ -70,7 +70,7 @@ class RegisterUserPointUseCaseTest {
         when(findUserPointPort.existsByUserId(USER_ID)).thenReturn(false);
         when(saveUserPointPort.save(any(UserPoint.class))).thenReturn(savedUserPoint);
         when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
         registerUserPointService.register(command);
@@ -91,7 +91,7 @@ class RegisterUserPointUseCaseTest {
         when(findUserPointPort.existsByUserId(USER_ID)).thenReturn(false);
         when(saveUserPointPort.save(any(UserPoint.class))).thenReturn(savedUserPoint);
         when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
         registerUserPointService.register(command);
@@ -117,7 +117,7 @@ class RegisterUserPointUseCaseTest {
         when(findUserPointPort.existsByUserId(USER_ID)).thenReturn(false);
         when(saveUserPointPort.save(any(UserPoint.class))).thenReturn(savedUserPoint);
         when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
         registerUserPointService.register(command);
@@ -142,7 +142,7 @@ class RegisterUserPointUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> registerUserPointService.register(command))
-                .isInstanceOf(DuplicateUserPointException.class);
+            .isInstanceOf(DuplicateUserPointException.class);
 
         verify(saveUserPointPort, never()).save(any());
         verify(saveUserPointHistoryPort, never()).save(any());
@@ -158,7 +158,7 @@ class RegisterUserPointUseCaseTest {
 
         // expect
         assertThatThrownBy(() -> registerUserPointService.register(command))
-                .isInstanceOf(DuplicateUserPointException.class);
+            .isInstanceOf(DuplicateUserPointException.class);
 
         verifyNoInteractions(saveUserPointPort);
         verifyNoInteractions(saveUserPointHistoryPort);

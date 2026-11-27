@@ -33,15 +33,15 @@ class RecordRewardServiceCommunicationHistoryUseCaseTest {
     void shouldRecordCommunicationHistorySuccessfully() {
         // given
         RewardServiceCommunicationHistoryCommand command = RewardServiceCommunicationHistoryCommand.builder()
-                .targetType(RewardServiceCommunicationTargetType.GENERAL)
-                .targetId("target-123")
-                .communicationType(RewardServiceCommunicationType.REQUEST)
-                .sender(RewardServiceCommunicationSenderType.COMMERCE)
-                .payload("{\"key\": \"value\"}")
-                .build();
+            .targetType(RewardServiceCommunicationTargetType.GENERAL)
+            .targetId("target-123")
+            .communicationType(RewardServiceCommunicationType.REQUEST)
+            .sender(RewardServiceCommunicationSenderType.COMMERCE)
+            .payload("{\"key\": \"value\"}")
+            .build();
 
         when(saveServiceCommunicationHistoryPort.save(any(RewardServiceCommunicationHistory.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
         RewardServiceCommunicationHistory result = recordService.record(command);

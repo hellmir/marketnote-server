@@ -48,7 +48,7 @@ class LikeControllerTest {
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(10L);
             UpsertLikeRequest request = new UpsertLikeRequest(LikeTargetType.REVIEW, 100L, true);
             when(upsertLikeUseCase.upsertLike(any(UpsertLikeCommand.class)))
-                    .thenReturn(new UpsertLikeResult(true, true));
+                .thenReturn(new UpsertLikeResult(true, true));
 
             ResponseEntity<BaseResponse<UpsertLikeResponse>> response = controller.upsertLike(request, principal);
 
@@ -63,7 +63,7 @@ class LikeControllerTest {
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(10L);
             UpsertLikeRequest request = new UpsertLikeRequest(LikeTargetType.BOARD, 200L, false);
             when(upsertLikeUseCase.upsertLike(any(UpsertLikeCommand.class)))
-                    .thenReturn(new UpsertLikeResult(false, false));
+                .thenReturn(new UpsertLikeResult(false, false));
 
             ResponseEntity<BaseResponse<UpsertLikeResponse>> response = controller.upsertLike(request, principal);
 
@@ -79,7 +79,7 @@ class LikeControllerTest {
             UpsertLikeRequest request = new UpsertLikeRequest(LikeTargetType.REVIEW, 300L, true);
             ArgumentCaptor<UpsertLikeCommand> captor = ArgumentCaptor.forClass(UpsertLikeCommand.class);
             when(upsertLikeUseCase.upsertLike(captor.capture()))
-                    .thenReturn(new UpsertLikeResult(true, true));
+                .thenReturn(new UpsertLikeResult(true, true));
 
             controller.upsertLike(request, principal);
 
@@ -94,7 +94,7 @@ class LikeControllerTest {
 
     private OAuth2AuthenticatedPrincipal buildPrincipal(Long userId) {
         return new DefaultOAuth2AuthenticatedPrincipal(
-                String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
+            String.valueOf(userId), Map.of("name", String.valueOf(userId)), List.of()
         );
     }
 }

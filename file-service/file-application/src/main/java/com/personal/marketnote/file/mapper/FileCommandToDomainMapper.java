@@ -13,18 +13,18 @@ public class FileCommandToDomainMapper {
         OwnerType ownerType = OwnerType.from(updateFilesCommand.ownerType());
 
         return updateFilesCommand.fileInfo()
-                .stream()
-                .map(fileInfo -> FileDomain.from(
-                        FileDomainCreateState.builder()
-                                .ownerType(ownerType)
-                                .ownerId(updateFilesCommand.ownerId())
-                                .sort(FileSort.from(fileInfo.sort()))
-                                .extension(fileInfo.extension())
-                                .name(fileInfo.name())
-                                .userId(updateFilesCommand.requesterId())
-                                .ownerKey(updateFilesCommand.ownerKey())
-                                .build()
-                ))
-                .toList();
+            .stream()
+            .map(fileInfo -> FileDomain.from(
+                FileDomainCreateState.builder()
+                    .ownerType(ownerType)
+                    .ownerId(updateFilesCommand.ownerId())
+                    .sort(FileSort.from(fileInfo.sort()))
+                    .extension(fileInfo.extension())
+                    .name(fileInfo.name())
+                    .userId(updateFilesCommand.requesterId())
+                    .ownerKey(updateFilesCommand.ownerKey())
+                    .build()
+            ))
+            .toList();
     }
 }

@@ -36,7 +36,7 @@ class GifticonBrandControllerTest {
     @DisplayName("카테고리 코드를 UseCase Command에 전달하고 OK 상태로 브랜드 목록을 반환한다")
     void returnsOkWithBrands() {
         given(getGifticonBrandsUseCase.getBrands(any(GetGifticonBrandsCommand.class)))
-                .willReturn(new GetGifticonBrandsResult(List.of()));
+            .willReturn(new GetGifticonBrandsResult(List.of()));
 
         ResponseEntity<BaseResponse<GetGifticonBrandsResponse>> response = controller.getBrands("CAT-01");
 

@@ -75,18 +75,18 @@ class OrderPaymentCompletedOutboundDeliveryTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecordWithShipping() {
         List<OrderPaymentCompletedEvent.OrderProductItem> products = List.of(
-                new OrderPaymentCompletedEvent.OrderProductItem(100L, 42L, PRODUCT_KEY_1, UUID.randomUUID(), 2, 30000L),
-                new OrderPaymentCompletedEvent.OrderProductItem(200L, 43L, PRODUCT_KEY_2, null, 1, 20000L)
+            new OrderPaymentCompletedEvent.OrderProductItem(100L, 42L, PRODUCT_KEY_1, UUID.randomUUID(), 2, 30000L),
+            new OrderPaymentCompletedEvent.OrderProductItem(200L, 43L, PRODUCT_KEY_2, null, 1, 20000L)
         );
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                1L, 10L, 80000L, 5000L,
-                "홍길동", "010-1234-5678", "06234",
-                "서울특별시 강남구 테헤란로 123", "4층 401호", "문 앞에 놓아주세요",
-                products, 500L
+            1L, 10L, 80000L, 5000L,
+            "홍길동", "010-1234-5678", "06234",
+            "서울특별시 강남구 테헤란로 123", "4층 401호", "문 앞에 놓아주세요",
+            products, 500L
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
-                "commerce-service", LocalDateTime.of(2026, 4, 16, 10, 0), event
+            "test-event-id", KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
+            "commerce-service", LocalDateTime.of(2026, 4, 16, 10, 0), event
         );
         return new ConsumerRecord<>(KafkaTopicConstants.ORDER_PAYMENT_COMPLETED, 0, 0L, "key-1", envelope);
     }
@@ -118,7 +118,7 @@ class OrderPaymentCompletedOutboundDeliveryTest {
 
         // then
         ArgumentCaptor<RegisterFulfillmentDeliveryCommand> captor =
-                ArgumentCaptor.forClass(RegisterFulfillmentDeliveryCommand.class);
+            ArgumentCaptor.forClass(RegisterFulfillmentDeliveryCommand.class);
         verify(registerFulfillmentDeliveryUseCase).registerDeliveryIdempotent(captor.capture());
 
         RegisterFulfillmentDeliveryCommand command = captor.getValue();
@@ -146,7 +146,7 @@ class OrderPaymentCompletedOutboundDeliveryTest {
 
         // then
         ArgumentCaptor<RegisterFulfillmentDeliveryCommand> captor =
-                ArgumentCaptor.forClass(RegisterFulfillmentDeliveryCommand.class);
+            ArgumentCaptor.forClass(RegisterFulfillmentDeliveryCommand.class);
         verify(registerFulfillmentDeliveryUseCase).registerDeliveryIdempotent(captor.capture());
 
         var products = captor.getValue().deliveryRequests().get(0).products();
@@ -163,7 +163,7 @@ class OrderPaymentCompletedOutboundDeliveryTest {
         // given
         setUpFasstoAuth();
         doThrow(new FulfillmentDeliveryAlreadyRegisteredException())
-                .when(registerFulfillmentDeliveryUseCase).registerDeliveryIdempotent(any());
+            .when(registerFulfillmentDeliveryUseCase).registerDeliveryIdempotent(any());
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecordWithShipping();
 
         // when
@@ -178,16 +178,16 @@ class OrderPaymentCompletedOutboundDeliveryTest {
     void shouldSkipDeliveryWhenNoOrderProducts() {
         // given
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                1L, 10L, 0L, 0L,
-                "홍길동", "010-1234-5678", "06234", "서울시", "101호", null,
-                List.of(), 0L
+            1L, 10L, 0L, 0L,
+            "홍길동", "010-1234-5678", "06234", "서울시", "101호", null,
+            List.of(), 0L
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
-                "commerce-service", LocalDateTime.of(2026, 4, 16, 10, 0), event
+            "test-event-id", KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
+            "commerce-service", LocalDateTime.of(2026, 4, 16, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                KafkaTopicConstants.ORDER_PAYMENT_COMPLETED, 0, 0L, "key-1", envelope
+            KafkaTopicConstants.ORDER_PAYMENT_COMPLETED, 0, 0L, "key-1", envelope
         );
 
         // when

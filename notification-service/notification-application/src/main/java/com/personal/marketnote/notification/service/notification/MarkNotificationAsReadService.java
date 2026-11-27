@@ -29,15 +29,15 @@ public class MarkNotificationAsReadService implements MarkNotificationAsReadUseC
     @Transactional(isolation = READ_COMMITTED)
     public void markAsRead(MarkNotificationAsReadCommand command) {
         Notification notification = findNotificationPort.findActiveById(command.notificationId())
-                .orElseThrow(() -> {
-                    log.warn("알림을 찾을 수 없습니다. notificationId={}", command.notificationId());
-                    return new NotificationNotFoundException();
-                });
+            .orElseThrow(() -> {
+                log.warn("알림을 찾을 수 없습니다. notificationId={}", command.notificationId());
+                return new NotificationNotFoundException();
+            });
 
         if (!notification.isOwnedBy(command.userId())) {
             log.warn(
-                    "알림 소유자 불일치. notificationId={}, userId={}",
-                    command.notificationId(), command.userId()
+                "알림 소유자 불일치. notificationId={}, userId={}",
+                command.notificationId(), command.userId()
             );
             throw new NotificationNotFoundException();
         }
@@ -51,9 +51,9 @@ public class MarkNotificationAsReadService implements MarkNotificationAsReadUseC
 
         long unreadCount = findNotificationPort.countUnreadByUserId(command.userId());
         publishSseEventPort.publish(
-                command.userId(),
-                NotificationSseEventType.UNREAD_COUNT_CHANGED,
-                UnreadCountChangedPayload.of(unreadCount)
+            command.userId(),
+            NotificationSseEventType.UNREAD_COUNT_CHANGED,
+            UnreadCountChangedPayload.of(unreadCount)
         );
     }
 }

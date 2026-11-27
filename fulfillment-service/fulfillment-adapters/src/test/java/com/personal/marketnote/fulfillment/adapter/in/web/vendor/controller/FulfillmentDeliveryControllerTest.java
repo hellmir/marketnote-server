@@ -71,16 +71,16 @@ class FulfillmentDeliveryControllerTest {
         void returnsCreated() {
             // given
             when(registerFulfillmentDeliveryUseCase.registerDelivery(any(RegisterFulfillmentDeliveryCommand.class)))
-                    .thenReturn(RegisterFulfillmentDeliveryResult.of(0, List.of()));
+                .thenReturn(RegisterFulfillmentDeliveryResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<RegisterFulfillmentDeliveryResponse>> response =
-                    controller.registerDelivery(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
+                controller.registerDelivery(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             ArgumentCaptor<RegisterFulfillmentDeliveryCommand> captor =
-                    ArgumentCaptor.forClass(RegisterFulfillmentDeliveryCommand.class);
+                ArgumentCaptor.forClass(RegisterFulfillmentDeliveryCommand.class);
             verify(registerFulfillmentDeliveryUseCase).registerDelivery(captor.capture());
             assertThat(captor.getValue().customerCode()).isEqualTo(CUSTOMER_CODE);
             assertThat(captor.getValue().accessToken()).isEqualTo(ACCESS_TOKEN);
@@ -96,11 +96,11 @@ class FulfillmentDeliveryControllerTest {
         void returnsOk() {
             // given
             when(updateFulfillmentDeliveryUseCase.updateDelivery(any(UpdateFulfillmentDeliveryCommand.class)))
-                    .thenReturn(RegisterFulfillmentDeliveryResult.of(0, List.of()));
+                .thenReturn(RegisterFulfillmentDeliveryResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<RegisterFulfillmentDeliveryResponse>> response =
-                    controller.updateDelivery(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
+                controller.updateDelivery(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -117,11 +117,11 @@ class FulfillmentDeliveryControllerTest {
         void returnsCreated() {
             // given
             when(registerFulfillmentDeliveryCarUseCase.registerDeliveryCar(any(RegisterFulfillmentDeliveryCarCommand.class)))
-                    .thenReturn(RegisterFulfillmentDeliveryResult.of(0, List.of()));
+                .thenReturn(RegisterFulfillmentDeliveryResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<RegisterFulfillmentDeliveryResponse>> response =
-                    controller.registerDeliveryCar(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
+                controller.registerDeliveryCar(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -138,11 +138,11 @@ class FulfillmentDeliveryControllerTest {
         void returnsCreated() {
             // given
             when(registerFulfillmentDeliveryIcsUseCase.registerDeliveryIcs(any(RegisterFulfillmentDeliveryIcsCommand.class)))
-                    .thenReturn(RegisterFulfillmentDeliveryResult.of(0, List.of()));
+                .thenReturn(RegisterFulfillmentDeliveryResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<RegisterFulfillmentDeliveryResponse>> response =
-                    controller.registerDeliveryIcs(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
+                controller.registerDeliveryIcs(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -159,11 +159,11 @@ class FulfillmentDeliveryControllerTest {
         void returnsOk() {
             // given
             when(updateFulfillmentDeliveryCarUseCase.updateDeliveryCar(any(UpdateFulfillmentDeliveryCarCommand.class)))
-                    .thenReturn(RegisterFulfillmentDeliveryResult.of(0, List.of()));
+                .thenReturn(RegisterFulfillmentDeliveryResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<RegisterFulfillmentDeliveryResponse>> response =
-                    controller.updateDeliveryCar(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
+                controller.updateDeliveryCar(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -180,11 +180,11 @@ class FulfillmentDeliveryControllerTest {
         void returnsOk() {
             // given
             when(cancelFulfillmentDeliveryUseCase.cancelDelivery(any(CancelFulfillmentDeliveryCommand.class)))
-                    .thenReturn(CancelFulfillmentDeliveryResult.of(0, List.of()));
+                .thenReturn(CancelFulfillmentDeliveryResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<CancelFulfillmentDeliveryResponse>> response =
-                    controller.cancelDelivery(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
+                controller.cancelDelivery(CUSTOMER_CODE, ACCESS_TOKEN, List.of());
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -201,17 +201,17 @@ class FulfillmentDeliveryControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentDeliveriesUseCase.getDeliveries(any(GetFulfillmentDeliveriesCommand.class)))
-                    .thenReturn(GetFulfillmentDeliveriesResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentDeliveriesResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentDeliveriesResponse>> response = controller.getDeliveries(
-                    CUSTOMER_CODE, "2026-04-01", "2026-10-07", "ALL", "1", ACCESS_TOKEN, "ORD-1"
+                CUSTOMER_CODE, "2026-04-01", "2026-10-07", "ALL", "1", ACCESS_TOKEN, "ORD-1"
             );
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<GetFulfillmentDeliveriesCommand> captor =
-                    ArgumentCaptor.forClass(GetFulfillmentDeliveriesCommand.class);
+                ArgumentCaptor.forClass(GetFulfillmentDeliveriesCommand.class);
             verify(getFulfillmentDeliveriesUseCase).getDeliveries(captor.capture());
             assertThat(captor.getValue().customerCode()).isEqualTo(CUSTOMER_CODE);
             assertThat(captor.getValue().startDate()).isEqualTo("2026-04-01");
@@ -230,11 +230,11 @@ class FulfillmentDeliveryControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentDeliveryStatusesUseCase.getDeliveryStatuses(any(GetFulfillmentDeliveryStatusesCommand.class)))
-                    .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentDeliveryStatusesResponse>> response =
-                    controller.getDeliveryStatuses(CUSTOMER_CODE, "2026-04-01", "2026-10-07", "ALL", ACCESS_TOKEN);
+                controller.getDeliveryStatuses(CUSTOMER_CODE, "2026-04-01", "2026-10-07", "ALL", ACCESS_TOKEN);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -251,16 +251,16 @@ class FulfillmentDeliveryControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentDeliveryDetailUseCase.getDeliveryDetail(any(GetFulfillmentDeliveryDetailCommand.class)))
-                    .thenReturn(GetFulfillmentDeliveryDetailResult.of(0, List.of()));
+                .thenReturn(GetFulfillmentDeliveryDetailResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentDeliveryDetailResponse>> response =
-                    controller.getDeliveryDetail(CUSTOMER_CODE, "SLIP-001", ACCESS_TOKEN, "ORD-1");
+                controller.getDeliveryDetail(CUSTOMER_CODE, "SLIP-001", ACCESS_TOKEN, "ORD-1");
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<GetFulfillmentDeliveryDetailCommand> captor =
-                    ArgumentCaptor.forClass(GetFulfillmentDeliveryDetailCommand.class);
+                ArgumentCaptor.forClass(GetFulfillmentDeliveryDetailCommand.class);
             verify(getFulfillmentDeliveryDetailUseCase).getDeliveryDetail(captor.capture());
             assertThat(captor.getValue().slipNumber()).isEqualTo("SLIP-001");
         }
@@ -275,17 +275,17 @@ class FulfillmentDeliveryControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentDeliveryOutOrdGoodsDetailUseCase.getOutOrdGoodsDetail(
-                    any(GetFulfillmentDeliveryOutOrdGoodsDetailCommand.class)
+                any(GetFulfillmentDeliveryOutOrdGoodsDetailCommand.class)
             )).thenReturn(GetFulfillmentDeliveryOutOrdGoodsDetailResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentDeliveryOutOrdGoodsDetailResponse>> response =
-                    controller.getOutOrdGoodsDetail(CUSTOMER_CODE, ACCESS_TOKEN, "SLIP-002");
+                controller.getOutOrdGoodsDetail(CUSTOMER_CODE, ACCESS_TOKEN, "SLIP-002");
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             ArgumentCaptor<GetFulfillmentDeliveryOutOrdGoodsDetailCommand> captor =
-                    ArgumentCaptor.forClass(GetFulfillmentDeliveryOutOrdGoodsDetailCommand.class);
+                ArgumentCaptor.forClass(GetFulfillmentDeliveryOutOrdGoodsDetailCommand.class);
             verify(getFulfillmentDeliveryOutOrdGoodsDetailUseCase).getOutOrdGoodsDetail(captor.capture());
             assertThat(captor.getValue().releaseOrderSlipNumber()).isEqualTo("SLIP-002");
         }
@@ -300,17 +300,17 @@ class FulfillmentDeliveryControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentDeliveryOutOrdGoodsByOrdNoUseCase.getOutOrdGoodsByOrdNo(
-                    any(GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.class)
+                any(GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.class)
             )).thenReturn(GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentDeliveryOutOrdGoodsByOrdNoResponse>> response =
-                    controller.getOutOrdGoodsByOrdNo(CUSTOMER_CODE, "2026-04-01", "2026-10-07", ACCESS_TOKEN, "ORD-99");
+                controller.getOutOrdGoodsByOrdNo(CUSTOMER_CODE, "2026-04-01", "2026-10-07", ACCESS_TOKEN, "ORD-99");
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getFulfillmentDeliveryOutOrdGoodsByOrdNoUseCase)
-                    .getOutOrdGoodsByOrdNo(any(GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.class));
+                .getOutOrdGoodsByOrdNo(any(GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.class));
         }
     }
 
@@ -323,17 +323,17 @@ class FulfillmentDeliveryControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentDeliveryGoodDetailUseCase.getDeliveryGoodDetail(
-                    any(GetFulfillmentDeliveryGoodDetailCommand.class)
+                any(GetFulfillmentDeliveryGoodDetailCommand.class)
             )).thenReturn(GetFulfillmentDeliveryGoodDetailResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentDeliveryGoodDetailResponse>> response =
-                    controller.getDeliveryGoodDetail(CUSTOMER_CODE, "2026-04-01", "2026-10-07", ACCESS_TOKEN, null);
+                controller.getDeliveryGoodDetail(CUSTOMER_CODE, "2026-04-01", "2026-10-07", ACCESS_TOKEN, null);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getFulfillmentDeliveryGoodDetailUseCase)
-                    .getDeliveryGoodDetail(any(GetFulfillmentDeliveryGoodDetailCommand.class));
+                .getDeliveryGoodDetail(any(GetFulfillmentDeliveryGoodDetailCommand.class));
         }
     }
 
@@ -348,17 +348,17 @@ class FulfillmentDeliveryControllerTest {
             CompleteFulfillmentDeliveryIcsRequest request = new CompleteFulfillmentDeliveryIcsRequest();
             ReflectionTestUtils.setField(request, "ordNoList", List.of("ORD-1", "ORD-2"));
             when(completeFulfillmentDeliveryIcsUseCase.completeDeliveryIcs(
-                    any(CompleteFulfillmentDeliveryIcsCommand.class)
+                any(CompleteFulfillmentDeliveryIcsCommand.class)
             )).thenReturn(CompleteFulfillmentDeliveryIcsResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<CompleteFulfillmentDeliveryIcsResponse>> response =
-                    controller.completeDeliveryIcs(CUSTOMER_CODE, ACCESS_TOKEN, request);
+                controller.completeDeliveryIcs(CUSTOMER_CODE, ACCESS_TOKEN, request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(completeFulfillmentDeliveryIcsUseCase)
-                    .completeDeliveryIcs(any(CompleteFulfillmentDeliveryIcsCommand.class));
+                .completeDeliveryIcs(any(CompleteFulfillmentDeliveryIcsCommand.class));
         }
     }
 }

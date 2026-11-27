@@ -35,7 +35,7 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
         PaymentApprovedEvent payload = new PaymentApprovedEvent(orderId, orderKey, paymentAmount);
         String topic = KafkaTopicConstants.PAYMENT_APPROVED;
         EventEnvelope<PaymentApprovedEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         saveToOutbox(envelope, topic, orderId.toString());
@@ -46,7 +46,7 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
         PaymentFailedEvent payload = new PaymentFailedEvent(orderId, orderKey, resultCode, resultMessage);
         String topic = KafkaTopicConstants.PAYMENT_FAILED;
         EventEnvelope<PaymentFailedEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         saveToOutbox(envelope, topic, orderId.toString());
@@ -54,42 +54,42 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
 
     @Override
     public void publishPaymentCancelledEvent(
-            Long orderId, String orderKey, Long buyerId,
-            Long cancelAmount, Long paymentAmount, Long pointAmount,
-            boolean isFullCancel, Long alreadyRefunded,
-            String cancelId,
-            List<OrderProduct> orderProducts,
-            List<OrderProduct> cancelProducts,
-            Long partialProductPendingDeduction
+        Long orderId, String orderKey, Long buyerId,
+        Long cancelAmount, Long paymentAmount, Long pointAmount,
+        boolean isFullCancel, Long alreadyRefunded,
+        String cancelId,
+        List<OrderProduct> orderProducts,
+        List<OrderProduct> cancelProducts,
+        Long partialProductPendingDeduction
     ) {
         List<PaymentCancelledEvent.OrderProductItem> items = orderProducts.stream()
-                .map(op -> new PaymentCancelledEvent.OrderProductItem(
-                        op.getPricePolicyId(),
-                        op.getSharerKey(),
-                        op.getQuantity().getValue(),
-                        op.getUnitAmount().getValue()
-                ))
-                .toList();
+            .map(op -> new PaymentCancelledEvent.OrderProductItem(
+                op.getPricePolicyId(),
+                op.getSharerKey(),
+                op.getQuantity().getValue(),
+                op.getUnitAmount().getValue()
+            ))
+            .toList();
 
         List<PaymentCancelledEvent.OrderProductItem> cancelItems = FormatValidator.hasValue(cancelProducts)
-                ? cancelProducts.stream()
-                .map(op -> new PaymentCancelledEvent.OrderProductItem(
-                        op.getPricePolicyId(),
-                        op.getSharerKey(),
-                        op.getQuantity().getValue(),
-                        op.getUnitAmount().getValue()
-                ))
-                .toList()
-                : null;
+            ? cancelProducts.stream()
+            .map(op -> new PaymentCancelledEvent.OrderProductItem(
+                op.getPricePolicyId(),
+                op.getSharerKey(),
+                op.getQuantity().getValue(),
+                op.getUnitAmount().getValue()
+            ))
+            .toList()
+            : null;
 
         PaymentCancelledEvent payload = new PaymentCancelledEvent(
-                orderId, orderKey, buyerId, cancelAmount, paymentAmount,
-                pointAmount, isFullCancel, alreadyRefunded, cancelId, items, cancelItems,
-                partialProductPendingDeduction
+            orderId, orderKey, buyerId, cancelAmount, paymentAmount,
+            pointAmount, isFullCancel, alreadyRefunded, cancelId, items, cancelItems,
+            partialProductPendingDeduction
         );
         String topic = KafkaTopicConstants.PAYMENT_CANCELLED;
         EventEnvelope<PaymentCancelledEvent> envelope = EventEnvelope.of(
-                topic, SOURCE, payload, clock
+            topic, SOURCE, payload, clock
         );
 
         saveToOutbox(envelope, topic, orderId.toString());
@@ -98,8 +98,8 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
         String payloadJson = serializePayload(envelope, topic, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(), topic, partitionKey,
-                envelope.eventType(), SOURCE, payloadJson, clock
+            envelope.eventId(), topic, partitionKey,
+            envelope.eventType(), SOURCE, payloadJson, clock
         );
         saveOutboxEventPort.save(outboxEvent);
         log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());

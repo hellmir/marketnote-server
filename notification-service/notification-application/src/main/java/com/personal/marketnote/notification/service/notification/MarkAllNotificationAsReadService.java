@@ -26,9 +26,9 @@ public class MarkAllNotificationAsReadService implements MarkAllNotificationAsRe
             return;
         }
         publishSseEventPort.publish(
-                userId,
-                NotificationSseEventType.UNREAD_COUNT_CHANGED,
-                UnreadCountChangedPayload.of(0L)
+            userId,
+            NotificationSseEventType.UNREAD_COUNT_CHANGED,
+            UnreadCountChangedPayload.of(0L)
         );
     }
 }

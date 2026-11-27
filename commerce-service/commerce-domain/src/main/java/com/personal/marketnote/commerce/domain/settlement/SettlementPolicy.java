@@ -43,12 +43,12 @@ public class SettlementPolicy extends BaseDomain {
         validateMinPayoutAmount(state.getMinPayoutAmount());
 
         SettlementPolicy policy = SettlementPolicy.builder()
-                .sellerId(state.getSellerId())
-                .pgFeeRate(state.getPgFeeRate())
-                .platformFeeRate(state.getPlatformFeeRate())
-                .settlementCycle(state.getSettlementCycle())
-                .minPayoutAmount(Money.of(state.getMinPayoutAmount()))
-                .build();
+            .sellerId(state.getSellerId())
+            .pgFeeRate(state.getPgFeeRate())
+            .platformFeeRate(state.getPlatformFeeRate())
+            .settlementCycle(state.getSettlementCycle())
+            .minPayoutAmount(Money.of(state.getMinPayoutAmount()))
+            .build();
         policy.status = EntityStatus.ACTIVE;
         return policy;
     }
@@ -59,15 +59,15 @@ public class SettlementPolicy extends BaseDomain {
      */
     public static SettlementPolicy from(SettlementPolicySnapshotState state) {
         SettlementPolicy policy = SettlementPolicy.builder()
-                .id(state.getId())
-                .sellerId(state.getSellerId())
-                .pgFeeRate(state.getPgFeeRate())
-                .platformFeeRate(state.getPlatformFeeRate())
-                .settlementCycle(state.getSettlementCycle())
-                .minPayoutAmount(Money.of(state.getMinPayoutAmount()))
-                .createdAt(state.getCreatedAt())
-                .modifiedAt(state.getModifiedAt())
-                .build();
+            .id(state.getId())
+            .sellerId(state.getSellerId())
+            .pgFeeRate(state.getPgFeeRate())
+            .platformFeeRate(state.getPlatformFeeRate())
+            .settlementCycle(state.getSettlementCycle())
+            .minPayoutAmount(Money.of(state.getMinPayoutAmount()))
+            .createdAt(state.getCreatedAt())
+            .modifiedAt(state.getModifiedAt())
+            .build();
         policy.status = state.getStatus();
         return policy;
     }
@@ -98,15 +98,15 @@ public class SettlementPolicy extends BaseDomain {
     private static void validateFeeRateSum(FeeRate pgFeeRate, FeeRate platformFeeRate) {
         if (pgFeeRate.getValue() + platformFeeRate.getValue() > FeeRate.BASIS_POINT_DENOMINATOR) {
             throw new InvalidSettlementPolicyException(
-                    "수수료율 합계가 100%를 초과합니다. pgFeeRate=" + pgFeeRate.getValue()
-                            + ", platformFeeRate=" + platformFeeRate.getValue());
+                "수수료율 합계가 100%를 초과합니다. pgFeeRate=" + pgFeeRate.getValue()
+                    + ", platformFeeRate=" + platformFeeRate.getValue());
         }
     }
 
     private static void validateMinPayoutAmount(Long minPayoutAmount) {
         if (FormatValidator.hasNoValue(minPayoutAmount) || minPayoutAmount < 0) {
             throw new InvalidSettlementPolicyException(
-                    "최소 지급 금액은 0 이상이어야 합니다. minPayoutAmount=" + minPayoutAmount);
+                "최소 지급 금액은 0 이상이어야 합니다. minPayoutAmount=" + minPayoutAmount);
         }
     }
 }

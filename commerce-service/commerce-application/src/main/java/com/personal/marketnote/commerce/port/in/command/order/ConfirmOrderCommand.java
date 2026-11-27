@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record ConfirmOrderCommand(
-        Long id,
-        Long buyerId
+    Long id,
+    Long buyerId
 ) {
 }

@@ -19,7 +19,7 @@ class SseConfigTest {
 
         // when & then
         assertThatCode(() -> config.configureAsyncSupport(configurer))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -32,6 +32,6 @@ class SseConfigTest {
 
         // when & then
         assertThatCode(() -> config.configureAsyncSupport(configurer))
-                .doesNotThrowAnyException();
+            .doesNotThrowAnyException();
     }
 }

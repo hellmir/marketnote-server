@@ -6,17 +6,17 @@ import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record ReadyPaymentResponse(
-        String orderKey,
-        String approvalKey,
-        String payUrl,
-        String traceNo
+    String orderKey,
+    String approvalKey,
+    String payUrl,
+    String traceNo
 ) {
     public static ReadyPaymentResponse from(ReadyPaymentResult result) {
         return ReadyPaymentResponse.builder()
-                .orderKey(result.orderKey())
-                .approvalKey(result.approvalKey())
-                .payUrl(result.payUrl())
-                .traceNo(result.traceNo())
-                .build();
+            .orderKey(result.orderKey())
+            .approvalKey(result.approvalKey())
+            .payUrl(result.payUrl())
+            .traceNo(result.traceNo())
+            .build();
     }
 }

@@ -18,7 +18,7 @@ public class ProfanityWordJpaEntity extends BaseGeneralEntity {
 
     public static ProfanityWordJpaEntity of(String word) {
         return ProfanityWordJpaEntity.builder()
-                .word(word)
-                .build();
+            .word(word)
+            .build();
     }
 }

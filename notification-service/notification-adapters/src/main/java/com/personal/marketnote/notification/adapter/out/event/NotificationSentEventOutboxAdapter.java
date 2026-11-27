@@ -28,20 +28,20 @@ public class NotificationSentEventOutboxAdapter implements PublishNotificationSe
         String topic = KafkaTopicConstants.NOTIFICATION_PUSH_SENT;
         String partitionKey = String.valueOf(event.notificationId());
         EventEnvelope<PushNotificationSentEvent> envelope = EventEnvelope.of(
-                topic,
-                EVENT_SOURCE,
-                event,
-                clock
+            topic,
+            EVENT_SOURCE,
+            event,
+            clock
         );
         String payload = serialize(envelope, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
-                envelope.eventId(),
-                topic,
-                partitionKey,
-                PushNotificationSentEvent.class.getSimpleName(),
-                EVENT_SOURCE,
-                payload,
-                clock
+            envelope.eventId(),
+            topic,
+            partitionKey,
+            PushNotificationSentEvent.class.getSimpleName(),
+            EVENT_SOURCE,
+            payload,
+            clock
         );
         saveOutboxEventPort.save(outboxEvent);
     }
@@ -51,7 +51,7 @@ public class NotificationSentEventOutboxAdapter implements PublishNotificationSe
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
             throw new NotificationSentEventSerializationException(
-                    envelope.eventType(), partitionKey, envelope.eventId(), e
+                envelope.eventType(), partitionKey, envelope.eventId(), e
             );
         }
     }

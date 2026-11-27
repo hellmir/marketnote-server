@@ -7,16 +7,16 @@ import com.personal.marketnote.community.port.out.result.product.ProductOptionIn
 import java.util.List;
 
 public record PostProductInfoResult(
-        String name,
-        String brandName,
-        List<ProductOptionInfoResult> selectedOptions
+    String name,
+    String brandName,
+    List<ProductOptionInfoResult> selectedOptions
 ) {
     public static PostProductInfoResult from(ProductInfoResult productInfo) {
         if (FormatValidator.hasValue(productInfo)) {
             return new PostProductInfoResult(
-                    productInfo.name(),
-                    productInfo.brandName(),
-                    productInfo.selectedOptions()
+                productInfo.name(),
+                productInfo.brandName(),
+                productInfo.selectedOptions()
             );
         }
 

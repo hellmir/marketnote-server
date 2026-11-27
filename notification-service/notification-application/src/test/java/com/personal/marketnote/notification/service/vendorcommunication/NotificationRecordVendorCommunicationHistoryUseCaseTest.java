@@ -35,10 +35,10 @@ class NotificationRecordVendorCommunicationHistoryUseCaseTest {
     void shouldRecordSuccessHistory() throws Exception {
         JsonNode payloadJson = objectMapper.readTree("{\"response\":{\"success\":true}}");
         NotificationVendorCommunicationHistoryCommand command = baseCommandBuilder(payloadJson)
-                .exception(null)
-                .build();
+            .exception(null)
+            .build();
         given(saveNotificationVendorCommunicationHistoryPort.save(any(NotificationVendorCommunicationHistory.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
+            .willAnswer(invocation -> invocation.getArgument(0));
 
         NotificationVendorCommunicationHistory result = service.record(command);
 
@@ -54,10 +54,10 @@ class NotificationRecordVendorCommunicationHistoryUseCaseTest {
     void shouldRecordFailureHistoryWithException() throws Exception {
         JsonNode payloadJson = objectMapper.readTree("{\"response\":{\"success\":false}}");
         NotificationVendorCommunicationHistoryCommand command = baseCommandBuilder(payloadJson)
-                .exception("INTERNAL")
-                .build();
+            .exception("INTERNAL")
+            .build();
         given(saveNotificationVendorCommunicationHistoryPort.save(any(NotificationVendorCommunicationHistory.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
+            .willAnswer(invocation -> invocation.getArgument(0));
 
         NotificationVendorCommunicationHistory result = service.record(command);
 
@@ -70,10 +70,10 @@ class NotificationRecordVendorCommunicationHistoryUseCaseTest {
     void shouldRecordExceptionHistory() throws Exception {
         JsonNode payloadJson = objectMapper.readTree("{\"response\":{\"exception\":\"FCM timeout\"}}");
         NotificationVendorCommunicationHistoryCommand command = baseCommandBuilder(payloadJson)
-                .exception("FcmSendFailedException")
-                .build();
+            .exception("FcmSendFailedException")
+            .build();
         given(saveNotificationVendorCommunicationHistoryPort.save(any(NotificationVendorCommunicationHistory.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
+            .willAnswer(invocation -> invocation.getArgument(0));
 
         NotificationVendorCommunicationHistory result = service.record(command);
 
@@ -85,16 +85,16 @@ class NotificationRecordVendorCommunicationHistoryUseCaseTest {
     @DisplayName("payload_json이 도메인 객체에 그대로 전달되어 저장된다")
     void shouldPassPayloadJsonAsIs() throws Exception {
         JsonNode payloadJson = objectMapper.readTree(
-                "{\"request\":{\"platform\":\"ANDROID\"},\"response\":{\"messageId\":\"msg-1\"}}"
+            "{\"request\":{\"platform\":\"ANDROID\"},\"response\":{\"messageId\":\"msg-1\"}}"
         );
         NotificationVendorCommunicationHistoryCommand command = baseCommandBuilder(payloadJson).build();
         given(saveNotificationVendorCommunicationHistoryPort.save(any(NotificationVendorCommunicationHistory.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
+            .willAnswer(invocation -> invocation.getArgument(0));
 
         service.record(command);
 
         ArgumentCaptor<NotificationVendorCommunicationHistory> captor =
-                ArgumentCaptor.forClass(NotificationVendorCommunicationHistory.class);
+            ArgumentCaptor.forClass(NotificationVendorCommunicationHistory.class);
         verify(saveNotificationVendorCommunicationHistoryPort).save(captor.capture());
         assertThat(captor.getValue().getPayloadJson()).isEqualTo(payloadJson);
         assertThat(captor.getValue().getPayload()).contains("\"messageId\":\"msg-1\"");
@@ -105,30 +105,30 @@ class NotificationRecordVendorCommunicationHistoryUseCaseTest {
     void shouldPassAttemptCountAsIs() throws Exception {
         JsonNode payloadJson = objectMapper.readTree("{\"response\":{\"success\":true}}");
         NotificationVendorCommunicationHistoryCommand command = baseCommandBuilder(payloadJson)
-                .attemptCount(2)
-                .build();
+            .attemptCount(2)
+            .build();
         given(saveNotificationVendorCommunicationHistoryPort.save(any(NotificationVendorCommunicationHistory.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
+            .willAnswer(invocation -> invocation.getArgument(0));
 
         service.record(command);
 
         ArgumentCaptor<NotificationVendorCommunicationHistory> captor =
-                ArgumentCaptor.forClass(NotificationVendorCommunicationHistory.class);
+            ArgumentCaptor.forClass(NotificationVendorCommunicationHistory.class);
         verify(saveNotificationVendorCommunicationHistoryPort).save(captor.capture());
         assertThat(captor.getValue().getAttemptCount()).isEqualTo(2);
     }
 
     private NotificationVendorCommunicationHistoryCommand.NotificationVendorCommunicationHistoryCommandBuilder baseCommandBuilder(
-            JsonNode payloadJson
+        JsonNode payloadJson
     ) {
         return NotificationVendorCommunicationHistoryCommand.builder()
-                .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
-                .targetId("100")
-                .vendorName(NotificationVendorName.FCM)
-                .communicationType(NotificationVendorCommunicationType.REQUEST)
-                .sender(NotificationVendorCommunicationSenderType.SERVER)
-                .payload(payloadJson.toString())
-                .payloadJson(payloadJson)
-                .attemptCount(1);
+            .targetType(NotificationVendorCommunicationTargetType.PUSH_NOTIFICATION)
+            .targetId("100")
+            .vendorName(NotificationVendorName.FCM)
+            .communicationType(NotificationVendorCommunicationType.REQUEST)
+            .sender(NotificationVendorCommunicationSenderType.SERVER)
+            .payload(payloadJson.toString())
+            .payloadJson(payloadJson)
+            .attemptCount(1);
     }
 }

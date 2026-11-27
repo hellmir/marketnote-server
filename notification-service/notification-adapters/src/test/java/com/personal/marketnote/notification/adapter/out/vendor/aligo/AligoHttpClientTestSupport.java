@@ -25,43 +25,43 @@ public final class AligoHttpClientTestSupport {
     }
 
     public static AligoHttpClient newClient(
-            RestClient restClient,
-            ObjectMapper objectMapper,
-            AligoProperties properties,
-            ExternalCallLogger externalCallLogger
+        RestClient restClient,
+        ObjectMapper objectMapper,
+        AligoProperties properties,
+        ExternalCallLogger externalCallLogger
     ) {
         return newClient(
-                restClient, objectMapper, properties, externalCallLogger,
-                (
-                        targetType, targetId, vendorName, communicationType, sender,
-                        exception, payload, payloadJson, attemptCount
-                ) -> {
-                    // no-op
-                }
+            restClient, objectMapper, properties, externalCallLogger,
+            (
+                targetType, targetId, vendorName, communicationType, sender,
+                exception, payload, payloadJson, attemptCount
+            ) -> {
+                // no-op
+            }
         );
     }
 
     public static AligoHttpClient newClient(
-            RestClient restClient,
-            ObjectMapper objectMapper,
-            AligoProperties properties,
-            ExternalCallLogger externalCallLogger,
-            VendorCommunicationHistoryDispatcher<
-                    NotificationVendorCommunicationTargetType,
-                    NotificationVendorName,
-                    NotificationVendorCommunicationType,
-                    NotificationVendorCommunicationSenderType
-                    > dispatcher
+        RestClient restClient,
+        ObjectMapper objectMapper,
+        AligoProperties properties,
+        ExternalCallLogger externalCallLogger,
+        VendorCommunicationHistoryDispatcher<
+            NotificationVendorCommunicationTargetType,
+            NotificationVendorName,
+            NotificationVendorCommunicationType,
+            NotificationVendorCommunicationSenderType
+            > dispatcher
     ) {
         AligoVendorCommunicationRecorder recorder = new AligoVendorCommunicationRecorder(dispatcher);
         VendorCommunicationPayloadGenerator payloadGenerator =
-                new VendorCommunicationPayloadGenerator(objectMapper);
+            new VendorCommunicationPayloadGenerator(objectMapper);
         AligoVendorCommunicationFailureHandler failureHandler =
-                new AligoVendorCommunicationFailureHandler(recorder, payloadGenerator);
+            new AligoVendorCommunicationFailureHandler(recorder, payloadGenerator);
         AligoOperationTargetTypeResolver resolver = new AligoOperationTargetTypeResolver();
         return new AligoHttpClient(
-                restClient, objectMapper, properties, externalCallLogger,
-                recorder, failureHandler, payloadGenerator, resolver
+            restClient, objectMapper, properties, externalCallLogger,
+            recorder, failureHandler, payloadGenerator, resolver
         );
     }
 }

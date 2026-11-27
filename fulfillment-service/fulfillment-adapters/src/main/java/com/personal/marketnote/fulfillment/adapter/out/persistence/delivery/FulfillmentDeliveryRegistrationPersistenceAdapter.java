@@ -17,7 +17,7 @@ import java.util.Optional;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class FulfillmentDeliveryRegistrationPersistenceAdapter
-        implements SaveFulfillmentDeliveryRegistrationPort, FindFulfillmentDeliveryRegistrationPort {
+    implements SaveFulfillmentDeliveryRegistrationPort, FindFulfillmentDeliveryRegistrationPort {
     private final FulfillmentDeliveryRegistrationJpaRepository repository;
 
     @Override
@@ -33,6 +33,6 @@ public class FulfillmentDeliveryRegistrationPersistenceAdapter
     @Override
     public Optional<FulfillmentDeliveryRegistration> findByOrderId(Long orderId) {
         return repository.findByOrderId(orderId)
-                .map(FulfillmentDeliveryRegistrationJpaEntity::toDomain);
+            .map(FulfillmentDeliveryRegistrationJpaEntity::toDomain);
     }
 }

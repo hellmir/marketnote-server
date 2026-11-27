@@ -44,7 +44,7 @@ public final class Money {
         long result = Math.subtractExact(this.amount, other.amount);
         if (result < 0) {
             throw new InvalidMoneyAmountException(
-                    String.format(SUBTRACT_NEGATIVE_RESULT_MESSAGE, this.amount, other.amount)
+                String.format(SUBTRACT_NEGATIVE_RESULT_MESSAGE, this.amount, other.amount)
             );
         }
         return new Money(result);

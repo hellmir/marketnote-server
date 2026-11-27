@@ -24,17 +24,17 @@ public class HandleOfferwallRewardService implements HandleOfferwallRewardUseCas
             return registerOfferwallRewardUseCase.register(command);
         } catch (Exception e) {
             OfferwallMapper previouslyFailedMapper = getOfferwallMapperUseCase.findTopFailedOfferwallMapper(
-                            command.offerwallType(), command.rewardKey()
-                    )
-                    .orElse(null);
+                    command.offerwallType(), command.rewardKey()
+                )
+                .orElse(null);
 
             saveOfferwallMapperPort.save(
-                    OfferwallMapper.fromFailed(
-                            RewardCommandToStateMapper.mapToOfferwallMapperCreateState(command, false),
-                            FormatValidator.hasValue(previouslyFailedMapper)
-                                    ? previouslyFailedMapper.getFailureCount()
-                                    : 0
-                    )
+                OfferwallMapper.fromFailed(
+                    RewardCommandToStateMapper.mapToOfferwallMapperCreateState(command, false),
+                    FormatValidator.hasValue(previouslyFailedMapper)
+                        ? previouslyFailedMapper.getFailureCount()
+                        : 0
+                )
             );
 
             throw e;

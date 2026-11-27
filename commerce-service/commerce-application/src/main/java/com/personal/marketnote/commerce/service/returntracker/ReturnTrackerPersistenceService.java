@@ -19,7 +19,7 @@ public class ReturnTrackerPersistenceService {
     @Transactional(isolation = READ_COMMITTED)
     public void saveReturnTracker(Long orderId, String returnSlipNumber) {
         ReturnTracker returnTracker = ReturnTracker.from(
-                ReturnTrackerCreateState.of(orderId, returnSlipNumber)
+            ReturnTrackerCreateState.of(orderId, returnSlipNumber)
         );
 
         saveReturnTrackerPort.save(returnTracker);

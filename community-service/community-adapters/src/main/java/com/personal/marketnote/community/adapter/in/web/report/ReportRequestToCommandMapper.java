@@ -8,14 +8,14 @@ import com.personal.marketnote.community.port.in.command.report.UpdateTargetStat
 
 public class ReportRequestToCommandMapper {
     public static ReportCommand mapToCommand(
-            ReportTargetType targetType, Long targetId, Long userId, RegisterReportRequest request
+        ReportTargetType targetType, Long targetId, Long userId, RegisterReportRequest request
     ) {
         return ReportCommand.builder()
-                .targetType(targetType)
-                .targetId(targetId)
-                .reporterId(userId)
-                .reason(request.getReason())
-                .build();
+            .targetType(targetType)
+            .targetId(targetId)
+            .reporterId(userId)
+            .reason(request.getReason())
+            .build();
     }
 
     public static UpdateTargetStatusCommand mapToCommand(UpdateTargetStatusRequest request) {

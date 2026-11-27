@@ -23,12 +23,12 @@ public class ShippingAddressChangedReadModelConsumer {
     private final SaveShippingAddressReadModelPort saveShippingAddressReadModelPort;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SHIPPING_ADDRESS_CHANGED,
-            groupId = "commerce-shipping-address-read-model"
+        topics = KafkaTopicConstants.SHIPPING_ADDRESS_CHANGED,
+        groupId = "commerce-shipping-address-read-model"
     )
     public void handleShippingAddressChangedEvent(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
 
@@ -45,13 +45,13 @@ public class ShippingAddressChangedReadModelConsumer {
         ShippingAddressChangedEvent payload = envelope.getPayloadAs(ShippingAddressChangedEvent.class, objectMapper);
 
         log.info("배송지 변경 이벤트 수신. eventId={}, shippingAddressId={}, userId={}, action={}",
-                envelope.eventId(), payload.shippingAddressId(), payload.userId(), payload.action()
+            envelope.eventId(), payload.shippingAddressId(), payload.userId(), payload.action()
         );
 
         if (EventPayloadValidator.hasInvalidIds(
-                envelope.eventId(),
-                EventPayloadValidator.id("shippingAddressId", payload.shippingAddressId()),
-                EventPayloadValidator.id("userId", payload.userId())
+            envelope.eventId(),
+            EventPayloadValidator.id("shippingAddressId", payload.shippingAddressId()),
+            EventPayloadValidator.id("userId", payload.userId())
         )) {
             acknowledgment.acknowledge();
             return;
@@ -72,24 +72,24 @@ public class ShippingAddressChangedReadModelConsumer {
 
         if (payload.action().isCreated() || payload.action().isUpdated()) {
             if (FormatValidator.hasNoValue(payload.recipientName())
-                    || FormatValidator.hasNoValue(payload.recipientPhoneNumber())
-                    || FormatValidator.hasNoValue(payload.address())
-                    || FormatValidator.hasNoValue(payload.addressDetail())) {
+                || FormatValidator.hasNoValue(payload.recipientPhoneNumber())
+                || FormatValidator.hasNoValue(payload.address())
+                || FormatValidator.hasNoValue(payload.addressDetail())) {
                 log.warn("배송지 변경 이벤트 필수 필드 누락. eventId={}, shippingAddressId={}",
-                        envelope.eventId(), payload.shippingAddressId()
+                    envelope.eventId(), payload.shippingAddressId()
                 );
                 acknowledgment.acknowledge();
                 return;
             }
 
             saveShippingAddressReadModelPort.upsert(
-                    payload.shippingAddressId(), payload.userId(),
-                    payload.recipientName(), payload.recipientPhoneNumber(),
-                    payload.address(), payload.addressDetail(),
-                    payload.regionType()
+                payload.shippingAddressId(), payload.userId(),
+                payload.recipientName(), payload.recipientPhoneNumber(),
+                payload.address(), payload.addressDetail(),
+                payload.regionType()
             );
             log.info("배송지 Read Model 저장 완료. shippingAddressId={}, userId={}",
-                    payload.shippingAddressId(), payload.userId()
+                payload.shippingAddressId(), payload.userId()
             );
         }
 

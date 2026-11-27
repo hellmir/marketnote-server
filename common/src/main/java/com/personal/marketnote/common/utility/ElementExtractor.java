@@ -32,11 +32,11 @@ public class ElementExtractor {
         }
 
         return principal.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .filter(FormatValidator::hasValue)
-                .filter(authority -> authority.startsWith("ROLE_"))
-                .map(authority -> authority.substring("ROLE_".length()))
-                .findFirst()
-                .orElse(DEFAULT_ROLE);
+            .map(GrantedAuthority::getAuthority)
+            .filter(FormatValidator::hasValue)
+            .filter(authority -> authority.startsWith("ROLE_"))
+            .map(authority -> authority.substring("ROLE_".length()))
+            .findFirst()
+            .orElse(DEFAULT_ROLE);
     }
 }

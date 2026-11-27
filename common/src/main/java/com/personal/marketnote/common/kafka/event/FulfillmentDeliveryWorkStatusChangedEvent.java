@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FulfillmentDeliveryWorkStatusChangedEvent(
-        Long orderId,
-        String workStatus
+    Long orderId,
+    String workStatus
 ) {
 }

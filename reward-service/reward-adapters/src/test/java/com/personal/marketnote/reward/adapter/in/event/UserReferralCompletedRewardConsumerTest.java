@@ -49,8 +49,8 @@ class UserReferralCompletedRewardConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long requestUserId, Long referredUserId) {
         UserReferralCompletedEvent event = new UserReferralCompletedEvent(requestUserId, referredUserId);
         EventEnvelope<UserReferralCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "user.user.referral-completed", "user-service",
-                LocalDateTime.of(2026, 3, 2, 10, 0), event
+            "test-event-id", "user.user.referral-completed", "user-service",
+            LocalDateTime.of(2026, 3, 2, 10, 0), event
         );
         return new ConsumerRecord<>("user.user.referral-completed", 0, 0L, "key-1", envelope);
     }
@@ -125,7 +125,7 @@ class UserReferralCompletedRewardConsumerTest {
     void handleUserReferralCompletedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "user.user.referral-completed", 0, 0L, "1", null
+            "user.user.referral-completed", 0, 0L, "1", null
         );
 
         // when
@@ -142,11 +142,11 @@ class UserReferralCompletedRewardConsumerTest {
         // given
         UserReferralCompletedEvent event = new UserReferralCompletedEvent(1L, 2L);
         EventEnvelope<UserReferralCompletedEvent> envelope = new EventEnvelope<>(
-                "test-event-id", "wrong.event.type", "user-service",
-                LocalDateTime.of(2026, 3, 2, 10, 0), event
+            "test-event-id", "wrong.event.type", "user-service",
+            LocalDateTime.of(2026, 3, 2, 10, 0), event
         );
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
-                "user.user.referral-completed", 0, 0L, "key-1", envelope
+            "user.user.referral-completed", 0, 0L, "key-1", envelope
         );
 
         // when
@@ -220,13 +220,13 @@ class UserReferralCompletedRewardConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
         when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+            .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
         // expect
         assertThatThrownBy(() ->
-                userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment)
+            userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment)
         ).isInstanceOf(RuntimeException.class)
-                .hasMessage("DB 연결 실패");
+            .hasMessage("DB 연결 실패");
 
         verify(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
         verifyNoInteractions(acknowledgment);
@@ -239,14 +239,14 @@ class UserReferralCompletedRewardConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
         when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
         when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
-                .thenReturn(null)
-                .thenThrow(new RuntimeException("포인트 잔액 부족"));
+            .thenReturn(null)
+            .thenThrow(new RuntimeException("포인트 잔액 부족"));
 
         // expect
         assertThatThrownBy(() ->
-                userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment)
+            userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment)
         ).isInstanceOf(RuntimeException.class)
-                .hasMessage("포인트 잔액 부족");
+            .hasMessage("포인트 잔액 부족");
 
         verify(modifyUserPointUseCase, times(2)).modify(any(ModifyUserPointCommand.class));
         verifyNoInteractions(acknowledgment);
@@ -259,8 +259,8 @@ class UserReferralCompletedRewardConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
         when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
         when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException())
-                .thenReturn(null);
+            .thenThrow(new DuplicateUserPointHistoryException())
+            .thenReturn(null);
 
         // when
         userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
@@ -277,8 +277,8 @@ class UserReferralCompletedRewardConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
         when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
         when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
-                .thenReturn(null)
-                .thenThrow(new DuplicateUserPointHistoryException());
+            .thenReturn(null)
+            .thenThrow(new DuplicateUserPointHistoryException());
 
         // when
         userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
@@ -295,8 +295,8 @@ class UserReferralCompletedRewardConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
         when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
         when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException())
-                .thenThrow(new DuplicateUserPointHistoryException());
+            .thenThrow(new DuplicateUserPointHistoryException())
+            .thenThrow(new DuplicateUserPointHistoryException());
 
         // when
         userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);

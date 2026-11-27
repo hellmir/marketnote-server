@@ -53,8 +53,8 @@ class NotificationTemplateJpaRepositoryTest {
         // given
         NotificationTemplateJpaEntity entity = persistTemplate("INACTIVE_TEST");
         entityManager.createNativeQuery("UPDATE notification_template SET status = 'INACTIVE' WHERE id = :id")
-                .setParameter("id", entity.getId())
-                .executeUpdate();
+            .setParameter("id", entity.getId())
+            .executeUpdate();
         entityManager.flush();
         entityManager.clear();
 
@@ -73,7 +73,7 @@ class NotificationTemplateJpaRepositoryTest {
 
         // when
         Optional<NotificationTemplateJpaEntity> result = repository.findByTemplateCodeAndStatus(
-                "ORDER_COMPLETE_CODE", EntityStatus.ACTIVE
+            "ORDER_COMPLETE_CODE", EntityStatus.ACTIVE
         );
 
         // then
@@ -96,14 +96,14 @@ class NotificationTemplateJpaRepositoryTest {
 
     private NotificationTemplateJpaEntity persistTemplate(String templateCode) {
         NotificationTemplate domain = NotificationTemplate.from(
-                NotificationTemplateCreateState.builder()
-                        .templateCode(templateCode)
-                        .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
-                        .notificationCategory(NotificationCategory.INFORMATIONAL)
-                        .title("테스트 제목")
-                        .bodyTemplate("테스트 본문 {name}")
-                        .urlTemplate("/test/{id}")
-                        .build()
+            NotificationTemplateCreateState.builder()
+                .templateCode(templateCode)
+                .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .notificationCategory(NotificationCategory.INFORMATIONAL)
+                .title("테스트 제목")
+                .bodyTemplate("테스트 본문 {name}")
+                .urlTemplate("/test/{id}")
+                .build()
         );
         NotificationTemplateJpaEntity entity = NotificationTemplateJpaEntity.from(domain);
         NotificationTemplateJpaEntity saved = repository.saveAndFlush(entity);

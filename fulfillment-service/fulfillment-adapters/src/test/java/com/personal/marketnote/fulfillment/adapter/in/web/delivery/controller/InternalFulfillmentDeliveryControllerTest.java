@@ -63,7 +63,7 @@ class InternalFulfillmentDeliveryControllerTest {
         void returnsOk() {
             // given
             when(getFulfillmentWorkStatusUseCase.getWorkStatus(new GetFulfillmentWorkStatusCommand(100L)))
-                    .thenReturn(new GetFulfillmentWorkStatusResult(100L, "WORKING"));
+                .thenReturn(new GetFulfillmentWorkStatusResult(100L, "WORKING"));
 
             // when
             ResponseEntity<BaseResponse<GetFulfillmentWorkStatusResponse>> response = controller.getWorkStatus(100L);
@@ -83,7 +83,7 @@ class InternalFulfillmentDeliveryControllerTest {
         void returnsOk() {
             // given
             when(getShippingStatusUseCase.getShippingStatus(new GetShippingStatusCommand(200L)))
-                    .thenReturn(new GetShippingStatusResult(200L, "SHIPPING", true, "T1", "CJ", null));
+                .thenReturn(new GetShippingStatusResult(200L, "SHIPPING", true, "T1", "CJ", null));
 
             // when
             ResponseEntity<BaseResponse<GetShippingStatusResponse>> response = controller.getShippingStatus(200L);
@@ -103,33 +103,33 @@ class InternalFulfillmentDeliveryControllerTest {
         void returnsCreated() {
             // given
             RegisterInternalReturnDeliveryRequest request = new RegisterInternalReturnDeliveryRequest(
-                    400L,
-                    "2026-09-03",
-                    "홍길동",
-                    "010-0000-0000",
-                    "서울특별시 강남구",
-                    "홍회수",
-                    "010-1111-1111",
-                    "06000",
-                    "서울특별시 서초구",
-                    "101호",
-                    "단순변심",
-                    "색상 불만족",
-                    "부재 시 문 앞",
-                    List.of(new RegisterInternalReturnDeliveryRequest.ProductItem(
-                            UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2))
+                400L,
+                "2026-09-03",
+                "홍길동",
+                "010-0000-0000",
+                "서울특별시 강남구",
+                "홍회수",
+                "010-1111-1111",
+                "06000",
+                "서울특별시 서초구",
+                "101호",
+                "단순변심",
+                "색상 불만족",
+                "부재 시 문 앞",
+                List.of(new RegisterInternalReturnDeliveryRequest.ProductItem(
+                    UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2))
             );
             when(registerInternalReturnDeliveryUseCase.registerReturnDelivery(any(RegisterInternalReturnDeliveryCommand.class)))
-                    .thenReturn(RegisterInternalReturnDeliveryResult.of(400L, "RTN-001", true, "registered"));
+                .thenReturn(RegisterInternalReturnDeliveryResult.of(400L, "RTN-001", true, "registered"));
 
             // when
             ResponseEntity<BaseResponse<RegisterInternalReturnDeliveryResponse>> response =
-                    controller.registerReturnDelivery(request);
+                controller.registerReturnDelivery(request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             ArgumentCaptor<RegisterInternalReturnDeliveryCommand> captor =
-                    ArgumentCaptor.forClass(RegisterInternalReturnDeliveryCommand.class);
+                ArgumentCaptor.forClass(RegisterInternalReturnDeliveryCommand.class);
             verify(registerInternalReturnDeliveryUseCase).registerReturnDelivery(captor.capture());
             RegisterInternalReturnDeliveryCommand command = captor.getValue();
             assertThat(command.orderId()).isEqualTo(400L);
@@ -149,7 +149,7 @@ class InternalFulfillmentDeliveryControllerTest {
         void returnsOk() {
             // given
             when(getInternalReturnGodDetailUseCase.getReturnGodDetail(eq(GetInternalReturnGodDetailCommand.of("RTN1,RTN2"))))
-                    .thenReturn(GetInternalReturnGodDetailResult.of(0, List.of()));
+                .thenReturn(GetInternalReturnGodDetailResult.of(0, List.of()));
 
             // when
             ResponseEntity<BaseResponse<GetInternalReturnGodDetailResponse>> response = controller.getReturnGodDetail("RTN1,RTN2");

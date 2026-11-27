@@ -60,27 +60,27 @@ class InventoryPersistenceAdapterTest {
 
     private void persistInventory(Long productId, Long pricePolicyId, int stock) {
         entityManager.createNativeQuery("""
-                        INSERT INTO inventory (product_id, price_policy_id, stock, reserved, version, created_at, modified_at)
-                        VALUES (:productId, :pricePolicyId, :stock, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                        """)
-                .setParameter("productId", productId)
-                .setParameter("pricePolicyId", pricePolicyId)
-                .setParameter("stock", stock)
-                .executeUpdate();
+                INSERT INTO inventory (product_id, price_policy_id, stock, reserved, version, created_at, modified_at)
+                VALUES (:productId, :pricePolicyId, :stock, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                """)
+            .setParameter("productId", productId)
+            .setParameter("pricePolicyId", pricePolicyId)
+            .setParameter("stock", stock)
+            .executeUpdate();
         entityManager.flush();
         entityManager.clear();
     }
 
     private void persistInventoryWithProductKey(Long productId, UUID productKey, Long pricePolicyId, int stock) {
         entityManager.createNativeQuery("""
-                        INSERT INTO inventory (product_id, product_key, price_policy_id, stock, reserved, version, created_at, modified_at)
-                        VALUES (:productId, :productKey, :pricePolicyId, :stock, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                        """)
-                .setParameter("productId", productId)
-                .setParameter("productKey", productKey)
-                .setParameter("pricePolicyId", pricePolicyId)
-                .setParameter("stock", stock)
-                .executeUpdate();
+                INSERT INTO inventory (product_id, product_key, price_policy_id, stock, reserved, version, created_at, modified_at)
+                VALUES (:productId, :productKey, :pricePolicyId, :stock, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                """)
+            .setParameter("productId", productId)
+            .setParameter("productKey", productKey)
+            .setParameter("pricePolicyId", pricePolicyId)
+            .setParameter("stock", stock)
+            .executeUpdate();
         entityManager.flush();
         entityManager.clear();
     }
@@ -113,8 +113,8 @@ class InventoryPersistenceAdapterTest {
         void shouldSaveMultipleInventories() {
             // given
             Set<Inventory> inventories = Set.of(
-                    Inventory.of(1L, 100L),
-                    Inventory.of(1L, 200L)
+                Inventory.of(1L, 100L),
+                Inventory.of(1L, 200L)
             );
 
             // when
@@ -144,7 +144,7 @@ class InventoryPersistenceAdapterTest {
             // then
             assertThat(found).hasSize(2);
             assertThat(found).allMatch(inv ->
-                    inv.getPricePolicyId().equals(100L) || inv.getPricePolicyId().equals(200L)
+                inv.getPricePolicyId().equals(100L) || inv.getPricePolicyId().equals(200L)
             );
         }
 
@@ -211,7 +211,7 @@ class InventoryPersistenceAdapterTest {
             // then
             assertThat(found).hasSize(2);
             assertThat(found).allMatch(inv ->
-                    inv.getProductKey().equals(keyA) || inv.getProductKey().equals(keyB)
+                inv.getProductKey().equals(keyA) || inv.getProductKey().equals(keyB)
             );
         }
 
@@ -317,7 +317,7 @@ class InventoryPersistenceAdapterTest {
 
             // when & then
             assertThatThrownBy(() -> adapter.update(Set.of(nonExistent)))
-                    .isInstanceOf(InventoryNotFoundException.class);
+                .isInstanceOf(InventoryNotFoundException.class);
         }
     }
 
@@ -330,10 +330,10 @@ class InventoryPersistenceAdapterTest {
         void shouldSaveDeductionHistories() {
             // given
             InventoryDeductionHistories histories = InventoryDeductionHistories.from(
-                    Map.of(100L, 5, 200L, 3),
-                    Map.of(100L, 1L, 200L, 1L),
-                    1L,
-                    "주문 결제 완료 차감"
+                Map.of(100L, 5, 200L, 3),
+                Map.of(100L, 1L, 200L, 1L),
+                1L,
+                "주문 결제 완료 차감"
             );
 
             // when
@@ -348,23 +348,23 @@ class InventoryPersistenceAdapterTest {
         void shouldThrowOnDuplicateDeduction() {
             // given
             InventoryDeductionHistories histories = InventoryDeductionHistories.from(
-                    Map.of(100L, 5),
-                    Map.of(100L, 1L),
-                    1L,
-                    "주문 결제 완료 차감"
+                Map.of(100L, 5),
+                Map.of(100L, 1L),
+                1L,
+                "주문 결제 완료 차감"
             );
             adapter.save(histories);
 
             InventoryDeductionHistories duplicate = InventoryDeductionHistories.from(
-                    Map.of(100L, 5),
-                    Map.of(100L, 1L),
-                    1L,
-                    "중복 차감 시도"
+                Map.of(100L, 5),
+                Map.of(100L, 1L),
+                1L,
+                "중복 차감 시도"
             );
 
             // when & then
             assertThatThrownBy(() -> adapter.save(duplicate))
-                    .isInstanceOf(DuplicateInventoryDeductionException.class);
+                .isInstanceOf(DuplicateInventoryDeductionException.class);
         }
     }
 
@@ -377,10 +377,10 @@ class InventoryPersistenceAdapterTest {
         void shouldSaveRestorationHistories() {
             // given
             InventoryRestorationHistories histories = InventoryRestorationHistories.from(
-                    Map.of(100L, 5, 200L, 3),
-                    Map.of(100L, 1L, 200L, 1L),
-                    1L,
-                    "주문 취소 복원"
+                Map.of(100L, 5, 200L, 3),
+                Map.of(100L, 1L, 200L, 1L),
+                1L,
+                "주문 취소 복원"
             );
 
             // when
@@ -395,23 +395,23 @@ class InventoryPersistenceAdapterTest {
         void shouldThrowOnDuplicateRestoration() {
             // given
             InventoryRestorationHistories histories = InventoryRestorationHistories.from(
-                    Map.of(100L, 5),
-                    Map.of(100L, 1L),
-                    1L,
-                    "주문 취소 복원"
+                Map.of(100L, 5),
+                Map.of(100L, 1L),
+                1L,
+                "주문 취소 복원"
             );
             adapter.save(histories);
 
             InventoryRestorationHistories duplicate = InventoryRestorationHistories.from(
-                    Map.of(100L, 5),
-                    Map.of(100L, 1L),
-                    1L,
-                    "중복 복원 시도"
+                Map.of(100L, 5),
+                Map.of(100L, 1L),
+                1L,
+                "중복 복원 시도"
             );
 
             // when & then
             assertThatThrownBy(() -> adapter.save(duplicate))
-                    .isInstanceOf(DuplicateInventoryRestorationException.class);
+                .isInstanceOf(DuplicateInventoryRestorationException.class);
         }
     }
 }

@@ -97,16 +97,16 @@ class GetUnknownPaymentEventsUseCaseTest {
                                                Long amount, String method,
                                                String resultCode, String resultMessage) {
         PspPaymentEventSnapshotState state = PspPaymentEventSnapshotState.builder()
-                .id(id)
-                .orderId(orderId)
-                .orderKey(orderKey)
-                .poStatus(PaymentEventStatus.UNKNOWN)
-                .method(method)
-                .amount(amount)
-                .resultCode(resultCode)
-                .resultMessage(resultMessage)
-                .createdAt(LocalDateTime.of(2026, 4, 2, 10, 0, 0))
-                .build();
+            .id(id)
+            .orderId(orderId)
+            .orderKey(orderKey)
+            .poStatus(PaymentEventStatus.UNKNOWN)
+            .method(method)
+            .amount(amount)
+            .resultCode(resultCode)
+            .resultMessage(resultMessage)
+            .createdAt(LocalDateTime.of(2026, 4, 2, 10, 0, 0))
+            .build();
         return PspPaymentEvent.from(state);
     }
 }

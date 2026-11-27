@@ -13,58 +13,58 @@ public class NotificationCommandToStateMapper {
     }
 
     public static NotificationCreateState mapToState(
-            SendNotificationCommand command, NotificationTemplate template,
-            String title, String body, String landingUrl,
-            DeliveryChannel deliveryChannel, LocalDateTime scheduledAt
+        SendNotificationCommand command, NotificationTemplate template,
+        String title, String body, String landingUrl,
+        DeliveryChannel deliveryChannel, LocalDateTime scheduledAt
     ) {
         return NotificationCreateState.builder()
-                .userId(command.userId())
-                .notificationType(template.getNotificationType())
-                .title(title)
-                .body(body)
-                .deliveryChannel(deliveryChannel)
-                .landingUrl(landingUrl)
-                .scheduledAt(scheduledAt)
-                .build();
+            .userId(command.userId())
+            .notificationType(template.getNotificationType())
+            .title(title)
+            .body(body)
+            .deliveryChannel(deliveryChannel)
+            .landingUrl(landingUrl)
+            .scheduledAt(scheduledAt)
+            .build();
     }
 
     public static NotificationCreateState mapToSkippedState(
-            SendNotificationCommand command, NotificationTemplate template, DeliveryChannel deliveryChannel
+        SendNotificationCommand command, NotificationTemplate template, DeliveryChannel deliveryChannel
     ) {
         return NotificationCreateState.builder()
-                .userId(command.userId())
-                .notificationType(template.getNotificationType())
-                .title(template.getTitle())
-                .body(template.getBodyTemplate())
-                .deliveryChannel(deliveryChannel)
-                .build();
+            .userId(command.userId())
+            .notificationType(template.getNotificationType())
+            .title(template.getTitle())
+            .body(template.getBodyTemplate())
+            .deliveryChannel(deliveryChannel)
+            .build();
     }
 
     public static NotificationCreateState mapToBatchState(
-            Long userId, NotificationTemplate template,
-            String title, String body, String landingUrl,
-            DeliveryChannel deliveryChannel, LocalDateTime scheduledAt
+        Long userId, NotificationTemplate template,
+        String title, String body, String landingUrl,
+        DeliveryChannel deliveryChannel, LocalDateTime scheduledAt
     ) {
         return NotificationCreateState.builder()
-                .userId(userId)
-                .notificationType(template.getNotificationType())
-                .title(title)
-                .body(body)
-                .deliveryChannel(deliveryChannel)
-                .landingUrl(landingUrl)
-                .scheduledAt(scheduledAt)
-                .build();
+            .userId(userId)
+            .notificationType(template.getNotificationType())
+            .title(title)
+            .body(body)
+            .deliveryChannel(deliveryChannel)
+            .landingUrl(landingUrl)
+            .scheduledAt(scheduledAt)
+            .build();
     }
 
     public static NotificationCreateState mapToBatchSkippedState(
-            Long userId, NotificationTemplate template, DeliveryChannel deliveryChannel
+        Long userId, NotificationTemplate template, DeliveryChannel deliveryChannel
     ) {
         return NotificationCreateState.builder()
-                .userId(userId)
-                .notificationType(template.getNotificationType())
-                .title(template.getTitle())
-                .body(template.getBodyTemplate())
-                .deliveryChannel(deliveryChannel)
-                .build();
+            .userId(userId)
+            .notificationType(template.getNotificationType())
+            .title(template.getTitle())
+            .body(template.getBodyTemplate())
+            .deliveryChannel(deliveryChannel)
+            .build();
     }
 }

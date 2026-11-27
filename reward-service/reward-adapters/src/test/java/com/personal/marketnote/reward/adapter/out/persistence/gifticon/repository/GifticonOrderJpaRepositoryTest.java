@@ -38,14 +38,14 @@ class GifticonOrderJpaRepositoryTest {
 
     private GifticonOrderJpaEntity persistOrder(Long userId, String trId, GifticonOrderStatus status, LocalDate validEndDate) {
         GifticonOrder domain = GifticonOrder.from(GifticonOrderCreateState.builder()
-                .userId(userId)
-                .goodsCode("G001")
-                .goodsName("테스트 상품")
-                .brandName("스타벅스")
-                .productImageUrl("http://img.test.com/p.jpg")
-                .trId(trId)
-                .cashPrice(10_000L)
-                .build());
+            .userId(userId)
+            .goodsCode("G001")
+            .goodsName("테스트 상품")
+            .brandName("스타벅스")
+            .productImageUrl("http://img.test.com/p.jpg")
+            .trId(trId)
+            .cashPrice(10_000L)
+            .build());
         if (status != GifticonOrderStatus.PENDING) {
             domain.issue("http://img.test.com/c.jpg", "1234-5678-9012", "ORD" + trId, validEndDate);
             if (status == GifticonOrderStatus.CANCELLED) {
@@ -74,7 +74,7 @@ class GifticonOrderJpaRepositoryTest {
         em.clear();
 
         List<GifticonOrderJpaEntity> result = repository.findByUserIdAndStatusesOrderByCreatedAtDesc(
-                1L, List.of(GifticonOrderStatus.ISSUED), -1L, PageRequest.of(0, 10));
+            1L, List.of(GifticonOrderStatus.ISSUED), -1L, PageRequest.of(0, 10));
 
         assertThat(result).hasSize(2);
     }
@@ -87,7 +87,7 @@ class GifticonOrderJpaRepositoryTest {
         em.clear();
 
         List<GifticonOrderJpaEntity> result = repository.findByUserIdAndStatusesOrderByCreatedAtDesc(
-                1L, List.of(GifticonOrderStatus.ISSUED), first.getId() + 100, PageRequest.of(0, 10));
+            1L, List.of(GifticonOrderStatus.ISSUED), first.getId() + 100, PageRequest.of(0, 10));
 
         assertThat(result).hasSizeGreaterThanOrEqualTo(1);
     }
@@ -101,7 +101,7 @@ class GifticonOrderJpaRepositoryTest {
         em.clear();
 
         List<GifticonOrderJpaEntity> result = repository.findByUserIdAndStatusesOrderByValidEndDateAsc(
-                1L, List.of(GifticonOrderStatus.ISSUED), PageRequest.of(0, 10));
+            1L, List.of(GifticonOrderStatus.ISSUED), PageRequest.of(0, 10));
 
         assertThat(result).hasSize(3);
         assertThat(result.get(0).getTrId()).isEqualTo("TR-2");

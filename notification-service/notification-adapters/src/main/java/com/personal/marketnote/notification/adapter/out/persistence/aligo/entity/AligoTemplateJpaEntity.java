@@ -69,10 +69,10 @@ public class AligoTemplateJpaEntity extends BaseGeneralEntity {
     private List<AligoTemplateButtonJpaEntity> buttons = new ArrayList<>();
 
     public void updateFrom(
-            String templateName, String templateContent,
-            String templateTitle, String templateSubtitle,
-            String inspStatus, AligoTemplateStatus templateStatus,
-            String comments, List<AligoTemplateButtonJpaEntity> newButtons
+        String templateName, String templateContent,
+        String templateTitle, String templateSubtitle,
+        String inspStatus, AligoTemplateStatus templateStatus,
+        String comments, List<AligoTemplateButtonJpaEntity> newButtons
     ) {
         this.templateName = templateName;
         this.templateContent = templateContent;
@@ -91,13 +91,13 @@ public class AligoTemplateJpaEntity extends BaseGeneralEntity {
     }
 
     public static AligoTemplateJpaEntity create(
-            String senderKey, String templateCode, String templateName,
-            String templateContent, String templateTitle, String templateSubtitle,
-            AligoTemplateType templateType, AligoTemplateEmType templateEmType,
-            boolean templateSecure, boolean templateAdvert,
-            String imageUrl, String imageName,
-            String inspStatus, AligoTemplateStatus templateStatus,
-            List<AligoTemplateButtonJpaEntity> buttons
+        String senderKey, String templateCode, String templateName,
+        String templateContent, String templateTitle, String templateSubtitle,
+        AligoTemplateType templateType, AligoTemplateEmType templateEmType,
+        boolean templateSecure, boolean templateAdvert,
+        String imageUrl, String imageName,
+        String inspStatus, AligoTemplateStatus templateStatus,
+        List<AligoTemplateButtonJpaEntity> buttons
     ) {
         AligoTemplateJpaEntity entity = new AligoTemplateJpaEntity();
         entity.senderKey = senderKey;

@@ -66,21 +66,21 @@ class OrderCancelCompleteSagaConsumerTest {
         void shouldPublishSuccessOnCompleteCancellation() throws Exception {
             String actionPayload = buildFullPayload();
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleCompleteCancellationStep(record, acknowledgment);
 
             verify(completeCancelOrderUseCase).completeCancellation(argThat(command ->
-                    command.orderId().equals(1L)
-                            && command.orderKey().equals("ORD-001")
-                            && command.buyerId().equals(100L)
-                            && command.isFullCancel()
-                            && "CANCEL_ORDER".equals(command.reasonCategory())
-                            && "구매 의사 취소".equals(command.reason())
+                command.orderId().equals(1L)
+                    && command.orderKey().equals("ORD-001")
+                    && command.buyerId().equals(100L)
+                    && command.isFullCancel()
+                    && "CANCEL_ORDER".equals(command.reasonCategory())
+                    && "구매 의사 취소".equals(command.reason())
             ));
             verify(sagaResponsePublisher).publishSuccess(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
             verify(acknowledgment).acknowledge();
         }
 
@@ -89,19 +89,19 @@ class OrderCancelCompleteSagaConsumerTest {
         void shouldPublishFailureOnInvalidStatusTransition() throws Exception {
             String actionPayload = buildFullPayload();
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new InvalidOrderStatusTransitionException(
-                    com.personal.marketnote.commerce.domain.order.OrderStatus.PAID,
-                    com.personal.marketnote.commerce.domain.order.OrderStatus.CANCELLED))
-                    .when(completeCancelOrderUseCase).completeCancellation(any(CompleteCancelOrderCommand.class));
+                com.personal.marketnote.commerce.domain.order.OrderStatus.PAID,
+                com.personal.marketnote.commerce.domain.order.OrderStatus.CANCELLED))
+                .when(completeCancelOrderUseCase).completeCancellation(any(CompleteCancelOrderCommand.class));
 
             consumer.handleCompleteCancellationStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("주문 취소 완료 처리 실패"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("주문 취소 완료 처리 실패"));
             verify(acknowledgment).acknowledge();
         }
 
@@ -110,17 +110,17 @@ class OrderCancelCompleteSagaConsumerTest {
         void shouldPublishFailureOnUnexpectedException() throws Exception {
             String actionPayload = buildFullPayload();
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new RuntimeException("DB 연결 실패"))
-                    .when(completeCancelOrderUseCase).completeCancellation(any(CompleteCancelOrderCommand.class));
+                .when(completeCancelOrderUseCase).completeCancellation(any(CompleteCancelOrderCommand.class));
 
             consumer.handleCompleteCancellationStep(record, acknowledgment);
 
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("주문 취소 완료 처리 실패"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("주문 취소 완료 처리 실패"));
             verify(acknowledgment).acknowledge();
         }
     }
@@ -133,23 +133,23 @@ class OrderCancelCompleteSagaConsumerTest {
         @DisplayName("orderId가 누락되면 실패 응답을 발행한다")
         void shouldPublishFailureOnMissingOrderId() throws Exception {
             Map<String, Object> payloadMap = new HashMap<>(Map.of(
-                    "orderKey", "ORD-001",
-                    "buyerId", 100L,
-                    "cancelAmount", 50000L,
-                    "paymentAmount", 50000L,
-                    "isFullCancel", true
+                "orderKey", "ORD-001",
+                "buyerId", 100L,
+                "cancelAmount", 50000L,
+                "paymentAmount", 50000L,
+                "isFullCancel", true
             ));
             String invalidPayload = TEST_OBJECT_MAPPER.writeValueAsString(payloadMap);
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleCompleteCancellationStep(record, acknowledgment);
 
             verifyNoInteractions(completeCancelOrderUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("orderId"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("orderId"));
             verify(acknowledgment).acknowledge();
         }
 
@@ -157,23 +157,23 @@ class OrderCancelCompleteSagaConsumerTest {
         @DisplayName("orderKey가 누락되면 실패 응답을 발행한다")
         void shouldPublishFailureOnMissingOrderKey() throws Exception {
             Map<String, Object> payloadMap = new HashMap<>(Map.of(
-                    "orderId", 1L,
-                    "buyerId", 100L,
-                    "cancelAmount", 50000L,
-                    "paymentAmount", 50000L,
-                    "isFullCancel", true
+                "orderId", 1L,
+                "buyerId", 100L,
+                "cancelAmount", 50000L,
+                "paymentAmount", 50000L,
+                "isFullCancel", true
             ));
             String invalidPayload = TEST_OBJECT_MAPPER.writeValueAsString(payloadMap);
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleCompleteCancellationStep(record, acknowledgment);
 
             verifyNoInteractions(completeCancelOrderUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("orderKey"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("orderKey"));
             verify(acknowledgment).acknowledge();
         }
     }
@@ -187,11 +187,11 @@ class OrderCancelCompleteSagaConsumerTest {
         void shouldPublishOrderCancelFailedEventOnCompleteError() throws Exception {
             String actionPayload = buildFullPayload();
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new RuntimeException("DB 연결 실패"))
-                    .when(completeCancelOrderUseCase).completeCancellation(any(CompleteCancelOrderCommand.class));
+                .when(completeCancelOrderUseCase).completeCancellation(any(CompleteCancelOrderCommand.class));
 
             consumer.handleCompleteCancellationStep(record, acknowledgment);
 
@@ -203,15 +203,15 @@ class OrderCancelCompleteSagaConsumerTest {
         @DisplayName("페이로드 검증 실패(orderKey 누락)에서 buyerId가 있으면 OrderCancelFailedEvent를 재발행한다")
         void shouldPublishOrderCancelFailedEventOnValidationFailureWithBuyerId() throws Exception {
             Map<String, Object> payloadMap = new HashMap<>(Map.of(
-                    "orderId", 1L,
-                    "buyerId", 100L,
-                    "cancelAmount", 50000L,
-                    "paymentAmount", 50000L,
-                    "isFullCancel", true
+                "orderId", 1L,
+                "buyerId", 100L,
+                "cancelAmount", 50000L,
+                "paymentAmount", 50000L,
+                "isFullCancel", true
             ));
             String invalidPayload = TEST_OBJECT_MAPPER.writeValueAsString(payloadMap);
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleCompleteCancellationStep(record, acknowledgment);
@@ -224,7 +224,7 @@ class OrderCancelCompleteSagaConsumerTest {
         void shouldNotPublishOrderCancelFailedEventOnSuccess() throws Exception {
             String actionPayload = buildFullPayload();
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleCompleteCancellationStep(record, acknowledgment);
@@ -242,7 +242,7 @@ class OrderCancelCompleteSagaConsumerTest {
         void shouldAcknowledgeOnNullEnvelope() {
             @SuppressWarnings("unchecked")
             ConsumerRecord<String, EventEnvelope<?>> record =
-                    new ConsumerRecord<>("saga.order-cancel.completed", 0, 0, SAGA_ID, null);
+                new ConsumerRecord<>("saga.order-cancel.completed", 0, 0, SAGA_ID, null);
 
             consumer.handleCompleteCancellationStep(record, acknowledgment);
 
@@ -255,15 +255,15 @@ class OrderCancelCompleteSagaConsumerTest {
         @DisplayName("CompleteCancellationSagaPayload 역직렬화 실패 시 페이로드 역직렬화 실패 응답을 발행하고 acknowledge한다")
         void shouldPublishFailureOnPayloadDeserializationFailure() throws Exception {
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "invalid-json");
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "invalid-json");
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleCompleteCancellationStep(record, acknowledgment);
 
             verifyNoInteractions(completeCancelOrderUseCase);
             verify(sagaResponsePublisher).publishFailure(
-                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("페이로드 역직렬화 실패"));
+                eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                eq(SagaStepMessage.ACTION), contains("페이로드 역직렬화 실패"));
             verify(acknowledgment).acknowledge();
         }
 
@@ -272,7 +272,7 @@ class OrderCancelCompleteSagaConsumerTest {
         void shouldAcknowledgeOnCompensationMessage() throws Exception {
             String payload = TEST_OBJECT_MAPPER.writeValueAsString(Map.of("orderId", 1L));
             SagaStepMessage stepMessage = new SagaStepMessage(
-                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
+                SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, payload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             consumer.handleCompleteCancellationStep(record, acknowledgment);
@@ -285,10 +285,10 @@ class OrderCancelCompleteSagaConsumerTest {
 
     private static String buildFullPayload() throws Exception {
         Map<String, Object> orderProduct = Map.of(
-                "pricePolicyId", 10L,
-                "sharerKey", UUID.randomUUID().toString(),
-                "quantity", 2,
-                "unitAmount", 25000L
+            "pricePolicyId", 10L,
+            "sharerKey", UUID.randomUUID().toString(),
+            "quantity", 2,
+            "unitAmount", 25000L
         );
         Map<String, Object> payloadMap = new HashMap<>();
         payloadMap.put("orderId", 1L);
@@ -307,14 +307,14 @@ class OrderCancelCompleteSagaConsumerTest {
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(SagaStepMessage stepMessage) {
-        Clock clock = Clock.fixed(Instant.parse("2026-04-26T01:00:00Z"), ZoneId.of("Asia/Seoul"));
+        Clock clock = Clock.fixed(Instant.parse("2026-11-21T01:00:00Z"), ZoneId.of("Asia/Seoul"));
         EventEnvelope<SagaStepMessage> envelope = EventEnvelope.of(
-                "saga.ORDER_CANCEL.COMPLETE_CANCELLATION.action", "saga-orchestrator", stepMessage, clock);
+            "saga.ORDER_CANCEL.COMPLETE_CANCELLATION.action", "saga-orchestrator", stepMessage, clock);
 
         @SuppressWarnings("unchecked")
         ConsumerRecord<String, EventEnvelope<?>> record =
-                new ConsumerRecord<>("saga.order-cancel.completed", 0, 0, SAGA_ID,
-                        (EventEnvelope<?>) (EventEnvelope) envelope);
+            new ConsumerRecord<>("saga.order-cancel.completed", 0, 0, SAGA_ID,
+                (EventEnvelope<?>) (EventEnvelope) envelope);
         return record;
     }
 }

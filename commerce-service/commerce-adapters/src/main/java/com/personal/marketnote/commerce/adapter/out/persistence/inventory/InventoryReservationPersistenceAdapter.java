@@ -21,7 +21,7 @@ import java.util.Set;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class InventoryReservationPersistenceAdapter implements
-        SaveInventoryReservationPort, FindInventoryReservationPort, FindExpiredInventoryReservationPort, DeleteInventoryReservationPort {
+    SaveInventoryReservationPort, FindInventoryReservationPort, FindExpiredInventoryReservationPort, DeleteInventoryReservationPort {
     private static final int EXPIRED_RESERVATION_BATCH_SIZE = 500;
     private final InventoryReservationJpaRepository inventoryReservationJpaRepository;
 
@@ -29,15 +29,15 @@ public class InventoryReservationPersistenceAdapter implements
     public void save(List<InventoryReservation> inventoryReservations) {
         try {
             inventoryReservationJpaRepository.saveAllAndFlush(
-                    inventoryReservations.stream()
-                            .map(InventoryReservationJpaEntity::from)
-                            .toList()
+                inventoryReservations.stream()
+                    .map(InventoryReservationJpaEntity::from)
+                    .toList()
             );
         } catch (DataIntegrityViolationException dive) {
             Long orderId = inventoryReservations.stream()
-                    .findFirst()
-                    .map(InventoryReservation::getOrderId)
-                    .orElse(null);
+                .findFirst()
+                .map(InventoryReservation::getOrderId)
+                .orElse(null);
             throw new DuplicateInventoryReservationException(orderId, dive);
         }
     }
@@ -45,28 +45,28 @@ public class InventoryReservationPersistenceAdapter implements
     @Override
     public List<InventoryReservation> findByOrderIdAndPricePolicyIds(Long orderId, Set<Long> pricePolicyIds) {
         return inventoryReservationJpaRepository.findByOrderIdAndPricePolicyIdIn(orderId, pricePolicyIds)
-                .stream()
-                .map(this::mapToDomain)
-                .toList();
+            .stream()
+            .map(this::mapToDomain)
+            .toList();
     }
 
     @Override
     public List<InventoryReservation> findExpiredBefore(LocalDateTime cutoff) {
         return inventoryReservationJpaRepository
-                .findByReservedAtBefore(cutoff, PageRequest.of(0, EXPIRED_RESERVATION_BATCH_SIZE))
-                .stream()
-                .map(this::mapToDomain)
-                .toList();
+            .findByReservedAtBefore(cutoff, PageRequest.of(0, EXPIRED_RESERVATION_BATCH_SIZE))
+            .stream()
+            .map(this::mapToDomain)
+            .toList();
     }
 
     private InventoryReservation mapToDomain(InventoryReservationJpaEntity entity) {
         return InventoryReservation.from(InventoryReservationSnapshotState.builder()
-                .id(entity.getId())
-                .orderId(entity.getOrderId())
-                .pricePolicyId(entity.getPricePolicyId())
-                .quantity(entity.getQuantity())
-                .reservedAt(entity.getReservedAt())
-                .build());
+            .id(entity.getId())
+            .orderId(entity.getOrderId())
+            .pricePolicyId(entity.getPricePolicyId())
+            .quantity(entity.getQuantity())
+            .reservedAt(entity.getReservedAt())
+            .build());
     }
 
     @Override

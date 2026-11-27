@@ -33,22 +33,22 @@ class GetRemoteAreaUseCaseTest {
     void shouldReturnActiveRemoteAreas() {
         // given
         RemoteArea jeju = RemoteArea.from(
-                RemoteAreaSnapshotState.builder()
-                        .id(1L)
-                        .province("제주")
-                        .district("")
-                        .village("")
-                        .subarea("")
-                        .build()
+            RemoteAreaSnapshotState.builder()
+                .id(1L)
+                .province("제주")
+                .district("")
+                .village("")
+                .subarea("")
+                .build()
         );
         RemoteArea chungnam = RemoteArea.from(
-                RemoteAreaSnapshotState.builder()
-                        .id(2L)
-                        .province("충남")
-                        .district("보령시")
-                        .village("오천면")
-                        .subarea("녹도리")
-                        .build()
+            RemoteAreaSnapshotState.builder()
+                .id(2L)
+                .province("충남")
+                .district("보령시")
+                .village("오천면")
+                .subarea("녹도리")
+                .build()
         );
 
         when(findRemoteAreaPort.findAllActive()).thenReturn(List.of(jeju, chungnam));

@@ -21,8 +21,8 @@ class TemplateRendererTest {
             // given
             String template = "{productName} 외 {count}건이 결제되었습니다.";
             Map<String, String> variables = Map.of(
-                    "productName", "비타민C",
-                    "count", "2"
+                "productName", "비타민C",
+                "count", "2"
             );
 
             // when
@@ -52,9 +52,9 @@ class TemplateRendererTest {
             // given
             String template = "{userName}님, {productName} 주문이 {status}되었습니다.";
             Map<String, String> variables = Map.of(
-                    "userName", "홍길동",
-                    "productName", "프로틴바",
-                    "status", "확인"
+                "userName", "홍길동",
+                "productName", "프로틴바",
+                "status", "확인"
             );
 
             // when
@@ -73,7 +73,7 @@ class TemplateRendererTest {
 
             // when & then
             assertThatThrownBy(() -> TemplateRenderer.render(template, variables))
-                    .isInstanceOf(InvalidTemplateVariableException.class);
+                .isInstanceOf(InvalidTemplateVariableException.class);
         }
 
         @Test
@@ -136,7 +136,7 @@ class TemplateRendererTest {
 
             // when & then
             assertThatThrownBy(() -> TemplateRenderer.render(template, null))
-                    .isInstanceOf(InvalidTemplateVariableException.class);
+                .isInstanceOf(InvalidTemplateVariableException.class);
         }
     }
 
@@ -164,8 +164,8 @@ class TemplateRendererTest {
             // given
             String urlTemplate = "/review/create/{orderId}?pricePolicyId={pricePolicyId}";
             Map<String, String> variables = Map.of(
-                    "orderId", "100",
-                    "pricePolicyId", "200"
+                "orderId", "100",
+                "pricePolicyId", "200"
             );
 
             // when

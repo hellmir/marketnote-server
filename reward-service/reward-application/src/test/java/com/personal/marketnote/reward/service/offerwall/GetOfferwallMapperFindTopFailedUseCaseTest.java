@@ -34,18 +34,18 @@ class GetOfferwallMapperFindTopFailedUseCaseTest {
         OfferwallType type = OfferwallType.ADPOPCORN;
         String rewardKey = "reward-123";
         OfferwallMapper failedMapper = OfferwallMapper.from(
-                OfferwallMapperSnapshotState.builder()
-                        .id(1L)
-                        .offerwallType(type)
-                        .rewardKey(rewardKey)
-                        .userKey("user-key")
-                        .isSuccess(false)
-                        .failureCount((short) 2)
-                        .build()
+            OfferwallMapperSnapshotState.builder()
+                .id(1L)
+                .offerwallType(type)
+                .rewardKey(rewardKey)
+                .userKey("user-key")
+                .isSuccess(false)
+                .failureCount((short) 2)
+                .build()
         );
 
         when(findOfferwallMapperPort.findTopFailedOfferwallMapper(type, rewardKey))
-                .thenReturn(Optional.of(failedMapper));
+            .thenReturn(Optional.of(failedMapper));
 
         // when
         Optional<OfferwallMapper> result = getOfferwallMapperService.findTopFailedOfferwallMapper(type, rewardKey);
@@ -64,7 +64,7 @@ class GetOfferwallMapperFindTopFailedUseCaseTest {
         String rewardKey = "reward-456";
 
         when(findOfferwallMapperPort.findTopFailedOfferwallMapper(type, rewardKey))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         // when
         Optional<OfferwallMapper> result = getOfferwallMapperService.findTopFailedOfferwallMapper(type, rewardKey);

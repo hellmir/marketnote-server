@@ -10,10 +10,10 @@ public class AdminOrderRequestToCommandMapper {
     }
 
     public static GetAdminOrdersQuery mapToQuery(
-            Long sellerId,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            OrderStatus orderStatus
+        Long sellerId,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        OrderStatus orderStatus
     ) {
         return GetAdminOrdersQuery.of(sellerId, startDate, endDate, orderStatus);
     }

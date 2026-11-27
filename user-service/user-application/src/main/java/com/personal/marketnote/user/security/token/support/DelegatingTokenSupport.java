@@ -26,7 +26,7 @@ public class DelegatingTokenSupport implements TokenSupport {
     public DelegatingTokenSupport(List<TokenProcessor> processors) {
         this.processors = processors;
         this.processorsByAuthVendor = processors.stream()
-                .collect(Collectors.toMap(TokenProcessor::getAuthVendor, (p) -> p));
+            .collect(Collectors.toMap(TokenProcessor::getAuthVendor, (p) -> p));
     }
 
     @Override

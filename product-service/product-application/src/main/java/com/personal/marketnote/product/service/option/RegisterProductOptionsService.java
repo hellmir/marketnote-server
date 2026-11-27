@@ -33,7 +33,7 @@ public class RegisterProductOptionsService implements RegisterProductOptionsUseC
 
     @Override
     public UpdateProductOptionsResult registerProductOptions(
-            Long userId, boolean isAdmin, RegisterProductOptionsCommand command
+        Long userId, boolean isAdmin, RegisterProductOptionsCommand command
     ) {
         Long productId = command.productId();
         if (!isAdmin && !findProductPort.existsByIdAndSellerId(productId, userId)) {
@@ -48,7 +48,7 @@ public class RegisterProductOptionsService implements RegisterProductOptionsUseC
         }
 
         ProductOptionCategory savedCategory = saveProductOptionsPort.save(
-                ProductOptionCategory.from(ProductCommandToStateMapper.mapToState(product, command))
+            ProductOptionCategory.from(ProductCommandToStateMapper.mapToState(product, command))
         );
 
         return UpdateProductOptionsResult.from(savedCategory);

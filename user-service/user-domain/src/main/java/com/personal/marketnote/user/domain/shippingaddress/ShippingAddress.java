@@ -8,11 +8,7 @@ import com.personal.marketnote.common.domain.recipientname.RecipientName;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.shippingaddress.exception.InvalidShippingAddressDeletionException;
 import com.personal.marketnote.user.domain.shippingaddress.exception.ShippingAddressCompanyNameNoValueException;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -35,19 +31,19 @@ public class ShippingAddress extends BaseDomain {
 
     public static ShippingAddress from(ShippingAddressCreateState state) {
         ShippingAddress shippingAddress = ShippingAddress.builder()
-                .userId(state.getUserId())
-                .addressType(state.getAddressType())
-                .address(state.getAddress())
-                .addressDetail(state.getAddressDetail())
-                .companyName(state.getCompanyName())
-                .addressAlias(state.getAddressAlias())
-                .recipientName(RecipientName.of(state.getRecipientName()))
-                .recipientPhoneNumber(PhoneNumber.of(state.getRecipientPhoneNumber()))
-                .deliveryRequestType(state.getDeliveryRequestType())
-                .deliveryRequestMessage(resolveDeliveryRequestMessage(state.getDeliveryRequestType(), state.getDeliveryRequestMessage()))
-                .isDefault(state.isDefault())
-                .regionType(state.getRegionType())
-                .build();
+            .userId(state.getUserId())
+            .addressType(state.getAddressType())
+            .address(state.getAddress())
+            .addressDetail(state.getAddressDetail())
+            .companyName(state.getCompanyName())
+            .addressAlias(state.getAddressAlias())
+            .recipientName(RecipientName.of(state.getRecipientName()))
+            .recipientPhoneNumber(PhoneNumber.of(state.getRecipientPhoneNumber()))
+            .deliveryRequestType(state.getDeliveryRequestType())
+            .deliveryRequestMessage(resolveDeliveryRequestMessage(state.getDeliveryRequestType(), state.getDeliveryRequestMessage()))
+            .isDefault(state.isDefault())
+            .regionType(state.getRegionType())
+            .build();
 
         shippingAddress.validateCompanyName();
         return shippingAddress;
@@ -55,26 +51,26 @@ public class ShippingAddress extends BaseDomain {
 
     public static ShippingAddress from(ShippingAddressSnapshotState state) {
         return ShippingAddress.builder()
-                .id(state.getId())
-                .userId(state.getUserId())
-                .addressType(state.getAddressType())
-                .address(state.getAddress())
-                .addressDetail(state.getAddressDetail())
-                .companyName(state.getCompanyName())
-                .addressAlias(state.getAddressAlias())
-                .recipientName(RecipientName.of(state.getRecipientName()))
-                .recipientPhoneNumber(PhoneNumber.of(state.getRecipientPhoneNumber()))
-                .deliveryRequestType(state.getDeliveryRequestType())
-                .deliveryRequestMessage(toDeliveryRequestMessageOrNull(state.getDeliveryRequestMessage()))
-                .isDefault(state.isDefault())
-                .regionType(state.getRegionType())
-                .build();
+            .id(state.getId())
+            .userId(state.getUserId())
+            .addressType(state.getAddressType())
+            .address(state.getAddress())
+            .addressDetail(state.getAddressDetail())
+            .companyName(state.getCompanyName())
+            .addressAlias(state.getAddressAlias())
+            .recipientName(RecipientName.of(state.getRecipientName()))
+            .recipientPhoneNumber(PhoneNumber.of(state.getRecipientPhoneNumber()))
+            .deliveryRequestType(state.getDeliveryRequestType())
+            .deliveryRequestMessage(toDeliveryRequestMessageOrNull(state.getDeliveryRequestMessage()))
+            .isDefault(state.isDefault())
+            .regionType(state.getRegionType())
+            .build();
     }
 
     public static ShippingAddress referenceOf(Long id) {
         return ShippingAddress.builder()
-                .id(id)
-                .build();
+            .id(id)
+            .build();
     }
 
     public void setAsDefault() {
@@ -104,14 +100,14 @@ public class ShippingAddress extends BaseDomain {
     }
 
     public void update(
-            String address,
-            String addressDetail,
-            String companyName,
-            String addressAlias,
-            RecipientName recipientName,
-            PhoneNumber recipientPhoneNumber,
-            DeliveryRequestType deliveryRequestType,
-            String deliveryRequestMessage
+        String address,
+        String addressDetail,
+        String companyName,
+        String addressAlias,
+        RecipientName recipientName,
+        PhoneNumber recipientPhoneNumber,
+        DeliveryRequestType deliveryRequestType,
+        String deliveryRequestMessage
     ) {
         this.address = address;
         this.addressDetail = addressDetail;

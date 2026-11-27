@@ -90,9 +90,9 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         // [미전환] 상품 적립 포인트 (#1131)
 
         List<Long> pricePolicyIds = order.getOrderProducts()
-                .stream()
-                .map(OrderProduct::getPricePolicyId)
-                .toList();
+            .stream()
+            .map(OrderProduct::getPricePolicyId)
+            .toList();
         Long orderId = order.getId();
         Long buyerId = order.getBuyerId();
         Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(order.getOrderProducts(), pricePolicyIds);
@@ -125,8 +125,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
                 continue;
             }
             totalAccumulatedPoint = Math.addExact(
-                    totalAccumulatedPoint,
-                    Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue())
+                totalAccumulatedPoint,
+                Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue())
             );
         }
 
@@ -135,7 +135,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
 
     private Long calculateSnapshotAccumulatedPoint(List<OrderProduct> orderProducts) {
         boolean allHaveSnapshot = orderProducts.stream()
-                .allMatch(op -> FormatValidator.hasValue(op.getAccumulatedPoint()));
+            .allMatch(op -> FormatValidator.hasValue(op.getAccumulatedPoint()));
         if (!allHaveSnapshot) {
             return null;
         }
@@ -143,8 +143,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         long total = 0L;
         for (OrderProduct orderProduct : orderProducts) {
             total = Math.addExact(
-                    total,
-                    orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue()
+                total,
+                orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue()
             );
         }
         return total;
@@ -157,14 +157,14 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
 
         try {
             modifyUserPointPort.addPendingProductAccumulationPoints(
-                    buyerId,
-                    totalAccumulatedPoint,
-                    orderId
+                buyerId,
+                totalAccumulatedPoint,
+                orderId
             );
         } catch (Exception e) {
             // boundary swallow: 상품 적립 예정 포인트 추가 실패 시에도 주문 상태 변경 본 흐름 진행 (보상 트랜잭션)
             log.error("상품 적립 예정 포인트 추가 실패 - orderId: {}, buyerId: {}, amount: {}, error: {}",
-                    orderId, buyerId, totalAccumulatedPoint, e.getMessage(), e
+                orderId, buyerId, totalAccumulatedPoint, e.getMessage(), e
             );
         }
     }
@@ -181,27 +181,27 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
 
     private void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<UUID> sharerKeys, Order order) {
         publishOrderEventPort.publishOrderPurchaseConfirmedEvent(
-                orderId, buyerId, sharerKeys, true, order.getOrderProducts()
+            orderId, buyerId, sharerKeys, true, order.getOrderProducts()
         );
     }
 
     private void publishOrderPaymentCompletedEvent(Order order, Long totalAccumulatedPoint) {
         publishOrderEventPort.publishOrderPaymentCompletedEvent(
-                order.getId(),
-                order.getBuyerId(),
-                order.getAmount().getTotalAmount().getValue(),
-                order.getAmount().getPointAmount().getValue(),
-                order.getShippingAddress(),
-                order.getOrderProducts(),
-                totalAccumulatedPoint
+            order.getId(),
+            order.getBuyerId(),
+            order.getAmount().getTotalAmount().getValue(),
+            order.getAmount().getPointAmount().getValue(),
+            order.getShippingAddress(),
+            order.getOrderProducts(),
+            totalAccumulatedPoint
         );
     }
 
     private List<UUID> extractSharerKeys(List<OrderProduct> orderProducts) {
         return orderProducts.stream()
-                .map(OrderProduct::getSharerKey)
-                .filter(Objects::nonNull)
-                .toList();
+            .map(OrderProduct::getSharerKey)
+            .filter(Objects::nonNull)
+            .toList();
     }
 
     private void runAfterCommit(Runnable action) {

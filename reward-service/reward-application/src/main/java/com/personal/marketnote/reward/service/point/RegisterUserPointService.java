@@ -32,17 +32,17 @@ public class RegisterUserPointService implements RegisterUserPointUseCase {
         validateDuplicate(command.userId());
 
         UserPoint savedUserPoint = saveUserPointPort.save(
-                UserPoint.from(RewardCommandToStateMapper.mapToUserPointCreateState(command))
+            UserPoint.from(RewardCommandToStateMapper.mapToUserPointCreateState(command))
         );
 
         LocalDateTime accumulatedAt = savedUserPoint.getCreatedAt();
         saveUserPointHistoryPort.save(
-                UserPointHistory.from(
-                        RewardCommandToStateMapper.mapToUserPointHistoryCreateState(
-                                command,
-                                accumulatedAt
-                        )
+            UserPointHistory.from(
+                RewardCommandToStateMapper.mapToUserPointHistoryCreateState(
+                    command,
+                    accumulatedAt
                 )
+            )
         );
     }
 

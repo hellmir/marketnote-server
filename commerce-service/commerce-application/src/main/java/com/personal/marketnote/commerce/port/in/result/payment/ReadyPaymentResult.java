@@ -6,17 +6,17 @@ import lombok.Builder;
 
 @Builder
 public record ReadyPaymentResult(
-        String orderKey,
-        String approvalKey,
-        String payUrl,
-        String traceNo
+    String orderKey,
+    String approvalKey,
+    String payUrl,
+    String traceNo
 ) {
     public static ReadyPaymentResult of(Payment payment, TradeRegisterVendorResult vendorResult) {
         return new ReadyPaymentResult(
-                payment.getOrderKey().toString(),
-                vendorResult.approvalKey(),
-                vendorResult.payUrl(),
-                vendorResult.traceNo()
+            payment.getOrderKey().toString(),
+            vendorResult.approvalKey(),
+            vendorResult.payUrl(),
+            vendorResult.traceNo()
         );
     }
 }

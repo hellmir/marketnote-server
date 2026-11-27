@@ -33,9 +33,9 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class UserPersistenceAdapter
-        implements SaveUserPort, FindUserPort, FindTermsPort, UpdateUserPort, SaveLoginHistoryPort, FindLoginHistoryPort,
-        SaveUserPenaltyHistoryPort, FindUserPenaltyHistoryPort,
-        SaveUserStatusHistoryPort, FindUserStatusHistoryPort {
+    implements SaveUserPort, FindUserPort, FindTermsPort, UpdateUserPort, SaveLoginHistoryPort, FindLoginHistoryPort,
+    SaveUserPenaltyHistoryPort, FindUserPenaltyHistoryPort,
+    SaveUserStatusHistoryPort, FindUserStatusHistoryPort {
     private final UserJpaRepository userJpaRepository;
     private final TermsJpaRepository termsJpaRepository;
     private final LoginHistoryJpaRepository loginHistoryJpaRepository;
@@ -85,7 +85,7 @@ public class UserPersistenceAdapter
     @Transactional(isolation = READ_COMMITTED, readOnly = true, timeout = 120)
     public Optional<User> findByAuthVendorAndOidcId(AuthVendor authVendor, String oidcId) {
         return UserJpaEntityToDomainMapper.mapToDomain(
-                userJpaRepository.findByAuthVendorAndOidcId(authVendor, oidcId).orElse(null)
+            userJpaRepository.findByAuthVendorAndOidcId(authVendor, oidcId).orElse(null)
         );
     }
 
@@ -123,7 +123,7 @@ public class UserPersistenceAdapter
     @Transactional(isolation = READ_COMMITTED, readOnly = true, timeout = 120)
     public Optional<User> findAllStatusUserByAuthVendorAndOidcId(AuthVendor authVendor, String oidcId) {
         return UserJpaEntityToDomainMapper.mapToDomain(
-                userJpaRepository.findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId).orElse(null)
+            userJpaRepository.findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId).orElse(null)
         );
     }
 
@@ -135,10 +135,10 @@ public class UserPersistenceAdapter
     @Override
     public List<User> findAllStatusUsers() {
         return userJpaRepository.findAllStatusUsers().stream()
-                .map(UserJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+            .map(UserJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -151,15 +151,15 @@ public class UserPersistenceAdapter
 
         String safeKeyword = FormatValidator.hasValue(searchKeyword) ? searchKeyword : "";
         Page<UserJpaEntity> userJpaEntityPage = userJpaRepository.findAllStatusUsersByPage(
-                pageable, byId, byNickname, byEmail, byPhone, byRefCode, safeKeyword
+            pageable, byId, byNickname, byEmail, byPhone, byRefCode, safeKeyword
         );
 
         List<User> users = userJpaEntityPage
-                .stream()
-                .map(UserJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+            .stream()
+            .map(UserJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
 
         return new PageImpl<>(users, pageable, userJpaEntityPage.getTotalElements());
     }
@@ -168,19 +168,19 @@ public class UserPersistenceAdapter
     @Transactional(isolation = READ_COMMITTED, readOnly = true, timeout = 120)
     public List<User> findAllByDeactivatedUntilExpired(LocalDateTime now) {
         return userJpaRepository.findAllByDeactivatedUntilExpired(now).stream()
-                .map(UserJpaEntityToDomainMapper::mapToDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+            .map(UserJpaEntityToDomainMapper::mapToDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
     }
 
     @Override
     public List<Terms> findAll() {
         return termsJpaRepository.findAllByOrderByIdAsc().stream()
-                .map(UserJpaEntityToDomainMapper::mapToTermsDomain)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+            .map(UserJpaEntityToDomainMapper::mapToTermsDomain)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -195,7 +195,7 @@ public class UserPersistenceAdapter
         UserJpaEntity userRef = userJpaRepository.getReferenceById(userId);
         userRef.updateLoginTime();
         LoginHistoryJpaEntity entity = LoginHistoryJpaEntity.of(
-                userRef, loginHistory.getAuthVendor(), loginHistory.getIpAddress().getValue()
+            userRef, loginHistory.getAuthVendor(), loginHistory.getIpAddress().getValue()
         );
         loginHistoryJpaRepository.save(entity);
     }
@@ -205,18 +205,18 @@ public class UserPersistenceAdapter
         Page<LoginHistoryJpaEntity> page = loginHistoryJpaRepository.findLoginHistoriesByUserId(pageable, userId);
 
         List<LoginHistory> histories = page.stream()
-                .map(e -> LoginHistory.from(
-                        LoginHistorySnapshotState.builder()
-                                .id(e.getId())
-                                .user(UserJpaEntityToDomainMapper.mapToDomain(e.getUserJpaEntity()).orElseGet(
-                                        () -> com.personal.marketnote.user.domain.user.User.referenceOf(e.getUserJpaEntity().getId())
-                                ))
-                                .authVendor(e.getAuthVendor())
-                                .ipAddress(IpAddress.of(e.getIpAddress()))
-                                .createdAt(e.getCreatedAt())
-                                .build()
-                ))
-                .collect(Collectors.toList());
+            .map(e -> LoginHistory.from(
+                LoginHistorySnapshotState.builder()
+                    .id(e.getId())
+                    .user(UserJpaEntityToDomainMapper.mapToDomain(e.getUserJpaEntity()).orElseGet(
+                        () -> com.personal.marketnote.user.domain.user.User.referenceOf(e.getUserJpaEntity().getId())
+                    ))
+                    .authVendor(e.getAuthVendor())
+                    .ipAddress(IpAddress.of(e.getIpAddress()))
+                    .createdAt(e.getCreatedAt())
+                    .build()
+            ))
+            .collect(Collectors.toList());
 
         return new PageImpl<>(histories, pageable, page.getTotalElements());
     }
@@ -231,7 +231,7 @@ public class UserPersistenceAdapter
     @Override
     public UserStatusHistory save(UserStatusHistory history) {
         UserStatusHistoryJpaEntity saved = userStatusHistoryJpaRepository.save(
-                UserStatusHistoryJpaEntity.from(history)
+            UserStatusHistoryJpaEntity.from(history)
         );
         return saved.toDomain();
     }
@@ -239,7 +239,7 @@ public class UserPersistenceAdapter
     @Override
     public UserPenaltyHistory save(UserPenaltyHistory history) {
         UserPenaltyHistoryJpaEntity saved = userPenaltyHistoryJpaRepository.save(
-                UserPenaltyHistoryJpaEntity.from(history)
+            UserPenaltyHistoryJpaEntity.from(history)
         );
         return saved.toDomain();
     }
@@ -249,8 +249,8 @@ public class UserPersistenceAdapter
     public Page<UserPenaltyHistory> findUserPenaltyHistoriesByUserId(Pageable pageable, Long userId) {
         Page<UserPenaltyHistoryJpaEntity> page = userPenaltyHistoryJpaRepository.findUserPenaltyHistoriesByUserId(pageable, userId);
         List<UserPenaltyHistory> histories = page.stream()
-                .map(UserPenaltyHistoryJpaEntity::toDomain)
-                .collect(Collectors.toList());
+            .map(UserPenaltyHistoryJpaEntity::toDomain)
+            .collect(Collectors.toList());
         return new PageImpl<>(histories, pageable, page.getTotalElements());
     }
 
@@ -259,8 +259,8 @@ public class UserPersistenceAdapter
     public Page<UserStatusHistory> findUserStatusHistoriesByUserId(Pageable pageable, Long userId) {
         Page<UserStatusHistoryJpaEntity> page = userStatusHistoryJpaRepository.findUserStatusHistoriesByUserId(pageable, userId);
         List<UserStatusHistory> histories = page.stream()
-                .map(UserStatusHistoryJpaEntity::toDomain)
-                .collect(Collectors.toList());
+            .map(UserStatusHistoryJpaEntity::toDomain)
+            .collect(Collectors.toList());
         return new PageImpl<>(histories, pageable, page.getTotalElements());
     }
 }

@@ -68,7 +68,7 @@ public interface FindReviewPort {
      * @Description 상품 리뷰 목록을 조회합니다.
      */
     Reviews findProductReviews(
-            Long productId, Boolean isPhoto, Long cursor, Pageable pageable, ReviewSortProperty sortProperty
+        Long productId, Boolean isPhoto, Long cursor, Pageable pageable, ReviewSortProperty sortProperty
     );
 
     /**
@@ -132,10 +132,10 @@ public interface FindReviewPort {
      * @Description 회원 리뷰 목록을 오프셋 기반으로 조회합니다.
      */
     Reviews findUserReviewsByOffset(
-            Long reviewerId,
-            int page,
-            int pageSize,
-            boolean isDesc,
-            ReviewSortProperty sortProperty
+        Long reviewerId,
+        int page,
+        int pageSize,
+        boolean isDesc,
+        ReviewSortProperty sortProperty
     );
 }

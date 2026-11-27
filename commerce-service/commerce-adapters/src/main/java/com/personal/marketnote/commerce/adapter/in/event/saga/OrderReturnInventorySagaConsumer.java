@@ -34,12 +34,12 @@ public class OrderReturnInventorySagaConsumer {
     private final SagaResponsePublisher sagaResponsePublisher;
 
     @KafkaListener(
-            topics = KafkaTopicConstants.SAGA_ORDER_RETURN_INVENTORY,
-            groupId = "saga-order-return-inventory"
+        topics = KafkaTopicConstants.SAGA_ORDER_RETURN_INVENTORY,
+        groupId = "saga-order-return-inventory"
     )
     public void handleInventoryStep(
-            ConsumerRecord<String, EventEnvelope<?>> record,
-            Acknowledgment acknowledgment
+        ConsumerRecord<String, EventEnvelope<?>> record,
+        Acknowledgment acknowledgment
     ) {
         try {
             EventEnvelope<?> envelope = record.value();
@@ -66,7 +66,7 @@ public class OrderReturnInventorySagaConsumer {
         } catch (Exception e) {
             // boundary E: @KafkaListener record-level boundary — 호출자 전파 불가 (finally ack), ERROR + cause 인자 필수
             log.error("SAGA 반품 재고 복구 스텝 처리 실패. topic={}, partition={}, offset={}, error={}",
-                    record.topic(), record.partition(), record.offset(), e.getMessage(), e
+                record.topic(), record.partition(), record.offset(), e.getMessage(), e
             );
         } finally {
             acknowledgment.acknowledge();
@@ -76,7 +76,7 @@ public class OrderReturnInventorySagaConsumer {
     private void handleAction(SagaStepMessage stepMessage) {
         try {
             ReturnInventorySagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), ReturnInventorySagaPayload.class);
+                stepMessage.payload(), ReturnInventorySagaPayload.class);
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
                 publishValidationFailure(stepMessage, "orderId 누락");
@@ -93,23 +93,23 @@ public class OrderReturnInventorySagaConsumer {
             restoreProductInventoryUseCase.restore(returnProducts, payload.orderId(), reason);
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true}"
             );
 
             log.info("SAGA 반품 재고 복구 성공. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
         } catch (DuplicateInventoryRestorationException e) {
             log.info("이미 처리된 반품 재고 복구 (멱등 처리). sagaId={}", stepMessage.sagaId());
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
             );
         } catch (Exception e) {
             // boundary E: SAGA step boundary — UseCase 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 반품 재고 복구 처리 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "반품 재고 복구 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "반품 재고 복구 처리 실패"
             );
         }
     }
@@ -117,7 +117,7 @@ public class OrderReturnInventorySagaConsumer {
     private void handleCompensation(SagaStepMessage stepMessage) {
         try {
             ReturnInventorySagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), ReturnInventorySagaPayload.class);
+                stepMessage.payload(), ReturnInventorySagaPayload.class);
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
                 publishValidationFailure(stepMessage, "orderId 누락");
@@ -131,23 +131,23 @@ public class OrderReturnInventorySagaConsumer {
             List<OrderProduct> returnProducts = SagaOrderProductMapper.toOrderProducts(payload.returnProducts());
 
             reduceProductInventoryUseCase.reduce(
-                    returnProducts, payload.orderId(), "SAGA 보상 - 반품 재고 복구 롤백"
+                returnProducts, payload.orderId(), "SAGA 보상 - 반품 재고 복구 롤백"
             );
 
             sagaResponsePublisher.publishSuccess(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true}"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "{\"compensated\":true}"
             );
 
             log.info("SAGA 반품 재고 복구 보상 완료 (재차감). sagaId={}, orderId={}",
-                    stepMessage.sagaId(), payload.orderId()
+                stepMessage.sagaId(), payload.orderId()
             );
         } catch (Exception e) {
             // boundary E: SAGA compensation boundary — 보상 처리 광역 예외는 SagaResponsePublisher.publishFailure 로 SAGA 실패 응답 위임, ERROR + cause 인자 필수
             log.error("SAGA 반품 재고 복구 보상 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
-                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "반품 재고 복구 보상 처리 실패"
+                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                stepMessage.messageType(), "반품 재고 복구 보상 처리 실패"
             );
         }
     }
@@ -162,8 +162,8 @@ public class OrderReturnInventorySagaConsumer {
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
         log.warn("SAGA 반품 재고 복구 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
-                stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+            stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+            stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
     }
 }

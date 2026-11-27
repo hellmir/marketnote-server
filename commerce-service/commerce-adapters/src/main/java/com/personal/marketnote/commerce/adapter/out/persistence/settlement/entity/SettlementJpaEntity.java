@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "settlement",
-        uniqueConstraints = @UniqueConstraint(name = "idx_settlement_seller_year_month",
-                columnNames = {"seller_id", "year", "month"}))
+    uniqueConstraints = @UniqueConstraint(name = "idx_settlement_seller_year_month",
+        columnNames = {"seller_id", "year", "month"}))
 @DynamicInsert
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -69,19 +69,19 @@ public class SettlementJpaEntity {
 
     public static SettlementJpaEntity from(Settlement settlement) {
         return SettlementJpaEntity.builder()
-                .id(settlement.getId())
-                .sellerId(settlement.getSellerId())
-                .year(settlement.getYear())
-                .month(settlement.getMonth())
-                .totalAllocatedAmount(settlement.getTotalAllocatedAmount().getValue())
-                .shippingFee(settlement.getShippingFee().getValue())
-                .pgFeeAmount(settlement.getPgFeeAmount().getValue())
-                .platformFeeAmount(settlement.getPlatformFeeAmount().getValue())
-                .sellerPayoutAmount(settlement.getSellerPayoutAmount().getValue())
-                .status(settlement.getStatus())
-                .version(settlement.getVersion())
-                .createdAt(settlement.getCreatedAt())
-                .modifiedAt(settlement.getModifiedAt())
-                .build();
+            .id(settlement.getId())
+            .sellerId(settlement.getSellerId())
+            .year(settlement.getYear())
+            .month(settlement.getMonth())
+            .totalAllocatedAmount(settlement.getTotalAllocatedAmount().getValue())
+            .shippingFee(settlement.getShippingFee().getValue())
+            .pgFeeAmount(settlement.getPgFeeAmount().getValue())
+            .platformFeeAmount(settlement.getPlatformFeeAmount().getValue())
+            .sellerPayoutAmount(settlement.getSellerPayoutAmount().getValue())
+            .status(settlement.getStatus())
+            .version(settlement.getVersion())
+            .createdAt(settlement.getCreatedAt())
+            .modifiedAt(settlement.getModifiedAt())
+            .build();
     }
 }

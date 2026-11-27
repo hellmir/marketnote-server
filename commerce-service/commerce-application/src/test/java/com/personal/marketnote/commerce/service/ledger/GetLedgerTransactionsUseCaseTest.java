@@ -33,25 +33,25 @@ class GetLedgerTransactionsUseCaseTest {
 
     private LedgerTransaction createTransaction(Long id, LedgerTransactionType type) {
         return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
-                .id(id)
-                .transactionType(type)
-                .targetType("SETTLEMENT")
-                .targetId(100L)
-                .description("테스트 거래")
-                .idempotencyKey(IdempotencyKey.of("TEST:" + id))
-                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .build());
+            .id(id)
+            .transactionType(type)
+            .targetType("SETTLEMENT")
+            .targetId(100L)
+            .description("테스트 거래")
+            .idempotencyKey(IdempotencyKey.of("TEST:" + id))
+            .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .build());
     }
 
     private LedgerEntry createEntry(Long id, Long transactionId, Long accountId, TransactionType type, Long amount) {
         return LedgerEntry.from(LedgerEntrySnapshotState.builder()
-                .id(id)
-                .accountId(accountId)
-                .transactionId(transactionId)
-                .amount(amount)
-                .transactionType(type)
-                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                .build());
+            .id(id)
+            .accountId(accountId)
+            .transactionId(transactionId)
+            .amount(amount)
+            .transactionType(type)
+            .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+            .build());
     }
 
     @Test
@@ -63,16 +63,16 @@ class GetLedgerTransactionsUseCaseTest {
 
         LedgerTransaction transaction = createTransaction(1L, LedgerTransactionType.PG_SETTLEMENT);
         when(findLedgerTransactionPort.findByFilters(startDate, endDate, null))
-                .thenReturn(List.of(transaction));
+            .thenReturn(List.of(transaction));
 
         LedgerEntry entry = createEntry(1L, 1L, 1L, TransactionType.DEBIT, 10000L);
         when(findLedgerEntryPort.findByTransactionId(1L))
-                .thenReturn(List.of(entry));
+            .thenReturn(List.of(entry));
 
         GetLedgerTransactionsQuery query = GetLedgerTransactionsQuery.builder()
-                .startDate(startDate)
-                .endDate(endDate)
-                .build();
+            .startDate(startDate)
+            .endDate(endDate)
+            .build();
 
         // when
         List<GetLedgerTransactionResult> results = getLedgerTransactionsService.getLedgerTransactions(query);
@@ -91,13 +91,13 @@ class GetLedgerTransactionsUseCaseTest {
         // given
         LedgerTransaction transaction = createTransaction(1L, LedgerTransactionType.SELLER_SETTLEMENT);
         when(findLedgerTransactionPort.findByFilters(null, null, LedgerTransactionType.SELLER_SETTLEMENT))
-                .thenReturn(List.of(transaction));
+            .thenReturn(List.of(transaction));
         when(findLedgerEntryPort.findByTransactionId(1L))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         GetLedgerTransactionsQuery query = GetLedgerTransactionsQuery.builder()
-                .transactionType(LedgerTransactionType.SELLER_SETTLEMENT)
-                .build();
+            .transactionType(LedgerTransactionType.SELLER_SETTLEMENT)
+            .build();
 
         // when
         List<GetLedgerTransactionResult> results = getLedgerTransactionsService.getLedgerTransactions(query);
@@ -114,7 +114,7 @@ class GetLedgerTransactionsUseCaseTest {
         LedgerTransaction tx1 = createTransaction(1L, LedgerTransactionType.PG_SETTLEMENT);
         LedgerTransaction tx2 = createTransaction(2L, LedgerTransactionType.SELLER_SETTLEMENT);
         when(findLedgerTransactionPort.findByFilters(null, null, null))
-                .thenReturn(List.of(tx1, tx2));
+            .thenReturn(List.of(tx1, tx2));
         when(findLedgerEntryPort.findByTransactionId(1L)).thenReturn(List.of());
         when(findLedgerEntryPort.findByTransactionId(2L)).thenReturn(List.of());
 
@@ -132,7 +132,7 @@ class GetLedgerTransactionsUseCaseTest {
     void shouldReturnEmptyListWhenNoTransactions() {
         // given
         when(findLedgerTransactionPort.findByFilters(null, null, null))
-                .thenReturn(List.of());
+            .thenReturn(List.of());
 
         GetLedgerTransactionsQuery query = GetLedgerTransactionsQuery.builder().build();
 
@@ -150,13 +150,13 @@ class GetLedgerTransactionsUseCaseTest {
         // given
         LedgerTransaction transaction = createTransaction(1L, LedgerTransactionType.PG_SETTLEMENT);
         when(findLedgerTransactionPort.findByFilters(null, null, null))
-                .thenReturn(List.of(transaction));
+            .thenReturn(List.of(transaction));
 
         LedgerEntry debitEntry = createEntry(1L, 1L, 1L, TransactionType.DEBIT, 9700L);
         LedgerEntry debitFeeEntry = createEntry(2L, 1L, 2L, TransactionType.DEBIT, 300L);
         LedgerEntry creditEntry = createEntry(3L, 1L, 3L, TransactionType.CREDIT, 10000L);
         when(findLedgerEntryPort.findByTransactionId(1L))
-                .thenReturn(List.of(debitEntry, debitFeeEntry, creditEntry));
+            .thenReturn(List.of(debitEntry, debitFeeEntry, creditEntry));
 
         GetLedgerTransactionsQuery query = GetLedgerTransactionsQuery.builder().build();
 

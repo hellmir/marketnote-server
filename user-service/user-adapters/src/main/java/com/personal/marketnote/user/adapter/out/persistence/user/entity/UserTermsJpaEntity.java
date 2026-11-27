@@ -10,7 +10,7 @@ import static com.personal.marketnote.common.utility.EntityConstant.BOOLEAN_DEFA
 
 @Entity
 @Table(name = "user_terms", uniqueConstraints = {
-        @UniqueConstraint(name = "ux_user_terms_user_terms", columnNames = {"user_id", "terms_id"})
+    @UniqueConstraint(name = "ux_user_terms_user_terms", columnNames = {"user_id", "terms_id"})
 })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -30,17 +30,17 @@ public class UserTermsJpaEntity extends BaseGeneralEntity {
 
     public static UserTermsJpaEntity of(UserJpaEntity userJpaEntity, TermsJpaEntity termsJpaEntity, Boolean agreementYn) {
         return UserTermsJpaEntity.builder()
-                .userJpaEntity(userJpaEntity)
-                .termsJpaEntity(termsJpaEntity)
-                .agreementYn(agreementYn)
-                .build();
+            .userJpaEntity(userJpaEntity)
+            .termsJpaEntity(termsJpaEntity)
+            .agreementYn(agreementYn)
+            .build();
     }
 
     public static UserTermsJpaEntity from(UserJpaEntity userJpaEntity, Terms terms) {
         return UserTermsJpaEntity.builder()
-                .userJpaEntity(userJpaEntity)
-                .termsJpaEntity(TermsJpaEntity.from(terms))
-                .build();
+            .userJpaEntity(userJpaEntity)
+            .termsJpaEntity(TermsJpaEntity.from(terms))
+            .build();
     }
 
     public void updateFrom(UserTerms userTerms) {
